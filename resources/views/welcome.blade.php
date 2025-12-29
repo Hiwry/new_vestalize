@@ -125,15 +125,15 @@
                         <form id="vip-form" class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-slate-400 mb-1.5">Nome completo</label>
-                                <input type="text" placeholder="Seu nome" class="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all">
+                                <input type="text" name="name" placeholder="Seu nome" class="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all" required>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-slate-400 mb-1.5">Email principal</label>
-                                <input type="email" placeholder="seu@email.com" class="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all">
+                                <input type="email" name="email" placeholder="seu@email.com" class="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all" required>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-slate-400 mb-1.5">WhatsApp</label>
-                                <input type="tel" placeholder="(00) 00000-0000" class="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all">
+                                <input type="tel" name="phone" placeholder="(00) 00000-0000" class="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all">
                             </div>
                             <button type="submit" class="w-full bg-white text-slate-900 hover:bg-sky-50 py-4 rounded-xl font-bold text-lg transition-all shadow-lg transform hover:scale-[1.02]">
                                 Cadastrar Gratuitamente
@@ -271,5 +271,58 @@
             <p class="text-slate-500 text-sm">© {{ date('Y') }} Vestalize Tecnologia para Confecções. Todos os direitos reservados.</p>
         </div>
     </footer>
+
+    <script>
+        document.querySelectorAll('form#vip-form').forEach(form => {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const btn = form.querySelector('button[type="submit"]');
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="animate-pulse">Salvando...</span>';
+
+                try {
+                    const formData = new FormData(this);
+                    // Add CSRF token
+                    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    
+                    const response = await fetch("{{ route('leads.store') }}", {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        // Success state
+                        form.innerHTML = `
+                            <div class="text-center py-8 space-y-4">
+                                <div class="w-16 h-16 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                                <h3 class="text-2xl font-bold text-white">Parabéns! 🚀</h3>
+                                <p class="text-slate-300">Você já está na lista VIP.<br>Verifique seu e-mail para confirmar a inscrição.</p>
+                            </div>
+                        `;
+                    } else {
+                        // Error state
+                        alert('Erro: ' + (data.message || 'Verifique os dados e tente novamente.'));
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    alert('Erro de conexão. Tente novamente.');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            });
+        });
+    </script>
 </body>
 </html>

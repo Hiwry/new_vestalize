@@ -13,6 +13,7 @@ Route::get('/imagens-aplicacao/{filename}', [\App\Http\Controllers\StorageContro
 
 // Rota Pública da Landing Page
 Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'index'])->name('welcome');
+Route::post('/save-lead', [\App\Http\Controllers\LeadController::class, 'store'])->name('leads.store');
 
 // Rota para servir arquivos do storage quando symlink não existe (deve vir antes das outras rotas)
 // IMPORTANTE: Esta rota deve ser pública e não requerer autenticação
