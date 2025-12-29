@@ -35,7 +35,12 @@ class LeadController extends Controller
             ]);
 
             // Send confirmation email to the lead
-            Mail::to($lead->email)->send(new VipListConfirmed($lead));
+            try {
+                Mail::to($lead->email)->send(new VipListConfirmed($lead));
+            } catch (\Exception $e) {
+                Log::error("Erro ao enviar email VIP: " . $e->getMessage());
+                // Não falha a requisição se apenas o email der erro
+            }
 
             // Optional: Notify Admin (log for now, or send another mail)
             Log::info("Novo Lead VIP cadastrado: {$lead->email}");
