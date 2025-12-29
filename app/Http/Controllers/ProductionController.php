@@ -1,0 +1,413 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Order;
+use App\Models\Status;
+use App\Models\PersonalizationPrice;
+use App\Models\Store;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+
+class ProductionController extends Controller
+{
+    public function index(Request $request): View
+    {
+        $search = $request->get('search');
+        $status = $request->get('status');
+        $personalizationType = $request->get('personalization_type');
+        $storeId = $request->get('store_id');
+        $period = $request->get('period', 'week'); // Default: semana (segunda a sexta)
+        
+        // Para períodos predefinidos, sempre recalcular as datas
+        // Só usar start_date/end_date do request quando for "custom"
+        if ($period === 'custom') {
+            $startDate = $request->get('start_date');
+            $endDate = $request->get('end_date');
+        } else {
+            $startDate = null;
+            $endDate = null;
+        }
+        
+        // Definir datas baseadas no período selecionado
+        if (!$startDate || !$endDate) {
+            $now = Carbon::now();
+            switch ($period) {
+                case 'all':
+                    // Todo o período: não define datas
+                    $startDate = null;
+                    $endDate = null;
+                    break;
+                case 'week':
+                    // Segunda a Sexta da semana útil (se for fim de semana, pega a próxima)
+                    $dayOfWeek = $now->dayOfWeek; // 0 = Domingo, 6 = Sábado
+                    
+                    if ($dayOfWeek == Carbon::SATURDAY || $dayOfWeek == Carbon::SUNDAY) {
+                        // Se for sábado ou domingo, pega a próxima segunda
+                        $monday = $now->copy()->next(Carbon::MONDAY);
+                    } else {
+                        // Se for dia útil, pega a segunda desta semana
+                        $monday = $now->copy()->startOfWeek(Carbon::MONDAY);
+                    }
+                    
+                    $startDate = $monday->format('Y-m-d');
+                    $endDate = $monday->copy()->addDays(4)->format('Y-m-d'); // +4 dias = sexta
+                    break;
+                case 'month':
+                    $startDate = $now->copy()->startOfMonth()->format('Y-m-d');
+                    $endDate = $now->copy()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'day':
+                default:
+                    $startDate = $now->format('Y-m-d');
+                    $endDate = $now->format('Y-m-d');
+                    break;
+            }
+        }
+
+        // Mostrar todos os pedidos em produção (não rascunhos e não cancelados)
+        $query = Order::with(['client', 'status', 'items', 'store'])
+            ->where('is_draft', false)
+            ->where('is_pdv', false)
+            ->where('is_cancelled', false);
+
+        // Se for vendedor, mostrar apenas os pedidos que ele criou
+        if (Auth::user()->isVendedor()) {
+            $query->where('user_id', Auth::id());
+        }
+        
+        // Aplicar filtros de período
+        if ($period === 'all') {
+            // Todo o período: não aplica filtro de data
+        } elseif (in_array($period, ['week', 'month'])) {
+            // Para semana e mês: filtrar por DATA DE ENTREGA
+            $query->whereNotNull('delivery_date')
+                  ->whereBetween('delivery_date', [$startDate, $endDate]);
+        } elseif ($period === 'custom') {
+            // Para período personalizado: filtrar por data de entrega
+            $query->whereNotNull('delivery_date')
+                  ->whereBetween('delivery_date', [$startDate, $endDate]);
+        } else {
+            // Para "hoje": mostrar todos os pedidos ativos sem filtro
+            // Isso permite visualizar todo o pipeline de produção
+        }
+
+        // Busca por número do pedido, nome do cliente ou nome da arte
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                  ->orWhereHas('client', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%")
+                         ->orWhere('phone_primary', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('items', function($q3) use ($search) {
+                      $q3->where('art_name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Filtro por status
+        if ($status) {
+            $query->where('status_id', $status);
+        }
+
+        // Filtro por tipo de personalização
+        if ($personalizationType) {
+            $query->whereHas('items', function($q) use ($personalizationType) {
+                $q->where('print_type', $personalizationType);
+            });
+        }
+
+        // Filtro por loja
+        if ($storeId) {
+            $query->where('store_id', $storeId);
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')->paginate(20);
+        $statuses = Status::orderBy('position')->get();
+        $personalizationTypes = PersonalizationPrice::getPersonalizationTypes();
+        $stores = Store::active()->orderBy('name')->get();
+
+        // Estatísticas
+        $totalOrders = $orders->total();
+        $totalValue = $orders->sum('total');
+        $ordersByStatus = $orders->groupBy('status_id');
+        $ordersByPersonalization = $orders->groupBy(function($order) {
+            return $order->items->first()->print_type ?? 'N/A';
+        });
+
+        return view('production.index', compact(
+            'orders', 
+            'statuses', 
+            'personalizationTypes',
+            'stores',
+            'search', 
+            'status', 
+            'personalizationType',
+            'storeId',
+            'period',
+            'startDate', 
+            'endDate',
+            'totalOrders',
+            'totalValue',
+            'ordersByStatus',
+            'ordersByPersonalization'
+        ));
+    }
+
+    public function kanban(Request $request): View
+    {
+        $search = $request->get('search');
+        $personalizationType = $request->get('personalization_type');
+        $period = $request->get('period', 'week'); // Default: semana (segunda a sexta)
+        
+        // Para períodos predefinidos, sempre recalcular as datas
+        // Só usar start_date/end_date do request quando for "custom"
+        if ($period === 'custom') {
+            $startDate = $request->get('start_date');
+            $endDate = $request->get('end_date');
+        } else {
+            $startDate = null;
+            $endDate = null;
+        }
+        
+        // Definir datas baseadas no período selecionado
+        if (!$startDate || !$endDate) {
+            $now = Carbon::now();
+            switch ($period) {
+                case 'all':
+                    // Todo o período: não define datas
+                    $startDate = null;
+                    $endDate = null;
+                    break;
+                case 'week':
+                    // Segunda a Sexta da semana útil (se for fim de semana, pega a próxima)
+                    $dayOfWeek = $now->dayOfWeek; // 0 = Domingo, 6 = Sábado
+                    
+                    if ($dayOfWeek == Carbon::SATURDAY || $dayOfWeek == Carbon::SUNDAY) {
+                        // Se for sábado ou domingo, pega a próxima segunda
+                        $monday = $now->copy()->next(Carbon::MONDAY);
+                    } else {
+                        // Se for dia útil, pega a segunda desta semana
+                        $monday = $now->copy()->startOfWeek(Carbon::MONDAY);
+                    }
+                    
+                    $startDate = $monday->format('Y-m-d');
+                    $endDate = $monday->copy()->addDays(4)->format('Y-m-d'); // +4 dias = sexta
+                    break;
+                case 'month':
+                    $startDate = $now->copy()->startOfMonth()->format('Y-m-d');
+                    $endDate = $now->copy()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'day':
+                default:
+                    $startDate = $now->format('Y-m-d');
+                    $endDate = $now->format('Y-m-d');
+                    break;
+            }
+        }
+
+        $statuses = Status::withCount('orders')->orderBy('position')->get();
+        
+        // Mostrar todos os pedidos em produção (não rascunhos e não cancelados)
+        $query = Order::with(['client', 'items', 'items.files'])
+            ->where('is_draft', false)
+            ->where('is_pdv', false)
+            ->where('is_cancelled', false);
+
+        // Se for vendedor, mostrar apenas os pedidos que ele criou
+        if (Auth::user()->isVendedor()) {
+            $query->where('user_id', Auth::id());
+        }
+        
+        // Aplicar filtros de período
+        if ($period === 'all') {
+            // Todo o período: não aplica filtro de data
+        } elseif (in_array($period, ['week', 'month'])) {
+            // Para semana e mês: filtrar por DATA DE ENTREGA
+            $query->whereNotNull('delivery_date')
+                  ->whereBetween('delivery_date', [$startDate, $endDate]);
+        } elseif ($period === 'custom') {
+            // Para período personalizado: filtrar por data de entrega
+            $query->whereNotNull('delivery_date')
+                  ->whereBetween('delivery_date', [$startDate, $endDate]);
+        } else {
+            // Para "hoje": mostrar todos os pedidos ativos sem filtro
+            // Isso permite visualizar todo o pipeline de produção
+        }
+        
+        // Aplicar busca se fornecida
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                  ->orWhereHas('client', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%")
+                         ->orWhere('phone_primary', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('items', function($q3) use ($search) {
+                      $q3->where('art_name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Filtro por tipo de personalização
+        if ($personalizationType) {
+            $query->whereHas('items', function($q) use ($personalizationType) {
+                $q->where('print_type', $personalizationType);
+            });
+        }
+        
+        $ordersByStatus = $query->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy('status_id');
+
+        $personalizationTypes = PersonalizationPrice::getPersonalizationTypes();
+
+        return view('production.kanban', compact(
+            'statuses', 
+            'ordersByStatus', 
+            'search', 
+            'personalizationType',
+            'period',
+            'startDate',
+            'endDate',
+            'personalizationTypes'
+        ));
+    }
+
+    public function downloadPdf(Request $request)
+    {
+        $search = $request->get('search');
+        $status = $request->get('status');
+        $personalizationType = $request->get('personalization_type');
+        $storeId = $request->get('store_id');
+        $period = $request->get('period', 'week'); // Default: semana (segunda a sexta)
+        
+        // Para períodos predefinidos, sempre recalcular as datas
+        // Só usar start_date/end_date do request quando for "custom"
+        if ($period === 'custom') {
+            $startDate = $request->get('start_date');
+            $endDate = $request->get('end_date');
+        } else {
+            $startDate = null;
+            $endDate = null;
+        }
+        
+        // Definir datas baseadas no período selecionado
+        if (!$startDate || !$endDate) {
+            $now = Carbon::now();
+            switch ($period) {
+                case 'all':
+                    // Todo o período: não define datas
+                    $startDate = null;
+                    $endDate = null;
+                    break;
+                case 'week':
+                    // Segunda a Sexta da semana útil (se for fim de semana, pega a próxima)
+                    $dayOfWeek = $now->dayOfWeek; // 0 = Domingo, 6 = Sábado
+                    
+                    if ($dayOfWeek == Carbon::SATURDAY || $dayOfWeek == Carbon::SUNDAY) {
+                        // Se for sábado ou domingo, pega a próxima segunda
+                        $monday = $now->copy()->next(Carbon::MONDAY);
+                    } else {
+                        // Se for dia útil, pega a segunda desta semana
+                        $monday = $now->copy()->startOfWeek(Carbon::MONDAY);
+                    }
+                    
+                    $startDate = $monday->format('Y-m-d');
+                    $endDate = $monday->copy()->addDays(4)->format('Y-m-d'); // +4 dias = sexta
+                    break;
+                case 'month':
+                    $startDate = $now->copy()->startOfMonth()->format('Y-m-d');
+                    $endDate = $now->copy()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'day':
+                default:
+                    $startDate = $now->format('Y-m-d');
+                    $endDate = $now->format('Y-m-d');
+                    break;
+            }
+        }
+
+        // Mostrar todos os pedidos em produção
+        $query = Order::with(['client', 'status', 'items', 'store'])
+            ->where('is_draft', false)
+            ->where('is_pdv', false)
+            ->where('is_cancelled', false);
+
+        if (Auth::user()->isVendedor()) {
+            $query->where('user_id', Auth::id());
+        }
+        
+        // Aplicar filtros de período por DATA DE ENTREGA
+        if ($period === 'all') {
+            // Todo o período: não aplica filtro de data
+        } elseif (in_array($period, ['week', 'month', 'custom'])) {
+            $query->whereNotNull('delivery_date')
+                  ->whereBetween('delivery_date', [$startDate, $endDate]);
+        }
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                  ->orWhereHas('client', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%")
+                         ->orWhere('phone_primary', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('items', function($q3) use ($search) {
+                      $q3->where('art_name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($status) {
+            $query->where('status_id', $status);
+        }
+
+        if ($personalizationType) {
+            $query->whereHas('items', function($q) use ($personalizationType) {
+                $q->where('print_type', $personalizationType);
+            });
+        }
+
+        // Filtro por loja
+        if ($storeId) {
+            $query->where('store_id', $storeId);
+        }
+
+        $orders = $query->orderBy('delivery_date', 'asc')
+                       ->orderBy('created_at', 'desc')
+                       ->get();
+
+        // Buscar loja selecionada para exibir no PDF (já carregada via relacionamento se disponível)
+        $selectedStore = $storeId ? Store::find($storeId) : null;
+
+        // Gerar PDF
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        $options->set('defaultFont', 'Arial');
+        
+        $dompdf = new Dompdf($options);
+        
+        $html = view('production.pdf', [
+            'orders' => $orders,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'period' => $period,
+            'selectedStore' => $selectedStore
+        ])->render();
+        
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+        
+        $filename = 'lista_producao_' . $startDate . '_a_' . $endDate . '.pdf';
+        
+        return $dompdf->stream($filename);
+    }
+}
