@@ -127,6 +127,7 @@ Route::middleware('auth')->group(function () {
 
     // Termos e Condições
     Route::view('/termos', 'terms')->name('terms.show');
+    Route::view('/privacidade', 'privacy')->name('privacy.show');
 
     // Sistema de Orçamento
     Route::prefix('orcamento')->name('budget.')->group(function () {

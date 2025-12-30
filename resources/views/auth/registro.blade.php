@@ -115,7 +115,7 @@
                     <input type="checkbox" name="terms" id="terms" required 
                         class="mt-1 w-4 h-4 rounded border-slate-700 bg-slate-800 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-slate-900">
                     <label for="terms" class="text-xs text-slate-400 leading-relaxed">
-                        Eu li e aceito os <a href="{{ route('terms.show') }}" target="_blank" class="text-indigo-400 hover:underline">Termos e Condições de Uso</a> e a <a href="{{ route('terms.show') }}" target="_blank" class="text-indigo-400 hover:underline">Política de Privacidade</a>.
+                        Eu li e aceito os <a href="{{ route('terms.show') }}" target="_blank" class="text-indigo-400 hover:underline">Termos e Condições de Uso</a> e a <a href="{{ route('privacy.show') }}" target="_blank" class="text-indigo-400 hover:underline">Política de Privacidade</a>.
                     </label>
                 </div>
 
