@@ -238,7 +238,7 @@
                             </div>
                             
                             <div class="mb-6">
-                                <span class="text-3xl font-bold text-gray-900 dark:text-white">R$ {{ number_format($plan->price, 0, ',', '.') }}</span>
+                                <span class="text-3xl font-bold text-gray-900 dark:text-white">R$ {{ number_format($plan->price, 2, ',', '.') }}</span>
                                 <span class="text-gray-500 dark:text-gray-400 text-sm">/mês</span>
                             </div>
                             
