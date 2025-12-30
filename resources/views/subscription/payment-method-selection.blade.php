@@ -28,13 +28,14 @@
             --brand-primary: {{ $p }};
             --brand-secondary: {{ $s }};
             --brand-primary-text: {{ $isLight ? '#4f46e5' : $p }};
+            --brand-primary-content: {{ $isLight ? '#111827' : '#ffffff' }};
         }
         
         body { background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%); }
         
         /* Overrides */
         .text-indigo-600, .text-blue-600 { color: var(--brand-primary-text) !important; }
-        .bg-indigo-600, .bg-blue-600 { background-color: var(--brand-primary) !important; }
+        .bg-indigo-600, .bg-blue-600 { background-color: var(--brand-primary) !important; color: var(--brand-primary-content) !important; }
         .focus\:ring-indigo-500:focus { --tw-ring-color: var(--brand-primary) !important; }
         
         /* Secondary overrides */

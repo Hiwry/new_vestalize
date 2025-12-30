@@ -69,18 +69,24 @@
             --brand-secondary: {{ $s }};
             /* Use dark default for text if primary is too light */
             --brand-primary-text: {{ $isLight ? '#4f46e5' : $p }};
+            /* Contrast color for text ON TOP of primary background */
+            --brand-primary-content: {{ $isLight ? '#111827' : '#ffffff' }};
         }
 
         /* Aplicar cores de marca em elementos globais */
         .text-brand-primary { color: var(--brand-primary-text); }
-        .bg-brand-primary { background-color: var(--brand-primary); }
+        .bg-brand-primary { background-color: var(--brand-primary); color: var(--brand-primary-content); }
         .border-brand-primary { border-color: var(--brand-primary); }
         
+        .text-brand-secondary { color: var(--brand-secondary); }
+        .bg-brand-secondary { background-color: var(--brand-secondary); color: #ffffff; }
+        .border-brand-secondary { border-color: var(--brand-secondary); }
+
         .hover\:bg-brand-primary:hover { background-color: var(--brand-primary); opacity: 0.9; }
         
         /* Sobrescrever algumas classes do Tailwind para usar a cor da marca */
         .text-indigo-600 { color: var(--brand-primary-text) !important; }
-        .bg-indigo-600 { background-color: var(--brand-primary) !important; }
+        .bg-indigo-600 { background-color: var(--brand-primary) !important; color: var(--brand-primary-content) !important; }
         .focus\:ring-indigo-500:focus { --tw-ring-color: var(--brand-primary) !important; }
         .border-indigo-500 { border-color: var(--brand-primary) !important; }
         /* Gradient uses primary BG color */

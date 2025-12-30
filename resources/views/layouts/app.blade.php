@@ -51,16 +51,21 @@
                 --brand-primary: {{ $p }};
                 --brand-secondary: {{ $s }};
                 --brand-primary-text: {{ $isLight ? '#4f46e5' : $p }};
+                --brand-primary-content: {{ $isLight ? '#111827' : '#ffffff' }};
             }
 
             /* Global Branding Classes */
             .text-brand-primary { color: var(--brand-primary-text); }
-            .bg-brand-primary { background-color: var(--brand-primary); }
+            .bg-brand-primary { background-color: var(--brand-primary); color: var(--brand-primary-content); }
             .border-brand-primary { border-color: var(--brand-primary); }
+            
+            .text-brand-secondary { color: var(--brand-secondary); }
+            .bg-brand-secondary { background-color: var(--brand-secondary); color: #ffffff; }
+            .border-brand-secondary { border-color: var(--brand-secondary); }
             
             /* Tailwind Class Overrides - Primary (Blue/Indigo) */
             .text-indigo-600, .text-blue-600 { color: var(--brand-primary-text) !important; }
-            .bg-indigo-600, .bg-blue-600 { background-color: var(--brand-primary) !important; }
+            .bg-indigo-600, .bg-blue-600 { background-color: var(--brand-primary) !important; color: var(--brand-primary-content) !important; }
             .border-indigo-600, .border-blue-600 { border-color: var(--brand-primary) !important; }
             .focus\:ring-indigo-500:focus, .focus\:ring-blue-500:focus { --tw-ring-color: var(--brand-primary) !important; }
             .border-indigo-500 { border-color: var(--brand-primary) !important; }
