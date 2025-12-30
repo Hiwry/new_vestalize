@@ -71,6 +71,17 @@
         .from-blue-600 { --tw-gradient-from: var(--brand-primary) !important; --tw-gradient-to: var(--brand-secondary, var(--brand-primary)) !important; }
         .to-purple-600 { --tw-gradient-to: var(--brand-secondary) !important; }
 
+        /* Secondary Color Mappings (Purple -> Secondary) */
+        .text-purple-600 { color: var(--brand-secondary) !important; }
+        .bg-purple-600 { background-color: var(--brand-secondary) !important; }
+        .border-purple-600 { border-color: var(--brand-secondary) !important; }
+        .focus\:ring-purple-500:focus { --tw-ring-color: var(--brand-secondary) !important; }
+
+        /* Blue Mappings (Blue -> Primary) - Harmonize Dashboard/Sidebar */
+        .text-blue-600 { color: var(--brand-primary) !important; }
+        .bg-blue-600 { background-color: var(--brand-primary) !important; }
+        .border-blue-600 { border-color: var(--brand-primary) !important; }
+
         /* Prevenir flash durante carregamento - aplicar ANTES do Tailwind */
         html {
             background-color: #f9fafb;
