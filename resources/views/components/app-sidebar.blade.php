@@ -423,6 +423,10 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('admin/subscription-payments*') ? 'bg-indigo-600' : '' }}"></span>
                         Pagamentos
                     </a>
+                    <a href="{{ route('admin.leads.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 mr-2 {{ request()->is('admin/leads*') ? 'bg-yellow-400' : '' }}"></span>
+                        Lista VIP 🚀
+                    </a>
                 </div>
             </div>
             @endif

@@ -153,6 +153,9 @@ Route::middleware('auth')->group(function () {
         Route::delete('{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
     });
 
+    // Leads (Lista VIP)
+    Route::get('/leads', [LeadController::class, 'index'])->name('admin.leads.index');
+
     // Kanban
     Route::middleware('plan:kanban')->group(function () {
         Route::get('/kanban', [\App\Http\Controllers\KanbanController::class, 'index'])->name('kanban.index');
