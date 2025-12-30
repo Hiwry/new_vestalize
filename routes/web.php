@@ -125,6 +125,9 @@ Route::middleware('auth')->group(function () {
         Route::get('editar/clear-session', [\App\Http\Controllers\EditOrderController::class, 'clearSession'])->name('orders.edit.clear-session');
     });
 
+    // Termos e Condições
+    Route::view('/termos', 'terms')->name('terms.show');
+
     // Sistema de Orçamento
     Route::prefix('orcamento')->name('budget.')->group(function () {
         Route::get('/', [\App\Http\Controllers\BudgetController::class, 'index'])->name('index');
