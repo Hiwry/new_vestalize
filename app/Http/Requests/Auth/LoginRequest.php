@@ -66,12 +66,20 @@ class LoginRequest extends FormRequest
         if (empty($this->store_code)) {
             $user = \App\Models\User::where('email', $this->email)->whereNull('tenant_id')->first();
             
-            if ($user && Auth::attempt(['email' => $this->email, 'password' => $this->password, 'tenant_id' => null], $this->boolean('remember'))) {
-                RateLimiter::clear($this->throttleKey());
-                return;
+            // Se o usuário existe como Super Admin (sem tenant)
+            if ($user) {
+                if (Auth::attempt(['email' => $this->email, 'password' => $this->password, 'tenant_id' => null], $this->boolean('remember'))) {
+                    RateLimiter::clear($this->throttleKey());
+                    return;
+                }
+                
+                // Senha incorreta para o Super Admin
+                throw ValidationException::withMessages([
+                    'email' => 'Credenciais de administrador inválidas.',
+                ]);
             }
             
-            // Se tentou sem código e falhou/não é super admin
+            // Se o usuário não existe como Super Admin ou tem tenant, e não informou código
              throw ValidationException::withMessages([
                 'store_code' => 'O código da loja é obrigatório para usuários de loja.',
             ]);
