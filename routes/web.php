@@ -154,7 +154,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Leads (Lista VIP)
-    Route::get('/leads', [LeadController::class, 'index'])->name('admin.leads.index');
+    Route::get('/leads', [\App\Http\Controllers\Admin\LeadController::class, 'index'])->name('admin.leads.index');
 
     // Kanban
     Route::middleware('plan:kanban')->group(function () {
