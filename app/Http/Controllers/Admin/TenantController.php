@@ -51,7 +51,9 @@ class TenantController extends Controller
 
         $validated['store_code'] = Tenant::generateStoreCode();
         
-        $tenant = Tenant::create($validated);
+        $tenant = Tenant::create(array_merge($validated, [
+            'subscription_ends_at' => now()->addMonth(),
+        ]));
 
         // Create Admin User for Tenant
         $password = \Illuminate\Support\Str::password(10);

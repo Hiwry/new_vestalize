@@ -34,17 +34,21 @@ class PublicRegistrationController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'plan_id' => 'required|exists:plans,id',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
-        // 1. Criar o Tenant
+        // 1. Criar o Tenant (Forçar Plano Básico e 7 Dias de Teste)
+        $basicPlan = \App\Models\Plan::where('name', 'Plano Basico')->first();
+        $planId = $basicPlan ? $basicPlan->id : 1; // Fallback para ID 1 se não encontrar
+
         $tenant = Tenant::create([
             'name' => $request->company_name,
             'email' => $request->email,
-            'plan_id' => $request->plan_id,
+            'plan_id' => $planId,
             'store_code' => Tenant::generateStoreCode(),
             'status' => 'active',
             'trial_ends_at' => now()->addDays(7),
+            'subscription_ends_at' => null, // Trial apenas
         ]);
 
         // 2. Criar Loja Principal Padrão
