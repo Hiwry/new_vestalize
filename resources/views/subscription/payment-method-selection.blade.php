@@ -1,3 +1,16 @@
+@php
+    $p = Auth::user()->tenant->primary_color ?? '#667eea';
+    $s = Auth::user()->tenant->secondary_color ?? '#764ba2';
+    
+    // Luminance check
+    $isLight = false;
+    if (str_starts_with($p, '#') && strlen($p) >= 7) {
+        $r = hexdec(substr($p, 1, 2));
+        $g = hexdec(substr($p, 3, 2));
+        $b = hexdec(substr($p, 5, 2));
+        if ((0.2126 * $r + 0.7152 * $g + 0.0722 * $b) > 200) $isLight = true;
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -11,7 +24,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        :root {
+            --brand-primary: {{ $p }};
+            --brand-secondary: {{ $s }};
+            --brand-primary-text: {{ $isLight ? '#4f46e5' : $p }};
+        }
+        
+        body { background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%); }
+        
+        /* Overrides */
+        .text-indigo-600, .text-blue-600 { color: var(--brand-primary-text) !important; }
+        .bg-indigo-600, .bg-blue-600 { background-color: var(--brand-primary) !important; }
+        .focus\:ring-indigo-500:focus { --tw-ring-color: var(--brand-primary) !important; }
+        
+        /* Secondary overrides */
+        .text-purple-600 { color: var(--brand-secondary) !important; }
+        .bg-purple-600 { background-color: var(--brand-secondary) !important; }
+        .from-indigo-600 { --tw-gradient-from: var(--brand-primary) !important; } 
+        .to-purple-600 { --tw-gradient-to: var(--brand-secondary) !important; }
+
         .payment-option {
             transition: all 0.3s ease;
             cursor: pointer;
@@ -21,7 +52,7 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         .payment-option.selected {
-            border: 3px solid #6366f1;
+            border: 3px solid var(--brand-primary);
             background: #eef2ff;
         }
     </style>

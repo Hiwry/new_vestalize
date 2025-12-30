@@ -34,14 +34,50 @@
                 color: #f9fafb;
             }
 
+            @php
+                $p = Auth::user()->tenant->primary_color ?? '#4f46e5';
+                $s = Auth::user()->tenant->secondary_color ?? '#7c3aed';
+                
+                // Luminance check
+                $isLight = false;
+                if (str_starts_with($p, '#') && strlen($p) >= 7) {
+                    $r = hexdec(substr($p, 1, 2));
+                    $g = hexdec(substr($p, 3, 2));
+                    $b = hexdec(substr($p, 5, 2));
+                    if ((0.2126 * $r + 0.7152 * $g + 0.0722 * $b) > 200) $isLight = true;
+                }
+            @endphp
             :root {
-                --primary-color: {{ Auth::user()->tenant->primary_color ?? '#4f46e5' }};
-                --secondary-color: {{ Auth::user()->tenant->secondary_color ?? '#7c3aed' }};
+                --brand-primary: {{ $p }};
+                --brand-secondary: {{ $s }};
+                --brand-primary-text: {{ $isLight ? '#4f46e5' : $p }};
             }
 
-            .btn-primary { background-color: var(--primary-color); }
-            .text-tenant-primary { color: var(--primary-color); }
-            .bg-tenant-primary { background-color: var(--primary-color); }
+            /* Global Branding Classes */
+            .text-brand-primary { color: var(--brand-primary-text); }
+            .bg-brand-primary { background-color: var(--brand-primary); }
+            .border-brand-primary { border-color: var(--brand-primary); }
+            
+            /* Tailwind Class Overrides - Primary (Blue/Indigo) */
+            .text-indigo-600, .text-blue-600 { color: var(--brand-primary-text) !important; }
+            .bg-indigo-600, .bg-blue-600 { background-color: var(--brand-primary) !important; }
+            .border-indigo-600, .border-blue-600 { border-color: var(--brand-primary) !important; }
+            .focus\:ring-indigo-500:focus, .focus\:ring-blue-500:focus { --tw-ring-color: var(--brand-primary) !important; }
+            .border-indigo-500 { border-color: var(--brand-primary) !important; }
+            
+            /* Tailwind Class Overrides - Secondary (Purple) */
+            .text-purple-600 { color: var(--brand-secondary) !important; }
+            .bg-purple-600 { background-color: var(--brand-secondary) !important; }
+            .border-purple-600 { border-color: var(--brand-secondary) !important; }
+            .focus\:ring-purple-500:focus { --tw-ring-color: var(--brand-secondary) !important; }
+
+            /* Gradients */
+            .from-blue-600 { --tw-gradient-from: var(--brand-primary) !important; --tw-gradient-to: var(--brand-secondary, var(--brand-primary)) !important; }
+            .to-purple-600 { --tw-gradient-to: var(--brand-secondary) !important; }
+
+            .btn-primary { background-color: var(--brand-primary); }
+            .text-tenant-primary { color: var(--brand-primary-text); }
+            .bg-tenant-primary { background-color: var(--brand-primary); }
         </style>
 
         <!-- Fonts -->

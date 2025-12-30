@@ -50,24 +50,40 @@
         })();
     </script>
     
+    @php
+        $p = auth()->user()->tenant->primary_color ?? '#4f46e5';
+        $s = auth()->user()->tenant->secondary_color ?? '#7c3aed';
+        
+        // Luminance check
+        $isLight = false;
+        if (str_starts_with($p, '#') && strlen($p) >= 7) {
+            $r = hexdec(substr($p, 1, 2));
+            $g = hexdec(substr($p, 3, 2));
+            $b = hexdec(substr($p, 5, 2));
+            if ((0.2126 * $r + 0.7152 * $g + 0.0722 * $b) > 200) $isLight = true;
+        }
+    @endphp
     <style>
         :root {
-            --brand-primary: {{ auth()->user()->tenant->primary_color ?? '#4f46e5' }};
-            --brand-secondary: {{ auth()->user()->tenant->secondary_color ?? '#7c3aed' }};
+            --brand-primary: {{ $p }};
+            --brand-secondary: {{ $s }};
+            /* Use dark default for text if primary is too light */
+            --brand-primary-text: {{ $isLight ? '#4f46e5' : $p }};
         }
 
         /* Aplicar cores de marca em elementos globais */
-        .text-brand-primary { color: var(--brand-primary); }
+        .text-brand-primary { color: var(--brand-primary-text); }
         .bg-brand-primary { background-color: var(--brand-primary); }
         .border-brand-primary { border-color: var(--brand-primary); }
         
         .hover\:bg-brand-primary:hover { background-color: var(--brand-primary); opacity: 0.9; }
         
         /* Sobrescrever algumas classes do Tailwind para usar a cor da marca */
-        .text-indigo-600 { color: var(--brand-primary) !important; }
+        .text-indigo-600 { color: var(--brand-primary-text) !important; }
         .bg-indigo-600 { background-color: var(--brand-primary) !important; }
         .focus\:ring-indigo-500:focus { --tw-ring-color: var(--brand-primary) !important; }
         .border-indigo-500 { border-color: var(--brand-primary) !important; }
+        /* Gradient uses primary BG color */
         .from-blue-600 { --tw-gradient-from: var(--brand-primary) !important; --tw-gradient-to: var(--brand-secondary, var(--brand-primary)) !important; }
         .to-purple-600 { --tw-gradient-to: var(--brand-secondary) !important; }
 
@@ -78,7 +94,7 @@
         .focus\:ring-purple-500:focus { --tw-ring-color: var(--brand-secondary) !important; }
 
         /* Blue Mappings (Blue -> Primary) - Harmonize Dashboard/Sidebar */
-        .text-blue-600 { color: var(--brand-primary) !important; }
+        .text-blue-600 { color: var(--brand-primary-text) !important; }
         .bg-blue-600 { background-color: var(--brand-primary) !important; }
         .border-blue-600 { border-color: var(--brand-primary) !important; }
 
