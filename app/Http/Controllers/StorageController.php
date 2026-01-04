@@ -10,305 +10,223 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class StorageController extends Controller
 {
     /**
-     * Serve arquivos do storage quando o symlink não existe
+     * Diretórios permitidos para servir arquivos (whitelist de segurança)
+     */
+    private const ALLOWED_DIRECTORIES = [
+        'products',
+        'orders/applications',
+        'orders/sublimations',
+        'orders/sublimations/images',
+        'orders/items/applications',
+        'orders/items/sublimations',
+        'orders/items/covers',
+        'orders/covers',
+        'orders/items',
+        'orders',
+        'applications',
+        'sublimations',
+        'logos',
+    ];
+
+    /**
+     * Extensões de arquivo permitidas (whitelist de segurança)
+     */
+    private const ALLOWED_EXTENSIONS = [
+        'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'pdf', 'ico'
+    ];
+
+    /**
+     * Serve arquivos do storage com segurança reforçada
      */
     public function serve(Request $request, string $path): BinaryFileResponse|\Illuminate\Http\Response
     {
-        // Log imediato para verificar se o método está sendo chamado
-        \Log::info('StorageController: Método serve chamado', [
-            'request_path' => $request->path(),
-            'original_path' => $path,
-            'full_url' => $request->fullUrl(),
-            'method' => $request->method(),
-            'ip' => $request->ip()
-        ]);
-        
-        // Limpar o caminho de possíveis tentativas de path traversal
+        // Limpar o caminho de tentativas de path traversal
         $originalPath = $path;
         $path = str_replace('..', '', $path);
         $path = ltrim($path, '/');
         
-        // Log sempre (não apenas debug) para identificar problemas
-        \Log::info('StorageController: Tentando servir arquivo', [
-            'request_path' => $request->path(),
-            'original_path_param' => $originalPath,
-            'cleaned_path' => $path,
-            'full_url' => $request->fullUrl(),
-            'request_method' => $request->method(),
-            'ip' => $request->ip()
-        ]);
+        // Log apenas em DEBUG (não expor PII em produção)
+        \Log::debug('StorageController: serve request', ['path' => $path]);
         
-        // Verificar se o arquivo existe no storage público
-        // Servir diretamente do storage/app/public SEM depender de symlink
-        $disk = Storage::disk('public');
+        // Verificar extensão do arquivo (whitelist)
+        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        if (!in_array($extension, self::ALLOWED_EXTENSIONS)) {
+            \Log::warning('StorageController: Extensão não permitida', ['extension' => $extension]);
+            abort(403, 'Tipo de arquivo não permitido');
+        }
+        
         $storagePath = storage_path('app/public');
         $basename = basename($path);
         $foundPath = null;
         
-        // Normalizar caminho para verificação
+        // Normalizar caminho
         $normalizedPath = ltrim(str_replace(['\\', '//'], '/', $path), '/');
         
-        // Primeiro, verificar diretamente no sistema de arquivos (mais confiável que disk->exists)
-        // Priorizar orders/applications/ pois é onde as imagens de aplicação são salvas
+        // Construir lista de caminhos permitidos baseada na whitelist
         $directPaths = [
-            $storagePath . '/' . $normalizedPath, // Caminho normalizado (prioridade 1)
-            $storagePath . '/' . $path, // Caminho original (prioridade 2)
-            $storagePath . '/products/' . $basename, // Imagens de produtos
-            $storagePath . '/orders/applications/' . $basename,
-            $storagePath . '/orders/sublimations/' . $basename,
-            $storagePath . '/orders/items/applications/' . $basename,
-            $storagePath . '/orders/items/sublimations/' . $basename,
-            $storagePath . '/applications/' . $basename,
-            $storagePath . '/sublimations/' . $basename,
-            $storagePath . '/' . $basename,
+            $storagePath . '/' . $normalizedPath,
+            $storagePath . '/' . $path,
         ];
         
-        // Remover duplicatas mantendo ordem
+        // Adicionar apenas diretórios permitidos
+        foreach (self::ALLOWED_DIRECTORIES as $dir) {
+            $directPaths[] = $storagePath . '/' . $dir . '/' . $basename;
+        }
+        
+        // Adicionar raiz como último fallback
+        $directPaths[] = $storagePath . '/' . $basename;
+        
+        // Remover duplicatas
         $directPaths = array_unique($directPaths);
         
         foreach ($directPaths as $directPath) {
             if (file_exists($directPath) && is_readable($directPath)) {
-                // Encontrar caminho relativo a partir do storage/app/public
                 $relativePath = str_replace($storagePath . '/', '', $directPath);
                 $foundPath = $relativePath;
-                \Log::info('StorageController: Arquivo encontrado via verificação direta do sistema de arquivos', [
-                    'original_request_path' => $request->path(),
-                    'found_relative_path' => $foundPath,
-                    'full_file_path' => $directPath,
-                    'file_size' => filesize($directPath),
-                    'is_readable' => is_readable($directPath)
-                ]);
+                \Log::debug('StorageController: Arquivo encontrado', ['relative_path' => $foundPath]);
                 break;
             }
         }
         
-        // Se não encontrou, tentar via Storage facade também
         if (!$foundPath) {
-            // Tentar buscar em diferentes locais possíveis usando Storage facade
-            $possiblePaths = [
-                $path, // Caminho original como veio na requisição
-                $normalizedPath, // Caminho normalizado
-                'products/' . $basename, // Imagens de produtos
-                'orders/applications/' . $basename,
-                'orders/sublimations/' . $basename,
-                'orders/items/applications/' . $basename,
-                'orders/items/sublimations/' . $basename,
-                'orders/items/covers/' . $basename,
-                'orders/covers/' . $basename,
-                'orders/items/' . $basename,
-                'orders/' . $basename,
-                'applications/' . $basename, // Sem prefixo orders
-                'sublimations/' . $basename,
-                $basename, // Apenas o nome do arquivo
-            ];
-            
-            foreach ($possiblePaths as $possiblePath) {
-                // Normalizar caminho para evitar problemas com barras
-                $normalizedPossiblePath = ltrim(str_replace(['\\', '//'], '/', $possiblePath), '/');
-                
-                // Verificar via Storage facade
-                if ($disk->exists($normalizedPossiblePath)) {
-                    $foundPath = $normalizedPossiblePath;
-                    \Log::info('StorageController: Arquivo encontrado via Storage facade', [
-                        'original_request_path' => $request->path(),
-                        'found_relative_path' => $foundPath,
-                        'full_path' => $disk->path($foundPath)
-                    ]);
-                    break;
-                }
-            }
+            \Log::debug('StorageController: Arquivo não encontrado', ['basename' => $basename]);
+            abort(404, 'Arquivo não encontrado');
         }
         
-        // Se ainda não encontrou, retornar 404
-        if (!$foundPath) {
-            \Log::warning('StorageController: Arquivo não encontrado em nenhum local', [
-                'original_path' => $path,
-                'basename' => $basename,
-                'storage_path' => $storagePath,
-                'tried_direct_paths' => $directPaths
-            ]);
-            abort(404, 'Arquivo não encontrado: ' . $basename);
-        }
-        
-        // Usar o caminho encontrado
         $path = $foundPath;
-        
-        // Obter o caminho completo do arquivo (sempre do storage/app/public)
         $filePath = $storagePath . '/' . $path;
         
-        // Garantir que o caminho está dentro do storage/app/public (segurança)
+        // Verificação de path traversal
         $realFilePath = realpath($filePath);
         $realStoragePath = realpath($storagePath);
         
         if (!$realFilePath || !$realStoragePath || !str_starts_with($realFilePath, $realStoragePath)) {
-            \Log::error('StorageController: Tentativa de path traversal detectada', [
-                'requested_path' => $path,
-                'resolved_path' => $realFilePath,
-                'storage_path' => $realStoragePath
-            ]);
+            \Log::error('StorageController: Path traversal detectado');
             abort(403, 'Acesso negado');
         }
         
-        // Verificar se o arquivo realmente existe
         if (!file_exists($realFilePath)) {
-            \Log::warning('StorageController: Arquivo não existe no sistema de arquivos', [
-                'path' => $path,
-                'filePath' => $realFilePath
-            ]);
             abort(404, 'Arquivo não encontrado');
         }
         
         $filePath = $realFilePath;
         
-        // Verificar permissões de leitura
         if (!is_readable($filePath)) {
-            \Log::error('StorageController: Arquivo não tem permissão de leitura', [
-                'path' => $path,
-                'filePath' => $filePath,
-                'permissions' => substr(sprintf('%o', fileperms($filePath)), -4)
-            ]);
+            \Log::error('StorageController: Arquivo sem permissão de leitura', ['path' => $path]);
             abort(403, 'Acesso negado ao arquivo');
         }
         
-        // Determinar o tipo MIME
+        // Determinar tipo MIME
         $mimeType = File::mimeType($filePath);
         if (!$mimeType) {
-            // Fallback para tipos comuns
-            $extension = strtolower(File::extension($filePath));
             $mimeTypes = [
                 'jpg' => 'image/jpeg',
                 'jpeg' => 'image/jpeg',
                 'png' => 'image/png',
                 'gif' => 'image/gif',
+                'webp' => 'image/webp',
+                'svg' => 'image/svg+xml',
                 'pdf' => 'application/pdf',
-                'zip' => 'application/zip',
+                'ico' => 'image/x-icon',
             ];
             $mimeType = $mimeTypes[$extension] ?? 'application/octet-stream';
         }
         
-        // Retornar o arquivo com headers apropriados
+        // Retornar arquivo COM cabeçalhos de segurança
         try {
             $response = response()->file($filePath, [
                 'Content-Type' => $mimeType,
-                'Cache-Control' => 'public, max-age=31536000', // Cache por 1 ano
+                'Cache-Control' => 'public, max-age=2592000', // 30 dias
+                'X-Content-Type-Options' => 'nosniff',
             ]);
             
-            // Remover headers que podem causar problemas
-            $response->headers->remove('X-Frame-Options');
-            $response->headers->remove('Content-Security-Policy');
-            $response->headers->remove('X-Content-Type-Options');
-            
-            \Log::info('StorageController: Arquivo servido com sucesso', [
-                'request_path' => $request->path(),
-                'found_path' => $path,
-                'file_path' => $filePath,
-                'file_size' => filesize($filePath),
-                'mimeType' => $mimeType
-            ]);
+            // MANTER cabeçalhos de segurança (não remover)
+            // X-Frame-Options e CSP são mantidos pelo Laravel
             
             return $response;
         } catch (\Exception $e) {
-            \Log::error('StorageController: Erro ao servir arquivo', [
-                'path' => $path,
-                'filePath' => $filePath,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            abort(500, 'Erro ao servir arquivo: ' . $e->getMessage());
+            \Log::error('StorageController: Erro ao servir arquivo', ['error' => $e->getMessage()]);
+            abort(500, 'Erro ao servir arquivo');
         }
     }
 
     /**
-     * Serve especificamente imagens de aplicação usando apenas o filename
-     * Esta rota é mais confiável pois não depende de .htaccess ou caminhos complexos
+     * Serve imagens de aplicação com segurança reforçada
      */
     public function serveApplicationImage(Request $request, string $filename): BinaryFileResponse|\Illuminate\Http\Response
     {
-        \Log::info('StorageController: serveApplicationImage chamado', [
-            'filename' => $filename,
-            'full_url' => $request->fullUrl(),
-        ]);
+        // Limpar filename de path traversal
+        $filename = basename($filename);
+        $filename = str_replace(['..', '/', '\\'], '', $filename);
+        
+        // Verificar extensão (whitelist)
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        if (!in_array($extension, self::ALLOWED_EXTENSIONS)) {
+            \Log::warning('StorageController: Extensão não permitida em serveApplicationImage', ['extension' => $extension]);
+            abort(403, 'Tipo de arquivo não permitido');
+        }
 
-        // Limpar o filename de possíveis tentativas de path traversal
-        $filename = basename($filename); // Garantir que é apenas o nome do arquivo
-        $filename = str_replace(['..', '/', '\\'], '', $filename); // Remover caracteres perigosos
+        \Log::debug('StorageController: serveApplicationImage', ['filename' => $filename]);
 
         $storagePath = storage_path('app/public');
         
-        // Lista de locais onde a imagem pode estar
-        $possiblePaths = [
-            $storagePath . '/orders/applications/' . $filename, // PRIORIDADE 1
-            $storagePath . '/orders/sublimations/' . $filename,
-            $storagePath . '/orders/sublimations/images/' . $filename, // NOVO: Imagens de sublimação
-            $storagePath . '/orders/items/applications/' . $filename,
-            $storagePath . '/orders/items/sublimations/' . $filename,
-            $storagePath . '/applications/' . $filename,
-            $storagePath . '/sublimations/' . $filename,
-            $storagePath . '/' . $filename,
-        ];
+        // Lista de diretórios permitidos para imagens de aplicação
+        $possiblePaths = [];
+        foreach (self::ALLOWED_DIRECTORIES as $dir) {
+            $possiblePaths[] = $storagePath . '/' . $dir . '/' . $filename;
+        }
+        $possiblePaths[] = $storagePath . '/' . $filename;
 
         $foundPath = null;
         foreach ($possiblePaths as $possiblePath) {
             if (file_exists($possiblePath) && is_readable($possiblePath)) {
                 $foundPath = $possiblePath;
-                \Log::info('StorageController: Imagem de aplicação encontrada', [
-                    'filename' => $filename,
-                    'found_path' => $foundPath,
-                    'file_size' => filesize($foundPath)
-                ]);
+                \Log::debug('StorageController: Imagem encontrada', ['path' => $foundPath]);
                 break;
             }
         }
 
         if (!$foundPath) {
-            \Log::warning('StorageController: Imagem de aplicação não encontrada', [
-                'filename' => $filename,
-                'tried_paths' => $possiblePaths
-            ]);
-            abort(404, 'Imagem de aplicação não encontrada: ' . $filename);
+            \Log::debug('StorageController: Imagem não encontrada', ['filename' => $filename]);
+            abort(404, 'Imagem não encontrada');
         }
 
-        // Verificar segurança (path traversal)
+        // Verificar path traversal
         $realFilePath = realpath($foundPath);
         $realStoragePath = realpath($storagePath);
         
         if (!$realFilePath || !$realStoragePath || !str_starts_with($realFilePath, $realStoragePath)) {
-            \Log::error('StorageController: Tentativa de path traversal detectada em serveApplicationImage');
+            \Log::error('StorageController: Path traversal detectado em serveApplicationImage');
             abort(403, 'Acesso negado');
         }
 
-        // Determinar o tipo MIME
+        // Determinar MIME type
         $mimeType = File::mimeType($realFilePath);
         if (!$mimeType) {
-            $extension = strtolower(File::extension($realFilePath));
             $mimeTypes = [
                 'jpg' => 'image/jpeg',
                 'jpeg' => 'image/jpeg',
                 'png' => 'image/png',
                 'gif' => 'image/gif',
+                'webp' => 'image/webp',
+                'svg' => 'image/svg+xml',
             ];
             $mimeType = $mimeTypes[$extension] ?? 'image/png';
         }
 
-        // Retornar o arquivo
+        // Retornar arquivo COM cabeçalhos de segurança
         try {
             $response = response()->file($realFilePath, [
                 'Content-Type' => $mimeType,
-                'Cache-Control' => 'public, max-age=31536000',
+                'Cache-Control' => 'public, max-age=2592000', // 30 dias
+                'X-Content-Type-Options' => 'nosniff',
             ]);
             
-            // Remover headers que podem causar problemas
-            $response->headers->remove('X-Frame-Options');
-            $response->headers->remove('Content-Security-Policy');
-            $response->headers->remove('X-Content-Type-Options');
-            
+            // MANTER cabeçalhos de segurança
             return $response;
         } catch (\Exception $e) {
-            \Log::error('StorageController: Erro ao servir imagem de aplicação', [
-                'filename' => $filename,
-                'error' => $e->getMessage()
-            ]);
-            abort(500, 'Erro ao servir imagem: ' . $e->getMessage());
+            \Log::error('StorageController: Erro ao servir imagem', ['error' => $e->getMessage()]);
+            abort(500, 'Erro ao servir imagem');
         }
     }
 }
