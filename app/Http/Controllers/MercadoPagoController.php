@@ -32,6 +32,7 @@ class MercadoPagoController extends Controller
      */
     /**
      * Gerar pagamento imediato via PIX (QR Code e Copia e Cola)
+     * Usa Mercado Pago como primário, PixService como fallback
      */
     public function generatePixPayment(Plan $plan)
     {
@@ -67,24 +68,55 @@ class MercadoPagoController extends Controller
                 'qr_code' => $transactionData->qr_code,
                 'qr_code_base64' => $transactionData->qr_code_base64,
                 'ticket_url' => $transactionData->ticket_url,
-                'id' => $payment->id
+                'id' => $payment->id,
+                'source' => 'mercadopago'
             ]);
 
         } catch (\MercadoPago\Exceptions\MPApiException $e) {
-            $apiResponse = $e->getApiResponse();
-            $content = $apiResponse ? (method_exists($apiResponse, 'getContent') ? $apiResponse->getContent() : (string)$apiResponse) : 'N/A';
-            Log::error('MercadoPago PIX API Error:', [
+            // Mercado Pago falhou - usar nosso PixService como fallback
+            Log::warning('MercadoPago PIX API Error - usando fallback PixService', [
                 'message' => $e->getMessage(),
-                'status_code' => $e->getStatusCode(),
-                'content' => $content
+                'plan_id' => $plan->id
             ]);
-            return response()->json([
-                'error' => 'Erro na API do Mercado Pago: ' . ($content['message'] ?? $e->getMessage()),
-                'details' => $content
-            ], 422);
+            
+            return $this->generatePixFallback($plan);
+            
         } catch (\Exception $e) {
             Log::error('MercadoPago PIX General Error: ' . $e->getMessage());
-            return response()->json(['error' => 'Erro interno ao gerar PIX: ' . $e->getMessage()], 500);
+            
+            // Tentar fallback
+            return $this->generatePixFallback($plan);
+        }
+    }
+    
+    /**
+     * Gera PIX usando nosso serviço interno (fallback)
+     */
+    private function generatePixFallback(Plan $plan)
+    {
+        try {
+            $pixService = app(\App\Services\PixService::class);
+            $txId = 'PLANO' . $plan->id . time();
+            $pix = $pixService->generate($plan->price, $txId);
+            
+            // Extrair base64 sem o prefixo data:image/png;base64,
+            $qrCodeBase64 = str_replace('data:image/png;base64,', '', $pix['qrcode']);
+            
+            return response()->json([
+                'qr_code' => $pix['payload'],
+                'qr_code_base64' => $qrCodeBase64,
+                'ticket_url' => '#',
+                'id' => $txId,
+                'source' => 'pixservice',
+                'pix_key' => $pix['pix_key'],
+                'merchant_name' => $pix['merchant_name'],
+                'note' => 'PIX gerado via chave alternativa. Após o pagamento, envie o comprovante para ativar seu plano.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('PixService fallback failed: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Não foi possível gerar o PIX. Entre em contato com o suporte.',
+            ], 500);
         }
     }
 

@@ -437,22 +437,31 @@
             const data = await response.json();
 
             if (data.error) {
-                if (response.status === 422 || response.status === 401) {
-                    alert('Não foi possível gerar o QR Code dinâmico no momento (restrição da operadora). \n\nPor favor, utilize a "Chave PIX Alternativa" que aparece na caixa azul logo ao lado!');
-                } else {
-                    alert(data.error);
-                }
+                alert(data.error);
             } else {
                 document.getElementById('pix-qr-code').src = `data:image/png;base64,${data.qr_code_base64}`;
                 document.getElementById('pix-copy-paste').innerText = data.qr_code;
-                document.getElementById('pix-ticket-url').href = data.ticket_url;
+                
+                // Ajustar link do ticket (pode ser # no fallback)
+                const ticketLink = document.getElementById('pix-ticket-url');
+                if (data.ticket_url && data.ticket_url !== '#') {
+                    ticketLink.href = data.ticket_url;
+                    ticketLink.classList.remove('hidden');
+                } else {
+                    ticketLink.classList.add('hidden');
+                }
+                
                 document.getElementById('pix-display-area').classList.remove('hidden');
+                
+                // Se for fallback, mostrar nota especial
+                if (data.source === 'pixservice') {
+                    alert('PIX gerado com sucesso!\n\n⚠️ IMPORTANTE: ' + (data.note || 'Após o pagamento, envie o comprovante para ativar seu plano.') + '\n\nChave PIX: ' + data.pix_key);
+                } else {
+                    alert('PIX gerado com sucesso! Veja o QR Code abaixo.');
+                }
                 
                 // Rolar até a área do PIX
                 document.getElementById('pix-display-area').scrollIntoView({ behavior: 'smooth' });
-                
-                // Alerta de sucesso
-                alert('PIX gerado com sucesso! Veja o QR Code no topo da página.');
             }
         } catch (error) {
             console.error('Error generating PIX:', error);
