@@ -86,7 +86,7 @@
                                             </svg>
                                             Editar
                                         </button>
-                                        <form method="POST" action="{{ route('orders.edit-wizard.sewing') }}" class="inline">
+                                        <form method="POST" action="{{ route('orders.edit.sewing') }}" class="inline">
                     @csrf
                                             <input type="hidden" name="action" value="delete_item">
                                             <input type="hidden" name="item_id" value="{{ $item->id }}">
@@ -161,14 +161,14 @@
 
                 <!-- Botões de Navegação -->
                 <div class="flex justify-between items-center pt-4 border-t border-gray-200">
-                    <a href="{{ route('orders.edit-wizard.client') }}" 
+                    <a href="{{ route('orders.edit.client') }}" 
                        class="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-all text-sm font-medium">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                         </svg>
                         Voltar
                     </a>
-                    <a href="{{ route('orders.edit-wizard.customization') }}" 
+                    <a href="{{ route('orders.edit.customization') }}" 
                        class="flex items-center px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all text-sm font-medium">
                         Continuar
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,7 +193,7 @@
                         </button>
         </div>
 
-                <form method="POST" action="{{ route('orders.edit-wizard.sewing') }}" id="editItemForm" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('orders.edit.sewing') }}" id="editItemForm" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="action" value="update_item">
                     <input type="hidden" name="editing_item_id" id="editingItemId">

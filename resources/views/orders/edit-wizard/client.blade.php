@@ -35,7 +35,7 @@
 
             <h2 class="text-xl font-semibold mb-6">Dados do Cliente</h2>
             
-            <form method="POST" action="{{ route('orders.edit-wizard.client') }}">
+            <form method="POST" action="{{ route('orders.edit.client') }}">
                 @csrf
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

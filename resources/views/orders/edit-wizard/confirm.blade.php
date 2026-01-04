@@ -129,7 +129,7 @@
                 </div>
 
                 <!-- Formulário de Confirmação -->
-                <form method="POST" action="{{ route('orders.edit-wizard.confirm') }}" class="space-y-6">
+                <form method="POST" action="{{ route('orders.edit.confirm') }}" class="space-y-6">
                     @csrf
                     
                     <!-- Motivo da Edição -->
@@ -142,7 +142,7 @@
 
                     <!-- Botões de Ação -->
                     <div class="flex justify-between items-center pt-4 border-t border-gray-200">
-                        <a href="{{ route('orders.edit-wizard.payment') }}" 
+                        <a href="{{ route('orders.edit.payment') }}" 
                            class="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-all text-sm font-medium">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
