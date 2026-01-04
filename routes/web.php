@@ -69,6 +69,14 @@ Route::middleware('auth')->group(function () {
     Route::put('/pedidos/{id}/pagamento/editar', [\App\Http\Controllers\OrderController::class, 'updatePayment'])->name('orders.payment.update');
     Route::delete('/pedidos/{id}/pagamento/remover', [\App\Http\Controllers\OrderController::class, 'deletePayment'])->name('orders.payment.delete');
     
+    // PIX QR Code - Gerar dinamicamente
+    Route::get('/pedidos/{id}/pix', function ($id) {
+        $order = \App\Models\Order::findOrFail($id);
+        $pixService = app(\App\Services\PixService::class);
+        $remaining = $order->payments->first()?->remaining_amount ?? $order->total;
+        return response()->json($pixService->generate($remaining));
+    })->name('orders.pix.generate');
+    
     // Atualizar data de entrega
     Route::put('/pedidos/{id}/delivery-date', [\App\Http\Controllers\OrderController::class, 'updateDeliveryDate'])->name('orders.delivery-date.update');
     

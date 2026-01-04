@@ -109,66 +109,73 @@ class OrderController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
-        // Buscar pagamento existente ou criar novo
-        $payment = Payment::where('order_id', $id)->first();
-        
-        if ($payment) {
-            // Atualizar pagamento existente
-            $newEntryAmount = $payment->entry_amount + $validated['amount'];
-            $newRemainingAmount = $payment->remaining_amount - $validated['amount'];
-            
-            // Adicionar novo método de pagamento ao array
-            $paymentMethods = $payment->payment_methods ?? [];
-            $paymentMethods[] = [
-                'id' => time() . rand(1000, 9999),
-                'method' => $validated['method'],
-                'amount' => $validated['amount'],
-                'date' => now()->format('Y-m-d H:i:s'),
-            ];
-            
-            $payment->update([
-                'entry_amount' => $newEntryAmount,
-                'remaining_amount' => $newRemainingAmount,
-                'payment_methods' => $paymentMethods,
-                'status' => $newRemainingAmount <= 0 ? 'pago' : 'pendente',
-            ]);
-        } else {
-            // Criar novo pagamento
-            $payment = Payment::create([
-                'order_id' => $id,
-                'method' => $validated['method'],
-                'payment_method' => $validated['method'],
-                'payment_methods' => [[
-                    'id' => time() . rand(1000, 9999),
-                    'method' => $validated['method'],
+        try {
+            \DB::transaction(function () use ($order, $validated, $id) {
+                // Buscar pagamento existente ou criar novo
+                $payment = Payment::where('order_id', $id)->first();
+                
+                if ($payment) {
+                    // Atualizar pagamento existente
+                    $newEntryAmount = $payment->entry_amount + $validated['amount'];
+                    $newRemainingAmount = $payment->remaining_amount - $validated['amount'];
+                    
+                    // Adicionar novo método de pagamento ao array
+                    $paymentMethods = $payment->payment_methods ?? [];
+                    $paymentMethods[] = [
+                        'id' => time() . rand(1000, 9999),
+                        'method' => $validated['method'],
+                        'amount' => $validated['amount'],
+                        'date' => now()->format('Y-m-d H:i:s'),
+                    ];
+                    
+                    $payment->update([
+                        'entry_amount' => $newEntryAmount,
+                        'remaining_amount' => $newRemainingAmount,
+                        'payment_methods' => $paymentMethods,
+                        'status' => $newRemainingAmount <= 0 ? 'pago' : 'pendente',
+                    ]);
+                } else {
+                    // Criar novo pagamento
+                    $payment = Payment::create([
+                        'order_id' => $id,
+                        'method' => $validated['method'],
+                        'payment_method' => $validated['method'],
+                        'payment_methods' => [[
+                            'id' => time() . rand(1000, 9999),
+                            'method' => $validated['method'],
+                            'amount' => $validated['amount'],
+                            'date' => now()->format('Y-m-d H:i:s'),
+                        ]],
+                        'amount' => $order->total,
+                        'entry_amount' => $validated['amount'],
+                        'remaining_amount' => $order->total - $validated['amount'],
+                        'status' => $validated['amount'] >= $order->total ? 'pago' : 'pendente',
+                        'entry_date' => now(),
+                        'payment_date' => now(),
+                    ]);
+                }
+
+                // Criar transação no caixa como "pendente" até o pedido ser entregue
+                CashTransaction::create([
+                    'type' => 'entrada',
+                    'category' => 'Venda',
+                    'description' => "Pagamento do Pedido #" . str_pad($order->id, 6, '0', STR_PAD_LEFT) . " - " . $order->client->name,
                     'amount' => $validated['amount'],
-                    'date' => now()->format('Y-m-d H:i:s'),
-                ]],
-                'amount' => $order->total,
-                'entry_amount' => $validated['amount'],
-                'remaining_amount' => $order->total - $validated['amount'],
-                'status' => $validated['amount'] >= $order->total ? 'pago' : 'pendente',
-                'entry_date' => now(),
-                'payment_date' => now(),
-            ]);
+                    'payment_method' => $validated['method'],
+                    'status' => 'pendente',
+                    'transaction_date' => now(),
+                    'order_id' => $order->id,
+                    'user_id' => Auth::id(),
+                    'user_name' => Auth::user()->name,
+                    'notes' => $validated['notes'],
+                ]);
+            });
+
+            return redirect()->back()->with('success', 'Pagamento adicionado com sucesso!');
+        } catch (\Exception $e) {
+            \Log::error('Erro ao adicionar pagamento', ['error' => $e->getMessage(), 'order_id' => $id]);
+            return redirect()->back()->with('error', 'Erro ao adicionar pagamento: ' . $e->getMessage());
         }
-
-        // Criar transação no caixa como "pendente" até o pedido ser entregue
-        CashTransaction::create([
-            'type' => 'entrada',
-            'category' => 'Venda',
-            'description' => "Pagamento do Pedido #" . str_pad($order->id, 6, '0', STR_PAD_LEFT) . " - " . $order->client->name,
-            'amount' => $validated['amount'],
-            'payment_method' => $validated['method'],
-            'status' => 'pendente',
-            'transaction_date' => now(),
-            'order_id' => $order->id,
-            'user_id' => Auth::id(),
-            'user_name' => Auth::user()->name,
-            'notes' => $validated['notes'],
-        ]);
-
-        return redirect()->back()->with('success', 'Pagamento adicionado com sucesso!');
     }
 
     public function updatePayment(Request $request, $id): RedirectResponse
