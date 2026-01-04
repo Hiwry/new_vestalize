@@ -419,7 +419,7 @@
             const data = await response.json();
 
             if (data.error) {
-                alert(data.error);
+                showToast(data.error, 'error');
             } else {
                 document.getElementById('pix-qr-code').src = `data:image/png;base64,${data.qr_code_base64}`;
                 document.getElementById('pix-copy-paste').innerText = data.qr_code;
@@ -437,9 +437,9 @@
                 
                 // Se for fallback, mostrar nota especial
                 if (data.source === 'pixservice') {
-                    alert('PIX gerado com sucesso!\n\n⚠️ IMPORTANTE: ' + (data.note || 'Após o pagamento, envie o comprovante para ativar seu plano.') + '\n\nChave PIX: ' + data.pix_key);
+                    showToast('PIX gerado! Após o pagamento, envie o comprovante para ativar seu plano. Chave: ' + data.pix_key, 'warning', 8000);
                 } else {
-                    alert('PIX gerado com sucesso! Veja o QR Code abaixo.');
+                    showToast('PIX gerado com sucesso! Escaneie o QR Code abaixo.', 'success');
                 }
                 
                 // Rolar até a área do PIX
@@ -447,11 +447,61 @@
             }
         } catch (error) {
             console.error('Error generating PIX:', error);
-            alert('Erro ao gerar PIX. Tente novamente mais tarde.');
+            showToast('Erro ao gerar PIX. Tente novamente mais tarde.', 'error');
         } finally {
             btn.disabled = false;
             btn.innerHTML = originalHtml;
         }
+    }
+    
+    // Toast Notification System
+    function showToast(message, type = 'info', duration = 5000) {
+        const container = document.getElementById('toast-container') || createToastContainer();
+        
+        const colors = {
+            success: 'bg-emerald-600',
+            error: 'bg-red-600',
+            warning: 'bg-amber-500',
+            info: 'bg-blue-600'
+        };
+        
+        const icons = {
+            success: 'fa-check-circle',
+            error: 'fa-times-circle',
+            warning: 'fa-exclamation-triangle',
+            info: 'fa-info-circle'
+        };
+        
+        const toast = document.createElement('div');
+        toast.className = `${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg flex items-start gap-3 max-w-md transform transition-all duration-300 translate-x-full opacity-0`;
+        toast.innerHTML = `
+            <i class="fa-solid ${icons[type]} text-lg mt-0.5 shrink-0"></i>
+            <span class="text-sm">${message}</span>
+            <button onclick="this.parentElement.remove()" class="ml-auto text-white/80 hover:text-white shrink-0">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Animate in
+        requestAnimationFrame(() => {
+            toast.classList.remove('translate-x-full', 'opacity-0');
+        });
+        
+        // Auto remove
+        setTimeout(() => {
+            toast.classList.add('translate-x-full', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
+    }
+    
+    function createToastContainer() {
+        const container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
+        document.body.appendChild(container);
+        return container;
     }
 </script>
 @endpush
