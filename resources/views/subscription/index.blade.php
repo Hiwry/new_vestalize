@@ -394,9 +394,9 @@
     function copyContent(id) {
         const text = document.getElementById(id).innerText;
         navigator.clipboard.writeText(text).then(() => {
-            alert('Copiado para a área de transferência!');
+            notify('Copiado para a área de transferência!', 'success', 2000);
         }).catch(err => {
-            console.error('Erro ao copiar: ', err);
+            notify('Erro ao copiar', 'error');
         });
     }
 

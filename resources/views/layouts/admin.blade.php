@@ -356,6 +356,78 @@
         });
     </script>
 
+    {{-- Global Toast Notification System --}}
+    <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+    
+    <script>
+        // ============================================
+        // GLOBAL NOTIFICATION SYSTEM
+        // Use notify() para substituir alert()
+        // ============================================
+        
+        function notify(message, type = 'info', duration = 5000) {
+            const container = document.getElementById('toast-container');
+            
+            const colors = {
+                success: 'bg-emerald-600',
+                error: 'bg-red-600',
+                warning: 'bg-amber-500',
+                info: 'bg-blue-600'
+            };
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `${colors[type] || colors.info} text-white px-4 py-3 rounded-lg shadow-xl flex items-start gap-3 max-w-sm pointer-events-auto transform transition-all duration-300 translate-x-full opacity-0`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type] || icons.info} text-lg mt-0.5 shrink-0"></i>
+                <span class="text-sm flex-1">${message}</span>
+                <button onclick="this.parentElement.remove()" class="text-white/80 hover:text-white shrink-0 -mr-1">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Animate in
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+            });
+            
+            // Auto remove
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // Alias for legacy code
+        function showToast(message, type = 'info', duration = 5000) {
+            notify(message, type, duration);
+        }
+
+        // Override global alert for automatic replacement
+        const originalAlert = window.alert;
+        window.alert = function(message) {
+            // Detectar tipo baseado no conteúdo
+            let type = 'info';
+            const msgLower = message.toLowerCase();
+            if (msgLower.includes('erro') || msgLower.includes('error') || msgLower.includes('falha') || msgLower.includes('failed')) {
+                type = 'error';
+            } else if (msgLower.includes('sucesso') || msgLower.includes('success') || msgLower.includes('criado') || msgLower.includes('salvo')) {
+                type = 'success';
+            } else if (msgLower.includes('atenção') || msgLower.includes('aviso') || msgLower.includes('importante') || msgLower.includes('warning')) {
+                type = 'warning';
+            }
+            notify(message, type);
+        };
+    </script>
+
     @stack('scripts')
 </body>
 </html>
