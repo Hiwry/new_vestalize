@@ -69,26 +69,6 @@
                                         <i class="fa-regular fa-copy"></i>
                                     </button>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
-                        <p class="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Chave PIX Alternativa (Manual)</p>
-                        <div class="bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl p-4 border border-indigo-100 dark:border-indigo-800/50">
-                            <div class="flex items-center justify-between gap-2">
-                                <div>
-                                    <span class="text-[10px] text-indigo-500 dark:text-indigo-400 font-bold block">CHAVE ALEATÓRIA</span>
-                                    <code class="text-xs font-mono text-gray-700 dark:text-gray-300 break-all" id="static-pix-key">658ce7fe-13c0-489b-809d-89141bad5bcd</code>
-                                </div>
-                                <button onclick="copyContent('static-pix-key')" class="shrink-0 p-2 text-indigo-500 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-lg transition-colors" title="Copiar Chave">
-                                    <i class="fa-regular fa-copy"></i>
-                                </button>
-                            </div>
-                            <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-2 italic">
-                                * Se o QR Code dinâmico falhar, use esta chave e envie o comprovante.
-                            </p>
-                        </div>
                     </div>
                 </div>
             </div>
