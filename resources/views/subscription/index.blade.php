@@ -69,6 +69,8 @@
                                         <i class="fa-regular fa-copy"></i>
                                     </button>
                                 </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
