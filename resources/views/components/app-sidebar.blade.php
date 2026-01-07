@@ -8,7 +8,8 @@
             'producao': localStorage.getItem('sidebarGroupProducao') === 'true',
             'financeiro': localStorage.getItem('sidebarGroupFinanceiro') === 'true',
             'assinaturas': localStorage.getItem('sidebarGroupAssinaturas') === 'true',
-            'sistema': localStorage.getItem('sidebarGroupSistema') === 'true'
+            'sistema': localStorage.getItem('sidebarGroupSistema') === 'true',
+            'catalogo': localStorage.getItem('sidebarGroupCatalogo') === 'true'
         },
         isMobile() { return window.innerWidth < 768; },
         updateLayout() {
@@ -255,7 +256,7 @@
                         Link de Orçamento
                     </a>
                     @endif
-                    @if((Auth::user()->isVendedor() || Auth::user()->isAdmin()) && Auth::user()->tenant?->canAccess('pdv'))
+                    @if((Auth::user()->isVendedor() || Auth::user()->isAdmin()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('pdv')))
                     <a href="{{ route('pdv.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('pdv*') ? 'bg-blue-600' : '' }}"></span>
                         PDV
@@ -275,7 +276,7 @@
             </div>
 
             <!-- GRUPO: ESTOQUE -->
-             @if((Auth::user()->isAdmin() || Auth::user()->isEstoque()) && Auth::user()->tenant?->canAccess('stock'))
+             @if((Auth::user()->isAdmin() || Auth::user()->isEstoque()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('stock')))
             <div class="mt-1">
                 <button @click="toggleGroup('estoque')"
                         class="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group"
@@ -318,7 +319,47 @@
             </div>
             @endif
 
-            <!-- GRUPO: PRODUÇÃO -->
+            <!-- GRUPO: CATÃLOGO (Apenas Admin) -->
+            @if(Auth::user()->isAdmin())
+            <div class="mt-1">
+                <button @click="toggleGroup('catalogo')"
+                        class="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group"
+                        :class="expanded ? 'justify-between' : 'justify-center'">
+                    <div class="flex items-center">
+                        <svg class="flex-shrink-0 h-5 w-5 text-gray-500 group-hover:text-blue-600 dark:text-gray-400 dark:group-hover:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                        <span class="ml-3" x-show="expanded">Catálogo</span>
+                    </div>
+                    <svg x-show="expanded" class="w-4 h-4 transition-transform duration-200" :class="openGroups.catalogo ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+                
+                <div x-show="openGroups.catalogo && expanded" x-collapse x-cloak class="space-y-1 mt-1 bg-gray-50 dark:bg-gray-900/50 rounded-md overflow-hidden">
+                    <a href="{{ route('admin.products.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('admin/products*') ? 'bg-blue-600' : '' }}"></span>
+                        Produtos
+                    </a>
+                    <a href="{{ route('admin.categories.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('admin/categories*') ? 'bg-blue-600' : '' }}"></span>
+                        Categorias
+                    </a>
+                    <a href="{{ route('admin.tecidos.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('admin/tecidos*') ? 'bg-blue-600' : '' }}"></span>
+                        Tecidos
+                    </a>
+                    <a href="{{ route('admin.modelos.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('admin/modelos*') ? 'bg-blue-600' : '' }}"></span>
+                        Modelos
+                    </a>
+                    <a href="{{ route('admin.sublimation-products.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-400 mr-2 {{ request()->is('admin/sublimation-products*') ? 'bg-green-600' : '' }}"></span>
+                        Sublimação Total
+                    </a>
+                </div>
+            </div>
+            @endif
+
+            <!-- GRUPO: PRODUÃÃO -->
             @if(Auth::user()->isProducao() || Auth::user()->isAdmin())
             <div class="mt-1">
                 <button @click="toggleGroup('producao')"
@@ -374,6 +415,16 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('cash/approvals*') ? 'bg-green-600' : '' }}"></span>
                         Aprovações
                     </a>
+                    @if(Auth::user()->tenant_id !== null)
+                    <a href="{{ route('admin.invoices.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('financeiro/nfe*') ? 'bg-green-600' : '' }}"></span>
+                        Notas Emitidas
+                    </a>
+                    <a href="{{ route('admin.invoice-config.edit') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('settings/nfe*') ? 'bg-green-600' : '' }}"></span>
+                        Configuração NF-e
+                    </a>
+                    @endif
                 </div>
             </div>
             @endif
@@ -394,6 +445,8 @@
                 </a>
             </div>
             @endif
+
+
 
             <!-- GRUPO: ASSINATURAS (Apenas Super Admin) -->
             {{-- GRUPO: ASSINATURAS (Super Admin apenas - sem tenant_id) --}}
@@ -455,6 +508,12 @@
                          <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('links*') ? 'bg-purple-600' : '' }}"></span>
                         Links Úteis
                     </a>
+                    @if(Auth::user()->isAdmin())
+                    <a href="{{ route('admin.users.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                         <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('admin/users*') ? 'bg-purple-600' : '' }}"></span>
+                        Usuários
+                    </a>
+                    @endif
                 </div>
             </div>
 

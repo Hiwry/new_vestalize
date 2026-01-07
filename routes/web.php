@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
     // Nomear como "dashboard" para alinhar com o redirecionamento do login
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/financeiro', [\App\Http\Controllers\FinancialController::class, 'index'])->name('financial.dashboard');
+    Route::get('/financeiro/nfe', [\App\Http\Controllers\Admin\InvoiceController::class, 'index'])->name('admin.invoices.index');
     
     // Links Rápidos
     Route::get('/links', [\App\Http\Controllers\DashboardController::class, 'links'])->name('links.index');
@@ -59,6 +60,17 @@ Route::middleware('auth')->group(function () {
     // Personalização de Marca (White-labeling)
     Route::get('/settings/branding', [\App\Http\Controllers\TenantBrandingController::class, 'edit'])->name('settings.branding.edit');
     Route::post('/settings/branding', [\App\Http\Controllers\TenantBrandingController::class, 'update'])->name('settings.branding.update');
+    
+    // Configuração de Nota Fiscal
+    Route::get('/settings/nfe', [\App\Http\Controllers\Admin\TenantInvoiceConfigController::class, 'edit'])->name('admin.invoice-config.edit');
+    Route::put('/settings/nfe', [\App\Http\Controllers\Admin\TenantInvoiceConfigController::class, 'update'])->name('admin.invoice-config.update');
+    Route::post('/settings/nfe/test', [\App\Http\Controllers\Admin\TenantInvoiceConfigController::class, 'testConnection'])->name('admin.invoice-config.test');
+    
+    // Emissão de NF-e
+    Route::post('/pedidos/{id}/nfe/emitir', [\App\Http\Controllers\Admin\InvoiceController::class, 'emit'])->name('admin.invoice.emit');
+    Route::get('/pedidos/{id}/nfe', [\App\Http\Controllers\Admin\InvoiceController::class, 'show'])->name('admin.invoice.show');
+    Route::get('/nfe/{id}/status', [\App\Http\Controllers\Admin\InvoiceController::class, 'checkStatus'])->name('admin.invoice.status');
+    Route::post('/nfe/{id}/cancelar', [\App\Http\Controllers\Admin\InvoiceController::class, 'cancel'])->name('admin.invoice.cancel');
     
     // Lista de Pedidos
     Route::get('/pedidos', [\App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
@@ -457,6 +469,26 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Configuração de Orçamento Online (Planos Pro/Premium)
     Route::get('quote-settings', [\App\Http\Controllers\Admin\QuoteSettingsController::class, 'index'])->name('quote-settings.index');
     Route::post('quote-settings', [\App\Http\Controllers\Admin\QuoteSettingsController::class, 'update'])->name('quote-settings.update');
+    
+    // SUB. TOTAL - Sistema de Preços por Tipo
+    Route::prefix('sublimation-products')->name('sublimation-products.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\SublimationProductController::class, 'index'])->name('index');
+        
+        // Gerenciamento de tipos
+        Route::post('/types', [\App\Http\Controllers\Admin\SublimationProductController::class, 'storeType'])->name('types.store');
+        Route::delete('/types/{type}', [\App\Http\Controllers\Admin\SublimationProductController::class, 'destroyType'])->name('types.destroy');
+        
+        // Editar preços por tipo (camisa, bandeira, conjunto, etc.)
+        Route::get('/type/{type}', [\App\Http\Controllers\Admin\SublimationProductController::class, 'editType'])->name('edit-type');
+        Route::put('/type/{type}', [\App\Http\Controllers\Admin\SublimationProductController::class, 'updateType'])->name('update-type');
+        
+        // Adicionais por tipo
+        Route::post('/type/{type}/addons', [\App\Http\Controllers\Admin\SublimationProductController::class, 'storeAddon'])->name('addons.store');
+        Route::delete('/addons/{addon}', [\App\Http\Controllers\Admin\SublimationProductController::class, 'destroyAddon'])->name('addons.destroy');
+        
+        // Toggle habilitar/desabilitar SUB. TOTAL
+        Route::post('/toggle-enabled', [\App\Http\Controllers\Admin\SublimationProductController::class, 'toggleEnabled'])->name('toggle-enabled');
+    });
 });
 
 // Peças de Tecido (dentro do middleware auth)
