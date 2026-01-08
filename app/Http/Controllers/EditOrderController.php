@@ -264,6 +264,8 @@ class EditOrderController extends Controller
 
                 if ($action === 'add_item') {
                     return $this->addItem($request);
+                } elseif ($action === 'add_sublimation_item') {
+                    return $this->addSublimationItem($request);
                 } elseif ($action === 'update_item') {
                     return $this->updateItem($request);
                 } elseif ($action === 'delete_item') {
@@ -1192,6 +1194,136 @@ class EditOrderController extends Controller
         } catch (\Exception $e) {
             Log::error('Error adding item: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Erro ao adicionar item: ' . $e->getMessage());
+        }
+    }
+
+    private function addSublimationItem(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'sublimation_type' => 'required|string|max:50',
+                'sublimation_addons' => 'nullable|array',
+                'sublimation_addons.*' => 'integer',
+                'art_name' => 'required|string|max:255',
+                'tamanhos' => 'required|array',
+                'quantity' => 'required|integer|min:1',
+                'unit_price' => 'required|numeric|min:0',
+                'unit_cost' => 'nullable|numeric|min:0',
+                'item_cover_image' => 'nullable|image|max:10240',
+                'corel_file' => 'nullable|file|max:51200',
+                'art_notes' => 'nullable|string|max:1000',
+            ]);
+
+            $orderId = session('edit_order_id');
+            $order = Order::with('items')->findOrFail($orderId);
+            $editData = session('edit_order_data', []);
+
+            // Processar upload da imagem de capa
+            $coverImagePath = null;
+            if ($request->hasFile('item_cover_image')) {
+                $coverImagePath = $this->imageProcessor->processAndStore(
+                    $request->file('item_cover_image'),
+                    'orders/items/covers',
+                    [
+                        'max_width' => 1200,
+                        'max_height' => 1200,
+                        'quality' => 85,
+                    ]
+                );
+            }
+
+            // Processar upload do arquivo Corel
+            $corelFilePath = null;
+            if ($request->hasFile('corel_file')) {
+                $corelFile = $request->file('corel_file');
+                $fileName = time() . '_' . uniqid() . '_' . $corelFile->getClientOriginalName();
+                $corelFilePath = $corelFile->storeAs('orders/corel_files', $fileName, 'public');
+            }
+
+            // Buscar tipo para label e tecido padrão
+            $typeModel = \App\Models\SublimationProductType::with('tecido')->where('slug', $validated['sublimation_type'])->first();
+            $typeLabel = $typeModel ? $typeModel->name : $validated['sublimation_type'];
+            $fabricName = ($typeModel && $typeModel->tecido) ? $typeModel->tecido->name : ('SUB. TOTAL - ' . $typeLabel);
+
+            // Buscar adicionais selecionados para descrição
+            $addonsLabel = '';
+            if (!empty($validated['sublimation_addons'])) {
+                $addons = \App\Models\SublimationProductAddon::whereIn('id', $validated['sublimation_addons'])->pluck('name');
+                $addonsLabel = $addons->join(', ');
+            }
+
+            $itemNumber = $order->items()->count() + 1;
+
+            // Criar item SUB. TOTAL no banco
+            $item = new OrderItem([
+                'order_id' => $orderId,
+                'item_number' => $itemNumber,
+                'fabric' => $fabricName,
+                'color' => 'Branco',
+                'collar' => $addonsLabel ?: '-',
+                'model' => $typeLabel,
+                'detail' => null,
+                'print_type' => 'SUB. TOTAL',
+                'art_name' => $validated['art_name'],
+                'sizes' => $validated['tamanhos'],
+                'quantity' => $validated['quantity'],
+                'unit_price' => $validated['unit_price'],
+                'total_price' => $validated['unit_price'] * $validated['quantity'],
+                'unit_cost' => $validated['unit_cost'] ?? 0,
+                'total_cost' => ($validated['unit_cost'] ?? 0) * $validated['quantity'],
+                'cover_image' => $coverImagePath,
+                'corel_file_path' => $corelFilePath,
+                'art_notes' => $validated['art_notes'] ?? null,
+                'is_sublimation_total' => true,
+                'sublimation_type' => $validated['sublimation_type'],
+                'sublimation_addons' => $validated['sublimation_addons'] ?? [],
+            ]);
+            $order->items()->save($item);
+            $item->refresh();
+
+            // Atualizar totais do pedido
+            $order->update([
+                'subtotal' => $order->items()->sum('total_price'),
+                'total_items' => $order->items()->sum('quantity'),
+            ]);
+
+            // Adicionar na sessão de edição
+            $newItem = [
+                'id' => $item->id,
+                'item_number' => $item->item_number,
+                'fabric' => $item->fabric,
+                'color' => $item->color,
+                'collar' => $item->collar,
+                'model' => $item->model,
+                'detail' => $item->detail,
+                'print_type' => $item->print_type,
+                'print_desc' => $item->print_type,
+                'art_name' => $item->art_name,
+                'sizes' => $validated['tamanhos'],
+                'quantity' => $item->quantity,
+                'unit_price' => $item->unit_price,
+                'total_price' => $item->total_price,
+                'unit_cost' => $item->unit_cost,
+                'total_cost' => $item->total_cost,
+                'art_notes' => $item->art_notes,
+                'cover_image' => $item->cover_image,
+            ];
+
+            $editData['items'][] = $newItem;
+            session(['edit_order_data' => $editData]);
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Item SUB. TOTAL #' . $itemNumber . ' adicionado!',
+                    'items_count' => count($editData['items'])
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Item SUB. TOTAL #' . $itemNumber . ' adicionado!');
+        } catch (\Exception $e) {
+            Log::error('Error adding sublimation item: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Erro ao adicionar item de sublimação: ' . $e->getMessage());
         }
     }
 

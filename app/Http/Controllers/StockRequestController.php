@@ -151,7 +151,7 @@ class StockRequestController extends Controller
             })
             ->orderBy('created_at', 'desc')
             ->limit(50)
-            ->get(['id', 'order_number', 'client_id', 'created_at']);
+            ->get(['id', 'client_id', 'created_at']);
 
         return view('stock-requests.index', compact('requests', 'stores', 'statuses', 'status', 'storeId', 'fabrics', 'colors', 'cutTypes', 'sizes', 'recentOrders'));
     }

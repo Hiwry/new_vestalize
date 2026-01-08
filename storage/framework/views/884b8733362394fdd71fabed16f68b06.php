@@ -50,26 +50,59 @@
         })();
     </script>
     
+    <?php
+        $p = auth()->user()->tenant->primary_color ?? '#4f46e5';
+        $s = auth()->user()->tenant->secondary_color ?? '#7c3aed';
+        
+        // Luminance check
+        $isLight = false;
+        if (str_starts_with($p, '#') && strlen($p) >= 7) {
+            $r = hexdec(substr($p, 1, 2));
+            $g = hexdec(substr($p, 3, 2));
+            $b = hexdec(substr($p, 5, 2));
+            if ((0.2126 * $r + 0.7152 * $g + 0.0722 * $b) > 200) $isLight = true;
+        }
+    ?>
     <style>
         :root {
-            --brand-primary: <?php echo e(auth()->user()->tenant->primary_color ?? '#4f46e5'); ?>;
-            --brand-secondary: <?php echo e(auth()->user()->tenant->secondary_color ?? '#7c3aed'); ?>;
+            --brand-primary: <?php echo e($p); ?>;
+            --brand-secondary: <?php echo e($s); ?>;
+            /* Use dark default for text if primary is too light */
+            --brand-primary-text: <?php echo e($isLight ? '#4f46e5' : $p); ?>;
+            /* Contrast color for text ON TOP of primary background */
+            --brand-primary-content: <?php echo e($isLight ? '#111827' : '#ffffff'); ?>;
         }
 
         /* Aplicar cores de marca em elementos globais */
-        .text-brand-primary { color: var(--brand-primary); }
-        .bg-brand-primary { background-color: var(--brand-primary); }
+        .text-brand-primary { color: var(--brand-primary-text); }
+        .bg-brand-primary { background-color: var(--brand-primary); color: var(--brand-primary-content); }
         .border-brand-primary { border-color: var(--brand-primary); }
         
+        .text-brand-secondary { color: var(--brand-secondary); }
+        .bg-brand-secondary { background-color: var(--brand-secondary); color: #ffffff; }
+        .border-brand-secondary { border-color: var(--brand-secondary); }
+
         .hover\:bg-brand-primary:hover { background-color: var(--brand-primary); opacity: 0.9; }
         
         /* Sobrescrever algumas classes do Tailwind para usar a cor da marca */
-        .text-indigo-600 { color: var(--brand-primary) !important; }
-        .bg-indigo-600 { background-color: var(--brand-primary) !important; }
+        .text-indigo-600 { color: var(--brand-primary-text) !important; }
+        .bg-indigo-600 { background-color: var(--brand-primary) !important; color: var(--brand-primary-content) !important; }
         .focus\:ring-indigo-500:focus { --tw-ring-color: var(--brand-primary) !important; }
         .border-indigo-500 { border-color: var(--brand-primary) !important; }
+        /* Gradient uses primary BG color */
         .from-blue-600 { --tw-gradient-from: var(--brand-primary) !important; --tw-gradient-to: var(--brand-secondary, var(--brand-primary)) !important; }
         .to-purple-600 { --tw-gradient-to: var(--brand-secondary) !important; }
+
+        /* Secondary Color Mappings (Purple -> Secondary) */
+        .text-purple-600 { color: var(--brand-secondary) !important; }
+        .bg-purple-600 { background-color: var(--brand-secondary) !important; }
+        .border-purple-600 { border-color: var(--brand-secondary) !important; }
+        .focus\:ring-purple-500:focus { --tw-ring-color: var(--brand-secondary) !important; }
+
+        /* Blue Mappings (Blue -> Primary) - Harmonize Dashboard/Sidebar */
+        .text-blue-600 { color: var(--brand-primary-text) !important; }
+        .bg-blue-600 { background-color: var(--brand-primary) !important; }
+        .border-blue-600 { border-color: var(--brand-primary) !important; }
 
         /* Prevenir flash durante carregamento - aplicar ANTES do Tailwind */
         html {
@@ -321,6 +354,78 @@
                 }
             }
         });
+    </script>
+
+    
+    <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+    
+    <script>
+        // ============================================
+        // GLOBAL NOTIFICATION SYSTEM
+        // Use notify() para substituir alert()
+        // ============================================
+        
+        function notify(message, type = 'info', duration = 5000) {
+            const container = document.getElementById('toast-container');
+            
+            const colors = {
+                success: 'bg-emerald-600',
+                error: 'bg-red-600',
+                warning: 'bg-amber-500',
+                info: 'bg-blue-600'
+            };
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `${colors[type] || colors.info} text-white px-4 py-3 rounded-lg shadow-xl flex items-start gap-3 max-w-sm pointer-events-auto transform transition-all duration-300 translate-x-full opacity-0`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type] || icons.info} text-lg mt-0.5 shrink-0"></i>
+                <span class="text-sm flex-1">${message}</span>
+                <button onclick="this.parentElement.remove()" class="text-white/80 hover:text-white shrink-0 -mr-1">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Animate in
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+            });
+            
+            // Auto remove
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // Alias for legacy code
+        function showToast(message, type = 'info', duration = 5000) {
+            notify(message, type, duration);
+        }
+
+        // Override global alert for automatic replacement
+        const originalAlert = window.alert;
+        window.alert = function(message) {
+            // Detectar tipo baseado no conteúdo
+            let type = 'info';
+            const msgLower = message.toLowerCase();
+            if (msgLower.includes('erro') || msgLower.includes('error') || msgLower.includes('falha') || msgLower.includes('failed')) {
+                type = 'error';
+            } else if (msgLower.includes('sucesso') || msgLower.includes('success') || msgLower.includes('criado') || msgLower.includes('salvo')) {
+                type = 'success';
+            } else if (msgLower.includes('atenção') || msgLower.includes('aviso') || msgLower.includes('importante') || msgLower.includes('warning')) {
+                type = 'warning';
+            }
+            notify(message, type);
+        };
     </script>
 
     <?php echo $__env->yieldPushContent('scripts'); ?>

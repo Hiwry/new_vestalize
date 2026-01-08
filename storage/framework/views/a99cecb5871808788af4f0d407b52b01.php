@@ -213,17 +213,7 @@
                                         <span class="font-bold text-white text-xl" id="price-total">R$ 0,00</span>
                                     </div>
                                     
-                                    <!-- Custo Unitário -->
-                                    <div class="flex flex-col mt-4 pt-4 border-t border-gray-200 dark:border-slate-700">
-                                        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Custo Unitário (R$)</label>
-                                        <div class="relative">
-                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <span class="text-gray-500 sm:text-sm">R$</span>
-                                            </div>
-                                            <input type="number" name="unit_cost" id="unit_cost" step="0.01" min="0" value="0.00" class="w-full pl-8 px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm font-medium">
-                                        </div>
-                                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Informe o custo de produção por unidade para cálculo de lucro.</p>
-                                    </div>
+
                                 </div>
                                 <input type="hidden" name="unit_price" id="unit_price" value="0">
                             </div>
@@ -308,8 +298,17 @@
     </div>
 </div>
 
+<?php if(isset($sublimationEnabled) && $sublimationEnabled): ?>
+<?php echo $__env->make('orders.wizard.partials.sublimation_modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+<?php endif; ?>
+
 <?php $__env->startPush('scripts'); ?>
 <script>
+        // SUB. TOTAL - Dados e Configurações
+        const sublimationEnabled = <?php echo e(isset($sublimationEnabled) && $sublimationEnabled ? 'true' : 'false'); ?>;
+        const sublimationTypes = <?php echo isset($sublimationTypes) ? json_encode($sublimationTypes->map(fn($t) => ['slug' => $t->slug, 'name' => $t->name])) : '[]'; ?>;
+        let sublimationAddonsCache = {};
+
         let itemToDeleteId = null;
 
         function openDeleteModal(itemId) {
@@ -416,7 +415,7 @@
                 const formData = new FormData(form);
                 
                 // Garantir que headers de AJAX sejam enviados
-                const actionUrl = form.dataset.actionUrl || form.action;
+                const actionUrl = form.dataset.actionUrl || form.getAttribute('action');
                 console.log('Submitting sewing form to:', actionUrl);
                 const response = await fetch(actionUrl, {
                     method: 'POST',
@@ -552,32 +551,15 @@
             } else {
                 selectedPersonalizacoes.push(id);
                 
-                // Verificar se é SUB. TOTAL
+                // Verificar se é SUB. TOTAL e se está habilitado
                 const personalizacaoItem = (options.personalizacao || []).find(item => item.id === id);
-                if (personalizacaoItem && personalizacaoItem.name && 
+                if (sublimationEnabled && personalizacaoItem && personalizacaoItem.name && 
                     (personalizacaoItem.name.toUpperCase().includes('SUB') && personalizacaoItem.name.toUpperCase().includes('TOTAL'))) {
-                    // Definir cor como branco automaticamente
-                    setTimeout(() => {
-                        const corSelect = document.getElementById('cor');
-                        if (corSelect) {
-                            // Procurar opção "BRANCO" ou "Branco"
-                            const brancaOption = Array.from(corSelect.options).find(opt => 
-                                opt.text.toUpperCase().includes('BRANCO') || opt.text.toUpperCase().includes('BRANCA')
-                            );
-                            if (brancaOption) {
-                                corSelect.value = brancaOption.value;
-                            }
-                        }
-                        
-                        // Zerar valores de modelo, detalhe e gola
-                        const modeloSelect = document.getElementById('modelo');
-                        const detalheSelect = document.getElementById('detalhe');
-                        const golaSelect = document.getElementById('gola');
-                        
-                        if (modeloSelect) modeloSelect.value = '';
-                        if (detalheSelect) detalheSelect.value = '';
-                        if (golaSelect) golaSelect.value = '';
-                    }, 300);
+                    // Desmarcar e abrir modal SUB. TOTAL
+                    selectedPersonalizacoes.splice(selectedPersonalizacoes.indexOf(id), 1);
+                    renderPersonalizacao();
+                    openSublimationModal();
+                    return;
                 }
             }
             renderPersonalizacao();
@@ -983,50 +965,10 @@
             });
             
             // Listeners para recálculo de custo
-            const corSelect = document.getElementById('cor');
-            if(corSelect) corSelect.addEventListener('change', calculateCost);
-            
-            const tecidoSelect = document.getElementById('tecido');
-            if(tecidoSelect) tecidoSelect.addEventListener('change', calculateCost);
-            
-            const tipoTecidoSelect = document.getElementById('tipo_tecido');
-            if(tipoTecidoSelect) tipoTecidoSelect.addEventListener('change', calculateCost);
+
         });
 
-        function calculateCost() {
-            let totalCost = 0;
-            
-            // Helper function to safe parse float
-            const parseVal = (val) => {
-                const f = parseFloat(val);
-                return isNaN(f) ? 0 : f;
-            }
 
-            // 1. Personalizações
-            if (typeof options !== 'undefined' && options.personalizacao && typeof selectedPersonalizacoes !== 'undefined') {
-                selectedPersonalizacoes.forEach(id => {
-                    const opt = options.personalizacao.find(p => p.id == id);
-                    if (opt) totalCost += parseVal(opt.cost);
-                });
-            }
-
-            // 2. Selects
-            ['tecido', 'tipo_tecido', 'cor', 'tipo_corte', 'detalhe', 'gola'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el && el.selectedIndex >= 0) {
-                    const opt = el.options[el.selectedIndex];
-                    if (opt && opt.dataset.cost) {
-                        totalCost += parseVal(opt.dataset.cost);
-                    }
-                }
-            });
-
-            console.log('Calculating cost:', totalCost);
-            const costInput = document.getElementById('unit_cost');
-            if (costInput) {
-                costInput.value = totalCost.toFixed(2);
-            }
-        }
 
         function updatePrice() {
             const corteSelect = document.getElementById('tipo_corte');
@@ -1060,7 +1002,7 @@
             
             document.getElementById('unit_price').value = total.toFixed(2);
             
-            calculateCost(); // Atualizar custo também
+
         }
 
         function calculateTotal() {
@@ -1474,7 +1416,7 @@
             }
 
             document.getElementById('unit_price').value = itemData.unit_price;
-            document.getElementById('unit_cost').value = itemData.unit_cost || 0;
+
 
             // Restaurar estado do checkbox de acréscimo
             const surchargeCheckbox = document.getElementById('apply_surcharge');
@@ -1553,7 +1495,7 @@
                 checkbox.checked = false;
             });
             
-            document.getElementById('unit_cost').value = '0.00';
+
         }
 
         <?php if(isset($editData)): ?>
@@ -1592,6 +1534,188 @@
                 alert('Erro ao processar solicitação');
             }
         }
+
+        // ==========================================
+        // FUNÇÕES DO MODAL SUB. TOTAL
+        // ==========================================
+        
+        function openSublimationModal() {
+            const modal = document.getElementById('sublimation-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                // Reset form
+                document.getElementById('sublimation-form').reset();
+                document.getElementById('sub-total-pecas').textContent = '0';
+                document.getElementById('sub-total-price').textContent = 'R$ 0,00';
+                document.getElementById('sub_quantity').value = 0;
+            }
+        }
+        
+        function closeSublimationModal() {
+            const modal = document.getElementById('sublimation-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+        
+        async function loadSublimationAddons() {
+            const typeSlug = document.getElementById('sublimation_type').value;
+            const container = document.getElementById('sublimation-addons-container');
+            
+            if (!typeSlug) {
+                container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Selecione um tipo primeiro</p>';
+                return;
+            }
+            
+            // Verificar cache
+            if (sublimationAddonsCache[typeSlug]) {
+                renderSublimationAddons(sublimationAddonsCache[typeSlug]);
+                return;
+            }
+            
+            container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Carregando...</p>';
+            
+            try {
+                const response = await fetch(`/api/sublimation-total/addons/${typeSlug}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    sublimationAddonsCache[typeSlug] = data.data;
+                    renderSublimationAddons(data.data);
+                    // Buscar preço base
+                    calculateSublimationPrice();
+                } else {
+                    container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Nenhum adicional</p>';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar adicionais:', error);
+                container.innerHTML = '<p class="text-sm text-red-500 col-span-full">Erro ao carregar</p>';
+            }
+        }
+        
+        function renderSublimationAddons(addons) {
+            const container = document.getElementById('sublimation-addons-container');
+            
+            if (!addons || addons.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Nenhum adicional disponível</p>';
+                return;
+            }
+            
+            container.innerHTML = addons.map(addon => `
+                <label class="flex items-center px-3 py-2 border rounded-lg cursor-pointer transition-all border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-purple-300 dark:hover:border-purple-600">
+                    <input type="checkbox" name="sublimation_addons[]" value="${addon.id}" data-price="${addon.price}" onchange="calculateSublimationPrice()" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                    <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">${addon.name}</span>
+                    ${addon.price != 0 ? `<span class="ml-auto text-xs ${addon.price >= 0 ? 'text-green-600' : 'text-red-600'}">${addon.price >= 0 ? '+' : ''}R$ ${parseFloat(addon.price).toFixed(2).replace('.', ',')}</span>` : ''}
+                </label>
+            `).join('');
+        }
+        
+        function calculateSublimationTotal() {
+            const inputs = document.querySelectorAll('.sub-size-input');
+            let total = 0;
+            inputs.forEach(input => {
+                total += parseInt(input.value) || 0;
+            });
+            document.getElementById('sub-total-pecas').textContent = total;
+            document.getElementById('sub_quantity').value = total;
+            
+            // Recalcular preço
+            calculateSublimationPrice();
+        }
+        
+        async function calculateSublimationPrice() {
+            const typeSlug = document.getElementById('sublimation_type').value;
+            const quantity = parseInt(document.getElementById('sub_quantity').value) || 0;
+            
+            if (!typeSlug || quantity === 0) {
+                updateSublimationPreview();
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/sublimation-total/price/${typeSlug}/${quantity}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    let basePrice = parseFloat(data.price);
+                    
+                    // Somar adicionais
+                    const selectedAddons = document.querySelectorAll('input[name="sublimation_addons[]"]:checked');
+                    selectedAddons.forEach(addon => {
+                        basePrice += parseFloat(addon.dataset.price);
+                    });
+                    
+                    document.getElementById('sub_unit_price').value = basePrice.toFixed(2);
+                    updateSublimationPreview();
+                }
+            } catch (error) {
+                console.error('Erro ao buscar preço:', error);
+            }
+        }
+        
+        function updateSublimationPreview() {
+            const unitPrice = parseFloat(document.getElementById('sub_unit_price').value) || 0;
+            const quantity = parseInt(document.getElementById('sub_quantity').value) || 0;
+            const total = unitPrice * quantity;
+            document.getElementById('sub-total-price').textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+        }
+        
+        // Form submit do modal SUB. TOTAL
+        document.addEventListener('DOMContentLoaded', function() {
+            const sublimationForm = document.getElementById('sublimation-form');
+            if (sublimationForm) {
+                sublimationForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const quantity = parseInt(document.getElementById('sub_quantity').value) || 0;
+                    if (quantity === 0) {
+                        alert('Adicione pelo menos uma peça nos tamanhos.');
+                        return;
+                    }
+                    
+                    const artName = document.getElementById('sub_art_name').value.trim();
+                    if (!artName) {
+                        alert('Informe o nome da arte.');
+                        return;
+                    }
+                    
+                    const btn = document.getElementById('submit-sublimation-btn');
+                    const originalHtml = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.37 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Adicionando...';
+                    
+                    try {
+                        const formData = new FormData(sublimationForm);
+                        const actionUrl = sublimationForm.getAttribute('action');
+                        const response = await fetch(actionUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: formData
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            closeSublimationModal();
+                            window.location.reload();
+                        } else {
+                            alert(data.message || 'Erro ao adicionar item.');
+                        }
+                    } catch (error) {
+                        console.error('Erro:', error);
+                        alert('Erro ao processar solicitação.');
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                    }
+                });
+            }
+        });
 </script>
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>

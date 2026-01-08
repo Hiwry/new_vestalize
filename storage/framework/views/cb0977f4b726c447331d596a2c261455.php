@@ -34,7 +34,7 @@
                         <div class="flex justify-between"><span>Tecido:</span><span class="font-medium text-gray-900 dark:text-white"><?php echo e($item->fabric); ?></span></div>
                         <div class="flex justify-between"><span>Cor:</span><span class="font-medium text-gray-900 dark:text-white"><?php echo e($item->color); ?></span></div>
                         <div class="flex justify-between"><span>Quantidade:</span><span class="font-medium text-gray-900 dark:text-white"><?php echo e($item->quantity); ?> pç</span></div>
-                        <div class="flex justify-between"><span>Custo Un.:</span><span class="font-medium text-red-600 dark:text-red-400">R$ <?php echo e(number_format($item->unit_cost ?? 0, 2, ',', '.')); ?></span></div>
+
                         <div class="flex justify-between pt-2 border-t border-gray-200 dark:border-slate-700">
                             <span class="font-semibold">Total:</span>
                             <span class="font-bold text-indigo-600 dark:text-indigo-400">R$ <?php echo e(number_format($item->total_price, 2, ',', '.')); ?></span>

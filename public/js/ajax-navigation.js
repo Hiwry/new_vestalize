@@ -3,7 +3,7 @@
  * Intercepta cliques nos links da sidebar e carrega apenas o conteúdo principal
  */
 
-(function() {
+(function () {
     'use strict';
 
     // Estado da navegação
@@ -14,17 +14,17 @@
     function extractMainContent(html) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        
+
         // Procurar pelo elemento main ou #main-content
-        const mainContent = doc.querySelector('#main-content main') || 
-                           doc.querySelector('main') ||
-                           doc.querySelector('#main-content');
-        
+        const mainContent = doc.querySelector('#main-content main') ||
+            doc.querySelector('main') ||
+            doc.querySelector('#main-content');
+
         if (!mainContent) {
             console.error('Conteúdo principal não encontrado na resposta');
             return null;
         }
-        
+
         return mainContent.innerHTML;
     }
 
@@ -39,17 +39,17 @@
     function updateActiveLink(url) {
         const sidebarLinks = document.querySelectorAll('#sidebar nav a');
         const currentPath = new URL(url, window.location.origin).pathname;
-        
+
         sidebarLinks.forEach(link => {
             const linkPath = new URL(link.href, window.location.origin).pathname;
-            const isActive = currentPath === linkPath || 
-                            (linkPath !== '/' && currentPath.startsWith(linkPath));
-            
+            const isActive = currentPath === linkPath ||
+                (linkPath !== '/' && currentPath.startsWith(linkPath));
+
             // Atualizar classes
             if (isActive) {
                 link.classList.remove('text-gray-700', 'dark:text-gray-300', 'hover:bg-blue-50', 'dark:hover:bg-gray-700', 'hover:text-blue-600', 'dark:hover:text-white');
                 link.classList.add('bg-blue-600', 'text-white');
-                
+
                 // Atualizar ícone
                 const icon = link.querySelector('svg');
                 if (icon) {
@@ -59,7 +59,7 @@
             } else {
                 link.classList.remove('bg-blue-600', 'text-white');
                 link.classList.add('text-gray-700', 'dark:text-gray-300', 'hover:bg-blue-50', 'dark:hover:bg-gray-700', 'hover:text-blue-600', 'dark:hover:text-white');
-                
+
                 // Atualizar ícone
                 const icon = link.querySelector('svg');
                 if (icon) {
@@ -72,6 +72,31 @@
 
     // Função para carregar página via AJAX
     async function loadPage(url) {
+        // Debug: Log URL and type
+        console.log('AJAX: loadPage called with:', {
+            url: url,
+            type: typeof url,
+            isElement: url instanceof HTMLElement,
+            stack: new Error().stack
+        });
+
+        // Guard: If URL is an object (common bug with ID shadowing), try to recover
+        if (typeof url !== 'string' && url !== null) {
+            console.error('AJAX ERROR: url is not a string!', url);
+            if (url instanceof HTMLElement) {
+                console.warn('AJAX: Recovering from HTMLElement URL...');
+                if (url.value && typeof url.value === 'string') {
+                    url = url.value;
+                } else if (url.href && typeof url.href === 'string') {
+                    url = url.href;
+                } else {
+                    url = String(url);
+                }
+            } else {
+                url = String(url);
+            }
+        }
+
         // Nunca usar AJAX para o catálogo público (/catalogo)
         if (isCatalogPublicUrl(url)) {
             window.location.href = url;
@@ -90,7 +115,7 @@
         isNavigating = true;
         const mainContent = document.querySelector('#main-content main');
         const mainContentWrapper = document.querySelector('#main-content');
-        
+
         if (!mainContent) {
             console.error('Área de conteúdo principal não encontrada');
             isNavigating = false;
@@ -105,7 +130,7 @@
             document.documentElement.classList.add('dark');
             document.documentElement.style.colorScheme = 'dark';
         }
-        
+
         // Mostrar loading
         const originalContent = mainContent.innerHTML;
         const loadingHtml = `
@@ -139,12 +164,12 @@
             }
 
             const html = await response.text();
-            
+
             // Verificar se a resposta é HTML válido
             if (!html || html.trim().length === 0) {
                 throw new Error('Resposta vazia do servidor');
             }
-            
+
             // Extrair conteúdo principal
             const newContent = extractMainContent(html);
             if (!newContent) {
@@ -156,7 +181,7 @@
             // Primeiro, criar um container temporário
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = newContent;
-            
+
             // Coletar informações dos scripts ANTES de mover o conteúdo
             const scriptData = Array.from(tempDiv.querySelectorAll('script')).map(script => ({
                 src: script.src,
@@ -168,18 +193,18 @@
                 async: script.async,
                 defer: script.defer
             }));
-            
+
             // Remover scripts do tempDiv antes de mover (para não duplicar)
             tempDiv.querySelectorAll('script').forEach(script => script.remove());
-            
+
             // Limpar o conteúdo atual
             mainContent.innerHTML = '';
-            
+
             // Mover todos os nós para o conteúdo principal
             while (tempDiv.firstChild) {
                 mainContent.appendChild(tempDiv.firstChild);
             }
-            
+
             // Executar scripts coletados
             scriptData.forEach((scriptInfo, index) => {
                 // Para scripts inline, envolver em um IIFE ou verificar se já existe
@@ -188,10 +213,10 @@
                     try {
                         // Criar um script com conteúdo modificado para evitar redeclarações
                         const scriptText = scriptInfo.text;
-                        
+
                         // Verificar se contém declarações const/let que podem causar conflito
                         const hasVariableDeclarations = /(?:^|\s)(const|let)\s+(\w+)/g.test(scriptText);
-                        
+
                         if (hasVariableDeclarations) {
                             // Envolver em um bloco para criar novo escopo
                             const wrappedScript = `(function() { ${scriptText} })();`;
@@ -241,7 +266,12 @@
             }
 
             // Atualizar URL sem recarregar
-            window.history.pushState({ url: url }, newTitle || document.title, url);
+            try {
+                const finalUrl = typeof url === 'string' ? url : String(url);
+                window.history.pushState({ url: finalUrl }, newTitle || document.title, finalUrl);
+            } catch (e) {
+                console.error('AJAX: Failed to pushState', e);
+            }
             currentUrl = url;
 
             // Atualizar links ativos na sidebar
@@ -252,7 +282,7 @@
                 document.documentElement.classList.add('dark');
                 document.documentElement.style.colorScheme = 'dark';
             }
-            
+
             // Atualizar ícones do dark mode
             const moonIcon = document.getElementById('moon-icon');
             const sunIcon = document.getElementById('sun-icon');
@@ -268,7 +298,7 @@
 
             // Reinicializar scripts se necessário
             reinitializeScripts();
-            
+
             // Reinicializar sistema de notificações se existir
             if (typeof window.fetchNotifications === 'function') {
                 window.fetchNotifications();
@@ -298,7 +328,7 @@
             bubbles: true,
             cancelable: true
         }));
-        
+
         // Reinicializar Alpine.js se necessário
         if (window.Alpine && typeof window.Alpine.initTree === 'function') {
             try {
@@ -314,7 +344,7 @@
         // Reexecutar scripts inline que possam estar no novo conteúdo
         // Nota: Scripts inline no conteúdo serão executados automaticamente pelo navegador
         // quando inserirmos o HTML. Aqui apenas garantimos que scripts dinâmicos sejam processados.
-        
+
         // Aguardar um pouco para garantir que o DOM foi atualizado
         setTimeout(() => {
             // Disparar evento adicional para scripts que precisam ser executados após um delay
@@ -359,8 +389,8 @@
             }
 
             // Ignorar links externos, com target="_blank", ou com atributos especiais
-            if (link.target === '_blank' || 
-                link.href.startsWith('mailto:') || 
+            if (link.target === '_blank' ||
+                link.href.startsWith('mailto:') ||
                 link.href.startsWith('tel:') ||
                 link.href.startsWith('javascript:') ||
                 link.hasAttribute('data-no-ajax') ||

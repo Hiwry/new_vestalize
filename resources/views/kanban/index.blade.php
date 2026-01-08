@@ -24,7 +24,7 @@
 @push('scripts')
 <script>
     // Definir componente globalmente para garantir acesso via x-data
-    window.kanbanBoard = function(ordersData, startDate) {
+    window.kanbanBoardIndex = function(ordersData, startDate) {
         return {
             view: 'kanban', // 'kanban' | 'calendar'
             calendarView: 'month', // 'month' | 'week' | 'day'
@@ -164,18 +164,6 @@
 
 @section('content')
 <div class="max-w-[1800px] mx-auto">
-        @if(session('error'))
-        <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-4">
-            {{ session('error') }}
-        </div>
-        @endif
-
-        @if(session('success'))
-        <div class="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-300 px-4 py-3 rounded mb-4">
-            {{ session('success') }}
-        </div>
-        @endif
-
         <!-- Calendar Data Preparation -->
         @php
             $calendarData = ($ordersForCalendar ?? collect())->map(function($order) {
@@ -201,7 +189,7 @@
             $startDate = $deliveryDateFilter ?? request('delivery_date') ?? null;
         @endphp
 
-        <div x-data="kanbanBoard({{ Js::from($calendarData) }}, '{{ $startDate }}')" x-cloak>
+        <div x-data="kanbanBoardIndex({{ Js::from($calendarData) }}, '{{ $startDate }}')" x-cloak>
 
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <div>
@@ -402,7 +390,7 @@
         </div>
         @endif
 
-        <div x-show="view === 'kanban'" class="kanban-board flex gap-4 overflow-x-auto pb-4" @if($hasFilters) style="display:none;" @endif>
+        <div x-show="view === 'kanban'" class="kanban-board flex gap-4 overflow-x-auto pb-4">
             @foreach($statuses as $status)
                 <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex-shrink-0 overflow-hidden shadow-sm" style="min-width: 320px; max-width: 320px;">
                     <div class="px-4 py-3 font-semibold flex justify-between items-center text-white" 

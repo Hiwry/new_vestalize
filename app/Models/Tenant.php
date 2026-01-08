@@ -21,11 +21,13 @@ class Tenant extends Model
         'logo_path',
         'primary_color',
         'secondary_color',
+        'sublimation_total_enabled',
     ];
 
     protected $casts = [
         'trial_ends_at' => 'datetime',
         'subscription_ends_at' => 'datetime',
+        'sublimation_total_enabled' => 'boolean',
     ];
 
     /**

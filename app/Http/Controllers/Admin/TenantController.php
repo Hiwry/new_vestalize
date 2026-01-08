@@ -67,6 +67,26 @@ class TenantController extends Controller
             'store_name' => 'Matriz', // Default store name?
         ]);
 
+        // Seed Default Store for Tenant
+        $store = \App\Models\Store::create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Matriz',
+            'is_main' => true,
+            'is_active' => true,
+        ]);
+
+        // Seed Default Statuses for Tenant
+        $defaultStatuses = [
+            ['name' => 'Pendente', 'color' => '#f59e0b', 'position' => 1],
+            ['name' => 'Em Produção', 'color' => '#3b82f6', 'position' => 2],
+            ['name' => 'Concluído', 'color' => '#10b981', 'position' => 3],
+            ['name' => 'Cancelado', 'color' => '#ef4444', 'position' => 4],
+        ];
+
+        foreach ($defaultStatuses as $ds) {
+            \App\Models\Status::create(array_merge($ds, ['tenant_id' => $tenant->id]));
+        }
+
         // Send Welcome Email
         try {
             \Illuminate\Support\Facades\Mail::to($tenant->email)->send(new \App\Mail\TenantWelcomeMail($tenant, $user, $password));

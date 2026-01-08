@@ -100,7 +100,7 @@
                         <div class="flex flex-col">
                             <span class="text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Status</span>
                             <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-md mt-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 w-fit">
-                                <?php echo e($order->status->name); ?>
+                                <?php echo e($order->status->name ?? 'Indefinido'); ?>
 
                             </span>
                         </div>
@@ -171,6 +171,74 @@
                     </div>
                     <?php endif; ?>
                 </div>
+
+                <!-- NF-e -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white inline-flex items-center gap-2">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Nota Fiscal Eletrônica (NF-e)
+                        </h2>
+                        <?php
+                            $invoice = \App\Models\Invoice::where('order_id', $order->id)->where('status', '!=', 'cancelled')->first();
+                        ?>
+                        
+                        <?php if(!$invoice): ?>
+                        <form action="<?php echo e(route('admin.invoice.emit', $order->id)); ?>" method="POST" onsubmit="return confirm('Deseja realmente emitir a NF-e para este pedido?')">
+                            <?php echo csrf_field(); ?>
+                            <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors shadow-sm">
+                                Emitir NF-e
+                            </button>
+                        </form>
+                        <?php endif; ?>
+                    </div>
+
+                    <?php if($invoice): ?>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-slate-800/50 rounded-md border border-gray-200 dark:border-gray-700">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">NF-e #<?php echo e($invoice->numero ?? 'Processando'); ?></p>
+                                <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Status: 
+                                    <span class="font-semibold <?php echo e($invoice->status == 'authorized' ? 'text-green-600' : 'text-blue-600'); ?>">
+                                        <?php echo e($invoice->status_label); ?>
+
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="flex gap-2">
+                                <?php if($invoice->danfe_url): ?>
+                                <a href="<?php echo e($invoice->danfe_url); ?>" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">Ver DANFE</a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <!-- Detalhes da Reforma Tributária 2026 -->
+                        <?php if($invoice->ibs_valor_total > 0 || $invoice->cbs_valor_total > 0): ?>
+                        <div class="p-3 bg-amber-50 dark:bg-amber-900/10 rounded-md border border-amber-100 dark:border-amber-900/30">
+                            <h3 class="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider mb-2">Reforma Tributária (Fase 2026)</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-[10px] text-amber-700 dark:text-amber-500 font-medium">CBS (0,9%)</p>
+                                    <p class="text-sm font-bold text-amber-900 dark:text-amber-200">R$ <?php echo e(number_format($invoice->cbs_valor_total, 2, ',', '.')); ?></p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-amber-700 dark:text-amber-500 font-medium">IBS (0,1%)</p>
+                                    <p class="text-sm font-bold text-amber-900 dark:text-amber-200">R$ <?php echo e(number_format($invoice->ibs_valor_total, 2, ',', '.')); ?></p>
+                                </div>
+                            </div>
+                            <p class="text-[9px] text-amber-600 dark:text-amber-500/70 mt-2 italic">
+                                * Valores projetados conforme Emenda Constitucional 132/2023.
+                            </p>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <?php else: ?>
+                    <p class="text-xs text-gray-500 dark:text-slate-400">
+                        Nenhuma NF-e emitida para este pedido. Certifique-se de configurar os dados da empresa em "Configurações > NF-e".
+                    </p>
+                    <?php endif; ?>
 
                 <!-- Cliente -->
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-gray-700 p-6 mb-6">

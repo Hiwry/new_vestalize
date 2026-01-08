@@ -293,7 +293,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white" 
                                               style="background-color: {{ $order->status->color ?? '#6B7280' }}">
-                                            {{ $order->status->name }}
+                                            {{ $order->status->name ?? 'Indefinido' }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">

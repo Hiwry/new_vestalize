@@ -57,20 +57,34 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <?php if($tenant->status === 'active'): ?>
+                                        <?php
+                                            $isAtrasado = ($tenant->status === 'suspended') || 
+                                                         ($tenant->trial_ends_at && $tenant->trial_ends_at->isPast() && $tenant->status === 'active' && !$tenant->subscription_ends_at) ||
+                                                         ($tenant->subscription_ends_at && $tenant->subscription_ends_at->isPast() && $tenant->status === 'active');
+                                        ?>
+                                        
+                                        <?php if($isAtrasado): ?>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-600 text-white animate-pulse">
+                                                🚨 Inadimplente
+                                            </span>
+                                        <?php elseif($tenant->status === 'active'): ?>
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                                 Ativo
                                             </span>
                                         <?php else: ?>
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
                                                 <?php echo e(ucfirst($tenant->status)); ?>
 
                                             </span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                        <?php echo e($tenant->subscription_ends_at ? $tenant->subscription_ends_at->format('d/m/Y') : '-'); ?>
+                                        <?php if($tenant->trial_ends_at && $tenant->trial_ends_at->isFuture()): ?>
+                                            <span class="text-blue-500 font-semibold">Trial: <?php echo e($tenant->trial_ends_at->format('d/m/Y')); ?></span>
+                                        <?php else: ?>
+                                            <?php echo e($tenant->subscription_ends_at ? $tenant->subscription_ends_at->format('d/m/Y') : '-'); ?>
 
+                                        <?php endif; ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-4">
                                         <a href="<?php echo e(route('admin.tenants.edit', $tenant)); ?>" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">Editar</a>

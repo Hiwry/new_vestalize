@@ -50,7 +50,7 @@
 @push('scripts')
 <script>
     document.addEventListener('alpine:init', () => {
-        Alpine.data('kanbanBoard', (ordersData, startDate) => ({
+        Alpine.data('kanbanBoardProd', (ordersData, startDate) => ({
             view: 'kanban', // 'kanban' | 'calendar'
             showFilters: true,
             currentDate: startDate ? new Date(startDate + 'T12:00:00') : new Date(),
@@ -133,19 +133,7 @@
 
 @section('content')
     <div class="max-w-[1800px] mx-auto">
-        @if(session('error'))
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {{ session('error') }}
-        </div>
-        @endif
 
-        @if(session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-            {{ session('success') }}
-        </div>
-        @endif
-
-        @endif
 
         <!-- Preparar dados para o calendário -->
         @php
@@ -172,7 +160,7 @@
             })->values();
         @endphp
 
-        <div x-data="kanbanBoard({{ Js::from($calendarEvents) }}, '{{ $startDate }}')" x-cloak>
+        <div x-data="kanbanBoardProd({{ Js::from($calendarEvents) }}, '{{ $startDate }}')" x-cloak>
             <!-- Header & Controls -->
             <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                 <div>

@@ -26,9 +26,19 @@ class CheckPlanLimits
     {
         $user = $request->user();
         
-        if (!$user || !$user->tenant) {
+        if (!$user) {
             return redirect()->route('login')
                 ->with('error', 'Sessão expirada. Por favor, faça login novamente.');
+        }
+
+        // Se for Super Admin (Admin Master) sem tenant, ignora limites de plano
+        if ($user->isAdminGeral() && $user->tenant_id === null) {
+            return $next($request);
+        }
+
+        if (!$user->tenant) {
+            return redirect()->route('login')
+                ->with('error', 'Sessão expirada ou loja não configurada. Por favor, faça login novamente.');
         }
 
         $tenant = $user->tenant;

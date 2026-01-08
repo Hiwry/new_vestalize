@@ -185,8 +185,8 @@
                         @endif
                     </td>
                     <td class="text-center">
-                        <span class="status-badge" style="background-color: {{ $order->status->color }}; color: white;">
-                            {{ $order->status->name }}
+                        <span class="status-badge" style="background-color: {{ $order->status->color ?? '#6B7280' }}; color: white;">
+                            {{ $order->status->name ?? 'Indefinido' }}
                         </span>
                     </td>
                     <td class="text-center">

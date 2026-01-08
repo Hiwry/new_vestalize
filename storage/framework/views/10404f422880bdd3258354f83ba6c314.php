@@ -73,24 +73,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
-                        <p class="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Chave PIX Alternativa (Manual)</p>
-                        <div class="bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl p-4 border border-indigo-100 dark:border-indigo-800/50">
-                            <div class="flex items-center justify-between gap-2">
-                                <div>
-                                    <span class="text-[10px] text-indigo-500 dark:text-indigo-400 font-bold block">CHAVE ALEATÓRIA</span>
-                                    <code class="text-xs font-mono text-gray-700 dark:text-gray-300 break-all" id="static-pix-key">658ce7fe-13c0-489b-809d-89141bad5bcd</code>
-                                </div>
-                                <button onclick="copyContent('static-pix-key')" class="shrink-0 p-2 text-indigo-500 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-lg transition-colors" title="Copiar Chave">
-                                    <i class="fa-regular fa-copy"></i>
-                                </button>
-                            </div>
-                            <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-2 italic">
-                                * Se o QR Code dinâmico falhar, use esta chave e envie o comprovante.
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -245,7 +227,7 @@
                             </div>
                             
                             <div class="mb-6">
-                                <span class="text-3xl font-bold text-gray-900 dark:text-white">R$ <?php echo e(number_format($plan->price, 0, ',', '.')); ?></span>
+                                <span class="text-3xl font-bold text-gray-900 dark:text-white">R$ <?php echo e(number_format($plan->price, 2, ',', '.')); ?></span>
                                 <span class="text-gray-500 dark:text-gray-400 text-sm">/mês</span>
                             </div>
                             
@@ -425,9 +407,9 @@
     function copyContent(id) {
         const text = document.getElementById(id).innerText;
         navigator.clipboard.writeText(text).then(() => {
-            alert('Copiado para a área de transferência!');
+            notify('Copiado para a área de transferência!', 'success', 2000);
         }).catch(err => {
-            console.error('Erro ao copiar: ', err);
+            notify('Erro ao copiar', 'error');
         });
     }
 
@@ -450,30 +432,89 @@
             const data = await response.json();
 
             if (data.error) {
-                if (response.status === 422 || response.status === 401) {
-                    alert('Não foi possível gerar o QR Code dinâmico no momento (restrição da operadora). \n\nPor favor, utilize a "Chave PIX Alternativa" que aparece na caixa azul logo ao lado!');
-                } else {
-                    alert(data.error);
-                }
+                showToast(data.error, 'error');
             } else {
                 document.getElementById('pix-qr-code').src = `data:image/png;base64,${data.qr_code_base64}`;
                 document.getElementById('pix-copy-paste').innerText = data.qr_code;
-                document.getElementById('pix-ticket-url').href = data.ticket_url;
+                
+                // Ajustar link do ticket (pode ser # no fallback)
+                const ticketLink = document.getElementById('pix-ticket-url');
+                if (data.ticket_url && data.ticket_url !== '#') {
+                    ticketLink.href = data.ticket_url;
+                    ticketLink.classList.remove('hidden');
+                } else {
+                    ticketLink.classList.add('hidden');
+                }
+                
                 document.getElementById('pix-display-area').classList.remove('hidden');
+                
+                // Se for fallback, mostrar nota especial
+                if (data.source === 'pixservice') {
+                    showToast('PIX gerado! Após o pagamento, envie o comprovante para ativar seu plano. Chave: ' + data.pix_key, 'warning', 8000);
+                } else {
+                    showToast('PIX gerado com sucesso! Escaneie o QR Code abaixo.', 'success');
+                }
                 
                 // Rolar até a área do PIX
                 document.getElementById('pix-display-area').scrollIntoView({ behavior: 'smooth' });
-                
-                // Alerta de sucesso
-                alert('PIX gerado com sucesso! Veja o QR Code no topo da página.');
             }
         } catch (error) {
             console.error('Error generating PIX:', error);
-            alert('Erro ao gerar PIX. Tente novamente mais tarde.');
+            showToast('Erro ao gerar PIX. Tente novamente mais tarde.', 'error');
         } finally {
             btn.disabled = false;
             btn.innerHTML = originalHtml;
         }
+    }
+    
+    // Toast Notification System
+    function showToast(message, type = 'info', duration = 5000) {
+        const container = document.getElementById('toast-container') || createToastContainer();
+        
+        const colors = {
+            success: 'bg-emerald-600',
+            error: 'bg-red-600',
+            warning: 'bg-amber-500',
+            info: 'bg-blue-600'
+        };
+        
+        const icons = {
+            success: 'fa-check-circle',
+            error: 'fa-times-circle',
+            warning: 'fa-exclamation-triangle',
+            info: 'fa-info-circle'
+        };
+        
+        const toast = document.createElement('div');
+        toast.className = `${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg flex items-start gap-3 max-w-md transform transition-all duration-300 translate-x-full opacity-0`;
+        toast.innerHTML = `
+            <i class="fa-solid ${icons[type]} text-lg mt-0.5 shrink-0"></i>
+            <span class="text-sm">${message}</span>
+            <button onclick="this.parentElement.remove()" class="ml-auto text-white/80 hover:text-white shrink-0">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Animate in
+        requestAnimationFrame(() => {
+            toast.classList.remove('translate-x-full', 'opacity-0');
+        });
+        
+        // Auto remove
+        setTimeout(() => {
+            toast.classList.add('translate-x-full', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
+    }
+    
+    function createToastContainer() {
+        const container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
+        document.body.appendChild(container);
+        return container;
     }
 </script>
 <?php $__env->stopPush(); ?>

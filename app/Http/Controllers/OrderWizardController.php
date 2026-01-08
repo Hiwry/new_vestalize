@@ -95,11 +95,18 @@ class OrderWizardController extends Controller
             }
         }
         
-        // Se ainda não encontrou (super admin ou usuário sem tenant), usar loja principal geral
-        if (!$storeId) {
+        // Se ainda não encontrou (super admin ou usuário sem tenant), usar loja principal do tenant ou geral
+    if (!$storeId) {
+        $mainStore = Store::where('is_main', true)
+            ->where('tenant_id', $user->tenant_id)
+            ->first();
+        
+        if (!$mainStore && !$user->tenant_id) {
             $mainStore = Store::where('is_main', true)->first();
-            $storeId = $mainStore ? $mainStore->id : null;
         }
+        
+        $storeId = $mainStore ? $mainStore->id : null;
+    }
         
         \Log::info('Store ID resolvido para pedido', [
             'user_id' => $user->id,
@@ -127,7 +134,7 @@ class OrderWizardController extends Controller
             'client_id' => $client->id,
             'user_id' => Auth::id(),
             'store_id' => $storeId,
-            'status_id' => $status?->id ?? 1,
+            'status_id' => $status?->id ?? Status::withoutGlobalScopes()->orderBy('id')->first()?->id,
             'order_date' => now()->toDateString(),
             'delivery_date' => $deliveryDate->toDateString(),
             'is_draft' => true, // Criar como rascunho
@@ -245,13 +252,20 @@ class OrderWizardController extends Controller
                 'currentStoreId' => $currentStoreId
             ]);
             
-            return view('orders.wizard.sewing', compact('order', 'fabrics', 'colors', 'currentStoreId'));
+            // Buscar tipos SUB. TOTAL para o tenant
+            $sublimationTypes = \App\Models\SublimationProductType::getForTenant($user->tenant_id);
+            // Habilitar se: tenant habilitou OU se existem tipos cadastrados (para super admin)
+            $sublimationEnabled = ($user->tenant && $user->tenant->sublimation_total_enabled) || $sublimationTypes->isNotEmpty();
+            
+            return view('orders.wizard.sewing', compact('order', 'fabrics', 'colors', 'currentStoreId', 'sublimationTypes', 'sublimationEnabled'));
         }
 
         $action = $request->input('action', 'add');
 
         if ($action === 'add_item') {
             return $this->addItem($request);
+        } elseif ($action === 'add_sublimation_item') {
+            return $this->addSublimationItem($request);
         } elseif ($action === 'update_item') {
             return $this->updateItem($request);
         } elseif ($action === 'finish') {
@@ -385,6 +399,106 @@ class OrderWizardController extends Controller
         }
 
         return redirect()->route('orders.wizard.sewing')->with('success', 'Item ' . $itemNumber . ' adicionado com sucesso!');
+    }
+
+    /**
+     * Adicionar item SUB. TOTAL (sublimação total)
+     */
+    private function addSublimationItem(Request $request)
+    {
+        $validated = $request->validate([
+            'sublimation_type' => 'required|string|max:50',
+            'sublimation_addons' => 'nullable|array',
+            'sublimation_addons.*' => 'integer',
+            'art_name' => 'required|string|max:255',
+            'tamanhos' => 'required|array',
+            'quantity' => 'required|integer|min:1',
+            'unit_price' => 'required|numeric|min:0',
+            'unit_cost' => 'nullable|numeric|min:0',
+            'item_cover_image' => 'nullable|image|max:10240',
+            'corel_file' => 'nullable|file|max:51200',
+            'art_notes' => 'nullable|string|max:1000',
+        ]);
+
+        $order = Order::with('items')->findOrFail(session('current_order_id'));
+
+        // Processar upload da imagem de capa
+        $coverImagePath = null;
+        if ($request->hasFile('item_cover_image')) {
+            $coverImagePath = $this->imageProcessor->processAndStore(
+                $request->file('item_cover_image'),
+                'orders/items/covers',
+                [
+                    'max_width' => 1200,
+                    'max_height' => 1200,
+                    'quality' => 85,
+                ]
+            );
+        }
+
+        // Processar upload do arquivo Corel
+        $corelFilePath = null;
+        if ($request->hasFile('corel_file')) {
+            $corelFile = $request->file('corel_file');
+            $fileName = time() . '_' . uniqid() . '_' . $corelFile->getClientOriginalName();
+            $corelFilePath = $corelFile->storeAs('orders/corel_files', $fileName, 'public');
+        }
+
+        // Buscar tipo para label e tecido padrão
+        $typeModel = \App\Models\SublimationProductType::with('tecido')->where('slug', $validated['sublimation_type'])->first();
+        $typeLabel = $typeModel ? $typeModel->name : $validated['sublimation_type'];
+        $fabricName = ($typeModel && $typeModel->tecido) ? $typeModel->tecido->name : ('SUB. TOTAL - ' . $typeLabel);
+
+        // Buscar adicionais selecionados para descrição
+        $addonsLabel = '';
+        if (!empty($validated['sublimation_addons'])) {
+            $addons = \App\Models\SublimationProductAddon::whereIn('id', $validated['sublimation_addons'])->pluck('name');
+            $addonsLabel = $addons->join(', ');
+        }
+
+        $itemNumber = $order->items()->count() + 1;
+
+        // Criar item SUB. TOTAL
+        $item = new OrderItem([
+            'item_number' => $itemNumber,
+            'fabric' => $fabricName,
+            'color' => 'Branco',
+            'collar' => $addonsLabel ?: '-',
+            'model' => $typeLabel,
+            'detail' => null,
+            'print_type' => 'SUB. TOTAL',
+            'art_name' => $validated['art_name'],
+            'sizes' => $validated['tamanhos'],
+            'quantity' => $validated['quantity'],
+            'unit_price' => $validated['unit_price'],
+            'total_price' => $validated['unit_price'] * $validated['quantity'],
+            'unit_cost' => $validated['unit_cost'] ?? 0,
+            'total_cost' => ($validated['unit_cost'] ?? 0) * $validated['quantity'],
+            'cover_image' => $coverImagePath,
+            'corel_file_path' => $corelFilePath,
+            'art_notes' => $validated['art_notes'] ?? null,
+            'is_sublimation_total' => true,
+            'sublimation_type' => $validated['sublimation_type'],
+            'sublimation_addons' => $validated['sublimation_addons'] ?? [],
+        ]);
+        $order->items()->save($item);
+        $item->refresh();
+
+        $order->update([
+            'subtotal' => $order->items()->sum('total_price'),
+            'total_items' => $order->items()->sum('quantity'),
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Item SUB. TOTAL #' . $itemNumber . ' adicionado!',
+                'html' => view('orders.wizard.partials.items_sidebar', compact('order'))->render(),
+                'items_data' => $order->items->toArray()
+            ]);
+        }
+
+        return redirect()->route('orders.wizard.sewing')->with('success', 'Item SUB. TOTAL #' . $itemNumber . ' adicionado!');
     }
 
     private function updateItem(Request $request)
@@ -558,7 +672,12 @@ class OrderWizardController extends Controller
             return redirect()->route('orders.wizard.sewing')->with('error', 'Adicione pelo menos um item antes de continuar.');
         }
 
-        // Coletar todas as personalizações únicas de todos os itens
+        // Verificar se todos os itens sÃ£o SUB. TOTAL
+        $allSublimationTotal = $order->items->every(function ($item) {
+            return (bool) $item->is_sublimation_total;
+        });
+
+        // Coletar todas as personalizaÃ§Ãµes Ãºnicas de todos os itens
         $allPersonalizations = [];
         foreach ($order->items as $item) {
             $itemPersonalizations = session('item_personalizations.' . $item->id, [[]]);
@@ -566,17 +685,20 @@ class OrderWizardController extends Controller
         }
         $allPersonalizations = array_unique($allPersonalizations);
 
-        // Salvar total de camisas na sessão para usar na personalização
+        // Salvar total de camisas na sessÃ£o para usar na personalizaÃ§Ã£o
         session(['total_shirts' => $order->items()->sum('quantity')]);
         
-        // Salvar personalizações selecionadas na sessão
+        // Salvar personalizaÃ§Ãµes selecionadas na sessÃ£o
         session(['selected_personalizations' => $allPersonalizations]);
 
-        // NOTA: Verificação de estoque REMOVIDA daqui para evitar duplicação
-        // A verificação é feita apenas na CONFIRMAÇÃO do pedido (linha 1048)
-        // Remover: StockService::checkAndReserveForOrder($order);
+        // Se todos os itens forem SUB. TOTAL, pular a etapa de personalizaÃ§Ã£o (Stage 3)
+        // pois eles jÃ¡ sÃ£o configurados inteiramente na Stage 2.
+        if ($allSublimationTotal) {
+            session(['selected_personalizations' => []]);
+            return redirect()->route('orders.wizard.payment');
+        }
 
-        // Se todas as personalizações forem "lisas", pular a etapa de personalização
+        // Se todas as personalizaÃ§Ãµes forem "lisas", pular a etapa de personalizaÃ§Ã£o
         if (!empty($allPersonalizations)) {
             $personalizationNames = ProductOption::whereIn('id', $allPersonalizations)->pluck('name');
             $onlyLisas = $personalizationNames->isNotEmpty() &&
@@ -585,10 +707,13 @@ class OrderWizardController extends Controller
                 });
 
             if ($onlyLisas) {
-                // Limpar personalizações para a próxima etapa e seguir direto
+                // Limpar personalizaÃ§Ãµes para a prÃ³xima etapa e seguir direto
                 session(['selected_personalizations' => []]);
                 return redirect()->route('orders.wizard.payment');
             }
+        } elseif (empty($allPersonalizations)) {
+            // Se nÃ£o hÃ¡ personalizaÃ§Ãµes, pular Stage 3
+            return redirect()->route('orders.wizard.payment');
         }
 
         return redirect()->route('orders.wizard.customization');

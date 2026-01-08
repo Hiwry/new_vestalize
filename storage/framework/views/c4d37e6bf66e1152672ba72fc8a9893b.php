@@ -172,6 +172,16 @@ unset($__errorArgs, $__bag); ?>
                                 Entrar
                             </button>
                         </div>
+
+                        <!-- Register Link -->
+                        <div class="text-center mt-4">
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Ainda não tem uma conta? 
+                                <a href="<?php echo e(route('register.public')); ?>" class="font-bold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 hover:underline transition-all">
+                                    Teste Grátis por 7 Dias
+                                </a>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </form>

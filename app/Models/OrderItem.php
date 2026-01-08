@@ -20,6 +20,7 @@ class OrderItem extends Model
         'print_desc',
         'art_name',
         'cover_image',
+        'corel_file_path',
         'sizes',
         'quantity',
         'unit_price',
@@ -27,16 +28,21 @@ class OrderItem extends Model
         'unit_cost',
         'total_cost',
         'is_pinned',
+        'is_sublimation_total',
+        'sublimation_type',
+        'sublimation_addons',
         'art_notes',
     ];
 
     protected $casts = [
         'sizes' => 'array',
+        'sublimation_addons' => 'array',
         'unit_price' => 'decimal:2',
         'total_price' => 'decimal:2',
         'unit_cost' => 'decimal:2',
         'total_cost' => 'decimal:2',
         'is_pinned' => 'boolean',
+        'is_sublimation_total' => 'boolean',
     ];
     protected $appends = ['cover_image_url'];
 

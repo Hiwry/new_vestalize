@@ -94,7 +94,7 @@
     @forelse($orders as $order)
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 relative overflow-hidden">
         <!-- Status Indicator Strip -->
-        <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background-color: {{ $order->status->color }}"></div>
+        <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background-color: {{ $order->status->color ?? '#6b7280' }}"></div>
         
         <div class="pl-2">
             <!-- Header: ID + Status + Date -->
@@ -105,8 +105,8 @@
                 </div>
                 <div class="text-right">
                     <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-md whitespace-nowrap" 
-                          style="background-color: {{ $order->status->color }}20; color: {{ $order->status->color }}">
-                        {{ $order->status->name }}
+                          style="background-color: {{ ($order->status->color ?? '#6b7280') }}20; color: {{ $order->status->color ?? '#6b7280' }}">
+                        {{ $order->status->name ?? 'Indefinido' }}
                     </span>
                     <div class="text-xs text-gray-400 mt-1">{{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y') }}</div>
                 </div>
@@ -252,8 +252,8 @@
                     <td class="px-4 py-4 whitespace-nowrap">
                         <div class="space-y-1">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full whitespace-nowrap" 
-                                  style="background-color: {{ $order->status->color }}20; color: {{ $order->status->color }}">
-                                {{ $order->status->name }}
+                                  style="background-color: {{ ($order->status->color ?? '#6b7280') }}20; color: {{ $order->status->color ?? '#6b7280' }}">
+                                {{ $order->status->name ?? 'Indefinido' }}
                             </span>
                             @if($order->has_pending_cancellation)
                             <div>

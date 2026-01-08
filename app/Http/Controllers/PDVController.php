@@ -1090,7 +1090,6 @@ class PDVController extends Controller
 
         // Criar itens do pedido
         $itemNumber = 1;
-        $stockRequestsCreated = [];
         $movementItems = []; // Para registrar nota de movimentação
         
         \Log::info('Iniciando processamento do checkout - Carrinho completo', [
@@ -1156,6 +1155,11 @@ class PDVController extends Controller
                     $orderItemData['fabric'] = $item->name ?? '';
                     $orderItemData['color'] = $item->color ?? '';
                     
+                    // Validar estoque
+                    if ($item->quantity < $cartItem['quantity']) {
+                        throw new \Exception("Estoque insuficiente para o suprimento: {$item->name} (Disponível: {$item->quantity})");
+                    }
+
                     // Deduzir estoque
                     $item->decrement('quantity', $cartItem['quantity']);
                 }
@@ -1167,6 +1171,11 @@ class PDVController extends Controller
                     $orderItemData['fabric'] = $item->name ?? '';
                     $orderItemData['color'] = ($item->size ?? '') . ' - ' . ($item->gender ?? '');
                     
+                    // Validar estoque
+                    if ($item->quantity < $cartItem['quantity']) {
+                        throw new \Exception("Estoque insuficiente para o uniforme: {$item->name} (Disponível: {$item->quantity})");
+                    }
+
                      // Deduzir estoque
                     $item->decrement('quantity', $cartItem['quantity']);
                 }
@@ -1196,30 +1205,10 @@ class PDVController extends Controller
                 }
             }
 
-            $orderItem = OrderItem::create($orderItemData);
-            
-            // Criar Solicitação de Reserva de Estoque para product_option (tipo de corte)
-            // NOTA: fabric_id é opcional - solicitação é criada com base em cut_type_id e color_id
-            if (isset($cartItem['type']) && $cartItem['type'] === 'product_option' 
-                && isset($cartItem['size']) && isset($cartItem['color_id']) 
-                && isset($cartItem['cut_type_id'])) {
-                
-                \Log::info('Criando solicitação de reserva para item do carrinho', ['cart_item' => $cartItem]);
-                
-                // Criar solicitação de reserva para aprovação
-                $fabricId = $cartItem['fabric_id'] ?? null;
-                $this->checkStockAndCreateRequest(
-                    $storeId,
-                    $fabricId,
-                    $cartItem['color_id'],
-                    $cartItem['cut_type_id'],
-                    $cartItem['size'],
-                    (int)$cartItem['quantity'],
-                    $order->id // Vincular ao pedido
-                );
-                
-                // Tentar descontar do estoque (PRODUÇÃO) - só se fabrics_id estiver presente
-                if ($fabricId) {
+                // Tentar descontar do estoque (PRODUÇÃO)
+                if (isset($cartItem['size']) && isset($cartItem['color_id']) && isset($cartItem['cut_type_id'])) {
+                    $fabricId = $cartItem['fabric_id'] ?? null;
+                    
                     $stockDeducted = $this->deductStockFromSale(
                         $storeId,
                         $fabricId,
@@ -1229,19 +1218,25 @@ class PDVController extends Controller
                         (int)$cartItem['quantity']
                     );
                     
-                    // Registrar item para nota de movimentação se foi descontado
-                    if ($stockDeducted) {
-                        $movementItems[] = [
-                            'stock_id' => null, // Será preenchido pelo modelo
-                            'fabric_type_id' => $fabricId,
-                            'color_id' => $cartItem['color_id'],
-                            'cut_type_id' => $cartItem['cut_type_id'],
-                            'size' => $cartItem['size'],
-                            'quantity' => (int)$cartItem['quantity'],
-                        ];
+                    // BLOQUEIO: Se não conseguiu descontar estoque, cancelar a venda
+                    if (!$stockDeducted) {
+                        $fabricName = $fabricId ? (\App\Models\ProductOption::find($fabricId)->name ?? 'Tecido') : 'S/ Tecido';
+                        $colorName = \App\Models\ProductOption::find($cartItem['color_id'])->name ?? 'Cor';
+                        throw new \Exception("Estoque insuficiente para o item: {$fabricName} - {$colorName} ({$cartItem['size']})");
                     }
+                    
+                    // Registrar item para nota de movimentação
+                    $movementItems[] = [
+                        'stock_id' => null, // Será preenchido pelo modelo
+                        'fabric_type_id' => $fabricId,
+                        'color_id' => $cartItem['color_id'],
+                        'cut_type_id' => $cartItem['cut_type_id'],
+                        'size' => $cartItem['size'],
+                        'quantity' => (int)$cartItem['quantity'],
+                    ];
                 }
-            }
+
+                $orderItem = OrderItem::create($orderItemData);
             
             // Criar personalizações sub.local se houver
             $sublimationsTotal = 0;
@@ -1386,21 +1381,15 @@ class PDVController extends Controller
 
             return [
                 'order' => $order,
-                'stockRequestsCreated' => $stockRequestsCreated,
                 'movementId' => $movementId,
             ];
         }); // ========== FIM DA TRANSAÇÃO ==========
-
+        
         // Extrair resultados da transação
         $order = $result['order'];
-        $stockRequestsCreated = $result['stockRequestsCreated'];
         $movementId = $result['movementId'];
-
+        
         $message = 'Venda realizada com sucesso';
-        $requestsCount = count($stockRequestsCreated);
-        if ($requestsCount > 0) {
-            $message .= ". {$requestsCount} solicitação(ões) de estoque criada(s) automaticamente.";
-        }
         
         \Log::info('Checkout do PDV concluído', [
             'order_id' => $order->id,
@@ -1414,8 +1403,6 @@ class PDVController extends Controller
             'order_id' => $order->id,
             'order_number' => str_pad($order->id, 6, '0', STR_PAD_LEFT),
             'receipt_url' => route('pdv.sale-receipt', $order->id), // URL para gerar nota de venda do PDV
-            'stock_requests_created' => $requestsCount,
-            'stock_requests_details' => $stockRequestsCreated,
             'movement_id' => $movementId, // ID da movimentação de estoque para impressão
             'movement_print_url' => $movementId ? route('stocks.movements.print', $movementId) : null,
         ]);
@@ -1712,7 +1699,7 @@ class PDVController extends Controller
         }
         
         try {
-            $stock = Stock::findByParams($storeId, $fabricId, $colorId, $cutTypeId, $size);
+            $stock = Stock::findByParams($storeId, $fabricId, null, $colorId, $cutTypeId, $size);
             
             if ($stock && $stock->available_quantity >= $quantity) {
                 $stock->use($quantity);
