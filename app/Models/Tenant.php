@@ -33,6 +33,7 @@ class Tenant extends Model
     /**
      * Constantes para os planos
      */
+    const PLAN_START = 'start';
     const PLAN_BASIC = 'basic';
     const PLAN_PRO = 'pro';
     const PLAN_PREMIUM = 'premium';

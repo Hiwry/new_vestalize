@@ -13,6 +13,17 @@ class PlansSeeder extends Seeder
     public function run(): void
     {
         $plans = [
+             'start' => [
+                'name' => 'Start',
+                'slug' => 'start',
+                'price' => 100.00,
+                'description' => 'Plano essencial com custo reduzido.',
+                'limits' => [
+                    'stores' => 1,
+                    'users' => 1,
+                ],
+                'features' => ['orders', 'crm'],
+            ],
              'basic' => [
                 'name' => 'Básico',
                 'slug' => 'basic',
