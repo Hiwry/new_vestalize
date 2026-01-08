@@ -305,11 +305,11 @@
     @endif
 
     <!-- Formas de Pagamento -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 {{ !Auth::user()->tenant->canAccess('financial') ? 'opacity-50 grayscale pointer-events-none relative overflow-hidden' : '' }}">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 {{ (Auth::user()->tenant && !Auth::user()->tenant->canAccess('financial')) ? 'opacity-50 grayscale pointer-events-none relative overflow-hidden' : '' }}">
         <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">Meios de Pagamento</h2>
         <div style="height: 300px; position: relative;">
             <canvas id="pagamentoChart"></canvas>
-            @if(!Auth::user()->tenant->canAccess('financial'))
+            @if(Auth::user()->tenant && !Auth::user()->tenant->canAccess('financial'))
             <div class="absolute inset-0 flex flex-col items-center justify-center bg-white/60 dark:bg-gray-800/60 backdrop-blur-[2px] z-10 p-4 text-center">
                 <p class="text-xs font-bold text-gray-500">Bloqueado no Plano Atual</p>
             </div>
@@ -322,7 +322,7 @@
 <!-- Seção de Tabelas de Detalhamento -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
     <!-- Top 10 Clientes -->
-    @if(!Auth::user()->tenant || Auth::user()->tenant->canAccess('crm'))
+    @if(!Auth::user()->tenant || (Auth::user()->tenant && Auth::user()->tenant->canAccess('crm')))
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
             <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100 italic">Ranking de Clientes</h2>
@@ -365,7 +365,7 @@
 
     <!-- Top Vendedores ou Pagamentos Pendentes -->
     @if(isset($topVendedores) && $topVendedores->isNotEmpty())
-        @if(!Auth::user()->tenant || Auth::user()->tenant->canAccess('reports_simple'))
+        @if(!Auth::user()->tenant || (Auth::user()->tenant && Auth::user()->tenant->canAccess('reports_simple')))
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
             <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
                 <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100 italic">Desempenho Comercial</h2>
@@ -434,7 +434,7 @@
 </div>
 
 <!-- Produtos Mais Vendidos -->
-@if(isset($produtosMaisVendidos) && $produtosMaisVendidos->isNotEmpty() && (!Auth::user()->tenant || Auth::user()->tenant->canAccess('reports_simple')))
+@if(isset($produtosMaisVendidos) && $produtosMaisVendidos->isNotEmpty() && (!Auth::user()->tenant || (Auth::user()->tenant && Auth::user()->tenant->canAccess('reports_simple'))))
 <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 overflow-hidden mb-8">
     <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Produtos Mais Vendidos</h2>
