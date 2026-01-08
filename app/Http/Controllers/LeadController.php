@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class LeadController extends Controller
 {
@@ -17,6 +18,9 @@ class LeadController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:leads,email',
             'phone' => 'nullable|string|max:20',
+            'g-recaptcha-response' => 'required',
+        ], [
+            'g-recaptcha-response.required' => 'Por favor, confirme que você não é um robô.',
         ]);
 
         if ($validator->fails()) {
@@ -24,6 +28,27 @@ class LeadController extends Controller
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
+        }
+
+        // Validate reCAPTCHA
+        $recaptchaResponse = $request->input('g-recaptcha-response');
+        $recaptchaSecret = config('services.recaptcha.secret_key');
+        
+        if ($recaptchaSecret && $recaptchaSecret !== 'YOUR_SECRET_KEY') {
+            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => $recaptchaSecret,
+                'response' => $recaptchaResponse,
+                'remoteip' => $request->ip(),
+            ]);
+
+            $recaptchaResult = $response->json();
+            
+            if (!($recaptchaResult['success'] ?? false)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Verificação de segurança falhou. Tente novamente.'
+                ], 422);
+            }
         }
 
         try {
@@ -39,10 +64,8 @@ class LeadController extends Controller
                 Mail::to($lead->email)->send(new VipListConfirmed($lead));
             } catch (\Exception $e) {
                 Log::error("Erro ao enviar email VIP: " . $e->getMessage());
-                // Não falha a requisição se apenas o email der erro
             }
 
-            // Optional: Notify Admin (log for now, or send another mail)
             Log::info("Novo Lead VIP cadastrado: {$lead->email}");
 
             return response()->json([

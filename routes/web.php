@@ -180,6 +180,8 @@ Route::middleware('auth')->group(function () {
 
     // Leads (Lista VIP)
     Route::get('/leads', [\App\Http\Controllers\Admin\LeadController::class, 'index'])->name('admin.leads.index');
+    Route::post('/leads/bulk-delete', [\App\Http\Controllers\Admin\LeadController::class, 'bulkDelete'])->name('admin.leads.bulk-delete');
+    Route::delete('/leads/{id}', [\App\Http\Controllers\Admin\LeadController::class, 'destroy'])->name('admin.leads.destroy');
 
     // Kanban
     Route::middleware('plan:kanban')->group(function () {

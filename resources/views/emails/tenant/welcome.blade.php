@@ -19,7 +19,7 @@ Olá **{{ $tenant->name }}**,
 
 ---
 
-<x-mail::button :url="config('app.url')" color="primary">
+<x-mail::button :url="config('app.url') . '/login'" color="primary">
 🚀 Acessar o Sistema
 </x-mail::button>
 
