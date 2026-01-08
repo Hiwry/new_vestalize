@@ -236,7 +236,7 @@
 <!-- Seção de Gráficos de Desempenho -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
     <!-- Pedidos por Status -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 {{ (!Auth::user()->tenant || Auth::user()->tenant->canAccess('reports_simple')) ? '' : 'opacity-50 grayscale pointer-events-none relative overflow-hidden' }}">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 {{ (Auth::user()->tenant && !Auth::user()->tenant->canAccess('reports_simple')) ? 'opacity-50 grayscale pointer-events-none relative overflow-hidden' : '' }}">
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">Fluxo de Pedidos</h2>
             <span class="text-xs text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg">Por Status</span>
@@ -254,10 +254,10 @@
     </div>
 
     <!-- Faturamento Temporal -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 {{ !Auth::user()->tenant->canAccess('financial') ? 'opacity-50 grayscale pointer-events-none relative overflow-hidden' : '' }}">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 {{ (Auth::user()->tenant && !Auth::user()->tenant->canAccess('financial')) ? 'opacity-50 grayscale pointer-events-none relative overflow-hidden' : '' }}">
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">Tendência de Receita</h2>
-            @if(Auth::user()->tenant->canAccess('financial'))
+            @if(Auth::user()->tenant && Auth::user()->tenant->canAccess('financial'))
             <div class="flex items-center gap-2">
                 <span class="w-3 h-3 bg-indigo-500 rounded-full"></span>
                 <span class="text-xs text-gray-500">Valor (R$)</span>
@@ -266,7 +266,7 @@
         </div>
         <div style="height: 300px; position: relative;">
             <canvas id="faturamentoChart"></canvas>
-            @if(!Auth::user()->tenant->canAccess('financial'))
+            @if(Auth::user()->tenant && !Auth::user()->tenant->canAccess('financial'))
             <div class="absolute inset-0 flex flex-col items-center justify-center bg-white/60 dark:bg-gray-800/60 backdrop-blur-[2px] z-10 p-4 text-center">
                 <svg class="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                 <p class="text-sm font-bold text-gray-700 dark:text-gray-300">Upgrade para Plano Pro</p>
@@ -279,14 +279,14 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
     <!-- Faturamento por Loja (Se múltiplo) -->
-    @if(isset($faturamentoPorLoja) && $faturamentoPorLoja->count() > 1 && Auth::user()->tenant->canAccess('financial'))
+    @if(isset($faturamentoPorLoja) && $faturamentoPorLoja->count() > 1 && Auth::user()->tenant && Auth::user()->tenant->canAccess('financial'))
     <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
         <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">Performance por Unidade</h2>
         <div style="height: 300px; position: relative;">
             <canvas id="faturamentoLojaChart"></canvas>
         </div>
     </div>
-    @elseif(Auth::user()->tenant->canAccess('financial'))
+    @elseif(Auth::user()->tenant && Auth::user()->tenant->canAccess('financial'))
     <!-- Faturamento Mensal (Destaque) -->
     <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
         <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">Evolução Mensal</h2>
