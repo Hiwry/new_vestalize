@@ -115,6 +115,29 @@ Por favor, entre em contato com o cliente para formalizar o upgrade.
     }
     
     /**
+     * Valida um cupom de desconto
+     */
+    public function validateCoupon(Request $request)
+    {
+        $code = strtoupper($request->input('code'));
+        $planId = $request->input('plan_id');
+
+        // Lógica simples de cupom conforme pedido do usuário
+        if ($code === 'VESTASTART' && $planId == 3) { // 3 é o ID do Plano Start criado
+            return response()->json([
+                'success' => true,
+                'discount_price' => 79.90,
+                'message' => 'Cupom VESTASTART aplicado! Desconto de R$ 20,00 concedido.'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Cupom inválido ou não aplicável a este plano.'
+        ]);
+    }
+
+    /**
      * Request subscription renewal
      */
     public function renewRequest()

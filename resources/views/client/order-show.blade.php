@@ -4,7 +4,35 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Meu Pedido #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</title>
+    <title>Meu Pedido #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }} - {{ $companySettings->company_name ?? $order->tenant->name }}</title>
+    
+    <!-- Dynamic Favicon -->
+    @php
+        $tenantLogo = $order->tenant->logo_path ?? null;
+        $settingsLogo = $companySettings->logo_path ?? null;
+        $finalLogoUrl = null;
+        
+        if ($tenantLogo && file_exists(public_path('storage/' . $tenantLogo))) {
+            $finalLogoUrl = asset('storage/' . $tenantLogo);
+        } elseif ($settingsLogo && file_exists(public_path($settingsLogo))) {
+            $finalLogoUrl = asset($settingsLogo);
+        } elseif ($settingsLogo && file_exists(public_path('storage/' . $settingsLogo))) {
+            $finalLogoUrl = asset('storage/' . $settingsLogo);
+        }
+    @endphp
+    
+    @if($finalLogoUrl)
+    <link rel="icon" type="image/x-icon" href="{{ $finalLogoUrl }}">
+    @endif
+
+    <!-- OpenGraph / Social Media -->
+    <meta property="og:title" content="Meu Pedido #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}">
+    <meta property="og:description" content="Acompanhe o status do seu pedido na {{ $companySettings->company_name ?? $order->tenant->name }}">
+    @if($finalLogoUrl)
+    <meta property="og:image" content="{{ $finalLogoUrl }}">
+    @endif
+    <meta property="og:type" content="website">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -13,6 +41,11 @@
     </script>
     <script src="{{ asset('js/dark-mode.js') }}"></script>
     <style>
+        :root {
+            --primary-color: {{ $order->tenant->primary_color ?? '#312e81' }};
+            --secondary-color: {{ $order->tenant->secondary_color ?? '#4338ca' }};
+        }
+
         @media (max-width: 640px) {
             .mobile-padding { padding: 1rem; }
             .mobile-text-sm { font-size: 0.875rem; }
@@ -45,6 +78,12 @@
                 max-height: 120px;
             }
         }
+        
+        /* Dynamic Theme Colors */
+        .bg-primary { background-color: var(--primary-color); }
+        .bg-secondary { background-color: var(--secondary-color); }
+        .text-primary { color: var(--primary-color); }
+        .border-primary { border-color: var(--primary-color); }
         
         /* Dark mode text colors */
         .dark .client-order p,
@@ -103,8 +142,11 @@
 </head>
 <body class="client-order bg-gray-50 dark:bg-slate-950 min-h-screen transition-colors duration-200">
     <!-- Header -->
-    <div class="bg-gray-800 dark:bg-gradient-to-r dark:from-indigo-700 dark:via-indigo-800 dark:to-purple-700 text-white py-6 px-4 mobile-padding shadow-sm dark:shadow-lg dark:shadow-indigo-900/30">
-        <div class="max-w-md mx-auto">
+    <div class="bg-primary text-white py-6 px-4 mobile-padding shadow-sm dark:shadow-lg dark:shadow-indigo-900/30">
+        <div class="max-w-md mx-auto flex flex-col items-center">
+            @if($order->tenant->logo_path)
+                <img src="{{ asset('storage/' . $order->tenant->logo_path) }}" alt="Logo" class="h-12 w-auto mb-3 object-contain">
+            @endif
             <h1 class="text-xl font-semibold text-center">Meu Pedido</h1>
             <p class="text-center text-gray-300 dark:text-indigo-200 mobile-text-sm">#{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</p>
         </div>
@@ -394,28 +436,57 @@
                 // Garantir que sizes seja um array
                 $itemSizes = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) && !empty($item->sizes) ? json_decode($item->sizes, true) : []);
                 $itemSizes = $itemSizes ?? [];
+
+                // Verificação de tamanhos reais (mesma lógica do Kanban)
+                $hasRealSizes = false;
+                $totalQuantity = 0;
+                
+                if (!empty($itemSizes)) {
+                    foreach ($itemSizes as $size => $quantity) {
+                        $qty = (int)$quantity;
+                        $totalQuantity += $qty;
+                        if ($qty > 0 && strtoupper($size) !== 'ÚNICO' && strtoupper($size) !== 'UN' && strtoupper($size) !== 'UNICO') {
+                            $hasRealSizes = true;
+                        }
+                    }
+                }
+
+                $isSimpleItem = !$hasRealSizes;
+                $printType = trim($item->print_type ?? '');
+                $fabric = trim($item->fabric ?? '');
+                
+                $shouldShowTotalOnly = (($printType === 'Sublimação Local' || $fabric === 'Produto Pronto') && $isSimpleItem);
             @endphp
+
             <div class="mb-3">
-                <p class="text-gray-600 dark:text-slate-400 mobile-text-xs mb-2">Tamanhos</p>
-                <div class="grid grid-cols-5 gap-1 mobile-text-xs">
-                    @foreach(['PP', 'P', 'M', 'G', 'GG'] as $size)
-                    <div class="text-center p-1.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded text-sm text-gray-900 dark:text-white">
-                        <div class="font-medium">{{ $size }}</div>
-                        <div>{{ $itemSizes[$size] ?? 0 }}</div>
+                <p class="text-gray-600 dark:text-slate-400 mobile-text-xs mb-2">Quantidades</p>
+                
+                @if($shouldShowTotalOnly)
+                    <div class="flex items-center justify-between bg-gray-50 dark:bg-slate-800/50 p-3 rounded border border-gray-200 dark:border-slate-700">
+                        <span class="text-gray-700 dark:text-slate-300 font-medium text-sm">Quantidade Total</span>
+                        <span class="text-lg font-bold text-gray-900 dark:text-white">{{ $totalQuantity }}</span>
                     </div>
-                    @endforeach
-                </div>
-                @if(isset($itemSizes['EXG']) || isset($itemSizes['G1']) || isset($itemSizes['G2']) || isset($itemSizes['G3']) || isset($itemSizes['ESPECIAL']))
-                <div class="grid grid-cols-5 gap-1 mobile-text-xs mt-1">
-                    @foreach(['EXG', 'G1', 'G2', 'G3', 'ESPECIAL'] as $size)
-                    @if(isset($itemSizes[$size]) && $itemSizes[$size] > 0)
-                    <div class="text-center p-1.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded text-sm text-gray-900 dark:text-white">
-                        <div class="font-medium">{{ $size }}</div>
-                        <div>{{ $itemSizes[$size] }}</div>
+                @else
+                    <div class="grid grid-cols-5 gap-1 mobile-text-xs">
+                        @foreach(['PP', 'P', 'M', 'G', 'GG'] as $size)
+                        <div class="text-center p-1.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded text-sm text-gray-900 dark:text-white">
+                            <div class="font-medium">{{ $size }}</div>
+                            <div>{{ $itemSizes[$size] ?? 0 }}</div>
+                        </div>
+                        @endforeach
+                    </div>
+                    @if(isset($itemSizes['EXG']) || isset($itemSizes['G1']) || isset($itemSizes['G2']) || isset($itemSizes['G3']) || isset($itemSizes['ESPECIAL']))
+                    <div class="grid grid-cols-5 gap-1 mobile-text-xs mt-1">
+                        @foreach(['EXG', 'G1', 'G2', 'G3', 'ESPECIAL'] as $size)
+                        @if(isset($itemSizes[$size]) && $itemSizes[$size] > 0)
+                        <div class="text-center p-1.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded text-sm text-gray-900 dark:text-white">
+                            <div class="font-medium">{{ $size }}</div>
+                            <div>{{ $itemSizes[$size] }}</div>
+                        </div>
+                        @endif
+                        @endforeach
                     </div>
                     @endif
-                    @endforeach
-                </div>
                 @endif
             </div>
         </div>
@@ -496,7 +567,7 @@
                                     Aceito os 
                                     <button type="button" 
                                             onclick="openTermsModal()" 
-                                            class="text-indigo-600 hover:text-indigo-800 underline">
+                                            class="underline font-bold" style="color: var(--secondary-color)">
                                         Termos e Condições
                                     </button>
                                 </label>
@@ -509,7 +580,7 @@
                 </div>
                 
                 <button type="submit" 
-                        class="w-full mt-4 bg-gray-800 hover:bg-gray-900 dark:bg-gradient-to-r dark:from-indigo-500 dark:to-indigo-600 dark:hover:from-indigo-600 dark:hover:to-indigo-700 text-white py-3 px-4 rounded dark:rounded-lg font-medium mobile-text-sm transition-colors dark:shadow-lg dark:shadow-indigo-600/30">
+                        class="w-full mt-4 bg-primary hover:opacity-90 text-white py-3 px-4 rounded dark:rounded-lg font-medium mobile-text-sm transition-colors dark:shadow-lg">
                     Confirmar Pedido
                 </button>
             </form>
@@ -544,6 +615,7 @@
 
         <!-- Footer -->
         <div class="text-center py-6 mobile-text-xs text-gray-500 dark:text-slate-400">
+            <p class="font-bold mb-1">{{ $companySettings->company_name ?? $order->tenant->name }}</p>
             <p>Para dúvidas, entre em contato conosco</p>
             <p>
                 @if($companySettings->company_phone || $companySettings->company_email)
@@ -554,8 +626,11 @@
                     Tel: (11) 99999-9999 | Email: contato@empresa.com
                 @endif
             </p>
+            @if($companySettings->company_cnpj)
+            <p class="mt-1">CNPJ: {{ $companySettings->company_cnpj }}</p>
+            @endif
             <p class="mt-2">
-                <a href="#" onclick="openTermsModal()" class="text-indigo-600 hover:text-indigo-800 underline">
+                <a href="#" onclick="openTermsModal()" class="font-bold underline" style="color: var(--secondary-color)">
                     Termos e Condições
                 </a>
             </p>
@@ -572,22 +647,7 @@
         </div>
     </div>
 
-    <!-- Modal de Termos e Condições -->
-    <div id="termsModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden flex items-center justify-center p-4">
-        <div class="relative max-w-4xl max-h-full bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg">
-            <div class="flex justify-between items-center p-4 border-b dark:border-slate-700">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Termos e Condições</h3>
-                <button onclick="closeTermsModal()" class="text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 text-2xl font-bold">
-                    ×
-                </button>
-            </div>
-            <div class="p-4 max-h-96 overflow-y-auto">
-                <div id="termsContent" class="text-sm text-gray-700 dark:text-slate-200 leading-relaxed">
-                    Carregando...
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <script>
         // Funções para o modal de zoom
@@ -689,102 +749,47 @@
             location.reload();
         }, 30000);
 
-        // Debug: Verificar se as imagens estão carregando
-        document.addEventListener('DOMContentLoaded', function() {
-            const images = document.querySelectorAll('.cover-image');
-            console.log('Imagens encontradas:', images.length);
-            
-            images.forEach(function(img, index) {
-                console.log('Imagem ' + (index + 1) + ':', img.src);
-                
-                img.addEventListener('load', function() {
-                    console.log('Imagem ' + (index + 1) + ' carregada com sucesso');
-                });
-                
-                img.addEventListener('error', function() {
-                    console.log('Erro ao carregar imagem ' + (index + 1) + ':', img.src);
-                });
-            });
         });
-
-        // Função para abrir modal de termos e condições
-        function openTermsModal() {
-            document.getElementById('termsModal').classList.remove('hidden');
-            document.body.classList.add('overflow-hidden');
-            
-            // Carregar termos e condições via API com order_id
-            const orderId = {{ $order->id ?? 'null' }};
-            const url = orderId ? `/api/terms-conditions?order_id=${orderId}` : '/api/terms-conditions';
-            
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Se retornar combined_content (múltiplos termos), usar ele
-                        if (data.combined_content) {
-                            document.getElementById('termsContent').innerHTML = data.combined_content;
-                        } else if (data.content) {
-                            document.getElementById('termsContent').innerHTML = data.content;
-                        } else {
-                            document.getElementById('termsContent').innerHTML = '<p class="text-gray-500">Termos e condições não disponíveis no momento.</p>';
-                        }
-                        if (data.version) {
-                            document.getElementById('termsVersion').textContent = 'Versão ' + data.version;
-                        }
-                    } else {
-                        document.getElementById('termsContent').innerHTML = '<p class="text-gray-500">Termos e condições não disponíveis no momento.</p>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro ao carregar termos:', error);
-                    document.getElementById('termsContent').innerHTML = '<p class="text-red-500">Erro ao carregar termos e condições.</p>';
-                });
-        }
-
-        // Função para fechar modal de termos e condições
-        function closeTermsModal() {
-            document.getElementById('termsModal').classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
-        }
     </script>
 
     <!-- Modal de Termos e Condições -->
-    <div id="termsModal" class="fixed inset-0 bg-black/70 dark:bg-black/90 dark:backdrop-blur-sm z-50 hidden">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white dark:bg-slate-900 rounded max-w-4xl w-full max-h-[90vh] overflow-hidden border border-gray-300 dark:border-slate-800 dark:shadow-2xl">
-                <!-- Header do Modal -->
-                <div class="bg-white dark:bg-slate-800 px-6 py-4 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-base font-semibold text-gray-900 dark:text-white">Termos e Condições</h3>
-                        <p class="text-sm text-gray-500 dark:text-slate-400" id="termsVersion"></p>
-                    </div>
-                    <button type="button" 
-                            onclick="closeTermsModal()"
-                            class="text-gray-400 hover:text-gray-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+    <div id="termsModal" class="fixed inset-0 bg-black/75 dark:bg-black/90 z-50 hidden flex items-center justify-center p-4 transition-all duration-300">
+        <div class="relative max-w-4xl w-full max-h-[90vh] bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg shadow-2xl flex flex-col overflow-hidden">
+            <!-- Header do Modal -->
+            <div class="bg-gray-50 dark:bg-slate-800 px-6 py-4 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Termos e Condições</h3>
+                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-1" id="termsVersion"></p>
+                </div>
+                <button type="button" 
+                        onclick="closeTermsModal()"
+                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Conteúdo do Modal -->
+            <div class="p-8 overflow-y-auto flex-grow prose prose-sm dark:prose-invert max-w-none">
+                <div id="termsContent" class="text-sm text-gray-700 dark:text-slate-300 leading-relaxed space-y-4">
+                    <div class="flex items-center justify-center py-10">
+                        <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                    </button>
-                </div>
-                
-                <!-- Conteúdo do Modal -->
-                <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-                    <div id="termsContent" class="prose prose-sm max-w-none text-gray-900 dark:text-slate-200">
-                        <div class="flex items-center justify-center py-8">
-                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                            <span class="ml-3 text-gray-700 dark:text-slate-300">Carregando termos e condições...</span>
-                        </div>
+                        <span class="ml-3 text-gray-600 dark:text-slate-400 font-medium">Carregando termos...</span>
                     </div>
                 </div>
-                
-                <!-- Footer do Modal -->
-                <div class="bg-white dark:bg-slate-800 px-6 py-4 border-t border-gray-200 dark:border-slate-700 flex justify-end">
-                    <button type="button" 
-                            onclick="closeTermsModal()"
-                            class="px-4 py-2 bg-gray-800 hover:bg-gray-900 dark:bg-gradient-to-r dark:from-indigo-500 dark:to-indigo-600 dark:hover:from-indigo-600 dark:hover:to-indigo-700 text-white rounded dark:rounded-lg font-medium transition-colors dark:shadow-lg dark:shadow-indigo-600/30">
-                        Fechar
-                    </button>
-                </div>
+            </div>
+            
+            <!-- Footer do Modal -->
+            <div class="bg-gray-50 dark:bg-slate-800 px-6 py-4 border-t border-gray-200 dark:border-slate-700 flex justify-end">
+                <button type="button" 
+                        onclick="closeTermsModal()"
+                        class="px-8 py-2.5 bg-primary text-white rounded-lg font-semibold shadow-lg hover:opacity-90 transition-all">
+                    Fechar
+                </button>
             </div>
         </div>
     </div>

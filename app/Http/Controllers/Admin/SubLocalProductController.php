@@ -1,0 +1,92 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\SubLocalProduct;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
+class SubLocalProductController extends Controller
+{
+    public function index()
+    {
+        $products = SubLocalProduct::orderBy('sort_order')->orderBy('name')->get();
+        return view('admin.sub-local-products.index', compact('products'));
+    }
+
+    public function create()
+    {
+        return view('admin.sub-local-products.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'required|string|in:vestuario,canecas,acessorios,diversos',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'image' => 'nullable|image|max:2048', // max 2MB
+            'is_active' => 'boolean',
+            'sort_order' => 'integer',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('sub-local-products', 'public');
+            $validated['image'] = $path;
+        }
+
+        $validated['is_active'] = $request->has('is_active');
+        $validated['requires_customization'] = $request->has('requires_customization');
+        SubLocalProduct::create($validated);
+
+        return redirect()->route('admin.sub-local-products.index')
+            ->with('success', 'Produto cadastrado com sucesso!');
+    }
+
+    public function edit(SubLocalProduct $subLocalProduct)
+    {
+        return view('admin.sub-local-products.edit', compact('subLocalProduct'));
+    }
+
+    public function update(Request $request, SubLocalProduct $subLocalProduct)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'required|string|in:vestuario,canecas,acessorios,diversos',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'image' => 'nullable|image|max:2048',
+            'is_active' => 'boolean',
+            'sort_order' => 'integer',
+        ]);
+
+        if ($request->hasFile('image')) {
+            // Delete old image
+            if ($subLocalProduct->image) {
+                Storage::disk('public')->delete($subLocalProduct->image);
+            }
+            $path = $request->file('image')->store('sub-local-products', 'public');
+            $validated['image'] = $path;
+        }
+
+        $validated['is_active'] = $request->has('is_active');
+        $validated['requires_customization'] = $request->has('requires_customization');
+        $subLocalProduct->update($validated);
+
+        return redirect()->route('admin.sub-local-products.index')
+            ->with('success', 'Produto atualizado com sucesso!');
+    }
+
+    public function destroy(SubLocalProduct $subLocalProduct)
+    {
+        if ($subLocalProduct->image) {
+            Storage::disk('public')->delete($subLocalProduct->image);
+        }
+        $subLocalProduct->delete();
+
+        return redirect()->route('admin.sub-local-products.index')
+            ->with('success', 'Produto excluído com sucesso!');
+    }
+}

@@ -255,7 +255,7 @@
 
                     <!-- Botões de Navegação -->
                     <div class="flex justify-between pt-6 border-t border-gray-200 dark:border-slate-800">
-                        <a href="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.customization') : route('orders.wizard.customization') }}" 
+                        <a href="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.customization') : ($backRoute ?? route('orders.wizard.customization')) }}" 
                            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white flex items-center transition-colors">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>

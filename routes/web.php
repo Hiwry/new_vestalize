@@ -48,18 +48,21 @@ Route::middleware('auth')->group(function () {
     // Home/Dashboard
     // Nomear como "dashboard" para alinhar com o redirecionamento do login
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/financeiro', [\App\Http\Controllers\FinancialController::class, 'index'])->name('financial.dashboard');
-    Route::get('/financeiro/nfe', [\App\Http\Controllers\Admin\InvoiceController::class, 'index'])->name('admin.invoices.index');
+    Route::get('/financeiro', [\App\Http\Controllers\FinancialController::class, 'index'])->name('financial.dashboard')->middleware('plan:financial');
+    Route::get('/financeiro/nfe', [\App\Http\Controllers\Admin\InvoiceController::class, 'index'])->name('admin.invoices.index')->middleware('plan:financial');
     
     // Links Rápidos
     Route::get('/links', [\App\Http\Controllers\DashboardController::class, 'links'])->name('links.index');
     
     // Configurações
+    Route::get('/settings/personalizations', [\App\Http\Controllers\SettingsController::class, 'personalizations'])->name('settings.personalizations');
+    Route::get('/settings/company', [\App\Http\Controllers\SettingsController::class, 'company'])->name('settings.company');
+    Route::put('/settings/company', [\App\Http\Controllers\SettingsController::class, 'updateCompany'])->name('settings.company.update');
     Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
     
     // Personalização de Marca (White-labeling)
-    Route::get('/settings/branding', [\App\Http\Controllers\TenantBrandingController::class, 'edit'])->name('settings.branding.edit');
-    Route::post('/settings/branding', [\App\Http\Controllers\TenantBrandingController::class, 'update'])->name('settings.branding.update');
+    Route::get('/settings/branding', [\App\Http\Controllers\TenantBrandingController::class, 'edit'])->name('settings.branding.edit')->middleware('plan:branding');
+    Route::post('/settings/branding', [\App\Http\Controllers\TenantBrandingController::class, 'update'])->name('settings.branding.update')->middleware('plan:branding');
     
     // Configuração de Nota Fiscal
     Route::get('/settings/nfe', [\App\Http\Controllers\Admin\TenantInvoiceConfigController::class, 'edit'])->name('admin.invoice-config.edit');
@@ -119,14 +122,27 @@ Route::middleware('auth')->group(function () {
     // Ação de Pin de Item (AJAX)
     Route::post('/order-items/{id}/toggle-pin', [\App\Http\Controllers\OrderWizardController::class, 'togglePin'])->name('order-items.toggle-pin');
 
-    // Wizard de Pedido (5 etapas)
+    // Wizard de Pedido (6 etapas)
     Route::prefix('pedidos')->group(function () {
+        // Etapa 1: Cliente
         Route::get('novo', [\App\Http\Controllers\OrderWizardController::class, 'start'])->name('orders.wizard.start');
         Route::post('cliente', [\App\Http\Controllers\OrderWizardController::class, 'storeClient'])->name('orders.wizard.client');
+        
+        // Etapa 2: Tipo de Personalização
+        Route::get('tipo-personalizacao', [\App\Http\Controllers\OrderWizardController::class, 'personalizationType'])->name('orders.wizard.personalization-type');
+        
+        // Etapa 3: Itens/Costura (baseado no tipo escolhido)
+        Route::match(['get','post'],'itens', [\App\Http\Controllers\OrderWizardController::class, 'items'])->name('orders.wizard.items');
         Route::match(['get','post'],'costura', [\App\Http\Controllers\OrderWizardController::class, 'sewing'])->name('orders.wizard.sewing');
+        
+        // Etapa 4: Detalhes/Personalização
         Route::match(['get','post'],'personalizacao', [\App\Http\Controllers\OrderWizardController::class, 'customization'])->name('orders.wizard.customization');
         Route::get('personalizacao/refresh', [\App\Http\Controllers\OrderWizardController::class, 'refreshCustomizations'])->name('orders.wizard.customization.refresh');
+        
+        // Etapa 5: Pagamento
         Route::match(['get','post'],'pagamento', [\App\Http\Controllers\OrderWizardController::class, 'payment'])->name('orders.wizard.payment');
+        
+        // Etapa 6: Confirmação
         Route::get('confirmacao', [\App\Http\Controllers\OrderWizardController::class, 'confirm'])->name('orders.wizard.confirm');
         Route::post('finalizar', [\App\Http\Controllers\OrderWizardController::class, 'finalize'])->name('orders.wizard.finalize');
         Route::get('finalizar', function () {
@@ -170,6 +186,11 @@ Route::middleware('auth')->group(function () {
         Route::post('{id}/converter-pedido', [\App\Http\Controllers\BudgetController::class, 'convertToOrder'])->name('convert-to-order');
     });
 
+    // Produtos Sublimação Local
+    Route::resource('sub-local-products', \App\Http\Controllers\Admin\SubLocalProductController::class, [
+        'as' => 'admin'
+    ]);
+
     // Notificações
     Route::prefix('notifications')->name('notifications.')->group(function () {
         Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
@@ -193,6 +214,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/kanban/download-costura/{id}', [\App\Http\Controllers\KanbanController::class, 'downloadCostura']);
         Route::get('/kanban/download-personalizacao/{id}', [\App\Http\Controllers\KanbanController::class, 'downloadPersonalizacao']);
         Route::get('/kanban/download-files/{id}', [\App\Http\Controllers\KanbanController::class, 'downloadFiles']);
+        Route::post('/kanban/upload-item-file', [\App\Http\Controllers\KanbanController::class, 'uploadItemFile'])->name('kanban.upload-item-file');
     });
 
     // Catálogo
@@ -263,7 +285,7 @@ Route::middleware('auth')->group(function () {
     });
     
     // Aprovações de Caixa (deve vir ANTES do resource para não ser capturado)
-    Route::prefix('cash/approvals')->name('cash.approvals.')->middleware('cash')->group(function () {
+    Route::prefix('cash/approvals')->name('cash.approvals.')->middleware(['cash', 'plan:financial'])->group(function () {
         Route::get('/', [\App\Http\Controllers\CashApprovalController::class, 'index'])->name('index');
         Route::get('/{orderId}/receipt', [\App\Http\Controllers\CashApprovalController::class, 'viewReceipt'])->name('view-receipt');
         Route::post('/{orderId}/approve', [\App\Http\Controllers\CashApprovalController::class, 'approve'])->name('approve');
@@ -272,7 +294,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/approve-multiple', [\App\Http\Controllers\CashApprovalController::class, 'approveMultiple'])->name('approve-multiple');
     });
     
-    Route::resource('cash', \App\Http\Controllers\CashController::class)->middleware('cash');
+    Route::resource('cash', \App\Http\Controllers\CashController::class)->middleware(['cash', 'plan:financial']);
     Route::get('/cash/report/simplified', [\App\Http\Controllers\CashController::class, 'reportSimplified'])->name('cash.report.simplified')->middleware('cash');
     Route::get('/cash/report/detailed', [\App\Http\Controllers\CashController::class, 'reportDetailed'])->name('cash.report.detailed')->middleware(['cash', 'plan:reports_complete']);
 
@@ -388,6 +410,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/upgrade/{plan}', [\App\Http\Controllers\SubscriptionController::class, 'requestUpgrade'])->name('upgrade');
         Route::post('/trial/{plan}', [\App\Http\Controllers\SubscriptionController::class, 'requestTrial'])->name('trial');
         Route::post('/renew', [\App\Http\Controllers\SubscriptionController::class, 'renewRequest'])->name('renew');
+        Route::post('/validate-coupon', [\App\Http\Controllers\SubscriptionController::class, 'validateCoupon'])->name('validate-coupon');
 
         // Stripe Checkout
         Route::get('/checkout/{plan}', [\App\Http\Controllers\PaymentController::class, 'checkout'])->name('checkout');
@@ -470,11 +493,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     });
 
     // Configuração de Orçamento Online (Planos Pro/Premium)
-    Route::get('quote-settings', [\App\Http\Controllers\Admin\QuoteSettingsController::class, 'index'])->name('quote-settings.index');
-    Route::post('quote-settings', [\App\Http\Controllers\Admin\QuoteSettingsController::class, 'update'])->name('quote-settings.update');
+    Route::get('quote-settings', [\App\Http\Controllers\Admin\QuoteSettingsController::class, 'index'])->name('quote-settings.index')->middleware('plan:external_quote');
+    Route::post('quote-settings', [\App\Http\Controllers\Admin\QuoteSettingsController::class, 'update'])->name('quote-settings.update')->middleware('plan:external_quote');
     
     // SUB. TOTAL - Sistema de Preços por Tipo
-    Route::prefix('sublimation-products')->name('sublimation-products.')->group(function () {
+    Route::prefix('sublimation-products')->name('sublimation-products.')->middleware('plan:sublimation_total')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\SublimationProductController::class, 'index'])->name('index');
         
         // Gerenciamento de tipos

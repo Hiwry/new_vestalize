@@ -21,9 +21,13 @@
 </style>
 @endpush
 
-@push('scripts')
+
+
+
+@section('content')
 <script>
     // Definir componente globalmente para garantir acesso via x-data
+    // Movido para dentro do content para funcionar com o sistema de navegação AJAX
     window.kanbanBoardIndex = function(ordersData, startDate) {
         return {
             view: 'kanban', // 'kanban' | 'calendar'
@@ -159,10 +163,7 @@
         };
     };
 </script>
-@endpush
 
-
-@section('content')
 <div class="max-w-[1800px] mx-auto">
         <!-- Calendar Data Preparation -->
         @php
@@ -175,6 +176,9 @@
                 }
                 $title = $firstItem?->art_name ?? ($order->client->name ?? 'Cliente');
                 
+                // Buscar imagem de capa
+                $coverImage = $order->cover_image_url ?: $firstItem?->cover_image_url;
+
                 return [
                     'id' => $order->id,
                     'title' => $title,
@@ -182,6 +186,7 @@
                     'date' => $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('Y-m-d') : null,
                     'items_count' => $order->items->sum('quantity'),
                     'status_color' => $order->status->color ?? '#ccc',
+                    'cover_image' => $coverImage,
                 ];
             })->values();
 
@@ -362,23 +367,33 @@
                                     $firstItem = $order->items->first();
                                     $displayName = $firstItem?->art_name ?? ($order->client?->name ?? 'Sem cliente');
                                     $storeName = $order->store?->name ?? 'Loja Principal';
+                                    $coverImage = $order->cover_image_url ?: $firstItem?->cover_image_url;
                                 @endphp
-                                <div class="border border-gray-200 rounded-md p-3 bg-white shadow-sm">
-                                    <div class="flex items-center justify-between mb-1">
-                                        <a href="{{ route('orders.show', $order->id) }}" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded hover:bg-indigo-100">
-                                            #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
-                                        </a>
-                                        @if($order->priority)
-                                            <span class="text-[11px] px-2 py-0.5 rounded-full font-semibold
-                                                @if($order->priority === 'alta') bg-red-100 text-red-800
-                                                @elseif($order->priority === 'media') bg-yellow-100 text-yellow-800
-                                                @else bg-green-100 text-green-800 @endif">
-                                                {{ ucfirst($order->priority) }}
-                                            </span>
+                                <div class="border border-gray-200 rounded-md p-3 bg-white shadow-sm hover:shadow-md transition-shadow">
+                                    <div class="flex items-start gap-3">
+                                        @if($coverImage)
+                                        <div class="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-gray-100 border border-gray-200">
+                                            <img src="{{ $coverImage }}" class="w-full h-full object-cover">
+                                        </div>
                                         @endif
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between mb-1">
+                                                <a href="{{ route('orders.show', $order->id) }}" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded hover:bg-indigo-100">
+                                                    #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
+                                                </a>
+                                                @if($order->priority)
+                                                    <span class="text-[11px] px-2 py-0.5 rounded-full font-semibold
+                                                        @if($order->priority === 'alta') bg-red-100 text-red-800
+                                                        @elseif($order->priority === 'media') bg-yellow-100 text-yellow-800
+                                                        @else bg-green-100 text-green-800 @endif">
+                                                        {{ ucfirst($order->priority) }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <p class="text-sm font-semibold text-gray-900 truncate" title="{{ $displayName }}">{{ $displayName }}</p>
+                                            <p class="text-xs text-gray-500 truncate" title="{{ $storeName }}">{{ $storeName }}</p>
+                                        </div>
                                     </div>
-                                    <p class="text-sm font-semibold text-gray-900">{{ $displayName }}</p>
-                                    <p class="text-xs text-gray-500">{{ $storeName }}</p>
                                 </div>
                             @endforeach
                         </div>
@@ -739,17 +754,32 @@
                             <div class="space-y-1.5 overflow-y-auto custom-scrollbar flex-1">
                                 <template x-for="event in getEventsForDay(day.date)">
                                     <div @click.stop="openOrderModal(event.id)"
-                                         class="px-3 py-2 rounded-md cursor-pointer hover:opacity-90 transition-all border-l-4 shadow-sm"
+                                         class="px-3 py-2 rounded-md cursor-pointer hover:opacity-90 transition-all border-l-4 shadow-sm relative overflow-hidden mb-2"
                                          :style="`background-color: ${event.status_color}25; border-left-color: ${event.status_color};`">
-                                        <div class="font-bold text-sm truncate leading-tight" 
-                                             :style="`color: ${event.status_color}`"
-                                             x-text="event.title"></div>
-                                        <div class="flex justify-between items-center mt-1">
-                                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 opacity-90" x-text="'#' + event.id.toString().padStart(5, '0')"></span>
-                                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 opacity-90" x-text="event.items_count + ' pçs'"></span>
+                                        
+                                        <div class="flex items-start gap-3">
+                                            <!-- Miniatura da Imagem -->
+                                            <template x-if="event.cover_image">
+                                                <div class="flex-shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-100 dark:bg-gray-700 border border-black/5">
+                                                    <img :src="event.cover_image" 
+                                                         class="w-full h-full object-cover"
+                                                         x-on:error="$el.style.display='none'">
+                                                </div>
+                                            </template>
+
+                                            <div class="flex-1 min-w-0">
+                                                <div class="font-bold text-sm truncate leading-tight" 
+                                                     :style="`color: ${event.status_color}`"
+                                                     x-text="event.title"></div>
+                                                <div class="flex justify-between items-center mt-1">
+                                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400 opacity-90" x-text="'#' + event.id.toString().padStart(5, '0')"></span>
+                                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400 opacity-90" x-text="event.items_count + ' pçs'"></span>
+                                                </div>
+                                            </div>
                                         </div>
+
                                         <!-- Detalhes extras apenas na visão de Dia -->
-                                        <div x-show="$parent.$parent.calendarView === 'day'" class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700/50">
+                                        <div x-show="calendarView === 'day'" class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700/50">
                                             <div class="text-xs text-gray-700 dark:text-gray-300 font-medium truncate" x-text="event.client"></div>
                                         </div>
                                     </div>
@@ -1297,6 +1327,103 @@
         
         window.closeOrderModal = closeOrderModal;
 
+        function handleFileUpload(input, itemId) {
+            if (!input.files || !input.files[0]) return;
+            
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('item_id', itemId);
+            formData.append('file', file);
+            
+            // Mostrar estado de carregamento
+            const btn = input.nextElementSibling;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Enviando...`;
+            btn.disabled = true;
+            
+            fetch('/kanban/upload-item-file', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Arquivo enviado com sucesso!', 'success');
+                    
+                    // Adicionar arquivo à lista visualmente
+                    const list = document.getElementById(`files-list-${itemId}`);
+                    const noFilesMsg = document.getElementById(`no-files-msg-${itemId}`);
+                    if (noFilesMsg) noFilesMsg.remove();
+                    
+                    const fileHtml = `
+                        <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-md p-2 text-sm border border-gray-200 dark:border-gray-600">
+                            <div class="flex items-center">
+                                <svg class="w-4 h-4 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                </svg>
+                                <span class="text-gray-900 dark:text-gray-300 font-medium">${data.file.file_name}</span>
+                                ${data.file.file_name.toLowerCase().endsWith('.cdr') || data.file.file_name.toLowerCase().endsWith('.cdrx') ? '<span class="ml-2 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs rounded border border-purple-200 dark:border-purple-800">Corel</span>' : ''}
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="/storage/${data.file.file_path}" target="_blank" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    list.insertAdjacentHTML('beforeend', fileHtml);
+
+                    // Atualizar botão de download
+                    const orderModal = document.getElementById('order-modal');
+                    const orderId = orderModal ? orderModal.getAttribute('data-current-order-id') : null;
+                    if (orderId) {
+                        const downloadsList = document.getElementById(`downloads-list-${orderId}`);
+                        if (downloadsList) {
+                            let btn = document.getElementById(`btn-download-files-${orderId}`);
+                            if (btn) {
+                                // Update count
+                                let count = parseInt(btn.getAttribute('data-count') || 0) + 1;
+                                btn.setAttribute('data-count', count);
+                                const span = btn.querySelector('.btn-text');
+                                if (span) span.textContent = `Arquivos da Arte (${count})`;
+                            } else {
+                                // Create button
+                                const btnHtml = `
+                                    <button onclick="downloadAllFiles(${orderId})"
+                                            id="btn-download-files-${orderId}"
+                                            data-count="1"
+                                            class="flex items-center justify-center px-3 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition">
+                                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                        </svg>
+                                        <span class="btn-text">Arquivos da Arte (1)</span>
+                                    </button>
+                                `;
+                                downloadsList.insertAdjacentHTML('beforeend', btnHtml);
+                            }
+                        }
+                    }
+                    
+                } else {
+                    showNotification(data.message || 'Erro ao enviar arquivo', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                showNotification('Erro ao processar envio', 'error');
+            })
+            .finally(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+                input.value = ''; // Reset input
+            });
+        }
+
         function displayOrderDetails(order) {
             const payment = order.payment;
             // Contar arquivos das personalizações E dos itens
@@ -1369,7 +1496,7 @@
                         </svg>
                         Downloads
                     </h4>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2" id="downloads-list-${order.id}">
                         <a href="/kanban/download-costura/${order.id}" target="_blank"
                            class="flex items-center justify-center px-3 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700 transition">
                             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1386,11 +1513,13 @@
                         </a>
                         ${totalFiles > 0 ? `
                         <button onclick="downloadAllFiles(${order.id})"
+                                id="btn-download-files-${order.id}"
+                                data-count="${totalFiles}"
                                 class="flex items-center justify-center px-3 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition">
                             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
                             </svg>
-                            Arquivos da Arte (${totalFiles})
+                            <span class="btn-text">Arquivos da Arte (${totalFiles})</span>
                         </button>
                         ` : ''}
                     </div>
@@ -1436,7 +1565,12 @@
                         Itens do Pedido (${order.items.length})
                     </h4>
                     
-                    ${order.items.map((item, index) => `
+                    ${order.items.map((item, index) => {
+                        // Verificar se tem tamanhos definidos (além de Único)
+                        const hasRealSizes = item.sizes && Object.entries(item.sizes).some(([s, q]) => Number(q) > 0 && s !== 'Único' && s !== 'UN');
+                        const isSimpleItem = !hasRealSizes;
+
+                        return `
                     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border-2 border-indigo-200 dark:border-indigo-600/30 p-6">
                         <div class="flex justify-between items-center mb-4 pb-3 border-b border-indigo-300 dark:border-indigo-600/30">
                             <h5 class="text-xl font-bold text-indigo-900 dark:text-indigo-300">Item ${item.item_number || index + 1}</h5>
@@ -1527,17 +1661,30 @@
                             </div>
                             
                             <div class="mt-4">
-                                <strong class="block mb-2 text-gray-900 dark:text-gray-300">Tamanhos:</strong>
-                                <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
-                                    ${Object.entries(item.sizes).map(([size, qty]) => 
-                                        qty > 0 ? `
-                                        <div class="bg-gray-100 dark:bg-gray-700 rounded-md px-2 py-1 text-center border border-gray-200 dark:border-gray-600">
-                                            <span class="text-xs text-gray-600 dark:text-gray-400">${size}</span>
-                                            <p class="font-bold text-sm text-gray-900 dark:text-gray-200">${qty}</p>
+                                ${ (((item.print_type && item.print_type.trim() === 'Sublimação Local') || item.fabric === 'Produto Pronto') && isSimpleItem) ? `
+                                    <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                                        <div>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Quantidade Total</span>
+                                            <p class="text-lg font-bold text-indigo-600 dark:text-indigo-400">${item.quantity} unidades</p>
                                         </div>
-                                        ` : ''
-                                    ).join('')}
-                                </div>
+                                        <div class="text-right">
+                                            <span class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Tamanho</span>
+                                            <p class="font-medium text-gray-900 dark:text-gray-100">Único (UN)</p>
+                                        </div>
+                                    </div>
+                                ` : `
+                                    <strong class="block mb-2 text-gray-900 dark:text-gray-300">Tamanhos:</strong>
+                                    <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
+                                        ${Object.entries(item.sizes).map(([size, qty]) => 
+                                            Number(qty) > 0 ? `
+                                            <div class="bg-gray-100 dark:bg-gray-700 rounded-md px-2 py-1 text-center border border-gray-200 dark:border-gray-600">
+                                                <span class="text-xs text-gray-600 dark:text-gray-400">${size}</span>
+                                                <p class="font-bold text-sm text-gray-900 dark:text-gray-200">${qty}</p>
+                                            </div>
+                                            ` : ''
+                                        ).join('')}
+                                    </div>
+                                `}
                             </div>
                         </div>
 
@@ -1580,23 +1727,42 @@
                         ` : ''}
 
                         <!-- Arquivos do Item -->
-                        ${(item.files && item.files.length > 0) || (item.sublimations && item.sublimations.some(sub => sub.files && sub.files.length > 0)) ? `
                         <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mt-4">
-                            <h6 class="font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                                </svg>
-                                Arquivos da Arte
-                            </h6>
-                            <div class="space-y-2">
+                            <div class="flex justify-between items-center mb-3">
+                                <h6 class="font-semibold text-gray-900 dark:text-gray-100 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                    </svg>
+                                    Arquivos da Arte
+                                </h6>
+                                <div class="relative">
+                                    <input type="file" id="file-upload-${item.id}" class="hidden" onchange="handleFileUpload(this, ${item.id})" accept=".cdr,.cdrx,.pdf,.jpg,.jpeg,.png,.ai,.eps,.svg">
+                                    <button onclick="document.getElementById('file-upload-${item.id}').click()" 
+                                            class="px-3 py-1 bg-indigo-600 text-white text-xs rounded-md hover:bg-indigo-700 transition flex items-center shadow-sm">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                        </svg>
+                                        Adicionar Arquivo
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-2" id="files-list-${item.id}">
                                 ${item.files && item.files.length > 0 ? item.files.map(file => `
                                     <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-md p-2 text-sm border border-gray-200 dark:border-gray-600">
                                         <div class="flex items-center">
                                             <svg class="w-4 h-4 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                             </svg>
-                                            <span class="text-gray-900 dark:text-gray-300">${file.file_name}</span>
-                                            ${file.file_name.toLowerCase().endsWith('.cdr') || file.file_name.toLowerCase().endsWith('.cdrx') ? '<span class="ml-2 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs rounded">Corel</span>' : ''}
+                                            <span class="text-gray-900 dark:text-gray-300 font-medium">${file.file_name}</span>
+                                            ${file.file_name.toLowerCase().endsWith('.cdr') || file.file_name.toLowerCase().endsWith('.cdrx') ? '<span class="ml-2 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs rounded border border-purple-200 dark:border-purple-800">Corel</span>' : ''}
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <a href="/storage/${file.file_path}" target="_blank" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                                </svg>
+                                            </a>
                                         </div>
                                     </div>
                                 `).join('') : ''}
@@ -1607,17 +1773,27 @@
                                                 <svg class="w-4 h-4 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                                 </svg>
-                                                <span class="text-gray-900 dark:text-gray-300">${file.file_name}</span>
-                                                ${file.file_name.toLowerCase().endsWith('.cdr') || file.file_name.toLowerCase().endsWith('.cdrx') ? '<span class="ml-2 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs rounded">Corel</span>' : ''}
+                                                <span class="text-gray-900 dark:text-gray-300 font-medium">${file.file_name}</span>
+                                                ${file.file_name.toLowerCase().endsWith('.cdr') || file.file_name.toLowerCase().endsWith('.cdrx') ? '<span class="ml-2 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs rounded border border-purple-200 dark:border-purple-800">Corel</span>' : ''}
+                                            </div>
+                                            <div class="flex space-x-2">
+                                                <a href="/storage/${file.file_path}" target="_blank" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                                    </svg>
+                                                </a>
                                             </div>
                                         </div>
                                     `).join('') : ''
                                 ).filter(f => f).join('') : ''}
+                                ${(!item.files || item.files.length === 0) && (!item.sublimations || !item.sublimations.some(sub => sub.files && sub.files.length > 0)) ? 
+                                    '<p class="text-sm text-gray-500 dark:text-gray-400 text-center py-2" id="no-files-msg-' + item.id + '">Nenhum arquivo anexado.</p>' : ''
+                                }
                             </div>
                         </div>
-                        ` : ''}
                     </div>
-                    `).join('')}
+                    `;
+                    }).join('')}
                 </div>
                     </div>
 
@@ -2213,6 +2389,7 @@
                 body: formData,
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 }
             })
             .then(response => {
@@ -2609,6 +2786,8 @@
         window.openEditRequestModal = openEditRequestModal;
         window.closeEditRequestModal = closeEditRequestModal;
         window.submitEditRequest = submitEditRequest;
+        window.handleFileUpload = handleFileUpload;
+        window.previewCoverImage = previewCoverImage;
         })(); // Fim da IIFE
     </script>
 @endsection

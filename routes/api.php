@@ -50,56 +50,68 @@ Route::get('/terms-conditions', function (Request $request) {
         'fabric_type_id' => $fabricTypeId
     ]);
     
-    // Se order_id for fornecido, buscar todos os termos relevantes para o pedido
+    $combinedContent = '';
+    $termsFound = false;
+    
+    // 1. Buscar Termos da Loja (CompanySetting) - NOVO
+    $storeSettings = null;
     if ($orderId) {
-        $order = \App\Models\Order::with(['items.sublimations', 'items'])->find($orderId);
+        $order = \App\Models\Order::find($orderId);
+        if ($order) {
+            $storeSettings = \App\Models\CompanySetting::getSettings($order->store_id);
+        }
+    } else {
+        $storeSettings = \App\Models\CompanySetting::getSettings();
+    }
+    
+    if ($storeSettings && $storeSettings->terms_conditions) {
+        $combinedContent .= "<h3 class='font-bold text-lg mb-2'>Termos da Loja</h3>";
+        $combinedContent .= '<div class="mb-4">' . nl2br(e($storeSettings->terms_conditions)) . '</div>';
+        $termsFound = true;
+    }
+    
+    // 2. Buscar Termos Específicos (TermsCondition)
+    if ($orderId) {
+        $order = $order ?? \App\Models\Order::with(['items.sublimations', 'items'])->find($orderId);
         
         if ($order) {
             $terms = \App\Models\TermsCondition::getActiveForOrder($order);
             
-            \Log::info('Terms found for order', [
+            \Log::info('Specific terms found for order', [
                 'order_id' => $orderId,
                 'terms_count' => $terms->count()
             ]);
             
             if ($terms->isNotEmpty()) {
-                $combinedContent = $terms->map(function($term) {
+                if ($termsFound) $combinedContent .= '<hr class="my-4">';
+                
+                $combinedContent .= $terms->map(function($term) {
                     $title = $term->title ? "<h3 class='font-bold text-lg mb-2'>{$term->title}</h3>" : '';
                     $content = nl2br(e($term->content));
                     return $title . '<div class="mb-4">' . $content . '</div>';
                 })->implode('<hr class="my-4">');
                 
-                return response()->json([
-                    'success' => true,
-                    'content' => $combinedContent,
-                    'combined_content' => $combinedContent,
-                    'version' => $terms->first()->version ?? '1.0',
-                    'terms' => $terms->map(function($term) {
-                        return [
-                            'id' => $term->id,
-                            'title' => $term->title,
-                            'content' => $term->content,
-                            'version' => $term->version,
-                            'personalization_type' => $term->personalization_type,
-                            'fabric_type' => $term->fabricType ? $term->fabricType->name : null,
-                        ];
-                    }),
-                ]);
+                $termsFound = true;
             }
+        }
+    } else {
+        $terms = \App\Models\TermsCondition::getActive($personalizationType, $fabricTypeId);
+        if ($terms) {
+            if ($termsFound) $combinedContent .= '<hr class="my-4">';
+            
+            $title = $terms->title ? "<h3 class='font-bold text-lg mb-2'>{$terms->title}</h3>" : '';
+            $content = nl2br(e($terms->content));
+            $combinedContent .= $title . '<div class="mb-4">' . $content . '</div>';
+            $termsFound = true;
         }
     }
     
-    // Buscar termos específicos ou gerais
-    $terms = \App\Models\TermsCondition::getActive($personalizationType, $fabricTypeId);
-    
-    if ($terms) {
+    if ($termsFound) {
         return response()->json([
             'success' => true,
-            'content' => $terms->content,
-            'title' => $terms->title,
-            'version' => $terms->version,
-            'personalization_type' => $terms->personalization_type,
-            'fabric_type' => $terms->fabricType ? $terms->fabricType->name : null,
+            'content' => $combinedContent,
+            'combined_content' => $combinedContent,
+            'version' => '1.0'
         ]);
     }
     

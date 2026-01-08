@@ -21,7 +21,7 @@ class StorageLinkServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->ensureStorageLinkExists();
+        // $this->ensureStorageLinkExists();
     }
 
     /**

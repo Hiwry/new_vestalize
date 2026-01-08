@@ -259,20 +259,37 @@
                                     Sua Assinatura Atual
                                 </button>
                             @elseif($isUpgrade || $onTrial)
-                                <div class="space-y-3">
-                                    <form action="{{ route('mercadopago.create-preference', $plan) }}" method="POST" id="mp-form-{{ $plan->id }}">
-                                        @csrf
-                                        <button type="submit" class="inline-flex w-full justify-center py-2.5 px-4 bg-gray-900 hover:bg-gray-800 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm">
-                                            Pagar com Mercado Pago
-                                        </button>
-                                    </form>
-                                    <button type="button" onclick="generatePix('{{ $plan->id }}')" class="inline-flex w-full justify-center py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm">
-                                        <i class="fa-solid fa-qrcode mr-2"></i> Pagar com PIX
-                                    </button>
-                                    <script>
-                                    document.getElementById('mp-form-{{ $plan->id }}').addEventListener('submit', async (e) => {
-                                        e.preventDefault();
-                                        const btn = e.target.querySelector('button');
+                                <div class="space-y-3" x-data="{ coupon: '', discountPrice: null, couponMessage: '', couponValid: false }">
+                                    {{-- Coupon Input --}}
+                                    <div class="mb-2">
+                                        <div class="flex gap-2">
+                                            <input type="text" x-model="coupon" placeholder="Cupom de Desconto" 
+                                                   class="flex-1 text-xs border border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-md px-2 py-1.5 focus:ring-0 focus:border-indigo-500">
+                                            <button type="button" @click="
+                                                if(!coupon) return;
+                                                const res = await fetch('{{ route('subscription.validate-coupon') }}', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                                                    body: JSON.stringify({ code: coupon, plan_id: '{{ $plan->id }}' })
+                                                });
+                                                const data = await res.json();
+                                                couponValid = data.success;
+                                                couponMessage = data.message;
+                                                if(data.success) discountPrice = data.discount_price;
+                                                showToast(data.message, data.success ? 'success' : 'error');
+                                            " class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline uppercase">
+                                                Aplicar
+                                            </button>
+                                        </div>
+                                        <template x-if="couponValid">
+                                            <p class="text-[10px] text-green-600 mt-1 font-medium">
+                                                Preço com desconto: <strong>R$ <span x-text="discountPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2})"></span></strong>
+                                            </p>
+                                        </template>
+                                    </div>
+
+                                    <button type="button" @click="
+                                        const btn = $el;
                                         btn.disabled = true;
                                         btn.textContent = 'Carregando...';
                                         
@@ -282,7 +299,8 @@
                                                 headers: {
                                                     'Content-Type': 'application/json',
                                                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                                }
+                                                },
+                                                body: JSON.stringify({ coupon_code: coupon })
                                             });
                                             const data = await response.json();
                                             if (data.error) {
@@ -297,8 +315,14 @@
                                             btn.disabled = false;
                                             btn.textContent = 'Pagar com Mercado Pago';
                                         }
-                                    });
-                                    </script>
+                                    " class="inline-flex w-full justify-center py-2.5 px-4 bg-gray-900 hover:bg-gray-800 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm">
+                                        Pagar com Mercado Pago
+                                    </button>
+
+                                    <button type="button" @click="generatePix('{{ $plan->id }}', coupon)" class="inline-flex w-full justify-center py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm">
+                                        <i class="fa-solid fa-qrcode mr-2"></i> Pagar com PIX
+                                    </button>
+                                    
                                     <form action="{{ route('subscription.trial', $plan) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="w-full py-2.5 px-4 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-sm font-medium transition-colors">
@@ -347,6 +371,7 @@
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plano</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cupom</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Intent</th>
                             </tr>
@@ -362,6 +387,16 @@
                                     </td>
                                     <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                                         R$ {{ number_format($payment->amount, 2, ',', '.') }} {{ strtoupper($payment->currency) }}
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                        @if($payment->coupon_code)
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
+                                                {{ $payment->coupon_code }}
+                                            </span>
+                                            <div class="text-[10px] text-green-600 font-medium">- R$ {{ number_format($payment->discount_amount, 2, ',', '.') }}</div>
+                                        @else
+                                            <span class="text-gray-400">-</span>
+                                        @endif
                                     </td>
                                     <td class="px-4 py-3 text-sm">
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
@@ -400,7 +435,7 @@
         });
     }
 
-    async function generatePix(planId) {
+    async function generatePix(planId, coupon = '') {
         const btn = event.currentTarget;
         const originalHtml = btn.innerHTML;
         
@@ -413,7 +448,8 @@
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
+                },
+                body: JSON.stringify({ coupon_code: coupon })
             });
 
             const data = await response.json();

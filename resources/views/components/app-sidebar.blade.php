@@ -351,9 +351,15 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('admin/modelos*') ? 'bg-blue-600' : '' }}"></span>
                         Modelos
                     </a>
+                    @if(Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('sublimation_total'))
                     <a href="{{ route('admin.sublimation-products.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                         <span class="w-1.5 h-1.5 rounded-full bg-green-400 mr-2 {{ request()->is('admin/sublimation-products*') ? 'bg-green-600' : '' }}"></span>
                         Sublimação Total
+                    </a>
+                    @endif
+                    <a href="{{ route('admin.sub-local-products.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-400 mr-2 {{ request()->is('admin/sub-local-products*') ? 'bg-blue-600' : '' }}"></span>
+                        Sublimação Local
                     </a>
                 </div>
             </div>
@@ -388,7 +394,7 @@
             @endif
 
             <!-- GRUPO: FINANCEIRO -->
-            @if(Auth::user()->isAdmin() || Auth::user()->isCaixa())
+            @if((Auth::user()->isAdmin() || Auth::user()->isCaixa()) && auth()->user()->tenant?->canAccess('financial'))
             <div class="mt-1">
                 <button @click="toggleGroup('financeiro')"
                         class="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group"
@@ -427,8 +433,8 @@
             </div>
             @endif
 
-            {{-- MINHA ASSINATURA (Apenas para usuários de tenant) --}}
-            @if(Auth::user()->tenant_id !== null)
+            {{-- MINHA ASSINATURA (Apenas para usuários de tenant com permissão) --}}
+            @if(Auth::user()->tenant_id !== null && auth()->user()->tenant?->canAccess('subscription_module'))
             <div class="mt-2">
                 <a href="{{ route('subscription.index') }}"
                    class="flex items-center w-full px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 group

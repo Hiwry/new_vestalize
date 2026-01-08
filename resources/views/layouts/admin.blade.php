@@ -7,6 +7,20 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
+    <!-- Meta Tags & Branding -->
+    @php
+        $tenantLogo = auth()->user()->tenant->logo_path ?? null;
+        $faviconUrl = $tenantLogo ? Storage::url($tenantLogo) : asset('favicon.ico');
+        $companyName = auth()->user()->tenant->name ?? config('app.name');
+    @endphp
+    
+    <link rel="icon" type="image/x-icon" href="{{ $faviconUrl }}">
+    <meta property="og:title" content="{{ $companyName }} - Painel Administrativo">
+    <meta property="og:type" content="website">
+    @if($tenantLogo)
+        <meta property="og:image" content="{{ asset('storage/' . $tenantLogo) }}">
+    @endif
+
     <!-- ⚡ CRITICAL: Prevenir flash aplicando tema ANTES de qualquer renderização -->
     <!-- ⚡ CRITICAL: Prevenir flash aplicando tema ANTES de qualquer renderização -->
     <!-- ⚡ CRITICAL: Prevenir flash aplicando tema ANTES de qualquer renderização -->

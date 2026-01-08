@@ -194,11 +194,15 @@
                         $finalLogo = public_path('storage/' . $tenantLogo);
                     } elseif ($settingsLogo && file_exists(public_path($settingsLogo))) {
                         $finalLogo = public_path($settingsLogo);
+                        // Se não encontrar o arquivo diretamente, tenta via storage/
+                        if (!file_exists($finalLogo) && file_exists(public_path('storage/' . $settingsLogo))) {
+                            $finalLogo = public_path('storage/' . $settingsLogo);
+                        }
                     }
                 @endphp
 
-                @if($finalLogo)
-                <div style="display: table-cell; vertical-align: middle; width: 25%; padding-right: 10px;">
+                @if($finalLogo && file_exists($finalLogo))
+                <div style="display: table-cell; vertical-align: middle; width: 25%; padding-right: 15px;">
                     @php
                         $imageData = base64_encode(file_get_contents($finalLogo));
                         $imageType = pathinfo($finalLogo, PATHINFO_EXTENSION);
@@ -206,26 +210,36 @@
                     @endphp
                     <img src="{{ $imageSrc }}" 
                          alt="Logo" 
-                         style="max-height: 50px; max-width: 120px; object-fit: contain;">
+                         style="max-height: 55px; max-width: 130px; object-fit: contain;">
                 </div>
                 @endif
-                <div style="display: table-cell; vertical-align: middle; {{ $companySettings->logo_path && file_exists(public_path($companySettings->logo_path)) ? 'width: 75%;' : 'width: 100%;' }}">
-                    <h2 style="margin: 0 0 3px 0; font-size: 14px;">{{ $companySettings->company_name ?? 'SUA EMPRESA' }}</h2>
-                    <div style="font-size: 8px; line-height: 1.2;">
+                <div style="display: table-cell; vertical-align: middle; {{ ($finalLogo && file_exists($finalLogo)) ? 'width: 75%;' : 'width: 100%;' }}">
+                    <h2 style="margin: 0 0 3px 0; font-size: 14px; text-transform: uppercase;">{{ $companySettings->company_name ?? $order->tenant->name }}</h2>
+                    <div style="font-size: 8px; line-height: 1.3;">
                         @if($companySettings->company_address || $companySettings->company_city)
-                        <span>@if($companySettings->company_address){{ $companySettings->company_address }}@endif
-                        @if($companySettings->company_city), {{ $companySettings->company_city }}@endif
-                        @if($companySettings->company_state) - {{ $companySettings->company_state }}@endif
-                        @if($companySettings->company_zip) - CEP: {{ $companySettings->company_zip }}@endif</span> |
+                        <span>{{ $companySettings->company_address }}@if($companySettings->company_city), {{ $companySettings->company_city }}@endif @if($companySettings->company_state) - {{ $companySettings->company_state }}@endif @if($companySettings->company_zip) | CEP: {{ $companySettings->company_zip }}@endif</span><br>
                         @endif
-                        @if($companySettings->company_phone)Tel: {{ $companySettings->company_phone }}@endif
-                        @if($companySettings->company_phone && $companySettings->company_email) | @endif
-                        @if($companySettings->company_email)Email: {{ $companySettings->company_email }}@endif
-                        @if($companySettings->company_cnpj)
-                        | CNPJ: {{ $companySettings->company_cnpj }}
-                        @endif
+                        
+                        <div style="margin-top: 2px;">
+                            @if($companySettings->company_cnpj)
+                            <strong>CNPJ:</strong> {{ $companySettings->company_cnpj }}
+                            @endif
+                            @if($companySettings->company_cnpj && ($companySettings->company_phone || $companySettings->company_email)) | @endif
+                            
+                            @if($companySettings->company_phone)
+                            <strong>Tel:</strong> {{ $companySettings->company_phone }}
+                            @endif
+                            @if($companySettings->company_phone && $companySettings->company_email) | @endif
+                            
+                            @if($companySettings->company_email)
+                            <strong>E-mail:</strong> {{ $companySettings->company_email }}
+                            @endif
+                        </div>
+
                         @if($companySettings->company_website)
-                        <br><span>{{ $companySettings->company_website }}</span>
+                        <div style="margin-top: 1px;">
+                            <strong>Site:</strong> {{ $companySettings->company_website }}
+                        </div>
                         @endif
                     </div>
                 </div>
@@ -376,33 +390,60 @@
         @endif
 
         <!-- Tamanhos -->
+        <!-- Tamanhos -->
         <div style="margin-bottom: 8px;">
-            <div style="font-weight: bold; margin-bottom: 3px; font-size: 10px;">TAMANHOS:</div>
             @php
                 $allSizes = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3', 'ESPECIAL'];
                 // Garantir que sizes seja um array
                 $itemSizes = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) && !empty($item->sizes) ? json_decode($item->sizes, true) : []);
                 $itemSizes = $itemSizes ?? [];
+
+                // Verificação de tamanhos reais
+                $hasRealSizes = false;
+                if (!empty($itemSizes)) {
+                    foreach ($itemSizes as $size => $quantity) {
+                        $qty = (int)$quantity;
+                        if ($qty > 0 && strtoupper($size) !== 'ÚNICO' && strtoupper($size) !== 'UN' && strtoupper($size) !== 'UNICO') {
+                            $hasRealSizes = true;
+                            break;
+                        }
+                    }
+                }
+
+                $isSimpleItem = !$hasRealSizes;
+                $printType = trim($item->print_type ?? '');
+                $fabric = trim($item->fabric ?? '');
+                
+                $shouldShowTotalOnly = (($printType === 'Sublimação Local' || $fabric === 'Produto Pronto') && $isSimpleItem);
             @endphp
-            <table style="width: 100%; border-collapse: collapse; font-size: 9px;">
-                <thead>
-                    <tr style="background-color: #000 !important;">
-                        @foreach($allSizes as $size)
-                        <th style="border: 1px solid #000; padding: 4px; text-align: center; font-weight: bold; color: #fff !important; background-color: #000 !important;">{{ $size }}</th>
-                        @endforeach
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        @foreach($allSizes as $size)
-                        @php
-                            $qty = $itemSizes[$size] ?? $itemSizes[strtolower($size)] ?? 0;
-                        @endphp
-                        <td style="border: 1px solid #000; padding: 4px; text-align: center; color: #000 !important; background-color: {{ $qty > 0 ? '#f0f0f0' : '#fff' }} !important; {{ $qty > 0 ? 'font-weight: bold;' : '' }}">{{ $qty }}</td>
-                        @endforeach
-                    </tr>
-                </tbody>
-            </table>
+
+            @if($shouldShowTotalOnly)
+                <div style="font-weight: bold; margin-bottom: 3px; font-size: 10px;">QUANTIDADE:</div>
+                <div style="border: 1px solid #000; padding: 4px; text-align: center; font-weight: bold; font-size: 11px; background-color: #f0f0f0;">
+                    Quantidade Total: {{ $totalQuantity }}
+                </div>
+            @else
+                <div style="font-weight: bold; margin-bottom: 3px; font-size: 10px;">TAMANHOS:</div>
+                <table style="width: 100%; border-collapse: collapse; font-size: 9px;">
+                    <thead>
+                        <tr style="background-color: #000 !important;">
+                            @foreach($allSizes as $size)
+                            <th style="border: 1px solid #000; padding: 4px; text-align: center; font-weight: bold; color: #fff !important; background-color: #000 !important;">{{ $size }}</th>
+                            @endforeach
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            @foreach($allSizes as $size)
+                            @php
+                                $qty = $itemSizes[$size] ?? $itemSizes[strtolower($size)] ?? 0;
+                            @endphp
+                            <td style="border: 1px solid #000; padding: 4px; text-align: center; color: #000 !important; background-color: {{ $qty > 0 ? '#f0f0f0' : '#fff' }} !important; {{ $qty > 0 ? 'font-weight: bold;' : '' }}">{{ $qty }}</td>
+                            @endforeach
+                        </tr>
+                    </tbody>
+                </table>
+            @endif
         </div>
 
         <!-- Acréscimos de Tamanhos Especiais -->
@@ -501,11 +542,30 @@
     </div>
     @endif
 
+    <!-- Termos e Condições -->
+    @php
+        $globalTerms = $companySettings->terms_conditions ?? '';
+        $orderTerms = \App\Models\TermsCondition::getActiveForOrder($order);
+        $combinedTerms = $globalTerms;
+        if ($orderTerms) {
+            $combinedTerms .= ($combinedTerms ? "\n\n" : "") . $orderTerms;
+        }
+    @endphp
+
+    @if($combinedTerms)
+    <div class="section">
+        <div class="section-title">TERMOS E CONDIÇÕES</div>
+        <div style="padding: 8px; font-size: 8px; color: #444; line-height: 1.4; text-align: justify; white-space: pre-wrap; background-color: #fafafa; border: 1px solid #eee;">
+            {!! nl2br(e($combinedTerms)) !!}
+        </div>
+    </div>
+    @endif
+
     <!-- Observações -->
     @if($order->notes)
     <div class="section">
         <div class="section-title">OBSERVAÇÕES</div>
-        <div style="padding: 6px; background-color: #f0f0f0; border-left: 3px solid #000; font-size: 10px;">
+        <div style="padding: 8px; background-color: #f5f5f5; border-left: 4px solid var(--brand-primary); font-size: 9px; line-height: 1.4;">
             {{ $order->notes }}
         </div>
     </div>

@@ -34,15 +34,24 @@ class MercadoPagoController extends Controller
      * Gerar pagamento imediato via PIX (QR Code e Copia e Cola)
      * Usa Mercado Pago como primário, PixService como fallback
      */
-    public function generatePixPayment(Plan $plan)
+    public function generatePixPayment(Plan $plan, Request $request)
     {
         try {
             $client = new PaymentClient();
             $user = auth()->user();
 
+            $amount = (float) $plan->price;
+            $couponCode = strtoupper($request->input('coupon_code'));
+            $discountAmount = 0;
+
+            if ($couponCode === 'VESTASTART' && $plan->id == 3) {
+                $amount = 79.90;
+                $discountAmount = 20.00;
+            }
+
             $payment = $client->create([
-                'transaction_amount' => (float) $plan->price,
-                'description' => "Assinatura Plano {$plan->name} - Vestalize",
+                'transaction_amount' => $amount,
+                'description' => "Assinatura Plano {$plan->name} - Vestalize" . ($couponCode ? " (Cupom: $couponCode)" : ""),
                 'payment_method_id' => 'pix',
                 'installments' => 1,
                 'payer' => [
@@ -58,6 +67,8 @@ class MercadoPagoController extends Controller
                     'user_id' => $user->id,
                     'tenant_id' => $user->tenant_id,
                     'plan_id' => $plan->id,
+                    'coupon_code' => $couponCode,
+                    'discount_amount' => $discountAmount,
                     'env' => config('app.env')
                 ],
             ]);
@@ -79,25 +90,33 @@ class MercadoPagoController extends Controller
                 'plan_id' => $plan->id
             ]);
             
-            return $this->generatePixFallback($plan);
+            return $this->generatePixFallback($plan, $request);
             
         } catch (\Exception $e) {
             Log::error('MercadoPago PIX General Error: ' . $e->getMessage());
             
             // Tentar fallback
-            return $this->generatePixFallback($plan);
+            return $this->generatePixFallback($plan, $request);
         }
     }
     
     /**
      * Gera PIX usando nosso serviço interno (fallback)
      */
-    private function generatePixFallback(Plan $plan)
+    private function generatePixFallback(Plan $plan, Request $request)
     {
         try {
             $pixService = app(\App\Services\PixService::class);
             $txId = 'PLANO' . $plan->id . time();
-            $pix = $pixService->generate($plan->price, $txId);
+            
+            $amount = (float) $plan->price;
+            $couponCode = strtoupper($request->input('coupon_code'));
+
+            if ($couponCode === 'VESTASTART' && $plan->id == 3) {
+                $amount = 79.90;
+            }
+
+            $pix = $pixService->generate($amount, $txId);
             
             // Extrair base64 sem o prefixo data:image/png;base64,
             $qrCodeBase64 = str_replace('data:image/png;base64,', '', $pix['qrcode']);
@@ -120,7 +139,7 @@ class MercadoPagoController extends Controller
         }
     }
 
-    public function createPreference(Plan $plan)
+    public function createPreference(Plan $plan, Request $request)
     {
         try {
             $client = new PreferenceClient();
@@ -131,14 +150,23 @@ class MercadoPagoController extends Controller
             $firstName = $nameParts[0];
             $lastName = count($nameParts) > 1 ? implode(' ', array_slice($nameParts, 1)) : 'Silva';
 
+            $amount = (float) $plan->price;
+            $couponCode = strtoupper($request->input('coupon_code'));
+            $discountAmount = 0;
+
+            if ($couponCode === 'VESTASTART' && $plan->id == 3) {
+                $amount = 79.90;
+                $discountAmount = 20.00;
+            }
+
             $preference = $client->create([
                 'items' => [
                     [
                         'id' => $plan->id,
                         'title' => "Assinatura Plano {$plan->name}",
-                        'description' => "Pagamento mensal - {$plan->name}",
+                        'description' => "Pagamento mensal - {$plan->name}" . ($couponCode ? " (Cupom: $couponCode)" : ""),
                         'quantity' => 1,
-                        'unit_price' => (float) $plan->price,
+                        'unit_price' => $amount,
                         'currency_id' => 'BRL',
                     ]
                 ],
@@ -170,6 +198,8 @@ class MercadoPagoController extends Controller
                     'tenant_id' => $user->tenant_id,
                     'plan_id' => $plan->id,
                     'plan_slug' => $plan->slug,
+                    'coupon_code' => $couponCode,
+                    'discount_amount' => $discountAmount,
                 ],
             ]);
 
@@ -239,6 +269,9 @@ class MercadoPagoController extends Controller
                                 // Atualizar plano do tenant
                                 $tenant->plan_id = $plan->id;
                                 $tenant->plan_expires_at = now()->addMonth();
+                                if (isset($metadata['coupon_code'])) {
+                                    $tenant->applied_coupon = $metadata['coupon_code'];
+                                }
                                 $tenant->save();
 
                                 // Registrar pagamento
@@ -246,9 +279,11 @@ class MercadoPagoController extends Controller
                                     'tenant_id' => $tenant->id,
                                     'plan_id' => $plan->id,
                                     'amount' => $payment->transaction_amount,
+                                    'coupon_code' => $metadata['coupon_code'] ?? null,
+                                    'discount_amount' => $metadata['discount_amount'] ?? 0,
                                     'payment_method' => $payment->payment_type_id,
-                                    'payment_id' => $payment->id,
-                                    'status' => 'approved',
+                                    'payment_intent_id' => $payment->id, // payment_id -> payment_intent_id matches model
+                                    'status' => 'succeeded', // approved -> succeeded to match system status
                                     'paid_at' => now(),
                                 ]);
 

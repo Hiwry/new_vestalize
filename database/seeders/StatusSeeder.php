@@ -22,14 +22,22 @@ class StatusSeeder extends Seeder
             ['name' => 'Cancelado', 'color' => '#EF4444', 'position' => 7],
         ];
 
-        foreach ($statuses as $status) {
-            Status::updateOrCreate(
-                ['name' => $status['name']],
-                $status
-            );
+        // Seear status para todos os tenants
+        $tenants = \App\Models\Tenant::all();
+
+        foreach ($tenants as $tenant) {
+            foreach ($statuses as $status) {
+                Status::firstOrCreate(
+                    [
+                        'name' => $status['name'], 
+                        'tenant_id' => $tenant->id
+                    ],
+                    $status
+                );
+            }
         }
 
-        $this->command->info('Status criados com sucesso!');
+        $this->command->info('Status criados com sucesso para todos os tenants!');
     }
 }
 

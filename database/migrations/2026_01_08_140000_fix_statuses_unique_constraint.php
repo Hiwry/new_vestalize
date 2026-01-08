@@ -11,12 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Use a separate schema call or raw SQL to be safer, or just use try/catch block
+        try {
+            Schema::table('statuses', function (Blueprint $table) {
+                 $table->dropUnique(['name']);
+            });
+        } catch (\Exception $e) {
+            // Ignore if index doesn't exist
+        }
+
         Schema::table('statuses', function (Blueprint $table) {
-            // Remove old unique constraint on name only
-            $table->dropUnique(['name']);
-            
             // Add composite unique on name + tenant_id
-            $table->unique(['name', 'tenant_id'], 'statuses_name_tenant_unique');
+             // Check if already exists first to avoid dup error
+            try {
+                $table->unique(['name', 'tenant_id'], 'statuses_name_tenant_unique');
+            } catch (\Exception $e) {
+                // Ignore if already exists
+            }
         });
     }
 

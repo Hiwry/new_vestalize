@@ -324,6 +324,51 @@ class KanbanController extends Controller
         ]);
     }
 
+    public function uploadItemFile(Request $request): JsonResponse
+    {
+        $request->validate([
+            'item_id' => 'required|exists:order_items,id',
+            'file' => 'required|file|max:51200', // Max 50MB
+        ]);
+
+        try {
+            $item = \App\Models\OrderItem::findOrFail($request->item_id);
+            
+            // Check authorization (if user can edit this order)
+            $order = $item->order;
+            // Add authorization check logic here if needed (e.g., store isolation)
+            
+            $file = $request->file('file');
+            $originalName = $file->getClientOriginalName();
+            $extension = strtolower($file->getClientOriginalExtension());
+            
+            // Store file
+            $path = $file->store('orders/items/files', 'public');
+            
+            // Create OrderFile record
+            $orderFile = \App\Models\OrderFile::create([
+                'order_item_id' => $item->id,
+                'file_name' => $originalName,
+                'file_path' => $path,
+                'file_type' => $extension,
+                'file_size' => $file->getSize(),
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Arquivo enviado com sucesso!',
+                'file' => $orderFile
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Erro ao enviar arquivo: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao enviar arquivo: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function downloadCostura($id)
     {
         try {

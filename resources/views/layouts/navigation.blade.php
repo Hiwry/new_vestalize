@@ -18,7 +18,9 @@
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link href="/" :active="request()->is('/')">Home</x-nav-link>
                     <x-nav-link :href="route('orders.wizard.start')" :active="request()->routeIs('orders.wizard.*')">Novo Pedido</x-nav-link>
+                    @if(Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('kanban'))
                     <x-nav-link :href="route('kanban.index')" :active="request()->routeIs('kanban.index')">Kanban</x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -93,7 +95,9 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link href="/" :active="request()->is('/')">Home</x-responsive-nav-link>
             <x-responsive-nav-link :href="route('orders.wizard.start')" :active="request()->routeIs('orders.wizard.*')">Novo Pedido</x-responsive-nav-link>
+            @if(Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('kanban'))
             <x-responsive-nav-link :href="route('kanban.index')" :active="request()->routeIs('kanban.index')">Kanban</x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

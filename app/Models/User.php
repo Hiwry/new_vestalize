@@ -8,11 +8,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Traits\BelongsToTenant;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, BelongsToTenant;
 
     /**
      * The attributes that are mass assignable.
@@ -83,8 +84,15 @@ class User extends Authenticatable
      */
     public function isAdminLoja(): bool
     {
-        return $this->role === 'admin_loja'
-            || $this->stores()->wherePivot('role', 'admin_loja')->exists();
+        if ($this->role === 'admin_loja') {
+            return true;
+        }
+
+        // CORRECTION 1: Never run query in boolean method
+        // Only check if relation is eagerly loaded
+        return $this->relationLoaded('stores')
+            ? $this->stores->contains(fn ($s) => $s->pivot && $s->pivot->role === 'admin_loja')
+            : false;
     }
 
     /**
@@ -145,7 +153,10 @@ class User extends Authenticatable
             // Admin loja vê suas lojas + sub-lojas, respeitando o tenant
             $storeIds = [];
             
-            foreach ($this->stores as $store) {
+            // CORRECTION 2: Avoid lazy load explosion
+            $stores = $this->relationLoaded('stores') ? $this->stores : collect();
+
+            foreach ($stores as $store) {
                 if ($this->tenant_id === null || $store->tenant_id === $this->tenant_id) {
                     $storeIds = array_merge($storeIds, $store->getAllStoreIds());
                 }

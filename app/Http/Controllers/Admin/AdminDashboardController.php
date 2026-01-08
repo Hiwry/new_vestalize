@@ -17,8 +17,11 @@ use Illuminate\Support\Facades\DB;
 
 class AdminDashboardController extends Controller
 {
-    public function index(): View
+    public function index()
     {
+        if (\Illuminate\Support\Facades\Auth::user()->tenant_id !== null) {
+            return redirect()->route('dashboard');
+        }
         // Estatísticas gerais
         $stats = [
             'total_orders' => Order::where('is_draft', false)->count(),

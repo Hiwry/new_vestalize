@@ -22,7 +22,7 @@ class PlansSeeder extends Seeder
                     'stores' => 1,
                     'users' => 2,
                 ],
-                'features' => ['orders', 'crm', 'reports_simple'],
+                'features' => ['orders', 'crm', 'reports_simple', 'kanban'],
             ],
             'pro' => [
                 'name' => 'Médio (Pro)',

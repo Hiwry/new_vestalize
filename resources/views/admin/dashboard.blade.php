@@ -23,6 +23,7 @@
                 </div>
             </div>
 
+            @if(auth()->user()->tenant_id === null)
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
@@ -37,7 +38,9 @@
                     </div>
                 </div>
             </div>
+            @endif
 
+            @if(auth()->user()->tenant_id === null)
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
@@ -51,6 +54,7 @@
                     </div>
                 </div>
             </div>
+            @endif
 
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
                 <div class="flex items-center">
@@ -105,16 +109,18 @@
                             </div>
                         </a>
 
+                @if(auth()->user()->tenant_id === null || auth()->user()->tenant->canAccess('kanban'))
                         <a href="{{ route('kanban.index') }}" 
                            class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                             <svg class="h-6 w-6 text-indigo-600 dark:text-indigo-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2-2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                             </svg>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-gray-100">Kanban de Produção</h3>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Acompanhe o progresso dos pedidos</p>
                             </div>
                         </a>
+                        @endif
 
                         <a href="{{ route('delivery-requests.index') }}" 
                            class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
@@ -136,6 +142,7 @@
             </div>
 
             <!-- Gerenciamento Financeiro -->
+            @if(auth()->user()->tenant_id === null || auth()->user()->tenant->canAccess('financial'))
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25">
                 <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Gerenciamento Financeiro</h2>
@@ -155,6 +162,7 @@
                     </div>
                 </div>
             </div>
+            @endif
         </div>
 
         <!-- Configurações do Sistema -->
@@ -198,6 +206,7 @@
                 </div>
                 <div class="p-6">
                     <div class="space-y-4">
+                @if(auth()->user()->tenant_id === null || auth()->user()->tenant->canAccess('pdv'))
                         <a href="{{ route('admin.quick-products.index') }}" 
                            class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                             <svg class="h-6 w-6 text-indigo-600 dark:text-indigo-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -208,6 +217,7 @@
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Visualize ou crie produtos específicos para o ponto de venda</p>
                             </div>
                         </a>
+                        @endif
 
                         <a href="{{ route('admin.catalog-items.index') }}" 
                            class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
@@ -224,6 +234,7 @@
             </div>
 
             <!-- Sistema e Usuários -->
+            @if(auth()->user()->tenant_id === null)
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25">
                 <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Sistema e Usuários</h2>
@@ -270,6 +281,7 @@
                             </div>
                         </a>
 
+                        @if(auth()->user()->tenant_id === null || auth()->user()->tenant->canAccess('subscription_module'))
                         <a href="{{ route('admin.terms-conditions.index') }}" 
                            class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                             <svg class="h-6 w-6 text-indigo-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -280,12 +292,15 @@
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Gerencie os termos e condições do sistema</p>
                             </div>
                         </a>
+                        @endif
                     </div>
                 </div>
             </div>
+            @endif
         </div>
 
         <!-- Gerenciamento de Lojas -->
+        @if(auth()->user()->tenant_id === null)
         <div class="mb-8">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25">
                 <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
@@ -381,6 +396,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Atividade Recente -->
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
@@ -412,6 +428,7 @@
             </div>
 
             <!-- Usuários Recentes -->
+            @if(auth()->user()->tenant_id === null)
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25">
                 <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Usuários Recentes</h2>
@@ -435,6 +452,7 @@
                     @endforelse
                 </div>
             </div>
+            @endif
         </div>
     </div>
 @endsection

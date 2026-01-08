@@ -2,356 +2,428 @@
 
 @section('content')
 <div class="mb-6 space-y-4">
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Dashboard - Admin Geral</h1>
-    </div>
-    
-    <!-- Filtros -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <!-- Filtro de Período -->
-        <form method="GET" action="{{ route('dashboard') }}" id="periodFilterForm" class="flex flex-wrap items-center gap-2">
-            @if(isset($selectedStoreId))
-                <input type="hidden" name="store_id" value="{{ $selectedStoreId }}">
-            @endif
-            <label for="period" class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Período:</label>
-            <select name="period" id="period" 
-                    onchange="this.form.submit()"
-                    class="w-full xs:w-auto min-w-[140px] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
-                <option value="today" {{ ($period ?? 'month') === 'today' ? 'selected' : '' }}>Hoje</option>
-                <option value="week" {{ ($period ?? 'month') === 'week' ? 'selected' : '' }}>Esta Semana</option>
-                <option value="month" {{ ($period ?? 'month') === 'month' ? 'selected' : '' }}>Este Mês</option>
-                <option value="year" {{ ($period ?? 'month') === 'year' ? 'selected' : '' }}>Este Ano</option>
-                <option value="custom" {{ ($period ?? 'month') === 'custom' ? 'selected' : '' }}>Personalizado</option>
-            </select>
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                @if(Auth::user()->tenant)
+                    {{ Auth::user()->tenant->name }}
+                @else
+                    Painel Administrativo
+                @endif
+            </h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Resumo de desempenho e atividades principais.</p>
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Filtro de Período -->
+            <form method="GET" action="{{ route('dashboard') }}" id="periodFilterForm" class="flex items-center gap-2">
+                @if(isset($selectedStoreId))
+                    <input type="hidden" name="store_id" value="{{ $selectedStoreId }}">
+                @endif
+                <select name="period" id="period" 
+                        onchange="this.form.submit()"
+                        class="px-4 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition-all">
+                    <option value="today" {{ ($period ?? 'month') === 'today' ? 'selected' : '' }}>Hoje</option>
+                    <option value="week" {{ ($period ?? 'month') === 'week' ? 'selected' : '' }}>Esta Semana</option>
+                    <option value="month" {{ ($period ?? 'month') === 'month' ? 'selected' : '' }}>Este Mês</option>
+                    <option value="year" {{ ($period ?? 'month') === 'year' ? 'selected' : '' }}>Este Ano</option>
+                    <option value="custom" {{ ($period ?? 'month') === 'custom' ? 'selected' : '' }}>Personalizado</option>
+                </select>
+                
+                @if(($period ?? 'month') === 'custom')
+                <div class="flex items-center gap-2">
+                    <input type="date" name="start_date" value="{{ $startDate->format('Y-m-d') ?? '' }}" 
+                           class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm">
+                    <input type="date" name="end_date" value="{{ $endDate->format('Y-m-d') ?? '' }}" 
+                           class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm">
+                </div>
+                @endif
+            </form>
             
-            @if(($period ?? 'month') === 'custom')
-            <input type="date" name="start_date" value="{{ $startDate->format('Y-m-d') ?? '' }}" 
-                   class="w-full xs:w-auto px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm">
-            <input type="date" name="end_date" value="{{ $endDate->format('Y-m-d') ?? '' }}" 
-                   class="w-full xs:w-auto px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm">
+            <!-- Filtro de Loja -->
+            @if(isset($stores) && $stores->count() > 1)
+            <form method="GET" action="{{ route('dashboard') }}" id="storeFilterForm" class="flex items-center gap-2 border-l border-gray-200 dark:border-gray-700 pl-3">
+                @if(isset($period))
+                    <input type="hidden" name="period" value="{{ $period }}">
+                @endif
+                <select name="store_id" id="store_filter" 
+                        onchange="this.form.submit()"
+                        class="px-4 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition-all">
+                    <option value="">Todas as Unidades</option>
+                    @foreach($stores as $store)
+                        <option value="{{ $store->id }}" {{ (isset($selectedStoreId) && $selectedStoreId == $store->id) ? 'selected' : '' }}>
+                            {{ $store->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </form>
             @endif
-        </form>
-        
-        <!-- Filtro de Loja -->
-        @if(isset($stores) && $stores->count() > 0)
-        <form method="GET" action="{{ route('dashboard') }}" id="storeFilterForm" class="flex flex-wrap items-center gap-2">
-            @if(isset($period))
-                <input type="hidden" name="period" value="{{ $period }}">
-            @endif
-            @if(isset($startDate) && isset($endDate) && ($period ?? '') === 'custom')
-                <input type="hidden" name="start_date" value="{{ $startDate->format('Y-m-d') }}">
-                <input type="hidden" name="end_date" value="{{ $endDate->format('Y-m-d') }}">
-            @endif
-            <label for="store_filter" class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Loja:</label>
-            <select name="store_id" id="store_filter" 
-                    onchange="this.form.submit()"
-                    class="w-full xs:w-auto min-w-[160px] px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                <option value="">Todas as Lojas</option>
-                @foreach($stores as $store)
-                    <option value="{{ $store->id }}" {{ (isset($selectedStoreId) && $selectedStoreId == $store->id) ? 'selected' : '' }}>
-                        {{ $store->name }}@if($store->isMain()) (Principal)@endif
-                    </option>
-                @endforeach
-            </select>
-        </form>
-        @endif
+        </div>
     </div>
 </div>
 
-<!-- Cards de Estatísticas Principais -->
+<!-- Grid de KPIs Principais -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <!-- Total de Pedidos -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
-        <div class="flex items-center justify-between">
+    <div class="group bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
+        <div class="flex items-start justify-between">
             <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Total de Pedidos</p>
-                <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{ $totalPedidos }}</p>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pedidos Totais</p>
+                <h3 class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{{ number_format($totalPedidos, 0, '.', '.') }}</h3>
                 @if(isset($variacaoPedidos))
-                <p class="text-xs mt-2 {{ $variacaoPedidos >= 0 ? 'text-green-600' : 'text-red-600' }}">
-                    {{ $variacaoPedidos >= 0 ? '+' : '' }}{{ number_format($variacaoPedidos, 1) }}% vs período anterior
-                </p>
+                <div class="flex items-center mt-2">
+                    <span class="flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $variacaoPedidos >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                        {{ $variacaoPedidos >= 0 ? '+' : '' }}{{ number_format($variacaoPedidos, 1) }}%
+                    </span>
+                    <span class="ml-2 text-xs text-gray-500 text-nowrap">vs período ant.</span>
+                </div>
                 @endif
             </div>
-            <div class="bg-indigo-100 dark:bg-indigo-900/30 rounded-full p-3">
-                <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
+            <div class="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
             </div>
         </div>
     </div>
 
     <!-- Faturamento Total -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
-        <div class="flex items-center justify-between">
+    @if(Auth::user()->tenant && Auth::user()->tenant->canAccess('financial'))
+    <div class="group bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
+        <div class="flex items-start justify-between">
             <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Faturamento Total</p>
-                <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">R$ {{ number_format($totalFaturamento, 2, ',', '.') }}</p>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Faturamento</p>
+                <h3 class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">R$ {{ number_format($totalFaturamento, 2, ',', '.') }}</h3>
                 @if(isset($variacaoFaturamento))
-                <p class="text-xs mt-2 {{ $variacaoFaturamento >= 0 ? 'text-green-600' : 'text-red-600' }}">
-                    {{ $variacaoFaturamento >= 0 ? '+' : '' }}{{ number_format($variacaoFaturamento, 1) }}% vs período anterior
-                </p>
+                <div class="flex items-center mt-2">
+                    <span class="flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $variacaoFaturamento >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                        {{ $variacaoFaturamento >= 0 ? '+' : '' }}{{ number_format($variacaoFaturamento, 1) }}%
+                    </span>
+                    <span class="ml-2 text-xs text-gray-500 text-nowrap">vs período ant.</span>
+                </div>
                 @endif
             </div>
-            <div class="bg-yellow-100 dark:bg-yellow-900/30 rounded-full p-3">
-                <svg class="w-8 h-8 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
+            <div class="p-3 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-xl group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
         </div>
     </div>
-
-    <!-- Total de Clientes -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
-        <div class="flex items-center justify-between">
+    @else
+    <div class="group bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
+        <div class="flex items-start justify-between">
             <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Total de Clientes</p>
-                <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{ $totalClientes }}</p>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Faturamento</p>
+                <h3 class="mt-2 text-sm font-bold text-gray-400 italic">Disponível no Plano Pro</h3>
+                <p class="text-xs text-gray-500 mt-2">Atualize para ver faturamento detalhado.</p>
             </div>
-            <div class="bg-green-100 dark:bg-green-900/30 rounded-full p-3">
-                <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                </svg>
+            <div class="p-3 bg-gray-50 dark:bg-gray-700 text-gray-400 rounded-xl">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Ticket Médio -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
-        <div class="flex items-center justify-between">
+    @if(!Auth::user()->tenant || Auth::user()->tenant->canAccess('financial'))
+    <div class="group bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
+        <div class="flex items-start justify-between">
             <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Ticket Médio</p>
-                <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">R$ {{ number_format($ticketMedio ?? 0, 2, ',', '.') }}</p>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ticket Médio</p>
+                <h3 class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">R$ {{ number_format($ticketMedio ?? 0, 2, ',', '.') }}</h3>
                 @if(isset($variacaoTicketMedio))
-                <p class="text-xs mt-2 {{ $variacaoTicketMedio >= 0 ? 'text-green-600' : 'text-red-600' }}">
-                    {{ $variacaoTicketMedio >= 0 ? '+' : '' }}{{ number_format($variacaoTicketMedio, 1) }}% vs período anterior
-                </p>
+                <div class="flex items-center mt-2">
+                    <span class="flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $variacaoTicketMedio >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                        {{ $variacaoTicketMedio >= 0 ? '+' : '' }}{{ number_format($variacaoTicketMedio, 1) }}%
+                    </span>
+                    <span class="ml-2 text-xs text-gray-500 text-nowrap">vs ant.</span>
+                </div>
                 @endif
             </div>
-            <div class="bg-purple-100 dark:bg-purple-900/30 rounded-full p-3">
-                <svg class="w-8 h-8 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                </svg>
+            <div class="p-3 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+            </div>
+        </div>
+    </div>
+    @else
+    <div class="group bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ticket Médio</p>
+                <h3 class="mt-2 text-sm font-bold text-gray-400 italic">Disponível no Plano Pro</h3>
+                <p class="text-xs text-gray-500 mt-2">Atualize para ver métricas.</p>
+            </div>
+            <div class="p-3 bg-gray-50 dark:bg-gray-700 text-gray-400 rounded-xl">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Clientes Novos -->
+    <div class="group bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Clientes</p>
+                <h3 class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{{ number_format($totalClientes, 0, '.', '.') }}</h3>
+                <p class="text-xs text-gray-500 mt-2">Base total ativa</p>
+            </div>
+            <div class="p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Cards Secundários -->
+<!-- Grid Adicional / Canais de Venda -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Vendas PDV -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
+    @if(Auth::user()->tenant && Auth::user()->tenant->canAccess('pdv'))
+    <!-- Vendas PDV (Só se tiver acesso) -->
+    <div class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-4 border border-dashed border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Vendas PDV</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $vendasPDV ?? 0 }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">R$ {{ number_format($vendasPDVValor ?? 0, 2, ',', '.') }}</p>
+                <p class="text-xs font-semibold text-gray-500 uppercase">PDV Presencial</p>
+                <p class="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{{ $vendasPDV ?? 0 }} vendas</p>
+                <p class="text-sm text-green-600 font-medium">R$ {{ number_format($vendasPDVValor ?? 0, 2, ',', '.') }}</p>
             </div>
-            <div class="bg-green-100 dark:bg-green-900/30 rounded-full p-3">
-                <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                </svg>
+            <div class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Pedidos Online -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
+    <div class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-4 border border-dashed border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Pedidos Online</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $pedidosOnline ?? 0 }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">R$ {{ number_format($pedidosOnlineValor ?? 0, 2, ',', '.') }}</p>
+                <p class="text-xs font-semibold text-gray-500 uppercase">Pedidos Online</p>
+                <p class="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{{ $pedidosOnline ?? 0 }} pedidos</p>
+                <p class="text-sm text-indigo-600 font-medium">R$ {{ number_format($pedidosOnlineValor ?? 0, 2, ',', '.') }}</p>
             </div>
-            <div class="bg-blue-100 dark:bg-blue-900/30 rounded-full p-3">
-                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
-                </svg>
+            <div class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
             </div>
         </div>
     </div>
 
     <!-- Pedidos Hoje -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
+    <div class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-4 border border-dashed border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Pedidos Hoje</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $pedidosHoje }}</p>
+                <p class="text-xs font-semibold text-gray-500 uppercase">Atividade Hoje</p>
+                <p class="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{{ $pedidosHoje }} novos</p>
+                <p class="text-sm text-gray-500 font-medium">Capturados hoje</p>
             </div>
-            <div class="bg-orange-100 dark:bg-orange-900/30 rounded-full p-3">
-                <svg class="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
+            <div class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             </div>
         </div>
     </div>
 
-    <!-- Pagamentos Pendentes -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
+    @if(Auth::user()->tenant && Auth::user()->tenant->canAccess('financial'))
+    <!-- Inadimplência / Pendentes (Só se tiver financeiro) -->
+    <div class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-4 border border-dashed border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Pagamentos Pendentes</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $pagamentosPendentes->count() }}</p>
-                <p class="text-xs text-orange-600 dark:text-orange-400 mt-1">Total: R$ {{ number_format($totalPendente, 2, ',', '.') }}</p>
+                <p class="text-xs font-semibold text-gray-500 uppercase">Recebimentos</p>
+                <p class="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{{ $pagamentosPendentes->count() }} pendentes</p>
+                <p class="text-sm text-red-500 font-medium">R$ {{ number_format($totalPendente, 2, ',', '.') }}</p>
             </div>
-            <div class="bg-red-100 dark:bg-red-900/30 rounded-full p-3">
-                <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
+            <div class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm">
+                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
+        </div>
+    </div>
+    @endif
+</div>
+
+<!-- Seção de Gráficos de Desempenho -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- Pedidos por Status -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 {{ (!Auth::user()->tenant || Auth::user()->tenant->canAccess('reports_simple')) ? '' : 'opacity-50 grayscale pointer-events-none relative overflow-hidden' }}">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">Fluxo de Pedidos</h2>
+            <span class="text-xs text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg">Por Status</span>
+        </div>
+        <div style="height: 300px; position: relative;">
+            <canvas id="statusChart"></canvas>
+            @if(Auth::user()->tenant && !Auth::user()->tenant->canAccess('reports_simple'))
+            <div class="absolute inset-0 flex flex-col items-center justify-center bg-white/60 dark:bg-gray-800/60 backdrop-blur-[2px] z-10 p-4 text-center">
+                <svg class="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                <p class="text-sm font-bold text-gray-700 dark:text-gray-300">Relatórios Bloqueados</p>
+                <p class="text-xs text-gray-500">Upgrade para ver gráficos</p>
+            </div>
+            @endif
+        </div>
+    </div>
+
+    <!-- Faturamento Temporal -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 {{ !Auth::user()->tenant->canAccess('financial') ? 'opacity-50 grayscale pointer-events-none relative overflow-hidden' : '' }}">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">Tendência de Receita</h2>
+            @if(Auth::user()->tenant->canAccess('financial'))
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 bg-indigo-500 rounded-full"></span>
+                <span class="text-xs text-gray-500">Valor (R$)</span>
+            </div>
+            @endif
+        </div>
+        <div style="height: 300px; position: relative;">
+            <canvas id="faturamentoChart"></canvas>
+            @if(!Auth::user()->tenant->canAccess('financial'))
+            <div class="absolute inset-0 flex flex-col items-center justify-center bg-white/60 dark:bg-gray-800/60 backdrop-blur-[2px] z-10 p-4 text-center">
+                <svg class="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                <p class="text-sm font-bold text-gray-700 dark:text-gray-300">Upgrade para Plano Pro</p>
+                <p class="text-xs text-gray-500">Visualize métricas financeiras</p>
+            </div>
+            @endif
         </div>
     </div>
 </div>
 
-<!-- Gráficos -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <!-- Pedidos por Status -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
-        <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Pedidos por Status</h2>
-        <div style="height: 300px; position: relative;">
-            <canvas id="statusChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Faturamento por Loja -->
-    @if(isset($faturamentoPorLoja) && $faturamentoPorLoja->isNotEmpty())
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
-        <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Faturamento por Loja</h2>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+    <!-- Faturamento por Loja (Se múltiplo) -->
+    @if(isset($faturamentoPorLoja) && $faturamentoPorLoja->count() > 1 && Auth::user()->tenant->canAccess('financial'))
+    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">Performance por Unidade</h2>
         <div style="height: 300px; position: relative;">
             <canvas id="faturamentoLojaChart"></canvas>
         </div>
     </div>
-    @else
-    <!-- Faturamento Diário -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
-        <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Faturamento Diário (Últimos 30 Dias)</h2>
-        <div style="height: 300px; position: relative;">
-            <canvas id="faturamentoChart"></canvas>
-        </div>
-    </div>
-    @endif
-</div>
-
-<!-- Gráficos Adicionais -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <!-- Faturamento Mensal -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
-        <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Faturamento Mensal (Últimos 12 Meses)</h2>
+    @elseif(Auth::user()->tenant->canAccess('financial'))
+    <!-- Faturamento Mensal (Destaque) -->
+    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">Evolução Mensal</h2>
         <div style="height: 300px; position: relative;">
             <canvas id="faturamentoMensalChart"></canvas>
         </div>
     </div>
-
-    <!-- Distribuição por Forma de Pagamento -->
-    @if(isset($distribuicaoPagamento) && $distribuicaoPagamento->isNotEmpty())
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
-        <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Formas de Pagamento</h2>
-        <div style="height: 300px; position: relative;">
-            <canvas id="pagamentoChart"></canvas>
-        </div>
-    </div>
     @else
-    <!-- Faturamento Diário -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
-        <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Faturamento Diário</h2>
-        <div style="height: 300px; position: relative;">
-            <canvas id="faturamentoChart"></canvas>
+    <!-- Fallback if no financial: Show status or something else -->
+    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 opacity-60">
+        <h2 class="text-lg font-bold text-gray-400 mb-6">Métricas de Vendas Detalhadas</h2>
+        <div class="flex flex-col items-center justify-center h-[300px] text-center">
+             <p class="text-sm text-gray-500">Upgrade para Plano Pro para desbloquear</p>
         </div>
     </div>
     @endif
+
+    <!-- Formas de Pagamento -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 {{ !Auth::user()->tenant->canAccess('financial') ? 'opacity-50 grayscale pointer-events-none relative overflow-hidden' : '' }}">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">Meios de Pagamento</h2>
+        <div style="height: 300px; position: relative;">
+            <canvas id="pagamentoChart"></canvas>
+            @if(!Auth::user()->tenant->canAccess('financial'))
+            <div class="absolute inset-0 flex flex-col items-center justify-center bg-white/60 dark:bg-gray-800/60 backdrop-blur-[2px] z-10 p-4 text-center">
+                <p class="text-xs font-bold text-gray-500">Bloqueado no Plano Atual</p>
+            </div>
+            @endif
+        </div>
+    </div>
 </div>
 
 <!-- Tabelas -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+<!-- Seção de Tabelas de Detalhamento -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
     <!-- Top 10 Clientes -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Top 10 Clientes</h2>
+    @if(!Auth::user()->tenant || Auth::user()->tenant->canAccess('crm'))
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100 italic">Ranking de Clientes</h2>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-700">
+                <thead class="bg-white dark:bg-gray-800">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Cliente</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Pedidos</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total</th>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
+                        <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pedidos</th>
+                        <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Investido</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                     @forelse($topClientes as $cliente)
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $cliente->name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $cliente->total_pedidos }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600 dark:text-green-400">R$ {{ number_format($cliente->total_gasto, 2, ',', '.') }}</td>
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xs mr-3">
+                                    {{ substr($cliente->name, 0, 1) }}
+                                </div>
+                                <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $cliente->name }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-center">{{ $cliente->total_pedidos }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600 dark:text-green-400 text-right">R$ {{ number_format($cliente->total_gasto, 2, ',', '.') }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="3" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">Nenhum cliente encontrado</td>
+                        <td colspan="3" class="px-6 py-12 text-center text-gray-400 dark:text-gray-500">
+                            Nenhum cliente registrado no período.
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+    @endif
 
-    <!-- Top Vendedores -->
+    <!-- Top Vendedores ou Pagamentos Pendentes -->
     @if(isset($topVendedores) && $topVendedores->isNotEmpty())
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Top Vendedores</h2>
+        @if(!Auth::user()->tenant || Auth::user()->tenant->canAccess('reports_simple'))
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+                <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100 italic">Desempenho Comercial</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-white dark:bg-gray-800">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vendedor</th>
+                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Metas/Pedidos</th>
+                            <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Faturamento</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                        @foreach($topVendedores as $vendedor)
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $vendedor->name }}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-center">{{ $vendedor->total_pedidos }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-600 dark:text-indigo-400 text-right">R$ {{ number_format($vendedor->total_faturamento, 2, ',', '.') }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @endif
+    @elseif(Auth::user()->tenant && Auth::user()->tenant->canAccess('financial'))
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100 italic">Contas a Receber</h2>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-700">
+                <thead class="bg-white dark:bg-gray-800">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Vendedor</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Pedidos</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Faturamento</th>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pedido</th>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
+                        <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Saldo Devedor</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    @foreach($topVendedores as $vendedor)
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $vendedor->name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $vendedor->total_pedidos }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600 dark:text-green-400">R$ {{ number_format($vendedor->total_faturamento, 2, ',', '.') }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-    @else
-    <!-- Pagamentos Pendentes -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Pagamentos Pendentes</h2>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Pedido</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Cliente</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Restante</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                     @forelse($pagamentosPendentes as $pagamento)
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600 dark:text-indigo-400">
-                            <a href="{{ route('orders.show', $pagamento->order->id) }}" 
-                               class="hover:text-indigo-800 dark:hover:text-indigo-300 hover:underline">
-                                #{{ str_pad($pagamento->order->id, 6, '0', STR_PAD_LEFT) }}
-                            </a>
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                            <a href="{{ route('orders.show', $pagamento->order->id) }}">#{{ str_pad($pagamento->order->id, 6, '0', STR_PAD_LEFT) }}</a>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                            {{ $pagamento->order->client ? $pagamento->order->client->name : 'Sem cliente' }}
+                            {{ $pagamento->order->client ? $pagamento->order->client->name : 'Consumidor Final' }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-600 dark:text-orange-400">R$ {{ number_format($pagamento->remaining_amount, 2, ',', '.') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-red-600 dark:text-red-400 text-right">R$ {{ number_format($pagamento->remaining_amount, 2, ',', '.') }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="3" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">Nenhum pagamento pendente</td>
+                        <td colspan="3" class="px-6 py-12 text-center text-gray-400 dark:text-gray-500">
+                            Nenhum pagamento pendente.
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -362,7 +434,7 @@
 </div>
 
 <!-- Produtos Mais Vendidos -->
-@if(isset($produtosMaisVendidos) && $produtosMaisVendidos->isNotEmpty())
+@if(isset($produtosMaisVendidos) && $produtosMaisVendidos->isNotEmpty() && (!Auth::user()->tenant || Auth::user()->tenant->canAccess('reports_simple')))
 <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 overflow-hidden mb-8">
     <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Produtos Mais Vendidos</h2>

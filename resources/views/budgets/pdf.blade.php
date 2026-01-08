@@ -209,31 +209,73 @@
     </style>
 </head>
 <body>
+    @php
+        $tenant = auth()->user()->tenant;
+        
+        $logoPath = null;
+        if ($tenant && $tenant->logo_path && file_exists(public_path('storage/' . $tenant->logo_path))) {
+            $logoPath = public_path('storage/' . $tenant->logo_path);
+        } elseif ($settings && $settings->logo_path) {
+             if (file_exists(public_path($settings->logo_path))) {
+                 $logoPath = public_path($settings->logo_path);
+             } elseif (file_exists(public_path('storage/' . $settings->logo_path))) {
+                 $logoPath = public_path('storage/' . $settings->logo_path);
+             }
+        }
+    @endphp
+
     <!-- Header -->
-    <div class="header">
-        @if($settings->logo_path && file_exists(public_path($settings->logo_path)))
-        <img src="{{ public_path($settings->logo_path) }}" alt="Logo" style="max-width: 200px; max-height: 80px; margin: 0 auto 10px;">
-        @endif
-        @if($settings->company_name)
-        <h1>{{ strtoupper($settings->company_name) }}</h1>
-        @endif
-        <h2 style="color: #4F46E5; font-size: 20px; margin-top: 10px;">ORÇAMENTO #{{ $budget->budget_number }}</h2>
-        <p>Emitido em {{ $budget->created_at->format('d/m/Y') }} | Válido até {{ \Carbon\Carbon::parse($budget->valid_until)->format('d/m/Y') }}</p>
-        @if($settings->company_phone || $settings->company_email)
-        <p style="margin-top: 8px; font-size: 10px;">
-            @if($settings->company_phone)Tel: {{ $settings->company_phone }}@endif
-            @if($settings->company_phone && $settings->company_email) | @endif
-            @if($settings->company_email){{ $settings->company_email }}@endif
-        </p>
-        @endif
-        <p style="margin-top: 5px;">
-            <span class="status-badge status-{{ $budget->status }}">
+    <div class="header" style="text-align: left; padding: 0; border: 0; position: relative; min-height: 100px;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                @if($logoPath)
+                <td style="width: 25%; vertical-align: top; padding-right: 20px;">
+                    <img src="{{ $logoPath }}" alt="Logo" style="max-width: 100%; max-height: 100px;">
+                </td>
+                @endif
+                <td style="width: {{ $logoPath ? '75%' : '100%' }}; vertical-align: top;">
+                    <h1 style="margin: 0; padding: 0; font-size: 18px;">{{ strtoupper($settings->company_name ?? $budget->store->name ?? 'Empresa') }}</h1>
+                    
+                    <div style="font-size: 9px; color: #333; margin-top: 5px;">
+                        @if($settings->company_address)
+                            {{ $settings->company_address }} - 
+                        @endif
+                        @if($settings->company_city || $settings->company_state)
+                            {{ $settings->company_city }}@if($settings->company_city && $settings->company_state) - @endif{{ $settings->company_state }}
+                        @endif
+                        <br>
+                        @if($settings->company_cnpj)
+                            <strong style="color: #000;">CNPJ:</strong> {{ $settings->company_cnpj }}
+                        @endif
+                        @if($settings->company_phone)
+                            <span style="margin-left: 10px;"><strong style="color: #000;">TEL:</strong> {{ $settings->company_phone }}</span>
+                        @endif
+                        @if($settings->company_email)
+                            <span style="margin-left: 10px;"><strong style="color: #000;">E-MAIL:</strong> {{ $settings->company_email }}</span>
+                        @endif
+                    </div>
+
+                    <h2 style="color: #4F46E5; font-size: 22px; margin-top: 10px; font-weight: 800; letter-spacing: -0.5px;">ORÇAMENTO #{{ $budget->budget_number }}</h2>
+                    <p style="font-size: 10px; color: #666; margin-top: 5px;">
+                        Emitido em {{ $budget->created_at->format('d/m/Y') }} 
+                        @if($budget->valid_until)
+                        | Válido até {{ \Carbon\Carbon::parse($budget->valid_until)->format('d/m/Y') }}
+                        @endif
+                    </p>
+                </td>
+            </tr>
+        </table>
+        
+        <div style="position: absolute; top: 0; right: 0; text-align: right;">
+            <span class="status-badge" style="background-color: {{ $budget->status === 'approved' ? '#f0fdf4' : ($budget->status === 'rejected' ? '#fef2f2' : '#fff7ed') }}; color: {{ $budget->status === 'approved' ? '#166534' : ($budget->status === 'rejected' ? '#991b1b' : '#9a3412') }}; border-color: {{ $budget->status === 'approved' ? '#bbf7d0' : ($budget->status === 'rejected' ? '#fecaca' : '#fed7aa') }}; padding: 4px 12px; border-radius: 9999px; text-transform: uppercase;">
                 @if($budget->status === 'pending') PENDENTE
                 @elseif($budget->status === 'approved') APROVADO
                 @elseif($budget->status === 'rejected') REJEITADO
                 @endif
             </span>
-        </p>
+        </div>
+        
+        <div style="border-bottom: 2px solid #4F46E5; margin-top: 15px; margin-bottom: 20px;"></div>
     </div>
 
     <!-- Cliente -->

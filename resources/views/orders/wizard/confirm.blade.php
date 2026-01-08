@@ -121,106 +121,140 @@
                     </div>
                 </div>
 
-                        <!-- ETAPA 2: Itens de Costura -->
+                        <!-- ETAPA 2: Itens de Costura/Produto -->
                         @foreach($order->items as $index => $item)
+                        @php
+                            $isSubLocal = $item->print_type === 'Sublimação Local';
+                        @endphp
                         <div class="space-y-3">
                             <div class="flex items-center space-x-2 mb-3">
-                                <div class="w-5 h-5 rounded-md flex items-center justify-center" class="bg-indigo-100 dark:bg-indigo-900/30">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-indigo-600 dark:text-indigo-400 dark:text-indigo-400">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                <div class="w-5 h-5 rounded-md flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/30">
+                                    <svg class="w-3 h-3 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        @if($isSubLocal)
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                        @else
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                        @endif
                                     </svg>
                                 </div>
-                                <h2 class="text-sm font-medium text-gray-900 dark:text-white">Item {{ $index + 1 }} - Costura</h2>
+                                <h2 class="text-sm font-medium text-gray-900 dark:text-white">Item {{ $index + 1 }} - {{ $isSubLocal ? 'Produto' : 'Costura' }}</h2>
                             </div>
 
                             <div class="bg-gray-50 dark:bg-slate-800/50 rounded-md p-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <div>
-                                        <span class="text-xs text-gray-600 dark:text-slate-400">Personalização:</span>
+                                        <span class="text-xs text-gray-600 dark:text-slate-400">Tipo:</span>
                                         <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->print_type }}</p>
                                     </div>
-                                    <div>
-                                        <span class="text-xs text-gray-600 dark:text-slate-400">Tecido:</span>
-                                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->fabric }}</p>
-                                    </div>
-                                    <div>
-                                        <span class="text-xs text-gray-600 dark:text-slate-400">Cor:</span>
-                                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->color }}</p>
-                                    </div>
-                                    @if($item->collar)
-                                    <div>
-                                        <span class="text-xs text-gray-600 dark:text-slate-400">Gola:</span>
-                                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->collar }}</p>
-                                    </div>
+                                    @if($isSubLocal)
+                                        <div>
+                                            <span class="text-xs text-gray-600 dark:text-slate-400">Produto:</span>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->model }}</p>
+                                        </div>
+                                        <div>
+                                            <span class="text-xs text-gray-600 dark:text-slate-400">Preço Unitário:</span>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">R$ {{ number_format($item->unit_price, 2, ',', '.') }}</p>
+                                        </div>
+                                    @else
+                                        <div>
+                                            <span class="text-xs text-gray-600 dark:text-slate-400">Tecido:</span>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->fabric }}</p>
+                                        </div>
+                                        <div>
+                                            <span class="text-xs text-gray-600 dark:text-slate-400">Cor:</span>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->color }}</p>
+                                        </div>
                                     @endif
-                                    @if($item->detail)
-                                    <div>
-                                        <span class="text-xs text-gray-600 dark:text-slate-400">Detalhe:</span>
-                                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->detail }}</p>
-                                    </div>
-                                    @endif
-                                    @if($item->model)
-                                    <div>
-                                        <span class="text-xs text-gray-600 dark:text-slate-400">Tipo de Corte:</span>
-                                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->model }}</p>
-                                    </div>
+                                    
+                                    @if(!$isSubLocal)
+                                        @if($item->collar)
+                                        <div>
+                                            <span class="text-xs text-gray-600 dark:text-slate-400">Gola:</span>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->collar }}</p>
+                                        </div>
+                                        @endif
+                                        @if($item->detail)
+                                        <div>
+                                            <span class="text-xs text-gray-600 dark:text-slate-400">Detalhe:</span>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->detail }}</p>
+                                        </div>
+                                        @endif
+                                        @if($item->model)
+                                        <div>
+                                            <span class="text-xs text-gray-600 dark:text-slate-400">Tipo de Corte:</span>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->model }}</p>
+                                        </div>
+                                        @endif
                                     @endif
                                 </div>
 
                                 <!-- Tamanhos -->
                                 <div class="border-t border-gray-200 dark:border-slate-700 pt-4 mb-4">
-                                    <span class="text-xs text-gray-600 dark:text-slate-400 block mb-3 font-semibold">Distribuição de Tamanhos:</span>
-                                    <div class="grid grid-cols-5 gap-2 mb-3">
-                                        @php
-                                            $itemSizes = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) ? json_decode($item->sizes, true) : []);
-                                            $itemSizes = $itemSizes ?? [];
-                                            $availableSizes = ['PP', 'P', 'M', 'G', 'GG'];
-                                            $sizeColors = [
-                                                'PP' => 'bg-orange-100 dark:bg-orange-900/30 border-orange-300 dark:border-orange-700 text-orange-900 dark:text-orange-200',
-                                                'P' => 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700 text-yellow-900 dark:text-yellow-200',
-                                                'M' => 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700 text-blue-900 dark:text-blue-200',
-                                                'G' => 'bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700 text-red-900 dark:text-red-200',
-                                                'GG' => 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700 text-green-900 dark:text-green-200',
-                                            ];
-                                            $totalSizes = 0;
-                                        @endphp
-                                        @foreach($availableSizes as $size)
-                                            @php
-                                                $qty = $itemSizes[$size] ?? $itemSizes[strtolower($size)] ?? 0;
-                                                $qty = (int)$qty;
-                                                $totalSizes += $qty;
-                                                $colorClass = $sizeColors[$size] ?? 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white';
-                                            @endphp
-                                            <div class="{{ $colorClass }} rounded-lg px-3 py-2 text-center border-2">
-                                                <span class="text-xs font-semibold block mb-1">{{ $size }}</span>
-                                                <p class="font-bold text-base">{{ $qty }}</p>
+                                    @if($isSubLocal)
+                                        <div class="flex items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-lg border border-gray-200 dark:border-slate-700">
+                                            <div>
+                                                <span class="text-xs text-gray-600 dark:text-slate-400 block mb-1">Quantidade Total:</span>
+                                                <p class="text-xl font-bold text-indigo-600 dark:text-indigo-400">{{ $item->quantity }} unidades</p>
                                             </div>
-                                        @endforeach
-                                    </div>
-                                    <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg px-4 py-2 border border-indigo-200 dark:border-indigo-800">
-                                        <p class="text-sm font-semibold text-gray-900 dark:text-white text-center">
-                                            Total: <span class="text-indigo-600 dark:text-indigo-400 text-lg">{{ $totalSizes > 0 ? $totalSizes : $item->quantity }}</span> peças
-                                            @if($totalSizes > 0 && $totalSizes != $item->quantity)
-                                                <span class="text-xs text-orange-600 dark:text-orange-400 block mt-1">(Quantidade do item: {{ $item->quantity }})</span>
-                                            @endif
-                                        </p>
-                                    </div>
+                                            <div class="text-right">
+                                                <span class="text-xs text-gray-600 dark:text-slate-400 block mb-1">Tamanho:</span>
+                                                <p class="text-sm font-medium text-gray-900 dark:text-white">Único (UN)</p>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="text-xs text-gray-600 dark:text-slate-400 block mb-3 font-semibold">Distribuição de Tamanhos:</span>
+                                        <div class="grid grid-cols-5 gap-2 mb-3">
+                                            @php
+                                                $itemSizes = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) ? json_decode($item->sizes, true) : []);
+                                                $itemSizes = $itemSizes ?? [];
+                                                $availableSizes = ['PP', 'P', 'M', 'G', 'GG'];
+                                                $sizeColors = [
+                                                    'PP' => 'bg-orange-100 dark:bg-orange-900/30 border-orange-300 dark:border-orange-700 text-orange-900 dark:text-orange-200',
+                                                    'P' => 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700 text-yellow-900 dark:text-yellow-200',
+                                                    'M' => 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700 text-blue-900 dark:text-blue-200',
+                                                    'G' => 'bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700 text-red-900 dark:text-red-200',
+                                                    'GG' => 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700 text-green-900 dark:text-green-200',
+                                                ];
+                                                $totalSizes = 0;
+                                            @endphp
+                                            @foreach($availableSizes as $size)
+                                                @php
+                                                    $qty = $itemSizes[$size] ?? $itemSizes[strtolower($size)] ?? 0;
+                                                    $qty = (int)$qty;
+                                                    $totalSizes += $qty;
+                                                    $colorClass = $sizeColors[$size] ?? 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white';
+                                                @endphp
+                                                <div class="{{ $colorClass }} rounded-lg px-3 py-2 text-center border-2">
+                                                    <span class="text-xs font-semibold block mb-1">{{ $size }}</span>
+                                                    <p class="font-bold text-base">{{ $qty }}</p>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg px-4 py-2 border border-indigo-200 dark:border-indigo-800">
+                                            <p class="text-sm font-semibold text-gray-900 dark:text-white text-center">
+                                                Total: <span class="text-indigo-600 dark:text-indigo-400 text-lg">{{ $totalSizes > 0 ? $totalSizes : $item->quantity }}</span> peças
+                                                @if($totalSizes > 0 && $totalSizes != $item->quantity)
+                                                    <span class="text-xs text-orange-600 dark:text-orange-400 block mt-1">(Quantidade do item: {{ $item->quantity }})</span>
+                                                @endif
+                                            </p>
+                                        </div>
+                                    @endif
                                 </div>
 
-                                <!-- Detalhamento de Preços da Costura -->
+                                <!-- Detalhamento de Preços -->
                                 <div class="border-t border-gray-200 dark:border-slate-700 pt-4">
-                                    <span class="text-xs text-gray-600 dark:text-slate-400 block mb-2 font-semibold">Detalhamento de Preços - Costura:</span>
+                                    <span class="text-xs text-gray-600 dark:text-slate-400 block mb-2 font-semibold">Detalhamento de Preços - {{ $isSubLocal ? 'Produto' : 'Costura' }}:</span>
                                     <div class="bg-white dark:bg-slate-800 rounded-lg p-3 border border-gray-200 dark:border-slate-700">
                                         <div class="flex justify-between text-sm mb-1">
-                                            <span class="text-gray-600 dark:text-slate-400">Preço unitário (costura):</span>
+                                            <span class="text-gray-600 dark:text-slate-400">Preço unitário ({{ $isSubLocal ? 'produto' : 'costura' }}):</span>
                                             <span class="font-medium text-gray-900 dark:text-white">R$ {{ number_format($item->unit_price, 2, ',', '.') }}</span>
                                         </div>
                                         <div class="flex justify-between text-sm mb-1">
                                             <span class="text-gray-600 dark:text-slate-400">Quantidade:</span>
-                                            <span class="font-medium text-gray-900 dark:text-white">{{ $item->quantity }} peças</span>
+                                            <span class="font-medium text-gray-900 dark:text-white">{{ $item->quantity }} {{ $isSubLocal ? 'unidades' : 'peças' }}</span>
                                         </div>
                                         <div class="flex justify-between text-sm pt-2 border-t border-gray-200 dark:border-slate-700">
-                                            <span class="text-gray-900 dark:text-white font-semibold">Subtotal costura:</span>
+                                            <span class="text-gray-900 dark:text-white font-semibold">Subtotal {{ $isSubLocal ? 'produto' : 'costura' }}:</span>
                                             <span class="font-bold text-indigo-600 dark:text-indigo-400">R$ {{ number_format($item->unit_price * $item->quantity, 2, ',', '.') }}</span>
                                         </div>
                                     </div>
@@ -245,51 +279,66 @@
                             // Buscar o nome da arte da primeira personalização deste item
                             $artName = $item->sublimations->first()->art_name ?? null;
                         @endphp
-                        @if($artName)
                         <div class="mb-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-3">
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-center space-x-2 mb-2">
                                 <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                                 </svg>
-                                <div>
-                                    <span class="text-xs text-indigo-600 dark:text-indigo-400 font-medium">Nome da Arte:</span>
-                                    <p class="text-sm font-bold text-indigo-900 dark:text-indigo-100">{{ $artName }}</p>
-                                </div>
+                                <span class="text-xs text-indigo-600 dark:text-indigo-400 font-medium">Nome da Arte:</span>
                             </div>
+                            <input type="text" 
+                                   name="items[{{ $item->id }}][art_name]" 
+                                   value="{{ $artName ?? $item->art_name }}" 
+                                   form="finalize-form"
+                                   class="w-full px-3 py-2 border border-indigo-300 dark:border-indigo-600/50 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                   placeholder="Digite o nome da arte para este item...">
                         </div>
-                        @endif
 
-                        @if($item->cover_image || $item->cover_image_url)
                         @php
                             $imageUrl = $item->cover_image_url;
                             $imageExists = !empty($imageUrl);
                             $coverImagePath = $item->cover_image;
                         @endphp
                         <div class="mb-4">
-                            <span class="text-xs text-gray-600 dark:text-slate-400 block mb-2 font-semibold">Imagem de Capa:</span>
-                            <div class="text-center">
-                                @if($imageExists && $imageUrl)
-                                <img src="{{ $imageUrl }}" 
-                                     alt="Capa" 
-                                     class="max-w-xs rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm mx-auto"
-                                     onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                @endif
-                                
-                                <div class="text-gray-500 dark:text-slate-400 text-sm py-4 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg {{ $imageExists && $imageUrl ? 'hidden' : '' }}">
-                                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                    <p class="text-gray-600 dark:text-slate-300 font-medium">Erro ao carregar imagem</p>
-                                    @if($coverImagePath)
-                                    <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">{{ basename($coverImagePath) }}</p>
-                                    @endif
-                                    @if(!$imageExists)
-                                    <p class="text-xs text-orange-600 dark:text-orange-400 mt-1">Arquivo não encontrado no servidor</p>
-                                    @endif
+                            <span class="text-xs text-gray-600 dark:text-slate-400 block mb-2 font-semibold">Imagem de Capa (Opcional):</span>
+                            
+                            <div class="border border-gray-200 dark:border-slate-700 rounded-lg p-4 bg-gray-50 dark:bg-slate-800/50">
+                                <!-- Preview Area -->
+                                <div class="text-center mb-3">
+                                    <div id="preview-container-{{ $item->id }}" class="{{ ($imageExists && $imageUrl) ? '' : 'hidden' }}">
+                                        <img id="preview-img-{{ $item->id }}" 
+                                             src="{{ $imageUrl ?? '' }}" 
+                                             alt="Capa" 
+                                             class="max-w-xs rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm mx-auto max-h-48 object-contain">
+                                        <p class="text-xs text-green-600 dark:text-green-400 mt-2 font-medium" id="preview-text-{{ $item->id }}">Imagem Atual</p>
+                                    </div>
+                                    
+                                    <div id="no-image-{{ $item->id }}" class="{{ ($imageExists && $imageUrl) ? 'hidden' : '' }} py-4 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg">
+                                        <svg class="w-8 h-8 mx-auto mb-2 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <p class="text-gray-500 dark:text-slate-400 text-sm">Nenhuma imagem selecionada</p>
+                                    </div>
                                 </div>
+                                
+                                <!-- Input File -->
+                                <div class="relative">
+                                    <input type="file" 
+                                           id="cover-input-{{ $item->id }}"
+                                           name="items[{{ $item->id }}][cover_image]" 
+                                           form="finalize-form"
+                                           accept="image/*"
+                                           class="block w-full text-sm text-gray-500
+                                                  file:mr-4 file:py-2 file:px-4
+                                                  file:rounded-full file:border-0
+                                                  file:text-sm file:font-semibold
+                                                  file:bg-indigo-50 file:text-indigo-700
+                                                  hover:file:bg-indigo-100 dark:file:bg-indigo-900/40 dark:file:text-indigo-300"
+                                           onchange="previewImage(this, '{{ $item->id }}')">
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Recomendado: 794 x 1123 pixels (A4)</p>
                             </div>
                         </div>
-                        @endif
 
                                 <!-- Aplicações -->
                                 <div class="mb-4">
@@ -406,7 +455,7 @@
                 <!-- Resumo Total do Item -->
                 <div class="space-y-3">
                     <div class="flex items-center space-x-2 mb-3">
-                        <div class="w-5 h-5 rounded-md flex items-center justify-center" class="bg-indigo-100 dark:bg-indigo-900/30">
+                        <div class="w-5 h-5 rounded-md flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/30">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-indigo-600 dark:text-indigo-400 dark:text-indigo-400">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                             </svg>
@@ -426,26 +475,30 @@
                             $valorPorCamisa = $costuraUnitaria + $personalizacaoUnitaria;
                         @endphp
                         
-                        <!-- Resumo: Valor por Camisa -->
+                        <!-- Resumo: Valor por Camisa/Unidade -->
                         <div class="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-4 mb-4">
                             <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-200 dark:border-slate-700">
                                 <div class="flex items-center space-x-2">
                                     <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Valor por Camisa</h3>
+                                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Valor por {{ $isSubLocal ? 'Unidade' : 'Camisa' }}</h3>
                                 </div>
                                 <span class="text-xl font-bold text-indigo-600 dark:text-indigo-400">R$ {{ number_format($valorPorCamisa, 2, ',', '.') }}</span>
                             </div>
                             
                             <div class="grid grid-cols-3 gap-3 mb-4">
-                                <!-- Costura -->
+                                <!-- Costura/Produto -->
                                 <div class="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-3 border border-gray-200 dark:border-slate-600">
                                     <div class="flex items-center space-x-1.5 mb-1.5">
                                         <svg class="w-3.5 h-3.5 text-gray-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                            @if($isSubLocal)
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                            @else
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                            @endif
                                         </svg>
-                                        <span class="text-xs text-gray-600 dark:text-slate-400 font-medium">Costura</span>
+                                        <span class="text-xs text-gray-600 dark:text-slate-400 font-medium">{{ $isSubLocal ? 'Produto' : 'Costura' }}</span>
                                     </div>
                                     <p class="text-base font-bold text-gray-900 dark:text-white">R$ {{ number_format($costuraUnitaria, 2, ',', '.') }}</p>
                                 </div>
@@ -475,7 +528,7 @@
                             
                             <div class="bg-gray-50 dark:bg-slate-700/50 rounded-lg px-4 py-2.5 border border-gray-200 dark:border-slate-600">
                                 <p class="text-sm text-gray-700 dark:text-slate-300 text-center">
-                                    <span class="font-medium">{{ $item->quantity }}</span> camisas × 
+                                    <span class="font-medium">{{ $item->quantity }}</span> {{ $isSubLocal ? 'unidades' : 'camisas' }} × 
                                     <span class="font-medium">R$ {{ number_format($valorPorCamisa, 2, ',', '.') }}</span> = 
                                     <span class="font-bold text-indigo-600 dark:text-indigo-400">R$ {{ number_format($itemTotal, 2, ',', '.') }}</span>
                                 </p>
@@ -486,7 +539,7 @@
                         <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-slate-700">
                             <div class="space-y-2">
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600 dark:text-slate-400">Subtotal costura:</span>
+                                    <span class="text-gray-600 dark:text-slate-400">Subtotal {{ $isSubLocal ? 'produto' : 'costura' }}:</span>
                                     <span class="font-medium text-gray-900 dark:text-white">R$ {{ number_format($costuraSubtotal, 2, ',', '.') }}</span>
                                 </div>
                                 @if($personalizacaoSubtotal > 0)
@@ -745,7 +798,7 @@
 
                     <!-- Ações -->
                     <div class="mt-6 space-y-3">
-                            <form method="POST" action="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.finalize') : route('orders.wizard.finalize') }}" id="finalize-form" onsubmit="return handleFinalize(this)">
+                            <form method="POST" action="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.finalize') : route('orders.wizard.finalize') }}" id="finalize-form" onsubmit="return handleFinalize(this)" enctype="multipart/form-data">
                             @csrf
                             
                                 <!-- Checkbox para Evento -->
@@ -842,6 +895,26 @@
         function closeAlertModal() {
             document.getElementById('alertModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
+        }
+
+        function previewImage(input, itemId) {
+            const previewContainer = document.getElementById(`preview-container-${itemId}`);
+            const noImageContainer = document.getElementById(`no-image-${itemId}`);
+            const previewImg = document.getElementById(`preview-img-${itemId}`);
+            const previewText = document.getElementById(`preview-text-${itemId}`);
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
+                    noImageContainer.classList.add('hidden');
+                    if (previewText) previewText.innerText = "Nova Imagem Selecionada";
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
         }
 
         // Verificar eventos ao carregar a página

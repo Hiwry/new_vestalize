@@ -32,5 +32,9 @@ class Plan extends Model
         'stock' => 'Controle de Estoque',
         'bi' => 'Business Intelligence (BI)',
         'external_quote' => 'Orçamento Online (Self-Service)',
+        'financial' => 'Gestão Financeira',
+        'subscription_module' => 'Módulo de Assinatura',
+        'branding' => 'Personalização de Marca',
+        'sublimation_total' => 'Sublimação Total',
     ];
 }

@@ -141,11 +141,18 @@ class OrderWizardController extends Controller
         ]);
 
         session(['current_order_id' => $order->id]);
-        // Marcar para limpar personalizaÇõÇæes residuais quando chegar na etapa de personalizaÇõÇœo
+        // Salvar dados do cliente na sessão para exibição no wizard
+        session(['wizard.client' => [
+            'id' => $client->id,
+            'name' => $client->name,
+            'phone_primary' => $client->phone_primary,
+            'email' => $client->email,
+        ]]);
+        // Marcar para limpar personalizações residuais quando chegar na etapa de personalização
         session(['fresh_customization_cleanup' => true]);
 
         \Log::info('=== STORE CLIENT DEBUG END - SUCCESS ===');
-        return redirect()->route('orders.wizard.sewing');
+        return redirect()->route('orders.wizard.personalization-type');
         
         } catch (\Illuminate\Validation\ValidationException $e) {
             \Log::error('=== STORE CLIENT VALIDATION FAILED ===', [
@@ -159,6 +166,70 @@ class OrderWizardController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
             throw $e;
+        }
+    }
+
+    /**
+     * Etapa 2: Escolher tipo de personalização
+     */
+    public function personalizationType(Request $request)
+    {
+        // Verificar se tem ordem ou cliente na sessão
+        $orderId = session('current_order_id');
+        
+        if (!$orderId && !session('wizard.client')) {
+            return redirect()->route('orders.wizard.start')->with('error', 'Selecione um cliente primeiro.');
+        }
+
+        // Se não tem wizard.client mas tem order_id, buscar do pedido
+        if (!session('wizard.client') && $orderId) {
+            $order = Order::with('client')->find($orderId);
+            if ($order && $order->client) {
+                session(['wizard.client' => [
+                    'id' => $order->client->id,
+                    'name' => $order->client->name,
+                    'phone_primary' => $order->client->phone_primary,
+                    'email' => $order->client->email,
+                ]]);
+            }
+        }
+
+        return view('orders.wizard.personalization-type');
+    }
+
+    /**
+     * Etapa 3: Itens baseados no tipo de personalização
+     */
+    public function items(Request $request)
+    {
+        $type = $request->get('type', session('wizard.personalization_type'));
+        
+        if (!$type) {
+            return redirect()->route('orders.wizard.personalization-type')->with('error', 'Selecione um tipo de personalização.');
+        }
+
+        // Salvar tipo na sessão
+        session(['wizard.personalization_type' => $type]);
+
+        // Retornar a view específica baseada no tipo
+        switch ($type) {
+            case 'sub_local':
+                // Sublimação Local - estilo totem McDonald's
+                $products = \App\Models\SubLocalProduct::where('is_active', true)->orderBy('sort_order')->get();
+                return view('orders.wizard.items-sub-local', compact('products'));
+            
+            case 'sub_total':
+                // Sublimação Total - usa o sistema existente
+                return redirect()->route('orders.wizard.sewing', ['type' => 'sub_total']);
+            
+            case 'serigrafia':
+            case 'dtf':
+            case 'bordado':
+            case 'emborrachado':
+            case 'lisas':
+            default:
+                // Outros tipos - usa o fluxo de costura padrão
+                return redirect()->route('orders.wizard.sewing', ['type' => $type]);
         }
     }
 
@@ -272,9 +343,60 @@ class OrderWizardController extends Controller
             return $this->finishSewing($request);
         } elseif ($action === 'delete_item') {
             return $this->deleteItem($request);
+        } elseif ($action === 'save_sub_local_items') {
+            return $this->saveSubLocalItems($request);
         }
 
         return $this->addItem($request);
+    }
+
+    private function saveSubLocalItems(Request $request)
+    {
+        $validated = $request->validate([
+            'items' => 'required|array',
+            'items.*.id' => 'required',
+            'items.*.name' => 'required|string',
+            'items.*.price' => 'required|numeric',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.icon' => 'nullable|string',
+        ]);
+
+        $order = Order::with('items')->findOrFail(session('current_order_id'));
+
+        // Opcional: Limpar itens anteriores se for substituir
+        // $order->items()->delete(); 
+
+        foreach ($validated['items'] as $itemData) {
+            $itemNumber = $order->items()->count() + 1;
+            
+            // Adaptar para OrderItem
+            // Usamos campos existentes para armazenar dados do produto pronto
+            $item = new OrderItem([
+                'item_number' => $itemNumber,
+                'fabric' => 'Produto Pronto',
+                'color' => '-', 
+                'collar' => '-',
+                'model' => $itemData['name'],
+                'detail' => null,
+                'print_type' => 'Sublimação Local',
+                'sizes' => ['UN' => $itemData['quantity']],
+                'quantity' => $itemData['quantity'],
+                'unit_price' => $itemData['price'],
+                'total_price' => $itemData['price'] * $itemData['quantity'],
+                'unit_cost' => 0,
+                'total_cost' => 0,
+                'print_desc' => json_encode(['is_sub_local' => true, 'product_id' => $itemData['id']]),
+            ]);
+            
+            $order->items()->save($item);
+        }
+
+        $order->update([
+            'subtotal' => $order->items()->sum('total_price'),
+            'total_items' => $order->items()->sum('quantity'),
+        ]);
+
+        return response()->json(['success' => true]);
     }
 
     private function addItem(Request $request)
@@ -1168,7 +1290,47 @@ class OrderWizardController extends Controller
     {
         if ($request->isMethod('get')) {
             $order = Order::with('client', 'items')->findOrFail(session('current_order_id'));
-            return view('orders.wizard.payment', compact('order'));
+            
+            // Determine Back Route logic
+            $backRoute = route('orders.wizard.customization');
+            
+            $allSubLocal = true;
+            $allSkipCustomization = true;
+
+            if ($order->items->isEmpty()) {
+                $allSubLocal = false;
+            } else {
+                foreach ($order->items as $item) {
+                    // Check if item is Sublimação Local
+                    if ($item->print_type !== 'Sublimação Local') {
+                        $allSubLocal = false;
+                        break;
+                    }
+                    
+                    // Check if underlying product requires customization
+                    $printDesc = is_string($item->print_desc) ? json_decode($item->print_desc, true) : $item->print_desc;
+                    
+                    if (is_array($printDesc) && isset($printDesc['product_id'])) {
+                         $product = \App\Models\SubLocalProduct::find($printDesc['product_id']);
+                         // If product not found or REQUIRES customization, we cannot skip
+                         if (!$product || $product->requires_customization) {
+                             $allSkipCustomization = false;
+                             break;
+                         }
+                    } else {
+                        // Missing metadata, safe fallback
+                        $allSkipCustomization = false; 
+                        break;
+                    }
+                }
+            }
+
+            // If everything is Sub Local AND allowed to skip, point back to items
+            if ($order->items->isNotEmpty() && $allSubLocal && $allSkipCustomization) {
+                 $backRoute = route('orders.wizard.items', ['type' => 'sub_local']);
+            }
+
+            return view('orders.wizard.payment', compact('order', 'backRoute'));
         }
 
         $validated = $request->validate([
@@ -1319,10 +1481,19 @@ class OrderWizardController extends Controller
         return redirect()->route('orders.wizard.confirm');
     }
 
-    public function confirm(): View
+    public function confirm()
     {
+        $orderId = session('current_order_id');
+        if (!$orderId) {
+            return redirect()->route('orders.index')->with('error', 'Sessão do pedido expirada.');
+        }
+
         $order = Order::with(['client', 'items.sublimations.size', 'items.sublimations.location', 'items.files', 'status'])
-            ->findOrFail(session('current_order_id'));
+            ->find($orderId);
+
+        if (!$order) {
+            return redirect()->route('orders.index')->with('error', 'Pedido não encontrado.');
+        }
         
         $payment = Payment::where('order_id', $order->id)->get();
         $sizeSurcharges = session('size_surcharges', []);
@@ -1388,6 +1559,31 @@ class OrderWizardController extends Controller
                 $updateData['is_event'] = true;
             } else {
                 $updateData['is_event'] = false;
+            }
+
+            // Atualizar itens com dados da tela de confirmação (Nome da Arte e Capa)
+            if ($request->has('items')) {
+                foreach ($request->items as $itemId => $data) {
+                    $item = \App\Models\OrderItem::find($itemId);
+                    if ($item && $item->order_id == $order->id) {
+                        // Atualizar Nome da Arte
+                        if (isset($data['art_name'])) {
+                            $item->update(['art_name' => $data['art_name']]);
+                        }
+                        
+                        // Atualizar Imagem de Capa
+                        if ($request->hasFile("items.{$itemId}.cover_image")) {
+                            // Remover imagem antiga se existir
+                            if ($item->cover_image && \Storage::disk('public')->exists($item->cover_image)) {
+                                \Storage::disk('public')->delete($item->cover_image);
+                            }
+                            
+                            $file = $request->file("items.{$itemId}.cover_image");
+                            $path = $file->store('orders/covers', 'public');
+                            $item->update(['cover_image' => $path]);
+                        }
+                    }
+                }
             }
             
             $order->update($updateData);
