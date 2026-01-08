@@ -17,10 +17,34 @@ class TenantInvoiceConfigController extends Controller
     {
         $tenant = Auth::user()->tenant;
         
+        // Super Admin sem tenant
         if (!$tenant) {
-            return redirect()->back()->with('error', 'Tenant não encontrado.');
+            // Mostrar lista de tenants para selecionar
+            $tenants = \App\Models\Tenant::orderBy('name')->get();
+            return view('admin.invoice-config.select-tenant', compact('tenants'));
         }
 
+        $config = TenantInvoiceConfig::firstOrCreate(
+            ['tenant_id' => $tenant->id],
+            [
+                'provider' => 'focusnfe',
+                'environment' => 'homologacao',
+            ]
+        );
+
+        return view('admin.invoice-config.edit', compact('config', 'tenant'));
+    }
+
+    /**
+     * Super Admin: Editar configuração de um tenant específico
+     */
+    public function editTenant($tenantId)
+    {
+        if (Auth::user()->tenant_id !== null) {
+            abort(403);
+        }
+
+        $tenant = \App\Models\Tenant::findOrFail($tenantId);
         $config = TenantInvoiceConfig::firstOrCreate(
             ['tenant_id' => $tenant->id],
             [

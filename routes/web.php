@@ -63,6 +63,7 @@ Route::middleware('auth')->group(function () {
     
     // Configuração de Nota Fiscal
     Route::get('/settings/nfe', [\App\Http\Controllers\Admin\TenantInvoiceConfigController::class, 'edit'])->name('admin.invoice-config.edit');
+    Route::get('/settings/nfe/tenant/{tenant}', [\App\Http\Controllers\Admin\TenantInvoiceConfigController::class, 'editTenant'])->name('admin.invoice-config.editTenant');
     Route::put('/settings/nfe', [\App\Http\Controllers\Admin\TenantInvoiceConfigController::class, 'update'])->name('admin.invoice-config.update');
     Route::post('/settings/nfe/test', [\App\Http\Controllers\Admin\TenantInvoiceConfigController::class, 'testConnection'])->name('admin.invoice-config.test');
     
