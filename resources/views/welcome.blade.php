@@ -12,6 +12,9 @@
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <!-- Google reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .glass {
@@ -134,6 +137,9 @@
                             <div>
                                 <label class="block text-sm font-medium text-slate-400 mb-1.5">WhatsApp</label>
                                 <input type="tel" name="phone" placeholder="(00) 00000-0000" class="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all">
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}" data-theme="dark"></div>
                             </div>
                             <button type="submit" class="w-full bg-white text-slate-900 hover:bg-sky-50 py-4 rounded-xl font-bold text-lg transition-all shadow-lg transform hover:scale-[1.02]">
                                 Cadastrar Gratuitamente
