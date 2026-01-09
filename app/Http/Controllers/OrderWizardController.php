@@ -130,7 +130,19 @@ class OrderWizardController extends Controller
         // Calcular data de entrega (15 dias úteis)
         $deliveryDate = DateHelper::calculateDeliveryDate(Carbon::now(), 15);
 
+        // Garantir tenant_id explicitamente
+        $tenantId = Auth::user()->tenant_id;
+        
+        \Log::info('=== CREATE ORDER DEBUG ===', [
+            'user_id' => Auth::id(),
+            'user_name' => Auth::user()->name,
+            'tenant_id' => $tenantId,
+            'store_id' => $storeId,
+            'client_id' => $client->id,
+        ]);
+
         $order = Order::create([
+            'tenant_id' => $tenantId, // Explicitamente definir tenant_id
             'client_id' => $client->id,
             'user_id' => Auth::id(),
             'store_id' => $storeId,
