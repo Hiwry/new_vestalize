@@ -72,6 +72,39 @@
                         <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Requer Personalização (Passar pela etapa de arte)</span>
                     </label>
                 </div>
+
+                <!-- Seção de Tamanhos -->
+                <div class="md:col-span-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-2" x-data="{ requiresSize: {{ $subLocalProduct->requires_size ? 'true' : 'false' }} }">
+                    <label class="flex items-center mb-4">
+                        <input type="checkbox" name="requires_size" value="1" x-model="requiresSize" {{ $subLocalProduct->requires_size ? 'checked' : '' }} class="form-checkbox text-indigo-600 rounded">
+                        <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Produto com Tamanhos (Camisa, Calça, Casaco, etc)
+                        </span>
+                    </label>
+
+                    <div x-show="requiresSize" x-collapse class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                            <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i>
+                            Selecione os tamanhos disponíveis para este produto:
+                        </p>
+                        <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                            @php
+                                $defaultSizes = ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EG', 'EGG', 'PLUS', '2', '4', '6', '8', '10', '12', '14', '16'];
+                                $selectedSizes = $subLocalProduct->available_sizes ?? [];
+                            @endphp
+                            @foreach($defaultSizes as $size)
+                                <label class="flex items-center justify-center px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:border-indigo-500 transition-colors has-[:checked]:bg-indigo-50 has-[:checked]:border-indigo-500 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500">
+                                    <input type="checkbox" name="available_sizes[]" value="{{ $size }}" {{ in_array($size, $selectedSizes) ? 'checked' : '' }} class="sr-only peer">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300 peer-checked:text-indigo-600 dark:peer-checked:text-indigo-400">{{ $size }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">
+                            <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i>
+                            Dica: Os tamanhos serão exibidos na ordem selecionada durante o pedido.
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <div class="mt-8 flex justify-end gap-3">

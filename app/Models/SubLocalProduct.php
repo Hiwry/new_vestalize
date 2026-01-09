@@ -20,6 +20,8 @@ class SubLocalProduct extends Model
         'is_active',
         'sort_order',
         'requires_customization',
+        'available_sizes',
+        'requires_size',
     ];
 
     protected $casts = [
@@ -27,5 +29,7 @@ class SubLocalProduct extends Model
         'is_active' => 'boolean',
         'sort_order' => 'integer',
         'requires_customization' => 'boolean',
+        'available_sizes' => 'array',
+        'requires_size' => 'boolean',
     ];
 }

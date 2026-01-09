@@ -30,6 +30,8 @@ class SubLocalProductController extends Controller
             'image' => 'nullable|image|max:2048', // max 2MB
             'is_active' => 'boolean',
             'sort_order' => 'integer',
+            'available_sizes' => 'nullable|array',
+            'available_sizes.*' => 'string|max:10',
         ]);
 
         if ($request->hasFile('image')) {
@@ -39,6 +41,9 @@ class SubLocalProductController extends Controller
 
         $validated['is_active'] = $request->has('is_active');
         $validated['requires_customization'] = $request->has('requires_customization');
+        $validated['requires_size'] = $request->has('requires_size');
+        $validated['available_sizes'] = $request->has('requires_size') ? $request->input('available_sizes', []) : null;
+        
         SubLocalProduct::create($validated);
 
         return redirect()->route('admin.sub-local-products.index')
@@ -60,6 +65,8 @@ class SubLocalProductController extends Controller
             'image' => 'nullable|image|max:2048',
             'is_active' => 'boolean',
             'sort_order' => 'integer',
+            'available_sizes' => 'nullable|array',
+            'available_sizes.*' => 'string|max:10',
         ]);
 
         if ($request->hasFile('image')) {
@@ -73,6 +80,9 @@ class SubLocalProductController extends Controller
 
         $validated['is_active'] = $request->has('is_active');
         $validated['requires_customization'] = $request->has('requires_customization');
+        $validated['requires_size'] = $request->has('requires_size');
+        $validated['available_sizes'] = $request->has('requires_size') ? $request->input('available_sizes', []) : null;
+        
         $subLocalProduct->update($validated);
 
         return redirect()->route('admin.sub-local-products.index')
