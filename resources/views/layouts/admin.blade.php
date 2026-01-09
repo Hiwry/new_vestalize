@@ -65,26 +65,46 @@
     </script>
     
     @php
-        $p = auth()->user()->tenant->primary_color ?? '#4f46e5';
-        $s = auth()->user()->tenant->secondary_color ?? '#7c3aed';
+        // Cores para tema claro
+        $pLight = auth()->user()->tenant->primary_color ?? '#4f46e5';
+        $sLight = auth()->user()->tenant->secondary_color ?? '#7c3aed';
+        // Cores para tema escuro (com fallback para versões mais claras das cores light)
+        $pDark = auth()->user()->tenant->primary_color_dark ?? '#818cf8';
+        $sDark = auth()->user()->tenant->secondary_color_dark ?? '#a78bfa';
         
-        // Luminance check
-        $isLight = false;
-        if (str_starts_with($p, '#') && strlen($p) >= 7) {
-            $r = hexdec(substr($p, 1, 2));
-            $g = hexdec(substr($p, 3, 2));
-            $b = hexdec(substr($p, 5, 2));
-            if ((0.2126 * $r + 0.7152 * $g + 0.0722 * $b) > 200) $isLight = true;
+        // Luminance check para tema claro
+        $isLightBg = false;
+        if (str_starts_with($pLight, '#') && strlen($pLight) >= 7) {
+            $r = hexdec(substr($pLight, 1, 2));
+            $g = hexdec(substr($pLight, 3, 2));
+            $b = hexdec(substr($pLight, 5, 2));
+            if ((0.2126 * $r + 0.7152 * $g + 0.0722 * $b) > 200) $isLightBg = true;
+        }
+        
+        // Luminance check para tema escuro
+        $isDarkBgLight = false;
+        if (str_starts_with($pDark, '#') && strlen($pDark) >= 7) {
+            $r = hexdec(substr($pDark, 1, 2));
+            $g = hexdec(substr($pDark, 3, 2));
+            $b = hexdec(substr($pDark, 5, 2));
+            if ((0.2126 * $r + 0.7152 * $g + 0.0722 * $b) > 200) $isDarkBgLight = true;
         }
     @endphp
     <style>
+        /* Cores do tema CLARO */
         :root {
-            --brand-primary: {{ $p }};
-            --brand-secondary: {{ $s }};
-            /* Use dark default for text if primary is too light */
-            --brand-primary-text: {{ $isLight ? '#4f46e5' : $p }};
-            /* Contrast color for text ON TOP of primary background */
-            --brand-primary-content: {{ $isLight ? '#111827' : '#ffffff' }};
+            --brand-primary: {{ $pLight }};
+            --brand-secondary: {{ $sLight }};
+            --brand-primary-text: {{ $isLightBg ? '#4f46e5' : $pLight }};
+            --brand-primary-content: {{ $isLightBg ? '#111827' : '#ffffff' }};
+        }
+
+        /* Cores do tema ESCURO */
+        html.dark {
+            --brand-primary: {{ $pDark }};
+            --brand-secondary: {{ $sDark }};
+            --brand-primary-text: {{ $pDark }};
+            --brand-primary-content: {{ $isDarkBgLight ? '#111827' : '#ffffff' }};
         }
 
         /* Aplicar cores de marca em elementos globais */
@@ -117,6 +137,7 @@
         .text-blue-600 { color: var(--brand-primary-text) !important; }
         .bg-blue-600 { background-color: var(--brand-primary) !important; }
         .border-blue-600 { border-color: var(--brand-primary) !important; }
+
 
         /* Prevenir flash durante carregamento - aplicar ANTES do Tailwind */
         html {
