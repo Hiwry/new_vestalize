@@ -156,6 +156,27 @@
                     </div>
                 </a>
                 @endif
+
+                @if(Auth::user()->tenant)
+                <a href="{{ route('subscription.index') }}" class="p-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg hover:from-indigo-100 hover:to-purple-100 dark:hover:from-indigo-800/30 dark:hover:to-purple-800/30 transition border border-indigo-200 dark:border-indigo-700">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Minha Assinatura</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                {{ Auth::user()->tenant->currentPlan->name ?? 'Ver plano' }} - 
+                                @if(Auth::user()->tenant->subscription_ends_at)
+                                    Válida até {{ Auth::user()->tenant->subscription_ends_at->format('d/m/Y') }}
+                                @else
+                                    Ativar agora
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                </a>
+                @endif
             </div>
 
         @elseif($category == 'producao')
