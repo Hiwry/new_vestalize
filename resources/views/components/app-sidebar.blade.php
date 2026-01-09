@@ -413,12 +413,12 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->routeIs('financial.dashboard') ? 'bg-green-600' : '' }}"></span>
                         Dashboard
                     </a>
-                    <a href="{{ route('cash.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition {{ request()->is('cash') && !request()->is('cash/approvals*') ? 'bg-gray-100 dark:bg-gray-800 text-green-600 dark:text-green-400' : '' }}">
-                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('cash') && !request()->is('cash/approvals*') ? 'bg-green-600' : '' }}"></span>
+                    <a href="{{ route('cash.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition {{ request()->path() === 'cash' ? 'bg-gray-100 dark:bg-gray-800 text-green-600 dark:text-green-400' : '' }}">
+                        <span class="w-1.5 h-1.5 rounded-full mr-2 {{ request()->path() === 'cash' ? 'bg-green-600' : 'bg-gray-400' }}"></span>
                         Caixa
                     </a>
-                    <a href="{{ route('cash.approvals.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition {{ request()->is('cash/approvals*') ? 'bg-gray-100 dark:bg-gray-800 text-green-600 dark:text-green-400' : '' }}">
-                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('cash/approvals*') ? 'bg-green-600' : '' }}"></span>
+                    <a href="{{ route('cash.approvals.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition {{ str_starts_with(request()->path(), 'cash/approvals') ? 'bg-gray-100 dark:bg-gray-800 text-green-600 dark:text-green-400' : '' }}">
+                        <span class="w-1.5 h-1.5 rounded-full mr-2 {{ str_starts_with(request()->path(), 'cash/approvals') ? 'bg-green-600' : 'bg-gray-400' }}"></span>
                         Aprovações
                     </a>
                     <a href="{{ route('admin.invoices.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
