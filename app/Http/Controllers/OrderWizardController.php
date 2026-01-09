@@ -1586,7 +1586,20 @@ class OrderWizardController extends Controller
                 }
             }
             
+            \Log::info('=== FINALIZE ORDER DEBUG ===', [
+                'order_id' => $order->id,
+                'updateData' => $updateData,
+                'pendente_status_id' => $pendenteStatus?->id,
+            ]);
+            
             $order->update($updateData);
+            $order->refresh(); // Garantir que os dados estejam atualizados
+            
+            \Log::info('=== ORDER AFTER UPDATE ===', [
+                'order_id' => $order->id,
+                'is_draft' => $order->is_draft,
+                'status_id' => $order->status_id,
+            ]);
             
             // Registrar histórico de venda
             try {
