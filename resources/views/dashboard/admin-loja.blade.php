@@ -46,48 +46,46 @@
 
 <!-- Card de Assinatura -->
 @if(Auth::user()->tenant)
-<div class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-px mb-6">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <div class="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl">
-                    <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Minha Assinatura</p>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-                        {{ Auth::user()->tenant->currentPlan->name ?? 'Sem Plano' }}
-                        @if(Auth::user()->tenant->currentPlan)
-                            <span class="text-sm font-normal text-gray-500">(R$ {{ number_format(Auth::user()->tenant->currentPlan->price, 2, ',', '.') }}/mês)</span>
-                        @endif
-                    </h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                        @if(Auth::user()->tenant->subscription_ends_at)
-                            @if(Auth::user()->tenant->subscription_ends_at->isPast())
-                                <span class="text-red-500 font-semibold">Expirada em {{ Auth::user()->tenant->subscription_ends_at->format('d/m/Y') }}</span>
-                            @elseif(Auth::user()->tenant->subscription_ends_at->diffInDays(now()) < 7)
-                                <span class="text-yellow-500 font-semibold">Expira em {{ Auth::user()->tenant->subscription_ends_at->diffForHumans() }}</span>
-                            @else
-                                <span class="text-green-500">Ativa até {{ Auth::user()->tenant->subscription_ends_at->format('d/m/Y') }}</span>
-                            @endif
-                        @elseif(Auth::user()->tenant->trial_ends_at && Auth::user()->tenant->trial_ends_at->isFuture())
-                            <span class="text-blue-500">Período de teste até {{ Auth::user()->tenant->trial_ends_at->format('d/m/Y') }}</span>
-                        @else
-                            <span class="text-gray-400">Nenhuma assinatura ativa</span>
-                        @endif
-                    </p>
-                </div>
-            </div>
-            <a href="{{ route('subscription.index') }}" class="inline-flex items-center justify-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition shadow-sm">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+<div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 sm:p-5 mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-xl">
+                <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
-                Gerenciar Plano
-            </a>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                        {{ Auth::user()->tenant->currentPlan->name ?? 'Sem Plano' }}
+                    </span>
+                    @if(Auth::user()->tenant->currentPlan)
+                        <span class="text-xs text-gray-500 dark:text-gray-400">R$ {{ number_format(Auth::user()->tenant->currentPlan->price, 2, ',', '.') }}/mês</span>
+                    @endif
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    @if(Auth::user()->tenant->subscription_ends_at)
+                        @if(Auth::user()->tenant->subscription_ends_at->isPast())
+                            <span class="text-red-400">Expirada</span>
+                        @elseif(Auth::user()->tenant->subscription_ends_at->diffInDays(now()) < 7)
+                            <span class="text-amber-400">Expira {{ Auth::user()->tenant->subscription_ends_at->diffForHumans() }}</span>
+                        @else
+                            <span class="text-emerald-400">Ativa até {{ Auth::user()->tenant->subscription_ends_at->format('d/m/Y') }}</span>
+                        @endif
+                    @elseif(Auth::user()->tenant->trial_ends_at && Auth::user()->tenant->trial_ends_at->isFuture())
+                        <span class="text-cyan-400">Teste até {{ Auth::user()->tenant->trial_ends_at->format('d/m/Y') }}</span>
+                    @else
+                        <span class="text-gray-500">Nenhuma assinatura ativa</span>
+                    @endif
+                </p>
+            </div>
         </div>
+        <a href="{{ route('subscription.index') }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition">
+            Gerenciar
+            <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </a>
     </div>
 </div>
 @endif
