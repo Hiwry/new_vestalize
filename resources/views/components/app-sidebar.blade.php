@@ -419,7 +419,6 @@
                         $isCashOnly = $seg1 === 'cash' && $seg2 === null; 
                         $isCashApprovals = $seg1 === 'cash' && $seg2 === 'approvals'; 
                     @endphp
-                    <!-- DEBUG: seg1={{ $seg1 }}, seg2={{ $seg2 }}, isCashOnly={{ $isCashOnly ? 'true' : 'false' }}, isCashApprovals={{ $isCashApprovals ? 'true' : 'false' }} -->
                     <a href="{{ route('cash.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition {{ $isCashOnly ? 'bg-gray-100 dark:bg-gray-800 text-green-600 dark:text-green-400' : '' }}">
                         <span class="w-1.5 h-1.5 rounded-full mr-2 {{ $isCashOnly ? 'bg-green-600' : 'bg-gray-400' }}"></span>
                         Caixa
