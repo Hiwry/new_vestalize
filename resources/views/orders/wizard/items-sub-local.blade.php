@@ -7,52 +7,51 @@
         <!-- Header com cliente -->
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-4">
-                <a href="{{ route('orders.wizard.personalization-type') }}" class="text-gray-400 hover:text-white transition">
+                <a href="{{ route('orders.wizard.personalization-type') }}" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
                 </a>
                 <div>
-                    <h1 class="text-2xl font-bold text-white">Sublimação Local</h1>
-                    <p class="text-gray-400 text-sm">Selecione os produtos para o pedido</p>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Sublimação Local</h1>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Selecione os produtos para o pedido</p>
                 </div>
             </div>
             @if(session('wizard.client'))
-            <div class="bg-gray-800 rounded-xl px-4 py-2 flex items-center gap-3">
+            <div class="bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 flex items-center gap-3">
                 <div class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
                     {{ substr(session('wizard.client.name'), 0, 1) }}
                 </div>
                 <div>
-                    <p class="text-white font-medium text-sm">{{ session('wizard.client.name') }}</p>
-                    <p class="text-gray-400 text-xs">{{ session('wizard.client.phone_primary') ?? 'Sem telefone' }}</p>
+                    <p class="text-gray-900 dark:text-white font-medium text-sm">{{ session('wizard.client.name') }}</p>
+                    <p class="text-gray-500 dark:text-gray-400 text-xs">{{ session('wizard.client.phone_primary') ?? 'Sem telefone' }}</p>
                 </div>
             </div>
             @endif
         </div>
 
         <!-- Barra de Progresso -->
-        <div class="bg-gray-800 rounded-full h-2 mb-8">
-            <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all" style="width: 50%"></div>
+        <div class="bg-gray-200 dark:bg-gray-800 rounded-full h-2 mb-8">
+            <div class="bg-indigo-600 h-2 rounded-full transition-all" style="width: 50%"></div>
         </div>
 
         <div class="grid lg:grid-cols-4 gap-6">
             <!-- Catálogo de Produtos (3 colunas) -->
             <div class="lg:col-span-3">
-                <!-- Categorias -->
                 <div class="flex gap-3 mb-6 overflow-x-auto pb-2">
                     <button class="category-btn active px-5 py-2.5 bg-indigo-600 text-white rounded-full font-medium whitespace-nowrap transition" data-category="all">
                         Todos
                     </button>
-                    <button class="category-btn px-5 py-2.5 bg-gray-800 text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-700 transition" data-category="vestuario">
+                    <button class="category-btn px-5 py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition" data-category="vestuario">
                         Vestuário
                     </button>
-                    <button class="category-btn px-5 py-2.5 bg-gray-800 text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-700 transition" data-category="canecas">
+                    <button class="category-btn px-5 py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition" data-category="canecas">
                         Canecas
                     </button>
-                    <button class="category-btn px-5 py-2.5 bg-gray-800 text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-700 transition" data-category="acessorios">
+                    <button class="category-btn px-5 py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition" data-category="acessorios">
                         Acessórios
                     </button>
-                    <button class="category-btn px-5 py-2.5 bg-gray-800 text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-700 transition" data-category="diversos">
+                    <button class="category-btn px-5 py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition" data-category="diversos">
                         Diversos
                     </button>
                 </div>
@@ -62,21 +61,21 @@
                     
                     @foreach($products as $product)
                     <!-- Product Card -->
-                    <div class="product-card bg-gray-800 rounded-2xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-indigo-500 transition-all group" 
+                    <div class="product-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-indigo-500 transition-all group shadow-sm border border-gray-200 dark:border-gray-700" 
                          data-category="{{ $product->category }}" data-id="{{ $product->id }}" data-name="{{ $product->name }}" data-price="{{ $product->price }}" 
                          data-requires-customization="{{ $product->requires_customization ? 'true' : 'false' }}">
-                        <div class="aspect-square bg-gradient-to-br from-gray-700 to-gray-800 p-4 flex items-center justify-center relative">
+                        <div class="aspect-square bg-gray-100 dark:bg-gradient-to-br dark:from-gray-700 dark:to-gray-800 p-4 flex items-center justify-center relative">
                             @if($product->image)
                                 <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                             @else
-                                <svg class="w-20 h-20 text-gray-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-20 h-20 text-gray-400 dark:text-gray-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
                             @endif
                         </div>
                         <div class="p-4">
-                            <h3 class="text-white font-bold text-lg truncate">{{ $product->name }}</h3>
-                            <p class="text-indigo-400 font-bold text-xl mt-1">R$ {{ number_format($product->price, 2, ',', '.') }}</p>
+                            <h3 class="text-gray-900 dark:text-white font-bold text-lg truncate">{{ $product->name }}</h3>
+                            <p class="text-indigo-600 dark:text-indigo-400 font-bold text-xl mt-1">R$ {{ number_format($product->price, 2, ',', '.') }}</p>
                         </div>
                     </div>
                     @endforeach
@@ -84,11 +83,10 @@
                 </div>
             </div>
 
-            <!-- Carrinho (1 coluna) -->
             <div class="lg:col-span-1">
-                <div class="bg-gray-800 rounded-2xl p-5 sticky top-6">
-                    <h2 class="text-white font-bold text-xl mb-4 flex items-center gap-2">
-                        <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 sticky top-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-gray-900 dark:text-white font-bold text-xl mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                         </svg>
                         Carrinho
@@ -96,7 +94,7 @@
 
                     <!-- Lista de Itens -->
                     <div id="cart-items" class="space-y-3 max-h-[50vh] overflow-y-auto mb-4">
-                        <div id="empty-cart" class="text-center py-8 text-gray-500">
+                        <div id="empty-cart" class="text-center py-8 text-gray-400 dark:text-gray-500">
                             <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                             </svg>
@@ -105,12 +103,12 @@
                     </div>
 
                     <!-- Totais -->
-                    <div class="border-t border-gray-700 pt-4 space-y-2">
-                        <div class="flex justify-between text-gray-400">
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
+                        <div class="flex justify-between text-gray-500 dark:text-gray-400">
                             <span>Subtotal</span>
                             <span id="cart-subtotal">R$ 0,00</span>
                         </div>
-                        <div class="flex justify-between text-white font-bold text-lg">
+                        <div class="flex justify-between text-gray-900 dark:text-white font-bold text-lg">
                             <span>Total</span>
                             <span id="cart-total">R$ 0,00</span>
                         </div>
