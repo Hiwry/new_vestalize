@@ -414,17 +414,15 @@
                         Dashboard
                     </a>
                     @php 
-                        $seg1 = request()->segment(1);
-                        $seg2 = request()->segment(2);
-                        $isCashOnly = $seg1 === 'cash' && $seg2 === null; 
-                        $isCashApprovals = $seg1 === 'cash' && $seg2 === 'approvals'; 
+                        $isCashOnly = request()->routeIs('cash.index');
+                        $isCashApprovals = request()->routeIs('cash.approvals.*');
                     @endphp
-                    <a href="{{ route('cash.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition {{ $isCashOnly ? 'bg-gray-100 dark:bg-gray-800 text-green-600 dark:text-green-400' : '' }}">
-                        <span class="w-1.5 h-1.5 rounded-full mr-2 {{ $isCashOnly ? 'bg-green-600' : 'bg-gray-400' }}"></span>
+                    <a href="{{ route('cash.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $isCashOnly ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium' : 'text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                        <span class="w-1.5 h-1.5 rounded-full mr-2 {{ $isCashOnly ? 'bg-indigo-600' : 'bg-gray-400' }}"></span>
                         Caixa
                     </a>
-                    <a href="{{ route('cash.approvals.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition {{ $isCashApprovals ? 'bg-gray-100 dark:bg-gray-800 text-green-600 dark:text-green-400' : '' }}">
-                        <span class="w-1.5 h-1.5 rounded-full mr-2 {{ $isCashApprovals ? 'bg-green-600' : 'bg-gray-400' }}"></span>
+                    <a href="{{ route('cash.approvals.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $isCashApprovals ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium' : 'text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                        <span class="w-1.5 h-1.5 rounded-full mr-2 {{ $isCashApprovals ? 'bg-indigo-600' : 'bg-gray-400' }}"></span>
                         Aprovações
                     </a>
                     <a href="{{ route('admin.invoices.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
