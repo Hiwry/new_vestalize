@@ -27,6 +27,7 @@ class SubLocalProductController extends Controller
             'category' => 'required|string|in:vestuario,canecas,acessorios,diversos',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'cost' => 'nullable|numeric|min:0',
             'image' => 'nullable|image|max:2048', // max 2MB
             'is_active' => 'boolean',
             'sort_order' => 'integer',
@@ -62,6 +63,7 @@ class SubLocalProductController extends Controller
             'category' => 'required|string|in:vestuario,canecas,acessorios,diversos',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'cost' => 'nullable|numeric|min:0',
             'image' => 'nullable|image|max:2048',
             'is_active' => 'boolean',
             'sort_order' => 'integer',

@@ -17,6 +17,7 @@ class SubLocalProduct extends Model
         'description',
         'image',
         'price',
+        'cost',
         'is_active',
         'sort_order',
         'requires_customization',
@@ -26,6 +27,7 @@ class SubLocalProduct extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'cost' => 'decimal:2',
         'is_active' => 'boolean',
         'sort_order' => 'integer',
         'requires_customization' => 'boolean',
