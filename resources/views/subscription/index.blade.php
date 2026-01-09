@@ -12,23 +12,27 @@
         
         {{-- Botão de Teste 7 dias alert (se não estiver em trial) --}}
         @if(!$tenant->trial_ends_at || $tenant->trial_ends_at->isPast())
-            <div class="bg-indigo-900/20 border border-indigo-500/30 rounded-xl p-6 text-white shadow-sm overflow-hidden relative">
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-700 dark:to-purple-700 rounded-xl p-6 text-white shadow-lg overflow-hidden relative">
+                {{-- Decorative elements --}}
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                
                 <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-indigo-500/20 rounded-lg flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-gift text-indigo-400 text-xl"></i>
+                        <div class="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shrink-0 shadow-inner">
+                            <i class="fa-solid fa-gift text-white text-2xl"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold">Experimente o Plano Médio por 7 Dias Grátis!</h3>
-                            <p class="text-gray-400 text-sm mt-0.5">Explore todas as ferramentas de produtividade sem compromisso.</p>
+                            <h3 class="text-xl font-bold text-white">Experimente o Plano Médio por 7 Dias Grátis!</h3>
+                            <p class="text-white/80 text-sm mt-0.5">Explore todas as ferramentas de produtividade sem compromisso.</p>
                         </div>
                     </div>
                     @php $medioPlan = $allPlans->where('name', 'Plano Medio')->first() ?? $allPlans->sortByDesc('price')->first(); @endphp
                     @if($medioPlan && (!$currentPlan || $medioPlan->price > $currentPlan->price))
                     <form action="{{ route('subscription.trial', $medioPlan) }}" method="POST">
                         @csrf
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-bold transition-all shadow-sm whitespace-nowrap">
-                            Ativar Teste Agora
+                        <button type="submit" class="bg-white hover:bg-gray-100 text-indigo-700 px-6 py-3 rounded-lg font-bold transition-all shadow-lg hover:shadow-xl whitespace-nowrap hover:scale-105 transform">
+                            <i class="fa-solid fa-rocket mr-2"></i> Ativar Teste Agora
                         </button>
                     </form>
                     @endif
