@@ -21,6 +21,8 @@ class Tenant extends Model
         'logo_path',
         'primary_color',
         'secondary_color',
+        'primary_color_dark',
+        'secondary_color_dark',
         'sublimation_total_enabled',
     ];
 

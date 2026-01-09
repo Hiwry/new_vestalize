@@ -70,22 +70,65 @@
                     </div>
 
                     <!-- Cores -->
-                    <div class="space-y-4">
+                    <div class="space-y-5">
+                        <!-- Cor Primária -->
                         <div>
-                            <label for="primary_color" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cor Primária</label>
-                            <div class="flex items-center space-x-2">
-                                <input type="color" name="primary_color" id="primary_color" value="{{ $tenant->primary_color ?? '#000000' }}" class="h-11 w-11 p-0.5 border-0 ring-1 ring-gray-200 dark:ring-gray-600 rounded-lg overflow-hidden cursor-pointer bg-white dark:bg-gray-700">
-                                <input type="text" value="{{ $tenant->primary_color ?? '#000000' }}" onchange="document.getElementById('primary_color').value = this.value" class="flex-1 px-4 py-2.5 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm transition-all sm:text-sm uppercase">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cor Primária</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <!-- Light -->
+                                <div class="space-y-1">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                                        <svg class="w-3.5 h-3.5 mr-1 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/></svg>
+                                        Tema Claro
+                                    </span>
+                                    <div class="flex items-center space-x-2">
+                                        <input type="color" name="primary_color_light" id="primary_color_light" value="{{ $tenant->primary_color ?? '#4F46E5' }}" class="h-10 w-10 p-0.5 border-0 ring-1 ring-gray-200 dark:ring-gray-600 rounded-lg overflow-hidden cursor-pointer bg-white dark:bg-gray-700">
+                                        <input type="text" id="primary_color_light_text" value="{{ $tenant->primary_color ?? '#4F46E5' }}" onchange="document.getElementById('primary_color_light').value = this.value" class="flex-1 px-3 py-2 text-xs border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white uppercase">
+                                    </div>
+                                </div>
+                                <!-- Dark -->
+                                <div class="space-y-1">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                                        <svg class="w-3.5 h-3.5 mr-1 text-indigo-400" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+                                        Tema Escuro
+                                    </span>
+                                    <div class="flex items-center space-x-2">
+                                        <input type="color" name="primary_color_dark" id="primary_color_dark" value="{{ $tenant->primary_color_dark ?? '#818CF8' }}" class="h-10 w-10 p-0.5 border-0 ring-1 ring-gray-200 dark:ring-gray-600 rounded-lg overflow-hidden cursor-pointer bg-white dark:bg-gray-700">
+                                        <input type="text" id="primary_color_dark_text" value="{{ $tenant->primary_color_dark ?? '#818CF8' }}" onchange="document.getElementById('primary_color_dark').value = this.value" class="flex-1 px-3 py-2 text-xs border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white uppercase">
+                                    </div>
+                                </div>
                             </div>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Usada em botões, cabeçalhos e destaques.</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Usada em botões, cabeçalhos e destaques.</p>
                         </div>
+
+                        <!-- Cor Secundária -->
                         <div>
-                            <label for="secondary_color" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cor Secundária</label>
-                            <div class="flex items-center space-x-2">
-                                <input type="color" name="secondary_color" id="secondary_color" value="{{ $tenant->secondary_color ?? '#666666' }}" class="h-11 w-11 p-0.5 border-0 ring-1 ring-gray-200 dark:ring-gray-600 rounded-lg overflow-hidden cursor-pointer bg-white dark:bg-gray-700">
-                                <input type="text" value="{{ $tenant->secondary_color ?? '#666666' }}" onchange="document.getElementById('secondary_color').value = this.value" class="flex-1 px-4 py-2.5 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm transition-all sm:text-sm uppercase">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cor Secundária</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <!-- Light -->
+                                <div class="space-y-1">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                                        <svg class="w-3.5 h-3.5 mr-1 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/></svg>
+                                        Tema Claro
+                                    </span>
+                                    <div class="flex items-center space-x-2">
+                                        <input type="color" name="secondary_color_light" id="secondary_color_light" value="{{ $tenant->secondary_color ?? '#6B7280' }}" class="h-10 w-10 p-0.5 border-0 ring-1 ring-gray-200 dark:ring-gray-600 rounded-lg overflow-hidden cursor-pointer bg-white dark:bg-gray-700">
+                                        <input type="text" id="secondary_color_light_text" value="{{ $tenant->secondary_color ?? '#6B7280' }}" onchange="document.getElementById('secondary_color_light').value = this.value" class="flex-1 px-3 py-2 text-xs border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white uppercase">
+                                    </div>
+                                </div>
+                                <!-- Dark -->
+                                <div class="space-y-1">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                                        <svg class="w-3.5 h-3.5 mr-1 text-indigo-400" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+                                        Tema Escuro
+                                    </span>
+                                    <div class="flex items-center space-x-2">
+                                        <input type="color" name="secondary_color_dark" id="secondary_color_dark" value="{{ $tenant->secondary_color_dark ?? '#9CA3AF' }}" class="h-10 w-10 p-0.5 border-0 ring-1 ring-gray-200 dark:ring-gray-600 rounded-lg overflow-hidden cursor-pointer bg-white dark:bg-gray-700">
+                                        <input type="text" id="secondary_color_dark_text" value="{{ $tenant->secondary_color_dark ?? '#9CA3AF' }}" onchange="document.getElementById('secondary_color_dark').value = this.value" class="flex-1 px-3 py-2 text-xs border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white uppercase">
+                                    </div>
+                                </div>
                             </div>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Usada em bordas e elementos secundários.</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Usada em bordas e elementos secundários.</p>
                         </div>
                     </div>
                 </div>

@@ -74,8 +74,10 @@ class SettingsController extends Controller
             
             // Marca
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
-            'primary_color' => 'nullable|string|regex:/^#[a-fA-F0-9]{6}$/',
-            'secondary_color' => 'nullable|string|regex:/^#[a-fA-F0-9]{6}$/',
+            'primary_color_light' => 'nullable|string|regex:/^#[a-fA-F0-9]{6}$/',
+            'primary_color_dark' => 'nullable|string|regex:/^#[a-fA-F0-9]{6}$/',
+            'secondary_color_light' => 'nullable|string|regex:/^#[a-fA-F0-9]{6}$/',
+            'secondary_color_dark' => 'nullable|string|regex:/^#[a-fA-F0-9]{6}$/',
             
             // Textos
             'terms_conditions' => 'nullable|string',
@@ -90,11 +92,19 @@ class SettingsController extends Controller
             $tenant->logo_path = $path;
         }
         
-        if ($request->filled('primary_color')) {
-            $tenant->primary_color = $request->input('primary_color');
+        // Cores para tema claro (salvo em primary/secondary_color para compatibilidade)
+        if ($request->filled('primary_color_light')) {
+            $tenant->primary_color = $request->input('primary_color_light');
         }
-        if ($request->filled('secondary_color')) {
-            $tenant->secondary_color = $request->input('secondary_color');
+        if ($request->filled('secondary_color_light')) {
+            $tenant->secondary_color = $request->input('secondary_color_light');
+        }
+        // Cores para tema escuro (novos campos)
+        if ($request->filled('primary_color_dark')) {
+            $tenant->primary_color_dark = $request->input('primary_color_dark');
+        }
+        if ($request->filled('secondary_color_dark')) {
+            $tenant->secondary_color_dark = $request->input('secondary_color_dark');
         }
         
         $tenant->save();
