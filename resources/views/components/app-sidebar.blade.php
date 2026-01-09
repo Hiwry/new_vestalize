@@ -394,7 +394,7 @@
             @endif
 
             <!-- GRUPO: FINANCEIRO -->
-            @if((Auth::user()->isAdmin() || Auth::user()->isCaixa()) && auth()->user()->tenant?->canAccess('financial'))
+            @if((Auth::user()->isAdmin() || Auth::user()->isCaixa()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('financial')))
             <div class="mt-1">
                 <button @click="toggleGroup('financeiro')"
                         class="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group"
