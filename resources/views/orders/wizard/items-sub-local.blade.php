@@ -126,31 +126,31 @@
 </div>
 
 <!-- Modal de Quantidade -->
-<div id="quantity-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center">
-    <div class="bg-gray-800 rounded-3xl p-8 max-w-md w-full mx-4 transform scale-95 opacity-0 transition-all" id="modal-content">
+<div id="quantity-modal" class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full mx-4 transform scale-95 opacity-0 transition-all shadow-2xl border border-gray-200 dark:border-gray-700" id="modal-content">
         <div class="text-center mb-6">
-            <div id="modal-icon" class="w-20 h-20 mx-auto mb-4 bg-indigo-600/20 rounded-2xl flex items-center justify-center">
+            <div id="modal-icon" class="w-20 h-20 mx-auto mb-4 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center border border-indigo-200 dark:border-indigo-800">
                 <!-- Icon inserted via JS -->
             </div>
-            <h3 id="modal-product-name" class="text-2xl font-bold text-white">Produto</h3>
-            <p id="modal-product-price" class="text-indigo-400 font-bold text-xl">R$ 0,00</p>
+            <h3 id="modal-product-name" class="text-xl font-bold text-gray-900 dark:text-white">Produto</h3>
+            <p id="modal-product-price" class="text-indigo-600 dark:text-indigo-400 font-bold text-lg mt-1">R$ 0,00</p>
         </div>
 
         <div class="mb-6">
-            <label class="text-gray-400 text-sm block mb-2">Quantidade</label>
-            <div class="flex items-center justify-center gap-4">
-                <button id="btn-decrease" class="w-14 h-14 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-2xl font-bold transition">-</button>
+            <label class="text-gray-600 dark:text-gray-400 text-sm block mb-3 text-center">Quantidade</label>
+            <div class="flex items-center justify-center gap-3">
+                <button id="btn-decrease" class="w-12 h-12 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-xl text-2xl font-bold transition border border-gray-200 dark:border-gray-600">-</button>
                 <input type="number" id="modal-quantity" value="1" min="1" max="999" 
-                       class="w-24 h-14 bg-gray-700 text-white text-center text-2xl font-bold rounded-xl border-0 focus:ring-2 focus:ring-indigo-500">
-                <button id="btn-increase" class="w-14 h-14 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-2xl font-bold transition">+</button>
+                       class="w-20 h-12 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-center text-xl font-bold rounded-xl border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <button id="btn-increase" class="w-12 h-12 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-xl text-2xl font-bold transition border border-gray-200 dark:border-gray-600">+</button>
             </div>
         </div>
 
         <div class="flex gap-3">
-            <button id="btn-cancel" class="flex-1 py-4 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold transition">
+            <button id="btn-cancel" class="flex-1 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-xl font-semibold transition border border-gray-200 dark:border-gray-600">
                 Cancelar
             </button>
-            <button id="btn-add-to-cart" class="flex-1 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl font-bold transition">
+            <button id="btn-add-to-cart" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold transition shadow-lg shadow-indigo-500/20">
                 Adicionar
             </button>
         </div>

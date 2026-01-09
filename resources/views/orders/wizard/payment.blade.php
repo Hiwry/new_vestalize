@@ -217,14 +217,24 @@
                                 </div>
                                 
                                 <!-- Valor Sugerido -->
-                                <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-md p-3 mb-3 border border-indigo-200 dark:border-indigo-800">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-xs text-indigo-700 dark:text-indigo-300 font-medium">Valor Sugerido (50%):</span>
-                                        <span class="text-base font-bold text-indigo-600 dark:text-indigo-400" id="suggested-amount">R$ 0,00</span>
+                                <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-4 mb-4 border border-indigo-200 dark:border-indigo-800">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center">
+                                                <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                                </svg>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Valor Sugerido (50%)</span>
+                                        </div>
+                                        <span class="text-xl font-bold text-indigo-600 dark:text-indigo-400" id="suggested-amount">R$ 0,00</span>
                                     </div>
                                     <button type="button" onclick="useSuggestedAmount()" 
-                                            class="mt-2 text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline">
-                                        Usar valor sugerido
+                                            class="w-full mt-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                        Aplicar Valor Sugerido
                                     </button>
                                 </div>
 
