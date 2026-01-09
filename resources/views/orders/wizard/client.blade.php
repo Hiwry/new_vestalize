@@ -6,7 +6,7 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 dark:from-indigo-600 dark:to-indigo-700 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-500/20 dark:shadow-indigo-600/20">1</div>
+                    <div class="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-sm">1</div>
                     <div>
                         <span class="text-lg font-bold text-gray-900 dark:text-white">Dados do Cliente</span>
                         <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa 1 de 5</p>
@@ -18,7 +18,7 @@
                 </div>
             </div>
             <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-2.5 shadow-inner">
-                <div class="bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-500 dark:to-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out shadow-lg shadow-indigo-500/30 dark:shadow-indigo-600/30" style="width: 20%"></div>
+                <div class="bg-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 20%"></div>
             </div>
         </div>
 
@@ -27,7 +27,7 @@
             <!-- Header -->
             <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-gray-50 to-white dark:from-slate-800/50 dark:to-slate-900/50">
                 <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 dark:from-indigo-600 dark:to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20 dark:shadow-indigo-600/20">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
@@ -75,7 +75,7 @@
                                 </div>
                             </div>
                             <button type="button" onclick="searchClient()" 
-                                    class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 dark:from-indigo-500 dark:to-indigo-600 hover:from-indigo-700 hover:to-indigo-800 dark:hover:from-indigo-600 dark:hover:to-indigo-700 text-white rounded-lg transition-all text-sm font-semibold shadow-lg shadow-indigo-500/30 dark:shadow-indigo-600/30 hover:scale-105 transform">
+                                    class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors text-sm font-semibold shadow-sm">
                                 Buscar
                             </button>
                         </div>
@@ -278,7 +278,7 @@
                         Cancelar
                     </a>
                     <button type="submit" 
-                            class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 dark:from-indigo-500 dark:to-indigo-600 hover:from-indigo-700 hover:to-indigo-800 dark:hover:from-indigo-600 dark:hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl shadow-indigo-500/30 dark:shadow-indigo-600/30 transition-all transform hover:scale-105 text-sm"
+                            class="inline-flex items-center px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-sm transition-colors text-sm"
                             onclick="console.log('Button clicked'); return true;">
                         Continuar
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
