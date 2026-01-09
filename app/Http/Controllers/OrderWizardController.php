@@ -381,6 +381,10 @@ class OrderWizardController extends Controller
         foreach ($validated['items'] as $itemData) {
             $itemNumber = $order->items()->count() + 1;
             
+            // Buscar o custo do produto
+            $product = \App\Models\SubLocalProduct::find($itemData['id']);
+            $unitCost = $product->cost ?? 0;
+            
             // Adaptar para OrderItem
             // Usamos campos existentes para armazenar dados do produto pronto
             $item = new OrderItem([
@@ -395,8 +399,8 @@ class OrderWizardController extends Controller
                 'quantity' => $itemData['quantity'],
                 'unit_price' => $itemData['price'],
                 'total_price' => $itemData['price'] * $itemData['quantity'],
-                'unit_cost' => 0,
-                'total_cost' => 0,
+                'unit_cost' => $unitCost,
+                'total_cost' => $unitCost * $itemData['quantity'],
                 'print_desc' => json_encode(['is_sub_local' => true, 'product_id' => $itemData['id']]),
             ]);
             
