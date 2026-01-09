@@ -1,111 +1,196 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
-
-    <!-- Page header -->
-    <div class="mb-8">
-        <h1 class="text-2xl md:text-3xl text-gray-800 dark:text-gray-100 font-bold">Novo Produto - Sub. Local</h1>
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Novo Produto - Sub. Local</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Cadastre um novo produto de sublimação local</p>
+        </div>
+        <a href="{{ route('admin.sub-local-products.index') }}" 
+           class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            ← Voltar
+        </a>
     </div>
+</div>
 
-    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-sm border border-gray-200 dark:border-gray-700 p-5">
-        <form action="{{ route('admin.sub-local-products.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Nome -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="name">Nome do Produto</label>
-                    <input id="name" name="name" type="text" class="form-input w-full bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md" placeholder="Ex: Caneca Porcelana" required>
-                </div>
+@if($errors->any())
+<div class="mb-6 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
+    <ul class="list-disc list-inside">
+        @foreach($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
 
-                <!-- Categoria -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="category">Categoria</label>
-                    <select id="category" name="category" class="form-select w-full bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md" required>
-                        <option value="vestuario">Vestuário</option>
-                        <option value="canecas">Canecas</option>
-                        <option value="acessorios">Acessórios</option>
-                        <option value="diversos" selected>Diversos</option>
-                    </select>
-                </div>
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
+    <form action="{{ route('admin.sub-local-products.store') }}" method="POST" enctype="multipart/form-data">
+        @csrf
 
-                <!-- Preço -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="price">Preço de Venda (R$)</label>
-                    <input id="price" name="price" type="number" step="0.01" class="form-input w-full bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md" placeholder="0,00" required>
-                </div>
+        <div class="space-y-6">
+            <!-- Informações do Produto -->
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Informações do Produto</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Nome -->
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Nome do Produto <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="name" 
+                            id="name" 
+                            value="{{ old('name') }}"
+                            placeholder="Ex: Caneca Porcelana"
+                            required
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                    </div>
 
-                <!-- Ordem de Exibição -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="sort_order">Ordem de Exibição</label>
-                    <input id="sort_order" name="sort_order" type="number" class="form-input w-full bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md" value="0">
-                </div>
+                    <!-- Categoria -->
+                    <div>
+                        <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Categoria <span class="text-red-500">*</span>
+                        </label>
+                        <select 
+                            id="category" 
+                            name="category" 
+                            required
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                            <option value="vestuario" {{ old('category') == 'vestuario' ? 'selected' : '' }}>Vestuário</option>
+                            <option value="canecas" {{ old('category') == 'canecas' ? 'selected' : '' }}>Canecas</option>
+                            <option value="acessorios" {{ old('category') == 'acessorios' ? 'selected' : '' }}>Acessórios</option>
+                            <option value="diversos" {{ old('category', 'diversos') == 'diversos' ? 'selected' : '' }}>Diversos</option>
+                        </select>
+                    </div>
 
-                <!-- Imagem -->
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="image">Imagem do Produto</label>
-                    <input id="image" name="image" type="file" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" accept="image/*">
-                    <p class="mt-2 text-xs text-gray-500">Tamanho recomendado: 500x500px. Máximo 2MB.</p>
-                </div>
+                    <!-- Preço -->
+                    <div>
+                        <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Preço de Venda (R$) <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            name="price" 
+                            id="price" 
+                            step="0.01"
+                            value="{{ old('price') }}"
+                            placeholder="0,00"
+                            required
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                    </div>
 
-                <!-- Descrição -->
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="description">Descrição (Opcional)</label>
-                    <textarea id="description" name="description" rows="3" class="form-textarea w-full bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md"></textarea>
-                </div>
+                    <!-- Ordem de Exibição -->
+                    <div>
+                        <label for="sort_order" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Ordem de Exibição
+                        </label>
+                        <input 
+                            type="number" 
+                            name="sort_order" 
+                            id="sort_order" 
+                            value="{{ old('sort_order', 0) }}"
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                    </div>
 
-                <!-- Status Ativo -->
-                <div class="md:col-span-2 space-y-3">
-                    <label class="flex items-center">
-                        <input type="checkbox" name="is_active" value="1" checked class="form-checkbox text-indigo-600 rounded">
-                        <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Produto Ativo (Disponível no Wizard)</span>
-                    </label>
+                    <!-- Imagem -->
+                    <div class="md:col-span-2">
+                        <label for="image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Imagem do Produto
+                        </label>
+                        <input 
+                            id="image" 
+                            name="image" 
+                            type="file" 
+                            accept="image/*"
+                            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 dark:file:bg-indigo-900/30 file:text-indigo-700 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900/50"
+                        >
+                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Tamanho recomendado: 500x500px. Máximo 2MB.</p>
+                    </div>
 
-                    <label class="flex items-center">
-                        <input type="checkbox" name="requires_customization" value="1" checked class="form-checkbox text-indigo-600 rounded">
-                        <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Requer Personalização (Passar pela etapa de arte)</span>
-                    </label>
-                </div>
-
-                <!-- Seção de Tamanhos -->
-                <div class="md:col-span-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-2" x-data="{ requiresSize: false }">
-                    <label class="flex items-center mb-4">
-                        <input type="checkbox" name="requires_size" value="1" x-model="requiresSize" class="form-checkbox text-indigo-600 rounded">
-                        <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Produto com Tamanhos (Camisa, Calça, Casaco, etc)
-                        </span>
-                    </label>
-
-                    <div x-show="requiresSize" x-collapse x-cloak class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                            <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i>
-                            Selecione os tamanhos disponíveis para este produto:
-                        </p>
-                        <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
-                            @php
-                                $defaultSizes = ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EG', 'EGG', 'PLUS', '2', '4', '6', '8', '10', '12', '14', '16'];
-                            @endphp
-                            @foreach($defaultSizes as $size)
-                                <label class="flex items-center justify-center px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:border-indigo-500 transition-colors has-[:checked]:bg-indigo-50 has-[:checked]:border-indigo-500 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500">
-                                    <input type="checkbox" name="available_sizes[]" value="{{ $size }}" class="sr-only peer">
-                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300 peer-checked:text-indigo-600 dark:peer-checked:text-indigo-400">{{ $size }}</span>
-                                </label>
-                            @endforeach
-                        </div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">
-                            <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i>
-                            Dica: Os tamanhos serão exibidos na ordem selecionada durante o pedido.
-                        </p>
+                    <!-- Descrição -->
+                    <div class="md:col-span-2">
+                        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Descrição (Opcional)
+                        </label>
+                        <textarea 
+                            id="description" 
+                            name="description" 
+                            rows="3"
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        >{{ old('description') }}</textarea>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-8 flex justify-end gap-3">
-                <a href="{{ route('admin.sub-local-products.index') }}" class="btn border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg">Cancelar</a>
-                <button type="submit" class="btn bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-bold">Salvar Produto</button>
+            <!-- Opções do Produto -->
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Opções do Produto</h3>
+                
+                <div class="space-y-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="is_active" value="1" checked class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Produto Ativo (Disponível no Wizard)</span>
+                    </label>
+
+                    <label class="flex items-center">
+                        <input type="checkbox" name="requires_customization" value="1" checked class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Requer Personalização (Passar pela etapa de arte)</span>
+                    </label>
+                </div>
             </div>
-        </form>
-    </div>
+
+            <!-- Seção de Tamanhos -->
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-6" x-data="{ requiresSize: false }">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Tamanhos Disponíveis</h3>
+                    <label class="flex items-center cursor-pointer">
+                        <span class="mr-3 text-sm text-gray-700 dark:text-gray-300">Produto com Tamanhos</span>
+                        <input type="checkbox" name="requires_size" value="1" x-model="requiresSize" class="sr-only peer">
+                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                    </label>
+                </div>
+
+                <div x-show="requiresSize" x-collapse x-cloak class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i>
+                        Selecione os tamanhos disponíveis para este produto (camisa, calça, casaco, etc):
+                    </p>
+                    <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
+                        @php
+                            $defaultSizes = ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EG', 'EGG', 'PLUS', '2', '4', '6', '8', '10', '12', '14', '16'];
+                        @endphp
+                        @foreach($defaultSizes as $size)
+                            <label class="flex items-center justify-center px-3 py-2.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:border-indigo-400 transition-all has-[:checked]:bg-indigo-50 dark:has-[:checked]:bg-indigo-900/30 has-[:checked]:border-indigo-500 has-[:checked]:shadow-sm">
+                                <input type="checkbox" name="available_sizes[]" value="{{ $size }}" class="sr-only peer">
+                                <span class="text-sm font-semibold text-gray-600 dark:text-gray-400 peer-checked:text-indigo-600 dark:peer-checked:text-indigo-400">{{ $size }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-4">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i>
+                        Dica: Os tamanhos selecionados aparecerão como opções durante o pedido no wizard.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Botões -->
+            <div class="flex items-center justify-end space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <a href="{{ route('admin.sub-local-products.index') }}" 
+                   class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    Cancelar
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold">
+                    Salvar Produto
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 @endsection
