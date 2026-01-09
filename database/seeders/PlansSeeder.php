@@ -22,7 +22,7 @@ class PlansSeeder extends Seeder
                     'stores' => 1,
                     'users' => 1,
                 ],
-                'features' => ['orders', 'crm'],
+                'features' => ['orders', 'crm', 'financial'],
             ],
              'basic' => [
                 'name' => 'Básico',
