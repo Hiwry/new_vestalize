@@ -47,7 +47,12 @@
                             <tr>
                                 <td class="p-2 whitespace-nowrap">
                                     @if($product->image)
-                                        <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="w-12 h-12 rounded-lg object-cover border border-gray-200">
+                                        <img 
+                                            src="{{ asset('storage/' . $product->image) }}" 
+                                            alt="{{ $product->name }}" 
+                                            class="w-12 h-12 rounded-lg object-cover border border-gray-200 dark:border-gray-600"
+                                            onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%239ca3af%22 stroke-width=%222%22><rect x=%223%22 y=%223%22 width=%2218%22 height=%2218%22 rx=%222%22/><circle cx=%228.5%22 cy=%228.5%22 r=%221.5%22/><path d=%22M21 15l-5-5L5 21%22/></svg>'; this.classList.add('bg-gray-100', 'dark:bg-gray-700', 'p-2');"
+                                        >
                                     @else
                                         <div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400">
                                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
