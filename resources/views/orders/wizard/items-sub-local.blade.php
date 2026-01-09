@@ -118,7 +118,7 @@
 
                     <!-- Botão Continuar -->
                     <button id="btn-continue" disabled
-                            class="w-full mt-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                         Continuar
                     </button>
                 </div>
