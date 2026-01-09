@@ -1533,17 +1533,17 @@
                         </svg>
                         Downloads
                     </h4>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2" id="downloads-list-${order.id}">
+                    <div class="flex flex-wrap gap-2" id="downloads-list-${order.id}">
                         <a href="/kanban/download-costura/${order.id}" target="_blank"
-                           class="flex items-center justify-center px-3 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700 transition">
-                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition shadow-sm">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
                             </svg>
                             Folha Costura (A4)
                         </a>
                         <a href="/kanban/download-personalizacao/${order.id}" target="_blank"
-                           class="flex items-center justify-center px-3 py-2 text-sm bg-pink-600 text-white rounded-md hover:bg-pink-700 transition">
-                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition shadow-sm">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
                             </svg>
                             Folha Personalização (A4)
@@ -1552,8 +1552,8 @@
                         <button onclick="downloadAllFiles(${order.id})"
                                 id="btn-download-files-${order.id}"
                                 data-count="${totalFiles}"
-                                class="flex items-center justify-center px-3 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition">
-                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium bg-green-600 hover:bg-green-700 text-white rounded-lg transition shadow-sm">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
                             </svg>
                             <span class="btn-text">Arquivos da Arte (${totalFiles})</span>
