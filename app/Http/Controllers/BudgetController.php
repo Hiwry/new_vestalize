@@ -18,6 +18,8 @@ use App\Services\ImageProcessor;
 
 class BudgetController extends Controller
 {
+    use \App\Traits\ChecksSuperAdmin;
+
     public function __construct(private readonly ImageProcessor $imageProcessor)
     {
     }
@@ -27,9 +29,16 @@ class BudgetController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Budget::with(['client', 'user', 'items']);
-        
         $user = Auth::user();
+        
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants sem selecionar contexto
+        if ($this->isSuperAdmin() && !$this->hasSelectedTenant()) {
+            return $this->emptySuperAdminResponse('budgets.index', [
+                'budgets' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
+            ]);
+        }
+
+        $query = Budget::with(['client', 'user', 'items']);
         
         // Aplicar filtros baseados no role do usuário
         if ($user->isVendedor()) {

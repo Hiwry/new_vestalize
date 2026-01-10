@@ -18,6 +18,32 @@ class SalesHistoryController extends Controller
      */
     public function index(Request $request): View
     {
+        $user = Auth::user();
+        
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants
+        if ($user->tenant_id === null) {
+            return view('sales-history.index', [
+                'history' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
+                'vendors' => collect([]),
+                'stores' => collect([]),
+                'statuses' => collect([]),
+                'stats' => [
+                    'total_sales' => 0,
+                    'total_revenue' => 0,
+                    'total_paid' => 0,
+                    'avg_ticket' => 0,
+                ],
+                'search' => null,
+                'userId' => null,
+                'storeId' => null,
+                'statusId' => null,
+                'startDate' => null,
+                'endDate' => null,
+                'isPdv' => null,
+                'isSuperAdmin' => true
+            ]);
+        }
+
         $search = $request->get('search');
         $userId = $request->get('user_id');
         $storeId = $request->get('store_id');
@@ -31,8 +57,8 @@ class SalesHistoryController extends Controller
         // Filtro por vendedor
         if ($userId) {
             $query->where('user_id', $userId);
-        } elseif (Auth::user()->isVendedor()) {
-            $query->where('user_id', Auth::id());
+        } elseif ($user->isVendedor()) {
+            $query->where('user_id', $user->id);
         }
 
         // Filtro por loja
@@ -84,7 +110,7 @@ class SalesHistoryController extends Controller
         ];
 
         // Vendedores para filtro
-        $vendors = User::where('role', 'vendedor')
+        $vendors = \App\Models\User::where('role', 'vendedor')
             ->orWhereHas('stores', function($q) {
                 $q->wherePivot('role', 'vendedor');
             })

@@ -23,6 +23,21 @@ class KanbanController extends Controller
 {
     public function index(Request $request): View
     {
+        $user = Auth::user();
+        
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants
+        if ($user->tenant_id === null) {
+            $statuses = Status::orderBy('position')->get();
+            return view('kanban.index', [
+                'statuses' => $statuses,
+                'orders' => collect([]),
+                'search' => null,
+                'personalizationType' => null,
+                'deliveryDateFilter' => null,
+                'isSuperAdmin' => true
+            ]);
+        }
+
         $search = $request->get('search');
         $personalizationType = $request->get('personalization_type');
         $deliveryDateFilter = $request->get('delivery_date');

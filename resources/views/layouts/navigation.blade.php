@@ -24,6 +24,28 @@
                 </div>
             </div>
 
+            <!-- Super Admin Tenant Context Selector -->
+            @if(Auth::user()->tenant_id === null)
+                @php
+                    $tenants = \App\Models\Tenant::orderBy('name')->get();
+                    $selectedTenantId = session('selected_tenant_id');
+                @endphp
+                <div class="hidden sm:flex items-center ml-4">
+                    <form action="{{ route('admin.tenants.set-context') }}" method="POST" class="flex items-center">
+                        @csrf
+                        <span class="text-xs text-gray-500 mr-2 uppercase font-bold tracking-wider">Tenant:</span>
+                        <select name="tenant_id" onchange="this.form.submit()" class="text-xs border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm dark:bg-gray-700 dark:text-gray-300 py-1">
+                            <option value="">Modo Global (Vazio)</option>
+                            @foreach($tenants as $tenant)
+                                <option value="{{ $tenant->id }}" {{ $selectedTenantId == $tenant->id ? 'selected' : '' }}>
+                                    {{ $tenant->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+                </div>
+            @endif
+
             <!-- Dark Mode Toggle -->
             <div class="flex items-center ms-4">
                 <button onclick="toggleDarkMode()" 

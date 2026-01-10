@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Schema;
 
 class StockController extends Controller
 {
+    use \App\Traits\ChecksSuperAdmin;
+
     /**
      * Garante que apenas perfis autorizados alterem o estoque.
      */
@@ -36,6 +38,26 @@ class StockController extends Controller
      */
     public function index(Request $request): View
     {
+        $user = Auth::user();
+        
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants sem selecionar contexto
+        if ($this->isSuperAdmin() && !$this->hasSelectedTenant()) {
+            return $this->emptySuperAdminResponse('stocks.index', [
+                'groupedStocks' => [],
+                'stores' => collect([]),
+                'fabricTypes' => collect([]),
+                'colors' => collect([]),
+                'cutTypes' => collect([]),
+                'sizes' => ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3'],
+                'storeId' => null,
+                'fabricId' => null,
+                'colorId' => null,
+                'cutTypeId' => null,
+                'size' => null,
+                'lowStock' => false,
+            ]);
+        }
+
         $storeId = $request->get('store_id');
         $fabricId = $request->get('fabric_id');
         $colorId = $request->get('color_id');

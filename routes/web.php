@@ -490,6 +490,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         Route::resource('tenants', \App\Http\Controllers\Admin\TenantController::class);
         Route::post('tenants/{tenant}/resend-access', [\App\Http\Controllers\Admin\TenantController::class, 'resendAccess'])->name('tenants.resend-access');
         Route::get('subscription-payments', [\App\Http\Controllers\Admin\SubscriptionPaymentController::class, 'index'])->name('subscription-payments.index');
+        
+        // Contexto de Tenant para Super Admin
+        Route::post('set-tenant-context', [\App\Http\Controllers\Admin\TenantContextController::class, 'setContext'])->name('tenants.set-context');
     });
 
     // Configuração de Orçamento Online (Planos Pro/Premium)

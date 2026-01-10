@@ -25,14 +25,26 @@ class StoreHelper
                 : $storeColumn . '.store_id';
         }
 
-        if ($user->tenant_id !== null) {
-            $tenantStoreIds = Store::where('tenant_id', $user->tenant_id)->pluck('id')->toArray();
+        $activeTenantId = $user->tenant_id;
+        
+        // Se for Super Admin, verifica se há um tenant selecionado na sessão
+        if ($activeTenantId === null) {
+            $activeTenantId = session('selected_tenant_id');
+        }
+
+        if ($activeTenantId !== null) {
+            $tenantStoreIds = \App\Models\Store::where('tenant_id', $activeTenantId)->pluck('id')->toArray();
 
             if (empty($tenantStoreIds)) {
                 return $query->whereRaw('1 = 0');
             }
 
             $query->whereIn($column, $tenantStoreIds);
+        } else {
+            // Se for Super Admin e NÃO houver tenant selecionado, não deve ver nada (isolamento solicitado)
+            if ($user->tenant_id === null) {
+                return $query->whereRaw('1 = 0');
+            }
         }
 
         if ($user->isAdminGeral() || $user->isEstoque()) {

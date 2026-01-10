@@ -16,14 +16,16 @@ use Dompdf\Options;
 
 class OrderController extends Controller
 {
+    use \App\Traits\ChecksSuperAdmin;
+
     public function index(Request $request)
     {
         $user = Auth::user();
         
-        // Super Admin (tenant_id === null) não deve ver pedidos de outros tenants
-        if ($user->tenant_id === null) {
+        // Super Admin (tenant_id === null) não deve ver pedidos de outros tenants sem selecionar contexto
+        if ($this->isSuperAdmin() && !$this->hasSelectedTenant()) {
             $statuses = Status::orderBy('position')->get();
-            return view('orders.index', [
+            return $this->emptySuperAdminResponse('orders.index', [
                 'orders' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
                 'statuses' => $statuses,
                 'search' => null,
@@ -31,7 +33,6 @@ class OrderController extends Controller
                 'startDate' => null,
                 'endDate' => null,
                 'dateType' => 'created',
-                'isSuperAdmin' => true,
             ]);
         }
 

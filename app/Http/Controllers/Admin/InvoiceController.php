@@ -17,8 +17,18 @@ class InvoiceController extends Controller
      */
     public function index(Request $request)
     {
+        $user = Auth::user();
+        
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants
+        if ($user->tenant_id === null) {
+            return view('admin.invoices.index', [
+                'invoices' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
+                'isSuperAdmin' => true
+            ]);
+        }
+
         $invoices = Invoice::with(['order.client'])
-            ->where('tenant_id', Auth::user()->tenant_id)
+            ->where('tenant_id', $user->tenant_id)
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 

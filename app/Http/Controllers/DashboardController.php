@@ -19,6 +19,8 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
+    use \App\Traits\ChecksSuperAdmin;
+
     /**
      * Obtém os IDs das lojas baseado no filtro selecionado
      */
@@ -113,10 +115,44 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants sem selecionar contexto
+        if ($this->isSuperAdmin() && !$this->hasSelectedTenant()) {
+            return $this->emptySuperAdminResponse('dashboard.index', [
+                'period' => 'month',
+                'startDate' => Carbon::now()->startOfMonth(),
+                'endDate' => Carbon::now()->endOfMonth(),
+                'totalPedidos' => 0,
+                'totalFaturamento' => 0,
+                'pedidosHoje' => 0,
+                'variacaoPedidos' => 0,
+                'variacaoFaturamento' => 0,
+                'ticketMedio' => 0,
+                'variacaoTicketMedio' => 0,
+                'vendasPDV' => 0,
+                'vendasPDVValor' => 0,
+                'pedidosOnline' => 0,
+                'pedidosOnlineValor' => 0,
+                'totalClientes' => 0,
+                'pedidosPorStatus' => collect([]),
+                'ultimosPedidos' => collect([]),
+                'produtosMaisVendidos' => collect([]),
+                'metas' => [
+                    'faturamento' => ['valor' => 0, 'meta' => 0, 'percentual' => 0],
+                    'pedidos' => ['valor' => 0, 'meta' => 0, 'percentual' => 0],
+                    'ticket_medio' => ['valor' => 0, 'meta' => 0, 'percentual' => 0],
+                    'novos_clientes' => ['valor' => 0, 'meta' => 0, 'percentual' => 0],
+                ],
+                'fluxoFinanceiro' => collect([]),
+                'resumoMensal' => collect([]),
+                'lojas' => collect([]),
+                'selectedStoreId' => null,
+            ]);
+        }
+
         // Filtros de período
         $period = $request->get('period', 'month'); // today, week, month, year, custom
-        $startDate = $request->get('start_date');
-        $endDate = $request->get('end_date');
+        $startDateInput = $request->get('start_date');
+        $endDateInput = $request->get('end_date');
         
         // Filtro de loja (apenas para admin geral) - DEVE SER DEFINIDO ANTES DE USAR
         $selectedStoreId = null;
@@ -125,7 +161,7 @@ class DashboardController extends Controller
         }
         
         // Calcular datas baseado no período
-        $dateRange = $this->getDateRange($period, $startDate, $endDate);
+        $dateRange = $this->getDateRange($period, $startDateInput, $endDateInput);
         $startDate = $dateRange['start'];
         $endDate = $dateRange['end'];
         

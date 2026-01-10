@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 class FinancialController extends Controller
 {
+    use \App\Traits\ChecksSuperAdmin;
+
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -36,10 +38,9 @@ class FinancialController extends Controller
             $endDate = Carbon::now()->endOfYear();
         }
 
-        // Super Admin (tenant_id === null) não deve ver dados de outros tenants
-        // Retorna dashboard vazio para Super Admin
-        if ($user->tenant_id === null) {
-            return view('dashboard.financeiro', [
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants sem selecionar contexto
+        if ($this->isSuperAdmin() && !$this->hasSelectedTenant()) {
+            return $this->emptySuperAdminResponse('dashboard.financeiro', [
                 'totalRevenue' => 0,
                 'totalCost' => 0,
                 'grossProfit' => 0,
@@ -52,7 +53,6 @@ class FinancialController extends Controller
                 'period' => $period,
                 'stores' => collect([]),
                 'selectedStoreId' => null,
-                'isSuperAdmin' => true,
             ]);
         }
 

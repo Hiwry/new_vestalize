@@ -140,10 +140,15 @@ class User extends Authenticatable
      */
     public function getStoreIds(): array
     {
-        // Lojas do tenant do usuário (ou todas caso seja super admin sem tenant)
-        $tenantStoreIds = $this->tenant_id
-            ? Store::active()->where('tenant_id', $this->tenant_id)->pluck('id')->toArray()
-            : Store::active()->pluck('id')->toArray();
+        // Lojas do tenant do usuário (ou do tenant selecionado caso seja super admin)
+        $activeTenantId = $this->tenant_id;
+        if ($activeTenantId === null) {
+            $activeTenantId = session('selected_tenant_id');
+        }
+
+        $tenantStoreIds = $activeTenantId
+            ? Store::active()->where('tenant_id', $activeTenantId)->pluck('id')->toArray()
+            : [];
 
         if ($this->isAdminGeral() || $this->isEstoque()) {
             return $tenantStoreIds;

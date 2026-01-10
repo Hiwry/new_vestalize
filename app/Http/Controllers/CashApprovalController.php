@@ -20,6 +20,24 @@ class CashApprovalController extends Controller
      */
     public function index(Request $request): View
     {
+        $user = Auth::user();
+        
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants
+        if ($user->tenant_id === null) {
+            return view('cash.approvals', [
+                'orders' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
+                'status' => 'pendente',
+                'type' => 'todos',
+                'search' => null,
+                'stats' => [
+                    'pendentes' => 0,
+                    'aprovados' => 0,
+                    'total_pendente' => 0,
+                ],
+                'isSuperAdmin' => true
+            ]);
+        }
+
         $status = $request->get('status', 'pendente'); // pendente, aprovado, todos
         $type = $request->get('type', 'todos'); // pedidos, vendas, todos
         $search = $request->get('search');

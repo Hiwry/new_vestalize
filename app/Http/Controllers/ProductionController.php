@@ -17,6 +17,31 @@ class ProductionController extends Controller
 {
     public function index(Request $request): View
     {
+        $user = Auth::user();
+        
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants
+        if ($user->tenant_id === null) {
+            $statuses = Status::orderBy('position')->get();
+            return view('production.index', [
+                'orders' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
+                'statuses' => $statuses,
+                'personalizationTypes' => collect([]),
+                'stores' => collect([]),
+                'search' => null,
+                'status' => null,
+                'personalizationType' => null,
+                'storeId' => null,
+                'period' => 'week',
+                'startDate' => Carbon::now()->startOfWeek(Carbon::MONDAY)->format('Y-m-d'),
+                'endDate' => Carbon::now()->startOfWeek(Carbon::MONDAY)->addDays(4)->format('Y-m-d'),
+                'totalOrders' => 0,
+                'totalValue' => 0,
+                'ordersByStatus' => collect([]),
+                'ordersByPersonalization' => collect([]),
+                'isSuperAdmin' => true
+            ]);
+        }
+
         $search = $request->get('search');
         $status = $request->get('status');
         $personalizationType = $request->get('personalization_type');

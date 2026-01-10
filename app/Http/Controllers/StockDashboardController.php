@@ -21,6 +21,26 @@ class StockDashboardController extends Controller
     public function index(Request $request): View
     {
         $user = Auth::user();
+        
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants
+        if ($user->tenant_id === null) {
+            return view('stocks.dashboard', [
+                'totalItems' => 0,
+                'lowStockCount' => 0,
+                'pendingRequests' => 0,
+                'totalSKUs' => 0,
+                'stockByStore' => [],
+                'movementsData' => [
+                    'labels' => [],
+                    'entries' => [],
+                    'exits' => [],
+                ],
+                'lowStockItems' => collect([]),
+                'recentActivity' => collect([]),
+                'isSuperAdmin' => true
+            ]);
+        }
+
         if (!$user || (!$user->isAdminGeral() && !$user->isEstoque())) {
             abort(403, 'Acesso negado. Apenas admin geral ou estoque podem acessar o dashboard de estoque.');
         }

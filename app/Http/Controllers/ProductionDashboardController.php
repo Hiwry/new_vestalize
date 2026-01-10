@@ -12,24 +12,59 @@ use Carbon\Carbon;
 
 class ProductionDashboardController extends Controller
 {
+    use \App\Traits\ChecksSuperAdmin;
+
     /**
      * Dashboard de produção
      */
     public function index(Request $request): View
     {
+        $user = Auth::user();
+        
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants sem selecionar contexto
+        if ($this->isSuperAdmin() && !$this->hasSelectedTenant()) {
+            $statuses = Status::orderBy('position')->get();
+            return $this->emptySuperAdminResponse('production.dashboard', [
+                'statuses' => $statuses,
+                'ordersByStatus' => [],
+                'statusStats' => [],
+                'topProducts' => collect([]),
+                'productionVolume' => collect([]),
+                'totalOrders' => 0,
+                'ordersInProduction' => 0,
+                'efficiency' => [
+                    'current' => 0,
+                    'previous' => 0,
+                    'variation' => 0,
+                ],
+                'selectedColumns' => $statuses->pluck('id')->toArray(),
+                'period' => 'month',
+                'startDate' => Carbon::now()->startOfMonth()->format('Y-m-d'),
+                'endDate' => Carbon::now()->endOfMonth()->format('Y-m-d'),
+                'lojas' => collect([]),
+                'slowestStatus' => null,
+                'avgProductionTime' => null,
+                'deliveryOrders' => collect([]),
+                'deliveryFilter' => 'today',
+                'allStatuses' => $statuses,
+                'start' => Carbon::now()->startOfMonth(),
+                'end' => Carbon::now()->endOfMonth(),
+            ]);
+        }
+
         // Verificar se é produção ou admin
-        if (!Auth::user()->isProducao() && !Auth::user()->isAdmin()) {
+        if (!$user->isProducao() && !$user->isAdmin()) {
             abort(403, 'Acesso negado. Apenas usuários de produção podem acessar.');
         }
 
         $period = $request->get('period', 'month'); // week, month, quarter, year, custom
-        $startDate = $request->get('start_date');
-        $endDate = $request->get('end_date');
+        $startDateInput = $request->get('start_date');
+        $endDateInput = $request->get('end_date');
 
         // Definir datas baseadas no período
-        if ($period === 'custom' && $startDate && $endDate) {
-            $start = Carbon::parse($startDate);
-            $end = Carbon::parse($endDate);
+        if ($period === 'custom' && $startDateInput && $endDateInput) {
+            $start = Carbon::parse($startDateInput);
+            $end = Carbon::parse($endDateInput);
         } else {
             switch ($period) {
                 case 'week':
@@ -79,19 +114,19 @@ class ProductionDashboardController extends Controller
         $statuses = $allStatuses->whereIn('id', $selectedColumns);
 
         // Restringir por lojas permitidas para o usuário
-        $storeIds = Auth::user()->getStoreIds();
+        $storeIds = $user->getStoreIds();
 
-        $baseQuery = Order::where('is_draft', false)
-            ->where('is_pdv', false)
-            ->where('is_cancelled', false);
+        $baseQuery = Order::where('orders.is_draft', false)
+            ->where('orders.is_pdv', false)
+            ->where('orders.is_cancelled', false);
 
         if (!empty($storeIds)) {
-            $baseQuery = $baseQuery->whereIn('store_id', $storeIds);
+            $baseQuery = $baseQuery->whereIn('orders.store_id', $storeIds);
         }
 
         // Estatísticas gerais
         $totalOrders = (clone $baseQuery)
-            ->whereBetween('created_at', [$start, $end])
+            ->whereBetween('orders.created_at', [$start, $end])
             ->count();
 
         $ordersInProduction = (clone $baseQuery)
@@ -108,8 +143,8 @@ class ProductionDashboardController extends Controller
         foreach ($statuses as $status) {
             // Contar pedidos no status atual
             $count = (clone $baseQuery)
-                ->where('status_id', $status->id)
-                ->whereBetween('created_at', [$start, $end])
+                ->where('orders.status_id', $status->id)
+                ->whereBetween('orders.created_at', [$start, $end])
                 ->count();
             
             $ordersByStatus[$status->id] = $count;
@@ -117,14 +152,14 @@ class ProductionDashboardController extends Controller
             // Calcular tempo médio por status
             // Buscar todos os pedidos neste status (não apenas do período, para ter mais dados)
             $ordersInStatus = (clone $baseQuery)
-                ->where('status_id', $status->id)
+                ->where('orders.status_id', $status->id)
                 ->get();
             
             $times = [];
             
             foreach ($ordersInStatus as $order) {
                 // Buscar tracking para este pedido neste status
-                $entry = OrderStatusTracking::where('order_id', $order->id)
+                $entry = \App\Models\OrderStatusTracking::where('order_id', $order->id)
                     ->where('status_id', $status->id)
                     ->whereNotNull('entered_at')
                     ->orderBy('entered_at', 'desc')

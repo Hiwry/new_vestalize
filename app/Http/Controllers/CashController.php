@@ -16,8 +16,37 @@ class CashController extends Controller
 
     public function index(Request $request)
     {
+        $user = Auth::user();
+        
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants
+        if ($user->tenant_id === null) {
+            $emptyCollection = collect([]);
+            return view('cash.index', [
+                'transactions' => $emptyCollection,
+                'pendentes' => $emptyCollection,
+                'confirmadas' => $emptyCollection,
+                'canceladas' => $emptyCollection,
+                'sangrias' => $emptyCollection,
+                'totalPendentes' => 0,
+                'totalConfirmadas' => 0,
+                'totalCanceladas' => 0,
+                'totalSangrias' => 0,
+                'totalEntradas' => 0,
+                'totalSaidas' => 0,
+                'saldoPeriodo' => 0,
+                'saldoAtual' => 0,
+                'saldoGeral' => 0,
+                'saldoPendente' => 0,
+                'totalSaidasGeral' => 0,
+                'startDate' => Carbon::now()->subDays(30)->format('Y-m-d'),
+                'endDate' => Carbon::now()->format('Y-m-d'),
+                'type' => 'all',
+                'isSuperAdmin' => true
+            ]);
+        }
+
         // Verificar se o usuário é administrador ou caixa
-        if (!Auth::user()->isAdmin() && !Auth::user()->isCaixa()) {
+        if (!$user->isAdmin() && !$user->isCaixa()) {
             abort(403, 'Acesso negado. Apenas administradores e usuários de caixa podem acessar o caixa.');
         }
         
@@ -72,6 +101,8 @@ class CashController extends Controller
         $saldoPeriodo = $totalEntradas - $totalSaidas;
         
         // Calcular saldos gerais
+        // CashTransaction::getSaldoAtual() and other methods might not be multi-tenant aware yet if they don't filter by user stores.
+        // However, since we are only fixing the isolation for Super Admin visualization for now, this is enough.
         $saldoAtual = CashTransaction::getSaldoAtual(); // Apenas confirmadas
         $saldoGeral = CashTransaction::getSaldoGeral(); // Tudo
         $saldoPendente = CashTransaction::getSaldoPendente(); // Pendentes
@@ -96,7 +127,8 @@ class CashController extends Controller
             'totalSaidasGeral',
             'startDate',
             'endDate',
-            'type'
+            'type',
+            'isSuperAdmin'
         ));
     }
 

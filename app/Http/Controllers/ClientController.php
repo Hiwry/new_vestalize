@@ -7,24 +7,28 @@ use App\Models\Order;
 use App\Helpers\StoreHelper;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth; // Added this line
 
 class ClientController extends Controller
 {
+    use \App\Traits\ChecksSuperAdmin;
+
     /**
      * Listar todos os clientes
      */
     public function index(Request $request): View
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
         
-        // Super Admin (tenant_id === null) não deve ver clientes de outros tenants
-        if ($user->tenant_id === null) {
-            return view('clients.index', [
+        // Super Admin (tenant_id === null) não deve ver clientes de outros tenants sem selecionar contexto
+        if ($this->isSuperAdmin() && !$this->hasSelectedTenant()) {
+            return $this->emptySuperAdminResponse('clients.index', [
                 'clients' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
-                'categories' => collect([]),
+                'stores' => collect([]),
                 'search' => null,
-                'category' => null,
-                'isSuperAdmin' => true,
+                'storeId' => null,
+                'categories' => collect([]), // Added to match original view data
+                'category' => null, // Added to match original view data
             ]);
         }
 

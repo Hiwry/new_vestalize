@@ -15,15 +15,19 @@ class TenantInvoiceConfigController extends Controller
      */
     public function edit()
     {
-        $tenant = Auth::user()->tenant;
+        $user = Auth::user();
         
-        // Super Admin sem tenant
-        if (!$tenant) {
-            // Mostrar lista de tenants para selecionar
-            $tenants = \App\Models\Tenant::orderBy('name')->get();
-            return view('admin.invoice-config.select-tenant', compact('tenants'));
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants
+        if ($user->tenant_id === null) {
+            return view('admin.invoice-config.edit', [
+                'config' => null,
+                'tenant' => null,
+                'isSuperAdmin' => true
+            ]);
         }
 
+        $tenant = $user->tenant;
+        
         $config = TenantInvoiceConfig::firstOrCreate(
             ['tenant_id' => $tenant->id],
             [

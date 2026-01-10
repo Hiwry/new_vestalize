@@ -33,11 +33,27 @@ class PDVController extends Controller
      */
     public function index(Request $request)
     {
+        $user = Auth::user();
+        
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants
+        if ($user->tenant_id === null) {
+            return view('pdv.index', [
+                'items' => collect([]),
+                'categories' => collect([]),
+                'clients' => collect([]),
+                'payments' => collect([]),
+                'currentStoreId' => null,
+                'stores' => collect([]),
+                'type' => 'products',
+                'search' => null,
+                'isSuperAdmin' => true
+            ]);
+        }
+
         $search = $request->get('search');
         $type = $request->get('type', 'products'); // products, fabric_pieces, machines, supplies, uniforms
 
         // Determinar loja atual
-        $user = Auth::user();
         $currentStoreId = null;
         if ($user->isAdminLoja()) {
             $storeIds = $user->getStoreIds();

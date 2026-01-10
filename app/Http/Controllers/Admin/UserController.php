@@ -8,11 +8,22 @@ use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth; // Added this line
 
 class UserController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
+
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants sem selecionar um context
+        if ($user->tenant_id === null) {
+            return view('admin.users.index', [
+                'users' => collect([]),
+                'isSuperAdmin' => true
+            ]);
+        }
+
         $users = User::with('stores')->orderBy('created_at', 'desc')->get();
         return view('admin.users.index', compact('users'));
     }
