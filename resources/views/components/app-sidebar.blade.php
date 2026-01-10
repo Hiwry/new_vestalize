@@ -421,45 +421,40 @@
                     {{-- Dashboard --}}
                     <a href="{{ route('financial.dashboard') }}" 
                        data-no-js-nav
-                       style="{{ $dashActive ? 'background-color: rgb(79, 70, 229); color: white; font-weight: 500; border-radius: 0.375rem;' : '' }}"
-                       class="flex items-center pl-10 pr-3 py-2 text-sm {{ $dashActive ? '' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} transition">
-                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ $dashActive ? 'white' : '#9ca3af' }};"></span>
+                       class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $dashActive ? 'bg-blue-600 text-white rounded-md' : 'text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                        <span class="w-1.5 h-1.5 rounded-full mr-2 {{ $dashActive ? 'bg-white' : 'bg-gray-400' }}"></span>
                         Dashboard
                     </a>
                     
                     {{-- Caixa --}}
                     <a href="{{ route('cash.index') }}" 
                        data-no-js-nav
-                       style="{{ $cashActive ? 'background-color: rgb(79, 70, 229); color: white; font-weight: 500; border-radius: 0.375rem;' : '' }}"
-                       class="flex items-center pl-10 pr-3 py-2 text-sm {{ $cashActive ? '' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} transition">
-                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ $cashActive ? 'white' : '#9ca3af' }};"></span>
+                       class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $cashActive ? 'bg-blue-600 text-white rounded-md' : 'text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                        <span class="w-1.5 h-1.5 rounded-full mr-2 {{ $cashActive ? 'bg-white' : 'bg-gray-400' }}"></span>
                         Caixa
                     </a>
                     
                     {{-- Aprovações --}}
                     <a href="{{ route('cash.approvals.index') }}" 
                        data-no-js-nav
-                       style="{{ $approvalsActive ? 'background-color: rgb(79, 70, 229); color: white; font-weight: 500; border-radius: 0.375rem;' : '' }}"
-                       class="flex items-center pl-10 pr-3 py-2 text-sm {{ $approvalsActive ? '' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} transition">
-                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ $approvalsActive ? 'white' : '#9ca3af' }};"></span>
+                       class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $approvalsActive ? 'bg-blue-600 text-white rounded-md' : 'text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                        <span class="w-1.5 h-1.5 rounded-full mr-2 {{ $approvalsActive ? 'bg-white' : 'bg-gray-400' }}"></span>
                         Aprovações
                     </a>
                     
                     {{-- Notas Emitidas --}}
                     <a href="{{ route('admin.invoices.index') }}" 
                        data-no-js-nav
-                       style="{{ $invoicesActive ? 'background-color: rgb(79, 70, 229); color: white; font-weight: 500; border-radius: 0.375rem;' : '' }}"
-                       class="flex items-center pl-10 pr-3 py-2 text-sm {{ $invoicesActive ? '' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} transition">
-                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ $invoicesActive ? 'white' : '#9ca3af' }};"></span>
+                       class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $invoicesActive ? 'bg-blue-600 text-white rounded-md' : 'text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                        <span class="w-1.5 h-1.5 rounded-full mr-2 {{ $invoicesActive ? 'bg-white' : 'bg-gray-400' }}"></span>
                         Notas Emitidas
                     </a>
                     
                     {{-- Configuração NF-e --}}
                     <a href="{{ route('admin.invoice-config.edit') }}" 
                        data-no-js-nav
-                       style="{{ $configActive ? 'background-color: rgb(79, 70, 229); color: white; font-weight: 500; border-radius: 0.375rem;' : '' }}"
-                       class="flex items-center pl-10 pr-3 py-2 text-sm {{ $configActive ? '' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} transition">
-                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ $configActive ? 'white' : '#9ca3af' }};"></span>
+                       class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $configActive ? 'bg-blue-600 text-white rounded-md' : 'text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                        <span class="w-1.5 h-1.5 rounded-full mr-2 {{ $configActive ? 'bg-white' : 'bg-gray-400' }}"></span>
                         Configuração NF-e
                     </a>
                 </div>

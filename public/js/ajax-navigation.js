@@ -51,22 +51,28 @@
                 currentPath.startsWith(linkPath + '/');
             const isActive = isExactMatch || isPrefixMatch;
 
-            // Links do Financeiro (com data-no-js-nav) - usar estilos inline
+            // Links do Financeiro (com data-no-js-nav) - usar mesmas classes que outros links
             if (link.hasAttribute('data-no-js-nav')) {
                 const dot = link.querySelector('span');
                 if (isActive) {
-                    // Mesma cor que o restante da sidebar (indigo/blue)
-                    link.style.backgroundColor = 'rgb(79, 70, 229)'; // bg-indigo-600
-                    link.style.color = 'white';
-                    link.style.fontWeight = '500';
-                    link.style.borderRadius = '0.375rem';
-                    if (dot) dot.style.backgroundColor = 'white';
+                    // Mesmas classes que outros itens da sidebar (bg-blue-600)
+                    link.classList.remove('text-gray-600', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-800');
+                    link.classList.add('bg-blue-600', 'text-white', 'rounded-md');
+                    if (dot) {
+                        dot.classList.remove('bg-gray-400');
+                        dot.classList.add('bg-white');
+                        dot.style.backgroundColor = 'white';
+                    }
                 } else {
+                    link.classList.remove('bg-blue-600', 'text-white', 'rounded-md');
+                    link.classList.add('text-gray-600', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-800');
                     link.style.backgroundColor = '';
                     link.style.color = '';
-                    link.style.fontWeight = '';
-                    link.style.borderRadius = '';
-                    if (dot) dot.style.backgroundColor = '#9ca3af';
+                    if (dot) {
+                        dot.classList.remove('bg-white');
+                        dot.classList.add('bg-gray-400');
+                        dot.style.backgroundColor = '';
+                    }
                 }
                 return;
             }
