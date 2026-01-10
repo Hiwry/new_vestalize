@@ -41,24 +41,33 @@
         const currentPath = new URL(url, window.location.origin).pathname;
 
         sidebarLinks.forEach(link => {
-            // Pular links que devem ser controlados pelo PHP
+            const linkPath = new URL(link.href, window.location.origin).pathname;
+
+            // Verificação mais precisa para determinar se está ativo
+            const isExactMatch = currentPath === linkPath;
+            const isPrefixMatch = linkPath !== '/' &&
+                linkPath !== '/cash' && // /cash só é ativo com match exato
+                currentPath.startsWith(linkPath + '/');
+            const isActive = isExactMatch || isPrefixMatch;
+
+            // Links do Financeiro (com data-no-js-nav) - usar estilos inline
             if (link.hasAttribute('data-no-js-nav')) {
+                const dot = link.querySelector('span');
+                if (isActive) {
+                    link.style.backgroundColor = '#fef3c7';
+                    link.style.color = '#d97706';
+                    link.style.fontWeight = '600';
+                    if (dot) dot.style.backgroundColor = '#d97706';
+                } else {
+                    link.style.backgroundColor = '';
+                    link.style.color = '';
+                    link.style.fontWeight = '';
+                    if (dot) dot.style.backgroundColor = '#9ca3af';
+                }
                 return;
             }
 
-            const linkPath = new URL(link.href, window.location.origin).pathname;
-
-            // Verificação mais precisa: match exato OU prefixo seguido de /
-            // Isso evita que /cash seja marcado como ativo quando estamos em /cash/approvals
-            const isExactMatch = currentPath === linkPath;
-            const isPrefixMatch = linkPath !== '/' &&
-                linkPath !== '/cash' && // Exceção especial para /cash
-                currentPath.startsWith(linkPath + '/');
-
-            // Para /cash especificamente, só marcar como ativo se for match exato
-            const isActive = isExactMatch || isPrefixMatch;
-
-            // Atualizar classes
+            // Links normais - usar classes
             if (isActive) {
                 link.classList.remove('text-gray-700', 'dark:text-gray-300', 'hover:bg-blue-50', 'dark:hover:bg-gray-700', 'hover:text-blue-600', 'dark:hover:text-white');
                 link.classList.add('bg-blue-600', 'text-white');
@@ -435,11 +444,6 @@
 
             // Nunca usar AJAX para o catálogo público (/catalogo)
             if (isCatalogPublicUrl(url.href)) {
-                return; // deixar o navegador fazer um load completo
-            }
-
-            // Não usar AJAX para links marcados com data-no-js-nav (navegação normal)
-            if (link.hasAttribute('data-no-js-nav')) {
                 return; // deixar o navegador fazer um load completo
             }
 
