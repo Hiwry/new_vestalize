@@ -408,43 +408,52 @@
                     <svg x-show="expanded" class="w-4 h-4 transition-transform duration-200" :class="openGroups.financeiro ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </button>
                 
-                <div x-show="openGroups.financeiro && expanded" x-collapse x-cloak class="space-y-1 mt-1 rounded-md overflow-hidden">
-                    <a href="{{ route('financial.dashboard') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition {{ request()->routeIs('financial.dashboard') ? 'bg-gray-100 dark:bg-gray-800 text-green-600 dark:text-green-400' : '' }}">
-                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->routeIs('financial.dashboard') ? 'bg-green-600' : '' }}"></span>
-                        Dashboard
-                    </a>
+                <div x-show="openGroups.financeiro && expanded" x-collapse x-cloak class="space-y-1 mt-1">
                     @php 
+                        $dashActive = request()->routeIs('financial.dashboard');
                         $cashActive = request()->routeIs('cash.index');
                         $approvalsActive = request()->routeIs('cash.approvals.*');
+                        $invoicesActive = request()->routeIs('admin.invoices.*');
+                        $configActive = request()->routeIs('admin.invoice-config.*');
                     @endphp
-                    @if($cashActive)
-                    <a href="{{ route('cash.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm transition bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium">
-                        <span class="w-1.5 h-1.5 rounded-full mr-2 bg-indigo-600"></span>
+                    
+                    {{-- Dashboard --}}
+                    <a href="{{ route('financial.dashboard') }}" 
+                       style="{{ $dashActive ? 'background-color: #fef3c7; color: #d97706; font-weight: 600;' : '' }}"
+                       class="flex items-center pl-10 pr-3 py-2 text-sm {{ $dashActive ? '' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} transition">
+                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ $dashActive ? '#d97706' : '#9ca3af' }};"></span>
+                        Dashboard
+                    </a>
+                    
+                    {{-- Caixa --}}
+                    <a href="{{ route('cash.index') }}" 
+                       style="{{ $cashActive ? 'background-color: #fef3c7; color: #d97706; font-weight: 600;' : '' }}"
+                       class="flex items-center pl-10 pr-3 py-2 text-sm {{ $cashActive ? '' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} transition">
+                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ $cashActive ? '#d97706' : '#9ca3af' }};"></span>
                         Caixa
                     </a>
-                    @else
-                    <a href="{{ route('cash.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm transition text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800">
-                        <span class="w-1.5 h-1.5 rounded-full mr-2 bg-gray-400"></span>
-                        Caixa
-                    </a>
-                    @endif
-                    @if($approvalsActive)
-                    <a href="{{ route('cash.approvals.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm transition bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium">
-                        <span class="w-1.5 h-1.5 rounded-full mr-2 bg-indigo-600"></span>
+                    
+                    {{-- Aprovações --}}
+                    <a href="{{ route('cash.approvals.index') }}" 
+                       style="{{ $approvalsActive ? 'background-color: #fef3c7; color: #d97706; font-weight: 600;' : '' }}"
+                       class="flex items-center pl-10 pr-3 py-2 text-sm {{ $approvalsActive ? '' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} transition">
+                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ $approvalsActive ? '#d97706' : '#9ca3af' }};"></span>
                         Aprovações
                     </a>
-                    @else
-                    <a href="{{ route('cash.approvals.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm transition text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800">
-                        <span class="w-1.5 h-1.5 rounded-full mr-2 bg-gray-400"></span>
-                        Aprovações
-                    </a>
-                    @endif
-                    <a href="{{ route('admin.invoices.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->routeIs('admin.invoices.*') ? 'bg-green-600' : '' }}"></span>
+                    
+                    {{-- Notas Emitidas --}}
+                    <a href="{{ route('admin.invoices.index') }}" 
+                       style="{{ $invoicesActive ? 'background-color: #fef3c7; color: #d97706; font-weight: 600;' : '' }}"
+                       class="flex items-center pl-10 pr-3 py-2 text-sm {{ $invoicesActive ? '' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} transition">
+                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ $invoicesActive ? '#d97706' : '#9ca3af' }};"></span>
                         Notas Emitidas
                     </a>
-                    <a href="{{ route('admin.invoice-config.edit') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->routeIs('admin.invoice-config.*') ? 'bg-green-600' : '' }}"></span>
+                    
+                    {{-- Configuração NF-e --}}
+                    <a href="{{ route('admin.invoice-config.edit') }}" 
+                       style="{{ $configActive ? 'background-color: #fef3c7; color: #d97706; font-weight: 600;' : '' }}"
+                       class="flex items-center pl-10 pr-3 py-2 text-sm {{ $configActive ? '' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} transition">
+                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ $configActive ? '#d97706' : '#9ca3af' }};"></span>
                         Configuração NF-e
                     </a>
                 </div>
