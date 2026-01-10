@@ -43,6 +43,10 @@ Route::prefix('solicitar-orcamento')->name('quote.')->group(function () {
     Route::post('/{slug}', [\App\Http\Controllers\PublicQuoteController::class, 'submit'])->name('submit');
 });
 
+// Termos e Condições (Rotas Públicas)
+Route::view('/termos', 'terms')->name('terms.show');
+Route::view('/privacidade', 'privacy')->name('privacy.show');
+
 // Todas as rotas autenticadas
 Route::middleware('auth')->group(function () {
     // Home/Dashboard
@@ -162,9 +166,7 @@ Route::middleware('auth')->group(function () {
         Route::get('editar/clear-session', [\App\Http\Controllers\EditOrderController::class, 'clearSession'])->name('orders.edit.clear-session');
     });
 
-    // Termos e Condições
-    Route::view('/termos', 'terms')->name('terms.show');
-    Route::view('/privacidade', 'privacy')->name('privacy.show');
+    // Termos e Condições movidas para fora do grupo auth (públicas)
 
     // Sistema de Orçamento
     Route::prefix('orcamento')->name('budget.')->group(function () {
