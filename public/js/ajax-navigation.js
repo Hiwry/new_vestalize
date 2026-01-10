@@ -41,15 +41,20 @@
         const currentPath = new URL(url, window.location.origin).pathname;
 
         sidebarLinks.forEach(link => {
+            // Pular links que devem ser controlados pelo PHP
+            if (link.hasAttribute('data-no-js-nav')) {
+                return;
+            }
+
             const linkPath = new URL(link.href, window.location.origin).pathname;
-            
+
             // Verificação mais precisa: match exato OU prefixo seguido de /
             // Isso evita que /cash seja marcado como ativo quando estamos em /cash/approvals
             const isExactMatch = currentPath === linkPath;
-            const isPrefixMatch = linkPath !== '/' && 
-                                  linkPath !== '/cash' && // Exceção especial para /cash
-                                  currentPath.startsWith(linkPath + '/');
-            
+            const isPrefixMatch = linkPath !== '/' &&
+                linkPath !== '/cash' && // Exceção especial para /cash
+                currentPath.startsWith(linkPath + '/');
+
             // Para /cash especificamente, só marcar como ativo se for match exato
             const isActive = isExactMatch || isPrefixMatch;
 

@@ -420,6 +420,7 @@
                     
                     {{-- Dashboard --}}
                     <a href="{{ route('financial.dashboard') }}" 
+                       data-no-js-nav
                        style="{{ $dashActive ? 'background-color: #fef3c7; color: #d97706; font-weight: 600;' : '' }}"
                        class="flex items-center pl-10 pr-3 py-2 text-sm {{ $dashActive ? '' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} transition">
                         <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ $dashActive ? '#d97706' : '#9ca3af' }};"></span>
@@ -428,6 +429,7 @@
                     
                     {{-- Caixa --}}
                     <a href="{{ route('cash.index') }}" 
+                       data-no-js-nav
                        style="{{ $cashActive ? 'background-color: #fef3c7; color: #d97706; font-weight: 600;' : '' }}"
                        class="flex items-center pl-10 pr-3 py-2 text-sm {{ $cashActive ? '' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} transition">
                         <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ $cashActive ? '#d97706' : '#9ca3af' }};"></span>
@@ -436,6 +438,7 @@
                     
                     {{-- Aprovações --}}
                     <a href="{{ route('cash.approvals.index') }}" 
+                       data-no-js-nav
                        style="{{ $approvalsActive ? 'background-color: #fef3c7; color: #d97706; font-weight: 600;' : '' }}"
                        class="flex items-center pl-10 pr-3 py-2 text-sm {{ $approvalsActive ? '' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} transition">
                         <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ $approvalsActive ? '#d97706' : '#9ca3af' }};"></span>
@@ -444,6 +447,7 @@
                     
                     {{-- Notas Emitidas --}}
                     <a href="{{ route('admin.invoices.index') }}" 
+                       data-no-js-nav
                        style="{{ $invoicesActive ? 'background-color: #fef3c7; color: #d97706; font-weight: 600;' : '' }}"
                        class="flex items-center pl-10 pr-3 py-2 text-sm {{ $invoicesActive ? '' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} transition">
                         <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ $invoicesActive ? '#d97706' : '#9ca3af' }};"></span>
@@ -452,6 +456,7 @@
                     
                     {{-- Configuração NF-e --}}
                     <a href="{{ route('admin.invoice-config.edit') }}" 
+                       data-no-js-nav
                        style="{{ $configActive ? 'background-color: #fef3c7; color: #d97706; font-weight: 600;' : '' }}"
                        class="flex items-center pl-10 pr-3 py-2 text-sm {{ $configActive ? '' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} transition">
                         <span class="w-2 h-2 rounded-full mr-2" style="background-color: {{ $configActive ? '#d97706' : '#9ca3af' }};"></span>
