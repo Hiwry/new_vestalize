@@ -408,7 +408,7 @@
                     <svg x-show="expanded" class="w-4 h-4 transition-transform duration-200" :class="openGroups.financeiro ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </button>
                 
-                <div x-show="openGroups.financeiro && expanded" x-collapse x-cloak class="space-y-1 mt-1 bg-gray-50 dark:bg-gray-900/50 rounded-md overflow-hidden">
+                <div x-show="openGroups.financeiro && expanded" x-collapse x-cloak class="space-y-1 mt-1 rounded-md overflow-hidden">
                     <a href="{{ route('financial.dashboard') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition {{ request()->routeIs('financial.dashboard') ? 'bg-gray-100 dark:bg-gray-800 text-green-600 dark:text-green-400' : '' }}">
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->routeIs('financial.dashboard') ? 'bg-green-600' : '' }}"></span>
                         Dashboard
