@@ -18,6 +18,23 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
+        
+        // Super Admin (tenant_id === null) não deve ver pedidos de outros tenants
+        if ($user->tenant_id === null) {
+            $statuses = Status::orderBy('position')->get();
+            return view('orders.index', [
+                'orders' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
+                'statuses' => $statuses,
+                'search' => null,
+                'status' => null,
+                'startDate' => null,
+                'endDate' => null,
+                'dateType' => 'created',
+                'isSuperAdmin' => true,
+            ]);
+        }
+
         $search = $request->get('search');
         $status = $request->get('status');
         $startDate = $request->get('start_date');
