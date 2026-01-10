@@ -47,6 +47,7 @@
             const isExactMatch = currentPath === linkPath;
             const isPrefixMatch = linkPath !== '/' &&
                 linkPath !== '/cash' && // /cash só é ativo com match exato
+                linkPath !== '/financeiro' && // /financeiro (Dashboard) só é ativo com match exato
                 currentPath.startsWith(linkPath + '/');
             const isActive = isExactMatch || isPrefixMatch;
 
