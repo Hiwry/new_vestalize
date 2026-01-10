@@ -55,14 +55,17 @@
             if (link.hasAttribute('data-no-js-nav')) {
                 const dot = link.querySelector('span');
                 if (isActive) {
-                    link.style.backgroundColor = '#fef3c7';
-                    link.style.color = '#d97706';
-                    link.style.fontWeight = '600';
-                    if (dot) dot.style.backgroundColor = '#d97706';
+                    // Mesma cor que o restante da sidebar (indigo/blue)
+                    link.style.backgroundColor = 'rgb(79, 70, 229)'; // bg-indigo-600
+                    link.style.color = 'white';
+                    link.style.fontWeight = '500';
+                    link.style.borderRadius = '0.375rem';
+                    if (dot) dot.style.backgroundColor = 'white';
                 } else {
                     link.style.backgroundColor = '';
                     link.style.color = '';
                     link.style.fontWeight = '';
+                    link.style.borderRadius = '';
                     if (dot) dot.style.backgroundColor = '#9ca3af';
                 }
                 return;
