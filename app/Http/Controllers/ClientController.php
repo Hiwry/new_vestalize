@@ -15,6 +15,19 @@ class ClientController extends Controller
      */
     public function index(Request $request): View
     {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        
+        // Super Admin (tenant_id === null) não deve ver clientes de outros tenants
+        if ($user->tenant_id === null) {
+            return view('clients.index', [
+                'clients' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
+                'categories' => collect([]),
+                'search' => null,
+                'category' => null,
+                'isSuperAdmin' => true,
+            ]);
+        }
+
         $search = $request->get('search');
         $category = $request->get('category');
 
