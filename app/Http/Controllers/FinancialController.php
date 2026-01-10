@@ -36,6 +36,26 @@ class FinancialController extends Controller
             $endDate = Carbon::now()->endOfYear();
         }
 
+        // Super Admin (tenant_id === null) não deve ver dados de outros tenants
+        // Retorna dashboard vazio para Super Admin
+        if ($user->tenant_id === null) {
+            return view('dashboard.financeiro', [
+                'totalRevenue' => 0,
+                'totalCost' => 0,
+                'grossProfit' => 0,
+                'profitMargin' => 0,
+                'dailyData' => collect([]),
+                'topProducts' => collect([]),
+                'itemsReport' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'period' => $period,
+                'stores' => collect([]),
+                'selectedStoreId' => null,
+                'isSuperAdmin' => true,
+            ]);
+        }
+
         // Base query conditions
         $baseQuery = OrderItem::join('orders', 'order_items.order_id', '=', 'orders.id')
             ->leftJoin('payments', 'orders.id', '=', 'payments.order_id')
@@ -47,10 +67,6 @@ class FinancialController extends Controller
         // Apply store filter if applicable
         if (!empty($storeIds)) {
             $baseQuery->whereIn('orders.store_id', $storeIds);
-        } elseif (!$selectedStoreId && !$user->isAdminGeral()) {
-             // If user is not admin geral and no store selected, limit to user's stores if any logic exists, 
-             // but StoreHelper::getStoreIds usually handles this.
-             // If manual store selection is not used, fallback to user's tenant context if implemented
         }
 
         // Metrics
