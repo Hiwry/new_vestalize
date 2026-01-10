@@ -117,7 +117,7 @@ class DashboardController extends Controller
         
         // Super Admin (tenant_id === null) não deve ver dados de outros tenants sem selecionar contexto
         if ($this->isSuperAdmin() && !$this->hasSelectedTenant()) {
-            return $this->emptySuperAdminResponse('dashboard.index', [
+            return $this->emptySuperAdminResponse('dashboard.admin-geral', [
                 'period' => 'month',
                 'startDate' => Carbon::now()->startOfMonth(),
                 'endDate' => Carbon::now()->endOfMonth(),
@@ -144,7 +144,7 @@ class DashboardController extends Controller
                 ],
                 'fluxoFinanceiro' => collect([]),
                 'resumoMensal' => collect([]),
-                'lojas' => collect([]),
+                'stores' => collect([]),
                 'selectedStoreId' => null,
             ]);
         }
