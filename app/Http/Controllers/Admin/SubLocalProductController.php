@@ -22,6 +22,12 @@ class SubLocalProductController extends Controller
 
     public function store(Request $request)
     {
+        // Converter vírgula para ponto nos campos de preço
+        $request->merge([
+            'price' => str_replace(',', '.', $request->input('price', '0')),
+            'cost' => $request->input('cost') ? str_replace(',', '.', $request->input('cost')) : null,
+        ]);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'category' => 'required|string|in:vestuario,canecas,acessorios,diversos',
@@ -30,7 +36,7 @@ class SubLocalProductController extends Controller
             'cost' => 'nullable|numeric|min:0',
             'image' => 'nullable|image|max:2048', // max 2MB
             'is_active' => 'boolean',
-            'sort_order' => 'integer',
+            'sort_order' => 'nullable|integer',
             'available_sizes' => 'nullable|array',
             'available_sizes.*' => 'string|max:10',
         ]);
@@ -44,6 +50,7 @@ class SubLocalProductController extends Controller
         $validated['requires_customization'] = $request->has('requires_customization');
         $validated['requires_size'] = $request->has('requires_size');
         $validated['available_sizes'] = $request->has('requires_size') ? $request->input('available_sizes', []) : null;
+        $validated['sort_order'] = $validated['sort_order'] ?? 0;
         
         SubLocalProduct::create($validated);
 
@@ -58,6 +65,12 @@ class SubLocalProductController extends Controller
 
     public function update(Request $request, SubLocalProduct $subLocalProduct)
     {
+        // Converter vírgula para ponto nos campos de preço
+        $request->merge([
+            'price' => str_replace(',', '.', $request->input('price', '0')),
+            'cost' => $request->input('cost') ? str_replace(',', '.', $request->input('cost')) : null,
+        ]);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'category' => 'required|string|in:vestuario,canecas,acessorios,diversos',
@@ -66,7 +79,7 @@ class SubLocalProductController extends Controller
             'cost' => 'nullable|numeric|min:0',
             'image' => 'nullable|image|max:2048',
             'is_active' => 'boolean',
-            'sort_order' => 'integer',
+            'sort_order' => 'nullable|integer',
             'available_sizes' => 'nullable|array',
             'available_sizes.*' => 'string|max:10',
         ]);
@@ -84,6 +97,7 @@ class SubLocalProductController extends Controller
         $validated['requires_customization'] = $request->has('requires_customization');
         $validated['requires_size'] = $request->has('requires_size');
         $validated['available_sizes'] = $request->has('requires_size') ? $request->input('available_sizes', []) : null;
+        $validated['sort_order'] = $validated['sort_order'] ?? 0;
         
         $subLocalProduct->update($validated);
 
