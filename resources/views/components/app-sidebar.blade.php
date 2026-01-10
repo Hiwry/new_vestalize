@@ -421,7 +421,7 @@
                     {{-- Dashboard --}}
                     <a href="{{ route('financial.dashboard') }}" 
                        data-no-js-nav
-                       class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $dashActive ? 'bg-blue-600 text-white rounded-md' : 'text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                       class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $dashActive ? 'bg-blue-600 text-white rounded-md' : 'text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
                         <span class="w-1.5 h-1.5 rounded-full mr-2 {{ $dashActive ? 'bg-white' : 'bg-gray-400' }}"></span>
                         Dashboard
                     </a>
@@ -429,7 +429,7 @@
                     {{-- Caixa --}}
                     <a href="{{ route('cash.index') }}" 
                        data-no-js-nav
-                       class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $cashActive ? 'bg-blue-600 text-white rounded-md' : 'text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                       class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $cashActive ? 'bg-blue-600 text-white rounded-md' : 'text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
                         <span class="w-1.5 h-1.5 rounded-full mr-2 {{ $cashActive ? 'bg-white' : 'bg-gray-400' }}"></span>
                         Caixa
                     </a>
@@ -437,7 +437,7 @@
                     {{-- Aprovações --}}
                     <a href="{{ route('cash.approvals.index') }}" 
                        data-no-js-nav
-                       class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $approvalsActive ? 'bg-blue-600 text-white rounded-md' : 'text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                       class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $approvalsActive ? 'bg-blue-600 text-white rounded-md' : 'text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
                         <span class="w-1.5 h-1.5 rounded-full mr-2 {{ $approvalsActive ? 'bg-white' : 'bg-gray-400' }}"></span>
                         Aprovações
                     </a>
@@ -445,7 +445,7 @@
                     {{-- Notas Emitidas --}}
                     <a href="{{ route('admin.invoices.index') }}" 
                        data-no-js-nav
-                       class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $invoicesActive ? 'bg-blue-600 text-white rounded-md' : 'text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                       class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $invoicesActive ? 'bg-blue-600 text-white rounded-md' : 'text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
                         <span class="w-1.5 h-1.5 rounded-full mr-2 {{ $invoicesActive ? 'bg-white' : 'bg-gray-400' }}"></span>
                         Notas Emitidas
                     </a>
@@ -453,7 +453,7 @@
                     {{-- Configuração NF-e --}}
                     <a href="{{ route('admin.invoice-config.edit') }}" 
                        data-no-js-nav
-                       class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $configActive ? 'bg-blue-600 text-white rounded-md' : 'text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                       class="flex items-center pl-10 pr-3 py-2 text-sm transition {{ $configActive ? 'bg-blue-600 text-white rounded-md' : 'text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800' }}">
                         <span class="w-1.5 h-1.5 rounded-full mr-2 {{ $configActive ? 'bg-white' : 'bg-gray-400' }}"></span>
                         Configuração NF-e
                     </a>
