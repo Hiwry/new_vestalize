@@ -438,6 +438,11 @@
                 return; // deixar o navegador fazer um load completo
             }
 
+            // Não usar AJAX para links marcados com data-no-js-nav (navegação normal)
+            if (link.hasAttribute('data-no-js-nav')) {
+                return; // deixar o navegador fazer um load completo
+            }
+
             // Verificar se já está na mesma URL
             const currentPath = window.location.pathname + window.location.search;
             const targetPath = url.pathname + url.search;
