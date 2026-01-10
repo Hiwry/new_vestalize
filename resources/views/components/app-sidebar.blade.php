@@ -410,11 +410,12 @@
                 
                 <div x-show="openGroups.financeiro && expanded" x-collapse x-cloak class="space-y-1 mt-1">
                     @php 
-                        $dashActive = request()->routeIs('financial.dashboard');
-                        $cashActive = request()->routeIs('cash.index');
-                        $approvalsActive = request()->routeIs('cash.approvals.*');
-                        $invoicesActive = request()->routeIs('admin.invoices.*');
-                        $configActive = request()->routeIs('admin.invoice-config.*');
+                        $currentPath = request()->path();
+                        $dashActive = ($currentPath === 'financeiro');
+                        $cashActive = ($currentPath === 'cash');
+                        $approvalsActive = str_starts_with($currentPath, 'cash/approvals');
+                        $invoicesActive = str_starts_with($currentPath, 'financeiro/nfe');
+                        $configActive = ($currentPath === 'settings/nfe');
                     @endphp
                     
                     {{-- Dashboard --}}
