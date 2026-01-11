@@ -333,6 +333,12 @@
     <script src="{{ asset('js/dark-mode.js') }}"></script>
     <!-- Side Panel (edições rápidas) -->
     <script src="{{ asset('js/side-panel.js') }}"></script>
+    <!-- Atalhos de Teclado -->
+    <script src="{{ asset('js/keyboard-shortcuts.js') }}"></script>
+    <!-- Skeleton Loaders -->
+    <script src="{{ asset('js/skeleton-loader.js') }}"></script>
+    <!-- Onboarding Tour -->
+    <script src="{{ asset('js/onboarding-tour.js') }}"></script>
     <!-- AJAX Navigation Script -->
     <script src="{{ asset('js/ajax-navigation.js') }}" defer></script>
     <!-- Paste Modal Script -->
@@ -409,14 +415,16 @@
         // Use notify() para substituir alert()
         // ============================================
         
-        function notify(message, type = 'info', duration = 5000) {
+        function notify(message, type = 'info', options = {}) {
             const container = document.getElementById('toast-container');
+            const duration = options.duration || 5000;
+            const action = options.action || null; // { label: 'Desfazer', callback: () => {} }
             
             const colors = {
                 success: 'bg-emerald-600',
                 error: 'bg-red-600',
                 warning: 'bg-amber-500',
-                info: 'bg-blue-600'
+                info: 'bg-indigo-600'
             };
             
             const icons = {
@@ -427,27 +435,57 @@
             };
             
             const toast = document.createElement('div');
-            toast.className = `${colors[type] || colors.info} text-white px-4 py-3 rounded-lg shadow-xl flex items-start gap-3 max-w-sm pointer-events-auto transform transition-all duration-300 translate-x-full opacity-0`;
+            toast.className = `${colors[type] || colors.info} text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px] max-w-sm pointer-events-auto transform transition-all duration-500 translate-y-4 opacity-0 border border-white/10`;
+            
+            let actionHtml = '';
+            if (action) {
+                actionHtml = `
+                    <button id="toast-action" class="ml-2 px-3 py-1 bg-white/20 hover:bg-white/30 rounded-lg text-xs font-bold transition-all whitespace-nowrap">
+                        ${action.label}
+                    </button>
+                `;
+            }
+
             toast.innerHTML = `
-                <i class="fa-solid ${icons[type] || icons.info} text-lg mt-0.5 shrink-0"></i>
-                <span class="text-sm flex-1">${message}</span>
-                <button onclick="this.parentElement.remove()" class="text-white/80 hover:text-white shrink-0 -mr-1">
-                    <i class="fa-solid fa-times"></i>
+                <div class="p-2 bg-white/20 rounded-xl">
+                    <i class="fa-solid ${icons[type] || icons.info} text-lg"></i>
+                </div>
+                <span class="text-sm font-medium flex-1">${message}</span>
+                ${actionHtml}
+                <button onclick="this.parentElement.remove()" class="p-1 hover:bg-white/10 rounded-lg transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             `;
             
+            if (action && action.callback) {
+                setTimeout(() => {
+                    const actionBtn = toast.querySelector('#toast-action');
+                    if (actionBtn) {
+                        actionBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            action.callback();
+                            toast.classList.add('translate-y-4', 'opacity-0');
+                            setTimeout(() => toast.remove(), 500);
+                        });
+                    }
+                }, 10);
+            }
+
             container.appendChild(toast);
             
             // Animate in
             requestAnimationFrame(() => {
-                toast.classList.remove('translate-x-full', 'opacity-0');
+                toast.classList.remove('translate-y-4', 'opacity-0');
             });
             
             // Auto remove
-            setTimeout(() => {
-                toast.classList.add('translate-x-full', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
+            const timeout = setTimeout(() => {
+                toast.classList.add('translate-y-4', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
             }, duration);
+
+            // Cancel auto-remove if user hovers
+            toast.onmouseenter = () => clearTimeout(timeout);
         }
 
         // Alias for legacy code

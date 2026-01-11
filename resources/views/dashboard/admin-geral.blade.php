@@ -70,8 +70,57 @@
     </div>
 </div>
 
+{{-- Checklist de Configuração Inicial (Apenas para novos usuários ou configuração pendente) --}}
+@php
+    $setupSteps = [
+        ['title' => 'Personalizar Marca', 'done' => auth()->user()->tenant->logo_path ? true : false, 'url' => route('settings.branding.edit'), 'icon' => 'palette'],
+        ['title' => 'Cadastrar Primeira Unidade', 'done' => \App\Models\Store::count() > 0, 'url' => route('settings.company'), 'icon' => 'store'],
+        ['title' => 'Criar Primeiro Pedido', 'done' => $totalPedidos > 0, 'url' => route('orders.index'), 'icon' => 'plus-circle'],
+    ];
+    $completedSteps = collect($setupSteps)->where('done', true)->count();
+    $totalSteps = count($setupSteps);
+    $setupFinished = $completedSteps === $totalSteps;
+@endphp
+
+@if(!$setupFinished)
+<div class="mb-8 bg-gradient-to-r from-indigo-600 to-violet-700 rounded-2xl p-6 text-white shadow-xl shadow-indigo-200 dark:shadow-none relative overflow-hidden" id="setup-checklist">
+    <!-- Decoração de fundo -->
+    <div class="absolute top-0 right-0 -transtale-y-1/2 translate-x-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+    
+    <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="flex-1">
+            <h2 class="text-xl font-bold mb-2">Bem-vindo ao Vestalize, {{ explode(' ', auth()->user()->name)[0] }}! 👋</h2>
+            <p class="text-indigo-100 mb-4 text-sm max-w-xl">Vamos deixar tudo pronto para você começar. Complete os passos abaixo para configurar sua conta.</p>
+            
+            <!-- Barra de Progresso -->
+            <div class="flex items-center gap-4 mb-2">
+                <div class="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
+                    <div class="h-full bg-white transition-all duration-500" style="width: {{ ($completedSteps / $totalSteps) * 100 }}%"></div>
+                </div>
+                <span class="text-xs font-bold">{{ $completedSteps }}/{{ $totalSteps }} Concluídos</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            @foreach($setupSteps as $step)
+            <a href="{{ $step['url'] }}" class="flex items-center gap-3 p-3 rounded-xl bg-white/10 hover:bg-white/20 transition group {{ $step['done'] ? 'opacity-60' : '' }}">
+                <div class="h-8 w-8 rounded-lg flex items-center justify-center {{ $step['done'] ? 'bg-green-400 text-white' : 'bg-white/20 text-white' }}">
+                    @if($step['done'])
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                    @else
+                        <i class="fa-solid fa-{{ $step['icon'] }} text-sm"></i>
+                    @endif
+                </div>
+                <span class="text-sm font-medium {{ $step['done'] ? 'line-through decoration-white/50' : '' }}">{{ $step['title'] }}</span>
+            </a>
+            @endforeach
+        </div>
+    </div>
+</div>
+@endif
+
 <!-- Grid de KPIs Principais -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 widget-container" data-dashboard-widgets>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 widget-container" data-dashboard-widgets id="kpi-grid">
     <!-- Total de Pedidos -->
     <div class="group bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
         <div class="flex items-start justify-between">
