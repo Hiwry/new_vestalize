@@ -81,6 +81,18 @@
                     </div>
                 </a>
 
+                <a href="{{ route('admin.audit.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition border-2 border-dashed border-indigo-200 dark:border-indigo-900/50">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Auditoria</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Logs de atividade</p>
+                        </div>
+                    </div>
+                </a>
+
                 <a href="{{ route('settings.company') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
                     <div class="flex items-center space-x-3">
                         <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
