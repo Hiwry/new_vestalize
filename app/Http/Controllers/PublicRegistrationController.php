@@ -34,12 +34,11 @@ class PublicRegistrationController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'password' => 'required|string|min:8|confirmed',
+            'plan_id' => 'required|exists:plans,id',
         ]);
 
-        // 1. Criar o Tenant (Forçar Plano Básico e 7 Dias de Teste)
-        $basicPlan = \App\Models\Plan::where('name', 'Plano Basico')->first();
-        $planId = $basicPlan ? $basicPlan->id : 1; // Fallback para ID 1 se não encontrar
+        // 1. Criar o Tenant com o Plano selecionado pelo usuário e 7 Dias de Teste
+        $planId = $request->plan_id;
 
         $tenant = Tenant::create([
             'name' => $request->company_name,
