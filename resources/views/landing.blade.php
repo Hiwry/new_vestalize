@@ -338,7 +338,7 @@
                     </p>
                 </div>
 
-                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 pt-4">
                     <!-- Plano Start -->
                     <div class="bg-white rounded-2xl p-6 card-hover border border-gray-200 flex flex-col">
                         <div class="mb-6">
