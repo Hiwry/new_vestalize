@@ -14,6 +14,7 @@ use App\Models\StockHistory;
 use App\Helpers\StoreHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -266,47 +267,53 @@ class DashboardController extends Controller
         }
         $totalClientes = $clientQuery->count();
         
-        // Pedidos por status (otimizado com join)
-        // Nota: precisamos clonar a query base mas remover o whereBetween para aplicar manualmente
-        // porque o join pode causar ambiguidade na coluna created_at
-        $pedidosPorStatusQuery = Order::where('orders.is_draft', false)
-            ->whereBetween('orders.created_at', [$startDate, $endDate]);
-        $this->applyFilters($pedidosPorStatusQuery, $selectedStoreId);
-        $pedidosPorStatus = $pedidosPorStatusQuery
-            ->join('statuses', 'orders.status_id', '=', 'statuses.id')
-            ->select('statuses.id', 'statuses.name', 'statuses.color', DB::raw('count(*) as total'))
-            ->groupBy('statuses.id', 'statuses.name', 'statuses.color')
-            ->get()
-            ->map(function($item) {
-                return [
-                    'status' => $item->name ?? 'Sem Status',
-                    'color' => $item->color ?? '#9ca3af',
-                    'total' => (int)($item->total ?? 0)
-                ];
-            });
-
-        // Faturamento diário (últimos 30 dias do período selecionado) - apenas aprovados pelo caixa
-        $faturamentoDiarioStart = $endDate->copy()->subDays(30);
-        if ($faturamentoDiarioStart->lt($startDate)) {
-            $faturamentoDiarioStart = $startDate->copy();
-        }
+        // Cache Key baseada nos filtros
+        $cacheKey = "dashboard_stats_" . Auth::user()->id . "_" . ($selectedStoreId ?? 'all') . "_" . $period;
+        $cacheTime = 600; // 10 minutos
         
-        $faturamentoDiarioQuery = Order::where('orders.is_draft', false)
-            ->whereBetween('orders.created_at', [$faturamentoDiarioStart, $endDate])
-            ->whereHas('payment', function($q) {
-                $q->where('cash_approved', true)
-                  ->where('remaining_amount', 0);
-            });
-        $this->applyFilters($faturamentoDiarioQuery, $selectedStoreId);
-        $faturamentoDiario = $faturamentoDiarioQuery
-            ->select(
-                DB::raw('DATE(orders.created_at) as dia'),
-                DB::raw('SUM(orders.total) as total'),
-                DB::raw('COUNT(*) as quantidade')
-            )
-            ->groupBy(DB::raw('DATE(orders.created_at)'))
-            ->orderBy('dia', 'asc')
-            ->get();
+        // Pedidos por status (otimizado com join)
+        $pedidosPorStatus = Cache::remember($cacheKey . "_status", $cacheTime, function() use ($startDate, $endDate, $selectedStoreId) {
+            $pedidosPorStatusQuery = Order::where('orders.is_draft', false)
+                ->whereBetween('orders.created_at', [$startDate, $endDate]);
+            $this->applyFilters($pedidosPorStatusQuery, $selectedStoreId);
+            return $pedidosPorStatusQuery
+                ->join('statuses', 'orders.status_id', '=', 'statuses.id')
+                ->select('statuses.id', 'statuses.name', 'statuses.color', DB::raw('count(*) as total'))
+                ->groupBy('statuses.id', 'statuses.name', 'statuses.color')
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'status' => $item->name ?? 'Sem Status',
+                        'color' => $item->color ?? '#9ca3af',
+                        'total' => (int)($item->total ?? 0)
+                    ];
+                });
+        });
+
+        // Faturamento diário (últimos 30 dias do período selecionado)
+        $faturamentoDiario = Cache::remember($cacheKey . "_faturamento_diario", $cacheTime, function() use ($startDate, $endDate, $selectedStoreId) {
+            $faturamentoDiarioStart = $endDate->copy()->subDays(30);
+            if ($faturamentoDiarioStart->lt($startDate)) {
+                $faturamentoDiarioStart = $startDate->copy();
+            }
+            
+            $faturamentoDiarioQuery = Order::where('orders.is_draft', false)
+                ->whereBetween('orders.created_at', [$faturamentoDiarioStart, $endDate])
+                ->whereHas('payment', function($q) {
+                    $q->where('cash_approved', true)
+                      ->where('remaining_amount', 0);
+                });
+            $this->applyFilters($faturamentoDiarioQuery, $selectedStoreId);
+            return $faturamentoDiarioQuery
+                ->select(
+                    DB::raw('DATE(orders.created_at) as dia'),
+                    DB::raw('SUM(orders.total) as total'),
+                    DB::raw('COUNT(*) as quantidade')
+                )
+                ->groupBy(DB::raw('DATE(orders.created_at)'))
+                ->orderBy('dia', 'asc')
+                ->get();
+        });
 
         // Pedidos e vendas recentes (incluindo vendas do PDV)
         $pedidosRecentes = (clone $baseQuery)

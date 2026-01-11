@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class VipListConfirmed extends Mailable
+class VipListConfirmed extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

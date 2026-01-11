@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/img/icons/icon-192x192.png">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
@@ -508,6 +511,17 @@
             }
             notify(message, type);
         };
+
+        // --- PWA Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(reg => {
+                    console.log('VESTALIZE: PWA Service Worker registrado com sucesso.');
+                }).catch(err => {
+                    console.log('VESTALIZE: Falha ao registrar Service Worker PWA.', err);
+                });
+            });
+        }
     </script>
 
     @stack('scripts')

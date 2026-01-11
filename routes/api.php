@@ -238,3 +238,52 @@ Route::get('/sublimation-total/price/{type}/{quantity}', function (Request $requ
         'price' => $price ?? 0,
     ]);
 })->withoutMiddleware(['web']);
+
+// =============================================
+// API V1 - MOBILE & INTEGRATIONS
+// =============================================
+Route::prefix('v1')->group(function () {
+    
+    // Autenticação Mobile (Token)
+    Route::post('/login', function (Request $request) {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+            'device_name' => 'required',
+        ]);
+
+        $user = \App\Models\User::where('email', $request->email)->first();
+
+        if (! $user || !\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Credenciais inválidas'], 401);
+        }
+
+        return response()->json([
+            'token' => $user->createToken($request->device_name)->plainTextToken,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'tenant_id' => $user->tenant_id
+            ]
+        ]);
+    });
+
+    // Rotas Protegidas
+    Route::middleware('auth:sanctum')->group(function () {
+        // Pedidos
+        Route::get('/orders', [\App\Http\Controllers\Api\V1\OrderController::class, 'index']);
+        Route::get('/orders/{id}', [\App\Http\Controllers\Api\V1\OrderController::class, 'show']);
+        Route::patch('/orders/{id}/status', [\App\Http\Controllers\Api\V1\OrderController::class, 'updateStatus']);
+        
+        // Dashboard Stats (Útil para Mobile)
+        Route::get('/dashboard/stats', function () {
+            $user = Auth::user();
+            return response()->json([
+                'total_orders' => \App\Models\Order::where('tenant_id', $user->tenant_id)->count(),
+                'pending_orders' => \App\Models\Order::where('tenant_id', $user->tenant_id)->where('status_id', 1)->count(), // Exemplo
+                'monthly_revenue' => 0, // Implementar logica real se necessário
+            ]);
+        });
+    });
+});
