@@ -4,6 +4,15 @@
 <style>
     [x-cloak] { display: none !important; }
     
+    /* Hide scrollbar for horizontal scroll on mobile */
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    
     /* Custom Scrollbar for Calendar Events */
     .custom-scrollbar::-webkit-scrollbar {
         width: 4px;
@@ -272,24 +281,24 @@
         </div>
 
         <!-- Barra de Busca e Filtros -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6 mb-6">
-            <form method="GET" action="{{ route('kanban.index') }}" class="space-y-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-4 md:p-6 mb-4 md:mb-6">
+            <form method="GET" action="{{ route('kanban.index') }}" class="space-y-3 md:space-y-4">
                 <!-- Busca -->
-                <div class="flex gap-3">
+                <div class="flex gap-2 md:gap-3">
                     <div class="flex-1">
                         <input type="text" 
                                name="search" 
                                id="search-input"
                                value="{{ $search ?? '' }}"
-                               placeholder="Buscar por nº do pedido (ex: 28 ou 000028), nome do cliente, telefone ou nome da arte..."
-                               class="w-full px-4 py-2.5 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                               placeholder="Buscar por nº do pedido..." 
+                               class="w-full px-3 md:px-4 py-2 md:py-2.5 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition text-sm md:text-base">
                     </div>
                     <button type="submit" 
-                            class="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 whitespace-nowrap font-semibold transition shadow-md hover:shadow-lg flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="px-4 md:px-6 py-2 md:py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 whitespace-nowrap font-semibold transition shadow-md hover:shadow-lg flex items-center gap-1 md:gap-2 text-sm md:text-base">
+                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
-                        Buscar
+                        <span class="hidden sm:inline">Buscar</span>
                     </button>
                 </div>
                 
@@ -442,17 +451,17 @@
         </div>
         @endif
 
-        <div x-show="view === 'kanban'" class="kanban-board flex gap-4 overflow-x-auto pb-4">
+        <div x-show="view === 'kanban'" class="kanban-board flex gap-3 md:gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
             @foreach($statuses as $status)
-                <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex-shrink-0 overflow-hidden shadow-sm" style="min-width: 320px; max-width: 320px;">
-                    <div class="px-4 py-3 font-semibold flex justify-between items-center text-white" 
+                <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex-shrink-0 overflow-hidden shadow-sm snap-start" style="min-width: 280px; max-width: 280px;">
+                    <div class="px-3 md:px-4 py-2 md:py-3 font-semibold flex justify-between items-center text-white text-sm md:text-base" 
                          style="background-color: {{ $status->color }};">
-                        <span>{{ $status->name }}</span>
-                        <span class="bg-white/20 px-2 py-1 rounded-full text-xs">
+                        <span class="truncate">{{ $status->name }}</span>
+                        <span class="bg-white/20 px-2 py-0.5 md:py-1 rounded-full text-xs shrink-0 ml-2">
                             {{ ($ordersByStatus[$status->id] ?? collect())->count() }}
                         </span>
                     </div>
-                    <div class="kanban-column p-3 space-y-3 overflow-y-auto bg-gray-50 dark:bg-gray-900/50" style="height: calc(100vh - 300px); max-height: 800px;" data-status-id="{{ $status->id }}">
+                    <div class="kanban-column p-2 md:p-3 space-y-2 md:space-y-3 overflow-y-auto bg-gray-50 dark:bg-gray-900/50" style="height: calc(100vh - 350px); max-height: 600px;" data-status-id="{{ $status->id }}">
                         @foreach(($ordersByStatus[$status->id] ?? collect()) as $order)
                             @php
                                 $firstItem = $order->items->first();
@@ -488,14 +497,13 @@
                                  data-order-id="{{ $order->id }}"
                                  onclick="event.stopPropagation(); if(typeof openOrderModal === 'function') { openOrderModal({{ $order->id }}); }">
                                 
-                                <!-- Imagem de Capa -->
+                                {{-- Imagem de Capa - Menor no mobile --}}
                                 @if($coverImage)
-                                <div class="h-48 bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                                <div class="h-32 md:h-40 bg-gray-200 dark:bg-gray-700 overflow-hidden">
                                     <img src="{{ $coverImage }}" 
                                          alt="Capa do Pedido" 
-                                         class="w-full h-48 object-cover"
-                                         style="object-fit: cover; object-position: center;"
-                                         onerror="this.parentElement.innerHTML='<div class=\'h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center\'><svg class=\'w-12 h-12 text-white opacity-50\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg></div>'">
+                                         class="w-full h-full object-cover"
+                                         onerror="this.parentElement.innerHTML='<div class=\'h-32 md:h-40 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center\'><svg class=\'w-10 h-10 text-white opacity-50\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg></div>'">
                                 </div>
                                 @else
                                 <div class="h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">

@@ -36,46 +36,46 @@
         </div>
 
         <div class="grid lg:grid-cols-4 gap-6">
-            <!-- Catálogo de Produtos (3 colunas) -->
+            {{-- Catálogo de Produtos (3 colunas no desktop, full no mobile) --}}
             <div class="lg:col-span-3">
-                <div class="flex gap-3 mb-6 overflow-x-auto pb-2">
-                    <button class="category-btn active px-5 py-2.5 bg-indigo-600 text-white rounded-full font-medium whitespace-nowrap transition" data-category="all">
+                <div class="flex gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+                    <button class="category-btn active px-4 py-2 md:px-5 md:py-2.5 bg-indigo-600 text-white rounded-full font-medium whitespace-nowrap transition text-sm md:text-base" data-category="all">
                         Todos
                     </button>
-                    <button class="category-btn px-5 py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition" data-category="vestuario">
+                    <button class="category-btn px-4 py-2 md:px-5 md:py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition text-sm md:text-base" data-category="vestuario">
                         Vestuário
                     </button>
-                    <button class="category-btn px-5 py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition" data-category="canecas">
+                    <button class="category-btn px-4 py-2 md:px-5 md:py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition text-sm md:text-base" data-category="canecas">
                         Canecas
                     </button>
-                    <button class="category-btn px-5 py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition" data-category="acessorios">
+                    <button class="category-btn px-4 py-2 md:px-5 md:py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition text-sm md:text-base" data-category="acessorios">
                         Acessórios
                     </button>
-                    <button class="category-btn px-5 py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition" data-category="diversos">
+                    <button class="category-btn px-4 py-2 md:px-5 md:py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition text-sm md:text-base" data-category="diversos">
                         Diversos
                     </button>
                 </div>
 
-                <!-- Grid de Produtos -->
-                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4" id="products-grid">
+                {{-- Grid de Produtos - Mais compacto no mobile --}}
+                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 pb-32 lg:pb-0" id="products-grid">
                     
                     @foreach($products as $product)
-                    <!-- Product Card -->
-                    <div class="product-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-indigo-500 transition-all group shadow-sm border border-gray-200 dark:border-gray-700" 
+                    {{-- Product Card --}}
+                    <div class="product-card bg-white dark:bg-gray-800 rounded-xl md:rounded-2xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-indigo-500 transition-all group shadow-sm border border-gray-200 dark:border-gray-700" 
                          data-category="{{ $product->category }}" data-id="{{ $product->id }}" data-name="{{ $product->name }}" data-price="{{ $product->price }}" 
                          data-requires-customization="{{ $product->requires_customization ? 'true' : 'false' }}">
-                        <div class="aspect-square bg-gray-100 dark:bg-gradient-to-br dark:from-gray-700 dark:to-gray-800 p-4 flex items-center justify-center relative">
+                        <div class="aspect-square bg-gray-100 dark:bg-gradient-to-br dark:from-gray-700 dark:to-gray-800 p-2 md:p-4 flex items-center justify-center relative">
                             @if($product->image)
                                 <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                             @else
-                                <svg class="w-20 h-20 text-gray-400 dark:text-gray-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-12 h-12 md:w-20 md:h-20 text-gray-400 dark:text-gray-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
                             @endif
                         </div>
-                        <div class="p-4">
-                            <h3 class="text-gray-900 dark:text-white font-bold text-lg truncate">{{ $product->name }}</h3>
-                            <p class="text-indigo-600 dark:text-indigo-400 font-bold text-xl mt-1">R$ {{ number_format($product->price, 2, ',', '.') }}</p>
+                        <div class="p-2 md:p-4">
+                            <h3 class="text-gray-900 dark:text-white font-bold text-sm md:text-lg truncate">{{ $product->name }}</h3>
+                            <p class="text-indigo-600 dark:text-indigo-400 font-bold text-base md:text-xl mt-0.5 md:mt-1">R$ {{ number_format($product->price, 2, ',', '.') }}</p>
                         </div>
                     </div>
                     @endforeach
@@ -83,7 +83,8 @@
                 </div>
             </div>
 
-            <div class="lg:col-span-1">
+            {{-- Carrinho Lateral (Desktop Only) --}}
+            <div class="hidden lg:block lg:col-span-1">
                 <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 sticky top-6 shadow-sm border border-gray-200 dark:border-gray-700">
                     <h2 class="text-gray-900 dark:text-white font-bold text-xl mb-4 flex items-center gap-2">
                         <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,7 +93,7 @@
                         Carrinho
                     </h2>
 
-                    <!-- Lista de Itens -->
+                    {{-- Lista de Itens --}}
                     <div id="cart-items" class="space-y-3 max-h-[50vh] overflow-y-auto mb-4">
                         <div id="empty-cart" class="text-center py-8 text-gray-400 dark:text-gray-500">
                             <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,7 +103,7 @@
                         </div>
                     </div>
 
-                    <!-- Totais -->
+                    {{-- Totais --}}
                     <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
                         <div class="flex justify-between text-gray-500 dark:text-gray-400">
                             <span>Subtotal</span>
@@ -114,7 +115,7 @@
                         </div>
                     </div>
 
-                    <!-- Botão Continuar -->
+                    {{-- Botão Continuar --}}
                     <button id="btn-continue" disabled
                             class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                         Continuar
@@ -122,8 +123,28 @@
                 </div>
             </div>
         </div>
+
+        {{-- Mobile Cart Sticky Footer --}}
+        <div class="lg:hidden fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-3 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+            <div class="flex items-center justify-between gap-3">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <span id="mobile-cart-count-text">0 itens</span>
+                    </div>
+                    <p class="text-lg font-bold text-gray-900 dark:text-white" id="mobile-cart-total">R$ 0,00</p>
+                </div>
+                <button id="btn-continue-mobile" disabled
+                        class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                    Continuar →
+                </button>
+            </div>
+        </div>
     </div>
 </div>
+
 
 <!-- Modal de Quantidade -->
 <div id="quantity-modal" class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center">
@@ -253,8 +274,14 @@ document.addEventListener('DOMContentLoaded', function() {
         closeModal();
     });
 
-    // Continue button
-    document.getElementById('btn-continue').addEventListener('click', function() {
+    // Continue button (desktop)
+    document.getElementById('btn-continue').addEventListener('click', handleContinue);
+    
+    // Continue button (mobile)
+    const btnMobile = document.getElementById('btn-continue-mobile');
+    if (btnMobile) btnMobile.addEventListener('click', handleContinue);
+    
+    function handleContinue() {
         if (cart.length === 0) return;
 
         // Check if ANY item in cart requires customization
@@ -286,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error:', error);
         });
-    });
+    }
 
     function openModal() {
         modal.classList.remove('hidden');
@@ -310,22 +337,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const container = document.getElementById('cart-items');
         const emptyState = document.getElementById('empty-cart');
         const btnContinue = document.getElementById('btn-continue');
+        const btnContinueMobile = document.getElementById('btn-continue-mobile');
+        const mobileCountText = document.getElementById('mobile-cart-count-text');
+        const mobileTotal = document.getElementById('mobile-cart-total');
 
         if (cart.length === 0) {
             emptyState.style.display = 'block';
             btnContinue.disabled = true;
+            if (btnContinueMobile) btnContinueMobile.disabled = true;
         } else {
             emptyState.style.display = 'none';
             btnContinue.disabled = false;
+            if (btnContinueMobile) btnContinueMobile.disabled = false;
         }
 
         // Remove old items (keep empty state)
         container.querySelectorAll('.cart-item').forEach(el => el.remove());
 
         let total = 0;
+        let totalItems = 0;
         cart.forEach((item, index) => {
             const itemTotal = item.price * item.quantity;
             total += itemTotal;
+            totalItems += item.quantity;
 
             const itemEl = document.createElement('div');
             itemEl.className = 'cart-item bg-gray-700/50 rounded-xl p-3 flex items-center gap-3';
@@ -346,6 +380,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById('cart-subtotal').textContent = formatCurrency(total);
         document.getElementById('cart-total').textContent = formatCurrency(total);
+        
+        // Update mobile footer
+        if (mobileCountText) mobileCountText.textContent = totalItems + (totalItems === 1 ? ' item' : ' itens');
+        if (mobileTotal) mobileTotal.textContent = formatCurrency(total);
     }
 
     window.removeFromCart = function(index) {
