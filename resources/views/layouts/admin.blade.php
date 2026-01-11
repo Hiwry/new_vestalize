@@ -366,8 +366,12 @@
         </div>
     </div>
 
+    <!-- Mobile Bottom Navigation -->
+    @include('components.mobile-bottom-nav')
+
     <!-- Notificações Flutuantes -->
     @include('components.notifications-bell')
+
 
     <!-- Scripts -->
     <script>

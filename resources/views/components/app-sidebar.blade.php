@@ -67,7 +67,9 @@
             });
         }
     }"
-    @keydown.escape.window="showProfileModal = false; mobileOpen = false">
+    @keydown.escape.window="showProfileModal = false; mobileOpen = false"
+    @toggle-sidebar.window="toggle()">
+
 
 <!-- Barra Mobile Superior com botão único -->
 <!-- Barra Mobile Superior Suave (Neutral BG + Indigo Button) -->
