@@ -230,8 +230,19 @@ class SidePanel {
     }
 }
 
-// Criar instância global padrão do Side Panel
-window.sidePanel = new SidePanel({ position: 'right', width: '500px' });
+// Criar instância global padrão do Side Panel quando DOM estiver pronto
+function initSidePanel() {
+    if (!window.sidePanel) {
+        window.sidePanel = new SidePanel({ position: 'right', width: '500px' });
+    }
+}
+
+// Verificar se DOM já está pronto ou aguardar
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSidePanel);
+} else {
+    initSidePanel();
+}
 
 // CSS adicional para o Side Panel
 const sidePanelStyles = document.createElement('style');
@@ -422,10 +433,26 @@ sidePanelStyles.textContent = `
         border-color: rgba(252, 165, 165, 0.3);
     }
 `;
-document.head.appendChild(sidePanelStyles);
+
+// Adicionar CSS ao head de forma segura
+function appendSidePanelStyles() {
+    if (document.head) {
+        document.head.appendChild(sidePanelStyles);
+    } else {
+        document.addEventListener('DOMContentLoaded', () => {
+            document.head.appendChild(sidePanelStyles);
+        });
+    }
+}
+appendSidePanelStyles();
 
 // Função utilitária para abrir side panel com URL (carregar conteúdo via AJAX)
 async function openSidePanelFromUrl(url, title = 'Editar') {
+    // Garantir que sidePanel está inicializado
+    if (!window.sidePanel) {
+        initSidePanel();
+    }
+
     window.sidePanel.setLoading(true);
     window.sidePanel.open({ title });
 
