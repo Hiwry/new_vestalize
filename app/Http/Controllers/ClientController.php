@@ -35,7 +35,8 @@ class ClientController extends Controller
         $search = $request->get('search');
         $category = $request->get('category');
 
-        $query = Client::withCount(['orders' => function($q) {
+        $query = Client::with('store')
+        ->withCount(['orders' => function($q) {
             $q->where('is_draft', false);
         }])
         ->withSum(['orders as total_spent' => function($q) {

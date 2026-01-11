@@ -44,6 +44,7 @@ class OrderController extends Controller
 
         $query = Order::with([
             'client', 
+            'status',
             'items.sublimations.location', 
             'items.sublimations', 
             'user', 

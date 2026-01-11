@@ -2,70 +2,83 @@
 
 namespace App\Observers;
 
-use App\Models\Order;
+use App\Models\ActivityLog;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class AuditObserver
 {
     /**
-     * Handle the Order "created" event.
+     * Handle the Model "created" event.
      */
-    public function created(Order $order): void
+    public function created(Model $model): void
     {
-        $this->logActivity('pedido_criado', $order, "Novo pedido/orçamento criado: #{$order->id}");
+        $this->logActivity('created', $model, "Novo registro criado em " . class_basename($model));
     }
 
     /**
-     * Handle the Order "updated" event.
+     * Handle the Model "updated" event.
      */
-    public function updated(Order $order): void
+    public function updated(Model $model): void
     {
-        $dirty = $order->getDirty();
+        $dirty = $model->getDirty();
         
         if (count($dirty) > 0) {
             $changes = [];
             foreach ($dirty as $key => $value) {
-                // Ignorar timestamp updated_at
                 if ($key === 'updated_at') continue;
                 
-                $oldValue = $order->getOriginal($key);
-                $changes[] = "{$key}: {$oldValue} -> {$value}";
+                $oldValue = $model->getOriginal($key);
+                $changes[$key] = [
+                    'old' => $oldValue,
+                    'new' => $value
+                ];
             }
 
             if (count($changes) > 0) {
-                $description = "Pedido #{$order->id} atualizado: " . implode(', ', $changes);
-                $this->logActivity('pedido_atualizado', $order, $description);
+                $description = class_basename($model) . " #{$model->id} atualizado.";
+                $this->logActivity('updated', $model, $description, $changes);
             }
         }
     }
 
     /**
-     * Handle the Order "deleted" event.
+     * Handle the Model "deleted" event.
      */
-    public function deleted(Order $order): void
+    public function deleted(Model $model): void
     {
-        $this->logActivity('pedido_excluido', $order, "Pedido #{$order->id} excluído permanentemente.");
+        $this->logActivity('deleted', $model, class_basename($model) . " #{$model->id} excluído.");
     }
 
     /**
-     * Helper para registrar atividade
+     * Helper para registrar atividade no banco e arquivo
      */
-    protected function logActivity($type, $model, $description)
+    protected function logActivity($event, Model $model, $description, $properties = null)
     {
         $user = Auth::user();
-        $userName = $user ? $user->name : 'Sistema';
-        $userId = $user ? $user->id : 0;
+        $tenantId = $user->tenant_id ?? (method_exists($model, 'tenant_id') ? $model->tenant_id : null);
 
-        // Log estruturado em arquivo
-        Log::channel('audit')->info("AUDIT: [{$type}] por {$userName} ({$userId})", [
-            'model' => get_class($model),
-            'model_id' => $model->id,
+        // 1. Salvar no Banco de Dados (Principal)
+        ActivityLog::create([
+            'log_name' => 'audit',
             'description' => $description,
-            'ip' => request()->ip(),
-            'user_agent' => request()->userAgent()
+            'subject_id' => $model->id,
+            'subject_type' => get_class($model),
+            'causer_id' => $user ? $user->id : null,
+            'causer_type' => $user ? get_class($user) : null,
+            'properties' => $properties,
+            'event' => $event,
+            'tenant_id' => $tenantId,
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
         ]);
 
-        // Aqui poderíamos também salvar em uma tabela `activity_logs` no banco
+        // 2. Backup em arquivo (Canal Audit)
+        Log::channel('audit')->info("AUDIT: [{$event}] em " . class_basename($model) . " #{$model->id}", [
+            'causer' => $user ? $user->name : 'Sistema',
+            'description' => $description,
+            'properties' => $properties
+        ]);
     }
 }

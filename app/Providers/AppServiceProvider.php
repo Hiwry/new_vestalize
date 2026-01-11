@@ -26,9 +26,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Registrar Observers para Pedidos
+        // Registrar Observers para Pedidos e Auditoria Global
         Order::observe(OrderObserver::class);
         Order::observe(AuditObserver::class);
+        
+        \App\Models\Client::observe(AuditObserver::class);
+        \App\Models\Payment::observe(AuditObserver::class);
+        \App\Models\CashTransaction::observe(AuditObserver::class);
+        \App\Models\User::observe(AuditObserver::class);
+        \App\Models\Store::observe(AuditObserver::class);
+        \App\Models\Tenant::observe(AuditObserver::class);
         
         if ($this->app->environment('production')) {
             URL::forceScheme('https');

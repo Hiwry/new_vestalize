@@ -64,6 +64,12 @@ Route::middleware('auth')->group(function () {
     Route::put('/settings/company', [\App\Http\Controllers\SettingsController::class, 'updateCompany'])->name('settings.company.update');
     Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
     
+    // Auditoria e Logs de Atividade
+    Route::prefix('admin/audit')->name('admin.audit.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('index');
+        Route::get('/{id}/details', [\App\Http\Controllers\Admin\AuditLogController::class, 'show'])->name('show');
+    });
+    
     // Personalização de Marca (White-labeling)
     Route::get('/settings/branding', [\App\Http\Controllers\TenantBrandingController::class, 'edit'])->name('settings.branding.edit')->middleware('plan:branding');
     Route::post('/settings/branding', [\App\Http\Controllers\TenantBrandingController::class, 'update'])->name('settings.branding.update')->middleware('plan:branding');

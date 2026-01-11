@@ -547,6 +547,10 @@
                          <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('admin/users*') ? 'bg-purple-600' : '' }}"></span>
                         Usuários
                     </a>
+                    <a href="{{ route('admin.audit.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                         <span class="w-1.5 h-1.5 rounded-full bg-red-400 mr-2 {{ request()->is('admin/audit*') ? 'bg-red-600' : '' }}"></span>
+                        Auditoria
+                    </a>
                     @endif
                 </div>
             </div>
