@@ -331,6 +331,8 @@
     
     <!-- Dark Mode Script -->
     <script src="{{ asset('js/dark-mode.js') }}"></script>
+    <!-- Side Panel (edições rápidas) -->
+    <script src="{{ asset('js/side-panel.js') }}"></script>
     <!-- AJAX Navigation Script -->
     <script src="{{ asset('js/ajax-navigation.js') }}" defer></script>
     <!-- Paste Modal Script -->
