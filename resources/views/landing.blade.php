@@ -531,8 +531,8 @@
                 <div>
                     <h4 class="font-bold text-gray-900 mb-4">Legal</h4>
                     <ul class="space-y-3">
-                        <li><a href="{{ route('privacy') ?? '#' }}" class="text-gray-600 hover:text-violet-600 transition-colors">Privacidade</a></li>
-                        <li><a href="{{ route('terms') ?? '#' }}" class="text-gray-600 hover:text-violet-600 transition-colors">Termos de Uso</a></li>
+                        <li><a href="{{ route('privacy.show') }}" class="text-gray-600 hover:text-violet-600 transition-colors">Privacidade</a></li>
+                        <li><a href="{{ route('terms.show') }}" class="text-gray-600 hover:text-violet-600 transition-colors">Termos de Uso</a></li>
                     </ul>
                 </div>
             </div>
