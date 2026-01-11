@@ -725,16 +725,17 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 flex flex-col h-[calc(100vh-250px)] min-h-[600px] p-4">
                 
                 <!-- Cabeçalho do Calendário -->
-                <div class="flex items-center justify-between mb-4 border-b border-gray-200 dark:border-gray-700 pb-4">
-                    <div class="flex items-center gap-4">
-                        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 capitalize" x-text="currentMonthName"></h2>
-                        <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mb-4 border-b border-gray-200 dark:border-gray-700 pb-4 gap-4">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <h2 class="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight" 
+                            x-text="currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1)"></h2>
+                        <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1 shrink-0">
                             <button @click="prev()" class="p-1 hover:bg-white dark:hover:bg-gray-600 rounded-md transition-colors">
                                 <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                                 </svg>
                             </button>
-                            <button @click="goToToday()" class="px-3 py-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                            <button @click="goToToday()" class="px-2 md:px-3 py-1 text-xs md:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
                                 Hoje
                             </button>
                             <button @click="next()" class="p-1 hover:bg-white dark:hover:bg-gray-600 rounded-md transition-colors">
@@ -749,26 +750,26 @@
                     <div class="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
                         <button @click="calendarView = 'month'" 
                                 :class="{ 'bg-white dark:bg-gray-600 shadow-sm text-gray-900 dark:text-white': calendarView === 'month', 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300': calendarView !== 'month' }"
-                                class="px-3 py-1.5 text-sm font-medium rounded-md transition-all">
+                                class="flex-1 sm:flex-none px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all min-w-[60px]">
                             Mês
                         </button>
                         <button @click="calendarView = 'week'" 
                                 :class="{ 'bg-white dark:bg-gray-600 shadow-sm text-gray-900 dark:text-white': calendarView === 'week', 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300': calendarView !== 'week' }"
-                                class="px-3 py-1.5 text-sm font-medium rounded-md transition-all">
+                                class="flex-1 sm:flex-none px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all min-w-[70px]">
                             Semana
                         </button>
                         <button @click="calendarView = 'day'" 
                                 :class="{ 'bg-white dark:bg-gray-600 shadow-sm text-gray-900 dark:text-white': calendarView === 'day', 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300': calendarView !== 'day' }"
-                                class="px-3 py-1.5 text-sm font-medium rounded-md transition-all">
+                                class="flex-1 sm:flex-none px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all min-w-[60px]">
                             Dia
                         </button>
                     </div>
                 </div>
 
                 <!-- Dias da Semana (Header) - Hide on Day view -->
-                <div x-show="calendarView !== 'day'" class="grid grid-cols-7 mb-2 border-b border-gray-200 dark:border-gray-700">
-                    <template x-for="day in ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB']">
-                        <div class="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 py-2" x-text="day"></div>
+                <div x-show="calendarView !== 'day'" class="grid grid-cols-7 mb-1 border-b border-gray-200 dark:border-gray-700">
+                    <template x-for="day in ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']">
+                        <div class="text-center text-[10px] sm:text-xs font-bold text-gray-400 dark:text-gray-500 py-1 sm:py-2" x-text="day"></div>
                     </template>
                 </div>
 
@@ -776,15 +777,15 @@
                 <div class="grid gap-px bg-gray-200 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden flex-1"
                      :class="{ 'grid-cols-7': calendarView !== 'day', 'grid-cols-1': calendarView === 'day' }">
                     <template x-for="day in calendarDays" :key="day.date.toISOString()">
-                        <div class="bg-white dark:bg-gray-800 p-2 transition-colors relative group overflow-hidden flex flex-col"
+                        <div class="bg-white dark:bg-gray-800 p-1 sm:p-2 transition-colors relative group overflow-hidden flex flex-col"
                              :class="{ 
                                 'bg-gray-50 dark:bg-gray-800/50 text-gray-400': !day.isCurrentMonth && calendarView === 'month',
                                 'bg-blue-50/30 dark:bg-blue-900/10': day.isToday
                              }">
                              
                             <!-- Data -->
-                            <div class="flex items-center justify-between mb-2 flex-shrink-0">
-                                <span class="text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full"
+                            <div class="flex items-center justify-between mb-1 sm:mb-2 flex-shrink-0">
+                                <span class="text-xs sm:text-sm font-medium w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full"
                                       :class="{ 
                                         'bg-blue-600 text-white': day.isToday,
                                         'text-gray-700 dark:text-gray-300': !day.isToday && (day.isCurrentMonth || calendarView !== 'month'),
@@ -796,16 +797,16 @@
                             </div>
 
                             <!-- Eventos -->
-                            <div class="space-y-1.5 overflow-y-auto custom-scrollbar flex-1">
+                            <div class="space-y-1 overflow-y-auto custom-scrollbar flex-1">
                                 <template x-for="event in getEventsForDay(day.date)">
                                     <div @click.stop="openOrderModal(event.id)"
-                                         class="px-3 py-2 rounded-md cursor-pointer hover:opacity-90 transition-all border-l-4 shadow-sm relative overflow-hidden mb-2"
+                                         class="px-1.5 sm:px-3 py-1 sm:py-2 rounded mdCursorPointer transition-all border-l-2 sm:border-l-4 shadow-sm relative overflow-hidden mb-1"
                                          :style="`background-color: ${event.status_color}25; border-left-color: ${event.status_color};`">
                                         
-                                        <div class="flex items-start gap-3">
+                                        <div class="flex items-center sm:items-start gap-1.5 sm:gap-3">
                                             <!-- Miniatura da Imagem -->
                                             <template x-if="event.cover_image">
-                                                <div class="flex-shrink-0 w-12 h-12 rounded-md overflow-hidden bg-gray-100 dark:bg-gray-700 border border-black/5">
+                                                <div class="flex-shrink-0 w-6 h-6 sm:w-10 sm:h-10 rounded-md overflow-hidden bg-gray-100 dark:bg-gray-700 border border-black/5">
                                                     <img :src="event.cover_image" 
                                                          class="w-full h-full object-cover"
                                                          x-on:error="$el.style.display='none'">
@@ -813,12 +814,12 @@
                                             </template>
 
                                             <div class="flex-1 min-w-0">
-                                                <div class="font-bold text-sm truncate leading-tight" 
+                                                <div class="font-bold text-[10px] sm:text-sm truncate leading-tight" 
                                                      :style="`color: ${event.status_color}`"
                                                      x-text="event.title"></div>
-                                                <div class="flex justify-between items-center mt-1">
-                                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400 opacity-90" x-text="'#' + event.id.toString().padStart(5, '0')"></span>
-                                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400 opacity-90" x-text="event.items_count + ' pçs'"></span>
+                                                <div class="hidden sm:flex justify-between items-center mt-1">
+                                                    <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400 opacity-90" x-text="'#' + event.id.toString().padStart(5, '0')"></span>
+                                                    <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400 opacity-90" x-text="event.items_count + ' pçs'"></span>
                                                 </div>
                                             </div>
                                         </div>
@@ -833,6 +834,7 @@
                         </div>
                     </template>
                 </div>
+
             </div>
         </div>
 
