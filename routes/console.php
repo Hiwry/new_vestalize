@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 
 use Illuminate\Support\Facades\Schedule;
 Schedule::command('app:check-tenant-expirations')->dailyAt('08:00');
+Schedule::command('db:backup')->dailyAt('03:00');
