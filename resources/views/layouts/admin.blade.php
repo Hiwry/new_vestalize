@@ -372,6 +372,9 @@
     <!-- Notificações Flutuantes -->
     @include('components.notifications-bell')
 
+    <!-- Side Panel Global -->
+    @include('components.side-panel')
+
 
     <!-- Scripts -->
     <script>

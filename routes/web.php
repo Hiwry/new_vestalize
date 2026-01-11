@@ -252,6 +252,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/edit', [\App\Http\Controllers\ClientController::class, 'edit'])->name('edit');
         Route::put('/{id}', [\App\Http\Controllers\ClientController::class, 'update'])->name('update');
         Route::delete('/{id}', [\App\Http\Controllers\ClientController::class, 'destroy'])->name('destroy');
+        
+        // Edição rápida via Side Panel (AJAX)
+        Route::get('/{id}/quick-edit', [\App\Http\Controllers\ClientController::class, 'quickEdit'])->name('quick-edit');
+        Route::put('/{id}/quick-update', [\App\Http\Controllers\ClientController::class, 'quickUpdate'])->name('quick-update');
     });
 
     // Gerenciamento de Colunas do Kanban

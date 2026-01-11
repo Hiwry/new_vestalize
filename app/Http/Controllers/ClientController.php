@@ -206,5 +206,52 @@ class ClientController extends Controller
         return redirect()->route('clients.index')
             ->with('success', 'Cliente excluído com sucesso!');
     }
+
+    /**
+     * Formulário de edição rápida para Side Panel (AJAX)
+     */
+    public function quickEdit($id)
+    {
+        $client = Client::findOrFail($id);
+        
+        // Se for requisição AJAX, retornar apenas o HTML do formulário
+        if (request()->ajax() || request()->wantsJson()) {
+            return view('clients.partials.quick-edit-form', compact('client'));
+        }
+
+        // Fallback para edição normal
+        return view('clients.edit', compact('client'));
+    }
+
+    /**
+     * Atualizar cliente via AJAX (Side Panel)
+     */
+    public function quickUpdate(Request $request, $id)
+    {
+        $client = Client::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone_primary' => 'required|string|max:50',
+            'phone_secondary' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:255',
+            'cpf_cnpj' => 'nullable|string|max:20',
+            'category' => 'nullable|string|max:50',
+        ]);
+
+        $client->update($validated);
+
+        // Se for requisição AJAX, retornar JSON
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Cliente atualizado com sucesso!',
+                'client' => $client
+            ]);
+        }
+
+        return redirect()->route('clients.show', $client->id)
+            ->with('success', 'Cliente atualizado com sucesso!');
+    }
 }
 

@@ -153,6 +153,16 @@
                                     <a href="{{ route('clients.show', $client->id) }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 mr-3 transition">
                                         Ver
                                     </a>
+                                    <button 
+                                        type="button"
+                                        onclick="quickEditClient({{ $client->id }})"
+                                        class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 mr-3 transition"
+                                        title="Edição Rápida"
+                                    >
+                                        <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                        </svg>
+                                    </button>
                                     <a href="{{ route('clients.edit', $client->id) }}" class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition">
                                         Editar
                                     </a>
