@@ -309,6 +309,11 @@
             // Atualizar links ativos na sidebar
             updateActiveLink(url);
 
+            // Atualizar navegação mobile inferior
+            if (typeof window.updateBottomNav === 'function') {
+                window.updateBottomNav();
+            }
+
             // Garantir que o dark mode seja mantido após carregar novo conteúdo
             if (isDarkMode) {
                 document.documentElement.classList.add('dark');
