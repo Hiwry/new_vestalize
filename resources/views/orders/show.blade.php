@@ -183,12 +183,46 @@
                         @endphp
                         
                         @if(!$invoice)
-                        <form action="{{ route('admin.invoice.emit', $order->id) }}" method="POST" onsubmit="return confirm('Deseja realmente emitir a NF-e para este pedido?')">
-                            @csrf
-                            <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors shadow-sm">
+                        <div x-data>
+                            <button type="button" 
+                                    x-on:click="$dispatch('open-modal', 'confirm-invoice-emit')"
+                                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors shadow-sm">
                                 Emitir NF-e
                             </button>
-                        </form>
+
+                            <x-modal name="confirm-invoice-emit" focusable>
+                                <div class="p-6">
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <div class="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-full">
+                                            <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                            Confirmar Emissão de NF-e
+                                        </h2>
+                                    </div>
+                                    
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                                        Deseja realmente emitir a NF-e para este pedido? Certifique-se de que os dados do cliente e os valores dos itens estão corretos.
+                                    </p>
+
+                                    <div class="flex justify-end gap-3">
+                                        <button type="button" 
+                                                x-on:click="$dispatch('close')"
+                                                class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                                            Cancelar
+                                        </button>
+                                        <form action="{{ route('admin.invoice.emit', $order->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors shadow-lg shadow-indigo-500/20">
+                                                Confirmar e Emitir
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </x-modal>
+                        </div>
                         @endif
                     </div>
 
