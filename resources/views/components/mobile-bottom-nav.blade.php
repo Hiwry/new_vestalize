@@ -102,13 +102,6 @@
     .dark .mobile-nav-link.active {
         color: rgb(129 140 248); /* indigo-400 */
     }
-    
-    /* Padding no conteúdo para não ficar atrás da nav */
-    @media (max-width: 767px) {
-        #main-content main {
-            padding-bottom: 5rem !important;
-        }
-    }
 </style>
 
 <script>

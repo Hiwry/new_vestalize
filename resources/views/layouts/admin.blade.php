@@ -343,7 +343,7 @@
 
         <!-- Page Content -->
         <div id="main-content" class="h-screen overflow-y-auto bg-gray-50 dark:bg-gray-900">
-            <main class="min-h-full pb-10 pt-20 px-4 md:pt-6 md:px-6 flex flex-col items-center md:block md:items-start w-full">
+            <main class="min-h-full pb-24 md:pb-10 pt-20 px-4 md:pt-6 md:px-6 w-full">
                 {{-- Flash Messages --}}
                 @if(session('success'))
                     <div class="mb-4 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
