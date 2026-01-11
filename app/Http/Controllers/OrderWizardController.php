@@ -24,8 +24,10 @@ use App\Services\ImageProcessor;
 
 class OrderWizardController extends Controller
 {
-    public function __construct(private readonly ImageProcessor $imageProcessor)
-    {
+    public function __construct(
+        private readonly ImageProcessor $imageProcessor,
+        private readonly \App\Services\OrderWizardService $orderWizardService
+    ) {
     }
 
     public function start(Request $request): View
@@ -38,13 +40,8 @@ class OrderWizardController extends Controller
         return view('orders.wizard.client');
     }
 
-    public function storeClient(Request $request): RedirectResponse
+    public function storeClient(Request $request)
     {
-        \Log::info('=== STORE CLIENT DEBUG START ===');
-        \Log::info('Request method:', ['method' => $request->method()]);
-        \Log::info('Request data:', $request->all());
-        \Log::info('User authenticated:', ['auth' => auth()->check(), 'user_id' => auth()->id()]);
-        
         try {
             $validated = $request->validate([
                 'client_id' => 'nullable|exists:clients,id',
@@ -60,124 +57,21 @@ class OrderWizardController extends Controller
                 'category' => 'nullable|string|max:50',
             ]);
 
-        // Obter store_id do usuário (respeitando isolamento de tenant)
-        $user = Auth::user();
-        $storeId = null;
-        
-        // Primeiro, tentar obter loja do tenant do usuário
-        if ($user->tenant_id) {
-            // Buscar loja principal do tenant do usuário
-            $tenantStore = Store::where('tenant_id', $user->tenant_id)
-                ->where('is_main', true)
-                ->first();
-            
-            if (!$tenantStore) {
-                // Se não tem loja principal, pegar a primeira loja do tenant
-                $tenantStore = Store::where('tenant_id', $user->tenant_id)->first();
-            }
-            
-            if ($tenantStore) {
-                $storeId = $tenantStore->id;
-            }
-        }
-        
-        // Fallbacks para casos específicos de role (se ainda não encontrou)
-        if (!$storeId) {
-            if ($user->isAdminLoja()) {
-                $storeIds = $user->getStoreIds();
-                $storeId = !empty($storeIds) ? $storeIds[0] : null;
-            } elseif ($user->isVendedor()) {
-                // Vendedor: buscar loja associada através da tabela store_user
-                $userStores = $user->stores()->get();
-                if ($userStores->isNotEmpty()) {
-                    $storeId = $userStores->first()->id;
-                }
-            }
-        }
-        
-        // Se ainda não encontrou (super admin ou usuário sem tenant), usar loja principal do tenant ou geral
-    if (!$storeId) {
-        $mainStore = Store::where('is_main', true)
-            ->where('tenant_id', $user->tenant_id)
-            ->first();
-        
-        if (!$mainStore && !$user->tenant_id) {
-            $mainStore = Store::where('is_main', true)->first();
-        }
-        
-        $storeId = $mainStore ? $mainStore->id : null;
-    }
-        
-        \Log::info('Store ID resolvido para pedido', [
-            'user_id' => $user->id,
-            'user_name' => $user->name,
-            'tenant_id' => $user->tenant_id,
-            'store_id' => $storeId,
-        ]);
-        
-        // Se client_id foi enviado, atualiza o cliente existente
-        if (!empty($validated['client_id'])) {
-            $client = Client::findOrFail($validated['client_id']);
-            $client->update($validated);
-        } else {
-            // Senão, cria um novo cliente com store_id
-            $validated['store_id'] = $storeId;
-            $client = Client::create($validated);
-        }
+            $order = $this->orderWizardService->processStartOrder($validated, Auth::user());
 
-        $status = Status::orderBy('position')->first();
+            session(['current_order_id' => $order->id]);
+            session(['wizard.client' => [
+                'id' => $order->client->id,
+                'name' => $order->client->name,
+                'phone_primary' => $order->client->phone_primary,
+                'email' => $order->client->email,
+            ]]);
+            session(['fresh_customization_cleanup' => true]);
 
-        // Calcular data de entrega (15 dias úteis)
-        $deliveryDate = DateHelper::calculateDeliveryDate(Carbon::now(), 15);
-
-        // Garantir tenant_id explicitamente
-        $tenantId = Auth::user()->tenant_id;
-        
-        \Log::info('=== CREATE ORDER DEBUG ===', [
-            'user_id' => Auth::id(),
-            'user_name' => Auth::user()->name,
-            'tenant_id' => $tenantId,
-            'store_id' => $storeId,
-            'client_id' => $client->id,
-        ]);
-
-        $order = Order::create([
-            'tenant_id' => $tenantId, // Explicitamente definir tenant_id
-            'client_id' => $client->id,
-            'user_id' => Auth::id(),
-            'store_id' => $storeId,
-            'status_id' => $status?->id ?? Status::withoutGlobalScopes()->orderBy('id')->first()?->id,
-            'order_date' => now()->toDateString(),
-            'delivery_date' => $deliveryDate->toDateString(),
-            'is_draft' => true, // Criar como rascunho
-        ]);
-
-        session(['current_order_id' => $order->id]);
-        // Salvar dados do cliente na sessão para exibição no wizard
-        session(['wizard.client' => [
-            'id' => $client->id,
-            'name' => $client->name,
-            'phone_primary' => $client->phone_primary,
-            'email' => $client->email,
-        ]]);
-        // Marcar para limpar personalizações residuais quando chegar na etapa de personalização
-        session(['fresh_customization_cleanup' => true]);
-
-        \Log::info('=== STORE CLIENT DEBUG END - SUCCESS ===');
-        return redirect()->route('orders.wizard.personalization-type');
-        
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('=== STORE CLIENT VALIDATION FAILED ===', [
-                'errors' => $e->errors(),
-                'data' => $request->all()
-            ]);
-            throw $e;
+            return redirect()->route('orders.wizard.personalization-type');
         } catch (\Exception $e) {
-            \Log::error('=== STORE CLIENT GENERAL ERROR ===', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            throw $e;
+            \Log::error('Error starting order: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Erro ao iniciar pedido: ' . $e->getMessage());
         }
     }
 
@@ -375,42 +269,7 @@ class OrderWizardController extends Controller
 
         $order = Order::with('items')->findOrFail(session('current_order_id'));
 
-        // Opcional: Limpar itens anteriores se for substituir
-        // $order->items()->delete(); 
-
-        foreach ($validated['items'] as $itemData) {
-            $itemNumber = $order->items()->count() + 1;
-            
-            // Buscar o custo do produto
-            $product = \App\Models\SubLocalProduct::find($itemData['id']);
-            $unitCost = $product->cost ?? 0;
-            
-            // Adaptar para OrderItem
-            // Usamos campos existentes para armazenar dados do produto pronto
-            $item = new OrderItem([
-                'item_number' => $itemNumber,
-                'fabric' => 'Produto Pronto',
-                'color' => '-', 
-                'collar' => '-',
-                'model' => $itemData['name'],
-                'detail' => null,
-                'print_type' => 'Sublimação Local',
-                'sizes' => ['UN' => $itemData['quantity']],
-                'quantity' => $itemData['quantity'],
-                'unit_price' => $itemData['price'],
-                'total_price' => $itemData['price'] * $itemData['quantity'],
-                'unit_cost' => $unitCost,
-                'total_cost' => $unitCost * $itemData['quantity'],
-                'print_desc' => json_encode(['is_sub_local' => true, 'product_id' => $itemData['id']]),
-            ]);
-            
-            $order->items()->save($item);
-        }
-
-        $order->update([
-            'subtotal' => $order->items()->sum('total_price'),
-            'total_items' => $order->items()->sum('quantity'),
-        ]);
+        $this->orderWizardService->processSaveSubLocalItems($order, $validated['items']);
 
         return response()->json(['success' => true]);
     }
@@ -437,106 +296,29 @@ class OrderWizardController extends Controller
 
         $order = Order::with('items')->findOrFail(session('current_order_id'));
 
-        // Processar upload da imagem de capa do item
         $coverImagePath = null;
         if ($request->hasFile('item_cover_image')) {
             $coverImagePath = $this->imageProcessor->processAndStore(
                 $request->file('item_cover_image'),
-                'orders/items/covers',
-                [
-                    'max_width' => 1200,
-                    'max_height' => 1200,
-                    'quality' => 85,
-                ]
+                'orders/items/covers'
             );
         }
 
-        // Otimização: Buscar todas as opções em uma única query
-        $allOptionIds = collect([
-            $validated['tecido'],
-            $validated['cor'],
-            $validated['tipo_corte'],
-            $validated['gola']
-        ]);
+        $item = $this->orderWizardService->processAddItem($order, $validated, $coverImagePath);
 
-        if (!empty($validated['detalhe'])) {
-            $allOptionIds->push($validated['detalhe']);
-        }
-        if (!empty($validated['tipo_tecido'])) {
-            $allOptionIds->push($validated['tipo_tecido']);
-        }
-        
-        // Adicionar IDs de personalização
-        $allOptionIds = $allOptionIds->merge($validated['personalizacao'])->unique();
-        
-        $allOptions = \App\Models\ProductOption::whereIn('id', $allOptionIds)->get()->keyBy('id');
-        
-        // Construir string de personalizações
-        $personalizacaoNames = collect($validated['personalizacao'])
-            ->map(fn($id) => $allOptions[$id]->name ?? '')
-            ->filter()
-            ->join(', ');
-            
-        $tecido = $allOptions[$validated['tecido']];
-        $cor = $allOptions[$validated['cor']];
-        $tipoCorte = $allOptions[$validated['tipo_corte']];
-        $gola = $allOptions[$validated['gola']];
-        $detalhe = !empty($validated['detalhe']) ? $allOptions[$validated['detalhe']] : null;
-        $tipoTecido = !empty($validated['tipo_tecido']) ? $allOptions[$validated['tipo_tecido']] : null;
-
-        $itemNumber = $order->items()->count() + 1;
-
-        $item = new OrderItem([
-            'item_number' => $itemNumber,
-            'fabric' => $tecido->name . ($tipoTecido ? ' - ' . $tipoTecido->name : ''),
-            'color' => $cor->name,
-            'collar' => $gola->name,
-            'model' => $tipoCorte->name,
-            'detail' => $detalhe ? $detalhe->name : null,
-            'print_type' => $personalizacaoNames,
-            'sizes' => $validated['tamanhos'],
-            'quantity' => $validated['quantity'],
-            'unit_price' => $validated['unit_price'],
-            'total_price' => (function() use ($validated) {
-                $basePrice = $validated['unit_price'];
-                $totalSurcharge = 0;
-                foreach ($validated['tamanhos'] as $size => $quantity) {
-                    if ($quantity > 0) {
-                        $surchargeModel = \App\Models\SizeSurcharge::getSurchargeForSize($size, $basePrice);
-                        if ($surchargeModel) {
-                            $totalSurcharge += $surchargeModel->surcharge * $quantity;
-                        }
-                    }
-                }
-                return ($basePrice * $validated['quantity']) + $totalSurcharge;
-            })(),
-            'unit_cost' => $validated['unit_cost'] ?? 0,
-            'total_cost' => ($validated['unit_cost'] ?? 0) * $validated['quantity'],
-            'cover_image' => $coverImagePath,
-            'art_notes' => $validated['art_notes'] ?? null,
-            'print_desc' => json_encode(['apply_surcharge' => $request->boolean('apply_surcharge')]),
-        ]);
-        $order->items()->save($item);
-        $item->refresh(); // Garantir que temos o ID correto gerado pelo banco
-
-        $order->update([
-            'subtotal' => $order->items()->sum('total_price'),
-            'total_items' => $order->items()->sum('quantity'),
-        ]);
-
-        // Salvar IDs de personalização vinculadas a este item
+        // Salvar IDs de personalização na sessão
         session()->push('item_personalizations.' . $item->id, $validated['personalizacao']);
 
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Item ' . $itemNumber . ' adicionado com sucesso!',
+                'message' => 'Item adicionado com sucesso!',
                 'html' => view('orders.wizard.partials.items_sidebar', compact('order'))->render(),
                 'items_data' => $order->items->toArray()
             ]);
         }
 
-        return redirect()->route('orders.wizard.sewing')->with('success', 'Item ' . $itemNumber . ' adicionado com sucesso!');
+        return redirect()->route('orders.wizard.sewing')->with('success', 'Item adicionado com sucesso!');
     }
 
     /**
@@ -560,7 +342,6 @@ class OrderWizardController extends Controller
 
         $order = Order::with('items')->findOrFail(session('current_order_id'));
 
-        // Processar upload da imagem de capa
         $coverImagePath = null;
         if ($request->hasFile('item_cover_image')) {
             $coverImagePath = $this->imageProcessor->processAndStore(
@@ -574,7 +355,6 @@ class OrderWizardController extends Controller
             );
         }
 
-        // Processar upload do arquivo Corel
         $corelFilePath = null;
         if ($request->hasFile('corel_file')) {
             $corelFile = $request->file('corel_file');
@@ -582,61 +362,18 @@ class OrderWizardController extends Controller
             $corelFilePath = $corelFile->storeAs('orders/corel_files', $fileName, 'public');
         }
 
-        // Buscar tipo para label e tecido padrão
-        $typeModel = \App\Models\SublimationProductType::with('tecido')->where('slug', $validated['sublimation_type'])->first();
-        $typeLabel = $typeModel ? $typeModel->name : $validated['sublimation_type'];
-        $fabricName = ($typeModel && $typeModel->tecido) ? $typeModel->tecido->name : ('SUB. TOTAL - ' . $typeLabel);
-
-        // Buscar adicionais selecionados para descrição
-        $addonsLabel = '';
-        if (!empty($validated['sublimation_addons'])) {
-            $addons = \App\Models\SublimationProductAddon::whereIn('id', $validated['sublimation_addons'])->pluck('name');
-            $addonsLabel = $addons->join(', ');
-        }
-
-        $itemNumber = $order->items()->count() + 1;
-
-        // Criar item SUB. TOTAL
-        $item = new OrderItem([
-            'item_number' => $itemNumber,
-            'fabric' => $fabricName,
-            'color' => 'Branco',
-            'collar' => $addonsLabel ?: '-',
-            'model' => $typeLabel,
-            'detail' => null,
-            'print_type' => 'SUB. TOTAL',
-            'art_name' => $validated['art_name'],
-            'sizes' => $validated['tamanhos'],
-            'quantity' => $validated['quantity'],
-            'unit_price' => $validated['unit_price'],
-            'total_price' => $validated['unit_price'] * $validated['quantity'],
-            'unit_cost' => $validated['unit_cost'] ?? 0,
-            'total_cost' => ($validated['unit_cost'] ?? 0) * $validated['quantity'],
-            'cover_image' => $coverImagePath,
-            'corel_file_path' => $corelFilePath,
-            'art_notes' => $validated['art_notes'] ?? null,
-            'is_sublimation_total' => true,
-            'sublimation_type' => $validated['sublimation_type'],
-            'sublimation_addons' => $validated['sublimation_addons'] ?? [],
-        ]);
-        $order->items()->save($item);
-        $item->refresh();
-
-        $order->update([
-            'subtotal' => $order->items()->sum('total_price'),
-            'total_items' => $order->items()->sum('quantity'),
-        ]);
+        $item = $this->orderWizardService->processAddSublimationItem($order, $validated, $coverImagePath, $corelFilePath);
 
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Item SUB. TOTAL #' . $itemNumber . ' adicionado!',
+                'message' => 'Item SUB. TOTAL adicionado com sucesso!',
                 'html' => view('orders.wizard.partials.items_sidebar', compact('order'))->render(),
                 'items_data' => $order->items->toArray()
             ]);
         }
 
-        return redirect()->route('orders.wizard.sewing')->with('success', 'Item SUB. TOTAL #' . $itemNumber . ' adicionado!');
+        return redirect()->route('orders.wizard.sewing')->with('success', 'Item adicionado com sucesso!');
     }
 
     private function updateItem(Request $request)
@@ -653,7 +390,7 @@ class OrderWizardController extends Controller
             'gola' => 'required|exists:product_options,id',
             'tamanhos' => 'required|array',
             'quantity' => 'required|integer|min:1',
-            'unit_price' => 'required|numeric|min:0',
+            'unit_price' => 'nullable|numeric|min:0',
             'unit_cost' => 'nullable|numeric|min:0',
             'item_cover_image' => 'nullable|image|max:10240',
             'art_notes' => 'nullable|string|max:1000',
@@ -663,107 +400,23 @@ class OrderWizardController extends Controller
         $order = Order::with('items')->findOrFail(session('current_order_id'));
         $item = $order->items()->findOrFail($validated['editing_item_id']);
 
-        // Processar upload da imagem de capa do item
-        $coverImagePath = $item->cover_image; // Manter imagem atual se não houver nova
+        $coverImagePath = $item->cover_image;
         if ($request->hasFile('item_cover_image')) {
             $newCoverImagePath = $this->imageProcessor->processAndStore(
                 $request->file('item_cover_image'),
-                'orders/items/covers',
-                [
-                    'max_width' => 1200,
-                    'max_height' => 1200,
-                    'quality' => 85,
-                ]
+                'orders/items/covers'
             );
 
             if ($newCoverImagePath) {
-                $this->imageProcessor->delete($coverImagePath);
+                if ($coverImagePath) $this->imageProcessor->delete($coverImagePath);
                 $coverImagePath = $newCoverImagePath;
             }
         }
 
-        // Buscar nomes das opções
-        $personalizacoes = \App\Models\ProductOption::whereIn('id', $validated['personalizacao'])->get();
-        $personalizacaoNames = $personalizacoes->pluck('name')->join(', ');
-
-        $tecido = \App\Models\ProductOption::find($validated['tecido']);
-        $tipoTecido = $validated['tipo_tecido'] ? \App\Models\ProductOption::find($validated['tipo_tecido']) : null;
-        $cor = \App\Models\ProductOption::find($validated['cor']);
-        $tipoCorte = \App\Models\ProductOption::find($validated['tipo_corte']);
-        $detalhe = $validated['detalhe'] ? \App\Models\ProductOption::find($validated['detalhe']) : null;
-        $gola = \App\Models\ProductOption::find($validated['gola']);
-
-        // Calcular preço base
-        $basePrice = $tipoCorte->price ?? 0;
-        if ($detalhe) {
-            $basePrice += $detalhe->price ?? 0;
-        }
-        if ($gola) {
-            $basePrice += $gola->price ?? 0;
-        }
-
-        // Processar tamanhos
-        $sizes = [];
-        $totalQuantity = 0;
-        foreach ($validated['tamanhos'] as $size => $quantity) {
-            if ($quantity > 0) {
-                $sizes[$size] = $quantity;
-                $totalQuantity += $quantity;
-            }
-        }
-
-        // Atualizar item
-        $item->update([
-            'print_type' => $personalizacaoNames,
-            'fabric' => $tecido->name . ($tipoTecido ? ' - ' . $tipoTecido->name : ''),
-            'color' => $cor->name,
-            'collar' => $gola->name,
-            'model' => $tipoCorte->name,
-            'detail' => $detalhe ? $detalhe->name : null,
-            'sizes' => json_encode($sizes),
-            'quantity' => $totalQuantity,
-            'unit_price' => $basePrice,
-            'total_price' => (function() use ($sizes, $basePrice) {
-                $totalSurcharge = 0;
-                $totalQuantity = array_sum($sizes);
-                foreach ($sizes as $size => $quantity) {
-                    if ($quantity > 0) {
-                        $surchargeModel = \App\Models\SizeSurcharge::getSurchargeForSize($size, $basePrice);
-                        if ($surchargeModel) {
-                            $totalSurcharge += $surchargeModel->surcharge * $quantity;
-                        }
-                    }
-                }
-                return ($basePrice * $totalQuantity) + $totalSurcharge;
-            })(),
-            'unit_cost' => $validated['unit_cost'] ?? 0,
-            'total_cost' => ($validated['unit_cost'] ?? 0) * $totalQuantity,
-            'cover_image' => $coverImagePath,
-            'art_notes' => $validated['art_notes'] ?? null,
-            'print_desc' => json_encode(['apply_surcharge' => $request->boolean('apply_surcharge')]),
-        ]);
-
-        // Forçar refresh do modelo para garantir que os dados estão atualizados
-        $item->refresh();
-
-        $order->update([
-            'subtotal' => $order->items()->sum('total_price'),
-            'total_items' => $order->items()->sum('quantity'),
-        ]);
-
-        // Forçar refresh do pedido para garantir dados atualizados
-        $order->refresh();
+        $this->orderWizardService->processUpdateItem($item, $validated, $coverImagePath);
 
         // Atualizar personalizações na sessão
         session(['item_personalizations.' . $item->id => [$validated['personalizacao']]]);
-
-        \Log::info('Item atualizado com sucesso', [
-            'item_id' => $item->id,
-            'order_id' => $order->id,
-            'new_quantity' => $totalQuantity,
-            'new_unit_price' => $basePrice,
-            'new_data' => $item->toArray()
-        ]);
 
         return redirect()->route('orders.wizard.sewing')->with('success', 'Item atualizado com sucesso!');
     }
@@ -772,23 +425,9 @@ class OrderWizardController extends Controller
     {
         $itemId = $request->input('item_id');
         $order = Order::with('items')->findOrFail(session('current_order_id'));
-        
         $item = $order->items()->findOrFail($itemId);
-        $item->delete();
 
-        // Renumerar itens
-        $items = $order->items()->orderBy('id')->get();
-        foreach ($items as $index => $it) {
-            $it->update(['item_number' => $index + 1]);
-        }
-
-        // Garantir que a relaçã̃o esteja atualizada para a view/JSON
-        $order->setRelation('items', $items);
-
-        $order->update([
-            'subtotal' => $order->items()->sum('total_price'),
-            'total_items' => $order->items()->sum('quantity'),
-        ]);
+        $this->orderWizardService->processDeleteItem($item);
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -974,7 +613,6 @@ class OrderWizardController extends Controller
 
         if ($request->input('action') === 'save_order_art') {
             $orderId = session('current_order_id') ?? session('edit_order_id');
-
             $validated = $request->validate([
                 'item_id' => 'required|exists:order_items,id',
                 'order_art_name' => 'nullable|string|max:255',
@@ -983,233 +621,51 @@ class OrderWizardController extends Controller
             ]);
 
             $item = OrderItem::where('order_id', $orderId)->findOrFail($validated['item_id']);
-            $item->update([
-                'art_name' => filled($validated['order_art_name'] ?? null)
-                    ? trim($validated['order_art_name'])
-                    : null,
-            ]);
-
-            if ($request->hasFile('order_art_files')) {
-                foreach ($request->file('order_art_files') as $file) {
-                    $originalName = $file->getClientOriginalName();
-                    $fileName = time() . '_' . uniqid() . '_' . $originalName;
-                    $filePath = $file->storeAs('orders/art_files', $fileName, 'public');
-
-                    OrderFile::create([
-                        'order_item_id' => $item->id,
-                        'file_name' => $originalName,
-                        'file_path' => $filePath,
-                        'file_type' => $file->getMimeType(),
-                        'file_size' => $file->getSize(),
-                    ]);
-                }
-            }
+            $this->orderWizardService->processSaveOrderArt($item, $validated, $request->file('order_art_files', []));
 
             return redirect()->back()->with('success', 'Arte do item atualizada com sucesso!');
         }
 
-        // Debug: Log dos dados recebidos antes da validação
-        \Log::info('=== PERSONALIZATION FORM DEBUG ===');
-        \Log::info('Request data:', $request->all());
-        \Log::info('Files received: ' . ($request->file('art_files') ? 'YES' : 'NO'));
-        
         try {
-            // Validação dos campos do formulário
             $validated = $request->validate([
                 'item_id' => 'required',
                 'personalization_type' => 'required|string',
                 'personalization_id' => 'required|integer',
                 'art_name' => 'nullable|string|max:255',
-                'location' => 'nullable', // Tornado opcional para SUB. TOTAL
-                'size' => 'nullable|string', // Tornado opcional para SUB. TOTAL
-                'quantity' => 'nullable|integer|min:1', // Tornado opcional para SUB. TOTAL
+                'location' => 'nullable',
+                'size' => 'nullable|string',
+                'quantity' => 'nullable|integer|min:1',
                 'color_count' => 'nullable|integer|min:1',
                 'unit_price' => 'nullable|numeric|min:0',
                 'final_price' => 'nullable|numeric|min:0',
                 'application_image' => 'nullable|image|max:10240',
                 'art_files' => 'nullable|array',
-                'art_files.*' => 'nullable|file|max:51200', // Máximo 50MB por arquivo
+                'art_files.*' => 'nullable|file|max:51200',
                 'color_details' => 'nullable|string|max:500',
                 'seller_notes' => 'nullable|string|max:1000',
-                'addons' => 'nullable|array', // Para adicionais de SUB. TOTAL
-                'regata_discount' => 'nullable|boolean', // Para desconto REGATA
+                'addons' => 'nullable|array',
+                'regata_discount' => 'nullable|boolean',
             ]);
             
-            \Log::info('Validation passed successfully');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Validation failed:', $e->errors());
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro de validação: ' . implode(', ', Arr::flatten($e->errors())),
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            \Log::error('Unexpected error during validation:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro inesperado: ' . $e->getMessage()
-            ], 500);
-        }
-
-        try {
             $order = Order::with('items')->findOrFail(session('current_order_id'));
-            
-            if ($validated['item_id'] == 0) {
-                 // Fallback for new items in budget mode (implied context)
-                 $item = $order->items()->first();
-            } else {
-                 $item = $order->items()->findOrFail($validated['item_id']);
+            $item = ($validated['item_id'] == 0) ? $order->items()->first() : $order->items()->findOrFail($validated['item_id']);
+
+            $applicationImagePath = null;
+            if ($request->hasFile('application_image')) {
+                $applicationImagePath = $request->file('application_image')->store('orders/applications', 'public');
             }
 
-            // Processar imagem da aplicação
-        $applicationImagePath = null;
-        if ($request->hasFile('application_image')) {
-            $appImage = $request->file('application_image');
-            $appImageName = time() . '_' . uniqid() . '_' . $appImage->getClientOriginalName();
-            $applicationImagePath = $appImage->storeAs('orders/applications', $appImageName, 'public');
-        }
+            $this->orderWizardService->processSavePersonalization(
+                $item, 
+                $validated, 
+                $applicationImagePath, 
+                $request->file('art_files', [])
+            );
 
-        // Debug: Log dos dados recebidos
-        \Log::info('=== PERSONALIZATION LOCATION DEBUG ===');
-        \Log::info('Received data:', [
-            'personalization_type' => $validated['personalization_type'],
-            'location' => $validated['location'] ?? 'NOT_SET',
-            'size' => $validated['size'] ?? 'NOT_SET',
-            'art_name' => $validated['art_name'] ?? 'NOT_SET'
-        ]);
-
-        // Buscar localização (apenas se não for SUB. TOTAL)
-        $locationId = null;
-        $locationName = null;
-        if ($validated['personalization_type'] !== 'SUB. TOTAL' && isset($validated['location']) && $validated['location']) {
-            $location = \App\Models\SublimationLocation::find($validated['location']);
-            $locationId = $location ? $location->id : null;
-            $locationName = $location ? $location->name : ($validated['location'] ?? null);
-            
-            \Log::info('Location found:', [
-                'location_id' => $locationId,
-                'location_name' => $locationName
-            ]);
-        } else {
-            \Log::info('Location not set or SUB. TOTAL type');
-        }
-
-        // Para SUB. TOTAL, buscar quantidade do "Total de Peças" do item
-        $quantity = $validated['quantity'] ?? 1;
-        if ($validated['personalization_type'] === 'SUB. TOTAL') {
-            // Para SUB. TOTAL, usar a quantidade total do item
-            $quantity = $item->quantity;
-        }
-
-        // Debug: Log dos preços recebidos
-        \Log::info('=== PERSONALIZATION PRICE DEBUG ===');
-        \Log::info('Received prices:', [
-            'unit_price' => $validated['unit_price'] ?? 'null',
-            'final_price' => $validated['final_price'] ?? 'null',
-            'personalization_type' => $validated['personalization_type'],
-            'quantity' => $quantity
-        ]);
-
-        // Criar a personalização
-        $personalization = \App\Models\OrderSublimation::create([
-            'order_item_id' => $item->id,
-            'application_type' => strtolower($validated['personalization_type']),
-            'art_name' => $validated['art_name'] ?? null,
-            'size_id' => null,
-            'size_name' => $validated['personalization_type'] === 'SUB. TOTAL' ? 'CACHARREL' : ($validated['size'] ?? null),
-            'location_id' => $locationId,
-            'location_name' => $locationName,
-            'quantity' => $quantity,
-            'color_count' => $validated['color_count'] ?? 0,
-            'has_neon' => false,
-            'neon_surcharge' => 0,
-            'unit_price' => $validated['unit_price'] ?? 0,
-            'discount_percent' => 0,
-            'final_price' => $validated['final_price'] ?? 0,
-            'application_image' => $applicationImagePath,
-            'color_details' => $validated['color_details'] ?? null,
-            'seller_notes' => $validated['seller_notes'] ?? null,
-        ]);
-
-        // Debug: Log da personalização criada
-        \Log::info('Personalization created:', [
-            'id' => $personalization->id,
-            'unit_price' => $personalization->unit_price,
-            'final_price' => $personalization->final_price,
-            'quantity' => $personalization->quantity
-        ]);
-
-        // TODO: Processar adicionais para SUB. TOTAL (após criar migration)
-        // if ($validated['personalization_type'] === 'SUB. TOTAL' && $request->has('addons')) {
-        //     $addons = $request->input('addons', []);
-        //     $regataDiscount = $request->boolean('regata_discount', false);
-        //     
-        //     // Adicionar desconto REGATA se marcado
-        //     if ($regataDiscount) {
-        //         $addons[] = 'REGATA_DISCOUNT';
-        //     }
-        //     
-        //     // Salvar adicionais como JSON na personalização
-        //     $personalization->update([
-        //         'addons' => json_encode($addons),
-        //         'regata_discount' => $regataDiscount,
-        //     ]);
-        // }
-
-        // Processar arquivos da arte (CDR, PDF, etc.)
-        if ($request->hasFile('art_files')) {
-            foreach ($request->file('art_files') as $file) {
-                $originalName = $file->getClientOriginalName();
-                $fileName = time() . '_' . uniqid() . '_' . $originalName;
-                $filePath = $file->storeAs('orders/art_files', $fileName, 'public');
-                
-                \App\Models\OrderSublimationFile::create([
-                    'order_sublimation_id' => $personalization->id,
-                    'file_name' => $originalName,
-                    'file_path' => $filePath,
-                    'file_type' => $file->getMimeType(),
-                    'file_size' => $file->getSize(),
-                ]);
-            }
-        }
-
-        // Aplicar descontos automáticos nas personalizações
-        \App\Helpers\PersonalizationDiscountHelper::applyDiscounts($item->id);
-
-        // Atualizar o preço total do item somando todas as personalizações
-        $totalPersonalizations = \App\Models\OrderSublimation::where('order_item_id', $item->id)
-            ->sum('final_price');
-        
-        // Calcular novo total do item (preço base + personalizações)
-        $basePrice = $item->unit_price * $item->quantity;
-        $newTotalPrice = $basePrice + $totalPersonalizations;
-        
-        $item->update([
-            'total_price' => $newTotalPrice
-        ]);
-
-        // Atualizar subtotal do pedido
-            $order->update([
-                'subtotal' => $order->items()->sum('total_price'),
-            ]);
-
-            // Retornar resposta JSON
-            return response()->json([
-                'success' => true,
-                'message' => 'Personalização adicionada com sucesso!'
-            ]);
+            return response()->json(['success' => true, 'message' => 'Personalização adicionada com sucesso!']);
         } catch (\Exception $e) {
-            \Log::error('Error adding personalization:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro ao adicionar personalização: ' . $e->getMessage()
-            ], 500);
+            \Log::error('Error adding personalization: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Erro ao adicionar personalização: ' . $e->getMessage()], 500);
         }
     }
 
@@ -1364,132 +820,13 @@ class OrderWizardController extends Controller
         // Processar upload da imagem de capa do pedido
         $orderCoverImagePath = $order->cover_image;
         if ($request->hasFile('order_cover_image')) {
-            $newOrderCoverImagePath = $this->imageProcessor->processAndStore(
+            $orderCoverImagePath = $this->imageProcessor->processAndStore(
                 $request->file('order_cover_image'),
-                'orders/covers',
-                [
-                    'max_width' => 1400,
-                    'max_height' => 1400,
-                    'quality' => 85,
-                ]
+                'orders/covers'
             );
-
-            if ($newOrderCoverImagePath) {
-                $this->imageProcessor->delete($orderCoverImagePath);
-                $orderCoverImagePath = $newOrderCoverImagePath;
-            }
         }
         
-        $subtotal = $order->items()->sum('total_price');
-        $delivery = (float)($validated['delivery_fee'] ?? 0);
-        
-        // Processar acréscimos por tamanho
-        // Recalcular acréscimos no backend para garantir integridade e aplicar regras de restrição
-        $sizeSurcharges = [];
-        $largeSizes = ['GG', 'EXG', 'G1', 'G2', 'G3'];
-        $sizeQuantities = [];
-        
-        foreach ($order->items as $item) {
-            $model = strtoupper($item->model ?? '');
-            $detail = strtoupper($item->detail ?? '');
-            $isRestricted = str_contains($model, 'INFANTIL') || str_contains($model, 'BABY LOOK') || 
-                            str_contains($detail, 'INFANTIL') || str_contains($detail, 'BABY LOOK');
-            
-            $printDesc = is_string($item->print_desc) ? json_decode($item->print_desc, true) : $item->print_desc;
-            $applySurcharge = filter_var($printDesc['apply_surcharge'] ?? false, FILTER_VALIDATE_BOOLEAN);
-            
-            // Se for restrito (Infantil/Baby look) e NÃO tiver o checkbox marcado, ignora os tamanhos deste item
-            if ($isRestricted && !$applySurcharge) {
-                continue;
-            }
-            
-            $sizes = is_string($item->sizes) ? json_decode($item->sizes, true) : $item->sizes;
-            if (is_array($sizes)) {
-                foreach ($sizes as $size => $qty) {
-                    if (in_array($size, $largeSizes)) {
-                        $sizeQuantities[$size] = ($sizeQuantities[$size] ?? 0) + (int)$qty;
-                    }
-                }
-            }
-        }
-        
-        foreach ($sizeQuantities as $size => $qty) {
-            if ($qty > 0) {
-                $surchargeModel = \App\Models\SizeSurcharge::getSurchargeForSize($size, $subtotal);
-                if ($surchargeModel) {
-                    $sizeSurcharges[$size] = (float)$surchargeModel->surcharge * $qty;
-                }
-            }
-        }
-
-        $totalSurcharges = array_sum($sizeSurcharges);
-
-        // Desconto
-        $discountType = $validated['discount_type'] ?? 'none';
-        $discountValue = (float)($validated['discount_value'] ?? 0);
-        $subtotalWithFees = $subtotal + $totalSurcharges + $delivery;
-        $discountAmount = 0.0;
-        if ($discountType === 'percentage') {
-            $discountValue = max(0, min(100, $discountValue));
-            $discountAmount = ($subtotalWithFees * $discountValue) / 100.0;
-        } elseif ($discountType === 'fixed') {
-            $discountAmount = min($discountValue, $subtotalWithFees);
-        }
-        
-        // Processar múltiplas formas de pagamento
-        $paymentMethods = json_decode($validated['payment_methods'], true);
-        $totalPaid = array_sum(array_column($paymentMethods, 'amount'));
-        
-        $total = max(0, $subtotalWithFees - $discountAmount);
-
-        $order->update([
-            'subtotal' => $subtotal,
-            'delivery_fee' => $delivery,
-            'discount' => $discountAmount,
-            'total' => $total,
-            'cover_image' => $orderCoverImagePath,
-        ]);
-
-        // Deletar pagamentos antigos para evitar acúmulo
-        Payment::where('order_id', $order->id)->delete();
-        
-        // Deletar transações de caixa antigas deste pedido
-        CashTransaction::where('order_id', $order->id)->delete();
-
-        // Criar registro de pagamento
-        $primaryMethod = count($paymentMethods) === 1 ? $paymentMethods[0]['method'] : 'pix';
-        
-        Payment::create([
-            'order_id' => $order->id,
-            'method' => $primaryMethod,
-            'payment_method' => count($paymentMethods) > 1 ? 'multiplo' : $primaryMethod,
-            'payment_methods' => $paymentMethods,
-            'amount' => $total,
-            'entry_amount' => $totalPaid,
-            'remaining_amount' => max(0, $total - $totalPaid),
-            'entry_date' => $validated['entry_date'],
-            'payment_date' => $validated['entry_date'],
-            'status' => $totalPaid >= $total ? 'pago' : 'pendente',
-        ]);
-
-        // Registrar entrada(s) no caixa como "pendente" até o pedido ser entregue
-        $user = Auth::user();
-        foreach ($paymentMethods as $method) {
-            CashTransaction::create([
-                'store_id' => $order->store_id,
-                'type' => 'entrada',
-                'category' => 'Venda',
-                'description' => "Pagamento do Pedido #" . str_pad($order->id, 6, '0', STR_PAD_LEFT) . " - Cliente: " . $order->client->name,
-                'amount' => $method['amount'],
-                'payment_method' => $method['method'],
-                'status' => 'pendente',
-                'transaction_date' => $validated['entry_date'],
-                'order_id' => $order->id,
-                'user_id' => $user->id ?? null,
-                'user_name' => $user->name ?? 'Sistema',
-                'notes' => count($paymentMethods) > 1 ? 'Pagamento parcial (múltiplas formas)' : null,
-            ]);
-        }
+        $sizeSurcharges = $this->orderWizardService->processSavePayment($order, $validated, $orderCoverImagePath);
 
         // Salvar acréscimos na sessão para exibir no resumo
         session(['size_surcharges' => $sizeSurcharges]);
@@ -1524,157 +861,38 @@ class OrderWizardController extends Controller
     {
         try {
             $orderId = session('current_order_id');
-            
             if (!$orderId) {
                 return redirect()->route('orders.wizard.start')->with('error', 'Sessão expirada. Por favor, inicie um novo pedido.');
             }
             
             $order = Order::with(['items.sublimations'])->findOrFail($orderId);
             
-            // Buscar termos e condições baseados no tipo de personalização do pedido
-            $activeTerms = \App\Models\TermsCondition::getActiveForOrder($order);
-            $termsVersion = '1.0';
-            
-            // Se encontrou termos específicos, usar a versão do primeiro termo encontrado
-            if ($activeTerms->isNotEmpty()) {
-                $termsVersion = $activeTerms->first()->version ?? '1.0';
-            } else {
-                // Fallback: buscar termos gerais
-                $generalTerms = \App\Models\TermsCondition::getActive();
-                if ($generalTerms) {
-                    $termsVersion = $generalTerms->version ?? '1.0';
-                }
-            }
-            
-            // Buscar status "Pendente"
-            $pendenteStatus = Status::where('name', 'Pendente')->first();
-            
-            // Garantir que a data de entrega esteja definida (preservar existente ou calcular 15 dias úteis)
-            $deliveryDate = $order->delivery_date;
-            if (!$deliveryDate) {
-                // Calcular 15 dias úteis a partir da data de criação do pedido
-                $deliveryDate = DateHelper::calculateDeliveryDate($order->created_at, 15)->format('Y-m-d');
-            } else {
-                // Garantir formato correto (apenas data, sem horário)
-                $deliveryDate = \Carbon\Carbon::parse($deliveryDate)->format('Y-m-d');
-            }
-            
-            // Confirmar o pedido (tirar do modo rascunho e colocar em Pendente)
-            $updateData = [
-                'is_draft' => false,
-                'status_id' => $pendenteStatus ? $pendenteStatus->id : $order->status_id,
-                'delivery_date' => $deliveryDate,
-                'terms_accepted' => true,
-                'terms_accepted_at' => now(),
-                'terms_version' => $termsVersion
-            ];
-            
-            // Processar checkbox de evento
-            if ($request->has('is_event') && $request->input('is_event') == '1') {
-                $updateData['contract_type'] = 'EVENTO';
-                $updateData['is_event'] = true;
-            } else {
-                $updateData['is_event'] = false;
-            }
-
-            // Atualizar itens com dados da tela de confirmação (Nome da Arte e Capa)
+            // Processar uploads de itens se houver
+            $itemsData = [];
             if ($request->has('items')) {
                 foreach ($request->items as $itemId => $data) {
-                    $item = \App\Models\OrderItem::find($itemId);
-                    if ($item && $item->order_id == $order->id) {
-                        // Atualizar Nome da Arte
-                        if (isset($data['art_name'])) {
-                            $item->update(['art_name' => $data['art_name']]);
-                        }
-                        
-                        // Atualizar Imagem de Capa
-                        if ($request->hasFile("items.{$itemId}.cover_image")) {
-                            // Remover imagem antiga se existir
-                            if ($item->cover_image && \Storage::disk('public')->exists($item->cover_image)) {
-                                \Storage::disk('public')->delete($item->cover_image);
-                            }
-                            
-                            $file = $request->file("items.{$itemId}.cover_image");
-                            $path = $file->store('orders/covers', 'public');
-                            $item->update(['cover_image' => $path]);
-                        }
+                    $itemsData[$itemId] = ['art_name' => $data['art_name'] ?? null];
+                    
+                    if ($request->hasFile("items.{$itemId}.cover_image")) {
+                        $itemsData[$itemId]['cover_image_path'] = $request->file("items.{$itemId}.cover_image")->store('orders/covers', 'public');
                     }
                 }
             }
-            
-            \Log::info('=== FINALIZE ORDER DEBUG ===', [
-                'order_id' => $order->id,
-                'updateData' => $updateData,
-                'pendente_status_id' => $pendenteStatus?->id,
-            ]);
-            
-            $order->update($updateData);
-            $order->refresh(); // Garantir que os dados estejam atualizados
-            
-            \Log::info('=== ORDER AFTER UPDATE ===', [
-                'order_id' => $order->id,
-                'is_draft' => $order->is_draft,
-                'status_id' => $order->status_id,
-            ]);
-            
-            // Registrar histórico de venda
-            try {
-                \App\Models\SalesHistory::recordSale($order);
-            } catch (\Exception $e) {
-                \Log::warning('Erro ao registrar histórico de venda', [
-                    'error' => $e->getMessage(),
-                    'order_id' => $order->id,
-                ]);
-            }
 
-            // Registrar tracking de status inicial
-            try {
-                \App\Models\OrderStatusTracking::recordEntry($order->id, $order->status_id, Auth::id());
-            } catch (\Exception $e) {
-                \Log::warning('Erro ao registrar tracking de status', [
-                    'error' => $e->getMessage(),
-                    'order_id' => $order->id,
-                ]);
-            }
-            
-            // Criar log de confirmação
-            \App\Models\OrderLog::create([
-                'order_id' => $order->id,
-                'user_id' => Auth::id(),
-                'user_name' => Auth::user()->name ?? 'Sistema',
-                'action' => 'PEDIDO_CONFIRMADO',
-                'description' => 'Pedido confirmado e enviado para produção.',
-            ]);
-            
-            // Verificar estoque e criar solicitações de separação
-            try {
-                $stockResult = \App\Services\StockService::checkAndReserveForOrder($order);
-                $order->update(['stock_status' => $stockResult['status']]);
-                
-                \App\Models\OrderLog::create([
-                    'order_id' => $order->id,
-                    'user_id' => Auth::id(),
-                    'user_name' => Auth::user()->name ?? 'Sistema',
-                    'action' => 'ESTOQUE_VERIFICADO',
-                    'description' => 'Estoque verificado: ' . strtoupper($stockResult['status']) . 
-                                   '. Solicitações criadas: ' . $stockResult['requests_created'],
-                ]);
-            } catch (\Exception $e) {
-                \Log::warning('Erro ao verificar estoque', [
-                    'error' => $e->getMessage(),
-                    'order_id' => $order->id,
-                ]);
-                $order->update(['stock_status' => 'pending']);
-            }
+            $finalizeData = [
+                'is_event' => $request->boolean('is_event'),
+                'items' => $itemsData,
+            ];
+
+            $this->orderWizardService->processFinalizeOrder($order, $finalizeData, Auth::id());
             
             // Limpar sessão
-            session()->forget(['current_order_id', 'item_personalizations', 'size_surcharges']);
+            session()->forget(['current_order_id', 'item_personalizations', 'size_surcharges', 'personalization_type']);
             
             return redirect()->route('kanban.index')->with('success', 'Pedido #' . str_pad($order->id, 6, '0', STR_PAD_LEFT) . ' confirmado com sucesso!');
             
         } catch (\Exception $e) {
             \Log::error('Erro ao finalizar pedido: ' . $e->getMessage());
-            \Log::error($e->getTraceAsString());
             return redirect()->back()->with('error', 'Erro ao confirmar pedido: ' . $e->getMessage());
         }
     }
@@ -1682,37 +900,11 @@ class OrderWizardController extends Controller
     public function deletePersonalization($id)
     {
         try {
-            $personalization = \App\Models\OrderSublimation::findOrFail($id);
-            $itemId = $personalization->order_item_id;
-            $personalization->delete();
-            
-            // Recalcular total do item
-            $item = \App\Models\OrderItem::findOrFail($itemId);
-            $totalPersonalizations = \App\Models\OrderSublimation::where('order_item_id', $itemId)
-                ->sum('final_price');
-            
-            $basePrice = $item->unit_price * $item->quantity;
-            $newTotalPrice = $basePrice + $totalPersonalizations;
-            
-            $item->update([
-                'total_price' => $newTotalPrice
-            ]);
-            
-            // Recalcular subtotal do pedido
-            $order = $item->order;
-            $order->update([
-                'subtotal' => $order->items()->sum('total_price'),
-            ]);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Personalização removida com sucesso!'
-            ]);
+            $this->orderWizardService->processDeletePersonalization($id);
+            return redirect()->back()->with('success', 'Personalização removida com sucesso!');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro ao remover personalização'
-            ], 500);
+            \Log::error('Erro ao remover personalização: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Erro ao remover personalização.');
         }
     }
 

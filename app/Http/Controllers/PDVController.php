@@ -988,440 +988,56 @@ class PDVController extends Controller
     }
 
     /**
+     * @var PDVService
+     */
+    protected $pdvService;
+
+    public function __construct(PDVService $pdvService)
+    {
+        $this->pdvService = $pdvService;
+    }
+
+    /**
      * Finalizar venda (checkout)
      */
     public function checkout(Request $request)
     {
-        \Log::info('=== PDV CHECKOUT ===');
-        \Log::info('Request data:', $request->all());
-        
         // Normalizar client_id antes da validação
-        $clientId = $request->input('client_id');
-        \Log::info('Client ID recebido:', ['client_id' => $clientId, 'type' => gettype($clientId)]);
-        
-        // Converter qualquer valor vazio para null
-        if ($clientId === '' || $clientId === null || $clientId === 'null' || $clientId === 0 || $clientId === '0') {
+        if (in_array($request->input('client_id'), ['', null, 'null', 0, '0'], true)) {
             $request->merge(['client_id' => null]);
-            $clientId = null;
-            \Log::info('Client ID normalizado para null');
         }
         
-        // Validação
-        $rules = [
+        $validated = $request->validate([
+            'client_id' => 'nullable|exists:clients,id',
             'discount' => 'nullable|numeric|min:0',
             'delivery_fee' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string|max:1000',
             'payment_methods' => 'required|array|min:1',
             'payment_methods.*.method' => 'required|string',
             'payment_methods.*.amount' => 'required|numeric|min:0.01',
-        ];
-        
-        // Adicionar validação de client_id apenas se fornecido
-        if ($clientId !== null && $clientId !== '') {
-            $rules['client_id'] = 'required|exists:clients,id';
-            \Log::info('Validando client_id como required|exists');
-        } else {
-            $rules['client_id'] = 'nullable';
-            \Log::info('Validando client_id como nullable');
-        }
-        
+        ]);
+
         try {
-            $validated = $request->validate($rules);
-            \Log::info('Validação passou:', $validated);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Erro de validação:', $e->errors());
-            throw $e;
-        }
-        
-        // Garantir que client_id seja null se não fornecido
-        $validated['client_id'] = $validated['client_id'] ?? null;
-        \Log::info('Client ID final:', ['client_id' => $validated['client_id']]);
+            $result = $this->pdvService->processCheckout($validated);
+            $order = $result['order'];
+            $movementId = $result['movementId'];
 
-        $cart = Session::get('pdv_cart', []);
-
-        if (empty($cart)) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Venda realizada com sucesso',
+                'order_id' => $order->id,
+                'order_number' => str_pad($order->id, 6, '0', STR_PAD_LEFT),
+                'receipt_url' => route('pdv.sale-receipt', $order->id),
+                'movement_id' => $movementId,
+                'movement_print_url' => $movementId ? route('stocks.movements.print', $movementId) : null,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Erro no checkout do PDV:', ['error' => $e->getMessage()]);
             return response()->json([
                 'success' => false,
-                'message' => 'Carrinho vazio',
+                'message' => 'Erro ao processar venda: ' . $e->getMessage(),
             ], 400);
         }
-
-        // Calcular totais
-        $subtotal = $this->calculateCartTotal($cart);
-        $discount = $validated['discount'] ?? 0;
-        $deliveryFee = $validated['delivery_fee'] ?? 0;
-        $total = $subtotal - $discount + $deliveryFee;
-
-        // Venda PDV: Status "Entregue" (finalizada)
-        $status = Status::where('name', 'Entregue')->first();
-        if (!$status) {
-            // Se não encontrar "Entregue", usar o último status (maior position)
-            $status = Status::orderBy('position', 'desc')->first();
-        }
-
-        // Obter store_id
-        $user = Auth::user();
-        $storeId = null;
-        
-        if ($user->isAdminLoja()) {
-            $storeIds = $user->getStoreIds();
-            $storeId = !empty($storeIds) ? $storeIds[0] : null;
-        } elseif ($user->isVendedor()) {
-            $userStores = $user->stores()->get();
-            if ($userStores->isNotEmpty()) {
-                $storeId = $userStores->first()->id;
-            }
-        }
-        
-        // Se ainda não encontrou, usar loja principal
-        if (!$storeId) {
-            $mainStore = Store::where('is_main', true)->first();
-            $storeId = $mainStore ? $mainStore->id : null;
-        }
-
-        // ========== INICIAR TRANSAÇÃO ==========
-        // Toda a criação de Order, Items, Payments, etc. é envolvida em uma transação
-        // para garantir que se qualquer parte falhar, tudo seja revertido
-        $result = DB::transaction(function () use ($validated, $cart, $subtotal, $discount, $deliveryFee, $total, $status, $storeId) {
-
-        // Criar pedido (marcado como venda PDV)
-        $order = Order::create([
-            'client_id' => $validated['client_id'] ?? null,
-            'user_id' => Auth::id(),
-            'store_id' => $storeId,
-            'status_id' => $status?->id ?? 1,
-            'order_date' => Carbon::now('America/Sao_Paulo')->toDateString(),
-            'delivery_date' => Carbon::now('America/Sao_Paulo')->addDays(15)->toDateString(),
-            'is_draft' => false,
-            'is_pdv' => true, // Sempre True para Venda PDV
-            'client_confirmed' => true, // Vendas do PDV não precisam de confirmação do cliente
-            'client_confirmed_at' => Carbon::now('America/Sao_Paulo'), // Marcar como confirmado automaticamente
-            'subtotal' => $subtotal,
-            'discount' => $discount,
-            'delivery_fee' => $deliveryFee,
-            'total' => $total,
-            'total_items' => array_sum(array_column($cart, 'quantity')),
-            'notes' => $validated['notes'] ?? null,
-        ]);
-
-        // Criar itens do pedido
-        $itemNumber = 1;
-        $movementItems = []; // Para registrar nota de movimentação
-        
-        \Log::info('Iniciando processamento do checkout - Carrinho completo', [
-            'cart_count' => count($cart),
-            'cart_items' => array_map(function($item) {
-                return [
-                    'type' => $item['type'] ?? null,
-                    'size' => $item['size'] ?? null,
-                    'color_id' => $item['color_id'] ?? null,
-                    'cut_type_id' => $item['cut_type_id'] ?? null,
-                    'fabric_id' => $item['fabric_id'] ?? null,
-                    'quantity' => $item['quantity'] ?? null,
-                ];
-            }, $cart),
-        ]);
-        
-        foreach ($cart as $cartItem) {
-            $itemType = $cartItem['type'] ?? 'product'; // Default to product for legacy cart items
-            
-            // Dados base do OrderItem
-            $orderItemData = [
-                'order_id' => $order->id,
-                'item_number' => $itemNumber++,
-                'quantity' => $cartItem['quantity'],
-                'unit_price' => $cartItem['unit_price'],
-                'total_price' => $cartItem['total_price'],
-                'print_type' => '', // Valor padrão
-                'fabric' => '',
-                'color' => '',
-            ];
-            
-            // Lógica Específica por Tipo
-            if ($itemType == 'fabric_piece') {
-                $item = \App\Models\FabricPiece::find($cartItem['item_id']);
-                if ($item) {
-                     $orderItemData['print_type'] = 'Peça de Tecido';
-                     $orderItemData['fabric'] = $item->fabric->name ?? 'Tecido';
-                     $orderItemData['color'] = $item->color->name ?? 'Cor';
-                     
-                     // Registrar venda (pode ser parcial ou total do peso)
-                     // O recordSale gerencia a mudança de status se o peso zerar
-                     $item->recordSale($cartItem['quantity'], $order->id);
-                }
-            }
-            elseif ($itemType == 'machine') {
-                $item = \App\Models\SewingMachine::find($cartItem['item_id']);
-                if ($item) {
-                    $orderItemData['print_type'] = 'Máquina de Costura';
-                    $orderItemData['fabric'] = $item->brand ?? '';
-                    $orderItemData['color'] = $item->model ?? '';
-                    
-                    // Marcar como vendida/descartada
-                    $item->update([
-                        'status' => 'disposed',
-                        'notes' => ($item->notes ? $item->notes . "\n" : "") . "Vendido no Pedido #{$order->id}"
-                    ]);
-                }
-            }
-            elseif ($itemType == 'supply') {
-                $item = \App\Models\ProductionSupply::find($cartItem['item_id']);
-                if ($item) {
-                    $orderItemData['print_type'] = 'Suprimento';
-                    $orderItemData['fabric'] = $item->name ?? '';
-                    $orderItemData['color'] = $item->color ?? '';
-                    
-                    // Validar estoque
-                    if ($item->quantity < $cartItem['quantity']) {
-                        throw new \Exception("Estoque insuficiente para o suprimento: {$item->name} (Disponível: {$item->quantity})");
-                    }
-
-                    // Deduzir estoque
-                    $item->decrement('quantity', $cartItem['quantity']);
-                }
-            }
-            elseif ($itemType == 'uniform') {
-                $item = \App\Models\Uniform::find($cartItem['item_id']);
-                if ($item) {
-                    $orderItemData['print_type'] = 'Uniforme/EPI';
-                    $orderItemData['fabric'] = $item->name ?? '';
-                    $orderItemData['color'] = ($item->size ?? '') . ' - ' . ($item->gender ?? '');
-                    
-                    // Validar estoque
-                    if ($item->quantity < $cartItem['quantity']) {
-                        throw new \Exception("Estoque insuficiente para o uniforme: {$item->name} (Disponível: {$item->quantity})");
-                    }
-
-                     // Deduzir estoque
-                    $item->decrement('quantity', $cartItem['quantity']);
-                }
-            }
-            else {
-                // LÓGICA ORIGINAL (Product / Product Option)
-                $orderItemData['fabric'] = isset($cartItem['fabric_id']) && $cartItem['fabric_id'] ? $cartItem['fabric_id'] : ($cartItem['category'] ?? '');
-                $orderItemData['color'] = $cartItem['subcategory'] ?? '';
-                $orderItemData['print_type'] = $cartItem['product_title'] ?? '';
-                
-                 // Se for product_option do tipo tipo_corte, salvar o ID no campo model
-                if (isset($cartItem['type']) && $cartItem['type'] === 'product_option' && isset($cartItem['product_option_id'])) {
-                    $orderItemData['model'] = $cartItem['product_option_id'];
-                }
-                
-                // Salvar tamanhos especiais
-                if (isset($cartItem['size_surcharges']) && !empty($cartItem['size_surcharges'])) {
-                    $sizes = [];
-                    foreach ($cartItem['size_surcharges'] as $size => $data) {
-                        if (isset($data['quantity']) && $data['quantity'] > 0) {
-                            $sizes[$size] = $data['quantity'];
-                        }
-                    }
-                    if (!empty($sizes)) {
-                        $orderItemData['sizes'] = $sizes;
-                    }
-                }
-            }
-
-                // Tentar descontar do estoque (PRODUÇÃO)
-                if (isset($cartItem['size']) && isset($cartItem['color_id']) && isset($cartItem['cut_type_id'])) {
-                    $fabricId = $cartItem['fabric_id'] ?? null;
-                    
-                    $stockDeducted = $this->deductStockFromSale(
-                        $storeId,
-                        $fabricId,
-                        $cartItem['color_id'],
-                        $cartItem['cut_type_id'],
-                        $cartItem['size'],
-                        (int)$cartItem['quantity']
-                    );
-                    
-                    // BLOQUEIO: Se não conseguiu descontar estoque, cancelar a venda
-                    if (!$stockDeducted) {
-                        $fabricName = $fabricId ? (\App\Models\ProductOption::find($fabricId)->name ?? 'Tecido') : 'S/ Tecido';
-                        $colorName = \App\Models\ProductOption::find($cartItem['color_id'])->name ?? 'Cor';
-                        throw new \Exception("Estoque insuficiente para o item: {$fabricName} - {$colorName} ({$cartItem['size']})");
-                    }
-                    
-                    // Registrar item para nota de movimentação
-                    $movementItems[] = [
-                        'stock_id' => null, // Será preenchido pelo modelo
-                        'fabric_type_id' => $fabricId,
-                        'color_id' => $cartItem['color_id'],
-                        'cut_type_id' => $cartItem['cut_type_id'],
-                        'size' => $cartItem['size'],
-                        'quantity' => (int)$cartItem['quantity'],
-                    ];
-                }
-
-                $orderItem = OrderItem::create($orderItemData);
-            
-            // Criar personalizações sub.local se houver
-            $sublimationsTotal = 0;
-            if (isset($cartItem['sublocal_personalizations']) && is_array($cartItem['sublocal_personalizations']) && !empty($cartItem['sublocal_personalizations'])) {
-                foreach ($cartItem['sublocal_personalizations'] as $personalization) {
-                    if (!empty($personalization['location_id']) || !empty($personalization['location_name'])) {
-                        $finalPrice = $personalization['final_price'] ?? ($personalization['unit_price'] ?? 0) * ($personalization['quantity'] ?? 1);
-                        $sublimationsTotal += $finalPrice;
-                        
-                        \App\Models\OrderSublimation::create([
-                            'order_item_id' => $orderItem->id,
-                            'application_type' => 'sublimacao_local',
-                            'art_name' => null,
-                            'size_id' => null,
-                            'size_name' => $personalization['size_name'] ?? null,
-                            'location_id' => $personalization['location_id'] ?? null,
-                            'location_name' => $personalization['location_name'] ?? null,
-                            'quantity' => $personalization['quantity'] ?? 1,
-                            'color_count' => 0,
-                            'has_neon' => false,
-                            'neon_surcharge' => 0,
-                            'unit_price' => $personalization['unit_price'] ?? 0,
-                            'discount_percent' => 0,
-                            'final_price' => $finalPrice,
-                            'application_image' => null,
-                            'color_details' => null,
-                            'seller_notes' => null,
-                        ]);
-                    }
-                }
-                
-                // Garantir que o total_price do item inclua as personalizações
-                // O total_price já vem do carrinho com as personalizações, mas vamos garantir
-                $baseTotal = $orderItem->unit_price * $orderItem->quantity;
-                $expectedTotal = $baseTotal + $sublimationsTotal;
-                
-                // Se o total_price não estiver correto, atualizar
-                if (abs($orderItem->total_price - $expectedTotal) > 0.01) {
-                    $orderItem->update(['total_price' => $expectedTotal]);
-                }
-            }
-        }
-
-        // Processar formas de pagamento
-        $paymentMethods = $validated['payment_methods'];
-        
-        // Garantir que cada método tenha um ID
-        foreach ($paymentMethods as $index => $method) {
-            if (!isset($method['id'])) {
-                $paymentMethods[$index]['id'] = time() . rand(1000, 9999) . $index;
-            }
-        }
-        
-        $totalPaid = array_sum(array_column($paymentMethods, 'amount'));
-        
-        // Validar que o total pago não exceda o total do pedido (com tolerância para erros de ponto flutuante)
-        if (round($totalPaid, 2) > round($total, 2)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'O valor total pago (R$ ' . number_format($totalPaid, 2, ',', '.') . ') não pode exceder o total do pedido (R$ ' . number_format($total, 2, ',', '.') . ').',
-            ], 400);
-        }
-        
-        $primaryMethod = count($paymentMethods) === 1 ? $paymentMethods[0]['method'] : 'pix';
-        
-        // Criar registro de pagamento
-        $payment = Payment::create([
-            'order_id' => $order->id,
-            'method' => $primaryMethod,
-            'payment_method' => count($paymentMethods) > 1 ? 'multiplo' : $primaryMethod,
-            'payment_methods' => $paymentMethods,
-            'amount' => $total,
-            'entry_amount' => $totalPaid,
-            'remaining_amount' => max(0, $total - $totalPaid),
-            'entry_date' => Carbon::now('America/Sao_Paulo'),
-            'payment_date' => Carbon::now('America/Sao_Paulo'),
-            'status' => $totalPaid >= $total ? 'pago' : 'pendente',
-        ]);
-
-        // Registrar entrada(s) no caixa como "concluído" (venda finalizada)
-        $user = Auth::user();
-        $client = $order->client;
-        foreach ($paymentMethods as $method) {
-            CashTransaction::create([
-                'user_id' => $user->id,
-                'user_name' => $user->name,
-                'order_id' => $order->id,
-                'store_id' => $storeId,
-                'type' => 'entrada',
-                'category' => 'Venda',
-                'description' => 'Venda PDV - Pedido #' . str_pad($order->id, 6, '0', STR_PAD_LEFT) . ' - Cliente: ' . ($client->name ?? 'N/A'),
-                'amount' => $method['amount'],
-                'payment_method' => $method['method'],
-                'payment_methods' => [$method],
-                'transaction_date' => Carbon::now('America/Sao_Paulo'),
-                'status' => 'confirmado', // Venda finalizada, já confirmada
-                'notes' => 'Venda PDV - Pedido #' . str_pad($order->id, 6, '0', STR_PAD_LEFT),
-            ]);
-        }
-
-        // Registrar histórico de venda
-        try {
-            \App\Models\SalesHistory::recordSale($order);
-        } catch (\Exception $e) {
-            \Log::warning('Erro ao registrar histórico de venda', [
-                'error' => $e->getMessage(),
-                'order_id' => $order->id,
-            ]);
-        }
-
-        // Registrar tracking de status inicial
-        try {
-            \App\Models\OrderStatusTracking::recordEntry($order->id, $order->status_id, Auth::id());
-        } catch (\Exception $e) {
-            \Log::warning('Erro ao registrar tracking de status', [
-                'error' => $e->getMessage(),
-                'order_id' => $order->id,
-            ]);
-        }
-
-        // Limpar carrinho
-        Session::forget('pdv_cart');
-
-        // Criar registro de movimentação de estoque para impressão
-        $movementId = null;
-        if (!empty($movementItems)) {
-            try {
-                $movement = StockMovement::createOrderMovement(
-                    $storeId,
-                    $order->id,
-                    $movementItems,
-                    'Venda PDV #' . str_pad($order->id, 6, '0', STR_PAD_LEFT)
-                );
-                $movementId = $movement->id;
-            } catch (\Exception $e) {
-                \Log::warning('Erro ao criar movimento de estoque', [
-                    'error' => $e->getMessage(),
-                    'order_id' => $order->id,
-                ]);
-            }
-        }
-
-            return [
-                'order' => $order,
-                'movementId' => $movementId,
-            ];
-        }); // ========== FIM DA TRANSAÇÃO ==========
-        
-        // Extrair resultados da transação
-        $order = $result['order'];
-        $movementId = $result['movementId'];
-        
-        $message = 'Venda realizada com sucesso';
-        
-        \Log::info('Checkout do PDV concluído', [
-            'order_id' => $order->id,
-            'stock_requests_created_count' => $requestsCount,
-            'stock_requests_created' => $stockRequestsCreated,
-        ]);
-        
-        return response()->json([
-            'success' => true,
-            'message' => $message,
-            'order_id' => $order->id,
-            'order_number' => str_pad($order->id, 6, '0', STR_PAD_LEFT),
-            'receipt_url' => route('pdv.sale-receipt', $order->id), // URL para gerar nota de venda do PDV
-            'movement_id' => $movementId, // ID da movimentação de estoque para impressão
-            'movement_print_url' => $movementId ? route('stocks.movements.print', $movementId) : null,
-        ]);
     }
 
     /**

@@ -129,67 +129,7 @@ class OrderController extends Controller
         ]);
 
         try {
-            \DB::transaction(function () use ($order, $validated, $id) {
-                // Buscar pagamento existente ou criar novo
-                $payment = Payment::where('order_id', $id)->first();
-                
-                if ($payment) {
-                    // Atualizar pagamento existente
-                    $newEntryAmount = $payment->entry_amount + $validated['amount'];
-                    $newRemainingAmount = $payment->remaining_amount - $validated['amount'];
-                    
-                    // Adicionar novo método de pagamento ao array
-                    $paymentMethods = $payment->payment_methods ?? [];
-                    $paymentMethods[] = [
-                        'id' => time() . rand(1000, 9999),
-                        'method' => $validated['method'],
-                        'amount' => $validated['amount'],
-                        'date' => now()->format('Y-m-d H:i:s'),
-                    ];
-                    
-                    $payment->update([
-                        'entry_amount' => $newEntryAmount,
-                        'remaining_amount' => $newRemainingAmount,
-                        'payment_methods' => $paymentMethods,
-                        'status' => $newRemainingAmount <= 0 ? 'pago' : 'pendente',
-                    ]);
-                } else {
-                    // Criar novo pagamento
-                    $payment = Payment::create([
-                        'order_id' => $id,
-                        'method' => $validated['method'],
-                        'payment_method' => $validated['method'],
-                        'payment_methods' => [[
-                            'id' => time() . rand(1000, 9999),
-                            'method' => $validated['method'],
-                            'amount' => $validated['amount'],
-                            'date' => now()->format('Y-m-d H:i:s'),
-                        ]],
-                        'amount' => $order->total,
-                        'entry_amount' => $validated['amount'],
-                        'remaining_amount' => $order->total - $validated['amount'],
-                        'status' => $validated['amount'] >= $order->total ? 'pago' : 'pendente',
-                        'entry_date' => now(),
-                        'payment_date' => now(),
-                    ]);
-                }
-
-                // Criar transação no caixa como "pendente" até o pedido ser entregue
-                CashTransaction::create([
-                    'type' => 'entrada',
-                    'category' => 'Venda',
-                    'description' => "Pagamento do Pedido #" . str_pad($order->id, 6, '0', STR_PAD_LEFT) . " - " . $order->client->name,
-                    'amount' => $validated['amount'],
-                    'payment_method' => $validated['method'],
-                    'status' => 'pendente',
-                    'transaction_date' => now(),
-                    'order_id' => $order->id,
-                    'user_id' => Auth::id(),
-                    'user_name' => Auth::user()->name,
-                    'notes' => $validated['notes'],
-                ]);
-            });
-
+            \App\Services\OrderService::addPayment($order, $validated, Auth::id());
             return redirect()->back()->with('success', 'Pagamento adicionado com sucesso!');
         } catch (\Exception $e) {
             \Log::error('Erro ao adicionar pagamento', ['error' => $e->getMessage(), 'order_id' => $id]);
@@ -200,7 +140,6 @@ class OrderController extends Controller
     public function updatePayment(Request $request, $id): RedirectResponse
     {
         $order = Order::findOrFail($id);
-        $payment = Payment::where('order_id', $id)->firstOrFail();
         
         $validated = $request->validate([
             'method' => 'required|in:pix,dinheiro,cartao,boleto,transferencia',
@@ -208,133 +147,26 @@ class OrderController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
-        $methodId = $request->input('method_id');
-
-        // Se tiver method_id, atualizar apenas esse método específico
-        if ($methodId && $payment->payment_methods && is_array($payment->payment_methods)) {
-            $paymentMethods = $payment->payment_methods;
-            $oldAmount = 0;
-            
-            // Encontrar e atualizar o método específico
-            foreach ($paymentMethods as $key => $method) {
-                if ($method['id'] == $methodId) {
-                    $oldAmount = $method['amount'];
-                    $paymentMethods[$key]['method'] = $validated['method'];
-                    $paymentMethods[$key]['amount'] = $validated['amount'];
-                    break;
-                }
-            }
-            
-            // Recalcular totais
-            $amountDifference = $validated['amount'] - $oldAmount;
-            $newEntryAmount = $payment->entry_amount + $amountDifference;
-            $newRemainingAmount = $payment->remaining_amount - $amountDifference;
-            
-            $payment->update([
-                'entry_amount' => $newEntryAmount,
-                'remaining_amount' => $newRemainingAmount,
-                'payment_methods' => $paymentMethods,
-                'status' => $newRemainingAmount <= 0 ? 'pago' : 'pendente',
-                'notes' => $validated['notes'],
-            ]);
-            
-            // Atualizar transação no caixa correspondente
-            $cashTransaction = CashTransaction::where('order_id', $order->id)
-                ->where('type', 'entrada')
-                ->where('amount', $oldAmount)
-                ->first();
-
-            if ($cashTransaction) {
-                $cashTransaction->update([
-                    'amount' => $validated['amount'],
-                    'payment_method' => $validated['method'],
-                    'notes' => $validated['notes'],
-                ]);
-            }
-        } else {
-            // Fallback para pagamentos antigos sem payment_methods
-            $payment->update([
-                'method' => $validated['method'],
-                'entry_amount' => $validated['amount'],
-                'remaining_amount' => $order->total - $validated['amount'],
-                'status' => $validated['amount'] >= $order->total ? 'pago' : 'parcial',
-                'notes' => $validated['notes'],
-            ]);
-
-            // Atualizar transação no caixa (buscar a mais recente)
-            $cashTransaction = CashTransaction::where('order_id', $order->id)
-                ->where('type', 'entrada')
-                ->latest()
-                ->first();
-
-            if ($cashTransaction) {
-                $cashTransaction->update([
-                    'amount' => $validated['amount'],
-                    'payment_method' => $validated['method'],
-                    'notes' => $validated['notes'],
-                ]);
-            }
+        try {
+            \App\Services\OrderService::updatePayment($order, $validated, $request->input('method_id'));
+            return redirect()->back()->with('success', 'Pagamento atualizado com sucesso!');
+        } catch (\Exception $e) {
+            \Log::error('Erro ao atualizar pagamento', ['error' => $e->getMessage(), 'order_id' => $id]);
+            return redirect()->back()->with('error', 'Erro ao atualizar pagamento: ' . $e->getMessage());
         }
-
-        return redirect()->back()->with('success', 'Pagamento atualizado com sucesso!');
     }
 
     public function deletePayment(Request $request, $id): RedirectResponse
     {
         $order = Order::findOrFail($id);
-        $payment = Payment::where('order_id', $id)->firstOrFail();
-        
-        $paymentId = $request->input('payment_id');
-        $methodId = $request->input('method_id');
-        
-        // Se tiver method_id, remover apenas esse método específico
-        if ($methodId && $payment->payment_methods && is_array($payment->payment_methods)) {
-            $paymentMethods = $payment->payment_methods;
-            $removedAmount = 0;
-            
-            // Encontrar e remover o método específico
-            foreach ($paymentMethods as $key => $method) {
-                if ($method['id'] == $methodId) {
-                    $removedAmount = $method['amount'];
-                    unset($paymentMethods[$key]);
-                    break;
-                }
-            }
-            
-            // Reindexar array
-            $paymentMethods = array_values($paymentMethods);
-            
-            // Se ainda houver métodos, atualizar o pagamento
-            if (!empty($paymentMethods)) {
-                $newEntryAmount = $payment->entry_amount - $removedAmount;
-                $newRemainingAmount = $payment->remaining_amount + $removedAmount;
-                
-                $payment->update([
-                    'entry_amount' => $newEntryAmount,
-                    'remaining_amount' => $newRemainingAmount,
-                    'payment_methods' => $paymentMethods,
-                    'status' => $newRemainingAmount <= 0 ? 'pago' : 'pendente',
-                ]);
-                
-                // Atualizar ou deletar transação de caixa correspondente
-                $cashTransaction = CashTransaction::where('order_id', $order->id)
-                    ->where('type', 'entrada')
-                    ->where('amount', $removedAmount)
-                    ->first();
-                
-                if ($cashTransaction) {
-                    $cashTransaction->delete();
-                }
-                
-                return redirect()->back()->with('success', 'Pagamento removido com sucesso!');
-            }
-        }
-        
-        // Se não houver mais métodos ou não tiver method_id, deletar tudo
-        CashTransaction::where('order_id', $order->id)->where('type', 'entrada')->delete();
-        $payment->delete();
 
-        return redirect()->back()->with('success', 'Todos os pagamentos removidos com sucesso!');
+        try {
+            \App\Services\OrderService::deletePayment($order, $request->input('method_id'));
+            return redirect()->back()->with('success', 'Pagamento removido com sucesso!');
+        } catch (\Exception $e) {
+            \Log::error('Erro ao remover pagamento', ['error' => $e->getMessage(), 'order_id' => $id]);
+            return redirect()->back()->with('error', 'Erro ao remover pagamento: ' . $e->getMessage());
+        }
     }
 
     public function downloadClientReceipt($id)
@@ -609,7 +441,7 @@ class OrderController extends Controller
             'order_id' => $order->id,
             'user_id' => Auth::id(),
             'reason' => $validated['edit_reason'],
-            'changes' => $this->prepareChanges($order, $validated),
+            'changes' => \App\Services\OrderService::prepareChanges($order, $validated),
             'status' => 'pending'
         ]);
 
@@ -699,118 +531,6 @@ class OrderController extends Controller
         return redirect()->route('orders.show', $order->id)->with('success', 'Pedido atualizado com sucesso!');
     }
 
-    private function prepareChanges($order, $validated)
-    {
-        $changes = [];
-        $selectedSteps = $validated['selected_steps'];
-
-        // Dados do Cliente
-        if (in_array('client', $selectedSteps)) {
-            $clientChanges = [];
-            $client = $order->client;
-            
-            if ($client->name !== $validated['client_name']) {
-                $clientChanges['name'] = ['old' => $client->name, 'new' => $validated['client_name']];
-            }
-            if ($client->phone_primary !== $validated['client_phone_primary']) {
-                $clientChanges['phone_primary'] = ['old' => $client->phone_primary, 'new' => $validated['client_phone_primary']];
-            }
-            if ($client->email !== $validated['client_email']) {
-                $clientChanges['email'] = ['old' => $client->email, 'new' => $validated['client_email']];
-            }
-            if ($client->cpf_cnpj !== $validated['client_cpf_cnpj']) {
-                $clientChanges['cpf_cnpj'] = ['old' => $client->cpf_cnpj, 'new' => $validated['client_cpf_cnpj']];
-            }
-            if ($client->address !== $validated['client_address']) {
-                $clientChanges['address'] = ['old' => $client->address, 'new' => $validated['client_address']];
-            }
-            
-            if (!empty($clientChanges)) {
-                $changes['client'] = $clientChanges;
-            }
-        }
-
-        // Itens do Pedido
-        if (in_array('items', $selectedSteps) && isset($validated['items'])) {
-            $itemsChanges = [];
-            foreach ($validated['items'] as $index => $itemData) {
-                $item = $order->items->find($itemData['id']);
-                if ($item) {
-                    $itemChanges = [];
-                    if ($item->print_type !== $itemData['print_type']) {
-                        $itemChanges['print_type'] = ['old' => $item->print_type, 'new' => $itemData['print_type']];
-                    }
-                    if ($item->art_name !== $itemData['art_name']) {
-                        $itemChanges['art_name'] = ['old' => $item->art_name, 'new' => $itemData['art_name']];
-                    }
-                    if ($item->quantity != $itemData['quantity']) {
-                        $itemChanges['quantity'] = ['old' => $item->quantity, 'new' => $itemData['quantity']];
-                    }
-                    if ($item->fabric !== $itemData['fabric']) {
-                        $itemChanges['fabric'] = ['old' => $item->fabric, 'new' => $itemData['fabric']];
-                    }
-                    if ($item->color !== $itemData['color']) {
-                        $itemChanges['color'] = ['old' => $item->color, 'new' => $itemData['color']];
-                    }
-                    if ($item->unit_price != $itemData['unit_price']) {
-                        $itemChanges['unit_price'] = ['old' => $item->unit_price, 'new' => $itemData['unit_price']];
-                    }
-                    
-                    if (!empty($itemChanges)) {
-                        $itemsChanges[$item->id] = $itemChanges;
-                    }
-                }
-            }
-            if (!empty($itemsChanges)) {
-                $changes['items'] = $itemsChanges;
-            }
-        }
-
-        // Personalização
-        if (in_array('personalization', $selectedSteps)) {
-            $personalizationChanges = [];
-            if ($order->contract_type !== $validated['contract_type']) {
-                $personalizationChanges['contract_type'] = ['old' => $order->contract_type, 'new' => $validated['contract_type']];
-            }
-            if ($order->seller !== $validated['seller']) {
-                $personalizationChanges['seller'] = ['old' => $order->seller, 'new' => $validated['seller']];
-            }
-            if (!empty($personalizationChanges)) {
-                $changes['personalization'] = $personalizationChanges;
-            }
-        }
-
-        // Pagamento e Valores
-        if (in_array('payment', $selectedSteps)) {
-            $paymentChanges = [];
-            if ($order->delivery_date !== $validated['delivery_date']) {
-                $paymentChanges['delivery_date'] = ['old' => $order->delivery_date, 'new' => $validated['delivery_date']];
-            }
-            if ($order->subtotal != $validated['subtotal']) {
-                $paymentChanges['subtotal'] = ['old' => $order->subtotal, 'new' => $validated['subtotal']];
-            }
-            if ($order->discount != $validated['discount']) {
-                $paymentChanges['discount'] = ['old' => $order->discount, 'new' => $validated['discount']];
-            }
-            if ($order->delivery_fee != $validated['delivery_fee']) {
-                $paymentChanges['delivery_fee'] = ['old' => $order->delivery_fee, 'new' => $validated['delivery_fee']];
-            }
-            if ($order->total != $validated['total']) {
-                $paymentChanges['total'] = ['old' => $order->total, 'new' => $validated['total']];
-            }
-            if (!empty($paymentChanges)) {
-                $changes['payment'] = $paymentChanges;
-            }
-        }
-
-        // Observações
-        if ($order->notes !== $validated['notes']) {
-            $changes['notes'] = ['old' => $order->notes, 'new' => $validated['notes']];
-        }
-
-        return $changes;
-    }
-
     public function updateDeliveryDate(Request $request, $id)
     {
         $order = Order::findOrFail($id);
@@ -856,78 +576,12 @@ class OrderController extends Controller
         }
 
         try {
-            \DB::beginTransaction();
-
-            // Buscar status inicial (primeiro status)
-            $initialStatus = Status::orderBy('position')->first();
-
-            // Criar cópia do pedido
-            $newOrder = Order::create([
-                'client_id' => $originalOrder->client_id,
-                'user_id' => Auth::id(),
-                'status_id' => $initialStatus?->id ?? $originalOrder->status_id,
-                'store_id' => $originalOrder->store_id,
-                'seller' => $originalOrder->seller,
-                'contract_type' => $originalOrder->contract_type,
-                'delivery_date' => now()->addDays(15), // 15 dias a partir de hoje
-                'subtotal' => $originalOrder->subtotal,
-                'discount' => $originalOrder->discount,
-                'delivery_fee' => $originalOrder->delivery_fee,
-                'total' => $originalOrder->total,
-                'notes' => $originalOrder->notes,
-                'is_draft' => true, // Criar como rascunho
-            ]);
-
-            // Duplicar itens
-            foreach ($originalOrder->items as $item) {
-                $newItem = $newOrder->items()->create([
-                    'print_type' => $item->print_type,
-                    'art_name' => $item->art_name,
-                    'quantity' => $item->quantity,
-                    'fabric' => $item->fabric,
-                    'color' => $item->color,
-                    'collar' => $item->collar,
-                    'model' => $item->model,
-                    'detail' => $item->detail,
-                    'sizes' => $item->sizes,
-                    'unit_price' => $item->unit_price,
-                    'cover_image' => $item->cover_image,
-                ]);
-
-                // Duplicar personalizações/sublimações
-                foreach ($item->sublimations as $sub) {
-                    $newItem->sublimations()->create([
-                        'size_id' => $sub->size_id,
-                        'size_name' => $sub->size_name,
-                        'location_id' => $sub->location_id,
-                        'location_name' => $sub->location_name,
-                        'quantity' => $sub->quantity,
-                        'unit_price' => $sub->unit_price,
-                        'discount_percent' => $sub->discount_percent,
-                        'final_price' => $sub->final_price,
-                        'application_type' => $sub->application_type,
-                        'color_count' => $sub->color_count,
-                        'has_neon' => $sub->has_neon,
-                    ]);
-                }
-            }
-
-            // Criar log
-            \App\Models\OrderLog::create([
-                'order_id' => $newOrder->id,
-                'user_id' => Auth::id(),
-                'user_name' => Auth::user()->name,
-                'action' => 'order_created',
-                'description' => 'Pedido criado por duplicação do pedido #' . str_pad($originalOrder->id, 6, '0', STR_PAD_LEFT),
-            ]);
-
-            \DB::commit();
+            $newOrder = \App\Services\OrderService::duplicate($originalOrder, Auth::id());
 
             return redirect()->route('orders.show', $newOrder->id)
                 ->with('success', 'Pedido duplicado com sucesso! Novo pedido #' . str_pad($newOrder->id, 6, '0', STR_PAD_LEFT));
 
         } catch (\Exception $e) {
-            \DB::rollBack();
             \Log::error('Erro ao duplicar pedido:', [
                 'order_id' => $id,
                 'error' => $e->getMessage(),

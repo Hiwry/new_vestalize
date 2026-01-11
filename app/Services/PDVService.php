@@ -2,20 +2,14 @@
 
 namespace App\Services;
 
-use App\Models\Product;
-use App\Models\ProductOption;
-use App\Models\SizeSurcharge;
-use App\Models\Client;
-use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Status;
-use App\Models\Store;
-use App\Models\Payment;
-use App\Models\CashTransaction;
-use App\Models\Stock;
-use App\Models\StockRequest;
-use App\Models\User;
-use App\Models\Notification;
+use App\Models\SalesHistory;
+use App\Models\OrderStatusTracking;
+use App\Models\StockMovement;
+use App\Models\FabricPiece;
+use App\Models\SewingMachine;
+use App\Models\ProductionSupply;
+use App\Models\Uniform;
+use App\Models\OrderSublimation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
@@ -279,6 +273,34 @@ class PDVService
     }
 
     /**
+     * Descontar estoque após venda
+     */
+    public function deductStockFromSale($storeId, $fabricId, $colorId, $cutTypeId, $size, $quantity): bool
+    {
+        if (!Schema::hasTable('stocks') || !$storeId) {
+            return false;
+        }
+        
+        try {
+            $stock = Stock::findByParams($storeId, $fabricId, null, $colorId, $cutTypeId, $size);
+            
+            if ($stock && $stock->available_quantity >= $quantity) {
+                $stock->use($quantity);
+                Log::info('Estoque descontado com sucesso (Service)', [
+                    'store_id' => $storeId,
+                    'size' => $size,
+                    'quantity' => $quantity,
+                ]);
+                return true;
+            }
+        } catch (\Exception $e) {
+            Log::error('Erro ao descontar estoque (Service)', ['error' => $e->getMessage()]);
+        }
+        
+        return false;
+    }
+
+    /**
      * Verificar estoque e criar solicitação se necessário
      */
     public function checkStockAndCreateRequest(
@@ -398,9 +420,9 @@ class PDVService
     }
 
     /**
-     * Processar checkout - criar pedido e pagamento
+     * Processar checkout - criar pedido e pagamento com toda lógica de negócio
      */
-    public function processCheckout(array $cartData, array $paymentData): Order
+    public function processCheckout(array $validated): array
     {
         $user = Auth::user();
         $storeId = $this->getCurrentStoreId();
@@ -410,105 +432,176 @@ class PDVService
             throw new \Exception('Carrinho vazio');
         }
 
-        return DB::transaction(function () use ($cart, $cartData, $paymentData, $user, $storeId) {
-            // Buscar ou criar cliente
-            $client = null;
-            if (!empty($cartData['client_id'])) {
-                $client = Client::find($cartData['client_id']);
-            } elseif (!empty($cartData['client_name'])) {
-                $client = Client::create([
-                    'name' => $cartData['client_name'],
-                    'phone_primary' => $cartData['client_phone'] ?? null,
-                    'store_id' => $storeId,
-                    'tenant_id' => $user->tenant_id,
-                ]);
-            }
-
-            // Buscar status inicial
-            $status = Status::where('tenant_id', $user->tenant_id)
-                ->orderBy('position')
-                ->first();
-
+        return DB::transaction(function () use ($cart, $validated, $user, $storeId) {
             // Calcular totais
             $subtotal = $this->calculateCartTotal($cart);
-            $discount = floatval($paymentData['discount'] ?? 0);
-            $total = $subtotal - $discount;
+            $discount = floatval($validated['discount'] ?? 0);
+            $deliveryFee = floatval($validated['delivery_fee'] ?? 0);
+            $total = $subtotal - $discount + $deliveryFee;
+
+            // Status finalizado
+            $status = Status::where('name', 'Entregue')->first() ?? Status::orderBy('position', 'desc')->first();
 
             // Criar pedido
             $order = Order::create([
-                'client_id' => $client?->id,
+                'client_id' => $validated['client_id'] ?? null,
                 'user_id' => $user->id,
                 'store_id' => $storeId,
                 'status_id' => $status?->id,
                 'order_date' => now(),
+                'delivery_date' => now()->addDays(15),
                 'is_pdv' => true,
                 'is_draft' => false,
+                'client_confirmed' => true,
+                'client_confirmed_at' => now(),
                 'subtotal' => $subtotal,
                 'discount' => $discount,
+                'delivery_fee' => $deliveryFee,
                 'total' => max(0, $total),
-                'total_items' => count($cart),
+                'total_items' => array_sum(array_column($cart, 'quantity')),
                 'tenant_id' => $user->tenant_id,
-                'notes' => $paymentData['notes'] ?? null,
+                'notes' => $validated['notes'] ?? null,
             ]);
 
-            // Criar itens do pedido
+            $itemNumber = 1;
+            $movementItems = [];
+
             foreach ($cart as $cartItem) {
-                OrderItem::create([
+                $itemType = $cartItem['type'] ?? 'product';
+                $orderItemData = [
                     'order_id' => $order->id,
-                    'personalizacao' => $cartItem['category'] ?? 'PDV',
-                    'tecido' => $cartItem['product_title'] ?? 'Item',
+                    'item_number' => $itemNumber++,
                     'quantity' => $cartItem['quantity'],
                     'unit_price' => $cartItem['unit_price'],
-                    'total' => $cartItem['total_price'],
-                ]);
+                    'total_price' => $cartItem['total_price'],
+                    'print_type' => $cartItem['product_title'] ?? '',
+                    'fabric' => '',
+                    'color' => '',
+                ];
 
-                // Criar solicitação de estoque se for product_option com dados de estoque
-                if ($cartItem['type'] === 'product_option' && !empty($cartItem['size'])) {
-                    $this->checkStockAndCreateRequest(
-                        $storeId,
-                        $cartItem['fabric_id'] ?? null,
-                        $cartItem['color_id'] ?? null,
-                        $cartItem['cut_type_id'] ?? null,
-                        $cartItem['size'],
-                        $cartItem['quantity'],
-                        $order->id
-                    );
+                // Lógica por tipo de item
+                if ($itemType == 'fabric_piece') {
+                    $piece = FabricPiece::find($cartItem['item_id']);
+                    if ($piece) {
+                        $orderItemData['fabric'] = $piece->fabric->name ?? 'Tecido';
+                        $orderItemData['color'] = $piece->color->name ?? 'Cor';
+                        $piece->recordSale($cartItem['quantity'], $order->id);
+                    }
+                } elseif ($itemType == 'machine') {
+                    $machine = SewingMachine::find($cartItem['item_id']);
+                    if ($machine) {
+                        $orderItemData['fabric'] = $machine->brand ?? '';
+                        $orderItemData['color'] = $machine->model ?? '';
+                        $machine->update(['status' => 'disposed']);
+                    }
+                } elseif ($itemType == 'supply') {
+                    $supply = ProductionSupply::find($cartItem['item_id']);
+                    if ($supply) {
+                        $orderItemData['fabric'] = $supply->name ?? '';
+                        $orderItemData['color'] = $supply->color ?? '';
+                        if ($supply->quantity < $cartItem['quantity']) throw new \Exception("Estoque insuficiente para suprimento: {$supply->name}");
+                        $supply->decrement('quantity', $cartItem['quantity']);
+                    }
+                } elseif ($itemType == 'uniform') {
+                    $uniform = Uniform::find($cartItem['item_id']);
+                    if ($uniform) {
+                        $orderItemData['fabric'] = $uniform->name ?? '';
+                        $orderItemData['color'] = ($uniform->size ?? '') . ' - ' . ($uniform->gender ?? '');
+                        if ($uniform->quantity < $cartItem['quantity']) throw new \Exception("Estoque insuficiente para uniforme: {$uniform->name}");
+                        $uniform->decrement('quantity', $cartItem['quantity']);
+                    }
+                } else {
+                    $orderItemData['fabric'] = $cartItem['fabric_id'] ?? ($cartItem['category'] ?? '');
+                    $orderItemData['color'] = $cartItem['subcategory'] ?? '';
+                    if ($itemType === 'product_option' && isset($cartItem['product_option_id'])) {
+                        $orderItemData['model'] = $cartItem['product_option_id'];
+                    }
+                    if (!empty($cartItem['size_surcharges'])) {
+                        $orderItemData['sizes'] = collect($cartItem['size_surcharges'])->filter(fn($d) => ($d['quantity'] ?? 0) > 0)->map(fn($d) => $d['quantity'])->toArray();
+                    }
+                }
+
+                // Descontar estoque de produção
+                if (isset($cartItem['size']) && isset($cartItem['color_id']) && isset($cartItem['cut_type_id'])) {
+                    if (!$this->deductStockFromSale($storeId, $cartItem['fabric_id'] ?? null, $cartItem['color_id'], $cartItem['cut_type_id'], $cartItem['size'], (int)$cartItem['quantity'])) {
+                        $colorName = ProductOption::find($cartItem['color_id'])->name ?? 'Cor';
+                        throw new \Exception("Estoque insuficiente para item: {$colorName} ({$cartItem['size']})");
+                    }
+                    $movementItems[] = [
+                        'stock_id' => null,
+                        'fabric_type_id' => $cartItem['fabric_id'] ?? null,
+                        'color_id' => $cartItem['color_id'],
+                        'cut_type_id' => $cartItem['cut_type_id'],
+                        'size' => $cartItem['size'],
+                        'quantity' => (int)$cartItem['quantity'],
+                    ];
+                }
+
+                $orderItem = OrderItem::create($orderItemData);
+
+                // Sublimações
+                if (!empty($cartItem['sublocal_personalizations'])) {
+                    foreach ($cartItem['sublocal_personalizations'] as $p) {
+                        OrderSublimation::create([
+                            'order_item_id' => $orderItem->id,
+                            'application_type' => 'sublimacao_local',
+                            'location_id' => $p['location_id'] ?? null,
+                            'location_name' => $p['location_name'] ?? null,
+                            'quantity' => $p['quantity'] ?? 1,
+                            'unit_price' => $p['unit_price'] ?? 0,
+                            'final_price' => $p['final_price'] ?? ($p['unit_price'] * $p['quantity']),
+                        ]);
+                    }
                 }
             }
 
-            // Criar pagamento
-            $paidAmount = floatval($paymentData['paid_amount'] ?? 0);
-            
-            Payment::create([
+            // Pagamentos
+            $paymentMethods = $validated['payment_methods'];
+            $totalPaid = collect($paymentMethods)->sum('amount');
+            if (round($totalPaid, 2) > round($total, 2)) throw new \Exception("Valor pago excede o total");
+
+            $payment = Payment::create([
                 'order_id' => $order->id,
-                'total_amount' => $total,
-                'paid_amount' => $paidAmount,
-                'remaining_amount' => max(0, $total - $paidAmount),
-                'payment_methods' => json_encode($paymentData['payment_methods'] ?? []),
+                'payment_method' => count($paymentMethods) > 1 ? 'multiplo' : ($paymentMethods[0]['method'] ?? 'dinheiro'),
+                'payment_methods' => $paymentMethods,
+                'amount' => $total,
+                'entry_amount' => $totalPaid,
+                'remaining_amount' => max(0, $total - $totalPaid),
                 'payment_date' => now(),
+                'status' => $totalPaid >= $total ? 'pago' : 'pendente',
             ]);
 
-            // Registrar transação de caixa
-            if ($paidAmount > 0) {
+            // Transações de Caixa
+            foreach ($paymentMethods as $method) {
                 CashTransaction::create([
-                    'store_id' => $storeId,
                     'user_id' => $user->id,
+                    'user_name' => $user->name,
                     'order_id' => $order->id,
+                    'store_id' => $storeId,
                     'type' => 'entrada',
-                    'sale_type' => 'pdv',
-                    'amount' => $paidAmount,
-                    'payment_method' => $paymentData['payment_methods'][0]['method'] ?? 'dinheiro',
+                    'category' => 'Venda',
                     'description' => "Venda PDV - Pedido #{$order->id}",
+                    'amount' => $method['amount'],
+                    'payment_method' => $method['method'],
                     'transaction_date' => now(),
-                    'status' => 'approved',
+                    'status' => 'confirmado',
                     'tenant_id' => $user->tenant_id,
                 ]);
             }
 
-            // Limpar carrinho
+            // Registros adicionais
+            SalesHistory::recordSale($order);
+            OrderStatusTracking::recordEntry($order->id, $order->status_id, $user->id);
+
+            // Movimentação de estoque
+            $movementId = null;
+            if (!empty($movementItems)) {
+                $movementId = StockMovement::createOrderMovement($storeId, $order->id, $movementItems, "Venda PDV #{$order->id}")->id;
+            }
+
             $this->clearCart();
 
-            return $order;
+            return ['order' => $order, 'movementId' => $movementId];
         });
     }
 
