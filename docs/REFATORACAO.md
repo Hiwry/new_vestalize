@@ -67,10 +67,11 @@ Em vez de usar `schema:dump`, você pode:
 
 ## Services
 
-| Arquivo | Descrição |
-|---------|-----------|
-| `app/Services/OrderWizardService.php` | Lógica do wizard de pedidos |
-| `app/Services/PDVService.php` | Lógica do Ponto de Venda |
+| Arquivo | Descrição | Tamanho Original |
+|---------|-----------|------------------|
+| `app/Services/OrderWizardService.php` | Lógica do wizard de pedidos | 76KB → Service |
+| `app/Services/PDVService.php` | Lógica do Ponto de Venda | 79KB → Service |
+| `app/Services/EditOrderService.php` | Lógica de edição de pedidos | 83KB → Service |
 
 ## Form Requests
 
@@ -81,6 +82,9 @@ Em vez de usar `schema:dump`, você pode:
 | `app/Http/Requests/FinalizeOrderRequest.php` | Validação na finalização do pedido |
 | `app/Http/Requests/AddToCartRequest.php` | Validação ao adicionar item ao carrinho PDV |
 | `app/Http/Requests/PDVCheckoutRequest.php` | Validação do checkout PDV |
+| `app/Http/Requests/EditOrderClientRequest.php` | Validação de cliente na edição |
+| `app/Http/Requests/SavePersonalizationRequest.php` | Validação de personalização |
+| `app/Http/Requests/EditOrderPaymentRequest.php` | Validação de pagamento na edição |
 
 ---
 
@@ -173,13 +177,58 @@ public function checkout(PDVCheckoutRequest $request) {
 | `finalizeOrder(order, finalData)` | Finaliza o pedido |
 | `deleteItem(itemId)` | Remove item do pedido |
 
+## Métodos Disponíveis no EditOrderService
+
+| Método | Descrição |
+|--------|-----------|
+| `startEdit(order)` | Inicia sessão de edição |
+| `getEditData()` | Obtém dados da edição da sessão |
+| `getEditOrderId()` | Obtém ID do pedido em edição |
+| `hasActiveSession()` | Verifica se há sessão ativa |
+| `updateClientData(data)` | Atualiza dados do cliente na sessão |
+| `getProductOptionName(id, type)` | Converte ID para nome de opção |
+| `getPersonalizationName(id)` | Converte ID para nome de personalização |
+| `convertToName(value, type)` | Converte ID para nome |
+| `createSnapshotBefore(order)` | Cria snapshot antes da edição |
+| `createSnapshotAfter(order)` | Cria snapshot após a edição |
+| `calculateEditDifferences(before, after)` | Calcula diferenças entre snapshots |
+| `resolveStoreIdForEdit(order)` | Resolve loja para edição |
+| `finalizeEdit(order, editData)` | Finaliza a edição do pedido |
+| `savePersonalization(item, data)` | Salva personalização |
+| `processPersonalizationFiles(pers, files)` | Processa arquivos de personalização |
+| `updateItemTotalPrice(item)` | Atualiza preço total do item |
+| `clearSession()` | Limpa sessão de edição |
+| `canUserEdit(order)` | Verifica se usuário pode editar |
+| `recalculateSubtotal(order)` | Recalcula subtotal do pedido |
+
+---
+
+## Resumo da Refatoração
+
+### Controllers Refatorados
+
+| Controller | Linhas | Service Criado |
+|------------|--------|----------------|
+| `OrderWizardController.php` | 1739 | `OrderWizardService.php` |
+| `PDVController.php` | 1773 | `PDVService.php` |
+| `EditOrderController.php` | 1749 | `EditOrderService.php` |
+
+**Total: ~5.200 linhas de código movidas para Services**
+
+### Form Requests Criados
+
+- **8 Form Requests** com validação automática
+- **Conversão automática** de vírgula para ponto em preços
+- **Mensagens de erro** em português
+
 ---
 
 ## Próximos Passos
 
-1. [ ] Aplicar Form Requests nos controllers existentes gradualmente
-2. [ ] Mover mais lógica para Services
-3. [ ] Criar testes para os Services
-4. [ ] Refatorar EditOrderController (83KB)
-5. [ ] Documentar APIs internas
+1. [x] ~~Refatorar OrderWizardController~~
+2. [x] ~~Refatorar PDVController~~
+3. [x] ~~Refatorar EditOrderController~~
+4. [ ] Aplicar Form Requests nos controllers existentes gradualmente
+5. [ ] Criar testes automatizados para os Services
+6. [ ] Documentar APIs internas
 
