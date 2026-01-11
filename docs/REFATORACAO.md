@@ -61,58 +61,125 @@ Em vez de usar `schema:dump`, você pode:
 - Se você não tem backup testado e restaurável
 - Se outras equipes dependem do histórico de migrations
 
-## Arquivos Criados Nesta Refatoração
+---
 
-### Services
-- `app/Services/OrderWizardService.php` - Lógica extraída do controller
+# Arquivos Criados na Refatoração
 
-### Form Requests
-- `app/Http/Requests/StoreClientRequest.php` - Validação de cliente
-- `app/Http/Requests/AddOrderItemRequest.php` - Validação de itens
-- `app/Http/Requests/FinalizeOrderRequest.php` - Validação de finalização
+## Services
 
-### Como Usar os Form Requests
+| Arquivo | Descrição |
+|---------|-----------|
+| `app/Services/OrderWizardService.php` | Lógica do wizard de pedidos |
+| `app/Services/PDVService.php` | Lógica do Ponto de Venda |
+
+## Form Requests
+
+| Arquivo | Uso |
+|---------|-----|
+| `app/Http/Requests/StoreClientRequest.php` | Validação de cliente no wizard |
+| `app/Http/Requests/AddOrderItemRequest.php` | Validação ao adicionar item |
+| `app/Http/Requests/FinalizeOrderRequest.php` | Validação na finalização do pedido |
+| `app/Http/Requests/AddToCartRequest.php` | Validação ao adicionar item ao carrinho PDV |
+| `app/Http/Requests/PDVCheckoutRequest.php` | Validação do checkout PDV |
+
+---
+
+## Como Usar os Form Requests
 
 ```php
-// Antes (no controller):
-public function storeClient(Request $request) {
+// ANTES (no controller):
+public function addToCart(Request $request) {
     $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        // ... 10+ linhas de validação
+        'product_id' => 'nullable|exists:products,id',
+        'quantity' => 'required|numeric|min:0.01',
+        // ... 15+ linhas de validação
     ]);
 }
 
-// Depois:
-use App\Http\Requests\StoreClientRequest;
+// DEPOIS:
+use App\Http\Requests\AddToCartRequest;
 
-public function storeClient(StoreClientRequest $request) {
+public function addToCart(AddToCartRequest $request) {
     // Validação já aconteceu automaticamente
+    // Preços com vírgula já foram convertidos para ponto
     $validated = $request->validated();
 }
 ```
 
-### Como Usar o Service
+## Como Usar o PDVService
 
 ```php
-// Antes (no controller):
-public function storeClient(Request $request) {
-    // 100+ linhas de lógica
+// ANTES (no controller):
+public function checkout(Request $request) {
+    // 400+ linhas de lógica
 }
 
-// Depois:
-use App\Services\OrderWizardService;
+// DEPOIS:
+use App\Services\PDVService;
+use App\Http\Requests\PDVCheckoutRequest;
 
-public function __construct(private OrderWizardService $service) {}
+public function __construct(private PDVService $service) {}
 
-public function storeClient(StoreClientRequest $request) {
-    $order = $this->service->storeClientAndStartOrder($request->validated());
-    return redirect()->route('orders.wizard.type');
+public function checkout(PDVCheckoutRequest $request) {
+    try {
+        $order = $this->service->processCheckout(
+            $request->getCartData(),
+            $request->getPaymentData()
+        );
+        
+        return response()->json([
+            'success' => true,
+            'order_id' => $order->id,
+            'message' => 'Venda finalizada com sucesso!'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 400);
+    }
 }
 ```
+
+## Métodos Disponíveis no PDVService
+
+| Método | Descrição |
+|--------|-----------|
+| `getCurrentStoreId()` | Retorna ID da loja atual do usuário |
+| `getCart()` | Obtém carrinho da sessão |
+| `saveCart(array $cart)` | Salva carrinho na sessão |
+| `clearCart()` | Limpa carrinho |
+| `calculateCartTotal(array $cart)` | Calcula total do carrinho |
+| `createProductCartItem(Product, data)` | Cria item de produto |
+| `createProductOptionCartItem(Option, data)` | Cria item de tipo de corte |
+| `createFabricPieceCartItem(piece, data)` | Cria item de peça de tecido |
+| `createMachineCartItem(machine, data)` | Cria item de máquina |
+| `createSupplyCartItem(supply, data)` | Cria item de suprimento |
+| `createUniformCartItem(uniform, data)` | Cria item de uniforme |
+| `checkStockAndCreateRequest(...)` | Verifica estoque e cria solicitação |
+| `processCheckout(cartData, paymentData)` | Processa checkout completo |
+| `removeFromCart(itemId)` | Remove item do carrinho |
+| `updateCartItem(itemId, updates)` | Atualiza item do carrinho |
+
+## Métodos Disponíveis no OrderWizardService
+
+| Método | Descrição |
+|--------|-----------|
+| `resolveStoreId()` | Resolve loja do usuário |
+| `storeClientAndStartOrder(data)` | Cria cliente e inicia pedido |
+| `addItemToOrder(data, imagePath)` | Adiciona item ao pedido |
+| `recalculateOrderTotals(order)` | Recalcula totais do pedido |
+| `processPayment(paymentData, order)` | Processa pagamento |
+| `finalizeOrder(order, finalData)` | Finaliza o pedido |
+| `deleteItem(itemId)` | Remove item do pedido |
+
+---
 
 ## Próximos Passos
 
 1. [ ] Aplicar Form Requests nos controllers existentes gradualmente
 2. [ ] Mover mais lógica para Services
 3. [ ] Criar testes para os Services
-4. [ ] Documentar APIs internas
+4. [ ] Refatorar EditOrderController (83KB)
+5. [ ] Documentar APIs internas
+
