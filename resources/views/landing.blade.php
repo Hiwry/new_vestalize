@@ -506,7 +506,7 @@
                     </div>
 
                     <!-- Plano Premium -->
-                    <div class="bg-gradient-to-br from-violet-600 to-purple-700 rounded-2xl p-6 card-hover flex flex-col text-white relative overflow-hidden">
+                    <div class="bg-violet-600 rounded-2xl p-6 card-hover flex flex-col text-white relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
                         <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
                         
