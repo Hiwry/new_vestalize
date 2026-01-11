@@ -45,33 +45,32 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-12 gap-8 items-start">
-            <!-- Left Column: Products (8 cols) -->
-            <div class="col-span-12 lg:col-span-8 space-y-6">
+        <div class="grid grid-cols-12 gap-4 md:gap-8 items-start">
+            {{-- Left Column: Products (full on mobile, 8 cols on desktop) --}}
+            <div class="col-span-12 lg:col-span-8 space-y-4 md:space-y-6">
                 
-                <!-- Search Bar (Instant) -->
+                {{-- Search Bar (Instant) - Compact on mobile --}}
                 <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 md:h-5 md:w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
-                    <!-- Added ID for JS targeting and input event -->
                     <input type="text" 
                            id="product-search"
                            value="{{ $search ?? '' }}"
-                           placeholder="Buscar por nome, código ou categoria..." 
-                           class="block w-full pl-12 pr-4 py-4 border-none rounded-2xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/20 shadow-sm dark:shadow-gray-900/50 text-lg transition-all">
+                           placeholder="Buscar produto..." 
+                           class="block w-full pl-10 md:pl-12 pr-4 py-3 md:py-4 border-none rounded-xl md:rounded-2xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/20 shadow-sm dark:shadow-gray-900/50 text-sm md:text-lg transition-all">
                 </div>
 
-                <!-- Products Grid Container (AJAX Target) -->
+                {{-- Products Grid Container (AJAX Target) --}}
                 <div id="products-grid-container">
                     @include('pdv.partials.grid')
                 </div>
-            </div> <!-- End Left Column -->
+            </div> {{-- End Left Column --}}
 
-            <!-- Right Column: Cart & Client (4 cols) -->
-            <div class="col-span-12 lg:col-span-4 relative">
+            {{-- Right Column: Cart & Client (4 cols - hidden on mobile, full on lg) --}}
+            <div class="hidden lg:block col-span-12 lg:col-span-4 relative">
                 <div class="sticky top-6">
                     <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col h-[calc(100vh-6rem)]">
                         
@@ -225,7 +224,110 @@
             </div>
         </div> <!-- End Grid -->
     </div> <!-- End Main Container -->
+
+    {{-- Mobile Cart FAB (Floating Action Button) --}}
+    <div id="mobile-cart-fab" class="lg:hidden fixed bottom-20 right-4 z-40">
+        <button onclick="toggleMobileCart()" 
+                class="relative w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg shadow-indigo-500/30 flex items-center justify-center hover:bg-indigo-700 active:scale-95 transition-all">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            {{-- Cart count badge --}}
+            <span id="mobile-cart-count" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center {{ empty($cart) ? 'hidden' : '' }}">
+                {{ count($cart ?? []) }}
+            </span>
+        </button>
+        {{-- Total preview --}}
+        <div class="absolute -left-20 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded font-bold whitespace-nowrap {{ empty($cart) ? 'hidden' : '' }}" id="mobile-cart-total-preview">
+            @php $subtotal = !empty($cart) ? array_sum(array_column($cart, 'total_price')) : 0; @endphp
+            R$ {{ number_format($subtotal, 2, ',', '.') }}
+        </div>
+    </div>
+
+    {{-- Mobile Cart Drawer --}}
+    <div id="mobile-cart-drawer" class="lg:hidden fixed inset-0 z-50 hidden">
+        {{-- Backdrop --}}
+        <div onclick="toggleMobileCart()" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+        
+        {{-- Drawer Content --}}
+        <div class="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-3xl max-h-[85vh] overflow-hidden transform transition-transform duration-300 translate-y-full" id="mobile-cart-content">
+            {{-- Handle bar --}}
+            <div class="flex justify-center py-2">
+                <div class="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+            </div>
+            
+            {{-- Header --}}
+            <div class="flex items-center justify-between px-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    Carrinho
+                </h3>
+                <button onclick="toggleMobileCart()" class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            {{-- Cart Items --}}
+            <div class="max-h-[40vh] overflow-y-auto p-4 space-y-3" id="mobile-cart-items">
+                @if(empty($cart))
+                    <p class="text-center text-gray-500 py-8">Carrinho vazio</p>
+                @else
+                    @foreach($cart as $item)
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 flex justify-between items-center">
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white text-sm">{{ $item['product_title'] }}</p>
+                            <p class="text-xs text-gray-500">{{ $item['quantity'] }} × R$ {{ number_format($item['unit_price'], 2, ',', '.') }}</p>
+                        </div>
+                        <p class="font-bold text-indigo-600 dark:text-indigo-400">R$ {{ number_format($item['total_price'], 2, ',', '.') }}</p>
+                    </div>
+                    @endforeach
+                @endif
+            </div>
+            
+            {{-- Footer with Total and Actions --}}
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 space-y-3">
+                <div class="flex justify-between items-end">
+                    <span class="text-sm text-gray-500">Total</span>
+                    <span class="text-2xl font-bold text-gray-900 dark:text-white" id="mobile-cart-total">
+                        R$ {{ number_format($subtotal, 2, ',', '.') }}
+                    </span>
+                </div>
+                <button onclick="window.checkoutWithoutClient(); toggleMobileCart();" 
+                        class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors">
+                    Finalizar Venda
+                </button>
+                <button onclick="window.clearCart(); toggleMobileCart();" 
+                        class="w-full py-2 text-red-500 text-xs hover:underline">
+                    Limpar Carrinho
+                </button>
+            </div>
+        </div>
+    </div>
 </div> <!-- End Min-H-Screen -->
+
+<script>
+// Mobile cart toggle
+function toggleMobileCart() {
+    const drawer = document.getElementById('mobile-cart-drawer');
+    const content = document.getElementById('mobile-cart-content');
+    
+    if (drawer.classList.contains('hidden')) {
+        drawer.classList.remove('hidden');
+        setTimeout(() => {
+            content.classList.remove('translate-y-full');
+        }, 10);
+    } else {
+        content.classList.add('translate-y-full');
+        setTimeout(() => {
+            drawer.classList.add('hidden');
+        }, 300);
+    }
+}
+</script>
 
 <!-- Modal Adicionar Produto -->
 <div id="add-product-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
