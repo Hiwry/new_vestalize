@@ -331,55 +331,236 @@
                 <div class="text-center max-w-3xl mx-auto mb-16">
                     <span class="text-violet-600 font-bold tracking-wider uppercase text-sm">Preços</span>
                     <h2 class="text-3xl md:text-5xl font-bold text-gray-900 mt-4 mb-6">
-                        Plano simples e <span class="text-gradient">acessível</span>
+                        Escolha o plano <span class="text-gradient">ideal</span> para você
                     </h2>
                     <p class="text-lg text-gray-600">
-                        Tudo o que você precisa por um valor que cabe no seu bolso.
+                        Do MEI à grande empresa, temos o plano perfeito para o seu negócio.
                     </p>
                 </div>
 
-                <div class="max-w-lg mx-auto">
-                    <div class="bg-white rounded-3xl p-8 md:p-10 card-hover border-2 border-violet-200 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 bg-violet-600 text-white px-4 py-1 text-sm font-bold rounded-bl-xl">
-                            Mais Popular
-                        </div>
-                        
-                        <div class="text-center mb-8">
-                            <h3 class="text-2xl font-bold text-gray-900 mb-2">Profissional</h3>
-                            <div class="flex items-baseline justify-center gap-1">
-                                <span class="text-5xl font-extrabold text-violet-600">R$ 149</span>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Plano Start -->
+                    <div class="bg-white rounded-2xl p-6 card-hover border border-gray-200 flex flex-col">
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Start</h3>
+                            <p class="text-sm text-gray-500 mb-4">Para quem está começando</p>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-4xl font-extrabold text-gray-900">R$ 100</span>
                                 <span class="text-gray-500">/mês</span>
                             </div>
-                            <p class="text-gray-500 mt-2">O plano perfeito para sua empresa</p>
                         </div>
-
-                        <ul class="space-y-4 mb-8">
-                            @foreach([
-                                'Pedidos ilimitados',
-                                'Controle de produção (Kanban)',
-                                'Orçamentos profissionais',
-                                'Gestão financeira completa',
-                                'Controle de estoque',
-                                'Múltiplos usuários',
-                                'Relatórios avançados',
-                                'Suporte prioritário',
-                                'Atualizações gratuitas'
-                            ] as $item)
-                            <li class="flex items-center gap-3">
-                                <svg class="w-5 h-5 text-violet-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span class="text-gray-700">{{ $item }}</span>
-                            </li>
-                            @endforeach
-                        </ul>
-
-                        <a href="#trial" class="btn-primary block text-center text-white px-8 py-4 rounded-xl font-bold text-lg w-full">
-                            Começar Teste Grátis
+                        
+                        <div class="border-t border-gray-100 pt-6 flex-1">
+                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Inclui:</p>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-600">Gestão de Pedidos</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-600">CRM / Clientes</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-600">Gestão Financeira</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-600">Personalização de Marca</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-gray-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                    <span class="text-gray-400">1 usuário</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-gray-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                    <span class="text-gray-400">1 loja</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <a href="#trial" class="mt-6 block text-center py-3 px-6 rounded-xl border-2 border-violet-600 text-violet-600 font-semibold hover:bg-violet-50 transition-colors">
+                            Começar Agora
                         </a>
-                        <p class="text-center text-sm text-gray-500 mt-4">7 dias grátis, sem cartão de crédito</p>
+                    </div>
+
+                    <!-- Plano Básico -->
+                    <div class="bg-white rounded-2xl p-6 card-hover border border-gray-200 flex flex-col">
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Básico</h3>
+                            <p class="text-sm text-gray-500 mb-4">Para pequenos negócios</p>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-4xl font-extrabold text-gray-900">R$ 200</span>
+                                <span class="text-gray-500">/mês</span>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-gray-100 pt-6 flex-1">
+                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Tudo do Start +</p>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-600">Kanban de Produção</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-600">Módulo de Produção</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-600">Orçamentos em PDF</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-600">Relatórios Simples</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-600 font-medium">Até 3 usuários</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <a href="#trial" class="mt-6 block text-center py-3 px-6 rounded-xl border-2 border-violet-600 text-violet-600 font-semibold hover:bg-violet-50 transition-colors">
+                            Começar Agora
+                        </a>
+                    </div>
+
+                    <!-- Plano Pro - Destaque -->
+                    <div class="bg-white rounded-2xl p-6 card-hover border-2 border-violet-500 flex flex-col relative">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+                            <span class="bg-violet-600 text-white text-xs font-bold px-4 py-1 rounded-full">MAIS POPULAR</span>
+                        </div>
+                        
+                        <div class="mb-6 pt-2">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Profissional</h3>
+                            <p class="text-sm text-gray-500 mb-4">Para empresas em crescimento</p>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-4xl font-extrabold text-violet-600">R$ 300</span>
+                                <span class="text-gray-500">/mês</span>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-violet-100 pt-6 flex-1">
+                            <p class="text-xs font-semibold text-violet-600 uppercase tracking-wider mb-4">Tudo do Básico +</p>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-600">Frente de Caixa (PDV)</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-600">Controle de Estoque</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-600">Orçamento Online</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-600">Relatórios Completos</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-600 font-medium">Até 5 usuários</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <a href="#trial" class="mt-6 btn-primary block text-center py-3 px-6 rounded-xl text-white font-semibold">
+                            Começar Agora
+                        </a>
+                    </div>
+
+                    <!-- Plano Premium -->
+                    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 card-hover flex flex-col text-white">
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold mb-2">Premium</h3>
+                            <p class="text-sm text-gray-400 mb-4">Para empresas consolidadas</p>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-4xl font-extrabold">R$ 500</span>
+                                <span class="text-gray-400">/mês</span>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-gray-700 pt-6 flex-1">
+                            <p class="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-4">Acesso Ilimitado</p>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-300">Todas as funcionalidades</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-300">Usuários ilimitados</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-300">Multi-loja ilimitado</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-300">Sublimação Total</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-violet-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-gray-300 font-medium">Suporte prioritário</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <a href="#trial" class="mt-6 block text-center py-3 px-6 rounded-xl bg-white text-gray-900 font-semibold hover:bg-gray-100 transition-colors">
+                            Falar com Consultor
+                        </a>
                     </div>
                 </div>
+
+                <p class="text-center text-gray-500 mt-8 text-sm">
+                    Todos os planos incluem 7 dias de teste grátis. Sem cartão de crédito.
+                </p>
             </div>
         </section>
 
