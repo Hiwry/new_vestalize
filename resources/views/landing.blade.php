@@ -104,7 +104,7 @@
 
     <main>
         <!-- Hero Section -->
-        <section id="hero" class="pt-32 pb-20 bg-pattern relative overflow-hidden">
+        <section id="hero" class="pt-40 pb-20 bg-pattern relative overflow-hidden">
             <div class="max-w-7xl mx-auto px-6">
                 <div class="text-center max-w-4xl mx-auto mb-16">
                     <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-50 border border-violet-100 text-sm font-medium text-violet-700 mb-8">
