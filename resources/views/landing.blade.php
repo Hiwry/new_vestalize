@@ -506,59 +506,53 @@
                     </div>
 
                     <!-- Plano Premium -->
-                    <div class="bg-violet-600 rounded-2xl p-6 card-hover flex flex-col text-white relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                        <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
-                        
-                        <div class="mb-6 relative">
-                            <div class="inline-block bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full mb-3">
-                                ⭐ COMPLETO
-                            </div>
-                            <h3 class="text-xl font-bold mb-2">Premium</h3>
-                            <p class="text-sm text-violet-100 mb-4">Para empresas consolidadas</p>
+                    <div class="bg-white rounded-2xl p-6 card-hover border border-gray-200 flex flex-col">
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Premium</h3>
+                            <p class="text-sm text-gray-500 mb-4">Para empresas consolidadas</p>
                             <div class="flex items-baseline gap-1">
-                                <span class="text-4xl font-extrabold text-white">R$ 499,90</span>
-                                <span class="text-violet-200">/mês</span>
+                                <span class="text-4xl font-extrabold text-gray-900">R$ 499,90</span>
+                                <span class="text-gray-500">/mês</span>
                             </div>
                         </div>
                         
-                        <div class="border-t border-white/20 pt-6 flex-1 relative">
-                            <p class="text-xs font-semibold text-violet-100 uppercase tracking-wider mb-4">Acesso Ilimitado</p>
+                        <div class="border-t border-gray-100 pt-6 flex-1">
+                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Tudo do Pro +</p>
                             <ul class="space-y-3 text-sm">
                                 <li class="flex items-start gap-2">
-                                    <svg class="w-5 h-5 text-white shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                     </svg>
-                                    <span class="text-white">Todas as funcionalidades</span>
+                                    <span class="text-gray-600">Todas as funcionalidades</span>
                                 </li>
                                 <li class="flex items-start gap-2">
-                                    <svg class="w-5 h-5 text-white shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                     </svg>
-                                    <span class="text-white">Usuários ilimitados</span>
+                                    <span class="text-gray-600">Usuários ilimitados</span>
                                 </li>
                                 <li class="flex items-start gap-2">
-                                    <svg class="w-5 h-5 text-white shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                     </svg>
-                                    <span class="text-white">Multi-loja ilimitado</span>
+                                    <span class="text-gray-600">Multi-loja ilimitado</span>
                                 </li>
                                 <li class="flex items-start gap-2">
-                                    <svg class="w-5 h-5 text-white shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                     </svg>
-                                    <span class="text-white">Sublimação Total</span>
+                                    <span class="text-gray-600">Sublimação Total</span>
                                 </li>
                                 <li class="flex items-start gap-2">
-                                    <svg class="w-5 h-5 text-white shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-violet-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                     </svg>
-                                    <span class="text-white font-medium">Suporte prioritário</span>
+                                    <span class="text-gray-600 font-medium">Suporte prioritário</span>
                                 </li>
                             </ul>
                         </div>
                         
-                        <a href="#trial" class="mt-6 block text-center py-3 px-6 rounded-xl bg-white text-violet-700 font-semibold hover:bg-violet-50 transition-colors relative">
+                        <a href="#trial" class="mt-6 block text-center py-3 px-6 rounded-xl border-2 border-violet-600 text-violet-600 font-semibold hover:bg-violet-50 transition-colors">
                             Falar com Consultor
                         </a>
                     </div>
