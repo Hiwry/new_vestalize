@@ -338,14 +338,14 @@
                     </p>
                 </div>
 
-                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
                     <!-- Plano Start -->
                     <div class="bg-white rounded-2xl p-6 card-hover border border-gray-200 flex flex-col">
                         <div class="mb-6">
                             <h3 class="text-xl font-bold text-gray-900 mb-2">Start</h3>
                             <p class="text-sm text-gray-500 mb-4">Para quem está começando</p>
                             <div class="flex items-baseline gap-1">
-                                <span class="text-4xl font-extrabold text-gray-900">R$ 100</span>
+                                <span class="text-4xl font-extrabold text-gray-900">R$ 99,90</span>
                                 <span class="text-gray-500">/mês</span>
                             </div>
                         </div>
@@ -403,7 +403,7 @@
                             <h3 class="text-xl font-bold text-gray-900 mb-2">Básico</h3>
                             <p class="text-sm text-gray-500 mb-4">Para pequenos negócios</p>
                             <div class="flex items-baseline gap-1">
-                                <span class="text-4xl font-extrabold text-gray-900">R$ 200</span>
+                                <span class="text-4xl font-extrabold text-gray-900">R$ 199,90</span>
                                 <span class="text-gray-500">/mês</span>
                             </div>
                         </div>
@@ -459,7 +459,7 @@
                             <h3 class="text-xl font-bold text-gray-900 mb-2">Profissional</h3>
                             <p class="text-sm text-gray-500 mb-4">Para empresas em crescimento</p>
                             <div class="flex items-baseline gap-1">
-                                <span class="text-4xl font-extrabold text-violet-600">R$ 300</span>
+                                <span class="text-4xl font-extrabold text-violet-600">R$ 299,90</span>
                                 <span class="text-gray-500">/mês</span>
                             </div>
                         </div>
@@ -511,7 +511,7 @@
                             <h3 class="text-xl font-bold mb-2">Premium</h3>
                             <p class="text-sm text-gray-400 mb-4">Para empresas consolidadas</p>
                             <div class="flex items-baseline gap-1">
-                                <span class="text-4xl font-extrabold">R$ 500</span>
+                                <span class="text-4xl font-extrabold">R$ 499,90</span>
                                 <span class="text-gray-400">/mês</span>
                             </div>
                         </div>
