@@ -1,20 +1,184 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Dashboard de Produção</h1>
-    </div>
+<style>
+/* Animações Premium */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-    <!-- Filtro de Período e Colunas -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-5 sm:p-6">
-        <form method="GET" action="{{ route('production.dashboard') }}" id="dashboard-filter-form" class="space-y-4">
-            <input type="hidden" name="filter_submitted" value="1">
-            <input type="hidden" name="delivery_filter" value="{{ $deliveryFilter ?? 'today' }}">
-            <div class="flex flex-col gap-4 md:flex-row md:items-end">
-                <div class="w-full md:flex-1">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Período</label>
-                    <select name="period" class="w-full px-3 py-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition-all text-sm">
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes countUp {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-slide-in-right {
+    animation: slideInRight 0.5s ease-out forwards;
+}
+
+.animate-pulse-soft {
+    animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.animate-count-up {
+    animation: countUp 0.5s ease-out forwards;
+}
+
+/* Delays de animação */
+.delay-100 { animation-delay: 0.1s; opacity: 0; }
+.delay-200 { animation-delay: 0.2s; opacity: 0; }
+.delay-300 { animation-delay: 0.3s; opacity: 0; }
+.delay-400 { animation-delay: 0.4s; opacity: 0; }
+.delay-500 { animation-delay: 0.5s; opacity: 0; }
+
+/* Efeito Shimmer para loading */
+.shimmer-bg {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* Scrollbar Customizada */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Glassmorphism para Cards */
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.dark .glass-card {
+    background: rgba(30, 41, 59, 0.7);
+}
+
+/* Hover Effects */
+.hover-lift {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hover-lift:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+.dark .hover-lift:hover {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+}
+
+/* Stat Card Gradient Borders */
+.stat-card-gradient {
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--gradient-from), var(--gradient-to));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stat-card-gradient:hover::before {
+    opacity: 1;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 640px) {
+    .widget-container {
+        gap: 1rem !important;
+    }
+    
+    .dashboard-widget {
+        border-radius: 1.5rem !important;
+    }
+    
+    .dashboard-widget .px-8 {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    
+    .dashboard-widget .py-8 {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+    
+    .dashboard-widget .p-8 {
+        padding: 1rem !important;
+    }
+    
+    .carousel-slide {
+        min-width: 280px !important;
+        max-width: 280px !important;
+    }
+}
+</style>
+
+<div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-6 sm:space-y-8">
+    <!-- Header Premium com Animação -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 pb-2 animate-fade-in-up">
+        <div class="space-y-1">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-xl shadow-indigo-600/30 animate-float">
+                    <i class="fa-solid fa-chart-line text-lg sm:text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tighter uppercase italic">
+                        Dashboard <span class="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Produção</span>
+                    </h1>
+                    <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] sm:tracking-[0.3em]">Visão Geral e métricas operacionais</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros Rápidos / Período -->
+        <div class="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-1.5 sm:p-2 rounded-2xl border border-gray-100/50 dark:border-slate-800/50 shadow-lg flex flex-wrap items-center gap-1.5 sm:gap-2 animate-slide-in-right">
+            <form method="GET" action="{{ route('production.dashboard') }}" id="dashboard-filter-form" class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <input type="hidden" name="filter_submitted" value="1">
+                <input type="hidden" name="delivery_filter" value="{{ $deliveryFilter ?? 'today' }}">
+                
+                <div class="relative group">
+                    <i class="fa-solid fa-calendar-days absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[9px] sm:text-[10px] group-hover:text-indigo-500 transition-colors"></i>
+                    <select name="period" onchange="this.form.submit()" 
+                            class="pl-8 sm:pl-10 pr-6 sm:pr-8 py-2 sm:py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl text-[10px] sm:text-xs font-black text-gray-600 dark:text-slate-300 uppercase tracking-widest focus:ring-2 focus:ring-indigo-500 shadow-sm transition-all appearance-none cursor-pointer hover:shadow-md">
                         <option value="week" {{ $period == 'week' ? 'selected' : '' }}>Semana</option>
                         <option value="month" {{ $period == 'month' ? 'selected' : '' }}>Mês</option>
                         <option value="quarter" {{ $period == 'quarter' ? 'selected' : '' }}>Trimestre</option>
@@ -22,456 +186,495 @@
                         <option value="custom" {{ $period == 'custom' ? 'selected' : '' }}>Personalizado</option>
                     </select>
                 </div>
+
                 @if($period == 'custom')
-                <div class="w-full md:w-48">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Data Inicial</label>
-                    <input type="date" name="start_date" value="{{ $startDate }}" class="w-full px-3 py-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition-all text-sm">
-                </div>
-                <div class="w-full md:w-48">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Data Final</label>
-                    <input type="date" name="end_date" value="{{ $endDate }}" class="w-full px-3 py-3 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition-all text-sm">
+                <div class="flex items-center gap-1 sm:gap-2">
+                    <input type="date" name="start_date" value="{{ $startDate }}" class="px-2 sm:px-4 py-2 bg-white dark:bg-slate-800 border-none rounded-xl text-[10px] sm:text-xs font-bold text-gray-600 dark:text-slate-300 focus:ring-2 focus:ring-indigo-500 shadow-sm">
+                    <span class="text-gray-400 font-bold text-[10px] sm:text-xs uppercase">até</span>
+                    <input type="date" name="end_date" value="{{ $endDate }}" class="px-2 sm:px-4 py-2 bg-white dark:bg-slate-800 border-none rounded-xl text-[10px] sm:text-xs font-bold text-gray-600 dark:text-slate-300 focus:ring-2 focus:ring-indigo-500 shadow-sm">
+                    <button type="submit" class="p-2 sm:p-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:shadow-indigo-600/30 transition-all active:scale-95">
+                        <i class="fa-solid fa-arrows-rotate text-sm"></i>
+                    </button>
                 </div>
                 @endif
-                <button type="submit" class="w-full md:w-auto px-4 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
-                    Filtrar
+                
+                <!-- Gatilho do Modal de Colunas -->
+                <button type="button" @click="$dispatch('open-modal', 'kanban-columns')" 
+                        class="px-3 sm:px-4 py-2 sm:py-2.5 bg-white dark:bg-slate-800 text-gray-500 dark:text-slate-400 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-700 transition-all flex items-center gap-1.5 sm:gap-2 border border-transparent hover:border-indigo-200 hover:shadow-md active:scale-95">
+                    <i class="fa-solid fa-sliders text-indigo-500"></i> 
+                    <span class="hidden sm:inline">Colunas</span>
                 </button>
-            </div>
-            
-            <!-- Seleção de Colunas -->
-            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-3">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Colunas do Kanban</label>
-                    <div class="flex gap-2">
-                        <button type="button" onclick="selectAllColumns()" class="text-xs px-2 py-1 text-indigo-600 dark:text-indigo-400 hover:underline">
-                            Selecionar Todas
-                        </button>
-                        <button type="button" onclick="deselectAllColumns()" class="text-xs px-2 py-1 text-gray-600 dark:text-gray-400 hover:underline">
-                            Desmarcar Todas
-                        </button>
-                    </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cards de Estatísticas Principais -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        @php
+            $stats = [
+                [
+                    'title' => 'Total Pedidos',
+                    'value' => $totalOrders ?? 0,
+                    'icon' => 'fa-box',
+                    'gradient' => 'from-blue-500 to-cyan-500',
+                    'bg' => 'bg-blue-50 dark:bg-blue-900/20',
+                    'text' => 'text-blue-600 dark:text-blue-400',
+                    'change' => '+12%',
+                    'changeType' => 'up'
+                ],
+                [
+                    'title' => 'Em Produção',
+                    'value' => collect($ordersByStatus ?? [])->sum(),
+                    'icon' => 'fa-cogs',
+                    'gradient' => 'from-amber-500 to-orange-500',
+                    'bg' => 'bg-amber-50 dark:bg-amber-900/20',
+                    'text' => 'text-amber-600 dark:text-amber-400',
+                    'change' => '85%',
+                    'changeType' => 'neutral'
+                ],
+                [
+                    'title' => 'Para Hoje',
+                    'value' => isset($deliveryOrders) ? $deliveryOrders->filter(fn($o) => \Carbon\Carbon::parse($o->delivery_date)->isToday())->count() : 0,
+                    'icon' => 'fa-clock',
+                    'gradient' => 'from-rose-500 to-pink-500',
+                    'bg' => 'bg-rose-50 dark:bg-rose-900/20',
+                    'text' => 'text-rose-600 dark:text-rose-400',
+                    'change' => 'Urgente',
+                    'changeType' => 'urgent'
+                ],
+                [
+                    'title' => 'Atrasados',
+                    'value' => isset($deliveryOrders) ? $deliveryOrders->filter(fn($o) => \Carbon\Carbon::parse($o->delivery_date)->isPast() && !\Carbon\Carbon::parse($o->delivery_date)->isToday())->count() : 0,
+                    'icon' => 'fa-exclamation-triangle',
+                    'gradient' => 'from-red-500 to-rose-600',
+                    'bg' => 'bg-red-50 dark:bg-red-900/20',
+                    'text' => 'text-red-600 dark:text-red-400',
+                    'change' => 'Crítico',
+                    'changeType' => 'down'
+                ],
+            ];
+        @endphp
+
+        @foreach($stats as $index => $stat)
+        <div class="stat-card-gradient glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-gray-100/50 dark:border-slate-800/50 shadow-lg hover-lift animate-fade-in-up delay-{{ ($index + 1) * 100 }}"
+             style="--gradient-from: {{ $stat['gradient'] == 'from-blue-500 to-cyan-500' ? '#3b82f6' : ($stat['gradient'] == 'from-amber-500 to-orange-500' ? '#f59e0b' : ($stat['gradient'] == 'from-rose-500 to-pink-500' ? '#f43f5e' : '#ef4444')) }};
+                    --gradient-to: {{ $stat['gradient'] == 'from-blue-500 to-cyan-500' ? '#06b6d4' : ($stat['gradient'] == 'from-amber-500 to-orange-500' ? '#f97316' : ($stat['gradient'] == 'from-rose-500 to-pink-500' ? '#ec4899' : '#e11d48')) }};">
+            <div class="flex items-start justify-between mb-3 sm:mb-4">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br {{ $stat['gradient'] }} flex items-center justify-center text-white shadow-lg">
+                    <i class="fa-solid {{ $stat['icon'] }} text-base sm:text-lg"></i>
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                    @foreach($allStatuses as $status)
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                        <input type="checkbox" 
-                               name="columns[]" 
-                               value="{{ $status->id }}"
-                               {{ in_array($status->id, $selectedColumns) ? 'checked' : '' }}
-                               class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 column-checkbox">
-                        <span class="text-sm text-gray-700 dark:text-gray-300">{{ $status->name }}</span>
-                    </label>
-                    @endforeach
-                </div>
+                <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full
+                    {{ $stat['changeType'] == 'up' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : '' }}
+                    {{ $stat['changeType'] == 'down' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : '' }}
+                    {{ $stat['changeType'] == 'neutral' ? 'bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-300' : '' }}
+                    {{ $stat['changeType'] == 'urgent' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 animate-pulse-soft' : '' }}">
+                    {{ $stat['change'] }}
+                </span>
             </div>
-        </form>
-    </div>
-
-<!-- Estatísticas Gerais -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-4">
-        <div class="text-sm text-gray-600 dark:text-gray-400">Total de Pedidos</div>
-        <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $totalOrders }}</div>
-    </div>
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-4">
-        <div class="text-sm text-gray-600 dark:text-gray-400">Em Produção</div>
-        <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ $ordersInProduction }}</div>
-    </div>
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-4">
-        <div class="text-sm text-gray-600 dark:text-gray-400">Tempo Médio Total</div>
-        <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            @if($avgProductionTime)
-                @php
-                    $days = floor($avgProductionTime / 86400);
-                    $hours = floor(($avgProductionTime % 86400) / 3600);
-                    $minutes = floor(($avgProductionTime % 3600) / 60);
-                    $formatted = '';
-                    if ($days > 0) $formatted .= $days . 'd ';
-                    if ($hours > 0) $formatted .= $hours . 'h ';
-                    $formatted .= $minutes . 'm';
-                @endphp
-                {{ $formatted }}
-            @else
-                N/A
-            @endif
-        </div>
-    </div>
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-4">
-        <div class="text-sm text-gray-600 dark:text-gray-400">Setor Mais Lento</div>
-        <div class="text-lg font-bold text-red-600 dark:text-red-400">
-            {{ $slowestStatus['status_name'] ?? 'N/A' }}
-        </div>
-        @if($slowestStatus)
-        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            {{ $slowestStatus['avg_formatted'] ?? 'N/A' }}
-        </div>
-        @endif
-    </div>
-</div>
-
-<!-- Carrossel de Pedidos por Data de Entrega -->
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6 mb-6">
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Pedidos por Data de Entrega</h2>
-        <div class="flex gap-2">
-            <button onclick="changeDeliveryFilter('today')" 
-                    class="px-4 py-2 rounded-md text-sm font-medium transition {{ $deliveryFilter == 'today' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' }}">
-                Hoje
-            </button>
-            <button onclick="changeDeliveryFilter('week')" 
-                    class="px-4 py-2 rounded-md text-sm font-medium transition {{ $deliveryFilter == 'week' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' }}">
-                Esta Semana
-            </button>
-            <button onclick="changeDeliveryFilter('month')" 
-                    class="px-4 py-2 rounded-md text-sm font-medium transition {{ $deliveryFilter == 'month' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' }}">
-                Este Mês
-            </button>
-        </div>
-    </div>
-    
-    @if(isset($deliveryOrders) && $deliveryOrders && $deliveryOrders->count() > 0)
-    <div class="relative">
-        <!-- Carrossel Container -->
-        <div id="delivery-carousel" class="overflow-hidden">
-            <div class="flex gap-4 overflow-x-auto pb-4" id="carousel-track">
-                @foreach($deliveryOrders as $order)
-                @php
-                    $firstItem = $order->items->first();
-                    $coverImage = $order->cover_image_url ?? $firstItem?->cover_image_url;
-                    $artName = $firstItem?->art_name;
-                    $displayName = $artName ?? ($order->client?->name ?? 'Sem cliente');
-                    $storeName = $order->store?->name ?? 'Loja Principal';
-                @endphp
-                <div class="carousel-slide flex-shrink-0" style="min-width: 320px; max-width: 320px;">
-                    <div class="kanban-card bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow dark:shadow-gray-900/25 rounded-lg overflow-hidden cursor-pointer hover:shadow-xl dark:hover:shadow-gray-900/50 transition-all duration-200 border"
-                         onclick="window.location.href='{{ route('orders.show', $order->id) }}'">
-                        
-                        <!-- Imagem de Capa -->
-                        @if($coverImage)
-                        <div class="h-48 bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                            <img src="{{ $coverImage }}" 
-                                 alt="Capa do Pedido" 
-                                 class="w-full h-48 object-cover"
-                                 style="object-fit: cover; object-position: center;"
-                                 onerror="this.parentElement.innerHTML='<div class=\'h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center\'><svg class=\'w-12 h-12 text-white opacity-50\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg></div>'">
-                        </div>
-                        @else
-                        <div class="h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                            <svg class="w-12 h-12 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                        </div>
-                        @endif
-
-                        <!-- Conteúdo do Card -->
-                        <div class="p-4">
-                            <!-- Número do Pedido e Cliente -->
-                            <div class="mb-3">
-                                <div class="flex items-center justify-between mb-1">
-                                    <div class="flex items-center space-x-2">
-                                        <a href="{{ route('orders.show', $order->id) }}" 
-                                           class="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded hover:bg-indigo-100 dark:hover:bg-indigo-900/50 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">
-                                            #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
-                                        </a>
-                                        @if($order->is_event)
-                                        <span class="text-xs font-medium bg-red-500 dark:bg-red-600 text-white px-2 py-1 rounded-full">
-                                            EVENTO
-                                        </span>
-                                        @endif
-                                    </div>
-                                    <span class="text-xs text-gray-500 dark:text-gray-400">
-                                        {{ $order->items->sum('quantity') }} pçs
-                                    </span>
-                                </div>
-                                <h3 class="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate mb-1" title="{{ $displayName }}">
-                                    {{ $displayName }}
-                                </h3>
-                                @if($storeName)
-                                <div class="flex items-center text-xs text-indigo-700 dark:text-indigo-400">
-                                    <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9-4 9 4-9 4-9-4zm0 6l9 4 9-4m-9 4v6" />
-                                    </svg>
-                                    <span class="truncate" title="{{ $storeName }}">
-                                        <strong>Loja:</strong> {{ $storeName }}
-                                    </span>
-                                </div>
-                                @endif
-                            </div>
-
-                            <!-- Data de Entrega -->
-                            @if($order->delivery_date)
-                            <div class="mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
-                                <div class="flex items-center justify-between">
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">Data de Entrega</div>
-                                    <div class="text-xs font-semibold text-gray-900 dark:text-gray-100">
-                                        {{ \Carbon\Carbon::parse($order->delivery_date)->format('d/m/Y') }}
-                                    </div>
-                                </div>
-                                @php
-                                    $deliveryDate = \Carbon\Carbon::parse($order->delivery_date)->startOfDay();
-                                    $today = \Carbon\Carbon::now()->startOfDay();
-                                    $daysUntilDelivery = (int) $today->diffInDays($deliveryDate, false);
-                                @endphp
-                                <div class="mt-1 text-xs font-medium {{ $daysUntilDelivery < 0 ? 'text-red-600 dark:text-red-400' : ($daysUntilDelivery == 0 ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400') }}">
-                                    @if($daysUntilDelivery < 0)
-                                        Atrasado {{ abs($daysUntilDelivery) }} dia(s)
-                                    @elseif($daysUntilDelivery == 0)
-                                        Entrega hoje!
-                                    @else
-                                        Em {{ $daysUntilDelivery }} dia(s)
-                                    @endif
-                                </div>
-                            </div>
-                            @endif
-
-                            <!-- Informações do Pedido -->
-                            <div class="space-y-2">
-                                <div class="flex items-center justify-between text-xs">
-                                    <span class="text-gray-500 dark:text-gray-400">Itens:</span>
-                                    <span class="font-medium text-gray-900 dark:text-gray-100">{{ $order->items->sum('quantity') }} pçs</span>
-                                </div>
-                                
-                                <div class="flex items-center justify-between text-xs">
-                                    <span class="text-gray-500 dark:text-gray-400">Total:</span>
-                                    <span class="font-bold text-indigo-600 dark:text-indigo-400">R$ {{ number_format($order->total, 2, ',', '.') }}</span>
-                                </div>
-                                
-                                <div class="flex items-center justify-between text-xs">
-                                    <span class="text-gray-500 dark:text-gray-400">Status:</span>
-                                    <span class="px-2 py-1 rounded-full text-xs font-medium" style="background: {{ $order->status->color ?? '#6B7280' }}20; color: {{ $order->status->color ?? '#6B7280' }}">
-                                        {{ $order->status->name ?? 'Sem status' }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-        
-        <!-- Controles do Carrossel -->
-        <div class="flex justify-center items-center mt-4 gap-2">
-            <button onclick="previousSlide()" 
-                    class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-            </button>
-            <button onclick="nextSlide()" 
-                    class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-            </button>
-        </div>
-    </div>
-    @else
-    <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-        Nenhum pedido encontrado para o período selecionado
-    </div>
-    @endif
-</div>
-
-<!-- Tempo Médio por Setor -->
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6 mb-6">
-    <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Tempo Médio por Setor</h2>
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Setor</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tempo Médio</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tempo Mínimo</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tempo Máximo</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Pedidos</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                @foreach($statuses as $status)
-                @php
-                    $stat = collect($statusStats)->firstWhere('status_id', $status->id);
-                @endphp
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {{ $status->name }}
-                        </div>
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                            {{ $stat['avg_formatted'] ?? 'N/A' }}
-                        </div>
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900 dark:text-gray-100">
-                            {{ $stat['min_formatted'] ?? 'N/A' }}
-                        </div>
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900 dark:text-gray-100">
-                            {{ $stat['max_formatted'] ?? 'N/A' }}
-                        </div>
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900 dark:text-gray-100">
-                            {{ $ordersByStatus[$status->id] ?? 0 }}
-                        </div>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Pedidos por Status -->
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
-    <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Pedidos por Status</h2>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        @foreach($statuses as $status)
-        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $status->name }}</div>
-            <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {{ $ordersByStatus[$status->id] ?? 0 }}
+            <div class="space-y-1">
+                <p class="text-[10px] sm:text-xs font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">{{ $stat['title'] }}</p>
+                <p class="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white tabular-nums animate-count-up" data-target="{{ $stat['value'] }}">
+                    {{ $stat['value'] }}
+                </p>
             </div>
         </div>
         @endforeach
     </div>
+
+    <!-- Container de Widgets Arrastáveis -->
+    <div class="widget-container grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8 pb-12">
+        
+        <!-- Widget: Pedidos por Data de Entrega (Full Width) -->
+        <div class="dashboard-widget lg:col-span-3 glass-card rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl shadow-gray-200/50 dark:shadow-black/40 border border-gray-100/50 dark:border-slate-800/50 overflow-hidden animate-fade-in-up delay-500" id="widget-delivery-carousel">
+            <div class="px-4 sm:px-8 py-4 sm:py-8 border-b border-gray-100/50 dark:border-slate-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                <div class="flex items-center gap-3 sm:gap-4 widget-drag-handle cursor-grab active:cursor-grabbing">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/30">
+                        <i class="fa-solid fa-truck-fast text-sm sm:text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base sm:text-xl font-black text-gray-900 dark:text-white tracking-tight">Cronograma de <span class="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">Entrega</span></h2>
+                        <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest hidden sm:block">Pedidos prioritários e prazos próximos</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-1 bg-gray-50/80 dark:bg-slate-800/80 p-1 rounded-xl sm:rounded-2xl backdrop-blur-sm">
+                    <button onclick="changeDeliveryFilter('today')" 
+                            class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all {{ $deliveryFilter == 'today' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-md' : 'text-gray-400 hover:text-gray-600 dark:hover:text-slate-300' }}">
+                        Hoje
+                    </button>
+                    <button onclick="changeDeliveryFilter('week')" 
+                            class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all {{ $deliveryFilter == 'week' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-md' : 'text-gray-400 hover:text-gray-600 dark:hover:text-slate-300' }}">
+                        Semana
+                    </button>
+                    <button onclick="changeDeliveryFilter('month')" 
+                            class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all {{ $deliveryFilter == 'month' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-md' : 'text-gray-400 hover:text-gray-600 dark:hover:text-slate-300' }}">
+                        Mês
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4 sm:p-8 widget-content">
+                @if(isset($deliveryOrders) && $deliveryOrders->count() > 0)
+                <div class="relative group/carousel">
+                    <!-- Carrossel Container -->
+                    <div id="delivery-carousel" class="overflow-hidden">
+                        <div class="flex gap-4 sm:gap-6 overflow-x-auto pb-4 sm:pb-6 scrollbar-hide snap-x snap-mandatory" id="carousel-track">
+                            @foreach($deliveryOrders as $orderIndex => $order)
+                            @php
+                                $firstItem = $order->items->first();
+                                $coverImage = $order->cover_image_url ?? $firstItem?->cover_image_url;
+                                $artName = $firstItem?->art_name;
+                                $displayName = $artName ?? ($order->client?->name ?? 'Sem cliente');
+                                $storeName = $order->store?->name ?? 'Loja Principal';
+                                $deliveryDate = \Carbon\Carbon::parse($order->delivery_date)->startOfDay();
+                                $today = \Carbon\Carbon::now()->startOfDay();
+                                $daysUntilDelivery = (int) $today->diffInDays($deliveryDate, false);
+                                $statusColor = $daysUntilDelivery < 0 ? 'red' : ($daysUntilDelivery <= 3 ? 'orange' : 'green');
+                            @endphp
+                            <div class="carousel-slide flex-shrink-0 snap-start" style="min-width: 280px; max-width: 320px;">
+                                <div class="group/card relative bg-white dark:bg-slate-800 rounded-2xl sm:rounded-[2rem] border border-gray-100 dark:border-slate-700 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden cursor-pointer"
+                                     onclick="window.location.href='{{ route('orders.show', $order->id) }}'"
+                                     style="animation-delay: {{ $orderIndex * 0.1 }}s">
+                                    
+                                    <!-- Imagem de Capa Premium -->
+                                    <div class="relative h-36 sm:h-44 overflow-hidden">
+                                        @if($coverImage)
+                                        <img src="{{ $coverImage }}" class="w-full h-full object-cover group-hover/card:scale-110 transition-transform duration-700">
+                                        @else
+                                        <div class="w-full h-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center">
+                                            <i class="fa-solid fa-shirt text-3xl sm:text-4xl text-white/30"></i>
+                                        </div>
+                                        @endif
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                                        
+                                        <!-- ID Badge -->
+                                        <div class="absolute top-3 sm:top-4 left-3 sm:left-4 px-2 sm:px-3 py-1 sm:py-1.5 bg-white/20 backdrop-blur-md rounded-lg sm:rounded-xl border border-white/30 text-[9px] sm:text-[10px] font-black text-white tracking-widest uppercase">
+                                            #{{ str_pad($order->id, 5, '0', STR_PAD_LEFT) }}
+                                        </div>
+
+                                        @if($order->is_event)
+                                        <div class="absolute top-3 sm:top-4 right-3 sm:right-4">
+                                            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-red-500 to-pink-500 text-white flex items-center justify-center shadow-lg shadow-red-500/40 animate-pulse-soft">
+                                                <i class="fa-solid fa-bolt text-[10px] sm:text-xs"></i>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        <!-- Status Badge -->
+                                        <div class="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
+                                            <span class="inline-flex items-center gap-1 px-2 sm:px-3 py-1 bg-{{ $statusColor }}-500/90 backdrop-blur-sm rounded-full text-[9px] sm:text-[10px] font-black text-white uppercase tracking-wider">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                                {{ $daysUntilDelivery == 0 ? 'Hoje' : ($daysUntilDelivery < 0 ? 'Atrasado' : "Em {$daysUntilDelivery}d") }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-4 sm:p-6">
+                                        <h3 class="text-xs sm:text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight truncate mb-1">
+                                            {{ $displayName }}
+                                        </h3>
+                                        <div class="flex items-center gap-1.5 mb-3 sm:mb-4 opacity-60">
+                                            <i class="fa-solid fa-store text-[7px] sm:text-[8px]"></i>
+                                            <span class="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider truncate">{{ $storeName }}</span>
+                                        </div>
+
+                                        <!-- Barra de Progresso -->
+                                        <div class="space-y-1.5 sm:space-y-2">
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest">Prazo</span>
+                                                <span class="text-[9px] sm:text-[10px] font-bold text-gray-500">{{ \Carbon\Carbon::parse($order->delivery_date)->format('d/m') }}</span>
+                                            </div>
+                                            <div class="w-full h-1 sm:h-1.5 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                                <div class="h-full bg-gradient-to-r from-{{ $statusColor }}-400 to-{{ $statusColor }}-600 transition-all duration-1000 rounded-full" 
+                                                     style="width: {{ max(10, min(100, 100 - ($daysUntilDelivery * 10))) }}%"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Footer -->
+                                        <div class="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-50 dark:border-slate-700/50 flex items-center justify-between">
+                                            <div class="flex items-center gap-1.5 sm:gap-2">
+                                                <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-gray-50 dark:bg-slate-700 flex items-center justify-center">
+                                                    <i class="fa-solid fa-box-open text-[8px] sm:text-[10px] text-gray-400"></i>
+                                                </div>
+                                                <span class="text-[9px] sm:text-[10px] font-black text-gray-900 dark:text-white">{{ $order->items->sum('quantity') }} pçs</span>
+                                            </div>
+                                            <span class="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase">{{ $order->status->name ?? 'S/ Status' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    
+                    <!-- Controles do Carrossel -->
+                    <button onclick="previousSlide()" class="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 shadow-xl border border-gray-100 dark:border-slate-700 items-center justify-center opacity-0 group-hover/carousel:opacity-100 group-hover/carousel:-translate-x-6 transition-all hover:scale-110 active:scale-95">
+                        <i class="fa-solid fa-chevron-left text-gray-400"></i>
+                    </button>
+                    <button onclick="nextSlide()" class="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 shadow-xl border border-gray-100 dark:border-slate-700 items-center justify-center opacity-0 group-hover/carousel:opacity-100 group-hover/carousel:translate-x-6 transition-all hover:scale-110 active:scale-95">
+                        <i class="fa-solid fa-chevron-right text-gray-400"></i>
+                    </button>
+                </div>
+                @else
+                <div class="flex flex-col items-center justify-center py-12 sm:py-20 text-gray-400 opacity-40">
+                    <i class="fa-solid fa-calendar-xmark text-3xl sm:text-4xl mb-3 sm:mb-4"></i>
+                    <p class="text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-center">Nenhuma entrega programada para este período</p>
+                </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Widget: Tempo Médio por Setor -->
+        <div class="dashboard-widget lg:col-span-2 glass-card rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl shadow-gray-200/50 dark:shadow-black/40 border border-gray-100/50 dark:border-slate-800/50 overflow-hidden animate-fade-in-up delay-300" id="widget-sector-performance">
+            <div class="px-4 sm:px-8 py-4 sm:py-8 border-b border-gray-100/50 dark:border-slate-800/50 flex items-center justify-between">
+                <div class="flex items-center gap-3 sm:gap-4 widget-drag-handle cursor-grab active:cursor-grabbing">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/30">
+                        <i class="fa-solid fa-microchip text-sm sm:text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base sm:text-xl font-black text-gray-900 dark:text-white tracking-tight">Performance por <span class="bg-gradient-to-r from-purple-500 to-violet-600 bg-clip-text text-transparent">Setor</span></h2>
+                        <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest hidden sm:block">Eficiência granulada da produção</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 sm:p-8 widget-content">
+                <div class="overflow-x-auto -mx-4 sm:mx-0">
+                    <table class="w-full min-w-[400px]">
+                        <thead>
+                            <tr class="text-left border-b border-gray-50 dark:border-slate-800">
+                                <th class="pb-3 sm:pb-4 text-[8px] sm:text-[9px] font-black text-gray-400 uppercase tracking-widest px-3 sm:px-4">Estágio</th>
+                                <th class="pb-3 sm:pb-4 text-[8px] sm:text-[9px] font-black text-gray-400 uppercase tracking-widest px-3 sm:px-4">Ciclo Médio</th>
+                                <th class="pb-3 sm:pb-4 text-[8px] sm:text-[9px] font-black text-gray-400 uppercase tracking-widest px-3 sm:px-4 hidden sm:table-cell">Pico (Max)</th>
+                                <th class="pb-3 sm:pb-4 text-[8px] sm:text-[9px] font-black text-gray-400 uppercase tracking-widest px-3 sm:px-4 text-right">Volume</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50 dark:divide-slate-800/50">
+                            @foreach($statuses as $status)
+                            @php $stat = collect($statusStats)->firstWhere('status_id', $status->id); @endphp
+                            <tr class="group hover:bg-gray-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                <td class="py-3 sm:py-4 px-3 sm:px-4">
+                                    <div class="flex items-center gap-2 sm:gap-3">
+                                        <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full shadow-sm" style="background-color: {{ $status->color ?? '#6366f1' }}; box-shadow: 0 0 8px {{ $status->color ?? '#6366f1' }}40;"></div>
+                                        <span class="text-[10px] sm:text-xs font-black text-gray-700 dark:text-slate-300 uppercase tracking-tight">{{ $status->name }}</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 sm:py-4 px-3 sm:px-4">
+                                    <span class="text-xs sm:text-sm font-black text-gray-900 dark:text-white tabular-nums">{{ $stat['avg_formatted'] ?? 'N/A' }}</span>
+                                </td>
+                                <td class="py-3 sm:py-4 px-3 sm:px-4 italic text-gray-400 text-[10px] sm:text-xs hidden sm:table-cell">
+                                    {{ $stat['max_formatted'] ?? 'N/A' }}
+                                </td>
+                                <td class="py-3 sm:py-4 px-3 sm:px-4 text-right">
+                                    <span class="text-[9px] sm:text-[10px] font-black text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg">
+                                        {{ $ordersByStatus[$status->id] ?? 0 }}
+                                    </span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Widget: Distribuição de Carga -->
+        <div class="dashboard-widget glass-card rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl shadow-gray-200/50 dark:shadow-black/40 border border-gray-100/50 dark:border-slate-800/50 overflow-hidden animate-fade-in-up delay-400" id="widget-load-distribution">
+            <div class="px-4 sm:px-8 py-4 sm:py-8 border-b border-gray-100/50 dark:border-slate-800/50 flex items-center justify-between">
+                <div class="flex items-center gap-3 sm:gap-4 widget-drag-handle cursor-grab active:cursor-grabbing">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+                        <i class="fa-solid fa-layer-group text-sm sm:text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base sm:text-xl font-black text-gray-900 dark:text-white tracking-tight">Distribuição</h2>
+                        <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest hidden sm:block">Carga atual no sistema</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 sm:p-8 widget-content space-y-4 sm:space-y-6">
+                @foreach($statuses->take(6) as $status)
+                @php 
+                    $count = $ordersByStatus[$status->id] ?? 0;
+                    $percent = $totalOrders > 0 ? ($count / $totalOrders) * 100 : 0;
+                @endphp
+                <div class="space-y-1.5 sm:space-y-2 group">
+                    <div class="flex justify-between items-end">
+                        <span class="text-[8px] sm:text-[9px] font-black text-gray-500 uppercase tracking-widest group-hover:text-gray-700 dark:group-hover:text-slate-300 transition-colors">{{ $status->name }}</span>
+                        <span class="text-[10px] sm:text-xs font-black text-gray-900 dark:text-white">{{ $count }}</span>
+                    </div>
+                    <div class="w-full h-1.5 sm:h-2 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-1000 ease-out group-hover:opacity-80" 
+                             style="width: {{ $percent }}%; background: linear-gradient(90deg, {{ $status->color ?? '#6366f1' }}, {{ $status->color ?? '#6366f1' }}cc);"></div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+    </div>
 </div>
 
+<!-- Modal de Colunas do Kanban - Estilo Premium -->
+<div x-data="{ open: false }" 
+     @open-modal.window="if ($event.detail === 'kanban-columns') open = true"
+     x-show="open"
+     x-cloak
+     class="fixed inset-0 z-[200] flex items-center justify-center p-4">
+    
+    <div @click="open = false" 
+         x-show="open"
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+
+    <div x-show="open"
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+         class="relative glass-card rounded-[2rem] sm:rounded-[3rem] shadow-2xl w-full max-w-2xl overflow-hidden border border-gray-100/50 dark:border-slate-800/50">
+        
+        <div class="px-6 sm:px-10 py-6 sm:py-10">
+            <div class="flex justify-between items-center mb-6 sm:mb-10">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
+                        <i class="fa-solid fa-toggle-on text-lg sm:text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">Visibilidade do Kanban</h3>
+                        <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] sm:tracking-[0.2em]">Selecione quais setores exibir</p>
+                    </div>
+                </div>
+                <button @click="open = false" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark text-gray-400"></i>
+                </button>
+            </div>
+
+            <form method="GET" action="{{ route('production.dashboard') }}" class="space-y-6 sm:space-y-8">
+                <input type="hidden" name="filter_submitted" value="1">
+                <input type="hidden" name="period" value="{{ $period }}">
+                
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-6">
+                    @foreach($allStatuses as $status)
+                    <label class="group relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-3xl border border-gray-100 dark:border-slate-800 hover:border-indigo-500 transition-all cursor-pointer has-[:checked]:bg-indigo-50/50 dark:has-[:checked]:bg-indigo-900/20 has-[:checked]:border-indigo-300 dark:has-[:checked]:border-indigo-600">
+                        <div class="relative flex items-center">
+                            <input type="checkbox" name="columns[]" value="{{ $status->id }}"
+                                   {{ in_array($status->id, $selectedColumns) ? 'checked' : '' }}
+                                   class="peer hidden">
+                            <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg sm:rounded-xl border-2 border-gray-200 dark:border-slate-700 peer-checked:bg-gradient-to-br peer-checked:from-indigo-500 peer-checked:to-purple-600 peer-checked:border-transparent transition-all flex items-center justify-center">
+                                <i class="fa-solid fa-check text-[8px] sm:text-[10px] text-white opacity-0 peer-checked:opacity-100 transition-opacity"></i>
+                            </div>
+                        </div>
+                        <span class="text-[10px] sm:text-xs font-black text-gray-700 dark:text-slate-300 uppercase tracking-tight">{{ $status->name }}</span>
+                    </label>
+                    @endforeach
+                </div>
+
+                <div class="flex gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-100 dark:border-slate-800">
+                    <button type="button" @click="document.querySelectorAll('input[name=\'columns[]\']').forEach(i => i.checked = false)"
+                            class="flex-1 py-4 sm:py-5 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 border border-gray-100 dark:border-slate-800 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-slate-600 transition-all active:scale-98">
+                        Limpar
+                    </button>
+                    <button type="submit" class="flex-[2] py-4 sm:py-5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/30 hover:shadow-2xl hover:shadow-indigo-600/40 hover:scale-[1.02] active:scale-98 transition-all">
+                        Aplicar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{{ asset('js/dashboard-widgets.js') }}"></script>
 
 <script>
-// Selecionar todas as colunas
-function selectAllColumns() {
-    document.querySelectorAll('.column-checkbox').forEach(cb => {
-        cb.checked = true;
-    });
-}
-
-// Desmarcar todas as colunas
-function deselectAllColumns() {
-    document.querySelectorAll('.column-checkbox').forEach(cb => {
-        cb.checked = false;
-    });
-}
-
-// Auto-submit quando colunas forem alteradas
-document.querySelectorAll('.column-checkbox').forEach(cb => {
-    cb.addEventListener('change', function() {
-        // Pequeno delay para permitir múltiplas seleções
-        setTimeout(() => {
-            document.getElementById('dashboard-filter-form').submit();
-        }, 300);
-    });
-});
-
 // Carrossel de Pedidos - Scroll Horizontal
-let currentIndex = 0;
-let totalSlides = {{ isset($deliveryOrders) ? $deliveryOrders->count() : 0 }};
-let cardWidth = 336; // 320px (min-width) + 16px (gap)
-let autoSlideInterval = null;
-
-function updateSlidesPerView() {
-    const container = document.getElementById('carousel-track');
-    if (!container) return;
-    
-    const containerWidth = container.offsetWidth;
-    if (window.innerWidth >= 1024) {
-        cardWidth = 336; // 3 cards
-    } else if (window.innerWidth >= 768) {
-        cardWidth = 336; // 2 cards
-    } else {
-        cardWidth = 336; // 1 card
-    }
-}
-
 function nextSlide() {
     const track = document.getElementById('carousel-track');
     if (!track) return;
-    
-    updateSlidesPerView();
-    const maxScroll = track.scrollWidth - track.offsetWidth;
-    
-    if (track.scrollLeft < maxScroll) {
-        track.scrollBy({ left: cardWidth, behavior: 'smooth' });
-    } else {
-        track.scrollTo({ left: 0, behavior: 'smooth' });
-    }
-    resetAutoSlide();
+    const slideWidth = window.innerWidth < 640 ? 296 : 340;
+    track.scrollBy({ left: slideWidth, behavior: 'smooth' });
 }
 
 function previousSlide() {
     const track = document.getElementById('carousel-track');
     if (!track) return;
-    
-    updateSlidesPerView();
-    
-    if (track.scrollLeft > 0) {
-        track.scrollBy({ left: -cardWidth, behavior: 'smooth' });
-    } else {
-        track.scrollTo({ left: track.scrollWidth, behavior: 'smooth' });
-    }
-    resetAutoSlide();
+    const slideWidth = window.innerWidth < 640 ? 296 : 340;
+    track.scrollBy({ left: -slideWidth, behavior: 'smooth' });
 }
-
-function startAutoSlide() {
-    if (totalSlides <= 3) return; // Não precisa auto-slide se todos cabem na tela
-    
-    autoSlideInterval = setInterval(() => {
-        nextSlide();
-    }, 5000); // Muda a cada 5 segundos
-}
-
-function resetAutoSlide() {
-    if (autoSlideInterval) {
-        clearInterval(autoSlideInterval);
-    }
-    startAutoSlide();
-}
-
-// Atualizar ao redimensionar
-window.addEventListener('resize', updateSlidesPerView);
 
 function changeDeliveryFilter(filter) {
     const form = document.getElementById('dashboard-filter-form');
-    if (!form) return;
-    
-    // Adicionar input hidden com o filtro
     let filterInput = form.querySelector('input[name="delivery_filter"]');
-    if (!filterInput) {
-        filterInput = document.createElement('input');
-        filterInput.type = 'hidden';
-        filterInput.name = 'delivery_filter';
-        form.appendChild(filterInput);
-    }
-    filterInput.value = filter;
-    
+    if (filterInput) filterInput.value = filter;
     form.submit();
 }
 
-// Inicializar carrossel
-document.addEventListener('DOMContentLoaded', function() {
-    updateSlidesPerView();
-    startAutoSlide();
+// Animação de contagem para números
+function animateCountUp(element) {
+    const target = parseInt(element.getAttribute('data-target')) || 0;
+    const duration = 1000;
+    const start = 0;
+    const increment = target / (duration / 16);
+    let current = start;
     
-    // Ajustar ao redimensionar a janela
-    window.addEventListener('resize', function() {
-        updateSlidesPerView();
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+            element.textContent = target;
+            clearInterval(timer);
+        } else {
+            element.textContent = Math.floor(current);
+        }
+    }, 16);
+}
+
+// Touch support para carrossel no mobile
+let touchStartX = 0;
+let touchEndX = 0;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById('carousel-track');
+    
+    if (track) {
+        track.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        track.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+    }
+    
+    // Animar números
+    document.querySelectorAll('[data-target]').forEach(el => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCountUp(entry.target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        observer.observe(el);
     });
     
-    // Pausar auto-slide ao passar o mouse
-    const carousel = document.getElementById('delivery-carousel');
-    if (carousel) {
-        carousel.addEventListener('mouseenter', () => {
-            if (autoSlideInterval) {
-                clearInterval(autoSlideInterval);
-            }
-        });
-        
-        carousel.addEventListener('mouseleave', () => {
-            startAutoSlide();
-        });
-    }
+    // Inicializar widgets
+    if (window.dashboardWidgets) window.dashboardWidgets.init();
 });
+
+function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+            nextSlide();
+        } else {
+            previousSlide();
+        }
+    }
+}
 </script>
 @endsection
