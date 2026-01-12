@@ -105,12 +105,52 @@
                             <input type="hidden" name="editing_item_id" value="" id="editing-item-id">
 
                             <!-- Personalização -->
+                            @if(!empty($preselectedTypes) && count($preselectedTypes) > 0)
+                            <!-- Tipos já selecionados na etapa anterior - apenas mostrar -->
+                            <div class="p-5 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                                <div class="flex items-center justify-between mb-3">
+                                    <label class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                        <i class="fa-solid fa-check-circle text-green-500"></i>
+                                        Personalização Selecionada
+                                    </label>
+                                    <a href="{{ route('orders.wizard.personalization-type') }}" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
+                                        <i class="fa-solid fa-pen text-[10px] mr-1"></i>Alterar
+                                    </a>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    @php
+                                        $typeLabels = [
+                                            'sub_local' => ['Sublimação Local', 'blue'],
+                                            'serigrafia' => ['Serigrafia', 'purple'],
+                                            'dtf' => ['DTF', 'orange'],
+                                            'bordado' => ['Bordado', 'pink'],
+                                            'emborrachado' => ['Emborrachado', 'green'],
+                                            'lisas' => ['Lisas', 'gray'],
+                                            'sub_total' => ['Sublimação Total', 'indigo'],
+                                        ];
+                                    @endphp
+                                    @foreach($preselectedTypes as $type)
+                                        @php $label = $typeLabels[$type] ?? [$type, 'gray']; @endphp
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-{{ $label[1] }}-100 dark:bg-{{ $label[1] }}-900/30 text-{{ $label[1] }}-700 dark:text-{{ $label[1] }}-300 rounded-full text-xs font-bold">
+                                            <i class="fa-solid fa-check text-[10px]"></i>
+                                            {{ $label[0] }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                                <!-- Hidden inputs com IDs das personalizações correspondentes -->
+                                @foreach($preselectedIds ?? [] as $id)
+                                    <input type="hidden" name="personalizacao[]" value="{{ $id }}" class="preselected-personalization">
+                                @endforeach
+                            </div>
+                            @else
+                            <!-- Campo de seleção normal (sem pré-seleção) -->
                             <div class="p-5 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
                                 <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Personalização *</label>
                                 <div class="grid grid-cols-2 gap-2" id="personalizacao-options">
                                     <!-- Será preenchido via JavaScript -->
                                 </div>
                             </div>
+                            @endif
 
                             <!-- Tecido e Tipo -->
                             <div class="p-5 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
@@ -342,6 +382,9 @@
         const sublimationEnabled = {{ isset($sublimationEnabled) && $sublimationEnabled ? 'true' : 'false' }};
         const sublimationTypes = {!! isset($sublimationTypes) ? json_encode($sublimationTypes->map(fn($t) => ['slug' => $t->slug, 'name' => $t->name])) : '[]' !!};
         let sublimationAddonsCache = {};
+        
+        // Tipos de personalização pré-selecionados na etapa anterior
+        const preselectedPersonalizationTypes = {!! json_encode($preselectedTypes ?? []) !!};
 
         let itemToDeleteId = null;
 
@@ -421,7 +464,11 @@
             const checkboxes = document.querySelectorAll('.personalizacao-checkbox');
             const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
             
-            if (checkedCount === 0) {
+            // Verificar também personalizações pré-selecionadas (hidden inputs)
+            const preselectedInputs = document.querySelectorAll('.preselected-personalization');
+            const preselectedCount = preselectedInputs.length;
+            
+            if (checkedCount === 0 && preselectedCount === 0) {
                 alert('Por favor, selecione pelo menos uma personalização.');
                 return;
             }

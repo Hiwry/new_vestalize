@@ -108,35 +108,37 @@ class OrderWizardController extends Controller
      */
     public function items(Request $request)
     {
-        $type = $request->get('type', session('wizard.personalization_type'));
+        // Aceitar múltiplos tipos selecionados OU tipo único (retrocompatível)
+        $types = $request->get('types', []);
+        $singleType = $request->get('type');
         
-        if (!$type) {
-            return redirect()->route('orders.wizard.personalization-type')->with('error', 'Selecione um tipo de personalização.');
+        // Se veio tipo único (links antigos), converter para array
+        if (empty($types) && $singleType) {
+            $types = [$singleType];
+        }
+        
+        // Se ainda não tem tipos, buscar da sessão
+        if (empty($types)) {
+            $types = session('wizard.personalization_types', []);
+        }
+        
+        if (empty($types)) {
+            return redirect()->route('orders.wizard.personalization-type')->with('error', 'Selecione pelo menos um tipo de personalização.');
         }
 
-        // Salvar tipo na sessão
-        session(['wizard.personalization_type' => $type]);
+        // Salvar tipos na sessão
+        session(['wizard.personalization_types' => $types]);
+        session(['wizard.personalization_type' => $types[0]]); // Manter compatibilidade
 
-        // Retornar a view específica baseada no tipo
-        switch ($type) {
-            case 'sub_local':
-                // Sublimação Local - estilo totem McDonald's
-                $products = \App\Models\SubLocalProduct::where('is_active', true)->orderBy('sort_order')->get();
-                return view('orders.wizard.items-sub-local', compact('products'));
-            
-            case 'sub_total':
-                // Sublimação Total - usa o sistema existente
-                return redirect()->route('orders.wizard.sewing', ['type' => 'sub_total']);
-            
-            case 'serigrafia':
-            case 'dtf':
-            case 'bordado':
-            case 'emborrachado':
-            case 'lisas':
-            default:
-                // Outros tipos - usa o fluxo de costura padrão
-                return redirect()->route('orders.wizard.sewing', ['type' => $type]);
+        // Se for apenas sublimação local, ir para tela específica
+        if (count($types) === 1 && $types[0] === 'sub_local') {
+            $products = \App\Models\SubLocalProduct::where('is_active', true)->orderBy('sort_order')->get();
+            return view('orders.wizard.items-sub-local', compact('products'));
         }
+        
+        // Para qualquer outra combinação, vai para o fluxo de costura padrão
+        // Os tipos selecionados serão usados para pré-selecionar as personalizações
+        return redirect()->route('orders.wizard.sewing');
     }
 
     public function sewing(Request $request)
@@ -234,7 +236,44 @@ class OrderWizardController extends Controller
             // Habilitar se: tenant habilitou OU se existem tipos cadastrados (para super admin)
             $sublimationEnabled = ($user->tenant && $user->tenant->sublimation_total_enabled) || $sublimationTypes->isNotEmpty();
             
-            return view('orders.wizard.sewing', compact('order', 'fabrics', 'colors', 'currentStoreId', 'sublimationTypes', 'sublimationEnabled'));
+            // Tipos de personalização pré-selecionados na etapa anterior
+            $preselectedTypes = session('wizard.personalization_types', []);
+            
+            // Mapeamento de slugs para nomes que podem existir nas product_options
+            $typeToNameMapping = [
+                'sub_local' => ['Sublimação Local', 'Sub Local', 'SUB. LOCAL'],
+                'serigrafia' => ['Serigrafia', 'SERIGRAFIA'],
+                'dtf' => ['DTF', 'D.T.F.', 'D.T.F'],
+                'bordado' => ['Bordado', 'BORDADO'],
+                'emborrachado' => ['Emborrachado', 'EMBORRACHADO'],
+                'lisas' => ['Lisas', 'LISAS', 'Lisa'],
+                'sub_total' => ['Sublimação Total', 'Sub Total', 'SUB. TOTAL'],
+            ];
+            
+            // Buscar IDs de personalizações que correspondem aos tipos selecionados
+            $preselectedIds = [];
+            if (!empty($preselectedTypes)) {
+                $namesToSearch = [];
+                foreach ($preselectedTypes as $type) {
+                    if (isset($typeToNameMapping[$type])) {
+                        $namesToSearch = array_merge($namesToSearch, $typeToNameMapping[$type]);
+                    }
+                }
+                
+                if (!empty($namesToSearch)) {
+                    $preselectedIds = \App\Models\ProductOption::where('type', 'personalizacao')
+                        ->where('active', true)
+                        ->where(function($query) use ($namesToSearch) {
+                            foreach ($namesToSearch as $name) {
+                                $query->orWhere('name', 'LIKE', '%' . $name . '%');
+                            }
+                        })
+                        ->pluck('id')
+                        ->toArray();
+                }
+            }
+            
+            return view('orders.wizard.sewing', compact('order', 'fabrics', 'colors', 'currentStoreId', 'sublimationTypes', 'sublimationEnabled', 'preselectedTypes', 'preselectedIds'));
         }
 
         $action = $request->input('action', 'add');
