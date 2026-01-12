@@ -1,68 +1,102 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="max-w-7xl mx-auto">
-        <!-- Progress Bar -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 dark:from-indigo-600 dark:to-indigo-700 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-500/20 dark:shadow-indigo-600/20">2</div>
-                    <div>
-                        <span class="text-lg font-bold text-gray-900 dark:text-white">Costura e Personalização</span>
-                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa 2 de 5</p>
-                    </div>
+<style>
+/* Animações Premium */
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+@keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-3px) rotate(1deg); } }
+
+.animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+.animate-slide-right { animation: slideInRight 0.4s ease-out forwards; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+
+.delay-100 { animation-delay: 0.1s; opacity: 0; }
+.delay-200 { animation-delay: 0.2s; opacity: 0; }
+
+.glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.dark .glass-card { background: rgba(15, 23, 42, 0.8); }
+
+.hover-lift { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.hover-lift:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -8px rgba(0,0,0,0.15); }
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+    .size-grid-mobile { grid-template-columns: repeat(5, 1fr) !important; gap: 0.375rem !important; }
+    .size-grid-mobile input { padding: 0.375rem !important; font-size: 12px !important; }
+    .size-grid-mobile label { font-size: 10px !important; }
+}
+</style>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-0">
+    <!-- Progress Bar Premium -->
+    <div class="mb-6 sm:mb-8 animate-fade-in-up">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white rounded-xl sm:rounded-2xl flex items-center justify-center text-sm sm:text-base font-black shadow-xl shadow-indigo-500/30 animate-float">2</div>
+                <div>
+                    <span class="text-base sm:text-xl font-black text-gray-900 dark:text-white">Costura e <span class="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Personalização</span></span>
+                    <p class="text-[10px] sm:text-xs text-gray-500 dark:text-slate-400 mt-0.5 font-bold uppercase tracking-widest">Etapa 2 de 5</p>
                 </div>
-                <div class="text-right">
-                    <div class="text-xs text-gray-500 dark:text-slate-400 font-medium">Progresso</div>
-                    <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">40%</div>
+            </div>
+            <div class="flex items-center bg-white/80 dark:bg-slate-800/60 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-xl sm:rounded-2xl border border-gray-100 dark:border-slate-700 shadow-lg animate-slide-right">
+                <div class="text-right mr-3 sm:mr-4">
+                    <div class="text-[9px] sm:text-[10px] text-gray-400 dark:text-slate-500 font-bold uppercase tracking-widest">Progresso</div>
+                    <div class="text-lg sm:text-2xl font-black text-indigo-600 dark:text-indigo-400 leading-none">40%</div>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-4 border-indigo-100 dark:border-indigo-900/30 flex items-center justify-center relative">
+                    <svg class="w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 36 36">
+                        <path class="stroke-gray-200 dark:stroke-slate-700" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="stroke-indigo-600" stroke-dasharray="40, 100" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
                 </div>
             </div>
-            <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-2.5 shadow-inner">
-                <div class="bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-500 dark:to-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out shadow-lg shadow-indigo-500/30 dark:shadow-indigo-600/30" style="width: 40%"></div>
-            </div>
         </div>
-
-        <!-- Messages -->
-        @if(session('success'))
-        <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 shadow-sm">
-            <div class="flex items-center">
-                <svg class="w-5 h-5 text-green-600 dark:text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <p class="text-sm font-medium text-green-800 dark:text-green-200">{{ session('success') }}</p>
-            </div>
+        <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-1.5 sm:h-2 shadow-inner overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-500 h-full rounded-full transition-all duration-500 ease-out shadow-lg shadow-indigo-500/40" style="width: 40%"></div>
         </div>
-        @endif
+    </div>
 
-        @if(session('error'))
-        <div class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 shadow-sm">
-            <div class="flex items-center">
-                <svg class="w-5 h-5 text-red-600 dark:text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <p class="text-sm font-medium text-red-800 dark:text-red-200">{{ session('error') }}</p>
+    <!-- Messages Premium -->
+    @if(session('success'))
+    <div class="mb-4 sm:mb-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg animate-fade-in-up">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-green-500/30">
+                <i class="fa-solid fa-check text-xs sm:text-sm"></i>
             </div>
+            <p class="text-xs sm:text-sm font-bold text-green-800 dark:text-green-300">{{ session('success') }}</p>
         </div>
-        @endif
+    </div>
+    @endif
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Formulário de Adicionar Item -->
-            <div class="lg:col-span-2">
-                <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-slate-800 overflow-hidden">
-                    <!-- Header -->
-                    <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-gray-50 to-white dark:from-slate-800/50 dark:to-slate-900/50">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 dark:from-indigo-600 dark:to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20 dark:shadow-indigo-600/20">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h1 class="text-xl font-bold text-gray-900 dark:text-white" id="form-title">Adicionar Novo Item</h1>
-                                <p class="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Configure os detalhes do item de costura</p>
-                            </div>
+    @if(session('error'))
+    <div class="mb-4 sm:mb-6 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 border border-red-200 dark:border-red-800/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg animate-fade-in-up">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-red-500/30">
+                <i class="fa-solid fa-xmark text-xs sm:text-sm"></i>
+            </div>
+            <p class="text-xs sm:text-sm font-bold text-red-800 dark:text-red-300">{{ session('error') }}</p>
+        </div>
+    </div>
+    @endif
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <!-- Formulário de Adicionar Item -->
+        <div class="lg:col-span-2">
+            <div class="glass-card rounded-2xl sm:rounded-3xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-100 dark:border-slate-800 overflow-hidden animate-fade-in-up delay-100">
+                <!-- Header Premium -->
+                <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-gray-50/80 to-white dark:from-slate-800/50 dark:to-slate-900/50">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                            <i class="fa-solid fa-plus text-white text-sm sm:text-base"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-base sm:text-xl font-black text-gray-900 dark:text-white" id="form-title">Adicionar Novo Item</h1>
+                            <p class="text-[10px] sm:text-sm text-gray-500 dark:text-slate-400 mt-0.5 font-medium">Configure os detalhes do item de costura</p>
                         </div>
                     </div>
+                </div>
 
                     <div class="p-6">
                         <form method="POST" action="{{ isset($editData) ? route('orders.edit.sewing') : route('orders.wizard.sewing') }}" data-action-url="{{ isset($editData) ? route('orders.edit.sewing') : route('orders.wizard.sewing') }}" id="sewing-form" class="space-y-5" enctype="multipart/form-data">
