@@ -519,8 +519,9 @@ class OrderWizardService
             ]);
 
             return $order;
-        });\r
+        });
     }
+
 
     /**
      * Adiciona um item de costura padrão ao pedido
