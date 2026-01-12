@@ -1,0 +1,36 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('personalization_settings', function (Blueprint $table) {
+            $table->decimal('color_cost_per_unit', 10, 2)->default(0)->after('color_price_per_unit');
+        });
+
+        Schema::table('personalization_special_options', function (Blueprint $table) {
+            $table->decimal('cost', 10, 2)->default(0)->after('charge_value');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('personalization_settings', function (Blueprint $table) {
+            $table->dropColumn('color_cost_per_unit');
+        });
+
+        Schema::table('personalization_special_options', function (Blueprint $table) {
+            $table->dropColumn('cost');
+        });
+    }
+};

@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\BelongsToTenant;
+
+class Category extends Model
+{
+    use BelongsToTenant;
+
+    protected $fillable = [
+        'tenant_id',
+        'name',
+        'slug',
+        'description',
+        'image',
+        'active',
+        'order',
+    ];
+
+    protected $casts = [
+        'active' => 'boolean',
+    ];
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    public function subcategories(): HasMany
+    {
+        return $this->hasMany(Subcategory::class);
+    }
+}
+
