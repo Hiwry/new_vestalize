@@ -136,6 +136,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('pedidos')->group(function () {
         // Etapa 1: Cliente
         Route::get('novo', [\App\Http\Controllers\OrderWizardController::class, 'start'])->name('orders.wizard.start');
+        Route::get('cliente', [\App\Http\Controllers\OrderWizardController::class, 'start'])->name('orders.wizard.client.show'); // Redirect GET to start
         Route::post('cliente', [\App\Http\Controllers\OrderWizardController::class, 'storeClient'])->name('orders.wizard.client');
         
         // Etapa 2: Tipo de Personalização
