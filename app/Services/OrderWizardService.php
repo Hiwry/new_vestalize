@@ -519,39 +519,7 @@ class OrderWizardService
             ]);
 
             return $order;
-        });
-    }
-
-    /**
-     * Resolve o store_id baseado no usuário
-     */
-    private function resolveStoreId(\App\Models\User $user): ?int
-    {
-        // Primeiro, tentar obter loja do tenant do usuário
-        if ($user->tenant_id) {
-            $tenantStore = \App\Models\Store::where('tenant_id', $user->tenant_id)
-                ->where('is_main', true)
-                ->first() ?: \App\Models\Store::where('tenant_id', $user->tenant_id)
-                ->first();
-            
-            if ($tenantStore) return $tenantStore->id;
-        }
-        
-        // Vendedor ou Admin de Loja
-        if ($user->isAdminLoja()) {
-            $storeIds = $user->getStoreIds();
-            if (!empty($storeIds)) return $storeIds[0];
-        } elseif ($user->isVendedor()) {
-            $userStore = $user->stores()->first();
-            if ($userStore) return $userStore->id;
-        }
-        
-        // Fallback para loja principal
-        $mainStore = \App\Models\Store::where('is_main', true)
-            ->where('tenant_id', $user->tenant_id)
-            ->first() ?: (\App\Models\Store::where('is_main', true)->whereNull('tenant_id')->first());
-        
-        return $mainStore ? $mainStore->id : null;
+        });\r
     }
 
     /**
