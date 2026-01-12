@@ -842,8 +842,6 @@ class OrderWizardService
             'total' => max(0, $total),
         ]);
     }
-}
-
 
     /**
      * Deleta um item do pedido
@@ -866,3 +864,4 @@ class OrderWizardService
         return true;
     }
 }
+
