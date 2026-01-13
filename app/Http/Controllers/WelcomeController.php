@@ -17,6 +17,6 @@ class WelcomeController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return view('landing');
+        return view('welcome');
     }
 }
