@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="max-w-7xl mx-auto">
+<div class="max-w-7xl mx-auto" x-data="{}">
     <!-- Breadcrumb -->
     <div class="mb-6">
         <nav class="flex" aria-label="Breadcrumb">
@@ -61,7 +61,7 @@
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Tamanhos de Aplicação</h2>
                         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Gerencie os tamanhos disponíveis</p>
                     </div>
-                    <button type="button" @click="$dispatch('open-modal', 'add-size-modal')" 
+                    <button type="button" onclick="console.log('Botão Adicionar Tamanho clicado'); window.dispatchEvent(new CustomEvent('open-modal', { detail: 'add-size-modal' }));" 
                             class="inline-flex items-center px-3 py-2 bg-green-600 dark:bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 dark:hover:bg-green-700 transition-colors">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -752,7 +752,8 @@
 @endpush
 <!-- Modal Adicionar Tamanho -->
 <div x-data="{ open: false }" 
-     @open-modal.window="if ($event.detail === 'add-size-modal') { open = true; $nextTick(() => $refs.sizeInput.focus()) }"
+     x-init="console.log('Alpine: Modal Adicionar Tamanho inicializado')"
+     @open-modal.window="console.log('Evento open-modal recebido:', $event.detail); if ($event.detail === 'add-size-modal') { open = true; $nextTick(() => $refs.sizeInput.focus()) }"
      @close-modal.window="if ($event.detail === 'add-size-modal') open = false"
      x-show="open"
      x-cloak
