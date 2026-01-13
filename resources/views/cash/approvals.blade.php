@@ -254,11 +254,13 @@
             <div class="flex items-center px-4 py-3 space-x-3">
                 <button id="modal-cancel" 
                         type="button"
+                        onclick="closeModal()"
                         class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
                     Cancelar
                 </button>
                 <button id="modal-confirm" 
                         type="button"
+                        onclick="confirmAction()"
                         class="px-4 py-2 bg-indigo-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     Confirmar
                 </button>
@@ -315,19 +317,6 @@ document.querySelectorAll('.order-checkbox').forEach(cb => {
     cb.addEventListener('change', updateApproveButton);
 });
 
-// Event listeners para os botões do modal
-document.addEventListener('DOMContentLoaded', function() {
-    const modalCancel = document.getElementById('modal-cancel');
-    const modalConfirm = document.getElementById('modal-confirm');
-    
-    if (modalCancel) {
-        modalCancel.addEventListener('click', closeModal);
-    }
-    
-    if (modalConfirm) {
-        modalConfirm.addEventListener('click', confirmAction);
-    }
-});
 
 // Funções do Modal
 function showModal(title, message, action, orderId = null, orderIds = null) {
@@ -358,15 +347,12 @@ function confirmAction() {
     
     // Executar ação após fechar o modal
     if (action === 'approve') {
-        console.log('Executando approveOrderRequest com orderId:', orderId);
         approveOrderRequest(orderId);
     } else if (action === 'approve-multiple') {
-        console.log('Executando approveMultipleRequest com orderIds:', orderIds);
         approveMultipleRequest(orderIds);
     } else if (action === 'remove-receipt') {
-        console.log('Executando removeReceiptRequest com orderId:', orderId);
         removeReceiptRequest(orderId);
-    } else {
+    } else if (action) {
         console.error('Ação desconhecida:', action);
         showResultModal('error', 'Erro', 'Ação desconhecida');
     }
@@ -425,7 +411,7 @@ function approveOrderRequest(orderId) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
         }
     })
     .then(response => {
@@ -474,7 +460,7 @@ function approveMultipleRequest(orderIds) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
         },
         body: JSON.stringify({ order_ids: orderIds })
     })
@@ -510,7 +496,7 @@ document.querySelectorAll('.receipt-input').forEach(input => {
         fetch(`/cash/approvals/${orderId}/attach-receipt`, {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
             },
             body: formData
         })
@@ -544,7 +530,7 @@ function removeReceiptRequest(orderId) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
         }
     })
     .then(response => response.json())
