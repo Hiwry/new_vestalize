@@ -610,20 +610,39 @@ class StockController extends Controller
      */
     public function getFabricTypes(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'fabric_id' => 'required|exists:product_options,id',
-        ]);
+        try {
+            $fabricId = $request->input('fabric_id');
+            
+            if (!$fabricId) {
+                return response()->json([
+                    'success' => false,
+                    'fabric_types' => [],
+                    'message' => 'fabric_id is required',
+                ]);
+            }
 
-        $fabricTypes = ProductOption::where('type', 'tipo_tecido')
-            ->where('parent_id', $validated['fabric_id'])
-            ->where('active', true)
-            ->orderBy('name')
-            ->get(['id', 'name']);
+            $fabricTypes = ProductOption::where('type', 'tipo_tecido')
+                ->where('parent_id', $fabricId)
+                ->where('active', true)
+                ->orderBy('name')
+                ->get(['id', 'name']);
 
-        return response()->json([
-            'success' => true,
-            'fabric_types' => $fabricTypes,
-        ]);
+            return response()->json([
+                'success' => true,
+                'fabric_types' => $fabricTypes,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao buscar tipos de tecido', [
+                'error' => $e->getMessage(),
+                'fabric_id' => $request->input('fabric_id'),
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'fabric_types' => [],
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**
