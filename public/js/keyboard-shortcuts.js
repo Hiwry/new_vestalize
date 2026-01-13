@@ -402,7 +402,7 @@ if (document.readyState === 'loading') {
 // Indicador visual de atalhos (tooltip no canto)
 const shortcutHint = document.createElement('div');
 shortcutHint.id = 'shortcut-hint';
-shortcutHint.className = 'fixed bottom-4 left-4 z-50 hidden md:flex items-center gap-2 px-3 py-2 bg-gray-800 dark:bg-gray-700 text-white text-sm rounded-lg shadow-lg opacity-60 hover:opacity-100 transition-opacity cursor-pointer';
+shortcutHint.className = 'fixed bottom-6 right-24 z-50 hidden md:flex items-center gap-2 px-3 py-2 bg-gray-800 dark:bg-gray-700 text-white text-sm rounded-lg shadow-lg opacity-60 hover:opacity-100 transition-opacity cursor-pointer';
 shortcutHint.innerHTML = `
     <kbd class="px-1.5 py-0.5 bg-gray-600 rounded text-xs">?</kbd>
     <span>Atalhos</span>
