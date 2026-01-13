@@ -17,6 +17,7 @@ class ProductOptionSeeder extends Seeder
             ['id' => 103, 'type' => 'personalizacao', 'name' => 'EMBORRACHADO', 'price' => 0, 'order' => 4],
             ['id' => 104, 'type' => 'personalizacao', 'name' => 'SUB. LOCAL', 'price' => 0, 'order' => 5],
             ['id' => 105, 'type' => 'personalizacao', 'name' => 'SUB. TOTAL', 'price' => 0, 'order' => 6],
+            ['id' => 106, 'type' => 'personalizacao', 'name' => 'LISAS', 'price' => 0, 'order' => 7],
         ];
 
         foreach ($personalizacoes as $item) {

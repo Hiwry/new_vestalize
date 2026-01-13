@@ -823,23 +823,32 @@
             } else {
                 // Filtrar baseado nas seleções
                 items = items.filter(corte => {
-                    // Se não tem parent_ids, mostrar sempre
-                    if (!corte.parent_ids || corte.parent_ids.length === 0) {
-                        return true;
+                    // Se há tipo_tecido selecionado, filtrar APENAS por tipo_tecido
+                    if (tipoTecidoId) {
+                        // Itens sem parent_ids NÃO são mostrados quando há filtro ativo
+                        if (!corte.parent_ids || corte.parent_ids.length === 0) {
+                            return false;
+                        }
+                        return corte.parent_ids.includes(parseInt(tipoTecidoId));
                     }
                     
-                    // Verificar se algum parent_id corresponde às personalizações selecionadas
-                    const matchesPersonalizacao = selectedPersonalizacoes.length > 0 && 
-                        corte.parent_ids.some(parentId => selectedPersonalizacoes.includes(parentId));
+                    // Se há tecido selecionado mas não tipo_tecido
+                    if (tecidoId) {
+                        if (!corte.parent_ids || corte.parent_ids.length === 0) {
+                            return false;
+                        }
+                        return corte.parent_ids.includes(parseInt(tecidoId));
+                    }
                     
-                    // Verificar se algum parent_id corresponde ao tecido selecionado
-                    const matchesTecido = tecidoId && corte.parent_ids.includes(parseInt(tecidoId));
+                    // Se há apenas personalizações selecionadas
+                    if (selectedPersonalizacoes.length > 0) {
+                        if (!corte.parent_ids || corte.parent_ids.length === 0) {
+                            return true; // Mostrar itens órfãos apenas quando só tem personalização
+                        }
+                        return corte.parent_ids.some(parentId => selectedPersonalizacoes.includes(parentId));
+                    }
                     
-                    // Verificar se algum parent_id corresponde ao tipo_tecido selecionado
-                    const matchesTipoTecido = tipoTecidoId && corte.parent_ids.includes(parseInt(tipoTecidoId));
-                    
-                    // Mostrar se corresponder a qualquer um dos critérios
-                    return matchesPersonalizacao || matchesTecido || matchesTipoTecido;
+                    return true;
                 });
                 
                 // Se não tem itens após filtro, mostrar os sem parent_ids como fallback
