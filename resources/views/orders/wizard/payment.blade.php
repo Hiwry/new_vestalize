@@ -74,6 +74,20 @@
                             <!-- Será preenchido via JavaScript -->
                         </div>
                         
+                        <!-- Acréscimo Especial (personalizável) -->
+                        <div class="flex items-center justify-between mt-2 pt-2 border-t border-indigo-100 dark:border-indigo-800/50">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-gray-700 dark:text-slate-300 text-sm">Acréscimo Especial:</span>
+                                <span class="text-xs text-gray-500 dark:text-slate-400">(digitar valor)</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm text-orange-600 dark:text-orange-400">+R$</span>
+                                <input type="number" id="custom_surcharge" step="0.01" min="0" value="0"
+                                       onchange="calculateTotal()" oninput="calculateTotal()"
+                                       class="w-20 px-2 py-1 text-right text-sm rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-400">
+                            </div>
+                        </div>
+                        
                         <div class="flex justify-between">
                             <span class="text-gray-700 dark:text-slate-300">Taxa de Entrega:</span>
                             <span class="font-medium text-gray-900 dark:text-white" id="delivery-fee-display">R$ 0,00</span>
@@ -624,10 +638,11 @@
 
         function calculateTotal() {
             deliveryFee = parseFloat(document.getElementById('delivery_fee').value) || 0;
+            const customSurcharge = parseFloat(document.getElementById('custom_surcharge').value) || 0;
             
             const totalSurcharges = Object.values(sizeSurcharges).reduce((sum, val) => sum + val, 0);
             const discount = calculateDiscount();
-            const totalFinal = subtotal + totalSurcharges + deliveryFee - discount;
+            const totalFinal = subtotal + totalSurcharges + customSurcharge + deliveryFee - discount;
 
             // Atualizar displays
             document.getElementById('delivery-fee-display').textContent = `R$ ${deliveryFee.toFixed(2).replace('.', ',')}`;
@@ -662,8 +677,9 @@
 
         function getTotalFinal() {
             const totalSurcharges = Object.values(sizeSurcharges).reduce((sum, val) => sum + val, 0);
+            const customSurcharge = parseFloat(document.getElementById('custom_surcharge').value) || 0;
             const discount = calculateDiscount();
-            return subtotal + totalSurcharges + deliveryFee - discount;
+            return subtotal + totalSurcharges + customSurcharge + deliveryFee - discount;
         }
 
 </script>
