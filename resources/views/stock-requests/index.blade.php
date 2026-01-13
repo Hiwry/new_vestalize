@@ -44,14 +44,24 @@
     
     // Definir funções globais imediatamente
     // Definir funções globais imediatamente
-    window.approveRequest = function(id, isBroadcast) {
+    window.approveRequest = function(requestsJson, isBroadcast) {
+        let requests;
+        try {
+            requests = typeof requestsJson === 'string' ? JSON.parse(requestsJson) : requestsJson;
+        } catch (e) {
+            console.error('Erro ao processar solicitações:', e);
+            return;
+        }
+
         const modal = document.getElementById('approve-request-id');
         const approveModal = document.getElementById('approve-modal');
         const storeSelectContainer = document.getElementById('approve-fulfilling-store-container');
         const storeSelect = document.getElementById('approve-fulfilling-store');
+        const sizesContainer = document.getElementById('approve-sizes-container');
 
-        if (modal && approveModal) {
-            modal.value = id;
+        if (requests && requests.length > 0 && approveModal) {
+            const firstRequest = requests[0];
+            modal.value = firstRequest.id;
             
             if (isBroadcast && storeSelectContainer) {
                 storeSelectContainer.style.display = 'block';
@@ -61,14 +71,40 @@
                 if(storeSelect) storeSelect.required = false;
             }
 
+            // Limpar e preencher tamanhos
+            if (sizesContainer) {
+                sizesContainer.innerHTML = '';
+                requests.forEach(req => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700/50 rounded border border-gray-200 dark:border-gray-600';
+                    div.innerHTML = `
+                        <div class="flex flex-col">
+                            <span class="font-bold text-indigo-600 dark:text-indigo-400">${req.size}</span>
+                            <span class="text-[10px] text-gray-500">Solicitado: ${req.requested_quantity}</span>
+                        </div>
+                        <input type="number" name="items[${req.id}]" value="${req.requested_quantity}" min="0" 
+                               class="w-20 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 focus:ring-2 focus:ring-green-500 approve-qty-input"
+                               data-requested="${req.requested_quantity}">
+                    `;
+                    sizesContainer.appendChild(div);
+                });
+            }
+
             // Update form action
             const form = document.getElementById('approve-form');
             if (form) {
-                form.action = `/stock-requests/${id}/approve`;
+                form.action = `/stock-requests/${firstRequest.id}/approve`;
             }
 
             approveModal.classList.remove('hidden');
         }
+    };
+
+    window.approveAllInModal = function() {
+        const inputs = document.querySelectorAll('.approve-qty-input');
+        inputs.forEach(input => {
+            input.value = input.getAttribute('data-requested');
+        });
     };
     
     window.approveAllGroup = function(requests) {
@@ -395,12 +431,13 @@
                     <td class="px-2 py-2 text-xs text-center">
                         <div class="flex gap-1 justify-center">
                             @if($group['status'] === 'pendente')
-                                <button onclick="approveRequest({{ $req->id }}, {{ $group['target_store'] ? 'false' : 'true' }})" 
-                                        class="px-2 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition"
+                                <button onclick="approveRequest({{ json_encode($group['requests']) }}, {{ $group['target_store'] ? 'false' : 'true' }})" 
+                                        class="px-2 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition flex items-center gap-1"
                                         title="Aprovar">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
+                                    Aprovar
                                 </button>
                                 <button onclick="rejectRequestGroup({{ json_encode(array_map(fn($r) => $r->id, $group['requests'])) }})" 
                                         class="px-2 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded transition"
@@ -474,8 +511,13 @@
             </div>
             
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Quantidade:</label>
-                <input type="number" id="approve-quantity" name="approved_quantity" min="1" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tamanhos e Quantidades:</label>
+                    <button type="button" onclick="approveAllInModal()" class="text-xs text-indigo-600 hover:underline">Preencher Tudo</button>
+                </div>
+                <div id="approve-sizes-container" class="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto pr-1">
+                    <!-- Dinamicamente preenchido -->
+                </div>
             </div>
             
             <div class="mb-4">
@@ -1114,14 +1156,29 @@
     function submitApprove(event) {
         event.preventDefault();
         const id = document.getElementById('approve-request-id').value;
-        const quantity = parseInt(document.getElementById('approve-quantity').value);
-        const notes = document.getElementById('approve-notes').value;
+        const form = document.getElementById('approve-form');
+        const formData = new FormData(form);
         
-        if (!quantity || quantity <= 0) {
-            showNotification('Informe uma quantidade válida', 'error');
+        const body = {};
+        let hasQuantity = false;
+        
+        formData.forEach((value, key) => {
+            if (key.includes('items[')) {
+                if (!body.items) body.items = {};
+                const itemId = key.match(/\[(\d+)\]/)[1];
+                const qty = parseInt(value) || 0;
+                body.items[itemId] = qty;
+                if (qty > 0) hasQuantity = true;
+            } else {
+                body[key] = value;
+            }
+        });
+
+        if (!hasQuantity) {
+            showNotification('Informe pelo menos uma quantidade maior que zero', 'error');
             return;
         }
-        
+
         fetch(`/stock-requests/${id}/approve`, {
             method: 'POST',
             headers: {
@@ -1129,10 +1186,7 @@
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                approved_quantity: quantity,
-                approval_notes: notes
-            })
+            body: JSON.stringify(body)
         })
         .then(async res => {
             const data = await res.json();

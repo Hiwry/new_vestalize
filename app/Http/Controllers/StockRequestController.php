@@ -247,26 +247,31 @@ class StockRequestController extends Controller
             }
 
             $approvedQuantity = $validated['approved_quantity'] ?? $stockRequest->requested_quantity;
+            $itemsToApprove = $request->get('items'); // Array de ['id' => qty]
 
             DB::beginTransaction();
             
-            // Agrupar solicitações pendentes do mesmo pedido para aprovar de uma vez
-            if ($stockRequest->order_id) {
-                $requests = StockRequest::where('order_id', $stockRequest->order_id)
+            // Se o usuário enviou itens específicos (novo modal), aprovar apenas esses
+            if (is_array($itemsToApprove) && !empty($itemsToApprove)) {
+                $requests = StockRequest::whereIn('id', array_keys($itemsToApprove))
                     ->where('status', 'pendente')
                     ->get();
             } else {
-                $requests = collect([$stockRequest]);
+                // Lógica antiga/legada: Agrupar solicitações pendentes do mesmo pedido
+                if ($stockRequest->order_id) {
+                    $requests = StockRequest::where('order_id', $stockRequest->order_id)
+                        ->where('status', 'pendente')
+                        ->get();
+                } else {
+                    $requests = collect([$stockRequest]);
+                }
             }
 
-            // Lógica de Distribuição Inteligente:
-            // Se o usuário enviou uma quantidade que é igual à SOMA das quantidades solicitadas do lote,
-            // então ele provavelmente quis aprovar o lote todo com as quantidades originais.
-            // Caso contrário, ele está editando a quantidade do item principal.
+            // Lógica de Distribuição Inteligente (apenas para o fluxo antigo sem itens específicos)
             $batchTotalRequested = $requests->sum('requested_quantity');
             $distributeQuantity = false;
             
-            if ($requests->count() > 1 && $approvedQuantity == $batchTotalRequested) {
+            if (!is_array($itemsToApprove) && $requests->count() > 1 && $approvedQuantity == $batchTotalRequested) {
                  $distributeQuantity = true;
             }
 
@@ -285,7 +290,10 @@ class StockRequestController extends Controller
                 );
 
                 // Quantidade a aprovar para este item
-                if ($distributeQuantity) {
+                if (is_array($itemsToApprove)) {
+                    $qtyToApprove = (int) ($itemsToApprove[$req->id] ?? 0);
+                    if ($qtyToApprove <= 0) continue; // Pular se não informou quantidade ou é 0
+                } elseif ($distributeQuantity) {
                     $qtyToApprove = $req->requested_quantity;
                 } else {
                     $qtyToApprove = ($req->id === $stockRequest->id) ? $approvedQuantity : $req->requested_quantity;
@@ -293,7 +301,7 @@ class StockRequestController extends Controller
 
                 if (!$stock || !$stock->hasStock($qtyToApprove)) {
                     // SE for o item principal (que o usuário clicou), lançar erro com detalhes
-                    if ($req->id === $stockRequest->id) {
+                    if ($req->id === $stockRequest->id || is_array($itemsToApprove)) {
                         $available = $stock ? $stock->available_quantity : 0;
                         throw new \Exception("Estoque insuficiente para {$req->size}. Disponível: {$available}. Solicitado: {$qtyToApprove}.");
                     } else {
@@ -311,7 +319,7 @@ class StockRequestController extends Controller
                 );
 
                 if (!$success) {
-                    if ($req->id === $stockRequest->id) {
+                    if ($req->id === $stockRequest->id || is_array($itemsToApprove)) {
                          throw new \Exception("Erro ao deduzir estoque para {$req->size}.");
                     }
                     continue;
