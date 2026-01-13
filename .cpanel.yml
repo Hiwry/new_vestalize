@@ -1,0 +1,9 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home2/dd173158/repositories/new_vestalize
+    - /bin/php /opt/cpanel/composer/bin/composer dump-autoload --working-dir=$DEPLOYPATH
+    - /bin/php $DEPLOYPATH/artisan cache:clear
+    - /bin/php $DEPLOYPATH/artisan config:clear
+    - /bin/php $DEPLOYPATH/artisan view:clear
+    - /bin/php $DEPLOYPATH/artisan route:clear
