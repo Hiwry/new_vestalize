@@ -1075,7 +1075,8 @@
             } else {
                 const location = document.getElementById('location').value;
                 const size = document.getElementById('size').value;
-                const artFiles = document.getElementById('art_files').files.length;
+                const artFilesInput = document.getElementById('art_files');
+                const artFiles = artFilesInput ? artFilesInput.files.length : 0;
                 
                 if (!location) {
                     isValid = false;
@@ -1089,7 +1090,8 @@
                 
                 const isDraft = {{ $order->is_draft ? 'true' : 'false' }};
                 
-                if (!isDraft && artFiles === 0) {
+                // Arquivo não é mais obrigatório - foi movido para outra seção
+                if (false && !isDraft && artFiles === 0) {
                     isValid = false;
                     errorMessage += 'Pelo menos um arquivo da arte é obrigatório.\n';
                 }
@@ -1239,9 +1241,12 @@
             const fileList = document.getElementById('selected_files_list');
             fileList.innerHTML = '';
             
+            const artFilesPlaceholder = document.getElementById('art_files_placeholder');
+            const artFilesDropzone = document.getElementById('art_files_dropzone');
+            
             if (files.length > 0) {
                 // Esconder placeholder
-                document.getElementById('art_files_placeholder').style.opacity = '0.5';
+                if (artFilesPlaceholder) artFilesPlaceholder.style.opacity = '0.5';
                 
                 // Mostrar cada arquivo
                 Array.from(files).forEach((file, index) => {
@@ -1272,14 +1277,18 @@
                 });
                 
                 // Atualizar borda
-                document.getElementById('art_files_dropzone').classList.remove('border-indigo-200', 'dark:border-indigo-800');
-                document.getElementById('art_files_dropzone').classList.add('border-indigo-400', 'dark:border-indigo-500', 'bg-indigo-100/30', 'dark:bg-indigo-900/20');
+                if (artFilesDropzone) {
+                    artFilesDropzone.classList.remove('border-indigo-200', 'dark:border-indigo-800');
+                    artFilesDropzone.classList.add('border-indigo-400', 'dark:border-indigo-500', 'bg-indigo-100/30', 'dark:bg-indigo-900/20');
+                }
                 
             } else {
                 // Restaurar placeholder
-                document.getElementById('art_files_placeholder').style.opacity = '1';
-                document.getElementById('art_files_dropzone').classList.remove('border-indigo-400', 'dark:border-indigo-500', 'bg-indigo-100/30', 'dark:bg-indigo-900/20');
-                document.getElementById('art_files_dropzone').classList.add('border-indigo-200', 'dark:border-indigo-800');
+                if (artFilesPlaceholder) artFilesPlaceholder.style.opacity = '1';
+                if (artFilesDropzone) {
+                    artFilesDropzone.classList.remove('border-indigo-400', 'dark:border-indigo-500', 'bg-indigo-100/30', 'dark:bg-indigo-900/20');
+                    artFilesDropzone.classList.add('border-indigo-200', 'dark:border-indigo-800');
+                }
             }
         }
 
@@ -1851,6 +1860,8 @@
             const fileInput = document.getElementById('art_files');
             const filesList = document.getElementById('selected_files_list');
             
+            if (!fileInput || !filesList) return;
+            
             if (fileInput.files.length > 0) {
                 let html = '<div class="text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Arquivos selecionados:</div>';
                 for (let i = 0; i < fileInput.files.length; i++) {
@@ -1892,8 +1903,8 @@
             if (el) {
                 el.addEventListener('change', calculatePrice);
             }
-        });
-            document.getElementById('art_files').addEventListener('change', displaySelectedFiles);
+            const artFilesForListener = document.getElementById('art_files');
+            if (artFilesForListener) artFilesForListener.addEventListener('change', displaySelectedFiles);
         });
 
         // Submit do formulário
