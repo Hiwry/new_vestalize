@@ -557,7 +557,7 @@
 
 <!-- Modal de Solicitar Transferência -->
 <div id="request-transfer-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-2xl w-full my-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-2xl my-auto">
         <div class="flex justify-between items-center mb-4 sticky top-0 bg-white dark:bg-gray-800 pb-4 border-b border-gray-200 dark:border-gray-700">
             <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Solicitar Transferência</h3>
             <button onclick="closeRequestTransferModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
@@ -673,7 +673,7 @@
 
 <!-- Modal de Solicitar para Pedido -->
 <div id="request-order-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-3xl w-full my-8 max-h-[90vh] overflow-y-auto">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-3xl my-auto max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-4 sticky top-0 bg-white dark:bg-gray-800 pb-4 border-b border-gray-200 dark:border-gray-700">
             <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Solicitar para Pedido</h3>
             <button onclick="closeRequestOrderModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
@@ -787,8 +787,8 @@
 </div>
 
 <!-- Modal de Solicitar Retirada -->
-<div id="request-decrement-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-lg w-full">
+<div id="request-decrement-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg my-auto max-h-[95vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Solicitar Retirada</h3>
             <button onclick="closeRequestDecrementModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">

@@ -259,7 +259,7 @@ class DashboardController extends Controller
         if (!empty($storeIds)) {
             $stockRequestQuery->whereIn('requesting_store_id', $storeIds);
         } elseif (!$selectedStoreId) {
-            StoreHelper::applyStoreFilter($stockRequestQuery, 'requesting_store_id');
+            StoreHelper::applyStoreFilter($stockRequestQuery, 'stock_requests.requesting_store_id');
         }
         $solicitacoesPendentesCount = $stockRequestQuery->count();
         
