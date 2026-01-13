@@ -117,11 +117,18 @@ class DashboardController extends Controller
      */
     private function applyAdvancedFilters($query, Request $request)
     {
+        $user = Auth::user();
+
+        // Se for vendedor, só pode ver seus próprios dados. 
+        // Não permitimos que ele filtre por outros vendedores mesmo que tente via URL.
+        if ($user->isVendedor()) {
+            $query->where('user_id', $user->id);
+            return; // Vendedor não aplica outros filtros de vendedor
+        }
+
         if ($request->filled('vendor_id')) {
             $query->where('user_id', $request->get('vendor_id'));
         }
-
-
     }
 
     public function index(Request $request)
@@ -145,7 +152,10 @@ class DashboardController extends Controller
         // Filtros avançados
         $vendorId = $request->get('vendor_id');
 
-        
+        // Se for vendedor, forçar o filtro de vendor_id para ele mesmo
+        if ($user->isVendedor()) {
+            $vendorId = $user->id;
+        }
         // Calcular datas baseado no período
         $dateRange = $this->getDateRange($period, $startDateInput, $endDateInput);
         $startDate = $dateRange['start'];

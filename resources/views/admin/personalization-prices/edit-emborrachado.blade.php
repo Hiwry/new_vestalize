@@ -61,7 +61,7 @@
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Tamanhos de Aplicação</h2>
                         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Gerencie os tamanhos disponíveis</p>
                     </div>
-                    <button type="button" onclick="addNewSize()" 
+                    <button type="button" @click="$dispatch('open-modal', 'add-size-modal')" 
                             class="inline-flex items-center px-3 py-2 bg-green-600 dark:bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 dark:hover:bg-green-700 transition-colors">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -487,7 +487,8 @@
     }
 
     function addNewSize() {
-        const newSizeName = prompt('Digite o nome do novo tamanho:');
+        const input = document.getElementById('new-size-name-input');
+        const newSizeName = input.value;
         if (!newSizeName || !newSizeName.trim()) return;
         
         const sizeName = newSizeName.trim().toUpperCase();
@@ -500,6 +501,10 @@
         addSizeCard(sizeName);
         updateTableHeaders();
         updateCalculatorOptions();
+        
+        // Limpar e fechar
+        input.value = '';
+        window.dispatchEvent(new CustomEvent('close-modal', { detail: 'add-size-modal' }));
     }
 
     function addSizeCard(sizeName) {
@@ -747,6 +752,71 @@
             calcSizeSelect.value = availableSizes[0];
         }
     }
+</script>
+@endpush
+<!-- Modal Adicionar Tamanho -->
+<div x-data="{ open: false }" 
+     @open-modal.window="if ($event.detail === 'add-size-modal') { open = true; $nextTick(() => $refs.sizeInput.focus()) }"
+     @close-modal.window="if ($event.detail === 'add-size-modal') open = false"
+     x-show="open"
+     x-cloak
+     class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    
+    <div @click="open = false" 
+         x-show="open"
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+
+    <div x-show="open"
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+         class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-200 dark:border-gray-700">
+        
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700/50">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Novo Tamanho de Aplicação</h3>
+            <button @click="open = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <div class="p-6">
+            <label for="new-size-name-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Nome do Tamanho (ex: PEITO P, COSTAS G, MANGA)
+            </label>
+            <input type="text" id="new-size-name-input" x-ref="sizeInput"
+                   @keydown.enter="addNewSize()"
+                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all uppercase"
+                   placeholder="DIGITE O NOME...">
+            
+            <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                O nome será convertido para letras maiúsculas automaticamente.
+            </p>
+        </div>
+
+        <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+            <button @click="open = false" 
+                    class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                Cancelar
+            </button>
+            <button onclick="addNewSize()"
+                    class="px-6 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 active:scale-95 transition-all">
+                Confirmar
+            </button>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    // Permitir fechar com ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: 'add-size-modal' }));
+        }
+    });
 </script>
 @endpush
 @endsection
