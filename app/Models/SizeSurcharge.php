@@ -50,30 +50,30 @@ class SizeSurcharge extends Model
         \DB::table('size_surcharges')->delete();
 
         $surcharges = [
-            // GG
-            ['size' => 'GG', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 1.00],
-            ['size' => 'GG', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 2.00],
-            ['size' => 'GG', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 5.00],
+            // GG - Sem acréscimo (valores zerados baseado na tabela do usuário)
+            ['size' => 'GG', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 0.00],
+            ['size' => 'GG', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 0.00],
+            ['size' => 'GG', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 0.00],
             
             // EXG
-            ['size' => 'EXG', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 2.00],
-            ['size' => 'EXG', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 4.00],
-            ['size' => 'EXG', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 10.00],
+            ['size' => 'EXG', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 1.00],
+            ['size' => 'EXG', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 2.00],
+            ['size' => 'EXG', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 5.00],
             
             // G1
-            ['size' => 'G1', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 5.00],
-            ['size' => 'G1', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 10.00],
-            ['size' => 'G1', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 20.00],
+            ['size' => 'G1', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 2.00],
+            ['size' => 'G1', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 4.00],
+            ['size' => 'G1', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 10.00],
             
             // G2
-            ['size' => 'G2', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 10.00],
-            ['size' => 'G2', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 20.00],
-            ['size' => 'G2', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 40.00],
+            ['size' => 'G2', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 5.00],
+            ['size' => 'G2', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 10.00],
+            ['size' => 'G2', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 20.00],
             
             // G3
-            ['size' => 'G3', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 20.00],
-            ['size' => 'G3', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 30.00],
-            ['size' => 'G3', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 60.00],
+            ['size' => 'G3', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 10.00],
+            ['size' => 'G3', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 20.00],
+            ['size' => 'G3', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 40.00],
         ];
 
         foreach ($surcharges as $surcharge) {
