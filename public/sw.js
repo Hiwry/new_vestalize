@@ -1,9 +1,8 @@
 const CACHE_NAME = 'vestalize-v1';
 const ASSETS = [
-    '/css/app.css',
-    '/js/app.js',
-    '/img/logo.png',
-    '/offline'
+    // '/',
+    // '/css/app.css',
+    // '/js/app.js',
 ];
 
 self.addEventListener('install', event => {
