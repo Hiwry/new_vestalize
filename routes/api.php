@@ -168,17 +168,7 @@ Route::post('/order-items/{id}/cover-image', [\App\Http\Controllers\Api\ClientCo
 // Atualizar nome da arte do item
 Route::post('/order-items/{id}/art-name', [\App\Http\Controllers\Api\ClientController::class, 'updateArtName'])->withoutMiddleware(['web']);
 
-// Verificação de Estoque em Tempo Real
-Route::get('/stocks/check', [\App\Http\Controllers\StockController::class, 'check'])->withoutMiddleware(['web']);
-
-// Buscar estoque por tipo de corte
-Route::get('/stocks/by-cut-type', [\App\Http\Controllers\StockController::class, 'getByCutType'])->withoutMiddleware(['web']);
-
-// Buscar tecido relacionado ao tipo de corte
-Route::get('/stocks/fabric-by-cut-type', [\App\Http\Controllers\StockController::class, 'getFabricByCutType'])->withoutMiddleware(['web']);
-
-// Buscar tipos de tecido baseados no tecido pai
-Route::get('/stocks/fabric-types', [\App\Http\Controllers\StockController::class, 'getFabricTypes'])->withoutMiddleware(['web']);
+// Stock APIs moved to web.php for proper session authentication (tenant_id support)
 
 // =============================================
 // SUB. TOTAL API

@@ -295,6 +295,12 @@ Route::middleware('auth')->group(function () {
         
         Route::get('/sublimation-addons', [\App\Http\Controllers\Api\SublimationAddonController::class, 'getAddons']);
         Route::put('/addons/update', [\App\Http\Controllers\Admin\SublimationAddonController::class, 'updateAddons'])->name('admin.addons.update')->middleware('throttle:10,1');
+        
+        // Stock APIs (moved here to have session auth for tenant_id)
+        Route::get('/stocks/by-cut-type', [\App\Http\Controllers\StockController::class, 'getByCutType'])->name('api.stocks.by-cut-type');
+        Route::get('/stocks/fabric-by-cut-type', [\App\Http\Controllers\StockController::class, 'getFabricByCutType']);
+        Route::get('/stocks/fabric-types', [\App\Http\Controllers\StockController::class, 'getFabricTypes']);
+        Route::get('/stocks/check', [\App\Http\Controllers\StockController::class, 'check']);
     });
     
     // Aprovações de Caixa (deve vir ANTES do resource para não ser capturado)
