@@ -898,10 +898,10 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                 <div class="grid grid-cols-5 gap-2 gap-y-8 mb-4">
                     ${['PP','P','M','G','GG'].map(s => `
                     <div class="relative group">
-                        <label class="block text-[10px] font-bold text-gray-400 mb-0.5 text-center uppercase">${s}</label>
+                        <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-400 mb-0.5 text-center uppercase">${s}</label>
                         <input type="number" id="modal-size-${s.toLowerCase()}" min="0" value="" placeholder="0"
                                onchange="checkStockForSizes(); ${s === 'GG' ? 'calculateSizeSurcharges();' : ''} updateTotalQuantity();" 
-                               class="w-full px-1 py-1.5 border border-gray-200 dark:border-gray-600 rounded-md text-center text-sm font-medium bg-gray-50 dark:bg-gray-700 focus:ring-1 focus:ring-indigo-500 focus:bg-white dark:focus:bg-gray-600 placeholder-gray-300 relative z-0">
+                               class="w-full px-1 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-center text-sm font-medium bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-400 dark:placeholder-gray-500 relative z-0">
                          <span id="stock-badge-${s.toLowerCase()}" class="pointer-events-none"></span>
                          ${s === 'GG' ? `<p class="hidden text-[9px] font-medium text-green-600 text-center absolute w-full -bottom-8" id="surcharge-gg"></p>` : ''}
                         <div id="stock-${s.toLowerCase()}" class="hidden absolute z-50 top-full left-0 w-32 bg-white shadow-lg rounded p-2 text-xs"></div>
@@ -910,10 +910,10 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                 <div class="grid grid-cols-4 gap-2 gap-y-8">
                      ${['EXG','G1','G2','G3'].map(s => `
                     <div class="relative group">
-                        <label class="block text-[10px] font-bold text-gray-400 mb-0.5 text-center uppercase">${s}</label>
+                        <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-400 mb-0.5 text-center uppercase">${s}</label>
                         <input type="number" id="modal-size-${s.toLowerCase()}" min="0" value="" placeholder="0"
                                onchange="checkStockForSizes(); calculateSizeSurcharges(); updateTotalQuantity();" 
-                               class="w-full px-1 py-1.5 border border-gray-200 dark:border-gray-600 rounded-md text-center text-sm font-medium bg-gray-50 dark:bg-gray-700 focus:ring-1 focus:ring-indigo-500 focus:bg-white dark:focus:bg-gray-600 placeholder-gray-300 relative z-0">
+                               class="w-full px-1 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-center text-sm font-medium bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-400 dark:placeholder-gray-500 relative z-0">
                          <span id="stock-badge-${s.toLowerCase()}" class="pointer-events-none"></span>
                         <p class="hidden text-[9px] font-medium text-green-600 text-center absolute w-full -bottom-8" id="surcharge-${s.toLowerCase()}"></p>
                     </div>`).join('')}
