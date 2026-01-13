@@ -114,36 +114,36 @@
 <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 p-3 mb-4">
     <form method="GET" action="{{ route('stocks.index') }}">
         <div class="grid grid-cols-7 gap-2 mb-2">
-            <input type="text" name="search_id" value="{{ request('search_id') }}" placeholder="ID" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700">
-            <select name="store_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+            <input type="text" name="search_id" value="{{ request('search_id') }}" placeholder="ID" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+            <select name="store_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                 <option value="">Todas Lojas</option>
                 @foreach($stores as $store)
                     <option value="{{ $store->id }}" {{ $storeId == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
                 @endforeach
             </select>
 
-            <select name="fabric_type_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+            <select name="fabric_type_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                 <option value="">Todos Tipos de Tecido</option>
                 @foreach($fabricTypes as $fabricType)
                     <option value="{{ $fabricType->id }}" {{ request('fabric_type_id') == $fabricType->id ? 'selected' : '' }}>{{ $fabricType->name }}</option>
                 @endforeach
             </select>
 
-            <select name="color_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+            <select name="color_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                 <option value="">Todas Cores</option>
                 @foreach($colors as $color)
                     <option value="{{ $color->id }}" {{ $colorId == $color->id ? 'selected' : '' }}>{{ $color->name }}</option>
                 @endforeach
             </select>
 
-            <select name="cut_type_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+            <select name="cut_type_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                 <option value="">Todos Tipos</option>
                 @foreach($cutTypes as $cutType)
                     <option value="{{ $cutType->id }}" {{ $cutTypeId == $cutType->id ? 'selected' : '' }}>{{ $cutType->name }}</option>
                 @endforeach
             </select>
 
-            <select name="size" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+            <select name="size" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                 <option value="">Todos Tamanhos</option>
                 @foreach($sizes as $size)
                     <option value="{{ $size }}" {{ $size == request('size') ? 'selected' : '' }}>{{ $size }}</option>
@@ -154,7 +154,7 @@
                 <button type="submit" class="flex-1 px-2 py-1.5 bg-indigo-600 text-white rounded text-xs font-semibold hover:bg-indigo-700">
                     Filtrar
                 </button>
-                <a href="{{ route('stocks.index') }}" class="px-2 py-1.5 bg-gray-200 dark:bg-gray-700 rounded text-xs font-semibold hover:bg-gray-300 dark:hover:bg-gray-600">
+                <a href="{{ route('stocks.index') }}" class="px-2 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs font-semibold hover:bg-gray-300 dark:hover:bg-gray-600">
                     Limpar
                 </a>
             </div>
