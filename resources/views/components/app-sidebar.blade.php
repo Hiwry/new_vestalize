@@ -297,6 +297,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ (request()->is('stocks*') || request()->is('stocks-view*')) ? 'bg-blue-600' : '' }}"></span>
                         Geral
                     </a>
+                    @if(!Auth::user()->isVendedor())
                     <a href="{{ route('fabric-pieces.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('fabric-pieces*') ? 'bg-blue-600' : '' }}"></span>
                         Peças de Tecido
@@ -313,6 +314,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('uniforms*') ? 'bg-blue-600' : '' }}"></span>
                         Uniformes/EPI
                     </a>
+                    @endif
                     <a href="{{ route('stock-requests.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('stock-requests*') ? 'bg-blue-600' : '' }}"></span>
                         Solicitações

@@ -8,6 +8,7 @@
             <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Máquinas de Costura</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Gerenciamento de ativos e equipamentos</p>
         </div>
+        @if(!Auth::user()->isVendedor())
         <div>
             <a href="{{ route('sewing-machines.create') }}" 
                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition flex items-center gap-2 text-sm font-medium">
@@ -17,6 +18,7 @@
                 Nova Máquina
             </a>
         </div>
+        @endif
     </div>
 
     {{-- Filtros --}}
@@ -106,6 +108,7 @@
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <div class="flex justify-center gap-2">
+                                    @if(!Auth::user()->isVendedor())
                                     <a href="{{ route('sewing-machines.edit', $machine) }}" 
                                        class="p-1.5 bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 rounded transition"
                                        title="Editar">
@@ -113,6 +116,9 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                         </svg>
                                     </a>
+                                    @else
+                                        <span class="text-gray-400 dark:text-gray-500">-</span>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

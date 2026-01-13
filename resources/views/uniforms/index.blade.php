@@ -8,6 +8,7 @@
             <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Uniformes e EPIs</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Controle de Estoque (Botas, Capacetes, Uniformes)</p>
         </div>
+        @if(!Auth::user()->isVendedor())
         <div>
             <a href="{{ route('uniforms.create') }}" 
                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition flex items-center gap-2 text-sm font-medium">
@@ -17,6 +18,7 @@
                 Novo Item
             </a>
         </div>
+        @endif
     </div>
 
     {{-- Filtros --}}
@@ -101,9 +103,15 @@
                                 @endphp
                                 <td class="px-4 py-3 text-center text-sm border-l border-gray-200 dark:border-gray-700 {{ $qty > 0 ? 'text-gray-900 dark:text-gray-100' : 'text-gray-300 dark:text-gray-600' }}">
                                     @if($item)
+                                        @if(!Auth::user()->isVendedor())
                                         <a href="{{ route('uniforms.edit', $item) }}" class="hover:underline {{ $isLow ? 'text-red-500 font-bold' : '' }}">
                                             {{ $qty == 0 ? '-' : number_format($qty, 0) }}
                                         </a>
+                                        @else
+                                        <span class="{{ $isLow ? 'text-red-500 font-bold' : '' }}">
+                                            {{ $qty == 0 ? '-' : number_format($qty, 0) }}
+                                        </span>
+                                        @endif
                                     @else
                                         -
                                     @endif
@@ -115,12 +123,15 @@
                                 {{ number_format($rowTotal, 0) }}
                             </td>
 
-                            {{-- Ações --}}
                             <td class="px-4 py-3 text-center">
+                                @if(!Auth::user()->isVendedor())
                                 <a href="{{ route('uniforms.create', ['name' => $product->name, 'type' => $product->type, 'color' => $product->color, 'size' => $product->size, 'gender' => $product->gender]) }}" 
                                    class="text-indigo-600 hover:text-indigo-900 dark:hover:text-indigo-400 text-xs font-medium">
                                    + Add
                                 </a>
+                                @else
+                                <span class="text-gray-400 dark:text-gray-500">-</span>
+                                @endif
                             </td>
                         </tr>
                     @empty

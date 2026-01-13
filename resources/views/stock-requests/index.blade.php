@@ -156,6 +156,7 @@
         <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Solicitações de Estoque</h1>
     </div>
     <div class="flex flex-wrap gap-2">
+        @if(!Auth::user()->isVendedor())
         <button onclick="openRequestTransferModal()" 
                 class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition flex items-center gap-2 text-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,7 +178,8 @@
             </svg>
             Retirada
         </button>
-        <a href="{{ route('stocks.index') }}" 
+        @endif
+        <a href="{{ Auth::user()->isVendedor() ? route('stocks.view') : route('stocks.index') }}" 
            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition flex items-center gap-2 text-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
@@ -436,6 +438,7 @@
                     <td class="px-2 py-2 text-xs text-center">
                         <div class="flex gap-1 justify-center">
                             @if($group['status'] === 'pendente')
+                                @if(!Auth::user()->isVendedor())
                                 <button onclick="approveRequest({{ json_encode($group['requests']) }}, {{ $group['target_store'] ? 'false' : 'true' }})" 
                                         class="px-2 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition flex items-center gap-1"
                                         title="Aprovar">
@@ -451,6 +454,9 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
                                 </button>
+                                @else
+                                    <span class="text-gray-400 dark:text-gray-500">Aguardando aprovação</span>
+                                @endif
                             @elseif(in_array($group['status'], ['aprovado', 'em_transferencia', 'concluido']))
                                 {{-- Botão para baixar comprovante de conferência --}}
                                 <a href="{{ route('stock-requests.receipt', $group['requests'][0]->id) }}" 
