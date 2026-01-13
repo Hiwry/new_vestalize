@@ -617,9 +617,24 @@ spinStyle.textContent = `
 document.head.appendChild(spinStyle);
 
 // Inicializar automaticamente
-if (document.querySelector('.dashboard-widget') || document.querySelector('[data-dashboard-widgets]')) {
-    window.dashboardWidgets = new DashboardWidgets('.widget-container');
+function initDashboardWidgets() {
+    if (document.querySelector('.dashboard-widget') || document.querySelector('[data-dashboard-widgets]')) {
+        // Se já existir uma instância, destruí-la antes de criar uma nova
+        if (window.dashboardWidgets && typeof window.dashboardWidgets.destroy === 'function') {
+            window.dashboardWidgets.destroy();
+        }
+        window.dashboardWidgets = new DashboardWidgets('.widget-container');
+    }
 }
+
+// Inicializar na carga inicial
+initDashboardWidgets();
+
+// Capturar navegação AJAX
+document.addEventListener('ajax-content-loaded', function () {
+    console.log('DashboardWidgets: Reinicializando para conteúdo AJAX...');
+    initDashboardWidgets();
+});
 
 // Expor classe globalmente
 window.DashboardWidgets = DashboardWidgets;

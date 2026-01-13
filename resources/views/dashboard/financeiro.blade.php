@@ -231,7 +231,13 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    // Suporte para navegação AJAX
+    document.addEventListener('ajax-content-loaded', function() {
+        console.log('Financeiro: Reinicializando gráfico via AJAX...');
+        initFinancialChart();
+    });
+
+    function initFinancialChart() {
         // Dados do gráfico
         const dailyData = @json($dailyData);
         
@@ -244,12 +250,20 @@
         const costData = dailyData.map(item => parseFloat(item.cost));
         const profitData = dailyData.map(item => parseFloat(item.profit));
         
-        const ctx = document.getElementById('evolutionChart').getContext('2d');
+        const chartElement = document.getElementById('evolutionChart');
+        if (!chartElement) return;
+
+        const ctx = chartElement.getContext('2d');
         const isDark = document.documentElement.classList.contains('dark');
         const textColor = isDark ? '#e5e7eb' : '#374151';
         const gridColor = isDark ? 'rgba(75, 85, 99, 0.3)' : 'rgba(0, 0, 0, 0.1)';
         
-        new Chart(ctx, {
+        // Destruir se já existir
+        if (window.evolutionChart instanceof Chart) {
+            window.evolutionChart.destroy();
+        }
+
+        window.evolutionChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: labels,
@@ -324,7 +338,14 @@
                 }
             }
         });
-    });
+    }
+
+    // Inicializar na carga da página
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFinancialChart);
+    } else {
+        initFinancialChart();
+    }
 </script>
 @endpush
 @endsection

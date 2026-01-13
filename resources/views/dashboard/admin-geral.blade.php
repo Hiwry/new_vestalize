@@ -1111,6 +1111,12 @@
         waitAndInit();
     }
     
+    // Suporte para navegação AJAX
+    document.addEventListener('ajax-content-loaded', function() {
+        console.log('Navegação AJAX detectada, reinicializando gráficos...');
+        setTimeout(initCharts, 200);
+    });
+
     // Fallback: tentar novamente após um tempo
     window.addEventListener('load', function() {
         setTimeout(function() {

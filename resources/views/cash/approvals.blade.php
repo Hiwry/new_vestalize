@@ -293,9 +293,10 @@
 </div>
 
 <script>
-let currentAction = null;
-let currentOrderId = null;
-let currentOrderIds = null;
+// Variáveis do Modal (Globais)
+window.currentAction = null;
+window.currentOrderId = null;
+window.currentOrderIds = null;
 
 // Selecionar todos
 document.getElementById('select-all-checkbox')?.addEventListener('change', function() {
@@ -318,32 +319,36 @@ document.querySelectorAll('.order-checkbox').forEach(cb => {
 });
 
 
-// Funções do Modal
-function showModal(title, message, action, orderId = null, orderIds = null) {
+// Funções do Modal (Globais)
+window.showModal = function(title, message, action, orderId = null, orderIds = null) {
     document.getElementById('modal-title').textContent = title;
     document.getElementById('modal-message').textContent = message;
-    currentAction = action;
-    currentOrderId = orderId;
-    currentOrderIds = orderIds;
+    window.currentAction = action;
+    window.currentOrderId = orderId;
+    window.currentOrderIds = orderIds;
     document.getElementById('confirm-modal').classList.remove('hidden');
 }
 
-function closeModal() {
+window.closeModal = function() {
     document.getElementById('confirm-modal').classList.add('hidden');
-    currentAction = null;
-    currentOrderId = null;
-    currentOrderIds = null;
+    window.currentAction = null;
+    window.currentOrderId = null;
+    window.currentOrderIds = null;
 }
 
-function confirmAction() {
-    console.log('confirmAction chamado', { currentAction, currentOrderId, currentOrderIds });
+window.confirmAction = function() {
+    console.log('confirmAction chamado', { 
+        currentAction: window.currentAction, 
+        currentOrderId: window.currentOrderId, 
+        currentOrderIds: window.currentOrderIds 
+    });
     
     // Salvar valores antes de fechar o modal
-    const action = currentAction;
-    const orderId = currentOrderId;
-    const orderIds = currentOrderIds;
+    const action = window.currentAction;
+    const orderId = window.currentOrderId;
+    const orderIds = window.currentOrderIds;
     
-    closeModal();
+    window.closeModal();
     
     // Executar ação após fechar o modal
     if (action === 'approve') {
