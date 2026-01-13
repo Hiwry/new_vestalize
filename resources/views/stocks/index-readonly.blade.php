@@ -154,10 +154,12 @@
                                 else $class = 'stock-high';
                             @endphp
                             <div class="{{ $class }} rounded px-1 py-0.5">
-                                <span class="block">{{ $qty }}</span>
-                                @if($reserved > 0)
-                                <span class="text-orange-600 dark:text-orange-400 text-[9px] block">({{ $reserved }})</span>
-                                @endif
+                                <span class="block">
+                                    {{ $qty }}
+                                    @if($reserved > 0)
+                                    <span class="text-orange-600 dark:text-orange-400 font-bold">({{ $reserved }})</span>
+                                    @endif
+                                </span>
                             </div>
                             @else
                             <span class="text-gray-300 dark:text-gray-600">-</span>

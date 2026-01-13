@@ -432,6 +432,20 @@ class StockRequestController extends Controller
                 'approved_at' => now(), // rejected at
                 'approved_by' => Auth::id() // rejected by
             ]);
+
+            // Liberar reserva de estoque se existir
+            $stock = Stock::findByParams(
+                $stockRequest->target_store_id ?? $stockRequest->requesting_store_id,
+                $stockRequest->fabric_id,
+                null,
+                $stockRequest->color_id,
+                $stockRequest->cut_type_id,
+                $stockRequest->size
+            );
+
+            if ($stock && $stock->reserved_quantity > 0) {
+                $stock->release($stockRequest->requested_quantity, Auth::id(), $stockRequest->order_id, $stockRequest->id, 'Solicitação rejeitada - Liberação de reserva');
+            }
             
             if ($request->wantsJson()) {
                 return response()->json(['success' => true, 'message' => 'Solicitação rejeitada com sucesso.']);

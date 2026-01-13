@@ -366,6 +366,11 @@ class PDVService
                 'request_notes' => $requestNotes,
             ]);
 
+            // Tentar reservar o estoque se ele existir
+            if ($stock && $hasStock) {
+                $stock->reserve($quantity, Auth::id(), $orderId, $stockRequest->id, 'Reserva automática PDV (Venda)');
+            }
+
             // Notificar usuários do estoque
             $this->notifyStockUsersForRequest($stockRequest, $orderId, $fabricId, $colorId, $cutTypeId, $size, $quantity, $storeId);
 
@@ -535,18 +540,10 @@ class PDVService
                     }
                 }
 
-                // Descontar estoque de produção
+                // Gerar solicitação de estoque (que agora também reserva o estoque se disponível)
                 if (isset($cartItem['size']) && isset($cartItem['color_id']) && isset($cartItem['cut_type_id'])) {
-                    // Tentar descontar estoque
-                    $deducted = $this->deductStockFromSale($storeId, $cartItem['fabric_id'] ?? null, $cartItem['color_id'], $cartItem['cut_type_id'], $cartItem['size'], (int)$cartItem['quantity']);
-                    
-                    if (!$deducted) {
-                        $colorName = ProductOption::find($cartItem['color_id'])->name ?? 'Cor';
-                        throw new \Exception("Estoque insuficiente para item: {$colorName} ({$cartItem['size']})");
-                    }
-
                     // SEMPRE criar solicitação de estoque para rastreamento (conforme lógica original do PDV)
-                    // Isso gera a notificação para o setor de estoque
+                    // Isso agora também reserva o estoque se houver disponível
                     $this->checkStockAndCreateRequest(
                         $storeId,
                         $cartItem['fabric_id'] ?? null,
