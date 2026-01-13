@@ -1168,18 +1168,27 @@
         }
 
         window.closePersonalizationModal = function closePersonalizationModal() {
-            document.getElementById('personalizationModal').classList.add('hidden');
+            const modal = document.getElementById('personalizationModal');
+            if (modal) modal.classList.add('hidden');
             currentItemId = '';
             currentPersonalizationType = '';
             currentPersonalizationId = '';
             
-            // Limpar feedback de uploads ao fechar
-            removeApplicationImage();
-            document.getElementById('art_files').value = '';
-            document.getElementById('selected_files_list').innerHTML = '';
-            document.getElementById('art_files_placeholder').style.opacity = '1';
-            document.getElementById('art_files_dropzone').classList.remove('border-indigo-400', 'dark:border-indigo-500', 'bg-indigo-100/30', 'dark:bg-indigo-900/20');
-            document.getElementById('art_files_dropzone').classList.add('border-indigo-200', 'dark:border-indigo-800');
+            // Limpar feedback de uploads ao fechar (com null checks)
+            if (typeof removeApplicationImage === 'function') {
+                removeApplicationImage();
+            }
+            const artFilesEl = document.getElementById('art_files');
+            if (artFilesEl) artFilesEl.value = '';
+            const selectedFilesListEl = document.getElementById('selected_files_list');
+            if (selectedFilesListEl) selectedFilesListEl.innerHTML = '';
+            const artFilesPlaceholderEl = document.getElementById('art_files_placeholder');
+            if (artFilesPlaceholderEl) artFilesPlaceholderEl.style.opacity = '1';
+            const artFilesDropzoneEl = document.getElementById('art_files_dropzone');
+            if (artFilesDropzoneEl) {
+                artFilesDropzoneEl.classList.remove('border-indigo-400', 'dark:border-indigo-500', 'bg-indigo-100/30', 'dark:bg-indigo-900/20');
+                artFilesDropzoneEl.classList.add('border-indigo-200', 'dark:border-indigo-800');
+            }
         }
 
         // Função para lidar com mudança na imagem da aplicação
