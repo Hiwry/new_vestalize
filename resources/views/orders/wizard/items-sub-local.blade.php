@@ -62,8 +62,14 @@
                     @foreach($products as $product)
                     {{-- Product Card --}}
                     <div class="product-card bg-white dark:bg-gray-800 rounded-xl md:rounded-2xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-indigo-500 transition-all group shadow-sm border border-gray-200 dark:border-gray-700" 
-                         data-category="{{ $product->category }}" data-id="{{ $product->id }}" data-name="{{ $product->name }}" data-price="{{ $product->price }}" 
-                         data-requires-customization="{{ $product->requires_customization ? 'true' : 'false' }}">
+                         data-category="{{ $product->category }}" 
+                         data-id="{{ $product->id }}" 
+                         data-name="{{ $product->name }}" 
+                         data-price="{{ $product->price }}" 
+                         data-requires-customization="{{ $product->requires_customization ? 'true' : 'false' }}"
+                         data-allow-price-edit="{{ $product->allow_price_edit ? 'true' : 'false' }}"
+                         data-has-quantity-pricing="{{ $product->has_quantity_pricing ? 'true' : 'false' }}"
+                         data-quantity-pricing="{{ $product->has_quantity_pricing ? json_encode($product->quantity_pricing ?? []) : '[]' }}">
                         <div class="aspect-square bg-gray-100 dark:bg-gradient-to-br dark:from-gray-700 dark:to-gray-800 p-2 md:p-4 flex items-center justify-center relative">
                             @if($product->image)
                                 <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
@@ -71,6 +77,11 @@
                                 <svg class="w-12 h-12 md:w-20 md:h-20 text-gray-400 dark:text-gray-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
+                            @endif
+                            @if($product->allow_price_edit)
+                            <div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                                <i class="fa-solid fa-pen text-[10px] mr-1"></i>Editável
+                            </div>
                             @endif
                         </div>
                         <div class="p-2 md:p-4">
@@ -157,6 +168,23 @@
             <p id="modal-product-price" class="text-indigo-600 dark:text-indigo-400 font-bold text-lg mt-1">R$ 0,00</p>
         </div>
 
+        <!-- Campo de Preço Editável (aparece só quando permitido) -->
+        <div id="price-edit-section" class="mb-6 hidden">
+            <label class="text-gray-600 dark:text-gray-400 text-sm block mb-2 text-center">
+                <i class="fa-solid fa-pen-to-square text-green-500 mr-1"></i>
+                Preço Personalizado
+            </label>
+            <div class="flex items-center justify-center gap-2">
+                <span class="text-gray-500 dark:text-gray-400 text-lg font-medium">R$</span>
+                <input type="text" id="modal-custom-price" 
+                       class="w-32 h-12 bg-green-50 dark:bg-green-900/20 text-gray-900 dark:text-white text-center text-xl font-bold rounded-xl border-2 border-green-400 dark:border-green-600 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                       placeholder="0,00">
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+                Preço original: <span id="original-price-display" class="font-medium"></span>
+            </p>
+        </div>
+
         <div class="mb-6">
             <label class="text-gray-600 dark:text-gray-400 text-sm block mb-3 text-center">Quantidade</label>
             <div class="flex items-center justify-center gap-3">
@@ -165,6 +193,12 @@
                        class="w-20 h-12 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-center text-xl font-bold rounded-xl border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                 <button id="btn-increase" class="w-12 h-12 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-xl text-2xl font-bold transition border border-gray-200 dark:border-gray-600">+</button>
             </div>
+        </div>
+
+        <!-- Subtotal -->
+        <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-center">
+            <span class="text-gray-500 dark:text-gray-400 text-sm">Subtotal: </span>
+            <span id="modal-subtotal" class="text-indigo-600 dark:text-indigo-400 font-bold text-lg">R$ 0,00</span>
         </div>
 
         <div class="flex gap-3">
@@ -178,14 +212,39 @@
     </div>
 </div>
 
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const cart = [];
+    // Carregar carrinho do localStorage (persistência entre navegações)
+    const CART_STORAGE_KEY = 'wizard_sub_local_cart';
+    let cart = loadCartFromStorage();
     let selectedProduct = null;
 
     // Modal elements
     const modal = document.getElementById('quantity-modal');
     const modalContent = document.getElementById('modal-content');
+
+    // Atualizar UI com o carrinho carregado
+    if (cart.length > 0) {
+        updateCartUI();
+    }
+
+    // Função para salvar carrinho no localStorage
+    function saveCartToStorage() {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    }
+
+    // Função para carregar carrinho do localStorage
+    function loadCartFromStorage() {
+        const stored = localStorage.getItem(CART_STORAGE_KEY);
+        return stored ? JSON.parse(stored) : [];
+    }
+
+    // Limpar carrinho do localStorage (quando finalizar pedido)
+    function clearCartStorage() {
+        localStorage.removeItem(CART_STORAGE_KEY);
+    }
+
 
     // Category filter
     document.querySelectorAll('.category-btn').forEach(btn => {
@@ -225,7 +284,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 id: this.dataset.id,
                 name: this.dataset.name,
                 price: parseFloat(this.dataset.price),
+                originalPrice: parseFloat(this.dataset.price),
                 requiresCustomization: this.dataset.requiresCustomization === 'true',
+                allowPriceEdit: this.dataset.allowPriceEdit === 'true',
+                hasQuantityPricing: this.dataset.hasQuantityPricing === 'true',
+                quantityPricing: JSON.parse(this.dataset.quantityPricing || '[]'),
                 icon: iconHtml
             };
 
@@ -234,6 +297,22 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('modal-icon').innerHTML = selectedProduct.icon;
             document.getElementById('modal-quantity').value = 1;
 
+            // Gerenciar campo de preço editável
+            const priceEditSection = document.getElementById('price-edit-section');
+            const customPriceInput = document.getElementById('modal-custom-price');
+            const originalPriceDisplay = document.getElementById('original-price-display');
+            
+            if (selectedProduct.allowPriceEdit) {
+                priceEditSection.classList.remove('hidden');
+                customPriceInput.value = formatNumber(selectedProduct.price);
+                originalPriceDisplay.textContent = formatCurrency(selectedProduct.originalPrice);
+            } else {
+                priceEditSection.classList.add('hidden');
+            }
+
+            // Atualizar subtotal inicial
+            updateModalSubtotal();
+
             openModal();
         });
     });
@@ -241,12 +320,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Quantity controls
     document.getElementById('btn-decrease').addEventListener('click', function() {
         const input = document.getElementById('modal-quantity');
-        if (parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;
+        if (parseInt(input.value) > 1) {
+            input.value = parseInt(input.value) - 1;
+            updateModalSubtotal();
+        }
     });
 
     document.getElementById('btn-increase').addEventListener('click', function() {
         const input = document.getElementById('modal-quantity');
         input.value = parseInt(input.value) + 1;
+        updateModalSubtotal();
+    });
+
+    // Atualizar subtotal quando digitar quantidade
+    document.getElementById('modal-quantity').addEventListener('input', function() {
+        updateModalSubtotal();
+    });
+
+    // Atualizar subtotal quando editar preço
+    document.getElementById('modal-custom-price').addEventListener('input', function() {
+        updateModalSubtotal();
     });
 
     // Cancel button
@@ -259,13 +352,24 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btn-add-to-cart').addEventListener('click', function() {
         const quantity = parseInt(document.getElementById('modal-quantity').value);
         
-        // Check if product already in cart
-        const existing = cart.find(item => item.id === selectedProduct.id);
+        // Pegar preço customizado se permitido
+        let finalPrice = selectedProduct.price;
+        if (selectedProduct.allowPriceEdit) {
+            const customPriceInput = document.getElementById('modal-custom-price');
+            const customPrice = parseNumber(customPriceInput.value);
+            if (customPrice > 0) {
+                finalPrice = customPrice;
+            }
+        }
+        
+        // Verificar se já existe no carrinho com o MESMO preço
+        const existing = cart.find(item => item.id === selectedProduct.id && item.price === finalPrice);
         if (existing) {
             existing.quantity += quantity;
         } else {
             cart.push({
                 ...selectedProduct,
+                price: finalPrice,
                 quantity: quantity
             });
         }
@@ -303,6 +407,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                // Limpar localStorage após enviar com sucesso
+                clearCartStorage();
+                
                 if (requiresCustomization) {
                     window.location.href = '{{ route("orders.wizard.customization") }}';
                 } else {
@@ -384,15 +491,64 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update mobile footer
         if (mobileCountText) mobileCountText.textContent = totalItems + (totalItems === 1 ? ' item' : ' itens');
         if (mobileTotal) mobileTotal.textContent = formatCurrency(total);
+        
+        // Salvar carrinho no localStorage
+        saveCartToStorage();
     }
 
     window.removeFromCart = function(index) {
         cart.splice(index, 1);
         updateCartUI();
+        // O updateCartUI já salva no localStorage
     };
 
     function formatCurrency(value) {
         return 'R$ ' + value.toFixed(2).replace('.', ',');
+    }
+
+    function formatNumber(value) {
+        return value.toFixed(2).replace('.', ',');
+    }
+
+    function parseNumber(str) {
+        if (!str) return 0;
+        // Remove tudo exceto números, vírgulas e pontos
+        const cleaned = str.replace(/[^\d,\.]/g, '');
+        // Substitui vírgula por ponto para parsing
+        const normalized = cleaned.replace(',', '.');
+        return parseFloat(normalized) || 0;
+    }
+
+    function updateModalSubtotal() {
+        const quantity = parseInt(document.getElementById('modal-quantity').value) || 1;
+        let price = selectedProduct.price;
+        
+        // Se tem preço por quantidade, aplicar
+        if (selectedProduct.hasQuantityPricing && selectedProduct.quantityPricing.length > 0) {
+            for (const tier of selectedProduct.quantityPricing) {
+                if (quantity >= tier.min_quantity && quantity <= tier.max_quantity) {
+                    price = tier.price;
+                    break;
+                }
+            }
+        }
+        
+        // Se permite edição de preço, pegar o valor digitado
+        if (selectedProduct.allowPriceEdit) {
+            const customPriceInput = document.getElementById('modal-custom-price');
+            const customPrice = parseNumber(customPriceInput.value);
+            if (customPrice > 0) {
+                price = customPrice;
+            }
+        }
+        
+        const subtotal = price * quantity;
+        document.getElementById('modal-subtotal').textContent = formatCurrency(subtotal);
+        
+        // Atualizar preço exibido quando tem tabela por quantidade
+        if (selectedProduct.hasQuantityPricing && selectedProduct.quantityPricing.length > 0) {
+            document.getElementById('modal-product-price').textContent = formatCurrency(price) + '/un';
+        }
     }
 });
 </script>

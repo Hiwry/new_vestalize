@@ -116,50 +116,8 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
-        // Super Admin (tenant_id === null) não deve ver dados de outros tenants sem selecionar contexto
-        if ($this->isSuperAdmin() && !$this->hasSelectedTenant()) {
-            return $this->emptySuperAdminResponse('dashboard.admin-geral', [
-                'period' => 'month',
-                'startDate' => Carbon::now()->startOfMonth(),
-                'endDate' => Carbon::now()->endOfMonth(),
-                'previousStartDate' => Carbon::now()->subMonth()->startOfMonth(),
-                'previousEndDate' => Carbon::now()->subMonth()->endOfMonth(),
-                'totalPedidos' => 0,
-                'totalFaturamento' => 0,
-                'pedidosHoje' => 0,
-                'variacaoPedidos' => 0,
-                'variacaoFaturamento' => 0,
-                'ticketMedio' => 0,
-                'variacaoTicketMedio' => 0,
-                'vendasPDV' => 0,
-                'vendasPDVValor' => 0,
-                'pedidosOnline' => 0,
-                'pedidosOnlineValor' => 0,
-                'totalClientes' => 0,
-                'pedidosPorStatus' => collect([]),
-                'faturamentoDiario' => collect([]),
-                'pedidosRecentes' => collect([]),
-                'topClientes' => collect([]),
-                'pagamentosPendentes' => collect([]),
-                'totalPendente' => 0,
-                'pedidosPorMes' => collect([]),
-                'faturamentoPorLoja' => collect([]),
-                'distribuicaoPagamento' => collect([]),
-                'topVendedores' => collect([]),
-                'produtosMaisVendidos' => collect([]),
-                'clientesAtendidos' => 0,
-                'metas' => [
-                    'faturamento' => ['valor' => 0, 'meta' => 0, 'percentual' => 0],
-                    'pedidos' => ['valor' => 0, 'meta' => 0, 'percentual' => 0],
-                    'ticket_medio' => ['valor' => 0, 'meta' => 0, 'percentual' => 0],
-                    'novos_clientes' => ['valor' => 0, 'meta' => 0, 'percentual' => 0],
-                ],
-                'fluxoFinanceiro' => collect([]),
-                'resumoMensal' => collect([]),
-                'stores' => collect([]),
-                'selectedStoreId' => null,
-            ]);
-        }
+        // Super Admin sem tenant selecionado agora vê todos os dados
+        // O filtro é gerenciado pelo StoreHelper
 
         // Filtros de período
         $period = $request->get('period', 'month'); // today, week, month, year, custom
@@ -271,15 +229,15 @@ class DashboardController extends Controller
         $cacheKey = "dashboard_stats_" . Auth::user()->id . "_" . ($selectedStoreId ?? 'all') . "_" . $period;
         $cacheTime = 600; // 10 minutos
         
-        // Pedidos por status (otimizado com join)
+        // Pedidos por status (otimizado com join - agrupa por nome para evitar duplicatas de tenants)
         $pedidosPorStatus = Cache::remember($cacheKey . "_status", $cacheTime, function() use ($startDate, $endDate, $selectedStoreId) {
             $pedidosPorStatusQuery = Order::where('orders.is_draft', false)
                 ->whereBetween('orders.created_at', [$startDate, $endDate]);
             $this->applyFilters($pedidosPorStatusQuery, $selectedStoreId);
             return $pedidosPorStatusQuery
                 ->join('statuses', 'orders.status_id', '=', 'statuses.id')
-                ->select('statuses.id', 'statuses.name', 'statuses.color', DB::raw('count(*) as total'))
-                ->groupBy('statuses.id', 'statuses.name', 'statuses.color')
+                ->select('statuses.name', DB::raw('MIN(statuses.color) as color'), DB::raw('count(*) as total'))
+                ->groupBy('statuses.name')  // Agrupar por nome apenas para consolidar status de diferentes tenants
                 ->get()
                 ->map(function($item) {
                     return [

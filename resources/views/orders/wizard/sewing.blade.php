@@ -172,7 +172,7 @@
                             <!-- Cor -->
                             <div class="p-5 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
                                 <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Cor do Tecido *</label>
-                                <select name="cor" id="cor" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">
+                                <select name="cor" id="cor" onchange="updatePrice()" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">
                                     <option value="">Selecione a cor</option>
                                 </select>
                             </div>
@@ -306,12 +306,17 @@
                                         <span class="text-gray-600 dark:text-slate-400">Gola:</span>
                                         <span class="font-semibold text-gray-900 dark:text-white" id="price-gola">R$ 0,00</span>
                                     </div>
+                                    <div class="flex justify-between items-center p-3 bg-red-600 dark:bg-red-500 rounded-lg mt-2">
+                                        <span class="text-white font-bold">Custo Unitário:</span>
+                                        <div class="flex items-center space-x-1">
+                                            <span class="text-white font-bold">R$</span>
+                                            <input type="number" name="unit_cost" id="unit_cost" step="0.01" min="0" value="0.00" class="w-24 bg-transparent border-none text-white font-bold text-xl text-right focus:ring-0 p-0">
+                                        </div>
+                                    </div>
                                     <div class="flex justify-between items-center p-3 bg-indigo-600 dark:bg-indigo-500 rounded-lg mt-2">
                                         <span class="text-white font-bold">Valor Unitário:</span>
                                         <span class="font-bold text-white text-xl" id="price-total">R$ 0,00</span>
                                     </div>
-                                    
-
                                 </div>
                                 <input type="hidden" name="unit_price" id="unit_price" value="0">
                             </div>
@@ -752,6 +757,7 @@
             // Atualizar cores e tipos de corte quando tecido/tipo_tecido mudar
             renderCores();
             renderTiposCorte();
+            updatePrice();
         }
 
         function onTipoTecidoChange() {
@@ -953,6 +959,7 @@
         function onTipoTecidoChange() {
             renderCores();
             renderTiposCorte();
+            updatePrice();
         }
 
         function onTipoCorteChange() {
@@ -1091,6 +1098,9 @@
             const corteSelect = document.getElementById('tipo_corte');
             const detalheSelect = document.getElementById('detalhe');
             const golaSelect = document.getElementById('gola');
+            const tecidoSelect = document.getElementById('tecido');
+            const tipoTecidoSelect = document.getElementById('tipo_tecido');
+            const corSelect = document.getElementById('cor');
 
             // Verificar se SUB. TOTAL está selecionado
             const isSubTotal = selectedPersonalizacoes.some(id => {
@@ -1103,14 +1113,29 @@
             let cortePrice = 0;
             let detalhePrice = 0;
             let golaPrice = 0;
+            
+            let corteCost = 0;
+            let detalheCost = 0;
+            let golaCost = 0;
+            let tecidoCost = 0;
+            let tipoTecidoCost = 0;
+            let corCost = 0;
 
             if (!isSubTotal) {
                 cortePrice = parseFloat(corteSelect.options[corteSelect.selectedIndex]?.dataset.price || 0);
                 detalhePrice = parseFloat(detalheSelect.options[detalheSelect.selectedIndex]?.dataset.price || 0);
                 golaPrice = parseFloat(golaSelect.options[golaSelect.selectedIndex]?.dataset.price || 0);
+                
+                corteCost = parseFloat(corteSelect.options[corteSelect.selectedIndex]?.dataset.cost || 0);
+                detalheCost = parseFloat(detalheSelect.options[detalheSelect.selectedIndex]?.dataset.cost || 0);
+                golaCost = parseFloat(golaSelect.options[golaSelect.selectedIndex]?.dataset.cost || 0);
+                tecidoCost = parseFloat(tecidoSelect?.options[tecidoSelect.selectedIndex]?.dataset.cost || 0);
+                tipoTecidoCost = parseFloat(tipoTecidoSelect?.options[tipoTecidoSelect.selectedIndex]?.dataset.cost || 0);
+                corCost = parseFloat(corSelect?.options[corSelect.selectedIndex]?.dataset.cost || 0);
             }
 
             const total = cortePrice + detalhePrice + golaPrice;
+            const totalCost = corteCost + detalheCost + golaCost + tecidoCost + tipoTecidoCost + corCost;
 
             document.getElementById('price-corte').textContent = 'R$ ' + cortePrice.toFixed(2).replace('.', ',');
             document.getElementById('price-detalhe').textContent = 'R$ ' + detalhePrice.toFixed(2).replace('.', ',');
@@ -1118,8 +1143,7 @@
             document.getElementById('price-total').textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
             
             document.getElementById('unit_price').value = total.toFixed(2);
-            
-
+            document.getElementById('unit_cost').value = totalCost.toFixed(2);
         }
 
         function calculateTotal() {
@@ -1549,6 +1573,7 @@
             }
 
             document.getElementById('unit_price').value = itemData.unit_price;
+            document.getElementById('unit_cost').value = itemData.unit_cost || 0;
 
 
             // Restaurar estado do checkbox de acréscimo

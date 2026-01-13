@@ -148,7 +148,7 @@ class User extends Authenticatable
 
         $tenantStoreIds = $activeTenantId
             ? Store::active()->where('tenant_id', $activeTenantId)->pluck('id')->toArray()
-            : [];
+            : ($this->tenant_id === null ? Store::active()->pluck('id')->toArray() : []);
 
         if ($this->isAdminGeral() || $this->isEstoque()) {
             return $tenantStoreIds;

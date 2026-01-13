@@ -22,22 +22,6 @@ class CashApprovalController extends Controller
     {
         $user = Auth::user();
         
-        // Super Admin (tenant_id === null) não deve ver dados de outros tenants
-        if ($user->tenant_id === null) {
-            return view('cash.approvals', [
-                'orders' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
-                'status' => 'pendente',
-                'type' => 'todos',
-                'search' => null,
-                'stats' => [
-                    'pendentes' => 0,
-                    'aprovados' => 0,
-                    'total_pendente' => 0,
-                ],
-                'isSuperAdmin' => true
-            ]);
-        }
-
         $status = $request->get('status', 'pendente'); // pendente, aprovado, todos
         $type = $request->get('type', 'todos'); // pedidos, vendas, todos
         $search = $request->get('search');
@@ -46,6 +30,9 @@ class CashApprovalController extends Controller
             ->where('is_draft', false)
             ->where('is_cancelled', false)
             ->has('payment');
+
+        // Aplicar filtro de loja (Super Admin vê todos)
+        \App\Helpers\StoreHelper::applyStoreFilter($query);
 
         // Filtrar por tipo
         if ($type === 'pedidos') {
@@ -57,7 +44,11 @@ class CashApprovalController extends Controller
         // Filtrar por status de aprovação
         if ($status === 'pendente') {
             $query->whereHas('payment', function($q) {
-                $q->where('cash_approved', false);
+                // cash_approved = false OU null (não aprovado)
+                $q->where(function($q2) {
+                    $q2->where('cash_approved', false)
+                       ->orWhereNull('cash_approved');
+                });
             });
         } elseif ($status === 'aprovado') {
             $query->whereHas('payment', function($q) {
@@ -78,21 +69,29 @@ class CashApprovalController extends Controller
 
         $orders = $query->orderBy('created_at', 'desc')->paginate(20);
 
-        // Estatísticas
+        // Estatísticas (aplicar mesmo filtro de loja)
+        $statsQuery = Order::where('is_draft', false)->where('is_cancelled', false);
+        \App\Helpers\StoreHelper::applyStoreFilter($statsQuery);
+        
         $stats = [
-            'pendentes' => Order::where('is_draft', false)
-                ->where('is_cancelled', false)
+            'pendentes' => (clone $statsQuery)
                 ->whereHas('payment', function($q) {
-                    $q->where('cash_approved', false);
+                    $q->where(function($q2) {
+                        $q2->where('cash_approved', false)
+                           ->orWhereNull('cash_approved');
+                    });
                 })
                 ->count(),
-            'aprovados' => Order::where('is_draft', false)
-                ->where('is_cancelled', false)
+            'aprovados' => (clone $statsQuery)
                 ->whereHas('payment', function($q) {
                     $q->where('cash_approved', true);
                 })
                 ->count(),
-            'total_pendente' => Payment::where('cash_approved', false)
+            'total_pendente' => Payment::whereIn('order_id', (clone $statsQuery)->pluck('id'))
+                ->where(function($q) {
+                    $q->where('cash_approved', false)
+                      ->orWhereNull('cash_approved');
+                })
                 ->sum('entry_amount'),
         ];
 

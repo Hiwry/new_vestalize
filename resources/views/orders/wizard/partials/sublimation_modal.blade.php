@@ -146,9 +146,9 @@
                             <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1">Preço Unitário (R$) *</label>
                             <input type="number" name="unit_price" id="sub_unit_price" step="0.01" min="0" value="0" required onchange="updateSublimationPreview()" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-right font-bold text-green-600 dark:text-green-400">
                         </div>
-                        <div class="hidden">
+                        <div>
                             <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1">Custo Unitário (R$)</label>
-                            <input type="number" name="unit_cost" id="sub_unit_cost" step="0.01" min="0" value="0" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-right">
+                            <input type="number" name="unit_cost" id="sub_unit_cost" step="0.01" min="0" value="0.00" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-right">
                         </div>
                     </div>
                     <div class="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">

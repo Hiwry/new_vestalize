@@ -52,6 +52,18 @@ class SubLocalProductController extends Controller
         $validated['available_sizes'] = $request->has('requires_size') ? $request->input('available_sizes', []) : null;
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
         
+        // Novos campos: preços por quantidade e edição de preço
+        $validated['has_quantity_pricing'] = $request->has('has_quantity_pricing');
+        $validated['allow_price_edit'] = $request->has('allow_price_edit');
+        
+        // Processar tabela de preços por quantidade
+        if ($request->has('has_quantity_pricing') && $request->input('quantity_pricing')) {
+            $quantityPricing = json_decode($request->input('quantity_pricing'), true);
+            $validated['quantity_pricing'] = is_array($quantityPricing) ? $quantityPricing : null;
+        } else {
+            $validated['quantity_pricing'] = null;
+        }
+        
         SubLocalProduct::create($validated);
 
         return redirect()->route('admin.sub-local-products.index')
@@ -98,6 +110,18 @@ class SubLocalProductController extends Controller
         $validated['requires_size'] = $request->has('requires_size');
         $validated['available_sizes'] = $request->has('requires_size') ? $request->input('available_sizes', []) : null;
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
+        
+        // Novos campos: preços por quantidade e edição de preço
+        $validated['has_quantity_pricing'] = $request->has('has_quantity_pricing');
+        $validated['allow_price_edit'] = $request->has('allow_price_edit');
+        
+        // Processar tabela de preços por quantidade
+        if ($request->has('has_quantity_pricing') && $request->input('quantity_pricing')) {
+            $quantityPricing = json_decode($request->input('quantity_pricing'), true);
+            $validated['quantity_pricing'] = is_array($quantityPricing) ? $quantityPricing : null;
+        } else {
+            $validated['quantity_pricing'] = null;
+        }
         
         $subLocalProduct->update($validated);
 

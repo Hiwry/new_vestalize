@@ -31,12 +31,28 @@ class KanbanController extends Controller
         $personalizationType = $request->get('personalization_type');
         $deliveryDateFilter = $request->get('delivery_date');
         
-        $statuses = Status::withCount(['orders' => function($query) use ($personalizationType, $deliveryDateFilter) {
+        // Determinar o tenant a ser usado para status
+        // Se for Super Admin sem tenant selecionado, usar tenant da primeira loja
+        $activeTenantId = $user->tenant_id;
+        if ($activeTenantId === null) {
+            $activeTenantId = session('selected_tenant_id');
+        }
+        if ($activeTenantId === null) {
+            // Fallback: usar tenant_id da primeira loja encontrada ou tenant_id = 1
+            $firstStore = \App\Models\Store::first();
+            $activeTenantId = $firstStore ? $firstStore->tenant_id : 1;
+        }
+        
+        $statuses = Status::where('tenant_id', $activeTenantId)
+            ->withCount(['orders' => function($query) use ($personalizationType, $deliveryDateFilter) {
             $query->notDrafts()
                   ->where('is_cancelled', false);
             if (Auth::user()->isVendedor()) {
                 $query->byUser(Auth::id());
             }
+            // Aplicar filtro de loja
+            StoreHelper::applyStoreFilter($query);
+            
             // Aplicar filtro de personalização na contagem também
             if ($personalizationType) {
                 $query->where(function($q) use ($personalizationType) {

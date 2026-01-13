@@ -195,7 +195,7 @@
                         @endif
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                        @if($payment && !$payment->cash_approved)
+                        @if($payment && $payment->cash_approved !== true)
                         <button onclick="approveOrder({{ $order->id }})" 
                                 class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 mr-3">
                             Aprovar
@@ -425,7 +425,7 @@ function approveOrderRequest(orderId) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
         }
     })
     .then(response => {
@@ -544,7 +544,7 @@ function removeReceiptRequest(orderId) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
         }
     })
     .then(response => response.json())

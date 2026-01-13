@@ -38,26 +38,13 @@ class FinancialController extends Controller
             $endDate = Carbon::now()->endOfYear();
         }
 
-        // Super Admin (tenant_id === null) não deve ver dados de outros tenants sem selecionar contexto
-        if ($this->isSuperAdmin() && !$this->hasSelectedTenant()) {
-            return $this->emptySuperAdminResponse('dashboard.financeiro', [
-                'totalRevenue' => 0,
-                'totalCost' => 0,
-                'grossProfit' => 0,
-                'profitMargin' => 0,
-                'dailyData' => collect([]),
-                'topProducts' => collect([]),
-                'itemsReport' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
-                'startDate' => $startDate,
-                'endDate' => $endDate,
-                'period' => $period,
-                'stores' => collect([]),
-                'selectedStoreId' => null,
-            ]);
-        }
+        // Super Admin without selected tenant now sees all data
+        // Filter is managed via StoreHelper::getStoreIds and the base query below
+
 
         // Base query conditions
-        $baseQuery = OrderItem::join('orders', 'order_items.order_id', '=', 'orders.id')
+        $baseQuery = OrderItem::select('order_items.*')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->leftJoin('payments', 'orders.id', '=', 'payments.order_id')
             ->where('orders.is_draft', false)
             // ->where('payments.cash_approved', true) // Apenas aprovados

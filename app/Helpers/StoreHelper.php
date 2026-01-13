@@ -41,9 +41,12 @@ class StoreHelper
 
             $query->whereIn($column, $tenantStoreIds);
         } else {
-            // Se for Super Admin e NÃO houver tenant selecionado, mostra apenas itens sem loja (gerais do sistema)
+            // Se for Super Admin e NÃO houver tenant selecionado:
+            // - Mostrar TODOS os registros (de todas as lojas) para permitir visualização global
+            // - Isso é útil para Super Admin ver pedidos no Kanban sem precisar selecionar tenant
             if ($user->tenant_id === null) {
-                return $query->whereNull($column);
+                // Super Admin sem tenant selecionado: mostrar tudo (não aplica filtro)
+                return $query;
             }
         }
 

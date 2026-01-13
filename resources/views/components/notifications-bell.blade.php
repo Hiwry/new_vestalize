@@ -142,8 +142,8 @@ function notificationBell() {
 
         init() {
             this.fetchNotifications();
-            // Verificar novas notificações a cada 30 segundos
-            setInterval(() => this.fetchNotifications(), 30000);
+            // Verificar novas notificações a cada 60 segundos (otimizado)
+            setInterval(() => this.fetchNotifications(), 60000);
         },
 
         async fetchNotifications() {

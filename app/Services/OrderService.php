@@ -7,10 +7,14 @@ use App\Models\OrderItem;
 use App\Models\OrderLog;
 use App\Models\Status;
 use App\Models\Store;
+use App\Models\Payment;
+use App\Models\CashTransaction;
 use App\Helpers\DateHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+
 
 class OrderService
 {
@@ -194,6 +198,7 @@ class OrderService
                     'status' => $data['amount'] >= $order->total ? 'pago' : 'pendente',
                     'entry_date' => now(),
                     'payment_date' => now(),
+                    'cash_approved' => false, // Para aparecer nas aprovações
                 ]);
             }
 
@@ -481,5 +486,13 @@ class OrderService
         }
 
         return $changes;
+    }
+
+    /**
+     * Formatar número do pedido
+     */
+    private static function formatOrderNumber(Order $order): string
+    {
+        return str_pad($order->id, 6, '0', STR_PAD_LEFT);
     }
 }
