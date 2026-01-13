@@ -1903,8 +1903,10 @@
             if (el) {
                 el.addEventListener('change', calculatePrice);
             }
-            const artFilesForListener = document.getElementById('art_files');
-            if (artFilesForListener) artFilesForListener.addEventListener('change', displaySelectedFiles);
+        });
+        
+        const artFilesForListener = document.getElementById('art_files');
+        if (artFilesForListener) artFilesForListener.addEventListener('change', displaySelectedFiles);
         });
 
         // Submit do formulário
