@@ -641,43 +641,6 @@
                     <p class="mt-2 text-xs text-gray-500 dark:text-slate-400">Apenas para visualização rápida</p>
                 </div>
 
-                <!-- Upload de Arquivos (CorelDRAW, PDF, Excel, etc.) -->
-                <div class="@if($order->is_draft) hidden @endif">
-                    <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Arquivos da Arte (CorelDRAW, PDF, Excel, etc.) *</label>
-                    <div id="art_files_dropzone" class="relative border-2 border-dashed border-indigo-200 dark:border-indigo-800 rounded-lg hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors bg-indigo-50/30 dark:bg-indigo-900/10">
-                        <input type="file" id="art_files" name="art_files[]" multiple
-                               accept=".cdr,.pdf,.ai,.eps,.svg,.xlsx,.xls,.doc,.docx,.zip,.rar,.png,.jpg,.jpeg"
-                               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                               onchange="handleArtFilesChange(this)">
-                        <div id="art_files_placeholder" class="px-6 py-4 text-center">
-                            <svg class="mx-auto h-12 w-12 text-indigo-400 dark:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                            </svg>
-                            <div class="mt-2">
-                                <label for="art_files" class="cursor-pointer">
-                                    <span class="inline-flex items-center px-4 py-2 bg-indigo-600 dark:bg-indigo-500 border border-transparent rounded-lg font-medium text-sm text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors shadow-sm">
-                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                        </svg>
-                                        Escolher arquivos
-                                    </span>
-                                </label>
-                                <p class="mt-1 text-xs text-gray-600 dark:text-slate-400">ou arraste e solte aqui</p>
-                            </div>
-                            <p class="mt-2 text-xs text-gray-600 dark:text-slate-400">CDR, PDF, AI, EPS, SVG, Excel, Word, ZIP, imagens</p>
-                        </div>
-                    </div>
-                    <p class="mt-2 text-xs text-gray-500 dark:text-slate-400">
-                        <span class="inline-flex items-center">
-                            <svg class="w-4 h-4 text-red-500 dark:text-red-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                            </svg>
-                            Obrigatório pelo menos 1 arquivo
-                        </span>
-                    </p>
-                    <div id="selected_files_list" class="mt-3 space-y-2"></div>
-                </div>
-
                 <!-- Detalhes das Cores (oculto para SUB. TOTAL e SUB. LOCAL) -->
                 <div id="colorDetailsField" class="@if($order->is_draft) hidden @endif">
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Detalhes das Cores (opcional)</label>
