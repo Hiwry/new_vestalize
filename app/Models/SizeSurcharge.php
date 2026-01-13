@@ -50,21 +50,35 @@ class SizeSurcharge extends Model
         \DB::table('size_surcharges')->delete();
 
         $surcharges = [
-            // Valores fixos por tamanho (baseado no orçamento do usuário)
-            // GG = Acréscimo de R$ 2,00 por peça
-            ['size' => 'GG', 'price_from' => 0, 'price_to' => null, 'surcharge' => 2.00],
+            // Valores baseados no PREÇO UNITÁRIO da peça (conforme tabela do usuário)
             
-            // EXG (Tamanho Especial X) = Acréscimo de R$ 35,00 por peça
-            ['size' => 'EXG', 'price_from' => 0, 'price_to' => null, 'surcharge' => 35.00],
+            // GG - Acréscimos por faixa de preço
+            ['size' => 'GG', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 0.00],
+            ['size' => 'GG', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 2.00],
+            ['size' => 'GG', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 5.00],
             
-            // G1 = Acréscimo de R$ 10,00 por peça
-            ['size' => 'G1', 'price_from' => 0, 'price_to' => null, 'surcharge' => 10.00],
+            // EXG - Acréscimos por faixa de preço
+            ['size' => 'EXG', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 1.00],
+            ['size' => 'EXG', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 4.00],
+            ['size' => 'EXG', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 10.00],
             
-            // G2 = Acréscimo de R$ 20,00 por peça
-            ['size' => 'G2', 'price_from' => 0, 'price_to' => null, 'surcharge' => 20.00],
+            // G1 - Acréscimos por faixa de preço
+            ['size' => 'G1', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 2.00],
+            ['size' => 'G1', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 4.00],
+            ['size' => 'G1', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 10.00],
             
-            // G3 = Acréscimo de R$ 40,00 por peça
-            ['size' => 'G3', 'price_from' => 0, 'price_to' => null, 'surcharge' => 40.00],
+            // G2 - Acréscimos por faixa de preço
+            ['size' => 'G2', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 5.00],
+            ['size' => 'G2', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 10.00],
+            ['size' => 'G2', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 20.00],
+            
+            // G3 - Acréscimos por faixa de preço
+            ['size' => 'G3', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 10.00],
+            ['size' => 'G3', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 20.00],
+            ['size' => 'G3', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 40.00],
+            
+            // ESPECIAL - Tamanho especial com valor personalizável (valor padrão 0, será definido manualmente)
+            ['size' => 'ESPECIAL', 'price_from' => 0, 'price_to' => null, 'surcharge' => 0.00],
         ];
 
         foreach ($surcharges as $surcharge) {
