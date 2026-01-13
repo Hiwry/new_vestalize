@@ -121,17 +121,7 @@ class DashboardController extends Controller
             $query->where('user_id', $request->get('vendor_id'));
         }
 
-        if ($request->filled('fabric_id')) {
-            $query->whereHas('items', function($q) use ($request) {
-                $q->where('fabric_id', $request->get('fabric_id'));
-            });
-        }
 
-        if ($request->filled('color_id')) {
-            $query->whereHas('items', function($q) use ($request) {
-                $q->where('color_id', $request->get('color_id'));
-            });
-        }
     }
 
     public function index(Request $request)
@@ -154,8 +144,7 @@ class DashboardController extends Controller
 
         // Filtros avançados
         $vendorId = $request->get('vendor_id');
-        $fabricId = $request->get('fabric_id');
-        $colorId = $request->get('color_id');
+
         
         // Calcular datas baseado no período
         $dateRange = $this->getDateRange($period, $startDateInput, $endDateInput);
@@ -573,8 +562,7 @@ class DashboardController extends Controller
         if (!$user->isVendedor()) {
             $vendedores = User::whereIn('role', ['vendedor', 'admin_loja', 'admin'])->get();
         }
-        $fabrics = \App\Models\ProductOption::where('type', 'tecido')->get();
-        $colors = \App\Models\ProductOption::where('type', 'cor')->get();
+
 
         // Lojas disponíveis para filtro
         $stores = collect();
@@ -649,8 +637,7 @@ class DashboardController extends Controller
             'produtosMaisVendidos',
             'clientesAtendidos',
             'vendedores',
-            'fabrics',
-            'colors',
+
             'period',
             'startDate',
             'endDate',
