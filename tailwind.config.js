@@ -16,6 +16,15 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                hubspot: {
+                    purple: '#5b21b6', // Violet 800 (Deeper, Premium)
+                    'purple-hover': '#4c1d95', // Violet 900
+                    dark: '#191e48',
+                    slate: '#33475b',
+                    light: '#f5f8fa',
+                }
+            }
         },
     },
 
