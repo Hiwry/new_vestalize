@@ -509,6 +509,13 @@ class EditOrderController extends Controller
                 }
             }
             
+            // Mapear personalizações disponíveis por nome
+            $personalizationLookup = \App\Models\ProductOption::where('type', 'personalizacao')
+                ->get()
+                ->keyBy(function ($opt) {
+                    return strtoupper(trim($opt->name));
+                });
+            
             // Buscar dados de personalização por tipo
             $personalizationData = [];
             $allTypes = array_keys(\App\Models\PersonalizationPrice::getPersonalizationTypes());
@@ -533,7 +540,25 @@ class EditOrderController extends Controller
                 ->orderBy('order')
                 ->get();
             
-            return view('orders.wizard.customization-multiple', compact('order', 'itemPersonalizations', 'personalizationData', 'locations'));
+            // Buscar opções especiais (adicionais) configuradas para SUB. TOTAL
+            $specialOptions = \App\Models\PersonalizationSpecialOption::where('active', true)
+                ->orderBy('order')
+                ->get();
+            
+            // Buscar configurações de personalização (charge_by_color, etc.)
+            $personalizationSettings = \App\Models\PersonalizationSetting::all()->keyBy('personalization_type');
+            
+            // Preparar dados de arte por item
+            $orderArtData = [];
+            foreach ($order->items as $item) {
+                $orderArtData[$item->id] = [
+                    'art_name' => $item->art_name,
+                    'art_notes' => $item->art_notes,
+                    'cover_image' => $item->cover_image,
+                ];
+            }
+            
+            return view('orders.wizard.customization-multiple', compact('order', 'itemPersonalizations', 'personalizationData', 'locations', 'specialOptions', 'personalizationSettings', 'personalizationLookup', 'orderArtData'));
             
         } catch (\Exception $e) {
             Log::error('Error in customization method: ' . $e->getMessage());
