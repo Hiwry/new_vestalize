@@ -388,7 +388,7 @@
             // Now fetch surcharges for the aggregated quantities
             const promises = Object.entries(sizeQuantities).map(([size, quantity]) => {
                 if (quantity > 0) {
-                    return fetch(`/api/size-surcharge/${size}/${subtotal}`)
+                    return fetch(`/api/size-surcharge/${size}?price=${subtotal}`)
                         .then(r => r.json())
                         .then(data => {
                             if (data.surcharge) {
