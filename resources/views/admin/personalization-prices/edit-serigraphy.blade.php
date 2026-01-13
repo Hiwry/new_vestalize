@@ -166,12 +166,12 @@
                         @forelse($quantityGroups as $qtyIndex => $qtyGroup)
                         <tr class="price-row hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b border-gray-100 dark:border-gray-700" data-index="{{ $loop->index }}">
                             <td class="px-4 py-3">
-                                <input type="number" name="prices[{{ $loop->index }}][from]" value="{{ $qtyGroup['from'] }}" min="1" required
+                                <input type="number" name="prices[{{ $loop->index }}][quantity_from]" value="{{ $qtyGroup['from'] }}" min="1" required
                                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all"
                                        placeholder="10">
                             </td>
                             <td class="px-4 py-3">
-                                <input type="number" name="prices[{{ $loop->index }}][to]" value="{{ $qtyGroup['to'] }}" min="1"
+                                <input type="number" name="prices[{{ $loop->index }}][quantity_to]" value="{{ $qtyGroup['to'] }}" min="1"
                                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all"
                                        placeholder="∞">
                             </td>
@@ -391,8 +391,14 @@
         const headerRow = document.getElementById('table-header');
         const existingHeaders = headerRow.querySelectorAll('th');
         
-        if (existingHeaders.length <= 3) {
-            const fixedHeaders = [existingHeaders[0], existingHeaders[1], existingHeaders[2]];
+        // Sempre pegar as primeiras 2 (DE, ATÉ) e a última (AÇÕES)
+        if (existingHeaders.length >= 3) {
+            const fixedHeaders = [
+                existingHeaders[0].cloneNode(true), 
+                existingHeaders[1].cloneNode(true), 
+                existingHeaders[existingHeaders.length - 1].cloneNode(true)
+            ];
+            
             headerRow.innerHTML = '';
             headerRow.appendChild(fixedHeaders[0]);
             headerRow.appendChild(fixedHeaders[1]);
@@ -545,11 +551,11 @@
         
         let html = `
             <td class="px-4 py-3">
-                <input type="number" name="prices[${rowIndex}][from]" value="" min="1" required
+                <input type="number" name="prices[${rowIndex}][quantity_from]" value="" min="1" required
                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all" placeholder="10">
             </td>
             <td class="px-4 py-3">
-                <input type="number" name="prices[${rowIndex}][to]" value="" min="1"
+                <input type="number" name="prices[${rowIndex}][quantity_to]" value="" min="1"
                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all" placeholder="∞">
             </td>
         `;
@@ -688,8 +694,8 @@
         // Find Base Price
         const priceRows = document.querySelectorAll('.price-row');
         for (const row of priceRows) {
-            const fromVal = parseInt(row.querySelector('input[name*="[from]"]').value) || 0;
-            const toInput = row.querySelector('input[name*="[to]"]');
+            const fromVal = parseInt(row.querySelector('input[name*="[quantity_from]"]').value) || 0;
+            const toInput = row.querySelector('input[name*="[quantity_to]"]');
             const toVal = toInput.value ? parseInt(toInput.value) : Infinity;
 
             if (qty >= fromVal && qty <= toVal) {

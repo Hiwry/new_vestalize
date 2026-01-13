@@ -73,7 +73,7 @@
 
             <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="sizes-container">
-                    @foreach(['ESCUDO', 'A4', 'A3'] as $size)
+                    @foreach($sizes as $size)
                     <div class="size-item border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50" data-size="{{ $size }}">
                         <div class="flex items-center justify-between">
                             <div class="flex-1">
@@ -144,7 +144,7 @@
                     </thead>
                     <tbody id="price-tbody">
                         @php
-                            $sizes = ['ESCUDO', 'A4', 'A3'];
+                            // $sizes already set from controller
                             $quantityGroups = [];
                             foreach ($prices as $sizeName => $priceList) {
                                 foreach ($priceList as $priceItem) {
@@ -167,12 +167,12 @@
                         @forelse($quantityGroups as $qtyIndex => $qtyGroup)
                         <tr class="price-row hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b border-gray-100 dark:border-gray-700" data-index="{{ $loop->index }}">
                             <td class="px-4 py-3">
-                                <input type="number" name="prices[{{ $loop->index }}][from]" value="{{ $qtyGroup['from'] }}" min="1" required
+                                <input type="number" name="prices[{{ $loop->index }}][quantity_from]" value="{{ $qtyGroup['from'] }}" min="1" required
                                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all"
                                        placeholder="10">
                             </td>
                             <td class="px-4 py-3">
-                                <input type="number" name="prices[{{ $loop->index }}][to]" value="{{ $qtyGroup['to'] }}" min="1"
+                                <input type="number" name="prices[{{ $loop->index }}][quantity_to]" value="{{ $qtyGroup['to'] }}" min="1"
                                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all"
                                        placeholder="∞">
                             </td>
@@ -304,9 +304,9 @@
                     <div>
                         <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">Tamanho</label>
                         <select id="calc-size" class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
-                            <option value="ESCUDO">ESCUDO</option>
-                            <option value="A4" selected>A4</option>
-                            <option value="A3">A3</option>
+                            @foreach($sizes as $size)
+                            <option value="{{ $size }}" {{ $size === 'A4' ? 'selected' : '' }}>{{ $size }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div>
@@ -370,7 +370,7 @@
 <script>
     let rowIndex = {{ is_array($quantityGroups) ? count($quantityGroups) : (isset($quantityGroups) ? $quantityGroups->count() : 0) }};
     let colorRowIndex = {{ isset($colorPrices) ? $colorPrices->count() : 0 }};
-    let availableSizes = ['ESCUDO', 'A4', 'A3'];
+    let availableSizes = {!! json_encode($sizes) !!};
     
     // Preços de cores do banco de dados
     let colorPricesData = @json(isset($colorPrices) ? $colorPrices->map(function($cp) {
@@ -421,8 +421,14 @@
         const headerRow = document.getElementById('table-header');
         const existingHeaders = headerRow.querySelectorAll('th');
         
-        if (existingHeaders.length <= 3) {
-            const fixedHeaders = [existingHeaders[0], existingHeaders[1], existingHeaders[2]];
+        // Sempre pegar as primeiras 2 (DE, ATÉ) e a última (AÇÕES)
+        if (existingHeaders.length >= 3) {
+            const fixedHeaders = [
+                existingHeaders[0].cloneNode(true), 
+                existingHeaders[1].cloneNode(true), 
+                existingHeaders[existingHeaders.length - 1].cloneNode(true)
+            ];
+            
             headerRow.innerHTML = '';
             headerRow.appendChild(fixedHeaders[0]);
             headerRow.appendChild(fixedHeaders[1]);
@@ -575,11 +581,11 @@
         
         let html = `
             <td class="px-4 py-3">
-                <input type="number" name="prices[${rowIndex}][from]" value="" min="1" required
+                <input type="number" name="prices[${rowIndex}][quantity_from]" value="" min="1" required
                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all" placeholder="10">
             </td>
             <td class="px-4 py-3">
-                <input type="number" name="prices[${rowIndex}][to]" value="" min="1"
+                <input type="number" name="prices[${rowIndex}][quantity_to]" value="" min="1"
                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all" placeholder="∞">
             </td>
         `;
@@ -713,9 +719,20 @@
         const colors = parseInt(document.getElementById('calc-colors').value) || 1;
         
         let basePrice = 0;
-        if (size === 'A4') basePrice = 7.14;
-        else if (size === 'A3') basePrice = 8.82;
-        else if (size === 'ESCUDO') basePrice = 5.46;
+        const priceRows = document.querySelectorAll('.price-row');
+        for (const row of priceRows) {
+            const fromVal = parseInt(row.querySelector('input[name*="[quantity_from]"]').value) || 0;
+            const toInput = row.querySelector('input[name*="[quantity_to]"]');
+            const toVal = toInput.value ? parseInt(toInput.value) : Infinity;
+
+            if (qty >= fromVal && qty <= toVal) {
+                const priceInput = row.querySelector(`input[data-size="${size}"]`);
+                if (priceInput) {
+                    basePrice = parseFloat(priceInput.value) || 0;
+                }
+                break;
+            }
+        }
         
         // Buscar preço da cor do banco de dados baseado na quantidade
         let colorPrice = 0;
