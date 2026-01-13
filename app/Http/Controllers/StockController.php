@@ -424,40 +424,47 @@ class StockController extends Controller
      */
     public function getByCutType(Request $request): JsonResponse
     {
-        $rules = [
-            'cut_type_id' => 'required|integer|exists:product_options,id',
-        ];
-        
-        if ($request->has('store_id') && $request->store_id !== null) {
-            $rules['store_id'] = 'required|integer|exists:stores,id';
-        }
-        
-        if ($request->has('color_id') && $request->color_id !== null) {
-            $rules['color_id'] = 'required|integer|exists:product_options,id';
-        }
-        
-        $validated = $request->validate($rules);
-
         try {
-            $cutType = ProductOption::findOrFail($validated['cut_type_id']);
+            $cutTypeId = $request->input('cut_type_id');
+            $colorId = $request->input('color_id');
+            $storeId = $request->input('store_id');
+
+            if (!$cutTypeId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'cut_type_id is required',
+                    'stock_by_size' => [],
+                ]);
+            }
+
+            $cutType = ProductOption::find($cutTypeId);
+            
+            if (!$cutType) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tipo de corte não encontrado',
+                    'stock_by_size' => [],
+                ]);
+            }
             
             if ($cutType->type !== 'tipo_corte') {
                 return response()->json([
                     'success' => false,
                     'message' => 'ID fornecido não é um tipo de corte',
+                    'stock_by_size' => [],
                 ], 400);
             }
 
             // Buscar todos os estoques que têm este tipo de corte (de todas as lojas se não especificar)
-            $query = Stock::where('cut_type_id', $validated['cut_type_id'])
+            $query = Stock::where('cut_type_id', $cutTypeId)
                 ->with(['store', 'fabric', 'color', 'cutType']);
             
-            if (isset($validated['store_id']) && !empty($validated['store_id'])) {
-                $query->where('store_id', $validated['store_id']);
+            if ($storeId) {
+                $query->where('store_id', $storeId);
             }
             
-            if (isset($validated['color_id']) && !empty($validated['color_id'])) {
-                $query->where('color_id', $validated['color_id']);
+            if ($colorId) {
+                $query->where('color_id', $colorId);
             }
             
             $stocks = $query->get();
@@ -466,8 +473,8 @@ class StockController extends Controller
             $stockBySize = [];
             foreach ($stocks as $stock) {
                 $size = $stock->size ?? 'N/A';
-                $storeId = $stock->store_id;
-                $storeName = $stock->store ? $stock->store->name : ('Loja #' . $storeId);
+                $stockStoreId = $stock->store_id;
+                $storeName = $stock->store ? $stock->store->name : ('Loja #' . $stockStoreId);
             
             if (!isset($stockBySize[$size])) {
                 $stockBySize[$size] = [
@@ -485,9 +492,9 @@ class StockController extends Controller
             $stockBySize[$size]['reserved'] += $stock->reserved_quantity;
             
             // Agrupar por loja
-            if (!isset($stockBySize[$size]['stores'][$storeId])) {
-                $stockBySize[$size]['stores'][$storeId] = [
-                    'store_id' => $storeId,
+            if (!isset($stockBySize[$size]['stores'][$stockStoreId])) {
+                $stockBySize[$size]['stores'][$stockStoreId] = [
+                    'store_id' => $stockStoreId,
                     'store_name' => $storeName,
                     'available' => 0,
                     'total' => 0,
@@ -496,11 +503,11 @@ class StockController extends Controller
                 ];
             }
             
-            $stockBySize[$size]['stores'][$storeId]['available'] += $stock->available_quantity;
-            $stockBySize[$size]['stores'][$storeId]['total'] += $stock->quantity;
-            $stockBySize[$size]['stores'][$storeId]['reserved'] += $stock->reserved_quantity;
+            $stockBySize[$size]['stores'][$stockStoreId]['available'] += $stock->available_quantity;
+            $stockBySize[$size]['stores'][$stockStoreId]['total'] += $stock->quantity;
+            $stockBySize[$size]['stores'][$stockStoreId]['reserved'] += $stock->reserved_quantity;
             
-            $stockBySize[$size]['stores'][$storeId]['items'][] = [
+            $stockBySize[$size]['stores'][$stockStoreId]['items'][] = [
                 'fabric' => $stock->fabric->name ?? 'N/A',
                 'color' => $stock->color->name ?? 'N/A',
                 'available' => $stock->available_quantity,
