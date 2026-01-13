@@ -219,6 +219,132 @@ class StockController extends Controller
     }
 
     /**
+     * Visualização somente leitura do estoque para vendedores
+     * Não requer permissões de gestão de estoque
+     */
+    public function indexReadOnly(Request $request): View
+    {
+        // Esta view é acessível para todos os usuários autenticados
+        // mas mostra apenas visualização, sem ações de edição
+        
+        $storeId = $request->get('store_id');
+        $fabricId = $request->get('fabric_id');
+        $colorId = $request->get('color_id');
+        $cutTypeId = $request->get('cut_type_id');
+        $size = $request->get('size');
+
+        $query = Stock::with(['store', 'fabric', 'fabricType', 'color', 'cutType.parent']);
+
+        // Filtros
+        if ($storeId) {
+            $query->where('store_id', $storeId);
+        }
+
+        if ($fabricId) {
+            $query->where('fabric_id', $fabricId);
+        }
+
+        if ($colorId) {
+            $query->where('color_id', $colorId);
+        }
+
+        if ($cutTypeId) {
+            $query->where('cut_type_id', $cutTypeId);
+        }
+
+        if ($size) {
+            $query->where('size', $size);
+        }
+
+        $allStocks = $query->orderBy('store_id')
+            ->orderBy('fabric_id')
+            ->orderBy('fabric_type_id')
+            ->orderBy('color_id')
+            ->orderBy('cut_type_id')
+            ->orderBy('size')
+            ->get();
+
+        // Agrupar estoques por loja, tecido, tipo de corte e cor
+        $groupedStocks = [];
+        $sizes = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3'];
+        
+        foreach ($allStocks as $stock) {
+            $key = sprintf(
+                '%d_%d_%d_%d_%d',
+                $stock->store_id,
+                $stock->fabric_id ?? 0,
+                $stock->fabric_type_id ?? 0,
+                $stock->cut_type_id ?? 0,
+                $stock->color_id ?? 0
+            );
+            
+            if (!isset($groupedStocks[$key])) {
+                $groupedStocks[$key] = [
+                    'store' => [
+                        'id' => $stock->store->id,
+                        'name' => $stock->store->name,
+                    ],
+                    'fabric' => $stock->fabric ? [
+                        'id' => $stock->fabric->id,
+                        'name' => $stock->fabric->name,
+                    ] : null,
+                    'fabric_type' => $stock->fabricType ? [
+                        'id' => $stock->fabricType->id,
+                        'name' => $stock->fabricType->name,
+                    ] : (
+                        $stock->cutType && $stock->cutType->parent ? [
+                            'id' => $stock->cutType->parent->id,
+                            'name' => $stock->cutType->parent->name,
+                        ] : null
+                    ),
+                    'cut_type' => $stock->cutType ? [
+                        'id' => $stock->cutType->id,
+                        'name' => $stock->cutType->name,
+                    ] : null,
+                    'color' => $stock->color ? [
+                        'id' => $stock->color->id,
+                        'name' => $stock->color->name,
+                    ] : null,
+                    'shelf' => $stock->shelf,
+                    'sizes' => [],
+                    'group_total' => 0,
+                    'stocks' => [],
+                ];
+            }
+            
+            $groupedStocks[$key]['sizes'][$stock->size] = [
+                'id' => $stock->id,
+                'quantity' => $stock->quantity,
+                'reserved' => $stock->reserved_quantity,
+                'available' => $stock->available_quantity,
+                'min_stock' => $stock->min_stock,
+            ];
+            $groupedStocks[$key]['group_total'] += $stock->available_quantity;
+            $groupedStocks[$key]['stocks'][] = $stock;
+        }
+
+        // Dados para filtros
+        $stores = StoreHelper::getAvailableStores();
+        $fabricTypes = ProductOption::where('type', 'tipo_tecido')->where('active', true)->orderBy('name')->get();
+        $colors = ProductOption::where('type', 'cor')->where('active', true)->orderBy('name')->get();
+        $cutTypes = ProductOption::where('type', 'tipo_corte')->where('active', true)->orderBy('name')->get();
+
+        return view('stocks.index-readonly', compact(
+            'groupedStocks',
+            'stores',
+            'fabricTypes',
+            'colors',
+            'cutTypes',
+            'sizes',
+            'storeId',
+            'fabricId',
+            'colorId',
+            'cutTypeId',
+            'size'
+        ));
+    }
+
+    /**
      * Mostrar formulário de criação
      */
     public function create(Request $request): View

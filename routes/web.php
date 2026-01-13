@@ -327,6 +327,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/sale-receipt/{id}', [\App\Http\Controllers\PDVController::class, 'downloadSaleReceipt'])->name('sale-receipt');
     });
 
+    // Visualização de Estoque para Vendedores (somente leitura)
+    // Esta rota permite que vendedores vejam o estoque sem precisar do plano de estoque completo
+    Route::get('/stocks-view', [\App\Http\Controllers\StockController::class, 'indexReadOnly'])->name('stocks.view');
+
     // Estoque (apenas planos Pro e Premium)
     Route::prefix('stocks')->name('stocks.')->middleware('plan:stock')->group(function () {
         // Dashboard & History (Must be before {id} routes)
