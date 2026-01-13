@@ -63,14 +63,14 @@ class SecurityHeadersMiddleware
         $directives = [
             "default-src 'self'",
             // Stripe precisa estar liberado para o checkout funcionar
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' 'inline-speculation-rules' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.bunny.net https://js.stripe.com",
-            "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://js.stripe.com",
-            "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com",
-            "font-src 'self' https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com data:",
-            "img-src 'self' data: https: blob: http://127.0.0.1:* http://localhost:*",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' 'inline-speculation-rules' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.bunny.net https://js.stripe.com https://unpkg.com http://localhost:5173 http://[::1]:5173 https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/",
+            "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://js.stripe.com https://unpkg.com http://localhost:5173 http://[::1]:5173 https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/",
+            "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com https://unpkg.com http://localhost:5173 http://[::1]:5173",
+            "font-src 'self' https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com data: http://localhost:5173 http://[::1]:5173",
+            "img-src 'self' data: https: blob: http://127.0.0.1:* http://localhost:* http://[::1]:*",
             // Stripe endpoints para requisicoes do JS
-            "connect-src 'self' http://localhost:* http://127.0.0.1:* https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://js.stripe.com https://api.stripe.com https://m.stripe.network https://q.stripe.com",
-            "frame-src 'self' https://js.stripe.com",
+            "connect-src 'self' http://localhost:* http://127.0.0.1:* http://[::1]:* ws://localhost:* ws://127.0.0.1:* ws://[::1]:* https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://js.stripe.com https://api.stripe.com https://m.stripe.network https://q.stripe.com https://unpkg.com",
+            "frame-src 'self' https://js.stripe.com https://www.google.com/recaptcha/ https://recaptcha.google.com/",
             "frame-ancestors 'none'",
             "base-uri 'self'",
             "form-action 'self'",
