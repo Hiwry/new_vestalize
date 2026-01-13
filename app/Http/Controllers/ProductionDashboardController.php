@@ -324,6 +324,10 @@ class ProductionDashboardController extends Controller
             ->limit(50)
             ->get();
 
+        // Format dates for the view
+        $startDate = $start->format('Y-m-d');
+        $endDate = $end->format('Y-m-d');
+
         return view('production.dashboard', compact(
             'statusStats',
             'slowestStatus',
