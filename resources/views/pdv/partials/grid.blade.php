@@ -51,10 +51,10 @@
                     </div>
                     <button onclick="openAddProductModal({{ $item->id }}, 'product_option')" 
                             class="w-full py-2 md:py-2.5 bg-purple-600 text-white rounded-lg md:rounded-xl hover:bg-purple-700 transition-colors font-medium flex items-center justify-center gap-1 md:gap-2 text-sm">
-                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
-                        <span class="hidden sm:inline">Adicionar</span>
+                        <span>Adicionar</span>
                     </button>
                 </div>
             @endif

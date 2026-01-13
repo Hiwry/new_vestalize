@@ -456,7 +456,9 @@ class StockController extends Controller
             }
 
             // Buscar todos os estoques que têm este tipo de corte (de todas as lojas se não especificar)
-            $query = Stock::where('cut_type_id', $cutTypeId)
+            // Usar withoutGlobalScope para APIs que não têm autenticação (evita erro tenant_id null)
+            $query = Stock::withoutGlobalScope('tenant')
+                ->where('cut_type_id', $cutTypeId)
                 ->with(['store', 'fabric', 'color', 'cutType']);
             
             if ($storeId) {
