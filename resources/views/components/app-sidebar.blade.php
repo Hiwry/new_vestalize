@@ -278,7 +278,7 @@
             </div>
 
             <!-- GRUPO: ESTOQUE -->
-             @if((Auth::user()->isAdmin() || Auth::user()->isEstoque()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('stock')))
+             @if((Auth::user()->isAdmin() || Auth::user()->isEstoque() || Auth::user()->isVendedor()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('stock')))
             <div class="mt-1">
                 <button @click="toggleGroup('estoque')"
                         class="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group"
@@ -293,8 +293,8 @@
                 </button>
                 
                 <div x-show="openGroups.estoque && expanded" x-collapse x-cloak class="space-y-1 mt-1 bg-gray-50 dark:bg-gray-900/50 rounded-md overflow-hidden">
-                    <a href="{{ route('stocks.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ request()->is('stocks*') ? 'bg-blue-600' : '' }}"></span>
+                    <a href="{{ Auth::user()->isVendedor() ? route('stocks.view') : route('stocks.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-2 {{ (request()->is('stocks*') || request()->is('stocks-view*')) ? 'bg-blue-600' : '' }}"></span>
                         Geral
                     </a>
                     <a href="{{ route('fabric-pieces.index') }}" class="flex items-center pl-10 pr-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
