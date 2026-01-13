@@ -1039,14 +1039,19 @@ window.checkStockForSizes = async function checkStockForSizes() {
     let stockBySizeData = null;
     try {
         const params = new URLSearchParams({ cut_type_id: cutTypeId, color_id: colorId });
+        console.log('Buscando estoque:', `/api/stocks/by-cut-type?${params}`);
         const response = await fetch(`/api/stocks/by-cut-type?${params}`);
         stockBySizeData = await response.json();
+        console.log('Resposta do estoque:', stockBySizeData);
     } catch (error) {
         console.error('Erro ao buscar estoque:', error);
         return;
     }
     
-    if (!stockBySizeData || !stockBySizeData.stock_by_size) return;
+    if (!stockBySizeData || !stockBySizeData.success || !stockBySizeData.stock_by_size) {
+        console.warn('Sem dados de estoque ou erro:', stockBySizeData?.message);
+        return;
+    }
 
     // Iterar pelos tamanhos
     sizesList.forEach(size => {
