@@ -228,20 +228,6 @@
                                     </div>
                                 @endif
                             @endif
-
-                            @if($sub->color_details)
-                                <div style="background: #fff7ed; border: 1px solid #ffedd5; border-radius: 6px; padding: 6px 10px; margin-bottom: 5px;">
-                                    <div style="font-size: 7px; color: #c2410c; text-transform: uppercase;">Cor/Detalhe</div>
-                                    <div style="font-size: 10px; font-weight: bold; color: #9a3412;">{{ strtoupper($sub->color_details) }}</div>
-                                </div>
-                            @endif
-
-                            @if($sub->seller_notes)
-                                <div style="background: #f0fdf4; border: 1px solid #dcfce7; border-radius: 6px; padding: 6px 10px; margin-bottom: 5px;">
-                                    <div style="font-size: 7px; color: #15803d; text-transform: uppercase;">Nota Personaliz.</div>
-                                    <div style="font-size: 9px; font-style: italic; color: #166534;">{{ $sub->seller_notes }}</div>
-                                </div>
-                            @endif
                         @endforeach
 
                         @if(!$item->sublimation_addons && $item->sublimations->whereNotNull('color_details')->isEmpty() && $item->sublimations->whereNotNull('seller_notes')->isEmpty() && $item->sublimations->where('application_type', 'sub. total')->whereNotNull('addons')->isEmpty())
