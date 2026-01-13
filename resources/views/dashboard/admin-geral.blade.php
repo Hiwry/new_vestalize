@@ -39,6 +39,39 @@
                 </div>
             </form>
             
+            <!-- Filtros Avançados -->
+            <form method="GET" action="{{ route('dashboard') }}" class="flex flex-wrap items-center gap-2 border-l border-gray-200 dark:border-gray-700 pl-3">
+                @if(isset($period)) <input type="hidden" name="period" value="{{ $period }}"> @endif
+                @if(isset($selectedStoreId)) <input type="hidden" name="store_id" value="{{ $selectedStoreId }}"> @endif
+                
+                @if(isset($vendedores) && $vendedores->count() > 0)
+                <select name="vendor_id" onchange="this.form.submit()" 
+                        class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition-all">
+                    <option value="">Vendedor: Todos</option>
+                    @foreach($vendedores as $v)
+                        <option value="{{ $v->id }}" {{ request('vendor_id') == $v->id ? 'selected' : '' }}>{{ $v->name }}</option>
+                    @endforeach
+                </select>
+                @endif
+
+                <select name="fabric_id" onchange="this.form.submit()" 
+                        class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition-all">
+                    <option value="">Tecido: Todos</option>
+                    @foreach($fabrics as $f)
+                        <option value="{{ $f->id }}" {{ request('fabric_id') == $f->id ? 'selected' : '' }}>{{ $f->name }}</option>
+                    @endforeach
+                </select>
+
+                <select name="color_id" onchange="this.form.submit()" 
+                        class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition-all">
+                    <option value="">Cor: Todas</option>
+                    @foreach($colors as $c)
+                        <option value="{{ $c->id }}" {{ request('color_id') == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
+                    @endforeach
+                </select>
+            </form>
+
+            
             <!-- Filtro de Loja -->
             @if(isset($stores) && $stores->count() > 1)
             <form method="GET" action="{{ route('dashboard') }}" id="storeFilterForm" class="flex items-center gap-2 border-l border-gray-200 dark:border-gray-700 pl-3">
@@ -216,18 +249,24 @@
     </div>
     @endif
 
-    <!-- Clientes Novos -->
+    <!-- Solicitações Pendentes -->
     <div class="group bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
-        <div class="flex items-start justify-between">
-            <div>
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Clientes</p>
-                <h3 class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{{ number_format($totalClientes, 0, '.', '.') }}</h3>
-                <p class="text-xs text-gray-500 mt-2">Base total ativa</p>
+        <a href="{{ route('stock-requests.index', ['status' => 'pendente']) }}" class="block">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sols. Pendentes</p>
+                    <h3 class="mt-2 text-3xl font-bold {{ $solicitacoesPendentesCount > 0 ? 'text-amber-600' : 'text-gray-900 dark:text-gray-100' }}">
+                        {{ $solicitacoesPendentesCount }}
+                    </h3>
+                    <p class="text-xs text-gray-500 mt-2">Clique para ver</p>
+                </div>
+                <div class="p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                </div>
             </div>
-            <div class="p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl group-hover:scale-110 transition-transform">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            </div>
-        </div>
+        </a>
     </div>
 </div>
 

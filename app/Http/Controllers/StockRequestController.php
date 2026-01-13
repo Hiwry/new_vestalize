@@ -183,6 +183,35 @@ class StockRequestController extends Controller
             'requested_by' => Auth::id(),
             'status' => 'pendente',
         ]);
+
+        // Se for uma retirada (decremento), tentar reservar o estoque imediatamente
+        if (str_contains($stockRequest->request_notes ?? '', '[RETIRADA]')) {
+            try {
+                $stock = Stock::findByParams(
+                    $stockRequest->requesting_store_id,
+                    $stockRequest->fabric_id,
+                    null,
+                    $stockRequest->color_id,
+                    $stockRequest->cut_type_id,
+                    $stockRequest->size
+                );
+
+                if ($stock && $stock->hasStock($stockRequest->requested_quantity)) {
+                    $stock->reserve(
+                        $stockRequest->requested_quantity, 
+                        Auth::id(), 
+                        null, 
+                        $stockRequest->id, 
+                        'Reserva automática para retirada'
+                    );
+                }
+            } catch (\Exception $e) {
+                Log::error('Erro ao reservar estoque para retirada', [
+                    'error' => $e->getMessage(),
+                    'request_id' => $stockRequest->id
+                ]);
+            }
+        }
         
         // Notificar lojas
         if ($stockRequest->target_store_id) {

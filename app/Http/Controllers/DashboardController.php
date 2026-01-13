@@ -112,6 +112,28 @@ class DashboardController extends Controller
         ];
     }
 
+    /**
+     * Aplica filtros de vendedor, tecido e cor se presentes
+     */
+    private function applyAdvancedFilters($query, Request $request)
+    {
+        if ($request->filled('vendor_id')) {
+            $query->where('user_id', $request->get('vendor_id'));
+        }
+
+        if ($request->filled('fabric_id')) {
+            $query->whereHas('items', function($q) use ($request) {
+                $q->where('fabric_id', $request->get('fabric_id'));
+            });
+        }
+
+        if ($request->filled('color_id')) {
+            $query->whereHas('items', function($q) use ($request) {
+                $q->where('color_id', $request->get('color_id'));
+            });
+        }
+    }
+
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -129,6 +151,11 @@ class DashboardController extends Controller
         if ($user->isAdminGeral() && $request->has('store_id') && $request->get('store_id')) {
             $selectedStoreId = $request->get('store_id');
         }
+
+        // Filtros avançados
+        $vendorId = $request->get('vendor_id');
+        $fabricId = $request->get('fabric_id');
+        $colorId = $request->get('color_id');
         
         // Calcular datas baseado no período
         $dateRange = $this->getDateRange($period, $startDateInput, $endDateInput);
@@ -148,6 +175,7 @@ class DashboardController extends Controller
         $baseQuery = Order::where('is_draft', false)
             ->whereBetween('created_at', [$startDate, $endDate]);
         $this->applyFilters($baseQuery, $selectedStoreId);
+        $this->applyAdvancedFilters($baseQuery, $request);
         
         // Estatísticas gerais
         $totalPedidos = (clone $baseQuery)->count();
@@ -224,6 +252,16 @@ class DashboardController extends Controller
             StoreHelper::applyStoreFilter($clientQuery);
         }
         $totalClientes = $clientQuery->count();
+        
+        // Solicitações de estoque pendentes
+        $stockRequestQuery = StockRequest::where('status', 'pendente');
+        $storeIds = $this->getStoreIds($selectedStoreId);
+        if (!empty($storeIds)) {
+            $stockRequestQuery->whereIn('requesting_store_id', $storeIds);
+        } elseif (!$selectedStoreId) {
+            StoreHelper::applyStoreFilter($stockRequestQuery, 'requesting_store_id');
+        }
+        $solicitacoesPendentesCount = $stockRequestQuery->count();
         
         // Cache Key baseada nos filtros
         $cacheKey = "dashboard_stats_" . Auth::user()->id . "_" . ($selectedStoreId ?? 'all') . "_" . $period;
@@ -530,6 +568,14 @@ class DashboardController extends Controller
                 ->count('client_id');
         }
 
+        // Opções para filtros
+        $vendedores = collect();
+        if (!$user->isVendedor()) {
+            $vendedores = User::whereIn('role', ['vendedor', 'admin_loja', 'admin'])->get();
+        }
+        $fabrics = \App\Models\ProductOption::where('type', 'tecido')->get();
+        $colors = \App\Models\ProductOption::where('type', 'cor')->get();
+
         // Lojas disponíveis para filtro
         $stores = collect();
         
@@ -579,6 +625,7 @@ class DashboardController extends Controller
             'totalClientes',
             'totalFaturamento',
             'pedidosHoje',
+            'solicitacoesPendentesCount',
             'pedidosPorStatus',
             'faturamentoDiario',
             'pedidosRecentes',
@@ -601,6 +648,9 @@ class DashboardController extends Controller
             'topVendedores',
             'produtosMaisVendidos',
             'clientesAtendidos',
+            'vendedores',
+            'fabrics',
+            'colors',
             'period',
             'startDate',
             'endDate',

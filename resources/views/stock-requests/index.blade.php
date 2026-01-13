@@ -424,6 +424,11 @@
                         @endphp
                         @if($notes)
                             <span class="truncate block" title="{{ $notes }}">{{ Str::limit($notes, 30) }}</span>
+                        @elseif($group['status'] === 'rejeitado' && ($group['rejection_reason'] ?? null))
+                            <span class="truncate block text-red-500 font-medium" title="Motivo da Rejeição: {{ $group['rejection_reason'] }}">
+                                <i class="fa-solid fa-circle-exclamation mr-1"></i>
+                                {{ Str::limit($group['rejection_reason'], 30) }}
+                            </span>
                         @else
                             <span class="text-gray-400 dark:text-gray-500">-</span>
                         @endif
@@ -625,9 +630,10 @@
                 <div class="grid grid-cols-3 md:grid-cols-5 gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
                     @foreach($sizes as $size)
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 text-center">
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1 text-center">
                             {{ $size }}
                         </label>
+                        <div id="stock-available-{{ $size }}" class="text-[10px] text-center mb-1 text-gray-400">Disp: --</div>
                         <input type="number" 
                                id="transfer-size-{{ $size }}"
                                name="sizes[{{ $size }}]" 
@@ -1315,7 +1321,47 @@
             if (targetStore.value === selectedStoreId) {
                 targetStore.value = '';
             }
+            fetchStockDetails();
         });
+
+        // Adicionar listeners para os outros campos para atualizar o estoque disponível
+        ['transfer-target-store', 'transfer-fabric', 'transfer-color', 'transfer-cut-type'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('change', fetchStockDetails);
+        });
+    }
+
+    function fetchStockDetails() {
+        const storeId = document.getElementById('transfer-target-store').value;
+        const fabricId = document.getElementById('transfer-fabric').value;
+        const colorId = document.getElementById('transfer-color').value;
+        const cutTypeId = document.getElementById('transfer-cut-type').value;
+
+        // Resetar displays
+        @json($sizes).forEach(size => {
+            const display = document.getElementById(`stock-available-${size}`);
+            if (display) {
+                display.innerText = 'Disp: --';
+                display.className = 'text-[10px] text-center mb-1 text-gray-400';
+            }
+        });
+
+        if (!storeId || !fabricId || !colorId || !cutTypeId) return;
+
+        fetch(`/stocks/details?store_id=${storeId}&fabric_id=${fabricId}&color_id=${colorId}&cut_type_id=${cutTypeId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.stocks) {
+                    data.stocks.forEach(stock => {
+                        const display = document.getElementById(`stock-available-${stock.size}`);
+                        if (display) {
+                            display.innerText = `Disp: ${stock.available_quantity}`;
+                            display.className = `text-[10px] text-center mb-1 font-bold ${stock.available_quantity > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`;
+                        }
+                    });
+                }
+            })
+            .catch(err => console.error('Erro ao buscar estoque:', err));
     }
     
     function closeRequestTransferModal() {
@@ -1590,7 +1636,7 @@
                     cut_type_id: formData.get('cut_type_id') ? parseInt(formData.get('cut_type_id')) : null,
                     size: size,
                     requested_quantity: sizeQuantities[size],
-                    request_notes: formData.get('request_notes') || null,
+                    request_notes: '[RETIRADA] ' + (formData.get('request_notes') || ''),
                 });
             }
         });

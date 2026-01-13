@@ -32,6 +32,39 @@
                 @endif
             </form>
             
+            <!-- Filtros Avançados -->
+            <form method="GET" action="{{ route('dashboard') }}" class="flex flex-wrap items-center gap-2 border-l border-gray-200 dark:border-gray-700 pl-3">
+                @if(isset($period)) <input type="hidden" name="period" value="{{ $period }}"> @endif
+                
+                @if(isset($vendedores) && $vendedores->count() > 0)
+                <select name="vendor_id" onchange="this.form.submit()" 
+                        class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition-all">
+                    <option value="">Vendedor: Todos</option>
+                    @foreach($vendedores as $v)
+                        <option value="{{ $v->id }}" {{ request('vendor_id') == $v->id ? 'selected' : '' }}>{{ $v->name }}</option>
+                    @endforeach
+                </select>
+                @endif
+
+                <select name="fabric_id" onchange="this.form.submit()" 
+                        class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition-all">
+                    <option value="">Tecido: Todos</option>
+                    @foreach($fabrics as $f)
+                        <option value="{{ $f->id }}" {{ request('fabric_id') == $f->id ? 'selected' : '' }}>{{ $f->name }}</option>
+                    @endforeach
+                </select>
+
+                <select name="color_id" onchange="this.form.submit()" 
+                        class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition-all">
+                    <option value="">Cor: Todas</option>
+                    @foreach($colors as $c)
+                        <option value="{{ $c->id }}" {{ request('color_id') == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
+                    @endforeach
+                </select>
+            </form>
+
+            
+
             @if(Auth::user()->tenant && Auth::user()->tenant->canAccess('pdv'))
             <!-- Acesso Rápido ao PDV -->
             <a href="{{ route('pdv.index') }}" 
@@ -91,7 +124,7 @@
 @endif
 
 <!-- Grid de KPIs Principais -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
     <!-- Total de Pedidos -->
     <div class="group bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
         <div class="flex items-start justify-between">

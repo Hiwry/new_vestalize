@@ -324,7 +324,8 @@ class PDVService
         ?int $cutTypeId,
         ?string $size,
         int $quantity,
-        ?int $orderId = null
+        ?int $orderId = null,
+        ?string $notes = null
     ): bool {
         if (!Schema::hasTable('stocks') || !Schema::hasTable('stock_requests')) {
             Log::warning('Tabelas de estoque não existem');
@@ -351,6 +352,10 @@ class PDVService
             $requestNotes = $hasStock
                 ? "Solicitação automática gerada pelo PDV - Estoque disponível: {$availableQuantity}"
                 : "Solicitação automática gerada pelo PDV - Estoque insuficiente (disponível: {$availableQuantity}, solicitado: {$quantity})";
+
+            if ($notes) {
+                $requestNotes .= "\n\nObservações: " . $notes;
+            }
 
             $stockRequest = StockRequest::create([
                 'order_id' => $orderId,
@@ -551,7 +556,8 @@ class PDVService
                         $cartItem['cut_type_id'],
                         $cartItem['size'],
                         (int)$cartItem['quantity'],
-                        $order->id
+                        $order->id,
+                        $validated['notes'] ?? null
                     );
 
                     $movementItems[] = [

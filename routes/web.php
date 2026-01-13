@@ -342,6 +342,8 @@ Route::middleware('auth')->group(function () {
         // Dashboard & History (Must be before {id} routes)
         Route::get('/dashboard', [\App\Http\Controllers\StockDashboardController::class, 'index'])->name('dashboard');
         Route::get('/history', [\App\Http\Controllers\StockHistoryController::class, 'index'])->name('history');
+        Route::get('/details', [\App\Http\Controllers\StockController::class, 'getStockDetails'])->name('details');
+        Route::get('/check-availability', [\App\Http\Controllers\StockController::class, 'checkAvailability'])->name('check-availability');
 
         Route::get('/', [\App\Http\Controllers\StockController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\StockController::class, 'create'])->name('create');

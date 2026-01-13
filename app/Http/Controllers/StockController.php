@@ -1516,4 +1516,39 @@ class StockController extends Controller
                 ->with('error', 'Erro ao excluir item de estoque.');
         }
     }
+
+    /**
+     * API para obter detalhes de disponibilidade de estoque
+     */
+    public function getStockDetails(Request $request): JsonResponse
+    {
+        $storeId = $request->get('store_id');
+        $fabricId = $request->get('fabric_id');
+        $colorId = $request->get('color_id');
+        $cutTypeId = $request->get('cut_type_id');
+
+        if (!$storeId || !$fabricId || !$colorId || !$cutTypeId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Parâmetros insuficientes'
+            ], 400);
+        }
+
+        $stocks = Stock::where('store_id', $storeId)
+            ->where('fabric_id', $fabricId)
+            ->where('color_id', $colorId)
+            ->where('cut_type_id', $cutTypeId)
+            ->get(['size', 'quantity', 'reserved_quantity'])
+            ->map(function($stock) {
+                return [
+                    'size' => $stock->size,
+                    'available_quantity' => max(0, $stock->quantity - $stock->reserved_quantity)
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'stocks' => $stocks
+        ]);
+    }
 }
