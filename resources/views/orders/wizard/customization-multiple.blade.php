@@ -780,7 +780,7 @@
         const personalizationForm = document.getElementById('personalizationForm');
         let listenerRegistered = false;
         
-        if (!listenerRegistered) {
+        if (personalizationForm && !listenerRegistered) {
             personalizationForm.addEventListener('submit', handleFormSubmit);
             listenerRegistered = true;
         }
@@ -946,9 +946,12 @@
             document.getElementById('size').value = '';
             document.getElementById('color_details').value = '';
             document.getElementById('seller_notes').value = '';
-            document.getElementById('art_files').value = '';
-            document.getElementById('selected_files_list').innerHTML = '';
-            document.getElementById('application_image').value = '';
+            const artFilesEl = document.getElementById('art_files');
+            if (artFilesEl) artFilesEl.value = '';
+            const selectedFilesListEl = document.getElementById('selected_files_list');
+            if (selectedFilesListEl) selectedFilesListEl.innerHTML = '';
+            const applicationImageEl = document.getElementById('application_image');
+            if (applicationImageEl) applicationImageEl.value = '';
             removeApplicationImage();
 
             // Resetar flag de submissão ao abrir modal
@@ -993,11 +996,13 @@
             let errorMessage = '';
             
             if (normalizedType === 'SUB. TOTAL') {
-                const artFiles = document.getElementById('art_files').files.length;
+                const artFilesElement = document.getElementById('art_files');
+                const artFiles = artFilesElement ? artFilesElement.files.length : 0;
                 
                 const isDraft = {{ $order->is_draft ? 'true' : 'false' }};
 
-                if (!isDraft && artFiles === 0) {
+                // Arquivo não é mais obrigatório - foi movido para outra seção
+                if (false && !isDraft && artFiles === 0) {
                     isValid = false;
                     errorMessage += 'Pelo menos um arquivo da arte é obrigatório.\n';
                 }
