@@ -310,7 +310,17 @@ class EditOrderController extends Controller
                 }
             }
 
-            return view('orders.wizard.sewing', compact('order', 'editData'));
+            // Buscar tecidos e cores para controle de estoque
+            $fabrics = ProductOption::where('type', 'tecido')
+                ->where('active', true)
+                ->orderBy('name')
+                ->get();
+            $colors = ProductOption::where('type', 'cor')
+                ->where('active', true)
+                ->orderBy('name')
+                ->get();
+
+            return view('orders.wizard.sewing', compact('order', 'editData', 'fabrics', 'colors'));
         } catch (\Exception $e) {
             Log::error('Error in sewing method: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Erro: ' . $e->getMessage());
