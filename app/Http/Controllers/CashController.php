@@ -44,7 +44,9 @@ class CashController extends Controller
                 'isSuperAdmin' => true
             ]);
         }
-
+        
+        $isSuperAdmin = false;
+        
         // Verificar se o usuário é administrador ou caixa
         if (!$user->isAdmin() && !$user->isCaixa()) {
             abort(403, 'Acesso negado. Apenas administradores e usuários de caixa podem acessar o caixa.');

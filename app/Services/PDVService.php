@@ -453,8 +453,8 @@ class PDVService
             $deliveryFee = floatval($validated['delivery_fee'] ?? 0);
             $total = $subtotal - $discount + $deliveryFee;
 
-            // Status finalizado
-            $status = Status::where('name', 'Entregue')->first() ?? Status::orderBy('position', 'desc')->first();
+            // Status finalizado - Tentar 'Entregue', depois 'Pronto', senão o primeiro da fila (geralmente Pendente)
+            $status = Status::where('name', 'Entregue')->first() ?? Status::where('name', 'Pronto')->first() ?? Status::orderBy('position', 'asc')->first();
 
             // Criar pedido
             $order = Order::create([
