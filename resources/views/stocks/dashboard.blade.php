@@ -14,19 +14,73 @@
                 Visão geral e métricas do estoque em tempo real.
             </p>
         </div>
-        <div class="flex gap-2">
-            <a href="{{ route('stocks.history') }}" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                Ver Histórico Completo
-            </a>
-            <a href="{{ route('stocks.index') }}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                </svg>
-                Gerenciar Estoque
-            </a>
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Filtro de Período -->
+            <form method="GET" action="{{ route('stocks.dashboard') }}" id="periodFilterForm" class="flex items-center gap-2">
+                <select name="period" id="period" 
+                        onchange="this.form.submit()"
+                        class="px-4 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition-all">
+                    <option value="today" {{ ($period ?? 'month') === 'today' ? 'selected' : '' }}>Hoje</option>
+                    <option value="week" {{ ($period ?? 'month') === 'week' ? 'selected' : '' }}>Esta Semana</option>
+                    <option value="month" {{ ($period ?? 'month') === 'month' ? 'selected' : '' }}>Este Mês</option>
+                    <option value="year" {{ ($period ?? 'month') === 'year' ? 'selected' : '' }}>Este Ano</option>
+                    <option value="custom" {{ ($period ?? 'month') === 'custom' ? 'selected' : '' }}>Personalizado</option>
+                </select>
+                
+                @if(($period ?? 'month') === 'custom')
+                <div class="flex items-center gap-2">
+                    <input type="date" name="start_date" value="{{ $startDate->format('Y-m-d') ?? '' }}" 
+                           class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm">
+                    <input type="date" name="end_date" value="{{ $endDate->format('Y-m-d') ?? '' }}" 
+                           class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm">
+                    <button type="submit" class="p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </button>
+                </div>
+                @endif
+            </form>
+
+            <!-- Filtros Avançados -->
+            <form method="GET" action="{{ route('stocks.dashboard') }}" class="flex flex-wrap items-center gap-2 border-l border-gray-200 dark:border-gray-700 pl-3">
+                @if(isset($period)) <input type="hidden" name="period" value="{{ $period }}"> @endif
+                
+                @if(isset($vendedores) && $vendedores->count() > 0)
+                <select name="vendor_id" onchange="this.form.submit()" 
+                        class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition-all">
+                    <option value="">Vendedor: Todos</option>
+                    @foreach($vendedores as $v)
+                        <option value="{{ $v->id }}" {{ request('vendor_id') == $v->id ? 'selected' : '' }}>{{ $v->name }}</option>
+                    @endforeach
+                </select>
+                @endif
+
+                <select name="fabric_id" onchange="this.form.submit()" 
+                        class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition-all">
+                    <option value="">Tecido: Todos</option>
+                    @foreach($fabrics as $f)
+                        <option value="{{ $f->id }}" {{ request('fabric_id') == $f->id ? 'selected' : '' }}>{{ $f->name }}</option>
+                    @endforeach
+                </select>
+
+                <select name="color_id" onchange="this.form.submit()" 
+                        class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition-all">
+                    <option value="">Cor: Todas</option>
+                    @foreach($colors as $c)
+                        <option value="{{ $c->id }}" {{ request('color_id') == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
+                    @endforeach
+                </select>
+            </form>
+
+            <div class="flex gap-2 border-l border-gray-200 dark:border-gray-700 pl-3">
+                <a href="{{ route('stocks.history') }}" class="px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition flex items-center gap-2 text-sm font-semibold">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Histórico
+                </a>
+                <a href="{{ route('stocks.index') }}" class="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition flex items-center gap-2 text-sm font-semibold">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                    Estoque
+                </a>
+            </div>
         </div>
     </div>
 
@@ -65,20 +119,22 @@
         </div>
 
         <!-- Solicitações Pendentes -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-5 border-l-4 border-yellow-500">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Solicitações Pendentes</h3>
-                    <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400 mt-1">{{ $pendingRequests }}</p>
+        <a href="{{ route('stock-requests.index', ['status' => 'pendente']) }}" class="block">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-5 border-l-4 border-yellow-500 hover:shadow-lg transition-all duration-300">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Solicitações Pendentes</h3>
+                        <p class="text-2xl font-bold {{ $pendingRequests > 0 ? 'text-amber-600' : 'text-gray-800 dark:text-white' }} mt-1">{{ $pendingRequests }}</p>
+                    </div>
+                    <div class="p-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 rounded-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
                 </div>
-                <div class="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg text-yellow-600 dark:text-yellow-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                </div>
+                <p class="text-xs text-gray-500 mt-2">Aguardando aprovação</p>
             </div>
-            <p class="text-xs text-gray-500 mt-2">Aguardando aprovação</p>
-        </div>
+        </a>
 
         <!-- Estatísticas Gerais -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-5 border-l-4 border-green-500">
