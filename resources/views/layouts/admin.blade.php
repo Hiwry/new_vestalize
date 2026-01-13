@@ -341,6 +341,8 @@
             background: linear-gradient(#1f2937, #1f2937) padding-box,
                         linear-gradient(135deg, var(--brand-primary), var(--brand-secondary)) border-box;
         }
+
+        [x-cloak] { display: none !important; }
     </style>
 
     <!-- Fonts -->
