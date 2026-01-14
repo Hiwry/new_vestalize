@@ -147,9 +147,26 @@ class OrderWizardService
         }
         
         // Criar novo pedido em draft
-        $status = Status::where('tenant_id', $user->tenant_id)
+        // Buscar status do tenant do usuário, ou fallback para primeiro status disponível
+        $tenantId = $user->tenant_id;
+        if ($tenantId === null) {
+            // Super Admin: usar tenant da loja selecionada ou primeiro disponível
+            $tenantId = session('selected_tenant_id');
+            if ($tenantId === null && $storeId) {
+                $store = Store::find($storeId);
+                $tenantId = $store?->tenant_id;
+            }
+        }
+        
+        $status = Status::withoutGlobalScopes()
+            ->where('tenant_id', $tenantId)
             ->orderBy('position')
             ->first();
+        
+        // Fallback final: primeiro status de qualquer tenant
+        if (!$status) {
+            $status = Status::withoutGlobalScopes()->orderBy('id')->first();
+        }
         
         $order = Order::create([
             'client_id' => $client->id,
@@ -519,7 +536,22 @@ class OrderWizardService
                 $client = \App\Models\Client::create($validated);
             }
 
-            $status = \App\Models\Status::orderBy('position')->first();
+            // Buscar status do tenant do usuário ou fallback
+            $tenantId = $user->tenant_id;
+            if ($tenantId === null && $storeId) {
+                $store = Store::find($storeId);
+                $tenantId = $store?->tenant_id;
+            }
+            
+            $status = \App\Models\Status::withoutGlobalScopes()
+                ->where('tenant_id', $tenantId)
+                ->orderBy('position')
+                ->first();
+            
+            // Fallback: primeiro status de qualquer tenant
+            if (!$status) {
+                $status = \App\Models\Status::withoutGlobalScopes()->orderBy('id')->first();
+            }
             $deliveryDate = \App\Helpers\DateHelper::calculateDeliveryDate(Carbon::now(), 15);
 
             $order = Order::create([
@@ -725,7 +757,20 @@ class OrderWizardService
             }
             
             // Status Pendente
-            $pendenteStatus = Status::where('name', 'Pendente')->first();
+            // Buscar status "Pendente" do tenant correto
+            $orderTenantId = $order->tenant_id;
+            $pendenteStatus = Status::withoutGlobalScopes()
+                ->where('tenant_id', $orderTenantId)
+                ->where('name', 'Pendente')
+                ->first();
+            
+            // Fallback: primeiro status do tenant se não encontrar "Pendente"
+            if (!$pendenteStatus) {
+                $pendenteStatus = Status::withoutGlobalScopes()
+                    ->where('tenant_id', $orderTenantId)
+                    ->orderBy('position')
+                    ->first();
+            }
             
             // Data de Entrega
             $deliveryDate = $order->delivery_date;

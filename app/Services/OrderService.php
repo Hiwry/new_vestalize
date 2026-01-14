@@ -27,7 +27,19 @@ class OrderService
      */
     public static function confirmOrder(Order $order, array $options = []): Order
     {
-        $pendenteStatus = Status::where('name', 'Pendente')->first();
+        // Buscar status "Pendente" do tenant do pedido
+        $pendenteStatus = Status::withoutGlobalScopes()
+            ->where('tenant_id', $order->tenant_id)
+            ->where('name', 'Pendente')
+            ->first();
+        
+        // Fallback: primeiro status do tenant
+        if (!$pendenteStatus) {
+            $pendenteStatus = Status::withoutGlobalScopes()
+                ->where('tenant_id', $order->tenant_id)
+                ->orderBy('position')
+                ->first();
+        }
         
         // Calcular data de entrega se não existir
         $deliveryDate = $order->delivery_date;
@@ -369,7 +381,11 @@ class OrderService
     public static function duplicate(Order $originalOrder, int $userId): Order
     {
         return DB::transaction(function () use ($originalOrder, $userId) {
-            $initialStatus = Status::orderBy('position')->first();
+            // Buscar status inicial do tenant do pedido original
+            $initialStatus = Status::withoutGlobalScopes()
+                ->where('tenant_id', $originalOrder->tenant_id)
+                ->orderBy('position')
+                ->first();
             $user = \App\Models\User::find($userId);
 
             $newOrder = Order::create([
