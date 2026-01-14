@@ -1,121 +1,131 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Recuperar Senha - {{ config('app.name', 'Vestalize') }}</title>
+    <title>Recuperar Senha | Vestalize</title>
     
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    {{-- Fonts --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#6366f1',
-                        secondary: '#8b5cf6',
-                    }
-                }
-            }
-        }
-    </script>
-    
+    {{-- Vite & Landing theme --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+
+    {{-- Alpine.js --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: var(--background);
+            color: var(--foreground);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .auth-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(16px);
+            border-radius: 1.5rem;
+        }
+        .input-theme {
+            background-color: var(--input-bg) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--foreground) !important;
+            transition: all 0.3s ease;
+        }
+        .input-theme:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2) !important;
+        }
+        input:-webkit-autofill {
+            -webkit-text-fill-color: var(--foreground) !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+        html:not(.light) input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0px 1000px #121212 inset !important;
+        }
+        html.light input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
         }
     </style>
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light');
+        }
+    </script>
 </head>
-<body class="font-sans antialiased">
-    <div class="min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-md">
-            <!-- Logo/Header -->
-            <div class="text-center mb-8">
-                <h1 class="text-4xl font-bold text-white mb-2">Vestalize</h1>
-                <p class="text-indigo-200">Sistema de Gestão</p>
-            </div>
-            
-            <!-- Card -->
-            <div class="bg-white rounded-2xl shadow-2xl p-8">
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Recuperar Senha</h2>
-                    <p class="text-sm text-gray-600">
-                        Esqueceu sua senha? Sem problemas. Informe seu email e enviaremos uma nova senha para você acessar o sistema.
-                    </p>
+<body class="landing-page antialiased">
+    <div class="landing-bg"></div>
+
+    <div class="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+        <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-600/20 blur-[120px] rounded-full -z-10"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/10 blur-[150px] rounded-full -z-10"></div>
+
+        {{-- Logo --}}
+        <div class="mb-8 animate-fade-in-blur">
+            <a href="/" class="flex items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-purple-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-purple-500/30">
+                    V
                 </div>
-                
-                <!-- Session Status -->
+                <span class="font-bold text-2xl text-foreground tracking-tight">Vestalize</span>
+            </a>
+        </div>
+
+        {{-- Card --}}
+        <div class="w-full max-w-md animate-fade-in-up">
+            <div class="auth-card p-10 shadow-2xl">
+                <div class="text-center mb-10">
+                    <h1 class="text-3xl font-bold text-foreground mb-2">Recuperar senha</h1>
+                    <p class="text-muted text-sm font-medium">Informe seu email e enviaremos o link para redefinir sua senha.</p>
+                </div>
+
                 @if (session('status'))
-                    <div class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded">
-                        <div class="flex items-center">
-                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                            <span>{{ session('status') }}</span>
-                        </div>
+                    <div class="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm text-center">
+                        {{ session('status') }}
                     </div>
                 @endif
-                
-                <form method="POST" action="{{ route('password.email') }}">
+
+                <form method="POST" action="{{ route('password.email') }}" class="space-y-6">
                     @csrf
-                    
-                    <!-- Email -->
-                    <div class="mb-6">
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+
+                    <div>
+                        <label for="email" class="block text-xs font-bold text-muted uppercase tracking-widest mb-2">
                             Email
                         </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
-                                </svg>
-                            </div>
-                            <input 
-                                id="email" 
-                                type="email" 
-                                name="email" 
-                                value="{{ old('email') }}"
-                                required 
-                                autofocus
-                                class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all @error('email') border-red-500 @enderror"
-                                placeholder="seu@email.com"
-                            >
-                        </div>
+                        <input id="email"
+                               type="email"
+                               name="email"
+                               value="{{ old('email') }}"
+                               required
+                               autofocus
+                               class="input-theme w-full px-4 py-4 rounded-xl focus:outline-none"
+                               placeholder="seu@email.com">
                         @error('email')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-2 text-xs text-red-400 italic font-medium">{{ $message }}</p>
                         @enderror
                     </div>
-                    
-                    <!-- Actions -->
-                    <div class="flex flex-col space-y-4">
-                        <button 
-                            type="submit"
-                            class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 px-4 rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all duration-150 hover:scale-105"
-                        >
-                            Enviar Nova Senha
-                        </button>
-                        
-                        <a 
-                            href="{{ route('login') }}"
-                            class="text-center text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
-                        >
-                            ← Voltar para o Login
+
+                    <button type="submit" class="btn-primary w-full py-4 text-base font-bold shadow-xl shadow-purple-600/20 hover:shadow-purple-600/40 uppercase tracking-widest mt-2">
+                        Enviar link
+                    </button>
+
+                    <div class="text-center">
+                        <a href="{{ route('login') }}" class="text-xs font-bold text-purple-600 hover:text-purple-500 transition-colors uppercase tracking-wider">
+                            Voltar para login
                         </a>
                     </div>
                 </form>
             </div>
-            
-            <!-- Footer -->
-            <div class="text-center mt-8 text-indigo-100 text-sm">
-                <p>&copy; {{ date('Y') }} Vestalize. Todos os direitos reservados.</p>
-            </div>
+
+            <p class="mt-8 text-center text-xs text-muted/50 tracking-wide">
+                &copy; {{ date('Y') }} VESTALIZE. TODOS OS DIREITOS RESERVADOS.
+            </p>
         </div>
     </div>
+
+    <script src="{{ asset('js/landing.js') }}"></script>
 </body>
 </html>

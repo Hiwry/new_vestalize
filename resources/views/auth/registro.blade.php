@@ -1,167 +1,268 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro - Vestalize</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Registro | Vestalize</title>
+
+    {{-- Fonts --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    {{-- Vite & Landing theme --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+
+    {{-- Alpine.js --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .auth-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(16px);
+            border-radius: 1.5rem;
+        }
+        .input-theme {
+            background-color: var(--input-bg) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--foreground) !important;
+            transition: all 0.3s ease;
+        }
+        .input-theme:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2) !important;
+        }
+        input:-webkit-autofill {
+            -webkit-text-fill-color: var(--foreground) !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+        html:not(.light) input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0px 1000px #121212 inset !important;
+        }
+        html.light input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+        }
     </style>
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light');
+        }
+    </script>
 </head>
-<body class="bg-slate-950 text-slate-200 min-h-screen flex items-center justify-center p-4">
-    <div class="max-w-4xl w-full grid md:grid-cols-2 bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-800">
-        
-        <!-- Lado Esquerdo: Info -->
-        <div class="p-8 md:p-12 bg-gradient-to-br from-indigo-600 to-violet-700 flex flex-col justify-between text-white">
-            <div>
-                <h1 class="text-3xl font-bold mb-4">Vestalize</h1>
-                <p class="text-indigo-100 text-lg mb-8">A plataforma completa para gestão de confecção e estamparia.</p>
-                
-                <ul class="space-y-4">
-                    <li class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                            <i class="fa-solid fa-check text-xs"></i>
-                        </div>
-                        <span>Controle de pedidos e ordens</span>
-                    </li>
-                    <li class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                            <i class="fa-solid fa-check text-xs"></i>
-                        </div>
-                        <span>Gestão de estoque e suprimentos</span>
-                    </li>
-                    <li class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                            <i class="fa-solid fa-check text-xs"></i>
-                        </div>
-                        <span>Kanban de produção em tempo real</span>
-                    </li>
-                </ul>
-            </div>
-            
-            <div class="mt-12 p-4 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/10">
-                <p class="text-sm italic">"O Vestalize transformou nossa confecção. O que levava horas agora fazemos em minutos."</p>
-                <p class="mt-2 font-semibold text-xs">— Ana Paula, CEO Confecções Têxtil</p>
-            </div>
+<body class="landing-page antialiased">
+    <div class="landing-bg"></div>
+
+    <div class="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+        <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-600/20 blur-[120px] rounded-full -z-10"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/10 blur-[150px] rounded-full -z-10"></div>
+
+        {{-- Logo --}}
+        <div class="mb-8 animate-fade-in-blur">
+            <a href="/" class="flex items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-purple-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-purple-500/30">
+                    V
+                </div>
+                <span class="font-bold text-2xl text-foreground tracking-tight">Vestalize</span>
+            </a>
         </div>
 
-        <!-- Lado Direito: Formulário -->
-        <div class="p-8 md:p-12">
-            <h2 class="text-2xl font-bold mb-2">Comece seu teste grátis</h2>
-            <p class="text-slate-400 text-sm mb-8">Não precisa de cartão de crédito para testar.</p>
-
-            <form action="{{ route('register.public.post') }}" method="POST" class="space-y-5">
-                @csrf
-                
-                {{-- Mensagens de Erro Gerais --}}
-                @if ($errors->any())
-                <div class="bg-red-500/20 border border-red-500/50 text-red-300 p-4 rounded-xl text-sm">
-                    <div class="flex items-center gap-2 mb-2 font-semibold">
-                        <i class="fa-solid fa-circle-exclamation"></i>
-                        <span>Por favor, corrija os erros abaixo:</span>
-                    </div>
-                    <ul class="list-disc list-inside space-y-1">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+        {{-- Card --}}
+        <div class="w-full max-w-2xl animate-fade-in-up">
+            <div class="auth-card p-10 shadow-2xl">
+                <div class="text-center mb-10">
+                    <h1 class="text-3xl font-bold text-foreground mb-2">Comece seu teste grátis</h1>
+                    <p class="text-muted text-sm font-medium">Crie sua conta para testar a plataforma completa</p>
                 </div>
+
+                {{-- Alertas globais --}}
+                @if (session('status'))
+                    <div class="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm text-center">
+                        {{ session('status') }}
+                    </div>
                 @endif
-                
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Dados da Empresa</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-building absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                        <input type="text" name="company_name" value="{{ old('company_name') }}" required placeholder="Nome da sua Empresa" 
-                            class="w-full bg-slate-800 border-none rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-indigo-500 transition-all text-sm @error('company_name') ring-2 ring-red-500 @enderror">
-                    </div>
-                    @error('company_name') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
 
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Seu Plano</label>
-                    <select name="plan_id" required 
-                        class="w-full bg-slate-800 border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-indigo-500 transition-all text-sm appearance-none">
-                        @foreach($plans as $plan)
-                            <option value="{{ $plan->id }}" {{ old('plan_id') == $plan->id ? 'selected' : '' }}>Plano {{ $plan->name }} (R$ {{ number_format($plan->price, 2, ',', '.') }}/mês)</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="col-span-2">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Sua Conta</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                            <input type="text" name="name" value="{{ old('name') }}" required placeholder="Seu Nome Completo" 
-                                class="w-full bg-slate-800 border-none rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-indigo-500 transition-all text-sm @error('name') ring-2 ring-red-500 @enderror">
-                        </div>
-                        @error('name') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                @if ($errors->any())
+                    <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                        <div class="font-semibold mb-2">Por favor, corrija os erros abaixo:</div>
+                        <ul class="list-disc list-inside space-y-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
                     </div>
-                    
-                    <div class="col-span-2">
-                        <div class="relative">
-                            <i class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                            <input type="email" name="email" value="{{ old('email') }}" required placeholder="Seu Melhor E-mail" 
-                                class="w-full bg-slate-800 border-none rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-indigo-500 transition-all text-sm @error('email') ring-2 ring-red-500 @enderror">
-                        </div>
-                        @error('email') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
+                @endif
 
+                <form method="POST" action="{{ route('register.public.post') }}" class="space-y-6" x-data="{ showPass: false, showConfirm: false, accepted: {{ old('terms') ? 'true' : 'false' }} }">
+                    @csrf
+
+                    {{-- Empresa --}}
                     <div>
-                        <div class="relative">
-                            <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                            <input type="password" name="password" required placeholder="Senha" 
-                                class="w-full bg-slate-800 border-none rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-indigo-500 transition-all text-sm @error('password') ring-2 ring-red-500 @enderror">
-                        </div>
-                        @error('password') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                        <label class="block text-xs font-bold text-muted uppercase tracking-widest mb-2">
+                            Nome da Empresa
+                        </label>
+                        <input type="text"
+                               name="company_name"
+                               value="{{ old('company_name') }}"
+                               required
+                               class="input-theme w-full px-4 py-4 rounded-xl focus:outline-none"
+                               placeholder="Minha Confecção LTDA">
+                        @error('company_name')
+                            <p class="mt-2 text-xs text-red-400 italic font-medium">{{ $message }}</p>
+                        @enderror
                     </div>
 
+                    {{-- Plano --}}
                     <div>
+                        <label class="block text-xs font-bold text-muted uppercase tracking-widest mb-2">
+                            Selecione o Plano
+                        </label>
                         <div class="relative">
-                            <i class="fa-solid fa-shield absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                            <input type="password" name="password_confirmation" required placeholder="Confirme" 
-                                class="w-full bg-slate-800 border-none rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-indigo-500 transition-all text-sm">
+                            <select name="plan_id"
+                                    required
+                                    class="input-theme w-full px-4 py-4 rounded-xl focus:outline-none appearance-none pr-10">
+                                @foreach($plans as $plan)
+                                    <option value="{{ $plan->id }}" {{ old('plan_id') == $plan->id ? 'selected' : '' }}>
+                                        Plano {{ $plan->name }} (R$ {{ number_format($plan->price, 2, ',', '.') }}/mês)
+                                    </option>
+                                @endforeach
+                            </select>
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-muted">⌄</span>
+                        </div>
+                        @error('plan_id')
+                            <p class="mt-2 text-xs text-red-400 italic font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Dados do usuário --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-muted uppercase tracking-widest mb-2">
+                                Nome Completo
+                            </label>
+                            <input type="text"
+                                   name="name"
+                                   value="{{ old('name') }}"
+                                   required
+                                   class="input-theme w-full px-4 py-4 rounded-xl focus:outline-none"
+                                   placeholder="Seu nome completo">
+                            @error('name')
+                                <p class="mt-2 text-xs text-red-400 italic font-medium">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-muted uppercase tracking-widest mb-2">
+                                E-mail
+                            </label>
+                            <input type="email"
+                                   name="email"
+                                   value="{{ old('email') }}"
+                                   required
+                                   class="input-theme w-full px-4 py-4 rounded-xl focus:outline-none"
+                                   placeholder="voce@email.com">
+                            @error('email')
+                                <p class="mt-2 text-xs text-red-400 italic font-medium">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-muted uppercase tracking-widest mb-2">
+                                Senha
+                            </label>
+                            <div class="relative">
+                                <input :type="showPass ? 'text' : 'password'"
+                                       name="password"
+                                       required
+                                       class="input-theme w-full px-4 py-4 pr-12 rounded-xl focus:outline-none"
+                                       placeholder="Crie uma senha">
+                                <button type="button"
+                                        @click="showPass = !showPass"
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors focus:outline-none">
+                                    <svg x-show="!showPass" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    <svg x-show="showPass" x-cloak class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                                    </svg>
+                                </button>
+                            </div>
+                            @error('password')
+                                <p class="mt-2 text-xs text-red-400 italic font-medium">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-muted uppercase tracking-widest mb-2">
+                                Confirmar Senha
+                            </label>
+                            <div class="relative">
+                                <input :type="showConfirm ? 'text' : 'password'"
+                                       name="password_confirmation"
+                                       required
+                                       class="input-theme w-full px-4 py-4 pr-12 rounded-xl focus:outline-none"
+                                       placeholder="Repita a senha">
+                                <button type="button"
+                                        @click="showConfirm = !showConfirm"
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors focus:outline-none">
+                                    <svg x-show="!showConfirm" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    <svg x-show="showConfirm" x-cloak class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="flex items-start gap-3 bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 @error('terms') border-red-500/50 @enderror">
-                    <input type="checkbox" name="terms" id="terms" required 
-                        class="mt-1 w-4 h-4 rounded border-slate-700 bg-slate-800 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-slate-900">
-                    <label for="terms" class="text-xs text-slate-400 leading-relaxed">
-                        Eu li e aceito os <a href="{{ route('terms.show') }}" target="_blank" class="text-indigo-400 hover:underline">Termos e Condições de Uso</a> e a <a href="{{ route('privacy.show') }}" target="_blank" class="text-indigo-400 hover:underline">Política de Privacidade</a>.
-                    </label>
-                </div>
-                @error('terms') <p class="text-red-400 text-xs -mt-3">{{ $message }}</p> @enderror
+                    {{-- Termos --}}
+                    <div class="flex items-start gap-3 bg-white/5 dark:bg-white/5 p-4 rounded-xl border" style="border-color: var(--border);" :class="accepted ? '' : 'border-red-500/50'">
+                        <input type="checkbox"
+                               name="terms"
+                               id="terms"
+                               value="1"
+                               @click="accepted = !accepted"
+                               class="mt-1 w-5 h-5 rounded border text-purple-600 focus:ring-purple-500 focus:ring-offset-0"
+                               style="border-color: var(--border);"
+                               {{ old('terms') ? 'checked' : '' }}
+                               required>
+                        <label for="terms" class="text-sm text-muted leading-relaxed">
+                            Eu li e aceito os
+                            <a href="{{ route('terms.show') }}" target="_blank" class="text-purple-600 font-semibold hover:text-purple-500">Termos e Condições de Uso</a>
+                            e a
+                            <a href="{{ route('privacy.show') }}" target="_blank" class="text-purple-600 font-semibold hover:text-purple-500">Política de Privacidade</a>.
+                        </label>
+                    </div>
 
-                <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-500/20 transition-all mt-4 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed">
-                    <span id="btnText">Começar 7 Dias de Teste Grátis</span>
-                    <span id="btnLoading" class="hidden">
-                        <i class="fa-solid fa-spinner fa-spin mr-2"></i>Criando sua conta...
-                    </span>
-                </button>
+                    {{-- Submit --}}
+                    <button type="submit" class="btn-primary w-full py-4 text-base font-bold shadow-xl shadow-purple-600/20 hover:shadow-purple-600/40 uppercase tracking-widest mt-2">
+                        Criar conta e iniciar teste
+                    </button>
+                </form>
 
-                <p class="text-center text-slate-500 text-xs mt-6">
-                    Já tem uma conta? <a href="{{ route('login') }}" class="text-indigo-400 hover:underline">Faça login</a>
+                {{-- Link login --}}
+                <p class="mt-8 text-center text-sm text-muted">
+                    Já tem uma conta?
+                    <a href="{{ route('login') }}" class="font-bold text-purple-600 hover:text-purple-500 transition-colors">
+                        Fazer login
+                    </a>
                 </p>
-            </form>
-            
-            <script>
-                document.querySelector('form').addEventListener('submit', function(e) {
-                    const btn = document.getElementById('submitBtn');
-                    const btnText = document.getElementById('btnText');
-                    const btnLoading = document.getElementById('btnLoading');
-                    
-                    btn.disabled = true;
-                    btnText.classList.add('hidden');
-                    btnLoading.classList.remove('hidden');
-                });
-            </script>
+            </div>
+
+            {{-- Copyright --}}
+            <p class="mt-8 text-center text-xs text-muted/50 tracking-wide">
+                &copy; {{ date('Y') }} VESTALIZE. TODOS OS DIREITOS RESERVADOS.
+            </p>
         </div>
     </div>
+
+    <script src="{{ asset('js/landing.js') }}"></script>
 </body>
 </html>

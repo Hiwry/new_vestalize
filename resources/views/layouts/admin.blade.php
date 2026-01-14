@@ -10,6 +10,9 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
+    <!-- Tema global -->
+    <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+
     <!-- Meta Tags & Branding -->
     @php
         $tenantLogo = auth()->user()->tenant->logo_path ?? null;
@@ -28,43 +31,9 @@
     <!-- ⚡ CRITICAL: Prevenir flash aplicando tema ANTES de qualquer renderização -->
     <!-- ⚡ CRITICAL: Prevenir flash aplicando tema ANTES de qualquer renderização -->
     <script>
-        (function() {
-            try {
-                // Obter preferência
-                const storedTheme = localStorage.getItem('dark');
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const shouldBeDark = storedTheme === 'true' || (storedTheme === null && prefersDark);
-                
-                const html = document.documentElement;
-                
-                // Se for dark mode, adicionar classe E injetar estilos de bloqueio
-                if (shouldBeDark) {
-                    html.classList.add('dark');
-                    html.style.backgroundColor = '#111827'; // bg-gray-900
-                    
-                    // Injetar style para forçar background em tudo IMEDIATAMENTE
-                    // Isso sobrescreve qualquer padrão do navegador ou do Tailwind enquanto carrega
-                    const style = document.createElement('style');
-                    style.innerHTML = `
-                        html, body { background-color: #111827 !important; color: #f3f4f6 !important; }
-                        /* Esconder corpo até que tudo esteja pronto para evitar flash de conteúdo branco */
-                        body { visibility: hidden; opacity: 0; transition: opacity 0.2s ease-in; }
-                    `;
-                    document.head.appendChild(style);
-                    
-                    // Remove o estilo de bloqueio quando a página carregar
-                    window.addEventListener('DOMContentLoaded', function() {
-                        requestAnimationFrame(() => {
-                            document.body.style.visibility = 'visible';
-                            document.body.style.opacity = '1';
-                        });
-                    });
-                } else {
-                    html.classList.remove('dark');
-                    html.style.backgroundColor = '#f9fafb'; // bg-gray-50
-                }
-            } catch (e) { console.error('Dark mode init error', e); }
-        })();
+        // Forçar tema claro no dashboard para usar o design da landing
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('dark', 'false');
     </script>
     
     @php
@@ -94,6 +63,49 @@
         }
     @endphp
     <style>
+        /* Alinha dashboard ao design system da landing */
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+        }
+        /* Backgrounds */
+        .bg-gray-50, .bg-slate-50,
+        .bg-gray-100, .bg-slate-100,
+        .bg-gray-900, .bg-slate-900,
+        .dark .bg-gray-900, .dark .bg-slate-900 {
+            background-color: var(--background) !important;
+        }
+        .bg-white,
+        .bg-gray-200, .bg-slate-200,
+        .bg-gray-800, .bg-slate-800,
+        .dark .bg-gray-800, .dark .bg-slate-800 {
+            background-color: var(--card-bg) !important;
+        }
+        /* Bordas */
+        .border-gray-100, .border-gray-200, .border-gray-300,
+        .border-slate-100, .border-slate-200, .border-slate-300,
+        .dark .border-gray-700, .dark .border-gray-800,
+        .dark .border-slate-700, .dark .border-slate-800 {
+            border-color: var(--border) !important;
+        }
+        /* Texto */
+        .text-gray-900, .text-slate-900,
+        .dark .text-white { color: var(--foreground) !important; }
+        .text-gray-800, .text-gray-700, .text-gray-600, .text-gray-500, .text-gray-400,
+        .text-slate-800, .text-slate-700, .text-slate-600, .text-slate-500, .text-slate-400,
+        .dark .text-gray-300, .dark .text-gray-400 {
+            color: var(--muted) !important;
+        }
+        /* Cards e sombras */
+        .shadow, .shadow-sm, .shadow-md, .shadow-lg { box-shadow: var(--shadow) !important; }
+        .rounded-lg, .rounded-xl, .rounded-2xl { border-radius: 16px !important; }
+        /* Inputs */
+        input, select, textarea {
+            background-color: var(--input-bg) !important;
+            color: var(--foreground) !important;
+            border-color: var(--border) !important;
+        }
+
         /* Cores do tema CLARO */
         :root {
             --brand-primary: {{ $pLight }};
@@ -503,8 +515,9 @@
     <!-- Paste Modal Script -->
     <script src="{{ asset('js/paste-modal.js') }}" defer></script>
 </head>
-<body class="h-full bg-gray-50 dark:bg-gray-900">
-    <div class="h-screen overflow-hidden">
+<body class="h-full landing-page antialiased">
+    <div class="landing-bg"></div>
+    <div class="h-screen overflow-hidden relative">
         <!-- Sidebar -->
         @include('components.app-sidebar')
 
