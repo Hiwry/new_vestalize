@@ -140,12 +140,39 @@ class TenantController extends Controller
             'plan_id' => 'required|exists:plans,id',
             'status' => 'required|in:active,suspended,cancelled',
             'subscription_ends_at' => 'nullable|date',
+            'password' => 'nullable|string|min:6',
         ]);
 
-        $tenant->update($validated);
+        $tenant->update(\Illuminate\Support\Arr::except($validated, ['password']));
+
+        // Handle Password Update if provided
+        $message = 'Dados da assinatura atualizados com sucesso.';
+        if (!empty($request->password)) {
+            $user = \App\Models\User::where('tenant_id', $tenant->id)->first();
+            
+            if ($user) {
+                // Update User Password
+                $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+                $user->save();
+                $message .= ' Senha de acesso atualizada.';
+
+                // Send Email if requested
+                if ($request->boolean('send_password_email')) {
+                    try {
+                        \Illuminate\Support\Facades\Mail::to($tenant->email)->send(new \App\Mail\TenantWelcomeMail($tenant, $user, $request->password));
+                        $message .= ' Email enviado com a nova senha.';
+                    } catch (\Exception $e) {
+                         \Illuminate\Support\Facades\Log::error('Erro ao enviar email de atualização de senha: ' . $e->getMessage());
+                         $message .= ' (Erro ao enviar email: ' . $e->getMessage() . ')';
+                    }
+                }
+            } else {
+                 $message .= ' (Aviso: Usuário admin não encontrado para atualizar a senha)';
+            }
+        }
 
         return redirect()->route('admin.tenants.index')
-            ->with('success', 'Dados da assinatura atualizados com sucesso.');
+            ->with('success', $message);
     }
 
     /**
