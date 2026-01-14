@@ -178,7 +178,7 @@
                     </label>
                 </div>
 
-                <div x-show="requiresSize" x-collapse class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                <div x-show="requiresSize" x-collapse x-cloak class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
                         <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i>
                         Selecione os tamanhos disponíveis para este produto:
@@ -217,7 +217,7 @@
                     </label>
                 </div>
 
-                <div x-show="enabled" x-collapse class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-700/50 dark:to-gray-700/30 rounded-lg p-4">
+                <div x-show="enabled" x-collapse x-cloak class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-700/50 dark:to-gray-700/30 rounded-lg p-4">
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
                         <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i>
                         Configure faixas de quantidade com preços diferenciados (descontos por volume):
