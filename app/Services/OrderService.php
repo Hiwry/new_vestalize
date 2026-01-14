@@ -270,19 +270,60 @@ class OrderService
      */
     public static function deletePayment(Order $order, ?string $methodId = null): void
     {
+        Log::info('deletePayment chamado', [
+            'order_id' => $order->id,
+            'method_id' => $methodId,
+            'method_id_type' => gettype($methodId),
+            'method_id_empty' => empty($methodId),
+        ]);
+
         $payment = Payment::where('order_id', $order->id)->first();
-        if (!$payment) return;
+        if (!$payment) {
+            Log::warning('Nenhum pagamento encontrado para o pedido', ['order_id' => $order->id]);
+            return;
+        }
+
+        Log::info('Pagamento encontrado', [
+            'payment_id' => $payment->id,
+            'payment_methods' => $payment->payment_methods,
+            'payment_methods_count' => is_array($payment->payment_methods) ? count($payment->payment_methods) : 'not_array',
+        ]);
+
+        // Se methodId está vazio ou é apenas espaços, tratar como null
+        if ($methodId !== null && trim($methodId) === '') {
+            $methodId = null;
+        }
 
         if ($methodId && $payment->payment_methods && is_array($payment->payment_methods)) {
             $paymentMethods = $payment->payment_methods;
             $removedAmount = 0;
+            $found = false;
             
             foreach ($paymentMethods as $key => $method) {
-                if ($method['id'] == $methodId) {
+                Log::info('Comparando IDs', [
+                    'method_id_from_request' => $methodId,
+                    'method_id_in_array' => $method['id'] ?? 'N/A',
+                    'match' => (string)($method['id'] ?? '') === (string)$methodId,
+                ]);
+                
+                if ((string)($method['id'] ?? '') === (string)$methodId) {
                     $removedAmount = $method['amount'];
                     unset($paymentMethods[$key]);
+                    $found = true;
+                    Log::info('Pagamento encontrado e removido', [
+                        'removed_amount' => $removedAmount,
+                        'remaining_methods' => count(array_values($paymentMethods)),
+                    ]);
                     break;
                 }
+            }
+            
+            if (!$found) {
+                Log::warning('methodId não encontrado no array de payment_methods', [
+                    'method_id' => $methodId,
+                    'available_ids' => array_column($payment->payment_methods, 'id'),
+                ]);
+                return; // Não faz nada se não encontrou
             }
             
             $paymentMethods = array_values($paymentMethods);
@@ -298,6 +339,11 @@ class OrderService
                     'status' => $newRemainingAmount <= 0 ? 'pago' : 'pendente',
                 ]);
                 
+                Log::info('Pagamento atualizado após remoção de método', [
+                    'new_entry_amount' => $newEntryAmount,
+                    'new_remaining_amount' => $newRemainingAmount,
+                ]);
+                
                 $cashTransaction = CashTransaction::where('order_id', $order->id)
                     ->where('type', 'entrada')
                     ->where('amount', $removedAmount)
@@ -305,11 +351,14 @@ class OrderService
                 
                 if ($cashTransaction) {
                     $cashTransaction->delete();
+                    Log::info('CashTransaction removida', ['amount' => $removedAmount]);
                 }
                 return;
             }
         }
         
+        // Se chegou aqui, deleta tudo
+        Log::info('Deletando todos os pagamentos do pedido', ['order_id' => $order->id]);
         CashTransaction::where('order_id', $order->id)->where('type', 'entrada')->delete();
         $payment->delete();
     }
