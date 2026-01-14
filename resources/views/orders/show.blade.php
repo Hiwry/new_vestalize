@@ -453,7 +453,7 @@
             </div>
 
             <!-- Coluna Lateral -->
-            <div class="space-y-6">
+            <div class="space-y-6" x-data="{ paymentDelete: { id: null, methodId: null } }">
                 <!-- Gerenciamento de Pagamentos -->
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-gray-700 p-6">
                     <div class="flex justify-between items-center mb-4">
@@ -546,18 +546,12 @@
                                                         class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700">
                                                     Editar
                                                 </button>
-                                                <form method="POST" action="{{ route('orders.payment.delete', $order->id) }}" class="inline" 
-                                                      onsubmit="return confirm('Tem certeza que deseja remover este pagamento?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <input type="hidden" name="payment_id" value="{{ $payment->id }}">
-                                                    <input type="hidden" name="method_id" value="{{ $method['id'] }}">
-                                                    <button type="submit" 
-                                                            class="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
+                                                <button type="button" 
+                                                        x-on:click="paymentDelete = { id: {{ $payment->id }}, methodId: '{{ $method['id'] }}' }; $dispatch('open-modal', 'confirm-payment-deletion')"
+                                                        class="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
+                                                    Remover
+                                                </button>
                                                 @endif
-                                                        Remover
-                                                    </button>
-                                                </form>
                                             </div>
                                         </div>
                                     </div>
@@ -585,16 +579,11 @@
                                                     class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700">
                                                 Editar
                                             </button>
-                                            <form method="POST" action="{{ route('orders.payment.delete', $order->id) }}" class="inline" 
-                                                  onsubmit="return confirm('Tem certeza que deseja remover este pagamento?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <input type="hidden" name="payment_id" value="{{ $payment->id }}">
-                                                <button type="submit" 
-                                                        class="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
-                                                    Remover
-                                                </button>
-                                            </form>
+                                            <button type="button"
+                                                    x-on:click="paymentDelete = { id: {{ $payment->id }}, methodId: null }; $dispatch('open-modal', 'confirm-payment-deletion')"
+                                                    class="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
+                                                Remover
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -772,6 +761,43 @@
                         </div>
                     </div>
                     @endif
+
+                    <!-- Modal de Confirmação de Exclusão de Pagamento -->
+                    <x-modal name="confirm-payment-deletion" focusable>
+                        <div class="p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
+                                    <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </div>
+                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                    Remover Pagamento
+                                </h2>
+                            </div>
+                            
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                                Tem certeza que deseja remover este pagamento? Esta ação não pode ser desfeita e afetará o saldo total pago do pedido.
+                            </p>
+
+                            <div class="flex justify-end gap-3">
+                                <button type="button" 
+                                        x-on:click="$dispatch('close')"
+                                        class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                                    Cancelar
+                                </button>
+                                <form method="POST" action="{{ route('orders.payment.delete', $order->id) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="hidden" name="payment_id" x-bind:value="paymentDelete.id">
+                                    <input type="hidden" name="method_id" x-bind:value="paymentDelete.methodId">
+                                    <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors shadow-lg shadow-red-500/20">
+                                        Confirmar Remoção
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </x-modal>
                 </div>
 
                 

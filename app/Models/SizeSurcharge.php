@@ -52,9 +52,9 @@ class SizeSurcharge extends Model
         $surcharges = [
             // Valores baseados no PREÇO UNITÁRIO da peça (conforme tabela do usuário)
             
-            // GG - Acréscimos por faixa de preço
-            ['size' => 'GG', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 0.00],
-            ['size' => 'GG', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 2.00],
+            // GG - Acréscimos por faixa de preço (Fixo R$ 5,00 conforme solicitado)
+            ['size' => 'GG', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 5.00],
+            ['size' => 'GG', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 5.00],
             ['size' => 'GG', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 5.00],
             
             // EXG - Acréscimos por faixa de preço
@@ -77,8 +77,8 @@ class SizeSurcharge extends Model
             ['size' => 'G3', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 20.00],
             ['size' => 'G3', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 40.00],
             
-            // ESPECIAL - Tamanho especial com valor personalizável (valor padrão 0, será definido manualmente)
-            ['size' => 'ESPECIAL', 'price_from' => 0, 'price_to' => null, 'surcharge' => 0.00],
+            // ESPECIAL - Tamanho especial com valor fixo R$ 35,00
+            ['size' => 'ESPECIAL', 'price_from' => 0, 'price_to' => null, 'surcharge' => 35.00],
         ];
 
         foreach ($surcharges as $surcharge) {
