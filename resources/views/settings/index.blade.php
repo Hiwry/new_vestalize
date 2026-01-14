@@ -81,6 +81,18 @@
                     </div>
                 </a>
 
+                <a href="{{ route('profile.edit') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Meu Perfil</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Senha, e-mail e dados da conta</p>
+                        </div>
+                    </div>
+                </a>
+
                 <a href="{{ route('admin.audit.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition border-2 border-dashed border-indigo-200 dark:border-indigo-900/50">
                     <div class="flex items-center space-x-3">
                         <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
