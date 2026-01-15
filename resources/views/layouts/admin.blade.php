@@ -1,17 +1,18 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full">
+<html lang="pt-BR" class="h-full avento-theme">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#8b5cf6">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/img/icons/icon-192x192.png">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <!-- Tema global -->
+    <!-- Tema global + Avento Theme -->
     <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/avento-theme.css') }}">
 
     <!-- Meta Tags & Branding -->
     @php
@@ -27,13 +28,16 @@
         <meta property="og:image" content="{{ asset('storage/' . $tenantLogo) }}">
     @endif
 
-    <!-- ⚡ CRITICAL: Prevenir flash aplicando tema ANTES de qualquer renderização -->
-    <!-- ⚡ CRITICAL: Prevenir flash aplicando tema ANTES de qualquer renderização -->
-    <!-- ⚡ CRITICAL: Prevenir flash aplicando tema ANTES de qualquer renderização -->
+    <!-- Tema Sync -->
     <script>
-        // Forçar tema claro no dashboard para usar o design da landing
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('dark', 'false');
+        (function() {
+            const isDarkMode = localStorage.getItem('dark') === 'true';
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
     </script>
     
     @php
@@ -64,36 +68,55 @@
     @endphp
     <style>
         /* Alinha dashboard ao design system da landing */
+        /* Sincronizar variáveis globais com o tema Avento */
+        :root {
+            --background: var(--avento-bg-primary, #f8fafc);
+            --card-bg: var(--avento-bg-card, #ffffff);
+            --border: var(--avento-border, rgba(0, 0, 0, 0.05));
+            --foreground: var(--avento-text-primary, #0f172a);
+            --muted: var(--avento-text-secondary, #475569);
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark {
+            --background: #000000;
+            --card-bg: #030303;
+            --border: rgba(255, 255, 255, 0.03);
+            --foreground: #ffffff;
+            --muted: #94a3b8;
+            --shadow: 0 20px 50px -12px rgba(0, 0, 0, 1);
+        }
+
+        /* Alinha dashboard ao design system da landing */
         body {
             background-color: var(--background);
             color: var(--foreground);
         }
-        /* Backgrounds */
-        .bg-gray-50, .bg-slate-50,
-        .bg-gray-100, .bg-slate-100,
-        .bg-gray-900, .bg-slate-900,
-        .dark .bg-gray-900, .dark .bg-slate-900 {
+        /* Backgrounds - FORÇA TOTAL NO PRETO ABSOLUTO */
+        .bg-gray-50, .bg-slate-50, .bg-zinc-50, .bg-neutral-50, .bg-stone-50,
+        .bg-gray-100, .bg-slate-100, .bg-zinc-100,
+        .bg-gray-900, .bg-slate-900, .bg-zinc-900, .bg-neutral-900, .bg-stone-900,
+        .dark .bg-gray-900, .dark .bg-slate-900, .dark .bg-zinc-900, .dark .bg-neutral-900, .dark .bg-stone-900,
+        .dark .bg-gray-950, .dark .bg-slate-950, .dark .bg-zinc-950, .dark .bg-neutral-950 {
             background-color: var(--background) !important;
         }
+
+        /* Cards e Widgets - FORÇA TOTAL NO PRETO CARD */
         .bg-white,
-        .bg-gray-200, .bg-slate-200,
-        .bg-gray-800, .bg-slate-800,
-        .dark .bg-gray-800, .dark .bg-slate-800 {
+        .bg-gray-200, .bg-slate-200, .bg-zinc-200,
+        .bg-gray-800, .bg-slate-800, .bg-zinc-800, .bg-neutral-800, .bg-stone-800,
+        .dark .bg-gray-800, .dark .bg-slate-800, .dark .bg-zinc-800, .dark .bg-neutral-800, .dark .bg-stone-800,
+        .dark [class*="bg-slate-800"], .dark [class*="bg-gray-800"], .dark [class*="bg-zinc-800"] {
             background-color: var(--card-bg) !important;
+            box-shadow: var(--shadow) !important;
+            border: 1px solid var(--border) !important;
         }
-        /* Bordas */
-        .border-gray-100, .border-gray-200, .border-gray-300,
-        .border-slate-100, .border-slate-200, .border-slate-300,
-        .dark .border-gray-700, .dark .border-gray-800,
-        .dark .border-slate-700, .dark .border-slate-800 {
-            border-color: var(--border) !important;
-        }
+
         /* Texto */
-        .text-gray-900, .text-slate-900,
-        .dark .text-white { color: var(--foreground) !important; }
+        .dark .text-gray-900, .dark .text-slate-900, .dark .text-zinc-900, .dark .text-white { color: var(--foreground) !important; }
         .text-gray-800, .text-gray-700, .text-gray-600, .text-gray-500, .text-gray-400,
         .text-slate-800, .text-slate-700, .text-slate-600, .text-slate-500, .text-slate-400,
-        .dark .text-gray-300, .dark .text-gray-400 {
+        .dark .text-gray-300, .dark .text-gray-400, .dark .text-zinc-400, .dark .text-slate-400 {
             color: var(--muted) !important;
         }
         /* Cards e sombras */
@@ -155,43 +178,25 @@
 
 
         /* Prevenir flash durante carregamento - aplicar ANTES do Tailwind */
+        /* Prevenir flash durante carregamento - aplicar ANTES do Tailwind */
         html {
-            background-color: #f9fafb;
-            color: #111827;
+            background-color: var(--avento-bg-primary, #f8fafc);
+            color: var(--avento-text-primary, #0f172a);
         }
         
-        html.dark {
-            background-color: #111827 !important;
-            color: #f9fafb !important;
-        }
-        
-        html:not(.dark) body {
-            background-color: #f9fafb;
-            color: #111827;
-        }
-        
-        html.dark body {
-            background-color: #111827 !important;
-            color: #f9fafb !important;
+        body {
+            background-color: var(--avento-bg-primary, #f8fafc);
+            color: var(--avento-text-primary, #0f172a);
         }
         
         /* Prevenir flash em elementos comuns - remover transições durante carregamento */
-        html.dark * {
-            transition: background-color 0s, color 0s, border-color 0s;
+        html:not(.tailwind-loaded) * {
+            transition: none !important;
         }
         
-        /* Forçar background escuro imediatamente no dark mode */
-        html.dark #main-content {
-            background-color: #111827 !important;
-        }
-        
-        html.dark #main-content main {
-            background-color: #111827 !important;
-        }
-        
-        /* Prevenir flash durante navegação */
-        html.dark body {
-            background-color: #111827 !important;
+        /* Forçar background correto imediatamente */
+        #main-content, main, body, html {
+            background-color: var(--avento-bg-primary) !important;
             transition: none !important;
         }
         

@@ -73,13 +73,14 @@
 
 /* Glassmorphism para Cards */
 .glass-card {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: #030303;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
 }
 
 .dark .glass-card {
-    background: rgba(30, 41, 59, 0.7);
+    background: #030303;
+    border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 /* Hover Effects */
@@ -157,20 +158,20 @@
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 pb-2 animate-fade-in-up">
         <div class="space-y-1">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-xl shadow-indigo-600/30 animate-float">
-                    <i class="fa-solid fa-chart-line text-lg sm:text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tighter uppercase italic">
-                        Dashboard <span class="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Produção</span>
-                    </h1>
+                <div class="w-10 h-10 flex items-center justify-center text-purple-500">
+                <i class="fa-solid fa-chart-line text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                    Dashboard <span class="text-purple-500">Produção</span>
+                </h1>
                     <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] sm:tracking-[0.3em]">Visão Geral e métricas operacionais</p>
                 </div>
             </div>
         </div>
 
         <!-- Filtros Rápidos / Período -->
-        <div class="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-1.5 sm:p-2 rounded-2xl border border-gray-100/50 dark:border-slate-800/50 shadow-lg flex flex-wrap items-center gap-1.5 sm:gap-2 animate-slide-in-right">
+        <div class="glass-card p-1.5 sm:p-2 rounded-2xl flex flex-wrap items-center gap-1.5 sm:gap-2 animate-slide-in-right">
             <form method="GET" action="{{ route('production.dashboard') }}" id="dashboard-filter-form" class="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 <input type="hidden" name="filter_submitted" value="1">
                 <input type="hidden" name="delivery_filter" value="{{ $deliveryFilter ?? 'today' }}">
@@ -178,7 +179,7 @@
                 <div class="relative group">
                     <i class="fa-solid fa-calendar-days absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[9px] sm:text-[10px] group-hover:text-indigo-500 transition-colors"></i>
                     <select name="period" onchange="this.form.submit()" 
-                            class="pl-8 sm:pl-10 pr-6 sm:pr-8 py-2 sm:py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl text-[10px] sm:text-xs font-black text-gray-600 dark:text-slate-300 uppercase tracking-widest focus:ring-2 focus:ring-indigo-500 shadow-sm transition-all appearance-none cursor-pointer hover:shadow-md">
+                            class="pl-8 sm:pl-10 pr-6 sm:pr-8 py-2 sm:py-2.5 bg-transparent border-none rounded-xl text-[10px] sm:text-xs font-black text-gray-400 dark:text-slate-300 uppercase tracking-widest focus:ring-0 appearance-none cursor-pointer">
                         <option value="week" {{ $period == 'week' ? 'selected' : '' }}>Semana</option>
                         <option value="month" {{ $period == 'month' ? 'selected' : '' }}>Mês</option>
                         <option value="quarter" {{ $period == 'quarter' ? 'selected' : '' }}>Trimestre</option>
@@ -200,8 +201,8 @@
                 
                 <!-- Gatilho do Modal de Colunas -->
                 <button type="button" @click="$dispatch('open-modal', 'kanban-columns')" 
-                        class="px-3 sm:px-4 py-2 sm:py-2.5 bg-white dark:bg-slate-800 text-gray-500 dark:text-slate-400 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-700 transition-all flex items-center gap-1.5 sm:gap-2 border border-transparent hover:border-indigo-200 hover:shadow-md active:scale-95">
-                    <i class="fa-solid fa-sliders text-indigo-500"></i> 
+                        class="px-3 sm:px-4 py-2 sm:py-2.5 bg-transparent text-gray-500 dark:text-slate-400 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all flex items-center gap-1.5 sm:gap-2 border border-white/10 active:scale-95">
+                    <i class="fa-solid fa-sliders text-purple-500"></i> 
                     <span class="hidden sm:inline">Colunas</span>
                 </button>
             </form>
@@ -260,8 +261,8 @@
              style="--gradient-from: {{ $stat['gradient'] == 'from-blue-500 to-cyan-500' ? '#3b82f6' : ($stat['gradient'] == 'from-amber-500 to-orange-500' ? '#f59e0b' : ($stat['gradient'] == 'from-rose-500 to-pink-500' ? '#f43f5e' : '#ef4444')) }};
                     --gradient-to: {{ $stat['gradient'] == 'from-blue-500 to-cyan-500' ? '#06b6d4' : ($stat['gradient'] == 'from-amber-500 to-orange-500' ? '#f97316' : ($stat['gradient'] == 'from-rose-500 to-pink-500' ? '#ec4899' : '#e11d48')) }};">
             <div class="flex items-start justify-between mb-3 sm:mb-4">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br {{ $stat['gradient'] }} flex items-center justify-center text-white shadow-lg">
-                    <i class="fa-solid {{ $stat['icon'] }} text-base sm:text-lg"></i>
+                <div class="w-10 h-10 flex items-center justify-center text-purple-500">
+                    <i class="fa-solid {{ $stat['icon'] }} text-xl"></i>
                 </div>
                 <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full
                     {{ $stat['changeType'] == 'up' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : '' }}

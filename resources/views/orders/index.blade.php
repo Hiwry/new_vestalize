@@ -1,207 +1,192 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-    <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 self-start md:self-auto">Lista de Pedidos</h1>
+<div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 animate-fade-in-blur">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Lista de Pedidos</h1>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Gerencie e acompanhe todas as ordens de serviço</p>
+    </div>
     <a href="{{ route('orders.wizard.start') }}" 
-       class="w-full md:w-auto px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition text-center shadow-sm">
-        + Novo Pedido
+       class="w-full md:w-auto px-6 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 transition-all text-center shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 flex items-center justify-center gap-2 group">
+        <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+        </svg>
+        Novo Pedido
     </a>
 </div>
 
-<!-- Filtros -->
-<div class="w-full bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 mb-6 md:p-6" x-data="{ filtersOpen: window.innerWidth >= 768 }">
-    <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center md:hidden" @click="filtersOpen = !filtersOpen">
-        <h3 class="font-medium text-gray-700 dark:text-gray-200 flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
-            Filtros
+<!-- Filtros Premium -->
+<div class="w-full landing-card mb-8 p-0 overflow-hidden animate-fade-in-up" x-data="{ filtersOpen: window.innerWidth >= 768 }">
+    <div class="p-4 md:p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center cursor-pointer md:cursor-default" @click="filtersOpen = window.innerWidth < 768 ? !filtersOpen : true">
+        <h3 class="font-bold text-gray-800 dark:text-gray-200 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+            </div>
+            Filtros de Busca
         </h3>
-        <button class="text-gray-500 dark:text-gray-400 focus:outline-none">
-            <svg class="w-5 h-5 transform transition-transform duration-200" :class="filtersOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        <button class="md:hidden p-2 rounded-lg bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-gray-400">
+            <svg class="w-5 h-5 transform transition-transform duration-300" :class="filtersOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </button>
     </div>
     
-    <div x-show="filtersOpen" x-transition x-cloak class="p-4 md:p-0">
-        <form method="GET" action="{{ route('orders.index') }}" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar</label>
-                    <input type="text" 
-                           name="search" 
-                           value="{{ $search }}"
-                           placeholder="Nº do pedido, nome do cliente, telefone ou nome da arte..."
-                           class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-all text-sm">
+    <div x-show="filtersOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="p-6">
+        <form method="GET" action="{{ route('orders.index') }}" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <div class="md:col-span-8">
+                    <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Buscar Pedido</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-purple-500 transition-colors">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        </div>
+                        <input type="text" 
+                               name="search" 
+                               value="{{ $search }}"
+                               placeholder="Nº do pedido, cliente, telefone ou nome da arte..."
+                               class="w-full pl-12 pr-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium">
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
-                    <select name="status" class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-all text-sm">
-                        <option value="">Todos</option>
+                <div class="md:col-span-4">
+                    <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Status</label>
+                    <select name="status" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium">
+                        <option value="">Todos os Status</option>
                         @foreach($statuses as $s)
-                            <option value="{{ $s->id }}" {{ $status == $s->id ? 'selected' : '' }}>
-                                {{ $s->name }}
-                            </option>
+                            <option value="{{ $s->id }}" {{ $status == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
                         @endforeach
                     </select>
                 </div>
             </div>
 
-            <!-- Filtro de Data -->
-            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Data</label>
-                        <select name="date_type" class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-all text-sm">
-                            <option value="created" {{ ($dateType ?? 'created') == 'created' ? 'selected' : '' }}>Data de Criação</option>
-                            <option value="delivery" {{ ($dateType ?? 'created') == 'delivery' ? 'selected' : '' }}>Data de Entrega</option>
-                        </select>
-                    </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end border-t border-gray-100 dark:border-white/5 pt-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Tipo de Data</label>
+                    <select name="date_type" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium">
+                        <option value="created" {{ ($dateType ?? 'created') == 'created' ? 'selected' : '' }}>Data de Criação</option>
+                        <option value="delivery" {{ ($dateType ?? 'created') == 'delivery' ? 'selected' : '' }}>Data de Entrega</option>
+                    </select>
+                </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Data Inicial</label>
-                        <input type="date" 
-                               name="start_date" 
-                               value="{{ $startDate }}"
-                               class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-all text-sm">
-                    </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Início</label>
+                    <input type="date" name="start_date" value="{{ $startDate }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium">
+                </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Data Final</label>
-                        <input type="date" 
-                               name="end_date" 
-                               value="{{ $endDate }}"
-                               class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-all text-sm">
-                    </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Fim</label>
+                    <input type="date" name="end_date" value="{{ $endDate }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium">
+                </div>
 
-                    <div class="flex items-end">
-                        <div class="w-full space-y-2">
-                            <button type="submit" class="w-full px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
-                                Filtrar
-                            </button>
-                            <a href="{{ route('orders.index') }}" class="block w-full px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 text-center transition">
-                                Limpar
-                            </a>
-                        </div>
-                    </div>
+                <div class="flex gap-2">
+                    <button type="submit" class="flex-1 px-6 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 shadow-lg shadow-purple-500/20 transition-all flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+                        Filtrar
+                    </button>
+                    <a href="{{ route('orders.index') }}" class="p-3 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition-colors" title="Limpar Filtros">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    </a>
                 </div>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Lista de Pedidos -->
-<div class="space-y-4 md:hidden">
+<!-- Lista de Pedidos Mobile -->
+<div class="space-y-4 md:hidden animate-fade-in-up">
     @forelse($orders as $order)
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 relative overflow-hidden">
-        <!-- Status Indicator Strip -->
+    <div class="landing-card p-5 relative overflow-hidden group">
+        <!-- Barra Lateral de Status -->
         <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background-color: {{ $order->status->color ?? '#6b7280' }}"></div>
         
-        <div class="pl-2">
-            <!-- Header: ID + Status + Date -->
-            <div class="flex justify-between items-start mb-3">
-                <div>
-                    <span class="text-xs font-bold text-gray-500 dark:text-gray-400">#{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</span>
-                    <h3 class="font-semibold text-gray-900 dark:text-gray-100">{{ $order->client ? $order->client->name : 'Sem cliente' }}</h3>
-                </div>
-                <div class="text-right">
-                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-md whitespace-nowrap" 
-                          style="background-color: {{ ($order->status->color ?? '#6b7280') }}20; color: {{ $order->status->color ?? '#6b7280' }}">
-                        {{ $order->status->name ?? 'Indefinido' }}
-                    </span>
-                    <div class="text-xs text-gray-400 mt-1">{{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y') }}</div>
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Pedido #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</span>
+                <h3 class="font-bold text-gray-900 dark:text-white leading-tight mt-1">{{ $order->client ? $order->client->name : 'Sem cliente' }}</h3>
+            </div>
+            <div class="text-right">
+                <span class="px-2 py-0.5 inline-flex text-[10px] font-bold rounded-md uppercase tracking-wider" 
+                      style="background-color: {{ ($order->status->color ?? '#6b7280') }}20; color: {{ $order->status->color ?? '#6b7280' }}">
+                    {{ $order->status->name ?? 'Pendente' }}
+                </span>
+                <div class="text-[10px] text-gray-400 mt-1 font-medium">{{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y') }}</div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-gray-100 dark:border-white/5">
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Itens</p>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                    <span class="text-xs font-semibold text-gray-600 dark:text-gray-300">{{ $order->items->sum('quantity') }} peças</span>
                 </div>
             </div>
-            
-            <!-- Content -->
-            <div class="mb-3 space-y-1">
-                @php
-                    $artName = $order->items->first()->art_name ?? null;
-                @endphp
-                @if($artName)
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                    <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                    <span class="truncate">{{ $artName }}</span>
-                </div>
-                @endif
-                
-                <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                    <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-                    <span>{{ $order->items->sum('quantity') }} peças</span>
-                </div>
-                
-                <div class="flex items-center text-sm font-semibold text-gray-900 dark:text-white">
-                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    R$ {{ number_format($order->total, 2, ',', '.') }}
-                </div>
+            <div class="text-right">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Total</p>
+                <p class="text-sm font-bold text-purple-600 dark:text-purple-400 mt-0.5">R$ {{ number_format($order->total, 2, ',', '.') }}</p>
             </div>
-            
-            <!-- Actions -->
-            <div class="flex justify-end items-center gap-3 pt-3 border-t border-gray-100 dark:border-gray-700 mt-3">
-                 <a href="{{ route('orders.show', $order->id) }}" class="flex-1 text-center py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-sm font-medium rounded-lg">
-                    Ver Detalhes
-                </a>
-            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <a href="{{ route('orders.show', $order->id) }}" class="flex-1 py-2.5 bg-purple-600 text-white text-xs font-bold rounded-xl text-center shadow-lg shadow-purple-500/20 active:scale-95 transition-all">
+                Ver Detalhes
+            </a>
+            <button onclick="openCancellationModal({{ $order->id }})" class="p-2.5 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-xl">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            </button>
         </div>
     </div>
     @empty
-    <div class="text-center py-10 bg-white dark:bg-gray-800 rounded-xl">
-        <p class="text-gray-500 dark:text-gray-400">Nenhum pedido encontrado.</p>
+    <div class="landing-card p-10 text-center">
+        <p class="text-gray-500 dark:text-gray-400 font-medium">Nenhum pedido encontrado.</p>
     </div>
     @endforelse
 </div>
 
-<!-- Tabela Desktop -->
-<div class="hidden md:block bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 overflow-hidden">
+<!-- Lista de Pedidos Desktop -->
+<div class="hidden md:block landing-card p-0 overflow-hidden animate-fade-in-up delay-100">
     <div class="table-sticky-wrapper overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 sticky-table">
-            <thead class="bg-gray-50 dark:bg-gray-700">
+        <table class="min-w-full divide-y divide-gray-100 dark:divide-white/5 sticky-table">
+            <thead class="bg-gray-50/50 dark:bg-white/5">
                 <tr>
-                    <th data-sticky class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Pedido</th>
-                    <th data-sticky class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cliente</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nome da Arte</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Data</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Entrega</th>
-                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Itens</th>
-                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total</th>
-                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ações</th>
+                    <th data-sticky class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Pedido</th>
+                    <th data-sticky class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Cliente</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Nome da Arte</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Status</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Data</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Entrega</th>
+                    <th class="px-6 py-4 text-center text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Itens</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Total</th>
+                    <th class="px-6 py-4 text-center text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Ações</th>
                 </tr>
             </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody class="divide-y divide-gray-100 dark:divide-white/5">
                 @forelse($orders as $order)
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition {{ $order->is_cancelled ? 'bg-red-50 dark:bg-red-900/20' : '' }}">
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium {{ $order->is_cancelled ? 'text-red-600 dark:text-red-400 line-through' : 'text-gray-900 dark:text-gray-100' }}">
-                            #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
+                <tr class="group hover:bg-gray-50/80 dark:hover:bg-white/[0.02] transition-all duration-200 {{ $order->is_cancelled ? 'opacity-60 bg-red-50/30 dark:bg-red-900/10' : '' }}">
+                    <td class="px-6 py-5 whitespace-nowrap">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full" style="background-color: {{ $order->status->color ?? '#6b7280' }}"></div>
+                            <div class="text-sm font-bold {{ $order->is_cancelled ? 'text-red-500 line-through' : 'text-gray-900 dark:text-white' }}">
+                                #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
+                            </div>
                         </div>
                         @if($order->is_cancelled)
-                        <div class="mt-1">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300">
-                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                                CANCELADO
-                            </span>
+                        <div class="mt-1 pl-5">
+                            <span class="text-[10px] font-bold text-red-500 uppercase tracking-tighter">Cancelado</span>
                         </div>
                         @endif
                     </td>
-                    <td class="px-4 py-4">
+                    <td class="px-6 py-5">
                         @if($order->client)
-                        <div class="text-sm text-gray-900 dark:text-gray-100 font-medium max-w-[200px] truncate {{ $order->is_cancelled ? 'opacity-50' : '' }}" title="{{ $order->client->name }}">
+                        <div class="text-sm font-semibold text-gray-900 dark:text-white max-w-[180px] truncate" title="{{ $order->client->name }}">
                             {{ $order->client->name }}
                         </div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $order->client->phone_primary }}</div>
+                        <div class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ $order->client->phone_primary }}</div>
                         @else
-                        <div class="text-sm text-gray-500 dark:text-gray-400 italic {{ $order->is_cancelled ? 'opacity-50' : '' }}">
-                            Sem cliente cadastrado
-                        </div>
+                        <div class="text-sm text-gray-400 italic">Sem cliente</div>
                         @endif
                     </td>
-                    <td class="px-4 py-4">
+                    <td class="px-6 py-5">
                         @php
                             $artName = $order->items->first()->art_name ?? null;
-                            
-                            // Verificar se tem sublimação local (para vendas PDV)
                             $hasSublocal = false;
                             $sublocalInfo = [];
                             if ($order->is_pdv) {
@@ -210,13 +195,7 @@
                                         foreach ($item->sublimations as $sub) {
                                             if ($sub->location_id || $sub->location_name) {
                                                 $hasSublocal = true;
-                                                $locationName = $sub->location ? $sub->location->name : ($sub->location_name ?? 'Local não informado');
-                                                $sizeName = $sub->size ? $sub->size->name : ($sub->size_name ?? '');
-                                                $sublocalInfo[] = [
-                                                    'location' => $locationName,
-                                                    'size' => $sizeName,
-                                                    'quantity' => $sub->quantity,
-                                                ];
+                                                $sublocalInfo[] = $sub;
                                             }
                                         }
                                     }
@@ -224,133 +203,108 @@
                             }
                         @endphp
                         @if($artName)
-                            <div class="text-sm text-gray-900 dark:text-gray-100 {{ $order->is_cancelled ? 'opacity-50' : '' }}">
-                                <span class="block max-w-[200px] truncate" title="{{ $artName }}">{{ $artName }}</span>
+                            <div class="text-sm font-medium text-gray-600 dark:text-gray-300 max-w-[150px] truncate" title="{{ $artName }}">
+                                {{ $artName }}
                             </div>
                         @else
-                            <span class="text-xs text-gray-400 dark:text-gray-500 italic">Sem nome</span>
+                            <span class="text-xs text-gray-400 italic">Sem nome</span>
                         @endif
                         
-                        <!-- Sublimação Local (apenas para vendas PDV) -->
-                        @if($order->is_pdv && $hasSublocal && !empty($sublocalInfo))
-                        <div class="mt-2 pt-2 border-t border-indigo-200 dark:border-indigo-700">
-                            <div class="text-xs font-semibold text-indigo-700 dark:text-indigo-400 mb-1">
-                                Sublimação Local:
+                        @if($order->is_pdv && $hasSublocal)
+                            <div class="mt-1">
+                                <span class="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">Sublimação Local</span>
                             </div>
-                            @foreach($sublocalInfo as $sublocal)
-                            <div class="text-xs text-indigo-600 dark:text-indigo-400">
-                                • {{ $sublocal['location'] }}
-                                @if($sublocal['size'])
-                                - {{ $sublocal['size'] }}
-                                @endif
-                                ({{ $sublocal['quantity'] }}x)
-                            </div>
-                            @endforeach
-                        </div>
                         @endif
                     </td>
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <div class="space-y-1">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full whitespace-nowrap" 
-                                  style="background-color: {{ ($order->status->color ?? '#6b7280') }}20; color: {{ $order->status->color ?? '#6b7280' }}">
+                    <td class="px-6 py-5 whitespace-nowrap">
+                        <div class="flex flex-col gap-1">
+                            <span class="px-3 py-1 inline-flex text-[11px] leading-4 font-bold rounded-lg uppercase tracking-wider" 
+                                  style="background-color: {{ ($order->status->color ?? '#6b7280') }}15; color: {{ $order->status->color ?? '#6b7280' }}">
                                 {{ $order->status->name ?? 'Indefinido' }}
                             </span>
                             @if($order->has_pending_cancellation)
-                            <div>
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                    ⏳ Cancelamento Pendente
-                                </span>
-                            </div>
+                            <span class="text-[9px] font-bold text-yellow-600 dark:text-yellow-500 uppercase px-1 tracking-tighter animate-pulse">
+                                ⏳ Aguardando Cancelamento
+                            </span>
                             @endif
                         </div>
                     </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y') }}
+                    <td class="px-6 py-5 whitespace-nowrap text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {{ \Carbon\Carbon::parse($order->created_at)->format('d/m') }} <span class="text-[10px] font-normal opacity-50">{{ \Carbon\Carbon::parse($order->created_at)->format('/y') }}</span>
                     </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    <td class="px-6 py-5 whitespace-nowrap text-sm font-medium text-gray-500 dark:text-gray-400">
                         @if($order->delivery_date)
-                            {{ \Carbon\Carbon::parse($order->delivery_date)->format('d/m/Y') }}
+                            {{ \Carbon\Carbon::parse($order->delivery_date)->format('d/m') }} <span class="text-[10px] font-normal opacity-50">{{ \Carbon\Carbon::parse($order->delivery_date)->format('/y') }}</span>
                         @else
-                            <span class="text-gray-400 dark:text-gray-500">-</span>
+                            <span class="opacity-30">-</span>
                         @endif
                     </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-center">
-                        {{ $order->items->sum('quantity') }} peças
+                    <td class="px-6 py-5 whitespace-nowrap text-center">
+                        <span class="bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 text-xs px-2 py-1 rounded-md font-bold">
+                            {{ $order->items->sum('quantity') }}
+                        </span>
                     </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100 text-right">
+                    <td class="px-6 py-5 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white text-right">
                         R$ {{ number_format($order->total, 2, ',', '.') }}
                     </td>
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <div class="flex items-center justify-center space-x-2">
+                    <td class="px-6 py-5 whitespace-nowrap">
+                        <div class="flex items-center justify-center gap-1">
+                            {{-- Botão Ver --}}
                             <a href="{{ route('orders.show', $order->id) }}" 
-                               class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 inline-flex items-center transition"
+                               class="p-2 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-lg transition-colors"
                                title="Ver Detalhes">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                </svg>
-                                <span class="text-xs">Ver</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                             </a>
                             
+                            {{-- Botão Cancelar --}}
                             @if(!$order->is_cancelled && !$order->has_pending_cancellation)
                             <button onclick="openCancellationModal({{ $order->id }})" 
-                                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition"
+                                    class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
                                     title="Solicitar Cancelamento">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             </button>
                             @endif
                             
+                            {{-- Botão Editar --}}
                             @if(!$order->is_cancelled)
                                 @php
                                     $approvedEditRequest = $order->editRequests->where('status', 'approved')->first();
                                     $pendingEditRequest = $order->editRequests->where('status', 'pending')->first();
                                 @endphp
                                 
-                                @if(Auth::user()->isAdmin())
-                                    {{-- Admin pode editar direto --}}
-                                    <a href="{{ route('orders.edit.start', $order->id) }}" 
-                                       class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition"
-                                       title="Editar Pedido">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                        </svg>
-                                    </a>
-                                @elseif($approvedEditRequest)
-                                    {{-- Vendedor com edição aprovada pode editar --}}
-                                    <a href="{{ route('orders.edit.start', $order->id) }}" 
-                                        class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 transition"
-                                        title="Editar Pedido (Aprovado pelo Admin)">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                        </svg>
-                                    </a>
-                                @elseif($pendingEditRequest)
-                                    {{-- Solicitação pendente --}}
-                                    <span class="text-yellow-600 dark:text-yellow-400" title="Solicitação de edição pendente">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                    </span>
-                                @else
-                                    {{-- Vendedor sem aprovação - solicitar edição --}}
-                                    <button onclick="openEditRequestModal({{ $order->id }})" 
-                                            class="text-orange-600 dark:text-orange-400 hover:text-orange-900 dark:hover:text-orange-300 transition"
-                                            title="Solicitar Edição">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
-                                        </svg>
-                                    </button>
-                                @endif
+                                <div class="relative">
+                                    @if(Auth::user()->isAdmin() || $approvedEditRequest)
+                                        <a href="{{ route('orders.edit.start', $order->id) }}" 
+                                           class="p-2 {{ $approvedEditRequest ? 'text-green-500 hover:bg-green-50' : 'text-blue-500 hover:bg-blue-50' }} dark:hover:bg-white/5 rounded-lg transition-colors"
+                                           title="Editar Pedido">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                        </a>
+                                    @elseif($pendingEditRequest)
+                                        <div class="p-2 text-yellow-500 opacity-50 cursor-wait" title="Edição Pendente">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        </div>
+                                    @else
+                                        <button onclick="openEditRequestModal({{ $order->id }})" 
+                                                class="p-2 text-orange-500 hover:bg-orange-50 dark:hover:bg-white/5 rounded-lg transition-colors"
+                                                title="Solicitar Edição">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+                                        </button>
+                                    @endif
+                                </div>
                             @endif
                         </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                        Nenhum pedido encontrado.
+                    <td colspan="9" class="px-6 py-12 text-center">
+                        <div class="flex flex-col items-center justify-center">
+                            <div class="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center text-gray-300 dark:text-gray-600 mb-4">
+                                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4a2 2 0 012-2m16 0h-16" /></svg>
+                            </div>
+                            <p class="text-gray-500 dark:text-gray-400 font-medium tracking-tight">Céus! Nenhum pedido foi encontrado.</p>
+                            <p class="text-gray-400 dark:text-gray-500 text-xs mt-1">Tente ajustar seus filtros ou comece um novo pedido.</p>
+                        </div>
                     </td>
                 </tr>
                 @endforelse
@@ -367,70 +321,56 @@
 @endif
 
 <!-- Modal de Cancelamento -->
-<div id="cancellationModal" class="hidden fixed inset-0 bg-gray-600 dark:bg-gray-900 bg-opacity-50 dark:bg-opacity-75 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border border-gray-300 dark:border-gray-700 w-full max-w-md shadow-lg rounded-md bg-white dark:bg-gray-800">
-        <div class="mt-3">
-            <!-- Header -->
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center">
-                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/30">
-                        <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
+<div id="cancellationModal" class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 transition-all duration-300">
+    <div class="relative top-20 mx-auto p-0 w-full max-w-md animate-fade-in-up">
+        <div class="bg-white dark:bg-[#0f1218] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/5 overflow-hidden">
+            <!-- Header do Modal -->
+            <div class="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center text-red-500">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                     </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Solicitar Cancelamento</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Pedido <span id="modalOrderId" class="font-semibold"></span></p>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white leading-tight">Solicitar Cancelamento</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">Pedido <span id="modalOrderId" class="text-purple-600 dark:text-purple-400 font-bold"></span></p>
                     </div>
                 </div>
-                <button onclick="closeCancellationModal()" class="text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
+                <button onclick="closeCancellationModal()" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </div>
 
-            <!-- Content -->
-            <div class="mt-4">
-                <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600 p-4 mb-4">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-yellow-400 dark:text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-yellow-700 dark:text-yellow-300">
-                                Esta solicitação será enviada para aprovação do administrador.
-                            </p>
-                        </div>
-                    </div>
+            <!-- Corpo do Modal -->
+            <div class="p-6">
+                <div class="bg-amber-50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/20 rounded-xl p-4 mb-6 flex gap-3">
+                    <svg class="h-5 w-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                    <p class="text-xs text-amber-700 dark:text-amber-400 font-medium leading-relaxed">
+                        Sua solicitação será analisada por um administrador. Descreva detalhadamente o motivo abaixo.
+                    </p>
                 </div>
 
-                <label for="cancellationReason" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Motivo do Cancelamento <span class="text-red-500 dark:text-red-400">*</span>
+                <label for="cancellationReason" class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">
+                    Motivo do Cancelamento <span class="text-red-500">*</span>
                 </label>
                 <textarea 
                     id="cancellationReason" 
                     rows="4" 
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Descreva o motivo pelo qual este pedido deve ser cancelado..."
+                    class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium placeholder-gray-400 dark:placeholder-gray-600"
+                    placeholder="Ex: O cliente desistiu da compra devido ao prazo..."
                     maxlength="1000"></textarea>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Máximo de 1000 caracteres</p>
-                <p id="reasonError" class="mt-1 text-xs text-red-600 dark:text-red-400 hidden">O motivo é obrigatório</p>
+                <div class="flex justify-between mt-2">
+                    <p id="reasonError" class="text-[10px] text-red-500 font-bold uppercase tracking-tighter hidden">Motivo é obrigatório</p>
+                    <p class="text-[10px] text-gray-400 font-medium ml-auto">máx. 1000 caracteres</p>
+                </div>
             </div>
 
-            <!-- Footer -->
-            <div class="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <button 
-                    onclick="closeCancellationModal()" 
-                    class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 transition">
-                    Cancelar
+            <!-- Rodapé do Modal -->
+            <div class="p-6 bg-gray-50/50 dark:bg-white/[0.02] flex items-center justify-end gap-3">
+                <button onclick="closeCancellationModal()" class="px-5 py-2.5 text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+                    Voltar
                 </button>
-                <button 
-                    onclick="submitCancellation()" 
-                    class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition">
-                    Solicitar Cancelamento
+                <button onclick="submitCancellation()" class="px-6 py-2.5 bg-red-500 text-white text-xs font-bold rounded-xl hover:bg-red-600 shadow-lg shadow-red-500/20 transition-all active:scale-95">
+                    Confirmar Solicitação
                 </button>
             </div>
         </div>
@@ -438,70 +378,56 @@
 </div>
 
 <!-- Modal de Solicitação de Edição -->
-<div id="editRequestModal" class="hidden fixed inset-0 bg-gray-600 dark:bg-gray-900 bg-opacity-50 dark:bg-opacity-75 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border border-gray-300 dark:border-gray-700 w-full max-w-md shadow-lg rounded-md bg-white dark:bg-gray-800">
-        <div class="mt-3">
-            <!-- Header -->
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center">
-                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 dark:bg-orange-900/30">
-                        <svg class="h-6 w-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                        </svg>
+<div id="editRequestModal" class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 transition-all duration-300">
+    <div class="relative top-20 mx-auto p-0 w-full max-w-md animate-fade-in-up">
+        <div class="bg-white dark:bg-[#0f1218] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/5 overflow-hidden">
+            <!-- Header do Modal -->
+            <div class="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center text-orange-500">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                     </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Solicitar Edição</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Pedido <span id="modalEditOrderId" class="font-semibold"></span></p>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white leading-tight">Solicitar Edição</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">Pedido <span id="modalEditOrderId" class="text-purple-600 dark:text-purple-400 font-bold"></span></p>
                     </div>
                 </div>
-                <button onclick="closeEditRequestModal()" class="text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
+                <button onclick="closeEditRequestModal()" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </div>
 
-            <!-- Content -->
-            <div class="mt-4">
-                <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-600 p-4 mb-4">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-blue-400 dark:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-blue-700 dark:text-blue-300">
-                                Esta solicitação será enviada para aprovação do administrador. Após aprovação, você poderá editar o pedido.
-                            </p>
-                        </div>
-                    </div>
+            <!-- Corpo do Modal -->
+            <div class="p-6">
+                <div class="bg-blue-50 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/20 rounded-xl p-4 mb-6 flex gap-3">
+                    <svg class="h-5 w-5 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <p class="text-xs text-blue-700 dark:text-blue-400 font-medium leading-relaxed">
+                        Após a confirmação, o pedido será liberado para alterações assim que o administrador aprovar.
+                    </p>
                 </div>
 
-                <label for="editRequestReason" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Motivo da Edição <span class="text-red-500 dark:text-red-400">*</span>
+                <label for="editRequestReason" class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">
+                    Motivo da Edição <span class="text-red-500">*</span>
                 </label>
                 <textarea 
                     id="editRequestReason" 
                     rows="4" 
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Descreva o motivo pelo qual você precisa editar este pedido..."
+                    class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium placeholder-gray-400 dark:placeholder-gray-600"
+                    placeholder="Descreva o que precisa ser alterado..."
                     maxlength="1000"></textarea>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Máximo de 1000 caracteres</p>
-                <p id="editReasonError" class="mt-1 text-xs text-red-600 dark:text-red-400 hidden">O motivo é obrigatório</p>
+                <div class="flex justify-between mt-2">
+                    <p id="editReasonError" class="text-[10px] text-red-500 font-bold uppercase tracking-tighter hidden">O motivo é obrigatório</p>
+                    <p class="text-[10px] text-gray-400 font-medium ml-auto">máx. 1000 caracteres</p>
+                </div>
             </div>
 
-            <!-- Footer -->
-            <div class="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <button 
-                    onclick="closeEditRequestModal()" 
-                    class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 transition">
+            <!-- Rodapé do Modal -->
+            <div class="p-6 bg-gray-50/50 dark:bg-white/[0.02] flex items-center justify-end gap-3">
+                <button onclick="closeEditRequestModal()" class="px-5 py-2.5 text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
                     Cancelar
                 </button>
-                <button 
-                    onclick="submitEditRequest()" 
-                    class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
-                    Solicitar Edição
+                <button onclick="submitEditRequest()" class="px-6 py-2.5 bg-orange-500 text-white text-xs font-bold rounded-xl hover:bg-orange-600 shadow-lg shadow-orange-500/20 transition-all active:scale-95">
+                    Solicitar Acesso
                 </button>
             </div>
         </div>

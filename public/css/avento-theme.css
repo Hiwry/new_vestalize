@@ -1,0 +1,1054 @@
+/* ============================================
+   Vestalize Avento Theme - Dark Mode Design
+   Based on Avento UI with Purple accent
+   ============================================ */
+
+/* Base styles follow CSS variables */
+.avento-theme,
+.avento-theme body,
+.avento-theme html {
+    background-color: var(--avento-bg-primary);
+    color: var(--avento-text-primary);
+}
+
+/* ============================================
+   CSS Variables - Avento Dark Theme
+   ============================================ */
+:root {
+    /* Primary Purple (Avento Identity) */
+    --avento-primary: #8b5cf6;
+    --avento-primary-hover: #7c3aed;
+    --avento-primary-light: rgba(139, 92, 246, 0.1);
+    --avento-primary-glow: rgba(139, 92, 246, 0.3);
+
+    /* Backgrounds - LIGHT MODE (Clean & White like landing page) */
+    --avento-bg-primary: #ffffff;
+    --avento-bg-secondary: #fcfcfc;
+    --avento-bg-card: #ffffff;
+    --avento-bg-card-hover: #f9fafb;
+    --avento-bg-elevated: #ffffff;
+    --avento-bg-input: #f8fafc;
+
+    /* Borders */
+    --avento-border: rgba(0, 0, 0, 0.05);
+    --avento-border-light: rgba(0, 0, 0, 0.08);
+
+    /* Text */
+    --avento-text-primary: #0f172a;
+    --avento-text-secondary: #475569;
+    --avento-text-muted: #94a3b8;
+}
+
+/* DEEP DARK THEME (The true Dark Mode) */
+.dark,
+html.dark {
+    --avento-bg-primary: #000000;
+    --avento-bg-secondary: #020202;
+    --avento-bg-card: #030303;
+    --avento-bg-card-hover: #080808;
+    --avento-bg-elevated: #0a0a0a;
+    --avento-bg-input: #020202;
+
+    --avento-border: rgba(255, 255, 255, 0.02);
+    --avento-border-light: rgba(255, 255, 255, 0.04);
+    --avento-border-purple: rgba(139, 92, 246, 0.1);
+
+    --avento-text-primary: #ffffff;
+    --avento-text-secondary: #94a3b8;
+    --avento-text-muted: #4b5563;
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+.avento-theme body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--avento-bg-primary);
+    color: var(--avento-text-primary);
+    min-height: 100vh;
+}
+
+/* Main content area */
+.avento-theme #main-content,
+.avento-theme main {
+    background: var(--avento-bg-primary) !important;
+}
+
+/* ============================================
+   Sidebar Styles
+   ============================================ */
+.avento-theme #sidebar,
+.avento-theme aside {
+    background: var(--avento-sidebar-bg) !important;
+    border-right: 1px solid var(--avento-border) !important;
+}
+
+/* Sidebar header */
+.avento-theme #sidebar .border-b,
+.avento-theme aside .border-b {
+    border-color: var(--avento-border) !important;
+    background: var(--avento-sidebar-bg) !important;
+}
+
+/* Sidebar logo text */
+.avento-theme #sidebar h1,
+.avento-theme aside h1 {
+    background: linear-gradient(135deg, var(--avento-primary), #a78bfa) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+/* Sidebar navigation */
+.avento-theme #sidebar nav,
+.avento-theme aside nav {
+    background: transparent !important;
+}
+
+/* Sidebar menu items */
+.avento-theme #sidebar nav a,
+.avento-theme aside nav a,
+.avento-theme #sidebar nav button,
+.avento-theme aside nav button {
+    color: var(--avento-text-secondary) !important;
+    background: transparent !important;
+    border-radius: 0.75rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.avento-theme #sidebar nav a:hover,
+.avento-theme aside nav a:hover,
+.avento-theme #sidebar nav button:hover,
+.avento-theme aside nav button:hover {
+    background: var(--avento-sidebar-item-hover) !important;
+    color: var(--avento-text-primary) !important;
+}
+
+/* Active menu item */
+.avento-theme #sidebar nav a.bg-blue-600,
+.avento-theme aside nav a.bg-blue-600,
+.avento-theme #sidebar nav a[class*="bg-indigo"],
+.avento-theme aside nav a[class*="bg-indigo"] {
+    background: var(--avento-primary) !important;
+    color: #ffffff !important;
+    box-shadow: var(--avento-shadow-glow) !important;
+}
+
+/* Sidebar groups */
+.avento-theme #sidebar .bg-gray-50,
+.avento-theme aside .bg-gray-50,
+.avento-theme .dark #sidebar .bg-gray-900\/50,
+.avento-theme .dark aside .bg-gray-900\/50 {
+    background: rgba(139, 92, 246, 0.05) !important;
+    border-radius: 0.5rem !important;
+}
+
+/* Sidebar footer */
+.avento-theme #sidebar .absolute.bottom-0,
+.avento-theme aside .absolute.bottom-0 {
+    background: var(--avento-bg-secondary) !important;
+    border-top: 1px solid var(--avento-border) !important;
+}
+
+/* Upgrade button style */
+.avento-theme .upgrade-btn,
+.avento-theme #sidebar a[href*="subscription"] {
+    background: linear-gradient(135deg, var(--avento-accent-orange), #fbbf24) !important;
+    color: #000000 !important;
+    font-weight: 600 !important;
+    border-radius: 0.75rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.avento-theme .upgrade-btn:hover,
+.avento-theme #sidebar a[href*="subscription"]:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4) !important;
+}
+
+/* ============================================
+   Cards
+   ============================================ */
+.avento-theme .glass-card,
+.avento-theme .bg-white,
+.avento-theme .dark .bg-gray-800,
+.avento-theme .dark .bg-slate-800 {
+    background: var(--avento-bg-card) !important;
+    border: 1px solid var(--avento-border) !important;
+    border-radius: 1rem !important;
+}
+
+.avento-theme .glass-card:hover,
+.avento-theme .hover-lift:hover {
+    background: var(--avento-bg-card-hover) !important;
+    border-color: var(--avento-border-light) !important;
+}
+
+/* Dashboard stat cards */
+.avento-theme .stat-card-gradient {
+    background: var(--avento-bg-card) !important;
+    border: 1px solid var(--avento-border) !important;
+}
+
+/* Widget cards */
+.avento-theme .dashboard-widget {
+    background: var(--avento-bg-card) !important;
+    border: 1px solid var(--avento-border) !important;
+    box-shadow: var(--avento-shadow-md) !important;
+}
+
+/* ============================================
+   Gradients with Purple
+   ============================================ */
+.avento-theme .from-indigo-600,
+.avento-theme .from-blue-600,
+.avento-theme .from-indigo-500,
+.avento-theme .from-blue-500 {
+    --tw-gradient-from: var(--avento-primary) !important;
+}
+
+.avento-theme .to-purple-600,
+.avento-theme .to-purple-500 {
+    --tw-gradient-to: #a78bfa !important;
+}
+
+.avento-theme .bg-gradient-to-r,
+.avento-theme .bg-gradient-to-br {
+    background: linear-gradient(135deg, var(--avento-primary), #a78bfa) !important;
+}
+
+/* Text gradient */
+.avento-theme .bg-clip-text.text-transparent,
+.avento-theme .text-gradient {
+    background: linear-gradient(135deg, var(--avento-primary), #a78bfa) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+/* Botões de Ação Principal (Reforço de contraste Light Mode) */
+.avento-theme .bg-indigo-600,
+.avento-theme .bg-blue-600,
+.avento-theme .bg-purple-600,
+.avento-theme .btn-primary,
+.avento-theme button[type="submit"] {
+    background: var(--avento-primary) !important;
+    color: #ffffff !important;
+}
+
+.avento-theme .bg-indigo-600:hover,
+.avento-theme .bg-blue-600:hover,
+.avento-theme .bg-purple-600:hover,
+.avento-theme .btn-primary:hover,
+.avento-theme button[type="submit"]:hover {
+    background: var(--avento-primary-hover) !important;
+    color: #ffffff !important;
+}
+
+/* Primary button with gradient */
+.avento-theme .btn-primary-gradient,
+.avento-theme .bg-purple-600 {
+    background: linear-gradient(135deg, var(--avento-primary), #a78bfa) !important;
+    color: #ffffff !important;
+}
+
+.avento-theme .btn-primary,
+.avento-theme button[type="submit"] {
+    border: none !important;
+    box-shadow: var(--avento-shadow-sm) !important;
+    transition: all 0.3s ease !important;
+}
+
+/* ============================================
+   Form Elements
+   ============================================ */
+.avento-theme input,
+.avento-theme select,
+.avento-theme textarea {
+    background: var(--avento-bg-input) !important;
+    border: 1px solid var(--avento-border) !important;
+    color: var(--avento-text-primary) !important;
+    border-radius: 0.75rem !important;
+}
+
+.avento-theme input:focus,
+.avento-theme select:focus,
+.avento-theme textarea:focus {
+    border-color: var(--avento-primary) !important;
+    box-shadow: 0 0 0 3px var(--avento-primary-light) !important;
+    outline: none !important;
+}
+
+.avento-theme input::placeholder,
+.avento-theme textarea::placeholder {
+    color: var(--avento-text-muted) !important;
+}
+
+/* ============================================
+   Tables
+   ============================================ */
+.avento-theme table {
+    background: transparent !important;
+}
+
+.avento-theme thead {
+    background: var(--avento-bg-secondary) !important;
+}
+
+.avento-theme th {
+    color: var(--avento-text-muted) !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.05em !important;
+}
+
+.avento-theme tbody tr {
+    background: transparent !important;
+    border-bottom: 1px solid var(--avento-border) !important;
+}
+
+.avento-theme tbody tr:hover {
+    background: var(--avento-bg-card-hover) !important;
+}
+
+.avento-theme td {
+    color: var(--avento-text-secondary) !important;
+}
+
+/* ============================================
+   Progress Bars
+   ============================================ */
+.avento-theme .bg-gray-100,
+.avento-theme .bg-gray-200 {
+    background: var(--avento-bg-secondary) !important;
+}
+
+.avento-theme [class*="bg-indigo-"],
+.avento-theme [class*="bg-blue-"] {
+    background: var(--avento-primary) !important;
+}
+
+/* ============================================
+   Badges and Pills
+   ============================================ */
+.avento-theme .rounded-full[class*="bg-"] {
+    border: 1px solid var(--avento-border) !important;
+}
+
+.avento-theme .bg-green-100,
+.avento-theme .bg-green-50 {
+    background: rgba(16, 185, 129, 0.15) !important;
+    color: #34d399 !important;
+}
+
+.avento-theme .bg-red-100,
+.avento-theme .bg-red-50 {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+}
+
+.avento-theme .bg-orange-100,
+.avento-theme .bg-amber-100,
+.avento-theme .bg-orange-50 {
+    background: rgba(245, 158, 11, 0.15) !important;
+    color: #fbbf24 !important;
+}
+
+.avento-theme .bg-indigo-100,
+.avento-theme .bg-indigo-50,
+.avento-theme .bg-blue-100,
+.avento-theme .bg-blue-50 {
+    background: var(--avento-primary-light) !important;
+    color: var(--avento-primary) !important;
+}
+
+/* ============================================
+   Text Colors
+   ============================================ */
+.avento-theme .text-gray-900,
+.avento-theme .text-gray-800,
+.avento-theme .text-slate-900,
+.avento-theme .text-slate-800 {
+    color: var(--avento-text-primary) !important;
+}
+
+.avento-theme .text-gray-700,
+.avento-theme .text-gray-600,
+.avento-theme .text-slate-700,
+.avento-theme .text-slate-600 {
+    color: var(--avento-text-secondary) !important;
+}
+
+.avento-theme .text-gray-500,
+.avento-theme .text-gray-400,
+.avento-theme .text-slate-500,
+.avento-theme .text-slate-400 {
+    color: var(--avento-text-muted) !important;
+}
+
+.avento-theme .text-indigo-600,
+.avento-theme .text-indigo-500,
+.avento-theme .text-blue-600,
+.avento-theme .text-blue-500 {
+    color: var(--avento-primary) !important;
+}
+
+/* ============================================
+   Borders
+   ============================================ */
+.avento-theme .border-gray-100,
+.avento-theme .border-gray-200,
+.avento-theme .border-gray-300,
+.avento-theme .border-slate-100,
+.avento-theme .border-slate-200,
+.avento-theme .border-slate-700,
+.avento-theme .border-slate-800 {
+    border-color: var(--avento-border) !important;
+}
+
+.avento-theme .border-indigo-500,
+.avento-theme .border-indigo-600,
+.avento-theme .border-blue-500,
+.avento-theme .border-blue-600 {
+    border-color: var(--avento-primary) !important;
+}
+
+/* ============================================
+   Shadows
+   ============================================ */
+.avento-theme .shadow,
+.avento-theme .shadow-sm {
+    box-shadow: var(--avento-shadow-sm) !important;
+}
+
+.avento-theme .shadow-md,
+.avento-theme .shadow-lg {
+    box-shadow: var(--avento-shadow-md) !important;
+}
+
+.avento-theme .shadow-xl,
+.avento-theme .shadow-2xl {
+    box-shadow: var(--avento-shadow-lg) !important;
+}
+
+/* Glow shadows for primary elements */
+.avento-theme .shadow-indigo-600\/30,
+.avento-theme .shadow-indigo-500\/30,
+.avento-theme .shadow-blue-600\/30 {
+    box-shadow: var(--avento-shadow-glow) !important;
+}
+
+/* ============================================
+   Mobile Header
+   ============================================ */
+.avento-theme .fixed.top-0.inset-x-0 {
+    background: var(--avento-bg-secondary) !important;
+    border-bottom: 1px solid var(--avento-border) !important;
+}
+
+.avento-theme .fixed.top-0 button.bg-indigo-600 {
+    background: var(--avento-primary) !important;
+}
+
+/* ============================================
+   Modals
+   ============================================ */
+.avento-theme .fixed.inset-0.z-\[200\]>div:last-child,
+.avento-theme .fixed.inset-0.z-\[9999\]>div:last-child {
+    background: var(--avento-bg-card) !important;
+    border: 1px solid var(--avento-border) !important;
+}
+
+/* Modal gradient header */
+.avento-theme .bg-gradient-to-r.from-blue-600.to-indigo-600,
+.avento-theme .bg-gradient-to-r.from-indigo-600.to-purple-600 {
+    background: linear-gradient(135deg, var(--avento-primary), #a78bfa) !important;
+}
+
+/* ============================================
+   Carousel Cards
+   ============================================ */
+.avento-theme .carousel-slide .group\/card {
+    background: var(--avento-bg-card) !important;
+    border: 1px solid var(--avento-border) !important;
+}
+
+.avento-theme .carousel-slide .group\/card:hover {
+    background: var(--avento-bg-card-hover) !important;
+    border-color: var(--avento-border-light) !important;
+}
+
+/* ============================================
+   Toast Notifications
+   ============================================ */
+.avento-theme #toast-container>div {
+    background: var(--avento-bg-elevated) !important;
+    border: 1px solid var(--avento-border) !important;
+}
+
+/* ============================================
+   Scrollbar
+   ============================================ */
+.avento-theme ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.avento-theme ::-webkit-scrollbar-track {
+    background: var(--avento-bg-primary);
+}
+
+.avento-theme ::-webkit-scrollbar-thumb {
+    background: var(--avento-bg-elevated);
+    border-radius: 4px;
+}
+
+.avento-theme ::-webkit-scrollbar-thumb:hover {
+    background: var(--avento-text-muted);
+}
+
+/* ============================================
+   Specific Dashboard Overrides
+   ============================================ */
+
+/* Dashboard header icon */
+.avento-theme .w-10.h-10.rounded-2xl.bg-gradient-to-br,
+.avento-theme .w-12.h-12.rounded-2xl.bg-gradient-to-br {
+    background: linear-gradient(135deg, var(--avento-primary), #a78bfa) !important;
+    box-shadow: 0 4px 20px var(--avento-primary-glow) !important;
+}
+
+/* Stat cards icons */
+.avento-theme .w-10.h-10.rounded-xl.bg-gradient-to-br,
+.avento-theme .w-12.h-12.rounded-xl.bg-gradient-to-br {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Filter buttons */
+.avento-theme .bg-gray-50\/80,
+.avento-theme .bg-slate-800\/80 {
+    background: var(--avento-bg-secondary) !important;
+}
+
+.avento-theme .bg-gray-50\/80 button,
+.avento-theme .bg-slate-800\/80 button {
+    color: var(--avento-text-muted) !important;
+}
+
+.avento-theme .bg-gray-50\/80 button.bg-white,
+.avento-theme .bg-gray-50\/80 button[class*="text-indigo"],
+.avento-theme .bg-slate-800\/80 button.bg-slate-700 {
+    background: var(--avento-bg-card) !important;
+    color: var(--avento-primary) !important;
+    box-shadow: var(--avento-shadow-sm) !important;
+}
+
+/* Delivery filter active */
+.avento-theme button.text-indigo-600 {
+    color: var(--avento-primary) !important;
+}
+
+/* Activity feed */
+.avento-theme .divide-y>div {
+    border-color: var(--avento-border) !important;
+}
+
+/* Latest Activity section dots */
+.avento-theme .w-2.h-2.rounded-full,
+.avento-theme .w-2\.5.h-2\.5.rounded-full {
+    box-shadow: 0 0 8px currentColor !important;
+}
+
+/* ============================================
+   Sidebar Complete Overrides (Avento Style)
+   ============================================ */
+
+/* Sidebar base */
+.avento-theme #sidebar,
+.avento-theme aside {
+    background: var(--avento-bg-secondary) !important;
+    border-right: 1px solid var(--avento-border) !important;
+    transition: background 0.3s ease, border-color 0.3s ease !important;
+}
+
+.dark.avento-theme #sidebar,
+.dark.avento-theme aside {
+    background: #000000 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Sidebar header */
+.avento-theme #sidebar>div:first-child,
+.avento-theme aside>div:first-child {
+    background: transparent !important;
+    border-bottom: 1px solid var(--avento-border) !important;
+}
+
+/* Forçar fundo branco no sidebar Light */
+.avento-theme #sidebar,
+.avento-theme aside {
+    background: #ffffff !important;
+}
+
+.dark.avento-theme #sidebar,
+.dark.avento-theme aside {
+    background: #000000 !important;
+}
+
+/* Logo text */
+.avento-theme #sidebar h1,
+.avento-theme aside h1 {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    font-weight: 700 !important;
+}
+
+/* All menu items - reset */
+.avento-theme #sidebar nav a,
+.avento-theme aside nav a {
+    background: transparent !important;
+    color: #71717a !important;
+    margin: 0 0.5rem !important;
+    border-radius: 8px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.dark.avento-theme #sidebar nav a,
+.dark.avento-theme aside nav a {
+    color: #94a3b8 !important;
+    /* Slate-400 para dark mode */
+}
+
+/* Menu items hover */
+.avento-theme #sidebar nav a:hover,
+.avento-theme aside nav a:hover {
+    background: rgba(139, 92, 246, 0.08) !important;
+    color: #1f2937 !important;
+    /* Texto escuro no light mode */
+}
+
+.dark.avento-theme #sidebar nav a:hover,
+.dark.avento-theme aside nav a:hover {
+    color: #ffffff !important;
+    /* Texto claro no dark mode */
+}
+
+/* Active menu item - HIGH VISIBILITY CLEAN STYLE */
+.avento-theme #sidebar nav a.bg-purple-600,
+.avento-theme #sidebar nav a.bg-blue-600,
+.avento-theme #sidebar nav a.bg-indigo-600,
+.avento-theme aside nav a.bg-purple-600,
+.avento-theme aside nav a.bg-blue-600,
+.avento-theme aside nav a.bg-indigo-600 {
+    background: rgba(139, 92, 246, 0.12) !important;
+    color: #8b5cf6 !important;
+    font-weight: 700 !important;
+    border-left: 4px solid #8b5cf6 !important;
+    border-radius: 0 8px 8px 0 !important;
+    padding-left: 0.8rem !important;
+    margin-left: 0 !important;
+    /* Indicator touches edge */
+    box-shadow: none !important;
+}
+
+/* Force icon color for active main link */
+.avento-theme #sidebar nav a.bg-purple-600 svg,
+.avento-theme aside nav a.bg-purple-600 svg {
+    color: #8b5cf6 !important;
+}
+
+.dark.avento-theme #sidebar nav a.bg-purple-600,
+.dark.avento-theme #sidebar nav a.bg-blue-600,
+.dark.avento-theme #sidebar nav a.bg-indigo-600,
+.dark.avento-theme aside nav a.bg-purple-600,
+.dark.avento-theme aside nav a.bg-blue-600,
+.dark.avento-theme aside nav a.bg-indigo-600 {
+    background: rgba(139, 92, 246, 0.2) !important;
+    color: #ffffff !important;
+    border-left: 4px solid #8b5cf6 !important;
+    border-radius: 0 8px 8px 0 !important;
+    padding-left: 0.8rem !important;
+    margin-left: 0 !important;
+}
+
+.dark.avento-theme #sidebar nav a.bg-purple-600 svg,
+.dark.avento-theme aside nav a.bg-purple-600 svg {
+    color: #ffffff !important;
+}
+
+/* Reset for normal links (NOT active) */
+.avento-theme #sidebar nav a:not(.bg-purple-600):not(.bg-blue-600):not(.bg-indigo-600),
+.avento-theme aside nav a:not(.bg-purple-600):not(.bg-blue-600):not(.bg-indigo-600) {
+    background: transparent !important;
+    color: #71717a !important;
+    box-shadow: none !important;
+}
+
+/* Group buttons reset */
+.avento-theme #sidebar nav button,
+.avento-theme aside nav button {
+    background: transparent !important;
+    color: #4b5563 !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.dark.avento-theme #sidebar nav button,
+.dark.avento-theme aside nav button {
+    color: #94a3b8 !important;
+}
+
+.avento-theme #sidebar nav button:hover,
+.avento-theme aside nav button:hover {
+    background: rgba(139, 92, 246, 0.08) !important;
+    color: #e4e4e7 !important;
+}
+
+/* Submenu container - NO background */
+.avento-theme #sidebar div[x-show],
+.avento-theme aside div[x-show] {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* Submenu items - clean style */
+.avento-theme #sidebar nav div a,
+.avento-theme aside nav div a {
+    background: transparent !important;
+    color: #71717a !important;
+    padding-left: 1rem !important;
+    margin: 0 0.5rem !important;
+    border-radius: 8px !important;
+}
+
+.dark.avento-theme #sidebar nav div a,
+.dark.avento-theme aside nav div a {
+    color: #94a3b8 !important;
+}
+
+/* Submenu active item - HIGH VISIBILITY */
+.avento-theme #sidebar nav div a.bg-purple-600,
+.avento-theme #sidebar nav div a.bg-blue-600,
+.avento-theme aside nav div a.bg-purple-600,
+.avento-theme aside nav div a.bg-blue-600 {
+    background: rgba(139, 92, 246, 0.12) !important;
+    color: #8b5cf6 !important;
+    font-weight: 700 !important;
+    border-left: 4px solid #8b5cf6 !important;
+    border-radius: 0 8px 8px 0 !important;
+    padding-left: 0.8rem !important;
+    box-shadow: none !important;
+}
+
+.dark.avento-theme #sidebar nav div a.bg-purple-600,
+.dark.avento-theme #sidebar nav div a.bg-blue-600,
+.dark.avento-theme aside nav div a.bg-purple-600,
+.dark.avento-theme aside nav div a.bg-blue-600 {
+    background: rgba(139, 92, 246, 0.2) !important;
+    color: #ffffff !important;
+    border-left: 4px solid #8b5cf6 !important;
+}
+
+/* Submenu Hover */
+.avento-theme #sidebar nav div a:hover,
+.avento-theme aside nav div a:hover {
+    background: rgba(139, 92, 246, 0.06) !important;
+    color: #8b5cf6 !important;
+}
+
+.dark.avento-theme #sidebar nav div a:hover,
+.dark.avento-theme aside nav div a:hover {
+    background: rgba(139, 92, 246, 0.1) !important;
+    color: #ffffff !important;
+}
+
+/* Menu shadows and transitions */
+.avento-theme #sidebar nav a,
+.avento-theme aside nav a {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+
+/* Footer area */
+.avento-theme #sidebar .absolute.bottom-0,
+
+
+/* Mobile header */
+.avento-theme .md\:hidden.fixed.top-0 {
+    background: #0a0a14 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Mobile menu button */
+.avento-theme .md\:hidden button.bg-indigo-600,
+.avento-theme .md\:hidden button[class*="bg-indigo"] {
+    background: linear-gradient(135deg, #7c3aed, #8b5cf6) !important;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3) !important;
+}
+
+/* Notification panel in mobile */
+.avento-theme .md\:hidden .absolute.top-12 {
+    background: #141420 !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Override any bg-gray-50 that might still appear */
+.avento-theme .bg-gray-50,
+.avento-theme [class*="bg-gray-50"],
+.avento-theme [class*="bg-gray-900/50"] {
+    background: transparent !important;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+@keyframes avento-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px var(--avento-primary-glow);
+    }
+
+    50% {
+        box-shadow: 0 0 40px var(--avento-primary-glow);
+    }
+}
+
+.avento-theme .animate-glow {
+    animation: avento-glow 2s ease-in-out infinite;
+}
+
+/* Subtle hover glow effect */
+.avento-theme .hover-glow:hover {
+    box-shadow: 0 0 30px var(--avento-primary-glow) !important;
+}
+
+/* ============================================
+   Override dark mode classes (force Avento)
+   ============================================ */
+.avento-theme .dark .bg-gray-900,
+.avento-theme .dark .bg-slate-900 {
+    background: var(--avento-bg-primary) !important;
+}
+
+.avento-theme .dark .bg-gray-800,
+.avento-theme .dark .bg-slate-800 {
+    background: var(--avento-bg-card) !important;
+}
+
+.avento-theme .dark .text-white {
+    color: var(--avento-text-primary) !important;
+}
+
+/* Remove light mode backgrounds */
+.avento-theme .bg-gray-50,
+.avento-theme .bg-slate-50,
+.avento-theme .bg-gray-100,
+.avento-theme .bg-slate-100 {
+    background: var(--avento-bg-secondary) !important;
+}
+
+/* Global Theme Overrides - THE TOTAL BLACKOUT */
+.dark.avento-theme,
+.dark.avento-theme body,
+.dark.avento-theme #main-content,
+.dark.avento-theme main,
+.dark.avento-theme aside,
+.dark.avento-theme [class*="bg-slate-9"],
+.dark.avento-theme [class*="bg-gray-9"],
+.dark.avento-theme [class*="bg-zinc-9"],
+.dark.avento-theme [class*="bg-neutral-9"] {
+    background-color: #000000 !important;
+    background: #000000 !important;
+}
+
+/* Card and Container Optimization - DEPTH & GLOW */
+.dark.avento-theme .glass-card,
+.dark.avento-theme .dashboard-widget,
+.dark.avento-theme .stat-card-gradient,
+.dark.avento-theme table,
+.dark.avento-theme .bg-white,
+.dark.avento-theme [class*="bg-white"],
+.dark.avento-theme [class*="bg-slate-8"],
+.dark.avento-theme [class*="bg-gray-8"],
+.dark.avento-theme [class*="bg-zinc-8"],
+.dark.avento-theme [class*="bg-neutral-8"],
+.dark.avento-theme [class*="bg-slate-7"],
+.dark.avento-theme [class*="bg-gray-7"] {
+    background-color: #030303 !important;
+    background: #030303 !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 1), 0 0 15px rgba(139, 92, 246, 0.02) !important;
+}
+
+/* Specific Shadow and Glow for Dark Mode Differentiation */
+.dark.avento-theme .glass-card,
+.dark.avento-theme .dashboard-widget,
+.dark.avento-theme table,
+.dark.avento-theme [class*="rounded-xl"],
+.dark.avento-theme [class*="rounded-2xl"] {
+    /* Já coberto pelo seletor acima, mas reforçando sombras específicas se necessário */
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 1), 0 0 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Text visibility in deep dark */
+.dark.avento-theme h1,
+.dark.avento-theme h2,
+.dark.avento-theme h3,
+.dark.avento-theme h4,
+.dark.avento-theme .text-gray-900,
+.dark.avento-theme .text-slate-900,
+.dark.avento-theme .text-white {
+    color: #ffffff !important;
+}
+
+.dark.avento-theme p,
+.dark.avento-theme .text-gray-600,
+.dark.avento-theme .text-slate-600,
+.dark.avento-theme span,
+.dark.avento-theme td {
+    color: #94a3b8 !important;
+}
+
+/* Bordas e Divisores */
+.dark.avento-theme .border,
+.dark.avento-theme .border-b,
+.dark.avento-theme .border-t,
+.dark.avento-theme .divide-y>* {
+    border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Scrollbar Style */
+.avento-theme ::-webkit-scrollbar-track {
+    background: var(--avento-bg-primary);
+}
+
+.avento-theme ::-webkit-scrollbar-thumb {
+    background: var(--avento-bg-elevated);
+}
+
+/* ============================================
+   Sidebar Footer & Theme Toggle (Premium Style)
+   ============================================ */
+.sidebar-footer-custom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.25rem 0.75rem;
+    background: #ffffff !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+    z-index: 10;
+    transition: all 0.3s ease;
+}
+
+.dark .sidebar-footer-custom {
+    background: #000000 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Theme Toggle Track */
+.theme-toggle-track-custom {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    position: relative;
+    height: 38px;
+    border-radius: 12px;
+    display: flex;
+    padding: 4px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.dark .theme-toggle-track-custom {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.theme-toggle-pill-custom {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    width: calc(50% - 4px);
+    background: #8b5cf6;
+    border-radius: 8px;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    z-index: 1;
+}
+
+.theme-toggle-pill-custom.dark {
+    transform: translateX(100%);
+}
+
+.theme-toggle-btn-custom {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    /* Muted by default */
+    transition: color 0.3s ease;
+}
+
+.theme-toggle-btn-custom.active {
+    color: #ffffff !important;
+}
+
+.theme-toggle-btn-custom i {
+    font-size: 12px;
+}
+
+/* Profile Button Custom */
+.profile-btn-custom {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    border-radius: 12px;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 1px solid transparent !important;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.profile-btn-custom:hover {
+    background: rgba(139, 92, 246, 0.05) !important;
+    border-color: rgba(139, 92, 246, 0.1) !important;
+}
+
+.dark .profile-btn-custom:hover {
+    background: rgba(139, 92, 246, 0.1) !important;
+    border-color: rgba(139, 92, 246, 0.2) !important;
+}
+
+.profile-avatar-custom {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    width: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: #ffffff !important;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.2);
+}

@@ -1141,6 +1141,19 @@
         setTimeout(initCharts, 200);
     });
 
+    // --- NOVO: Reinicializar gráficos quando o tema mudar dinamicamente ---
+    const themeObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+                console.log('Dashboard: Tema alterado, atualizando gráficos...');
+                // Pequeno delay para garantir que o CSS das variáveis já foi aplicado
+                setTimeout(initCharts, 100);
+            }
+        });
+    });
+    
+    themeObserver.observe(document.documentElement, { attributes: true });
+
     // Fallback: tentar novamente após um tempo
     window.addEventListener('load', function() {
         setTimeout(function() {

@@ -46,56 +46,30 @@
             // Verificação mais precisa para determinar se está ativo
             const isExactMatch = currentPath === linkPath;
             const isPrefixMatch = linkPath !== '/' &&
-                linkPath !== '/cash' && // /cash só é ativo com match exato
-                linkPath !== '/financeiro' && // /financeiro (Dashboard) só é ativo com match exato
+                linkPath !== '/dashboard' &&
+                linkPath !== '/cash' &&
+                linkPath !== '/financeiro' &&
                 currentPath.startsWith(linkPath + '/');
             const isActive = isExactMatch || isPrefixMatch;
 
-            // Links do Financeiro (com data-no-js-nav) - usar mesmas classes que outros links
-            if (link.hasAttribute('data-no-js-nav')) {
-                const dot = link.querySelector('span');
-                if (isActive) {
-                    // Mesmas classes que outros itens da sidebar (bg-blue-600)
-                    link.classList.remove('text-gray-600', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-800');
-                    link.classList.add('bg-blue-600', 'text-white', 'rounded-md');
-                    if (dot) {
-                        dot.classList.remove('bg-gray-400');
-                        dot.classList.add('bg-white');
-                        dot.style.backgroundColor = 'white';
-                    }
-                } else {
-                    link.classList.remove('bg-blue-600', 'text-white', 'rounded-md');
-                    link.classList.add('text-gray-600', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-800');
-                    link.style.backgroundColor = '';
-                    link.style.color = '';
-                    if (dot) {
-                        dot.classList.remove('bg-white');
-                        dot.classList.add('bg-gray-400');
-                        dot.style.backgroundColor = '';
-                    }
-                }
-                return;
+            // Limpar classes de estado ativo de QUALQUER link
+            link.classList.remove('bg-purple-600', 'bg-blue-600', 'bg-indigo-600', 'text-white');
+
+            // Adicionar classes de estado inativo padrão (se não tiver)
+            if (!isActive) {
+                link.classList.add('text-gray-400');
+            } else {
+                // Adicionar classe de estado ativo
+                link.classList.remove('text-gray-400');
+                link.classList.add('bg-purple-600');
             }
 
-            // Links normais - usar classes
-            if (isActive) {
-                link.classList.remove('text-gray-700', 'dark:text-gray-300', 'hover:bg-blue-50', 'dark:hover:bg-gray-700', 'hover:text-blue-600', 'dark:hover:text-white');
-                link.classList.add('bg-blue-600', 'text-white');
-
-                // Atualizar ícone
-                const icon = link.querySelector('svg');
-                if (icon) {
+            // Atualizar ícone se existir
+            const icon = link.querySelector('svg');
+            if (icon) {
+                if (isActive) {
                     icon.classList.remove('text-gray-500', 'dark:text-gray-400');
-                    icon.classList.add('text-white');
-                }
-            } else {
-                link.classList.remove('bg-blue-600', 'text-white');
-                link.classList.add('text-gray-700', 'dark:text-gray-300', 'hover:bg-blue-50', 'dark:hover:bg-gray-700', 'hover:text-blue-600', 'dark:hover:text-white');
-
-                // Atualizar ícone
-                const icon = link.querySelector('svg');
-                if (icon) {
-                    icon.classList.remove('text-white');
+                } else {
                     icon.classList.add('text-gray-500', 'dark:text-gray-400');
                 }
             }
@@ -163,17 +137,32 @@
             document.documentElement.style.colorScheme = 'dark';
         }
 
-        // Mostrar loading
-        const originalContent = mainContent.innerHTML;
-        const loadingHtml = `
-            <div class="flex items-center justify-center min-h-[60vh]">
-                <div class="text-center">
-                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
-                    <p class="mt-4 text-gray-600 dark:text-gray-400">Carregando...</p>
-                </div>
-            </div>
-        `;
-        mainContent.innerHTML = loadingHtml;
+        // Mostrar indicador de progresso no topo (mais moderno e rápido que limpar a tela)
+        let progressBar = document.getElementById('ajax-progress-bar');
+        if (!progressBar) {
+            progressBar = document.createElement('div');
+            progressBar.id = 'ajax-progress-bar';
+            progressBar.style.position = 'fixed';
+            progressBar.style.top = '0';
+            progressBar.style.left = '0';
+            progressBar.style.height = '3px';
+            progressBar.style.backgroundColor = '#8b5cf6';
+            progressBar.style.zIndex = '9999';
+            progressBar.style.transition = 'width 0.3s ease-out, opacity 0.5s ease';
+            progressBar.style.width = '0%';
+            document.body.appendChild(progressBar);
+        }
+
+        progressBar.style.opacity = '1';
+        progressBar.style.width = '30%';
+
+        // Timer para progresso falso enquanto carrega
+        const progressTimer = setInterval(() => {
+            const currentWidth = parseFloat(progressBar.style.width);
+            if (currentWidth < 90) {
+                progressBar.style.width = (currentWidth + (90 - currentWidth) * 0.1) + '%';
+            }
+        }, 300);
 
         try {
             // Fazer requisição AJAX
@@ -351,9 +340,19 @@
 
         } catch (error) {
             console.error('Erro ao carregar página via AJAX:', error);
-            mainContent.innerHTML = originalContent;
+            // Se falhar o AJAX, recarregar a página da forma tradicional
             window.location.href = url;
         } finally {
+            clearInterval(progressTimer);
+            if (progressBar) {
+                progressBar.style.width = '100%';
+                setTimeout(() => {
+                    progressBar.style.opacity = '0';
+                    setTimeout(() => {
+                        progressBar.style.width = '0%';
+                    }, 500);
+                }, 200);
+            }
             isNavigating = false;
         }
     }

@@ -5,12 +5,12 @@
     
     <!-- Botão do Sininho -->
     <button @click="togglePanel()" 
-            class="relative w-14 h-14 bg-indigo-600 dark:bg-indigo-600 hover:bg-indigo-700 dark:hover:bg-indigo-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group">
+            class="relative w-14 h-14 bg-purple-600 dark:bg-purple-600 hover:bg-purple-500 dark:hover:bg-purple-500 text-white rounded-full shadow-[0_0_25px_rgba(139,92,246,0.6)] hover:shadow-[0_0_35px_rgba(139,92,246,0.9)] transition-all duration-300 flex items-center justify-center group overflow-visible">
         <!-- Ícone do Sino -->
-        <svg class="w-6 h-6 transition-transform" 
+        <svg class="w-6 h-6 transition-transform group-hover:scale-110" 
              :class="{ 'animate-bounce': hasNew }"
              fill="none" 
-             stroke="currentColor" 
+             stroke="#ffffff" 
              viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
         </svg>
@@ -18,12 +18,12 @@
         <!-- Badge de Contagem -->
         <span x-show="unreadCount > 0" 
               x-text="unreadCount > 99 ? '99+' : unreadCount"
-              class="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+              class="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse ring-2 ring-black">
         </span>
 
         <!-- Pulse Animation -->
         <span x-show="hasNew" 
-              class="absolute inset-0 rounded-full bg-indigo-600 dark:bg-indigo-600 animate-ping opacity-75">
+              class="absolute inset-0 rounded-full bg-purple-600 dark:bg-purple-600 animate-ping opacity-75">
         </span>
     </button>
 
