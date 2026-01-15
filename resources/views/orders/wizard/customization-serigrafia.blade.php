@@ -6,7 +6,7 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
+                    <div class="w-10 h-10 bg-[#7c3aed] rounded-full flex items-center justify-center">
                         <span class="text-white font-bold text-sm">S</span>
                     </div>
                     <div>
@@ -21,7 +21,7 @@
             
             <!-- Progress Bar -->
             <div class="w-full bg-gray-200 rounded-full h-1">
-                <div class="bg-gray-800 h-1 rounded-full" style="width: 60%"></div>
+                <div class="bg-[#7c3aed] h-1 rounded-full" style="width: 60%"></div>
             </div>
             <div class="flex justify-between mt-2">
                 <span class="text-xs text-gray-500">Etapa 3 de 5</span>
@@ -48,7 +48,7 @@
                 <div class="mb-6">
                     <label for="art_name" class="block text-sm font-medium text-gray-900 mb-2">Nome da Arte *</label>
                     <input type="text" id="art_name" name="art_name" required
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 bg-white"
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-[#7c3aed] focus:ring-[#7c3aed] bg-white"
                            placeholder="Ex: Logo Empresa XYZ">
                 </div>
 
@@ -57,7 +57,7 @@
                 <div class="mb-6">
                     <label for="art_files" class="block text-sm font-medium text-gray-900 mb-2">Arquivos da Arte (múltiplos) *</label>
                     <input type="file" id="art_files" name="art_files[]" multiple
-                           required class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 bg-white"
+                           required class="w-full rounded-md border-gray-300 shadow-sm focus:border-[#7c3aed] focus:ring-[#7c3aed] bg-white"
                            onchange="displayFileList()">
                     <p class="text-xs text-gray-600 mt-1">Você pode selecionar múltiplos arquivos (AI, PDF, PNG, JPG, etc) - Obrigatório pelo menos 1 arquivo</p>
                     <div id="file-list" class="mt-3 space-y-2"></div>
@@ -95,7 +95,7 @@
                 <div class="flex justify-between pt-6 border-t border-gray-200">
                     <a href="{{ route('orders.wizard.sewing') }}" class="px-6 py-3 text-gray-600 hover:text-gray-900 text-sm">← Voltar</a>
                     <button type="submit" 
-                            class="px-8 py-3 bg-gray-800 text-white rounded-md hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm font-medium">
+                            class="px-8 py-3 bg-[#7c3aed] text-white rounded-md hover:bg-[#7c3aed] focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-sm font-medium">
                         Continuar →
                     </button>
                 </div>
@@ -110,7 +110,7 @@
             
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-900 mb-2">Local da Aplicação *</label>
-                <select id="modal-location" class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 bg-white">
+                <select id="modal-location" class="w-full rounded-md border-gray-300 shadow-sm focus:border-[#7c3aed] focus:ring-[#7c3aed] bg-white">
                     <option value="">Selecione</option>
                 </select>
             </div>
@@ -118,12 +118,12 @@
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-900 mb-2">Quantidade de Cores * (máx. 6)</label>
                 <div class="grid grid-cols-3 gap-2">
-                    <button type="button" onclick="selectColorCount(1)" class="color-btn p-3 border-2 border-gray-300 rounded hover:border-gray-500 bg-white" data-colors="1">1 Cor</button>
-                    <button type="button" onclick="selectColorCount(2)" class="color-btn p-3 border-2 border-gray-300 rounded hover:border-gray-500 bg-white" data-colors="2">2 Cores</button>
-                    <button type="button" onclick="selectColorCount(3)" class="color-btn p-3 border-2 border-gray-300 rounded hover:border-gray-500 bg-white" data-colors="3">3 Cores</button>
-                    <button type="button" onclick="selectColorCount(4)" class="color-btn p-3 border-2 border-gray-300 rounded hover:border-gray-500 bg-white" data-colors="4">4 Cores</button>
-                    <button type="button" onclick="selectColorCount(5)" class="color-btn p-3 border-2 border-gray-300 rounded hover:border-gray-500 bg-white" data-colors="5">5 Cores</button>
-                    <button type="button" onclick="selectColorCount(6)" class="color-btn p-3 border-2 border-gray-300 rounded hover:border-gray-500 bg-white" data-colors="6">6 Cores</button>
+                    <button type="button" onclick="selectColorCount(1)" class="color-btn p-3 border-2 border-gray-300 rounded hover:border-[#7c3aed] bg-white" data-colors="1">1 Cor</button>
+                    <button type="button" onclick="selectColorCount(2)" class="color-btn p-3 border-2 border-gray-300 rounded hover:border-[#7c3aed] bg-white" data-colors="2">2 Cores</button>
+                    <button type="button" onclick="selectColorCount(3)" class="color-btn p-3 border-2 border-gray-300 rounded hover:border-[#7c3aed] bg-white" data-colors="3">3 Cores</button>
+                    <button type="button" onclick="selectColorCount(4)" class="color-btn p-3 border-2 border-gray-300 rounded hover:border-[#7c3aed] bg-white" data-colors="4">4 Cores</button>
+                    <button type="button" onclick="selectColorCount(5)" class="color-btn p-3 border-2 border-gray-300 rounded hover:border-[#7c3aed] bg-white" data-colors="5">5 Cores</button>
+                    <button type="button" onclick="selectColorCount(6)" class="color-btn p-3 border-2 border-gray-300 rounded hover:border-[#7c3aed] bg-white" data-colors="6">6 Cores</button>
                 </div>
                 <input type="hidden" id="modal-color-count" value="1">
             </div>
@@ -132,17 +132,17 @@
                 <p class="text-sm font-semibold text-gray-900">Efeitos Especiais (+50% cada)</p>
                 <label class="flex items-center">
                     <input type="checkbox" id="modal-effect-dourado" onchange="updateModalPrices()"
-                           class="h-4 w-4 text-gray-800 focus:ring-gray-500 border-gray-300 rounded">
+                           class="h-4 w-4 text-[#7c3aed] focus:ring-[#7c3aed] border-gray-300 rounded">
                     <span class="ml-2 text-sm font-medium text-gray-900">Dourado</span>
                 </label>
                 <label class="flex items-center">
                     <input type="checkbox" id="modal-effect-prata" onchange="updateModalPrices()"
-                           class="h-4 w-4 text-gray-800 focus:ring-gray-500 border-gray-300 rounded">
+                           class="h-4 w-4 text-[#7c3aed] focus:ring-[#7c3aed] border-gray-300 rounded">
                     <span class="ml-2 text-sm font-medium text-gray-900">Prata</span>
                 </label>
                 <label class="flex items-center">
                     <input type="checkbox" id="modal-effect-neon" onchange="updateModalPrices()"
-                           class="h-4 w-4 text-gray-800 focus:ring-gray-500 border-gray-300 rounded">
+                           class="h-4 w-4 text-[#7c3aed] focus:ring-[#7c3aed] border-gray-300 rounded">
                     <span class="ml-2 text-sm font-medium text-gray-900">Neon</span>
                 </label>
             </div>
@@ -150,7 +150,7 @@
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-900 mb-2">Quantidade de Aplicações *</label>
                 <input type="number" id="modal-quantity" min="1" value="1" 
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 bg-white">
+                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-[#7c3aed] focus:ring-[#7c3aed] bg-white">
             </div>
 
             <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
@@ -166,7 +166,7 @@
                     Cancelar
                 </button>
                 <button type="button" onclick="addApplication()" 
-                        class="px-6 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900 text-sm font-medium">
+                        class="px-6 py-2 bg-[#7c3aed] text-white rounded-md hover:bg-[#7c3aed] text-sm font-medium">
                     Adicionar
                 </button>
             </div>
@@ -221,7 +221,7 @@
             const container = document.getElementById('size-buttons');
             container.innerHTML = sizes.map(size => `
                 <button type="button" onclick="openModal(${size.id})" 
-                        class="p-4 border-2 border-gray-300 rounded-lg hover:border-gray-500 hover:bg-gray-50 transition text-center bg-white">
+                        class="p-4 border-2 border-gray-300 rounded-lg hover:border-[#7c3aed] hover:bg-purple-50 transition text-center bg-white">
                     <div class="font-bold text-lg text-gray-900">${size.name}</div>
                     <div class="text-sm text-gray-600">${size.dimensions || ''}</div>
                     <div class="text-xs text-gray-800 mt-2" id="price-${size.id}">Carregando...</div>
@@ -255,9 +255,9 @@
             
             // Reset color buttons
             document.querySelectorAll('.color-btn').forEach(btn => {
-                btn.classList.remove('border-gray-800', 'bg-gray-100');
+                btn.classList.remove('border-[#7c3aed]', 'bg-purple-50');
             });
-            document.querySelector('[data-colors="1"]').classList.add('border-gray-800', 'bg-gray-100');
+            document.querySelector('[data-colors="1"]').classList.add('border-[#7c3aed]', 'bg-purple-50');
             
             fetch(`/api/sublimation-price/${sizeId}/${totalShirts}`)
                 .then(r => r.json())
@@ -281,9 +281,9 @@
             
             // Update button styles
             document.querySelectorAll('.color-btn').forEach(btn => {
-                btn.classList.remove('border-gray-800', 'bg-gray-100');
+                btn.classList.remove('border-[#7c3aed]', 'bg-purple-50');
             });
-            document.querySelector(`[data-colors="${count}"]`).classList.add('border-gray-800', 'bg-gray-100');
+            document.querySelector(`[data-colors="${count}"]`).classList.add('border-[#7c3aed]', 'bg-purple-50');
             
             updateModalPrices();
         }

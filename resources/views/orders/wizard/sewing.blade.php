@@ -34,27 +34,27 @@
     <div class="mb-6 sm:mb-8 animate-fade-in-up">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white rounded-xl sm:rounded-2xl flex items-center justify-center text-sm sm:text-base font-black shadow-xl shadow-indigo-500/30 animate-float">2</div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#7c3aed] text-white rounded-xl sm:rounded-2xl flex items-center justify-center text-sm sm:text-base font-black shadow-xl shadow-purple-500/30 animate-float">2</div>
                 <div>
-                    <span class="text-base sm:text-xl font-black text-gray-900 dark:text-white">Costura e <span class="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Personalização</span></span>
+                    <span class="text-base sm:text-xl font-black text-gray-900 dark:text-white">Costura e <span class="text-[#7c3aed]">Personalização</span></span>
                     <p class="text-[10px] sm:text-xs text-gray-500 dark:text-slate-400 mt-0.5 font-bold uppercase tracking-widest">Etapa 2 de 5</p>
                 </div>
             </div>
             <div class="flex items-center bg-white/80 dark:bg-slate-800/60 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-xl sm:rounded-2xl border border-gray-100 dark:border-slate-700 shadow-lg animate-slide-right">
                 <div class="text-right mr-3 sm:mr-4">
                     <div class="text-[9px] sm:text-[10px] text-gray-400 dark:text-slate-500 font-bold uppercase tracking-widest">Progresso</div>
-                    <div class="text-lg sm:text-2xl font-black text-indigo-600 dark:text-indigo-400 leading-none">40%</div>
+                    <div class="text-lg sm:text-2xl font-black text-[#7c3aed] dark:text-purple-400 leading-none">40%</div>
                 </div>
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-4 border-indigo-100 dark:border-indigo-900/30 flex items-center justify-center relative">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-4 border-purple-100 dark:border-purple-900/30 flex items-center justify-center relative">
                     <svg class="w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 36 36">
                         <path class="stroke-gray-200 dark:stroke-slate-700" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="stroke-indigo-600" stroke-dasharray="40, 100" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="stroke-[#7c3aed]" stroke-dasharray="40, 100" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                     </svg>
                 </div>
             </div>
         </div>
         <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-1.5 sm:h-2 shadow-inner overflow-hidden">
-            <div class="bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-500 h-full rounded-full transition-all duration-500 ease-out shadow-lg shadow-indigo-500/40" style="width: 40%"></div>
+            <div class="bg-[#7c3aed] h-full rounded-full transition-all duration-500 ease-out shadow-lg shadow-purple-500/40" style="width: 40%"></div>
         </div>
     </div>
 
@@ -88,7 +88,7 @@
                 <!-- Header Premium -->
                 <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-gray-50/80 to-white dark:from-slate-800/50 dark:to-slate-900/50">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#7c3aed] rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30">
                             <i class="fa-solid fa-plus text-white text-sm sm:text-base"></i>
                         </div>
                         <div>
@@ -107,26 +107,26 @@
                             <!-- Personalização -->
                             @if(!empty($preselectedTypes) && count($preselectedTypes) > 0)
                             <!-- Tipos já selecionados na etapa anterior - apenas mostrar -->
-                            <div class="p-5 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                            <div class="p-5 bg-gradient-to-r from-purple-50 to-purple-50 dark:from-purple-900/20 dark:to-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
                                 <div class="flex items-center justify-between mb-3">
                                     <label class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                                         <i class="fa-solid fa-check-circle text-green-500"></i>
                                         Personalização Selecionada
                                     </label>
-                                    <a href="{{ route('orders.wizard.personalization-type') }}" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
+                                    <a href="{{ route('orders.wizard.personalization-type') }}" class="text-xs text-[#7c3aed] dark:text-purple-400 hover:underline font-medium">
                                         <i class="fa-solid fa-pen text-[10px] mr-1"></i>Alterar
                                     </a>
                                 </div>
                                 <div class="flex flex-wrap gap-2">
                                     @php
                                         $typeLabels = [
-                                            'sub_local' => ['Sublimação Local', 'blue'],
+                                            'sub_local' => ['Sublimação Local', 'purple'],
                                             'serigrafia' => ['Serigrafia', 'purple'],
                                             'dtf' => ['DTF', 'orange'],
                                             'bordado' => ['Bordado', 'pink'],
                                             'emborrachado' => ['Emborrachado', 'green'],
                                             'lisas' => ['Lisas', 'gray'],
-                                            'sub_total' => ['Sublimação Total', 'indigo'],
+                                            'sub_total' => ['Sublimação Total', 'purple'],
                                         ];
                                     @endphp
                                     @foreach($preselectedTypes as $type)
@@ -157,12 +157,12 @@
                                 <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Tecido</label>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <div>
-                                        <select name="tecido" id="tecido" onchange="loadTiposTecido()" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">
+                                        <select name="tecido" id="tecido" onchange="loadTiposTecido()" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
                                             <option value="">Selecione o tecido</option>
                                         </select>
                                     </div>
                                     <div id="tipo-tecido-container" style="display:none">
-                                        <select name="tipo_tecido" id="tipo_tecido" onchange="onTipoTecidoChange()" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">
+                                        <select name="tipo_tecido" id="tipo_tecido" onchange="onTipoTecidoChange()" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
                                             <option value="">Selecione o tipo</option>
                                         </select>
                                     </div>
@@ -172,7 +172,7 @@
                             <!-- Cor -->
                             <div class="p-5 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
                                 <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Cor do Tecido *</label>
-                                <select name="cor" id="cor" onchange="updatePrice()" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">
+                                <select name="cor" id="cor" onchange="updatePrice()" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
                                     <option value="">Selecione a cor</option>
                                 </select>
                             </div>
@@ -181,16 +181,16 @@
                             <div class="p-5 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700 space-y-3">
                                 <label class="block text-sm font-semibold text-gray-900 dark:text-white">Modelo e Detalhes</label>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <select name="tipo_corte" id="tipo_corte" onchange="onTipoCorteChange()" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">
+                                    <select name="tipo_corte" id="tipo_corte" onchange="onTipoCorteChange()" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
                                         <option value="">Tipo de Corte *</option>
                                     </select>
                                     <div>
-                                        <select name="detalhe" id="detalhe" onchange="updatePrice()" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">
+                                        <select name="detalhe" id="detalhe" onchange="updatePrice()" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
                                             <option value="">Detalhe</option>
                                         </select>
                                         <div id="detail_color_container" style="display:none">
                                             <label class="block text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-slate-400 mt-2 mb-1 ml-1">Cor do Detalhe</label>
-                                            <select name="detail_color" id="detail_color" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">
+                                            <select name="detail_color" id="detail_color" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
                                                 <option value="">Selecione a cor</option>
                                                 @foreach($colors as $color)
                                                     <option value="{{ $color->id }}">{{ $color->name }}</option>
@@ -201,13 +201,13 @@
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <div class="space-y-1">
-                                        <select name="gola" id="gola" onchange="updatePrice()" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">
+                                        <select name="gola" id="gola" onchange="updatePrice()" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
                                             <option value="">Gola *</option>
                                         </select>
                                     </div>
                                     <div class="space-y-1">
                                         <label class="block text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-slate-400 mt-0.5 mb-1 ml-1">Cor da Gola</label>
-                                        <select name="collar_color" id="collar_color" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">
+                                        <select name="collar_color" id="collar_color" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
                                             <option value="">Selecione a cor</option>
                                             @foreach($colors as $color)
                                                 <option value="{{ $color->id }}">{{ $color->name }}</option>
@@ -223,66 +223,66 @@
                                 <div class="grid grid-cols-5 gap-2 mb-2">
                                     <div>
                                         <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">PP</label>
-                                        <input type="number" name="tamanhos[PP]" min="0" value="0" onchange="calculateTotal()" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
+                                        <input type="number" name="tamanhos[PP]" min="0" value="0" onchange="calculateTotal()" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
                                     </div>
                                     <div>
                                         <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">P</label>
-                                        <input type="number" name="tamanhos[P]" min="0" value="0" onchange="calculateTotal()" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
+                                        <input type="number" name="tamanhos[P]" min="0" value="0" onchange="calculateTotal()" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
                                     </div>
                                     <div>
                                         <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">M</label>
-                                        <input type="number" name="tamanhos[M]" min="0" value="0" onchange="calculateTotal()" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
+                                        <input type="number" name="tamanhos[M]" min="0" value="0" onchange="calculateTotal()" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
                                     </div>
                                     <div>
                                         <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">G</label>
-                                        <input type="number" name="tamanhos[G]" min="0" value="0" onchange="calculateTotal()" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
+                                        <input type="number" name="tamanhos[G]" min="0" value="0" onchange="calculateTotal()" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
                                     </div>
                                     <div>
                                         <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">GG</label>
-                                        <input type="number" name="tamanhos[GG]" min="0" value="0" onchange="calculateTotal()" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
+                                        <input type="number" name="tamanhos[GG]" min="0" value="0" onchange="calculateTotal()" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-5 gap-2 mb-3">
                                     <div>
                                         <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">EXG</label>
-                                        <input type="number" name="tamanhos[EXG]" min="0" value="0" onchange="calculateTotal()" class="size-input-restricted w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
+                                        <input type="number" name="tamanhos[EXG]" min="0" value="0" onchange="calculateTotal()" class="size-input-restricted w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
                                     </div>
                                     <div>
                                         <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">G1</label>
-                                        <input type="number" name="tamanhos[G1]" min="0" value="0" onchange="calculateTotal()" class="size-input-restricted w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
+                                        <input type="number" name="tamanhos[G1]" min="0" value="0" onchange="calculateTotal()" class="size-input-restricted w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
                                     </div>
                                     <div>
                                         <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">G2</label>
-                                        <input type="number" name="tamanhos[G2]" min="0" value="0" onchange="calculateTotal()" class="size-input-restricted w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
+                                        <input type="number" name="tamanhos[G2]" min="0" value="0" onchange="calculateTotal()" class="size-input-restricted w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
                                     </div>
                                     <div>
                                         <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">G3</label>
-                                        <input type="number" name="tamanhos[G3]" min="0" value="0" onchange="calculateTotal()" class="size-input-restricted w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
+                                        <input type="number" name="tamanhos[G3]" min="0" value="0" onchange="calculateTotal()" class="size-input-restricted w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
                                     </div>
                                     <div>
                                         <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">Especial</label>
-                                        <input type="number" name="tamanhos[Especial]" min="0" value="0" onchange="calculateTotal()" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
+                                        <input type="number" name="tamanhos[Especial]" min="0" value="0" onchange="calculateTotal()" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
                                     </div>
                                 </div>
                                 
                                 <!-- Checkbox para acréscimo independente (apenas para Infantil/Baby look) -->
                                 <div id="surcharge-checkbox-container" class="hidden mb-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                                     <label class="flex items-center cursor-pointer">
-                                        <input type="checkbox" name="apply_surcharge" id="apply_surcharge" value="1" class="w-4 h-4 text-indigo-600 dark:text-indigo-500 border-gray-300 dark:border-slate-600 rounded focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-slate-700">
+                                        <input type="checkbox" name="apply_surcharge" id="apply_surcharge" value="1" class="w-4 h-4 text-[#7c3aed] dark:text-[#7c3aed] border-gray-300 dark:border-slate-600 rounded focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] bg-white dark:bg-slate-700">
                                         <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Aplicar acréscimo de tamanho especial (independente do tamanho)</span>
                                     </label>
                                     <p class="text-xs text-gray-500 dark:text-slate-400 mt-1 ml-6">Marque esta opção se desejar cobrar o acréscimo mesmo sendo modelo Infantil ou Baby look.</p>
                                 </div>
-                                <div class="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                                <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
                                     <div class="flex items-center justify-between">
                                         <span class="text-sm font-semibold text-gray-700 dark:text-slate-300">Total de peças:</span>
-                                        <span class="text-xl font-bold text-indigo-600 dark:text-indigo-400" id="total-pecas">0</span>
+                                        <span class="text-xl font-bold text-[#7c3aed] dark:text-[#7c3aed]" id="total-pecas">0</span>
                                     </div>
                                 </div>
                                 <input type="hidden" name="quantity" id="quantity" value="0">
                                 
                                 <!-- Informações de Estoque por Tamanho -->
-                                <div id="stock-info-section" class="hidden mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <div id="stock-info-section" class="hidden mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
                                     <h6 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Estoque Disponível por Tamanho:</h6>
                                     <div id="stock-by-size" class="space-y-2">
                                         <!-- Será preenchido via JavaScript -->
@@ -313,7 +313,7 @@
                                             <input type="number" name="unit_cost" id="unit_cost" step="0.01" min="0" value="0.00" class="w-24 bg-transparent border-none text-white font-bold text-xl text-right focus:ring-0 p-0">
                                         </div>
                                     </div>
-                                    <div class="flex justify-between items-center p-3 bg-indigo-600 dark:bg-indigo-500 rounded-lg mt-2">
+                                    <div class="flex justify-between items-center p-3 bg-[#7c3aed] dark:bg-purple-500 rounded-lg mt-2">
                                         <span class="text-white font-bold">Valor Unitário:</span>
                                         <span class="font-bold text-white text-xl" id="price-total">R$ 0,00</span>
                                     </div>
@@ -362,7 +362,8 @@
                                 <a href="{{ isset($editData) ? route('orders.edit.client') : route('orders.wizard.client') }}" class="px-4 py-2 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white text-sm font-medium">
                                     ← Voltar
                                 </a>
-                                <button type="submit" id="submit-button" class="px-6 py-2.5 bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white font-semibold rounded-lg transition-all text-sm">
+                                <button type="submit" id="submit-button" style="color: white !important;" 
+                                        class="px-6 py-2.5 bg-[#7c3aed] text-white font-semibold rounded-lg transition-all text-sm">
                                     Adicionar Item
                                 </button>
                             </div>
@@ -650,12 +651,12 @@
             container.innerHTML = items.map(item => `
                 <label class="flex items-center px-3 py-2.5 border rounded-lg cursor-pointer transition-all ${
                     selectedPersonalizacoes.includes(item.id) 
-                        ? 'border-indigo-500 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' 
-                        : 'border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-indigo-300 dark:hover:border-indigo-600'
+                        ? 'border-[#7c3aed] dark:border-[#7c3aed] bg-purple-50 dark:bg-purple-900/20' 
+                        : 'border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-[#7c3aed] dark:hover:border-[#7c3aed]'
                 }">
                     <input type="checkbox" name="personalizacao[]" value="${item.id}" 
                            onchange="togglePersonalizacao(${item.id})"
-                           class="personalizacao-checkbox w-4 h-4 text-indigo-600 dark:text-indigo-500 border-gray-300 dark:border-slate-600 rounded focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-slate-700" ${selectedPersonalizacoes.includes(item.id) ? 'checked' : ''}>
+                           class="personalizacao-checkbox w-4 h-4 text-[#7c3aed] dark:text-[#7c3aed] border-gray-300 dark:border-slate-600 rounded focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] bg-white dark:bg-slate-700" ${selectedPersonalizacoes.includes(item.id) ? 'checked' : ''}>
                     <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">${item.name}</span>
                 </label>
             `).join('');

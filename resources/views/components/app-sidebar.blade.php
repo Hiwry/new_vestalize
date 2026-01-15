@@ -155,7 +155,8 @@
        class="fixed top-0 left-0 z-[60] h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 ease-in-out transform md:translate-x-0 shadow-xl md:shadow-none">
     
     <!-- Header do Sidebar com Botão Toggle -->
-    <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+    <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-300"
+         :class="expanded ? '' : 'justify-center px-0'">
         <div class="flex items-center overflow-hidden" x-show="expanded">
             @if(auth()->user()->tenant && auth()->user()->tenant->logo_path)
                 <img src="{{ Storage::url(auth()->user()->tenant->logo_path) }}" alt="Logo" class="h-8 w-auto object-contain">
@@ -165,11 +166,11 @@
                 </h1>
             @endif
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center" :class="expanded ? 'gap-2' : ''">
             <button @click="toggle()" 
-                    class="flex-shrink-0 p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 transition-all"
+                    class="flex-shrink-0 p-2.5 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all duration-200"
                     :class="expanded ? '' : 'mx-auto'">
-                <svg class="w-6 h-6 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
+                <svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
                      :class="expanded ? '' : 'rotate-180'">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
                 </svg>
@@ -182,13 +183,13 @@
         
         <!-- Dashboard (Always visible) -->
         <a href="{{ route('dashboard') }}" 
-           class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200 {{ request()->is('dashboard') ? 'bg-purple-600' : 'text-gray-400 hover:bg-purple-500/10 hover:text-purple-400' }}"
+           class="flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 {{ request()->is('dashboard') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-gray-500 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:text-purple-600 dark:hover:text-purple-400' }}"
            :class="expanded ? 'justify-start' : 'justify-center'"
            title="Dashboard">
             <svg class="flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
-            <span class="whitespace-nowrap overflow-hidden transition-all duration-300 ml-3"
+            <span class="whitespace-nowrap overflow-hidden transition-all duration-300 ml-3 font-semibold"
                   x-show="expanded">
                 Tela Inicial
             </span>
@@ -198,96 +199,60 @@
             <!-- Sidebar Simplificada para Estoque (Sem grupos) -->
             <!-- ... Itens estoque ... -->
              <a href="{{ route('stocks.index') }}" 
-               class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200 {{ request()->is('stocks*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30' : 'text-gray-400 hover:bg-purple-500/10 hover:text-purple-400' }}"
+               class="flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 {{ request()->is('stocks*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-gray-500 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:text-purple-600 dark:hover:text-purple-400' }}"
                :class="expanded ? 'justify-start' : 'justify-center'">
                <svg class="flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-                <span class="ml-3" x-show="expanded">Estoque</span>
+                <span class="ml-3 font-semibold" x-show="expanded">Estoque</span>
             </a>
              <a href="{{ route('stock-requests.index') }}" 
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200 {{ request()->routeIs('stock-requests.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30' : 'text-gray-400 hover:bg-purple-500/10 hover:text-purple-400' }}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 {{ request()->routeIs('stock-requests.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-gray-500 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:text-purple-600 dark:hover:text-purple-400' }}"
                 :class="expanded ? 'justify-start' : 'justify-center'">
                 <svg class="flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                 <span class="ml-3" x-show="expanded">Solicitações</span>
+                 <span class="ml-3 font-semibold" x-show="expanded">Solicitações</span>
              </a>
               <a href="{{ route('sewing-machines.index') }}" 
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200 {{ request()->routeIs('sewing-machines.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30' : 'text-gray-400 hover:bg-purple-500/10 hover:text-purple-400' }}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 {{ request()->routeIs('sewing-machines.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-gray-500 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:text-purple-600 dark:hover:text-purple-400' }}"
                 :class="expanded ? 'justify-start' : 'justify-center'">
                 <svg class="flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
-                 <span class="ml-3" x-show="expanded">Máq. Costura</span>
+                 <span class="ml-3 font-semibold" x-show="expanded">Máq. Costura</span>
              </a>
               <a href="{{ route('production-supplies.index') }}" 
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200 {{ request()->routeIs('production-supplies.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30' : 'text-gray-400 hover:bg-purple-500/10 hover:text-purple-400' }}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 {{ request()->routeIs('production-supplies.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-gray-500 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:text-purple-600 dark:hover:text-purple-400' }}"
                 :class="expanded ? 'justify-start' : 'justify-center'">
                 <svg class="flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-                 <span class="ml-3" x-show="expanded">Suprimentos</span>
+                 <span class="ml-3 font-semibold" x-show="expanded">Suprimentos</span>
              </a>
               <a href="{{ route('uniforms.index') }}" 
-                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200 {{ request()->routeIs('uniforms.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30' : 'text-gray-400 hover:bg-purple-500/10 hover:text-purple-400' }}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 {{ request()->routeIs('uniforms.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-gray-500 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:text-purple-600 dark:hover:text-purple-400' }}"
                 :class="expanded ? 'justify-start' : 'justify-center'">
                 <svg class="flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                 <span class="ml-3" x-show="expanded">Uniformes/EPI</span>
+                 <span class="ml-3 font-semibold" x-show="expanded">Uniformes/EPI</span>
              </a>
         @else
             <!-- Sidebar Completa com Grupos -->
             
             <div class="mt-2 text-nowrap">
-                <button @click="toggleGroup('vendas')"
-                        class="flex items-center w-full px-3 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group"
-                        :class="expanded ? 'justify-between' : 'justify-center'">
-                    <div class="flex items-center">
-                        <svg class="flex-shrink-0 h-5 w-5 text-gray-500 group-hover:text-blue-600 dark:text-gray-400 dark:group-hover:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        <span class="ml-3" x-show="expanded">Vendas</span>
-                    </div>
-                    <svg x-show="expanded" class="w-4 h-4 transition-transform duration-200" :class="openGroups.vendas ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                </button>
-                
-                <div x-show="openGroups.vendas && expanded" x-collapse x-cloak class="space-y-1 mt-1 bg-transparent dark:bg-gray-900/10 rounded-md overflow-hidden">
-                    <a href="{{ route('orders.index') }}" class="flex items-center pl-10 pr-3 py-2.5 text-sm transition {{ request()->routeIs('orders.*') ? 'bg-purple-600' : 'text-gray-400 hover:text-white hover:bg-purple-500/10' }}">
-                        
-                        Pedidos
-                    </a>
-                    <a href="{{ route('budget.index') }}" class="flex items-center pl-10 pr-3 py-2.5 text-sm transition {{ request()->routeIs('budget.*') ? 'bg-purple-600' : 'text-gray-400 hover:text-white hover:bg-purple-500/10' }}">
-                        
-                        Orçamentos
-                    </a>
-                    @if(Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('external_quote'))
-                    <a href="{{ route('admin.quote-settings.index') }}" class="flex items-center pl-10 pr-3 py-2.5 text-sm transition {{ request()->routeIs('admin.quote-settings.*') ? 'bg-purple-600' : 'text-gray-400 hover:text-white hover:bg-purple-500/10' }}">
-                        
-                        Link de Orçamento
-                    </a>
-                    @endif
-                    @if((Auth::user()->isVendedor() || Auth::user()->isAdmin()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('pdv')))
-                    <a href="{{ route('pdv.index') }}" class="flex items-center pl-10 pr-3 py-2.5 text-sm transition {{ request()->routeIs('pdv.*') ? 'bg-purple-600' : 'text-gray-400 hover:text-white hover:bg-purple-500/10' }}">
-                        
-                        PDV
-                    </a>
-                    @endif
-                    <a href="{{ route('clients.index') }}" class="flex items-center pl-10 pr-3 py-2.5 text-sm transition {{ request()->routeIs('clients.*') ? 'bg-purple-600' : 'text-gray-400 hover:text-white hover:bg-purple-500/10' }}">
-                        
-                        Clientes
-                    </a>
-                    @if(Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('kanban'))
-                    <a href="{{ route('kanban.index') }}" class="flex items-center pl-10 pr-3 py-2.5 text-sm transition {{ request()->routeIs('kanban.*') ? 'bg-purple-600' : 'text-gray-400 hover:text-white hover:bg-purple-500/10' }}">
-                        
-                        Kanban
-                    </a>
-                    @endif
-                </div>
+                <a href="{{ route('sales.index') }}"
+                   class="flex items-center w-full px-3 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 {{ request()->routeIs('sales.index') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-gray-500 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:text-purple-600 dark:hover:text-purple-400' }}"
+                   :class="expanded ? 'justify-start' : 'justify-center'">
+                    <svg class="flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span class="ml-3" x-show="expanded">Vendas</span>
+                </a>
             </div>
 
             <!-- GRUPO: ESTOQUE -->
              @if((Auth::user()->isAdmin() || Auth::user()->isEstoque() || Auth::user()->isVendedor()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('stock')))
-            <div class="mt-1">
+             <div class="mt-1">
                 <button @click="toggleGroup('estoque')"
-                        class="flex items-center w-full px-3 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group"
+                        class="flex items-center w-full px-3 py-2.5 text-sm font-medium text-gray-500 dark:text-gray-400 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-200 group"
                         :class="expanded ? 'justify-between' : 'justify-center'">
                     <div class="flex items-center">
-                        <svg class="flex-shrink-0 h-5 w-5 text-gray-500 group-hover:text-blue-600 dark:text-gray-400 dark:group-hover:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-purple-600 dark:text-gray-500 dark:group-hover:text-purple-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                         </svg>
-                        <span class="ml-3" x-show="expanded">Estoque</span>
+                        <span class="ml-3 font-semibold" x-show="expanded">Estoque</span>
                     </div>
                     <svg x-show="expanded" class="w-4 h-4 transition-transform duration-200" :class="openGroups.estoque ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </button>
@@ -324,16 +289,16 @@
             @endif
 
             <!-- GRUPO: CATÃLOGO (Apenas Admin) -->
-            @if(Auth::user()->isAdmin())
+             @if(Auth::user()->isAdmin())
             <div class="mt-1">
                 <button @click="toggleGroup('catalogo')"
-                        class="flex items-center w-full px-3 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group"
+                        class="flex items-center w-full px-3 py-2.5 text-sm font-medium text-gray-500 dark:text-gray-400 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-200 group"
                         :class="expanded ? 'justify-between' : 'justify-center'">
                     <div class="flex items-center">
-                        <svg class="flex-shrink-0 h-5 w-5 text-gray-500 group-hover:text-blue-600 dark:text-gray-400 dark:group-hover:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-purple-600 dark:text-gray-500 dark:group-hover:text-purple-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                         </svg>
-                        <span class="ml-3" x-show="expanded">Catálogo</span>
+                        <span class="ml-3 font-semibold" x-show="expanded">Catálogo</span>
                     </div>
                     <svg x-show="expanded" class="w-4 h-4 transition-transform duration-200" :class="openGroups.catalogo ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </button>
@@ -370,16 +335,16 @@
             @endif
 
             <!-- GRUPO: PRODUÃÃO -->
-            @if(Auth::user()->isProducao() || Auth::user()->isAdmin())
+             @if(Auth::user()->isProducao() || Auth::user()->isAdmin())
             <div class="mt-1">
                 <button @click="toggleGroup('producao')"
-                        class="flex items-center w-full px-3 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group"
+                        class="flex items-center w-full px-3 py-2.5 text-sm font-medium text-gray-500 dark:text-gray-400 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-200 group"
                         :class="expanded ? 'justify-between' : 'justify-center'">
                     <div class="flex items-center">
-                        <svg class="flex-shrink-0 h-5 w-5 text-gray-500 group-hover:text-blue-600 dark:text-gray-400 dark:group-hover:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-purple-600 dark:text-gray-500 dark:group-hover:text-purple-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                         </svg>
-                        <span class="ml-3" x-show="expanded">Produção</span>
+                        <span class="ml-3 font-semibold" x-show="expanded">Produção</span>
                     </div>
                     <svg x-show="expanded" class="w-4 h-4 transition-transform duration-200" :class="openGroups.producao ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </button>
@@ -398,16 +363,16 @@
             @endif
 
             <!-- GRUPO: FINANCEIRO -->
-            @if((Auth::user()->isAdmin() || Auth::user()->isCaixa()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('financial')))
+             @if((Auth::user()->isAdmin() || Auth::user()->isCaixa()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('financial')))
             <div class="mt-1">
                 <button @click="toggleGroup('financeiro')"
-                        class="flex items-center w-full px-3 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group"
+                        class="flex items-center w-full px-3 py-2.5 text-sm font-medium text-gray-500 dark:text-gray-400 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-200 group"
                         :class="expanded ? 'justify-between' : 'justify-center'">
                     <div class="flex items-center">
-                        <svg class="flex-shrink-0 h-5 w-5 text-gray-500 group-hover:text-green-600 dark:text-gray-400 dark:group-hover:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-purple-600 dark:text-gray-500 dark:group-hover:text-purple-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span class="ml-3" x-show="expanded">Financeiro</span>
+                        <span class="ml-3 font-semibold" x-show="expanded">Financeiro</span>
                     </div>
                     <svg x-show="expanded" class="w-4 h-4 transition-transform duration-200" :class="openGroups.financeiro ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </button>
@@ -524,16 +489,16 @@
             </div>
             @endif
 
-            <!-- GRUPO: SISTEMA -->
+             <!-- GRUPO: SISTEMA -->
             <div class="mt-1">
                  <button @click="toggleGroup('sistema')"
-                        class="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group"
+                        class="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-200 group"
                         :class="expanded ? 'justify-between' : 'justify-center'">
                     <div class="flex items-center">
-                        <svg class="flex-shrink-0 h-5 w-5 text-gray-500 group-hover:text-purple-600 dark:text-gray-400 dark:group-hover:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-purple-600 dark:text-gray-500 dark:group-hover:text-purple-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <span class="ml-3" x-show="expanded">Sistema</span>
+                        <span class="ml-3 font-semibold" x-show="expanded">Sistema</span>
                     </div>
                     <svg x-show="expanded" class="w-4 h-4 transition-transform duration-200" :class="openGroups.sistema ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </button>

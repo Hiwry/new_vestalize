@@ -245,23 +245,23 @@
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Kanban de Produção</h1>
-                <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <div class="text-sm text-gray-700 mt-1 dark:text-gray-500">
                     Total de Pedidos: <strong>{{ $ordersByStatus->flatten()->count() }}</strong>
                 </div>
             </div>
 
             <div class="flex items-center gap-3">
                 <!-- View Toggle -->
-                <div class="flex items-center bg-gray-100 dark:bg-gray-800 p-1 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center bg-white border border-gray-200 p-1 rounded-full shadow-sm dark:bg-[#0f111a] dark:border-[#1d2331]">
                     <button @click="view = 'kanban'" 
-                            :class="{ 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm': view === 'kanban', 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300': view !== 'kanban' }"
-                            class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-2">
+                            :class="{ 'bg-gray-100 text-gray-900 shadow dark:bg-[#1b1f2b] dark:text-white': view === 'kanban', 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200': view !== 'kanban' }"
+                            class="px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                         Kanban
                     </button>
                     <button @click="view = 'calendar'" 
-                            :class="{ 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm': view === 'calendar', 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300': view !== 'calendar' }"
-                            class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-2">
+                            :class="{ 'bg-gray-100 text-gray-900 shadow dark:bg-[#1b1f2b] dark:text-white': view === 'calendar', 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200': view !== 'calendar' }"
+                            class="px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         Calendário
                     </button>
@@ -269,49 +269,54 @@
 
                 @if(Auth::user()->isAdmin())
                 <a href="{{ route('kanban.columns.index') }}" 
-                   class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 flex items-center space-x-2 shadow-sm">
+                   class="px-4 py-2 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] text-white dark:text-white rounded-full hover:from-[#8b5cf6] hover:to-[#7c3aed] flex items-center space-x-2 shadow-md">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
-                    <span>Gerenciar Colunas</span>
+                    <span class="text-white">Gerenciar Colunas</span>
                 </a>
                 @endif
             </div>
         </div>
 
         <!-- Barra de Busca e Filtros -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-4 md:p-6 mb-4 md:mb-6">
-            <form method="GET" action="{{ route('kanban.index') }}" class="space-y-3 md:space-y-4">
+        <div class="rounded-2xl p-5 md:p-6 mb-6 animate-fade-in-down border border-gray-200 bg-white shadow-[0_12px_40px_-24px_rgba(0,0,0,0.08)] dark:border-[#1d2331] dark:bg-[#0d111a] dark:shadow-[0_12px_40px_-24px_rgba(0,0,0,0.8)]">
+            <form method="GET" action="{{ route('kanban.index') }}" class="space-y-4">
                 <!-- Busca -->
-                <div class="flex gap-2 md:gap-3">
-                    <div class="flex-1">
+                <div class="flex flex-col md:flex-row gap-3">
+                    <div class="flex-1 relative group">
+                        <div class="absolute left-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-gray-500 group-focus-within:text-gray-900 dark:group-focus-within:text-white transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
                         <input type="text" 
                                name="search" 
                                id="search-input"
                                value="{{ $search ?? '' }}"
                                placeholder="Buscar por nº do pedido..." 
-                               class="w-full px-3 md:px-4 py-2 md:py-2.5 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition text-sm md:text-base">
+                               class="w-full pl-12 pr-4 h-[52px] rounded-full border border-gray-200 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition-all text-sm md:text-base dark:border-[#1f2533] dark:bg-[#0a0d15] dark:text-gray-100">
                     </div>
                     <button type="submit" 
-                            class="px-4 md:px-6 py-2 md:py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 whitespace-nowrap font-semibold transition shadow-md hover:shadow-lg flex items-center gap-1 md:gap-2 text-sm md:text-base">
-                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            class="px-6 md:px-10 py-3 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] text-white dark:text-white rounded-full hover:from-[#8b5cf6] hover:to-[#7c3aed] whitespace-nowrap font-bold transition-all shadow-lg shadow-purple-700/30 flex items-center justify-center gap-2 text-sm md:text-base">
+                        <span class="text-white">Buscar Pedido</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                         </svg>
-                        <span class="hidden sm:inline">Buscar</span>
                     </button>
                 </div>
                 
                 <!-- Filtros -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                        <label class="block text-xs font-semibold text-gray-600 mb-2 flex items-center gap-2 uppercase tracking-wide dark:text-gray-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                             </svg>
                             Tipo de Personalização
                         </label>
-                        <select name="personalization_type" class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                        <select name="personalization_type" class="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white text-gray-900 focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition dark:border-[#1f2533] dark:bg-[#0a0d15] dark:text-gray-100">
                             <option value="">Todas as Personalizações</option>
                             @foreach($personalizationTypes ?? [] as $key => $name)
                                 <option value="{{ $key }}" {{ request('personalization_type') == $key ? 'selected' : '' }}>
@@ -324,7 +329,7 @@
                     <div class="flex items-end gap-2">
                         @if($search || request('personalization_type'))
                         <a href="{{ route('kanban.index') }}" 
-                           class="w-full px-6 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 whitespace-nowrap transition font-semibold flex items-center justify-center gap-2">
+                           class="w-full px-6 py-2.5 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 whitespace-nowrap transition font-semibold flex items-center justify-center gap-2 border border-gray-200 dark:bg-[#111724] dark:text-gray-200 dark:hover:bg-[#131a29] dark:border-[#1f2533]">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -334,13 +339,18 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                        <label class="block text-xs font-semibold text-gray-600 mb-2 flex items-center gap-2 uppercase tracking-wide dark:text-gray-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             Data de entrega
                         </label>
-                        <input type="date" name="delivery_date" value="{{ $deliveryDateFilter ?? request('delivery_date') }}" class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                        <div class="relative">
+                            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <input type="date" name="delivery_date" value="{{ $deliveryDateFilter ?? request('delivery_date') }}" class="w-full pl-12 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-gray-900 focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition placeholder-gray-500 dark:border-[#1f2533] dark:bg-[#0a0d15] dark:text-gray-100">
+                        </div>
                     </div>
                 </div>
                 
@@ -451,17 +461,27 @@
         </div>
         @endif
 
-        <div x-show="view === 'kanban'" class="kanban-board flex gap-3 md:gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+        <div x-show="view === 'kanban'" class="kanban-board flex gap-4 md:gap-6 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide">
             @foreach($statuses as $status)
-                <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex-shrink-0 overflow-hidden shadow-sm snap-start" style="min-width: 280px; max-width: 280px;">
-                    <div class="px-3 md:px-4 py-2 md:py-3 font-semibold flex justify-between items-center text-white text-sm md:text-base" 
-                         style="background-color: {{ $status->color }};">
-                        <span class="truncate">{{ $status->name }}</span>
-                        <span class="bg-white/20 px-2 py-0.5 md:py-1 rounded-full text-xs shrink-0 ml-2">
-                            {{ ($ordersByStatus[$status->id] ?? collect())->count() }}
+                @php
+                    // Gerar um gradiente baseado na cor do status
+                    $baseColor = $status->color ?? '#6366f1';
+                    $isBlue = str_contains($baseColor, '3b82f6') || str_contains($baseColor, 'blue');
+                    $gradient = "linear-gradient(135deg, {$baseColor}, " . ($status->color_secondary ?? $baseColor) . ")";
+                @endphp
+                <div class="glass-card rounded-xl flex-shrink-0 overflow-hidden snap-start border border-gray-200 flex flex-col transition-all duration-300 bg-white dark:border-white/5 dark:bg-[rgba(18,24,34,0.95)]" style="min-width: 320px; max-width: 320px;">
+                    <div class="px-5 py-4 font-bold flex flex-col justify-center text-gray-800 relative dark:text-gray-100">
+                        <div class="flex items-center justify-between mb-1">
+                             <span class="truncate tracking-wider uppercase text-[12px] font-black text-gray-800 dark:text-gray-100">{{ $status->name }}</span>
+                             <button class="text-gray-500 hover:text-white transition-colors">
+                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                             </button>
+                        </div>
+                        <span class="text-[11px] font-medium text-gray-600 dark:text-gray-500">
+                            {{ ($ordersByStatus[$status->id] ?? collect())->count() }} {{ ($ordersByStatus[$status->id] ?? collect())->count() === 1 ? 'cartão corresponde' : 'cartões correspondem' }} aos filtros
                         </span>
                     </div>
-                    <div class="kanban-column p-2 md:p-3 space-y-2 md:space-y-3 overflow-y-auto bg-gray-50 dark:bg-gray-900/50" style="height: calc(100vh - 350px); max-height: 600px;" data-status-id="{{ $status->id }}">
+                    <div class="kanban-column p-4 space-y-4 overflow-y-auto bg-transparent scrollbar-thin" style="height: calc(100vh - 400px); min-height: 500px;" data-status-id="{{ $status->id }}">
                         @foreach(($ordersByStatus[$status->id] ?? collect()) as $order)
                             @php
                                 $firstItem = $order->items->first();
@@ -469,6 +489,13 @@
                                 $artName = $firstItem?->art_name;
                                 $displayName = $artName ?? ($order->client?->name ?? 'Sem cliente');
                                 $storeName = $order->store?->name ?? 'Loja Principal';
+                                $filesCount = $order->items->sum(fn($item) => $item->files->count());
+                                $printType = $firstItem?->print_type ?? 'Sem personalização';
+                                $entryDate = $order->entry_date 
+                                    ? \Carbon\Carbon::parse($order->entry_date) 
+                                    : ($order->created_at ? \Carbon\Carbon::parse($order->created_at) : null);
+                                $deliveryDate = $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date) : null;
+                                $quantityTotal = $order->items->sum('quantity');
                                 
                                 // Verificar se tem sublimação local (para vendas PDV)
                                 $hasSublocal = false;
@@ -492,220 +519,145 @@
                                     }
                                 }
                             @endphp
-                            <div class="kanban-card {{ $order->is_event ? 'bg-red-50 dark:bg-red-900/20 border-red-400 dark:border-red-500 border-4' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700' }} shadow dark:shadow-gray-900/25 rounded-lg overflow-hidden {{ Auth::user()->isAdmin() ? 'cursor-move' : 'cursor-pointer' }} hover:shadow-xl dark:hover:shadow-gray-900/50 transition-all duration-200 border" 
+                            <div class="kanban-card group/card bg-white border border-gray-200 text-gray-900 rounded-xl overflow-hidden {{ Auth::user()->isAdmin() ? 'cursor-move' : 'cursor-pointer' }} hover:bg-gray-50 transition-all duration-200 shadow-sm dark:bg-[#22272e] dark:border-[#373e47] dark:text-gray-100 dark:hover:bg-[#2d333b]" 
                                  draggable="{{ Auth::user()->isAdmin() ? 'true' : 'false' }}" 
                                  data-order-id="{{ $order->id }}"
                                  onclick="event.stopPropagation(); if(typeof openOrderModal === 'function') { openOrderModal({{ $order->id }}); }">
                                 
-                                {{-- Imagem de Capa - Menor no mobile --}}
+                                {{-- Imagem de Capa --}}
                                 @if($coverImage)
-                                <div class="h-32 md:h-40 bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                                    <img src="{{ $coverImage }}" 
-                                         alt="Capa do Pedido" 
-                                         class="w-full h-full object-cover"
-                                         onerror="this.parentElement.innerHTML='<div class=\'h-32 md:h-40 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center\'><svg class=\'w-10 h-10 text-white opacity-50\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg></div>'">
-                                </div>
-                                @else
-                                <div class="h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                                    <svg class="w-12 h-12 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
+                                <div class="px-2 pt-2">
+                                    <div class="h-44 bg-gray-100 overflow-hidden rounded-lg border border-gray-200 dark:bg-[#0b1221] dark:border-[#0b1221]">
+                                        <img src="{{ $coverImage }}" 
+                                             alt="Capa do Pedido" 
+                                             class="w-full h-full object-cover"
+                                             onerror="this.parentElement.innerHTML='<div class=\'h-full w-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center\'><svg class=\'w-12 h-12 text-white/10\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg></div>'">
+                                    </div>
                                 </div>
                                 @endif
 
                                 <!-- Conteúdo do Card -->
-                                <div class="p-4">
-                                    <!-- Número do Pedido e Cliente -->
-                                    <div class="mb-3">
-                                            <div class="flex items-center justify-between mb-1">
-                                            <div class="flex items-center space-x-2">
-                                                <a href="{{ route('orders.show', $order->id) }}" 
-                                                   class="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded hover:bg-indigo-100 dark:hover:bg-indigo-900/50 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">
-                                                    #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
-                                                </a>
-                                                @if($order->edit_status === 'requested')
-                                                <span class="text-xs font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 px-2 py-1 rounded-full">
-                                                    Aguardando Aprovação
-                                                </span>
-                                                @elseif($order->edit_status === 'approved')
-                                                <span class="text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 px-2 py-1 rounded-full">
-                                                    Aprovado
-                                                </span>
-                                                @elseif($order->edit_status === 'rejected')
-                                                <span class="text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 px-2 py-1 rounded-full">
-                                                    Rejeitado
-                                                </span>
-                                                @elseif($order->is_modified)
-                                                <span class="text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-1 rounded-full">
-                                                    Editado
-                                                </span>
-                                                @endif
-                                                
-                                                @if($order->is_event)
-                                                <span class="text-xs font-medium bg-red-500 dark:bg-red-600 text-white px-2 py-1 rounded-full">
-                                                    EVENTO
-                                                </span>
-                                                @endif
-                                                
-                                                @if($order->stock_status)
-                                                @php
-                                                    $stockLabel = \App\Services\StockService::getStockStatusLabel($order->stock_status);
-                                                @endphp
-                                                <span class="text-xs font-semibold inline-flex items-center gap-1 px-2.5 py-1 rounded-full border
-                                                    @if($order->stock_status === 'total') bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-200 dark:border-green-700
-                                                    @elseif($order->stock_status === 'partial') bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-200 dark:border-yellow-700
-                                                    @elseif($order->stock_status === 'none') bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-200 dark:border-red-700
-                                                    @elseif($order->stock_status === 'reserved') bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-200 dark:border-blue-700
-                                                    @else bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 @endif">
-                                                    {{ $stockLabel['label'] }}
-                                                </span>
-                                                @endif
-                                                
-                                                <!-- Indicadores de Cancelamento e Edição -->
-                                                @if($order->has_pending_cancellation)
-                                                <span class="text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 px-2 py-1 rounded-full">
-                                                    Cancelamento Pendente
-                                                </span>
-                                                @elseif($order->is_cancelled)
-                                                <span class="text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-2 py-1 rounded-full">
-                                                    Cancelado
-                                                </span>
-                                                @endif
-                                                
-                                                @if($order->has_pending_edit)
-                                                <span class="text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 px-2 py-1 rounded-full">
-                                                    Edição Pendente
-                                                </span>
-                                                @endif
-                                                
-                                                @if($order->last_updated_at && $order->last_updated_at > $order->updated_at)
-                                                <span class="text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 px-2 py-1 rounded-full">
-                                                    Atualizado
-                                                </span>
-                                                @endif
-                                            </div>
-                                            <span class="text-xs text-gray-500 dark:text-gray-400">
-                                                {{ $order->items->sum('quantity') }} pçs
+                                <div class="p-3 space-y-3">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <span class="px-2 py-1 bg-gray-100 text-gray-900 rounded-md text-[11px] font-semibold border border-gray-200 dark:bg-[#111827] dark:text-gray-200 dark:border-[#2f3844]">
+                                                #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
                                             </span>
+                                            @if($order->edit_status === 'requested')
+                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-orange-500/20 text-orange-200 border border-orange-400/40">Editado</span>
+                                            @endif
+                                            @if($order->stock_status === 'none')
+                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-red-100 text-red-700 border border-red-200 dark:bg-red-500/20 dark:text-red-200 dark:border-red-400/40">Sem estoque</span>
+                                            @elseif($order->stock_status === 'partial')
+                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-yellow-100 text-yellow-700 border border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-100 dark:border-yellow-400/40">Estoque parcial</span>
+                                            @elseif($order->stock_status === 'total')
+                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-green-100 text-green-700 border border-green-200 dark:bg-green-500/15 dark:text-green-200 dark:border-green-400/30">Estoque ok</span>
+                                            @endif
+                                            @if($order->is_event)
+                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-purple-500/20 text-purple-200 border border-purple-400/40">Evento</span>
+                                            @endif
                                         </div>
-                                        <h3 class="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate" title="{{ $displayName }}">
-                                            {{ $displayName }}
-                                        </h3>
-                                        @if($storeName)
-                                        <div class="flex items-center text-xs text-indigo-700 dark:text-indigo-400 mt-1">
-                                            <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9-4 9 4-9 4-9-4zm0 6l9 4 9-4m-9 4v6" />
+                                        <div class="flex items-center gap-1 text-gray-600 text-[11px] dark:text-gray-400">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
                                             </svg>
-                                            <span class="truncate" title="{{ $storeName }}">
-                                                <strong>Loja:</strong> {{ $storeName }}
-                                            </span>
+                                            <span>{{ $filesCount }} arq.</span>
                                         </div>
-                                        @endif
                                     </div>
 
-                                    <!-- Informações do Produto -->
-                                    @if($firstItem)
-                                    <div class="space-y-2 mb-3 text-xs">
-                                        <div class="flex items-center text-gray-600 dark:text-gray-400">
-                                            <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
-                                            </svg>
-                                            <span class="truncate" title="{{ $firstItem->fabric }}">
-                                                <strong>Tecido:</strong> {{ $firstItem->fabric }}
-                                            </span>
-                                        </div>
+                                    <!-- Indicadores de status -->
+                                    <div class="flex gap-1">
+                                        @if($order->stock_status === 'total')
+                                            <div class="w-8 h-1.5 rounded-full bg-green-500" title="Estoque Total"></div>
+                                        @elseif($order->stock_status === 'partial')
+                                            <div class="w-8 h-1.5 rounded-full bg-yellow-500" title="Estoque Parcial"></div>
+                                        @elseif($order->stock_status === 'none')
+                                            <div class="w-8 h-1.5 rounded-full bg-red-500" title="Sem Estoque"></div>
+                                        @endif
 
-                                        @if($firstItem->model)
-                                        <div class="flex items-center text-gray-600 dark:text-gray-400">
-                                            <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z"></path>
-                                            </svg>
-                                            <span class="truncate" title="{{ $firstItem->model }}">
-                                                <strong>Corte:</strong> {{ $firstItem->model }}
-                                            </span>
-                                        </div>
+                                        @if($order->edit_status === 'requested')
+                                            <div class="w-8 h-1.5 rounded-full bg-orange-500" title="Edição Pendente"></div>
+                                        @endif
+
+                                        @if($order->is_event)
+                                            <div class="w-8 h-1.5 rounded-full bg-purple-500" title="Evento"></div>
                                         @endif
                                         
-                                        <!-- Sublimação Local (apenas para vendas PDV) -->
-                                        @if($order->is_pdv && $hasSublocal && !empty($sublocalInfo))
-                                        <div class="mt-2 pt-2 border-t border-indigo-200 dark:border-indigo-700">
-                                            <div class="flex items-center text-indigo-700 dark:text-indigo-400 mb-1">
-                                                <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
-                                                </svg>
-                                                <strong class="text-xs">Sublimação Local:</strong>
-                                            </div>
-                                            @foreach($sublocalInfo as $sublocal)
-                                            <div class="text-xs text-indigo-600 dark:text-indigo-400 ml-5">
-                                                • {{ $sublocal['location'] }}
-                                                @if($sublocal['size'])
-                                                - {{ $sublocal['size'] }}
-                                                @endif
-                                                ({{ $sublocal['quantity'] }}x)
-                                            </div>
-                                            @endforeach
-                                        </div>
-                                        @endif
-
-                                        @if($firstItem->print_type)
-                                        <div class="flex items-center text-gray-600 dark:text-gray-400">
-                                            <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
-                                            </svg>
-                                            <span class="truncate" title="{{ $firstItem->print_type }}">
-                                                <strong>Personalização:</strong> {{ $firstItem->print_type }}
-                                            </span>
-                                        </div>
-                                        @endif
+                                        <div class="w-8 h-1.5 rounded-full bg-[#444c56]"></div>
                                     </div>
-                                    @endif
-
-                                    <!-- Vendedor e Criador -->
-                                    <div class="mb-3 space-y-1">
-                                        @if($order->seller)
-                                        <div class="flex items-center text-xs text-gray-600 dark:text-gray-400">
-                                            <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                            </svg>
-                                            <span class="truncate" title="{{ $order->seller }}">
-                                                <strong>Vendedor:</strong> {{ $order->seller }}
-                                            </span>
-                                        </div>
-                                        @endif
+                                    
+                                    <!-- Informações Texto -->
+                                    <div class="space-y-1">
+                                        <h3 class="font-bold text-gray-900 text-[13px] leading-[1.3] dark:text-gray-100">
+                                            {{ $displayName }}
+                                        </h3>
+                                        <p class="text-xs text-gray-600 flex items-center gap-2 dark:text-gray-400">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9-4 9 4-9 4-9-4zm9 4v9"></path></svg>
+                                            <span class="truncate">{{ $storeName }}</span>
+                                        </p>
                                     </div>
 
-                                    <!-- Datas -->
-                                    <div class="border-t border-gray-200 dark:border-gray-700 pt-3 space-y-1 text-xs text-gray-600 dark:text-gray-400">
-                                        @if($order->created_at)
-                                        <div class="flex items-center">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <span><strong>Pedido:</strong> {{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y') }}</span>
+                                    <div class="grid grid-cols-1 gap-1 text-[11px] text-gray-600 dark:text-gray-300">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                                            <span class="text-gray-800 font-semibold dark:text-gray-200">Tecido:</span>
+                                            <span class="truncate">{{ $firstItem?->fabric ?? 'N/A' }}</span>
                                         </div>
-                                        @endif
-
-                                        @if($order->delivery_date)
-                                        <div class="flex items-center text-orange-600 dark:text-orange-400">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                            </svg>
-                                            <span><strong>Entrega:</strong> {{ \Carbon\Carbon::parse($order->delivery_date)->format('d/m/Y') }}</span>
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422A12.083 12.083 0 0118 20.944a12.08 12.08 0 01-6 1.722 12.08 12.08 0 01-6-1.722A12.083 12.083 0 015.84 10.578L12 14z"></path></svg>
+                                            <span class="text-gray-800 font-semibold dark:text-gray-200">Gola:</span>
+                                            <span class="truncate">{{ $firstItem?->collar ?? 'N/A' }}</span>
                                         </div>
-                                        @endif
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"></path></svg>
+                                            <span class="text-gray-800 font-semibold dark:text-gray-200">Corte:</span>
+                                            <span class="truncate">{{ $firstItem?->model ?? 'N/A' }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h8M8 11h8m-6 4h6"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                            <span class="text-gray-800 font-semibold dark:text-gray-200">Personalização:</span>
+                                            <span class="truncate">{{ $printType }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2a3 3 0 00-.879-2.121M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2a3 3 0 01.879-2.121M12 12a4 4 0 100-8 4 4 0 000 8z"></path></svg>
+                                            <span class="text-gray-800 font-semibold dark:text-gray-200">Vendedor:</span>
+                                            <span class="truncate">{{ $order->user?->name ?? 'Sem vendedor' }}{{ $order->store ? ' - ' . $order->store->name : '' }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9 4 9-4M4 10v6l8 4 8-4v-6"></path></svg>
+                                            <span class="text-gray-800 font-semibold dark:text-gray-200">Qtd:</span>
+                                            <span>{{ $quantityTotal }} unid</span>
+                                        </div>
                                     </div>
 
-                                    <!-- Total -->
-                                    <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-xs text-gray-600 dark:text-gray-400">Total:</span>
-                                            <span class="text-sm font-bold text-green-600 dark:text-green-400">
+                                    <!-- Footer do Card -->
+                                    <div class="flex items-start justify-between text-[11px] font-medium text-gray-600 border-t border-gray-200 pt-3 dark:text-gray-400 dark:border-[#2f3844]">
+                                        <div class="space-y-1">
+                                            @if($entryDate)
+                                                <div class="flex items-center gap-1">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                    </svg>
+                                                    <span>Pedido: {{ $entryDate->format('d/m/Y') }}</span>
+                                                </div>
+                                            @endif
+                                            @if($deliveryDate)
+                                                <div class="flex items-center gap-1 text-amber-300">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                    <span>Entrega: {{ $deliveryDate->format('d/m/Y') }}</span>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        
+                                        <div class="text-right space-y-1">
+                                            <span class="block text-[12px] text-gray-400">Total</span>
+                                            <div class="text-emerald-500 font-bold text-base">
                                                 R$ {{ number_format($order->total, 2, ',', '.') }}
-                                            </span>
+                                            </div>
                                         </div>
                                     </div>
-
-                                    <!-- Botões de Ação -->
                                 </div>
                             </div>
                         @endforeach

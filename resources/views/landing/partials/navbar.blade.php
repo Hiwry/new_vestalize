@@ -42,7 +42,7 @@
             <a href="{{ route('login') }}" class="hidden lg:block text-sm text-muted hover:text-white font-medium transition-colors">
                 Login
             </a>
-            <a href="{{ route('register') }}" class="btn-primary text-sm py-2 px-4">
+            <a href="{{ route('register.public') }}" class="btn-primary text-sm py-2 px-4">
                 Teste Grátis
             </a>
             

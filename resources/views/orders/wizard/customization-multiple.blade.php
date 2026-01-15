@@ -12,7 +12,7 @@
         <div class="mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 dark:from-indigo-600 dark:to-indigo-700 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-500/20 dark:shadow-indigo-600/20">3</div>
+                    <div class="w-10 h-10 bg-[#7c3aed] text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">3</div>
                     <div>
                         <span class="text-lg font-bold text-gray-900 dark:text-white">Personalização</span>
                         <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa 3 de 5</p>
@@ -20,11 +20,11 @@
                 </div>
                 <div class="text-left sm:text-right">
                     <div class="text-xs text-gray-500 dark:text-slate-400 font-medium">Progresso</div>
-                    <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">60%</div>
+                    <div class="text-2xl font-bold text-[#7c3aed] dark:text-[#a78bfa]">60%</div>
                 </div>
             </div>
             <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-2.5 shadow-inner">
-                <div class="bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-500 dark:to-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out shadow-lg shadow-indigo-500/30 dark:shadow-indigo-600/30" style="width: 60%"></div>
+                <div class="bg-gradient-to-r from-[#7c3aed] to-[#7c3aed] dark:from-[#7c3aed] dark:to-[#7c3aed] h-2.5 rounded-full transition-all duration-500 ease-out shadow-lg shadow-[#7c3aed]/30 dark:shadow-[#7c3aed]/30" style="width: 60%"></div>
             </div>
         </div>
 
@@ -32,19 +32,19 @@
             
             <!-- Header -->
             <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-gray-50 to-white dark:from-slate-800/50 dark:to-slate-900/50">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 dark:from-indigo-600 dark:to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20 dark:shadow-indigo-600/20">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h1 class="text-xl font-bold text-gray-900 dark:text-white">Personalizações</h1>
-                            <p class="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Configure as personalizações de cada item</p>
-                        </div>
+                <div class="flex items-center space-x-3">
+                    <div class="flex items-center">
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                             <div class="w-8 h-8 bg-[#7c3aed] rounded-lg flex items-center justify-center shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                </svg>
+                            </div>
+                            Personalizações
+                        </h1>
                     </div>
                 </div>
+                <p class="text-sm text-gray-500 dark:text-slate-400 mt-1 pl-10">Configure as personalizações de cada item</p>
             </div>
 
             <!-- Content - Formulário de Arte -->
@@ -53,14 +53,14 @@
                 <input type="hidden" name="action" value="save_order_art">
                 
                 <!-- Card do Formulário -->
-                <div class="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800/40 dark:to-slate-800/20 rounded-xl border border-gray-200/80 dark:border-slate-700/50 p-5">
+                <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm">
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
                         
                         <!-- Nome da Arte -->
                         <div class="lg:col-span-4">
                             <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                                <div class="w-6 h-6 bg-indigo-100 dark:bg-indigo-900/30 rounded flex items-center justify-center">
-                                    <svg class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="w-6 h-6 bg-purple-100 dark:bg-purple-900/30 rounded flex items-center justify-center">
+                                    <svg class="w-3.5 h-3.5 text-[#7c3aed] dark:text-[#a78bfa]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                                     </svg>
                                 </div>
@@ -68,7 +68,7 @@
                             </label>
                             <input id="order_art_name" type="text" name="order_art_name" value="{{ $order->items->first()?->art_name }}" 
                                    placeholder="Ex: Logo Cliente, Frente PV"
-                                   class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all">
+                                   class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] focus:border-transparent transition-all">
                         </div>
                         
                         <!-- Arquivos -->
@@ -84,7 +84,7 @@
                             </label>
                             <div class="relative">
                                 <input id="order_art_files" type="file" name="order_art_files[]" multiple accept=".cdr,.pdf,.ai,.eps"
-                                       class="w-full text-sm text-gray-600 dark:text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 dark:file:bg-emerald-900/30 dark:file:text-emerald-400 hover:file:bg-emerald-100 dark:hover:file:bg-emerald-900/50 cursor-pointer border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500">
+                                       class="w-full text-sm text-gray-600 dark:text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 dark:file:bg-emerald-900/30 dark:file:text-emerald-400 hover:file:bg-emerald-100 dark:hover:file:bg-emerald-900/50 cursor-pointer border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-[#7c3aed]">
                             </div>
                         </div>
                         
@@ -99,7 +99,7 @@
                                 Aplicar no Item
                             </label>
                             <select id="order_art_item" name="item_id" 
-                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all">
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] focus:border-transparent transition-all">
                                 @foreach($order->items as $item)
                                     <option value="{{ $item->id }}" {{ $loop->first ? 'selected' : '' }}>
                                         Item {{ $item->item_number }} • {{ $item->quantity }} peças • {{ $item->fabric }}
@@ -110,7 +110,7 @@
                         
                         <!-- Botão -->
                         <div class="lg:col-span-1 flex items-end">
-                            <button type="submit" class="w-full px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-500 dark:to-indigo-600 text-white rounded-lg shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:from-indigo-700 hover:to-indigo-600 transition-all font-semibold text-sm flex items-center justify-center gap-2">
+                            <button type="submit" class="w-full px-4 py-2.5 bg-gradient-to-r from-[#7c3aed] to-[#7c3aed] dark:from-[#7c3aed] dark:to-[#7c3aed] text-white rounded-lg shadow-lg shadow-[#7c3aed]/25 hover:shadow-[#7c3aed]/40 hover:from-[#7c3aed] hover:to-[#7c3aed] transition-all font-semibold text-sm flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
@@ -153,7 +153,9 @@
                         <div class="bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/10 rounded-xl p-4 border border-blue-100 dark:border-blue-800/50">
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-8 h-8 bg-blue-500/20 dark:bg-blue-400/20 rounded-lg flex items-center justify-center">
-                                    <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                                    <svg class="w-5 h-5 text-white dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7.5l8.5-4.25a2 2 0 011.8 0L22 7.5l-8.7 4.35a2 2 0 01-1.8 0L3 7.5zm0 9l8.5 4.25a2 2 0 001.8 0L22 16.5m-19-6l8.5 4.25a2 2 0 001.8 0L22 10.5" />
+                                    </svg>
                                 </div>
                                 <p class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Total de Itens</p>
                             </div>
@@ -162,7 +164,7 @@
                         <div class="bg-gradient-to-br from-violet-50 to-violet-100/50 dark:from-violet-900/20 dark:to-violet-800/10 rounded-xl p-4 border border-violet-100 dark:border-violet-800/50">
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-8 h-8 bg-violet-500/20 dark:bg-violet-400/20 rounded-lg flex items-center justify-center">
-                                    <svg class="w-4 h-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                                    <i class="fa-solid fa-tag text-violet-600 dark:text-violet-400"></i>
                                 </div>
                                 <p class="text-xs font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wide">Total de Peças</p>
                             </div>
@@ -190,7 +192,7 @@
                         <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-900/20 dark:to-emerald-800/10 rounded-xl p-4 border border-emerald-100 dark:border-emerald-800/50">
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-8 h-8 bg-emerald-500/20 dark:bg-emerald-400/20 rounded-lg flex items-center justify-center">
-                                    <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <i class="fa-solid fa-circle-dollar-to-slot text-emerald-600 dark:text-emerald-400"></i>
                                 </div>
                                 <p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Total Aplicações</p>
                             </div>
@@ -200,7 +202,7 @@
                         <div class="bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-900/20 dark:to-amber-800/10 rounded-xl p-4 border border-amber-100 dark:border-amber-800/50">
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-8 h-8 bg-amber-500/20 dark:bg-amber-400/20 rounded-lg flex items-center justify-center">
-                                    <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                    <i class="fa-solid fa-calculator text-amber-600 dark:text-amber-400"></i>
                                 </div>
                                 <p class="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wide">Custo por Peça</p>
                             </div>
@@ -228,7 +230,7 @@
                                         <h3 class="font-semibold text-gray-900 dark:text-white">Item {{ $item->item_number }}</h3>
                                         <p class="text-sm text-gray-600 dark:text-slate-400 mt-0.5">{{ $item->quantity }} peças • {{ $item->fabric }} • {{ $item->color }}</p>
                                     </div>
-                                    <span class="text-xs px-2.5 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-md font-medium">
+                                    <span class="text-xs px-2.5 py-1 bg-purple-100 dark:bg-purple-900/30 text-[#7c3aed] dark:text-[#a78bfa] rounded-md font-medium">
                                         {{ count($persIds) }} {{ count($persIds) == 1 ? 'personalização' : 'personalizações' }}
                                     </span>
                                 </div>
@@ -252,11 +254,11 @@
                                         </div>
                                         <div>
                                             <span class="text-gray-500 dark:text-slate-400">Total:</span>
-                                            <span class="font-semibold text-indigo-600 dark:text-indigo-400 ml-1">R$ {{ number_format($itemTotalApplications, 2, ',', '.') }}</span>
+                                            <span class="font-semibold text-[#7c3aed] dark:text-[#a78bfa] ml-1">R$ {{ number_format($itemTotalApplications, 2, ',', '.') }}</span>
                                         </div>
                                         <div>
                                             <span class="text-gray-500 dark:text-slate-400">Por peça:</span>
-                                            <span class="font-semibold text-indigo-600 dark:text-indigo-400 ml-1">R$ {{ number_format($itemAvgPerPiece, 2, ',', '.') }}</span>
+                                            <span class="font-semibold text-[#7c3aed] dark:text-[#a78bfa] ml-1">R$ {{ number_format($itemAvgPerPiece, 2, ',', '.') }}</span>
                                         </div>
                                     </div>
                                 @endif
@@ -275,7 +277,7 @@
                                             <p class="text-xs font-semibold text-gray-600 dark:text-slate-400 mb-2">Arquivos enviados</p>
                                             <div class="flex flex-wrap gap-2">
                                                 @foreach($item->files as $file)
-                                                    <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="inline-flex items-center px-2.5 py-1 text-xs bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-md border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-800/70 transition">
+                                                    <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="inline-flex items-center px-2.5 py-1 text-xs bg-purple-50 dark:bg-purple-900/30 text-[#7c3aed] dark:text-[#a78bfa] rounded-md border border-purple-100 dark:border-purple-800 hover:bg-purple-100 dark:hover:bg-purple-800/70 transition">
                                                         {{ $file->file_name }}
                                                     </a>
                                                 @endforeach
@@ -313,8 +315,8 @@
                                         <!-- Tipo de Personalização -->
                                         <div class="flex items-center justify-between mb-4">
                                             <div class="flex items-center space-x-2">
-                                                <div class="w-6 h-6 bg-indigo-100 dark:bg-indigo-900/30 rounded flex items-center justify-center">
-                                                    <svg class="w-3 h-3 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <div class="w-6 h-6 bg-purple-100 dark:bg-purple-900/30 rounded flex items-center justify-center">
+                                                    <svg class="w-3 h-3 text-[#7c3aed] dark:text-[#a78bfa]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                     </svg>
                                                 </div>
@@ -323,7 +325,7 @@
                                             <button 
                                                 type="button"
                                                 onclick="openPersonalizationModal({{ $item->id }}, '{{ $persName }}', {{ $persId }})"
-                                                class="text-sm px-3 py-1.5 bg-indigo-600 dark:bg-indigo-500 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors font-medium">
+                                                class="text-sm px-3 py-1.5 bg-[#7c3aed] text-white rounded-lg hover:bg-[#7c3aed] transition-colors font-medium">
                                                 + Adicionar
                                             </button>
                                         </div>
@@ -347,7 +349,7 @@
                                                                         <span class="text-gray-700 dark:text-slate-300"><strong class="dark:text-white">Cores:</strong> {{ $pers->color_count }}</span>
                                                                     @endif
                                                                     @if($pers->final_price > 0)
-                                                                        <span class="text-indigo-600 dark:text-indigo-400 font-semibold">R$ {{ number_format($pers->final_price, 2, ',', '.') }}</span>
+                                                                        <span class="text-[#7c3aed] dark:text-[#a78bfa] font-semibold">R$ {{ number_format($pers->final_price, 2, ',', '.') }}</span>
                                                                     @else
                                                                         <span class="text-red-600 dark:text-red-400 font-semibold">R$ 0,00</span>
                                                                     @endif
@@ -357,7 +359,7 @@
                                                             <button 
                                                                 type="button"
                                                                 onclick="editPersonalization({{ $pers->id }})"
-                                                                class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                                                                class="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
                                                                 title="Editar personalização">
                                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -416,7 +418,7 @@
                         ← Voltar
                     </a>
                     <a href="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.payment') : route('orders.wizard.payment') }}" 
-                       class="px-6 py-2.5 text-sm bg-indigo-600 dark:bg-indigo-500 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 font-semibold transition-all">
+                       class="px-6 py-2.5 text-sm bg-[#7c3aed] text-white rounded-lg hover:opacity-90 font-semibold transition-all">
                         Continuar →
                     </a>
                 </div>
@@ -430,10 +432,10 @@
         <div class="bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-700/50 animate-slideUp">
             
             <!-- Modal Header com gradiente e ícone -->
-            <div class="px-6 py-5 border-b border-slate-700/50 flex items-center justify-between sticky top-0 bg-gradient-to-r from-indigo-600/20 via-slate-900 to-slate-900 z-10 backdrop-blur-sm">
+            <div class="px-6 py-5 border-b border-slate-700/50 flex items-center justify-between sticky top-0 bg-gradient-to-r from-purple-600/20 via-slate-900 to-slate-900 z-10 backdrop-blur-sm">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center ring-1 ring-indigo-500/30">
-                        <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center ring-1 ring-purple-500/30">
+                        <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                         </svg>
                     </div>
@@ -462,13 +464,13 @@
                     <!-- Localização (oculto para SUB. TOTAL) -->
                     <div id="locationField">
                         <label class="flex items-center gap-2 text-sm font-semibold text-slate-200 mb-2">
-                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
                             Localização
                         </label>
-                        <select id="location" name="location" class="w-full px-4 py-3 border border-slate-600 rounded-xl bg-slate-800 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all cursor-pointer" data-required-for="!SUB. TOTAL">
+                        <select id="location" name="location" class="w-full px-4 py-3 border border-slate-600 rounded-xl bg-slate-800 text-white focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition-all cursor-pointer" data-required-for="!SUB. TOTAL">
                             <option value="">Selecione...</option>
                             @foreach($locations as $location)
                                 <option value="{{ $location->id }}">{{ $location->name }}</option>
@@ -479,12 +481,12 @@
                     <!-- Tamanho (oculto para SUB. TOTAL) -->
                     <div id="sizeField">
                         <label class="flex items-center gap-2 text-sm font-semibold text-slate-200 mb-2">
-                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
                             </svg>
                             Tamanho
                         </label>
-                        <select id="size" name="size" class="w-full px-4 py-3 border border-slate-600 rounded-xl bg-slate-800 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all cursor-pointer" data-required-for="!SUB. TOTAL">
+                        <select id="size" name="size" class="w-full px-4 py-3 border border-slate-600 rounded-xl bg-slate-800 text-white focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition-all cursor-pointer" data-required-for="!SUB. TOTAL">
                             <option value="">Selecione...</option>
                         </select>
                     </div>
@@ -537,13 +539,13 @@
                 <!-- Quantidade (oculto para SUB. TOTAL) -->
                 <div id="quantityField">
                     <label class="flex items-center gap-2 text-sm font-semibold text-slate-200 mb-2">
-                        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
                         </svg>
                         Quantidade
                     </label>
                     <input type="number" id="quantity" name="quantity" min="1" value="1"
-                           class="w-full px-4 py-3 border border-slate-600 rounded-xl bg-slate-800 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" data-required-for="!SUB. TOTAL">
+                           class="w-full px-4 py-3 border border-slate-600 rounded-xl bg-slate-800 text-white focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition-all" data-required-for="!SUB. TOTAL">
                     <p class="mt-1.5 text-xs text-slate-400">Quantidade de peças para esta aplicação</p>
                 </div>
 
@@ -565,10 +567,10 @@
 
                 <!-- Preço Calculado -->
                 <div id="priceDisplay" class="hidden">
-                    <div class="bg-gradient-to-r from-indigo-600/20 to-purple-600/10 border border-indigo-500/30 rounded-xl p-5 ring-1 ring-indigo-500/20">
+                    <div class="bg-gradient-to-r from-purple-600/20 to-purple-600/10 border border-purple-500/30 rounded-xl p-5 ring-1 ring-purple-500/20">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 <span class="text-sm font-semibold text-slate-300">Preço por Aplicação:</span>
@@ -595,7 +597,7 @@
                         Imagem da Arte (opcional) 
                         <span class="text-xs font-normal text-gray-500 dark:text-slate-400 ml-1">(Cole com Ctrl+V)</span>
                     </label>
-                    <div id="application_image_dropzone" class="relative border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors bg-white dark:bg-slate-800">
+                    <div id="application_image_dropzone" class="relative border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-colors bg-white dark:bg-slate-800">
                         <input type="file" id="application_image" name="application_image" accept="image/*"
                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                onchange="handleApplicationImageChange(this)">
@@ -646,7 +648,7 @@
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Detalhes das Cores (opcional)</label>
                     <textarea id="color_details" name="color_details" rows="2" 
                               placeholder="Ex: Verde limão, Azul marinho, Branco, etc."
-                              class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all"></textarea>
+                              class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all"></textarea>
                     <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">Especifique as cores exatas que serão utilizadas na aplicação</p>
                 </div>
 
@@ -655,7 +657,7 @@
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Observações do Vendedor (opcional)</label>
                     <textarea id="seller_notes" name="seller_notes" rows="3" 
                               placeholder="Ex: Aplicar com cuidado, cliente pediu urgência, etc."
-                              class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all"></textarea>
+                              class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all"></textarea>
                     <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">Informações importantes para a produção</p>
                 </div>
 
@@ -668,7 +670,7 @@
                             Cancelar
                         </button>
                         <button type="submit" 
-                                class="px-6 py-2.5 text-sm bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white rounded-xl font-semibold transition-all shadow-lg shadow-indigo-900/30 flex items-center gap-2">
+                                class="px-6 py-2.5 text-sm bg-gradient-to-r from-[#7c3aed] to-[#7c3aed] hover:from-[#7c3aed] hover:to-[#7c3aed] text-white rounded-xl font-semibold transition-all shadow-lg shadow-purple-900/30 flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
@@ -754,8 +756,8 @@
             }
 
             if (files.length) {
-                const fileLinks = files.map(file => `<a href=\"${file.url}\" target=\"_blank\" class=\"inline-flex items-center px-2.5 py-1 text-xs bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-md border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-800/70 transition\">${file.name}</a>`).join(' ');
-                html += `<div class=\"space-y-2\"><p class=\"text-xs font-semibold text-gray-600 dark:text-slate-400\">Arquivos enviados</p><div class=\"flex flex-wrap gap-2\">${fileLinks}</div></div>`;
+                const fileLinks = files.map(file => `<a href="${file.url}" target="_blank" class="inline-flex items-center px-2.5 py-1 text-xs bg-purple-50 dark:bg-purple-900/30 text-[#7c3aed] dark:text-purple-300 rounded-md border border-purple-100 dark:border-purple-800 hover:bg-purple-100 dark:hover:bg-purple-800/70 transition">${file.name}</a>`).join(' ');
+                html += `<div class="space-y-2"><p class="text-xs font-semibold text-gray-600 dark:text-slate-400">Arquivos enviados</p><div class="flex flex-wrap gap-2">${fileLinks}</div></div>`;
             }
 
             if (!html) {
@@ -1188,8 +1190,8 @@
             if (artFilesPlaceholderEl) artFilesPlaceholderEl.style.opacity = '1';
             const artFilesDropzoneEl = document.getElementById('art_files_dropzone');
             if (artFilesDropzoneEl) {
-                artFilesDropzoneEl.classList.remove('border-indigo-400', 'dark:border-indigo-500', 'bg-indigo-100/30', 'dark:bg-indigo-900/20');
-                artFilesDropzoneEl.classList.add('border-indigo-200', 'dark:border-indigo-800');
+                artFilesDropzoneEl.classList.remove('border-[#7c3aed]', 'dark:border-[#7c3aed]', 'bg-purple-100/30', 'dark:bg-purple-900/20');
+                artFilesDropzoneEl.classList.add('border-purple-200', 'dark:border-purple-800');
             }
         }
 
@@ -1254,20 +1256,20 @@
                     const sizeUnit = fileSize > 1024 ? ((fileSize / 1024).toFixed(2) + ' MB') : (fileSize + ' KB');
                     
                     const fileDiv = document.createElement('div');
-                    fileDiv.className = 'flex items-center justify-between bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-3 border border-indigo-200 dark:border-indigo-800';
+                    fileDiv.className = 'flex items-center justify-between bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3 border border-purple-200 dark:border-purple-800';
                     fileDiv.innerHTML = `
                         <div class="flex items-center space-x-3 flex-1 min-w-0">
                             <div class="flex-shrink-0">
-                                <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-8 h-8 text-[#7c3aed] dark:text-[#a78bfa]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-indigo-900 dark:text-indigo-100 truncate">${file.name}</p>
-                                <p class="text-xs text-indigo-700 dark:text-indigo-400">${sizeUnit}</p>
+                                <p class="text-sm font-medium text-purple-900 dark:text-purple-100 truncate">${file.name}</p>
+                                <p class="text-xs text-purple-700 dark:text-purple-400">${sizeUnit}</p>
                             </div>
                         </div>
-                        <div class="flex-shrink-0 ml-3 text-indigo-600 dark:text-indigo-400">
+                        <div class="flex-shrink-0 ml-3 text-[#7c3aed] dark:text-[#a78bfa]">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
@@ -1278,16 +1280,16 @@
                 
                 // Atualizar borda
                 if (artFilesDropzone) {
-                    artFilesDropzone.classList.remove('border-indigo-200', 'dark:border-indigo-800');
-                    artFilesDropzone.classList.add('border-indigo-400', 'dark:border-indigo-500', 'bg-indigo-100/30', 'dark:bg-indigo-900/20');
+                    artFilesDropzone.classList.remove('border-purple-200', 'dark:border-purple-800');
+                    artFilesDropzone.classList.add('border-[#7c3aed]', 'dark:border-[#7c3aed]', 'bg-purple-100/30', 'dark:bg-purple-900/20');
                 }
                 
             } else {
                 // Restaurar placeholder
                 if (artFilesPlaceholder) artFilesPlaceholder.style.opacity = '1';
                 if (artFilesDropzone) {
-                    artFilesDropzone.classList.remove('border-indigo-400', 'dark:border-indigo-500', 'bg-indigo-100/30', 'dark:bg-indigo-900/20');
-                    artFilesDropzone.classList.add('border-indigo-200', 'dark:border-indigo-800');
+                    artFilesDropzone.classList.remove('border-[#7c3aed]', 'dark:border-[#7c3aed]', 'bg-purple-100/30', 'dark:bg-purple-900/20');
+                    artFilesDropzone.classList.add('border-purple-200', 'dark:border-purple-800');
                 }
             }
         }
@@ -1353,7 +1355,7 @@
                 if (addon.charge_type === 'percentage' && addon.percentage > 0) {
                     return `<span class="text-emerald-400 font-bold">+${addon.percentage}%</span>`;
                 } else if (addon.price_adjustment > 0) {
-                    return `<span class="text-blue-400 font-bold">+R$ ${addon.price_adjustment.toFixed(2).replace('.', ',')}</span>`;
+                    return `<span class="text-[#7c3aed] font-bold">+R$ ${addon.price_adjustment.toFixed(2).replace('.', ',')}</span>`;
                 } else if (addon.price_adjustment < 0) {
                     return `<span class="text-green-400 font-bold">-R$ ${Math.abs(addon.price_adjustment).toFixed(2).replace('.', ',')}</span>`;
                 }
@@ -1504,7 +1506,7 @@
                 if (chargeType === 'percentage' && addonPercentage > 0) {
                     priceDisplay = `<span class="text-emerald-400 font-semibold">+${addonPercentage}%</span>`;
                 } else if (addonPrice > 0) {
-                    priceDisplay = `<span class="text-blue-400 font-semibold">+R$ ${addonPrice.toFixed(2).replace('.', ',')}</span>`;
+                    priceDisplay = `<span class="text-[#7c3aed] font-semibold">+R$ ${addonPrice.toFixed(2).replace('.', ',')}</span>`;
                 } else if (addonPrice < 0) {
                     priceDisplay = `<span class="text-green-400 font-semibold">-R$ ${Math.abs(addonPrice).toFixed(2).replace('.', ',')}</span>`;
                 }
@@ -2030,7 +2032,7 @@
             
             // Criar novo indicador
             const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'loading-indicator fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-md shadow-lg z-50';
+            loadingDiv.className = 'loading-indicator fixed top-4 right-4 bg-[#7c3aed] text-white px-4 py-2 rounded-md shadow-lg z-50';
             loadingDiv.innerHTML = `
                 <div class="flex items-center space-x-2">
                     <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -2081,7 +2083,7 @@
             
             if (personalizationCard) {
                 const typeText = personalizationCard.querySelector('.font-medium')?.textContent;
-                const priceText = personalizationCard.querySelector('.text-indigo-600')?.textContent;
+                const priceText = personalizationCard.querySelector('.text-[#7c3aed]')?.textContent;
                 if (typeText) info = `<strong>${typeText}</strong>`;
                 if (priceText) info += `<br><span class="text-gray-600">${priceText}</span>`;
             }
@@ -2338,9 +2340,9 @@
                 
                 // Optional: visual feedback
                 const dropzone = document.getElementById('application_image_dropzone');
-                dropzone.classList.add('ring-2', 'ring-indigo-500', 'ring-offset-2');
+                dropzone.classList.add('ring-2', 'ring-[#7c3aed]', 'ring-offset-2');
                 setTimeout(() => {
-                    dropzone.classList.remove('ring-2', 'ring-indigo-500', 'ring-offset-2');
+                    dropzone.classList.remove('ring-2', 'ring-[#7c3aed]', 'ring-offset-2');
                 }, 200);
             }
         });

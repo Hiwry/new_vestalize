@@ -2,7 +2,7 @@
 <div id="sublimation-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm overflow-y-auto">
     <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl max-w-2xl w-full border border-gray-200 dark:border-slate-700 my-8 max-h-[90vh] overflow-y-auto">
         <!-- Header -->
-        <div class="px-6 py-4 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 sticky top-0 z-10">
+        <div class="px-6 py-4 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/40 sticky top-0 z-10">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">

@@ -5,11 +5,11 @@
         <!-- Progress Bar -->
         <div class="mb-8">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-indigo-600">Etapa 3 de 5</span>
+                <span class="text-sm font-medium text-[#7c3aed]">Etapa 3 de 5</span>
                 <span class="text-sm text-gray-500">Personalização - DTF</span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2">
-                <div class="bg-indigo-600 h-2 rounded-full" style="width: 60%"></div>
+                <div class="bg-[#7c3aed] h-2 rounded-full" style="width: 60%"></div>
             </div>
         </div>
 
@@ -33,7 +33,7 @@
                 <div class="mb-6">
                     <label for="art_name" class="block text-sm font-medium text-gray-700 mb-2">Nome da Arte *</label>
                     <input type="text" id="art_name" name="art_name" required
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-[#7c3aed] focus:ring-[#7c3aed]"
                            placeholder="Ex: Logo Empresa XYZ">
                 </div>
 
@@ -42,7 +42,7 @@
                 <div class="mb-6">
                     <label for="art_files" class="block text-sm font-medium text-gray-700 mb-2">Arquivos da Arte (múltiplos) *</label>
                     <input type="file" id="art_files" name="art_files[]" multiple
-                           required class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                           required class="w-full rounded-md border-gray-300 shadow-sm focus:border-[#7c3aed] focus:ring-[#7c3aed]"
                            onchange="displayFileList()">
                     <p class="text-xs text-gray-500 mt-1">Você pode selecionar múltiplos arquivos (AI, PDF, PNG, JPG, etc) - Obrigatório pelo menos 1 arquivo</p>
                     <div id="file-list" class="mt-3 space-y-2"></div>
@@ -79,7 +79,7 @@
                 <div class="flex justify-between pt-4">
                     <a href="{{ route('orders.wizard.sewing') }}" class="px-4 py-2 text-gray-600 hover:text-gray-900">← Voltar</a>
                     <button type="submit" 
-                            class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            class="px-6 py-2 bg-[#7c3aed] text-white rounded-md hover:bg-[#7c3aed] focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
                         Continuar →
                     </button>
                 </div>
@@ -94,7 +94,7 @@
             
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Local da Aplicação *</label>
-                <select id="modal-location" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                <select id="modal-location" class="w-full rounded-md border-gray-300 shadow-sm focus:border-[#7c3aed] focus:ring-[#7c3aed]">
                     <option value="">Selecione</option>
                 </select>
             </div>
@@ -102,7 +102,7 @@
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Quantidade de Aplicações *</label>
                 <input type="number" id="modal-quantity" min="1" value="1" 
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-[#7c3aed] focus:ring-[#7c3aed]">
             </div>
 
             <div class="bg-gray-50 rounded p-3 mb-4">
@@ -116,7 +116,7 @@
                     Cancelar
                 </button>
                 <button type="button" onclick="addApplication()" 
-                        class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                        class="px-4 py-2 bg-[#7c3aed] text-white rounded-md hover:bg-[#7c3aed]">
                     Adicionar
                 </button>
             </div>
@@ -156,10 +156,10 @@
             const container = document.getElementById('size-buttons');
             container.innerHTML = sizes.map(size => `
                 <button type="button" onclick="openModal(${size.id})" 
-                        class="p-4 border-2 border-gray-300 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition text-center">
+                        class="p-4 border-2 border-gray-300 rounded-lg hover:border-[#7c3aed] hover:bg-purple-50 transition text-center">
                     <div class="font-bold text-lg">${size.name}</div>
                     <div class="text-sm text-gray-600">${size.dimensions || ''}</div>
-                    <div class="text-xs text-indigo-600 mt-2" id="price-${size.id}">Carregando...</div>
+                    <div class="text-xs text-[#7c3aed] mt-2" id="price-${size.id}">Carregando...</div>
                 </button>
             `).join('');
 

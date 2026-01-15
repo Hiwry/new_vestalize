@@ -7,7 +7,8 @@
         <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Gerencie e acompanhe todas as ordens de serviço</p>
     </div>
     <a href="{{ route('orders.wizard.start') }}" 
-       class="w-full md:w-auto px-6 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 transition-all text-center shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 flex items-center justify-center gap-2 group">
+       style="color: white !important;"
+       class="w-full md:w-auto px-6 py-3 bg-[#7c3aed] text-white font-bold rounded-xl transition-all text-center shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 group">
         <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
         </svg>
@@ -42,7 +43,8 @@
                                name="search" 
                                value="{{ $search }}"
                                placeholder="Nº do pedido, cliente, telefone ou nome da arte..."
-                               class="w-full pl-12 pr-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium">
+                               style="padding-left: 3.25rem !important;"
+                               class="w-full pr-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium">
                     </div>
                 </div>
 
@@ -77,7 +79,7 @@
                 </div>
 
                 <div class="flex gap-2">
-                    <button type="submit" class="flex-1 px-6 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 shadow-lg shadow-purple-500/20 transition-all flex items-center justify-center gap-2">
+                    <button type="submit" style="color: white !important;" class="flex-1 px-6 py-3 bg-[#7c3aed] text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
                         Filtrar
                     </button>
@@ -126,7 +128,7 @@
         </div>
         
         <div class="flex items-center gap-2">
-            <a href="{{ route('orders.show', $order->id) }}" class="flex-1 py-2.5 bg-purple-600 text-white text-xs font-bold rounded-xl text-center shadow-lg shadow-purple-500/20 active:scale-95 transition-all">
+            <a href="{{ route('orders.show', $order->id) }}" style="color: white !important;" class="flex-1 py-2.5 bg-[#7c3aed] text-white text-xs font-bold rounded-xl text-center shadow-lg shadow-purple-500/20 transition-all">
                 Ver Detalhes
             </a>
             <button onclick="openCancellationModal({{ $order->id }})" class="p-2.5 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-xl">

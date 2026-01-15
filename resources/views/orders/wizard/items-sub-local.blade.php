@@ -1,16 +1,18 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="py-6">
-    <div class="max-w-7xl mx-auto">
+<div class="py-6 bg-[#f6f7fb] dark:bg-[#0b0f1a] min-h-screen">
+    <div class="max-w-7xl mx-auto px-4">
         
         <!-- Header com cliente -->
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-4">
-                <a href="{{ route('orders.wizard.personalization-type') }}" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="{{ route('orders.wizard.personalization-type') }}"
+                   class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-sm font-semibold text-gray-700 dark:text-white hover:border-[#7c3aed] hover:text-[#7c3aed] dark:hover:text-[#7c3aed] transition shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
+                    Voltar
                 </a>
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Sublimação Local</h1>
@@ -19,7 +21,7 @@
             </div>
             @if(session('wizard.client'))
             <div class="bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 flex items-center gap-3">
-                <div class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
+                <div class="w-10 h-10 bg-[#7c3aed] rounded-full flex items-center justify-center text-white font-bold">
                     {{ substr(session('wizard.client.name'), 0, 1) }}
                 </div>
                 <div>
@@ -32,110 +34,107 @@
 
         <!-- Barra de Progresso -->
         <div class="bg-gray-200 dark:bg-gray-800 rounded-full h-2 mb-8">
-            <div class="bg-indigo-600 h-2 rounded-full transition-all" style="width: 50%"></div>
+            <div class="bg-gradient-to-r from-[#7c3aed] to-purple-500 h-2 rounded-full transition-all" style="width: 50%"></div>
         </div>
 
-        <div class="grid lg:grid-cols-4 gap-6">
-            {{-- Catálogo de Produtos (3 colunas no desktop, full no mobile) --}}
-            <div class="lg:col-span-3">
-                <div class="flex gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-                    <button class="category-btn active px-4 py-2 md:px-5 md:py-2.5 bg-indigo-600 text-white rounded-full font-medium whitespace-nowrap transition text-sm md:text-base" data-category="all">
-                        Todos
-                    </button>
-                    <button class="category-btn px-4 py-2 md:px-5 md:py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition text-sm md:text-base" data-category="vestuario">
-                        Vestuário
-                    </button>
-                    <button class="category-btn px-4 py-2 md:px-5 md:py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition text-sm md:text-base" data-category="canecas">
-                        Canecas
-                    </button>
-                    <button class="category-btn px-4 py-2 md:px-5 md:py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition text-sm md:text-base" data-category="acessorios">
-                        Acessórios
-                    </button>
-                    <button class="category-btn px-4 py-2 md:px-5 md:py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium whitespace-nowrap hover:bg-gray-300 dark:hover:bg-gray-700 transition text-sm md:text-base" data-category="diversos">
-                        Diversos
-                    </button>
-                </div>
-
-                {{-- Grid de Produtos - Mais compacto no mobile --}}
-                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 pb-32 lg:pb-0" id="products-grid">
-                    
-                    @foreach($products as $product)
-                    {{-- Product Card --}}
-                    <div class="product-card bg-white dark:bg-gray-800 rounded-xl md:rounded-2xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-indigo-500 transition-all group shadow-sm border border-gray-200 dark:border-gray-700" 
-                         data-category="{{ $product->category }}" 
-                         data-id="{{ $product->id }}" 
-                         data-name="{{ $product->name }}" 
-                         data-price="{{ $product->price }}" 
-                         data-requires-customization="{{ $product->requires_customization ? 'true' : 'false' }}"
-                         data-allow-price-edit="{{ $product->allow_price_edit ? 'true' : 'false' }}"
-                         data-has-quantity-pricing="{{ $product->has_quantity_pricing ? 'true' : 'false' }}"
-                         data-quantity-pricing="{{ $product->has_quantity_pricing ? json_encode($product->quantity_pricing ?? []) : '[]' }}">
-                        <div class="aspect-square bg-gray-100 dark:bg-gradient-to-br dark:from-gray-700 dark:to-gray-800 p-2 md:p-4 flex items-center justify-center relative">
-                            @if($product->image)
-                                <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                            @else
-                                <svg class="w-12 h-12 md:w-20 md:h-20 text-gray-400 dark:text-gray-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                            @endif
-                            @if($product->allow_price_edit)
-                            <div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                                <i class="fa-solid fa-pen text-[10px] mr-1"></i>Editável
-                            </div>
-                            @endif
+        <div class="bg-white dark:bg-slate-900/80 rounded-3xl p-4 md:p-6 shadow-xl shadow-black/5 dark:shadow-black/40 border border-gray-100 dark:border-slate-800">
+            <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6 items-start">
+                <div class="space-y-6">
+                    <!-- Search Bar -->
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-lg shadow-black/5 dark:shadow-black/30 border border-gray-200 dark:border-slate-800">
+                        <div class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-100 mb-3">
+                            <i class="fa-solid fa-magnifying-glass text-[#7c3aed]"></i>
+                            Buscar Produto
                         </div>
-                        <div class="p-2 md:p-4">
-                            <h3 class="text-gray-900 dark:text-white font-bold text-sm md:text-lg truncate">{{ $product->name }}</h3>
-                            <p class="text-indigo-600 dark:text-indigo-400 font-bold text-base md:text-xl mt-0.5 md:mt-1">R$ {{ number_format($product->price, 2, ',', '.') }}</p>
+                        <div class="relative">
+                            <input type="text" id="product-search" 
+                                   placeholder="Nome do produto..." 
+                                   style="padding-left: 2.75rem !important;"
+                                   class="w-full h-11 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white pr-4 rounded-xl border border-gray-200 dark:border-slate-700 focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition-all text-sm">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
                         </div>
                     </div>
-                    @endforeach
 
+                    <!-- Categorias -->
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-lg shadow-black/5 dark:shadow-black/30 border border-gray-200 dark:border-slate-800">
+                        <div class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-100 mb-3">
+                            <i class="fa-solid fa-list text-[#7c3aed]"></i>
+                            Categorias
+                        </div>
+                        <div class="flex flex-wrap gap-2.5">
+                            <button class="category-btn active flex items-center gap-3 px-4 h-11 rounded-2xl bg-gradient-to-r from-[#7c3aed] to-purple-500 text-white font-semibold shadow-lg whitespace-nowrap transition text-sm md:text-base border border-transparent" data-category="all">
+                                <i class="fa-solid fa-cart-shopping text-sm"></i> Todos
+                            </button>
+                            <button class="category-btn flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-200 font-semibold whitespace-nowrap transition text-sm md:text-base border border-gray-200 dark:border-slate-700 shadow-sm" data-category="vestuario">
+                                <i class="fa-solid fa-shirt text-sm text-gray-500 dark:text-gray-300"></i> Vestuário
+                            </button>
+                            <button class="category-btn flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-200 font-semibold whitespace-nowrap transition text-sm md:text-base border border-gray-200 dark:border-slate-700 shadow-sm" data-category="canecas">
+                                <i class="fa-solid fa-mug-hot text-sm text-gray-500 dark:text-gray-300"></i> Canecas
+                            </button>
+                            <button class="category-btn flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-200 font-semibold whitespace-nowrap transition text-sm md:text-base border border-gray-200 dark:border-slate-700 shadow-sm" data-category="acessorios">
+                                <i class="fa-solid fa-gem text-sm text-gray-500 dark:text-gray-300"></i> Acessórios
+                            </button>
+                            <button class="category-btn flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-200 font-semibold whitespace-nowrap transition text-sm md:text-base border border-gray-200 dark:border-slate-700 shadow-sm" data-category="diversos">
+                                <i class="fa-solid fa-shapes text-sm text-gray-500 dark:text-gray-300"></i> Diversos
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Grid de Produtos --}}
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4" id="products-grid">
+                            {{-- Gerado via JS para suportar paginação e busca --}}
+                        </div>
+
+                        <!-- Paginação -->
+                        <div id="pagination-container" class="flex items-center justify-center gap-2 pt-6">
+                            {{-- Gerado via JS --}}
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            {{-- Carrinho Lateral (Desktop Only) --}}
-            <div class="hidden lg:block lg:col-span-1">
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 sticky top-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-gray-900 dark:text-white font-bold text-xl mb-4 flex items-center gap-2">
-                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
-                        Carrinho
-                    </h2>
-
-                    {{-- Lista de Itens --}}
-                    <div id="cart-items" class="space-y-3 max-h-[50vh] overflow-y-auto mb-4">
-                        <div id="empty-cart" class="text-center py-8 text-gray-400 dark:text-gray-500">
-                            <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                {{-- Carrinho Lateral (Desktop Only) --}}
+                <div class="hidden lg:block">
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sticky top-6 shadow-lg shadow-black/10 dark:shadow-black/40 border border-gray-200 dark:border-slate-800">
+                        <h2 class="text-gray-900 dark:text-white font-bold text-xl mb-4 flex items-center gap-2">
+                            <svg class="w-6 h-6 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
-                            <p>Nenhum item adicionado</p>
-                        </div>
-                    </div>
+                            Carrinho
+                        </h2>
 
-                    {{-- Totais --}}
-                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
-                        <div class="flex justify-between text-gray-500 dark:text-gray-400">
-                            <span>Subtotal</span>
-                            <span id="cart-subtotal">R$ 0,00</span>
+                        {{-- Lista de Itens --}}
+                        <div id="cart-items" class="space-y-3 max-h-[50vh] overflow-y-auto mb-4">
+                            <div id="empty-cart" class="text-center py-8 text-gray-400 dark:text-gray-500">
+                                <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                                </svg>
+                                <p>Nenhum item adicionado</p>
+                            </div>
                         </div>
-                        <div class="flex justify-between text-gray-900 dark:text-white font-bold text-lg">
-                            <span>Total</span>
-                            <span id="cart-total">R$ 0,00</span>
-                        </div>
-                    </div>
 
-                    {{-- Botão Continuar --}}
-                    <button id="btn-continue" disabled
-                            class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        Continuar
-                    </button>
+                        {{-- Totais --}}
+                        <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
+                            <div class="flex justify-between text-gray-500 dark:text-gray-400">
+                                <span>Subtotal</span>
+                                <span id="cart-subtotal">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-900 dark:text-white font-bold text-lg">
+                                <span>Total</span>
+                                <span id="cart-total">R$ 0,00</span>
+                            </div>
+                        </div>
+
+                        {{-- Botão Continuar --}}
+                        <button id="btn-continue" disabled style="color: white !important;" 
+                                class="w-full mt-6 bg-gradient-to-r from-[#7c3aed] to-purple-500 text-white font-bold py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30">
+                            Continuar
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-
-        {{-- Mobile Cart Sticky Footer --}}
+{{-- Mobile Cart Sticky Footer --}}
         <div class="lg:hidden fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-3 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
             <div class="flex items-center justify-between gap-3">
                 <div class="flex-1">
@@ -147,8 +146,8 @@
                     </div>
                     <p class="text-lg font-bold text-gray-900 dark:text-white" id="mobile-cart-total">R$ 0,00</p>
                 </div>
-                <button id="btn-continue-mobile" disabled
-                        class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                <button id="btn-continue-mobile" disabled style="color: white !important;" 
+                        class="px-6 py-3 bg-[#7c3aed] text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">
                     Continuar →
                 </button>
             </div>
@@ -161,11 +160,11 @@
 <div id="quantity-modal" class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center">
     <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full mx-4 transform scale-95 opacity-0 transition-all shadow-2xl border border-gray-200 dark:border-gray-700" id="modal-content">
         <div class="text-center mb-6">
-            <div id="modal-icon" class="w-20 h-20 mx-auto mb-4 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center border border-indigo-200 dark:border-indigo-800">
+            <div id="modal-icon" class="w-20 h-20 mx-auto mb-4 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center border border-purple-200 dark:border-purple-800">
                 <!-- Icon inserted via JS -->
             </div>
             <h3 id="modal-product-name" class="text-xl font-bold text-gray-900 dark:text-white">Produto</h3>
-            <p id="modal-product-price" class="text-indigo-600 dark:text-indigo-400 font-bold text-lg mt-1">R$ 0,00</p>
+            <p id="modal-product-price" class="text-[#7c3aed] dark:text-purple-400 font-bold text-lg mt-1">R$ 0,00</p>
         </div>
 
         <!-- Campo de Preço Editável (aparece só quando permitido) -->
@@ -185,27 +184,40 @@
             </p>
         </div>
 
+        <style>
+            /* Esconder spinners nativos do input number para centralização perfeita */
+            #modal-quantity::-webkit-outer-spin-button,
+            #modal-quantity::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+            #modal-quantity {
+                -moz-appearance: textfield;
+            }
+        </style>
+
         <div class="mb-6">
             <label class="text-gray-600 dark:text-gray-400 text-sm block mb-3 text-center">Quantidade</label>
-            <div class="flex items-center justify-center gap-3">
-                <button id="btn-decrease" class="w-12 h-12 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-xl text-2xl font-bold transition border border-gray-200 dark:border-gray-600">-</button>
+            <div class="flex items-center justify-center gap-4">
+                <button id="btn-decrease" class="w-10 h-10 bg-[#7c3aed] hover:bg-purple-700 text-white rounded-full flex items-center justify-center text-xl font-bold transition shadow-lg shadow-purple-500/20">-</button>
                 <input type="number" id="modal-quantity" value="1" min="1" max="999" 
-                       class="w-20 h-12 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-center text-xl font-bold rounded-xl border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                <button id="btn-increase" class="w-12 h-12 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-xl text-2xl font-bold transition border border-gray-200 dark:border-gray-600">+</button>
+                       class="w-16 h-12 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-center text-xl font-bold rounded-xl border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] p-0">
+                <button id="btn-increase" class="w-10 h-10 bg-[#7c3aed] hover:bg-purple-700 text-white rounded-full flex items-center justify-center text-xl font-bold transition shadow-lg shadow-purple-500/20">+</button>
             </div>
         </div>
 
         <!-- Subtotal -->
         <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-center">
             <span class="text-gray-500 dark:text-gray-400 text-sm">Subtotal: </span>
-            <span id="modal-subtotal" class="text-indigo-600 dark:text-indigo-400 font-bold text-lg">R$ 0,00</span>
+            <span id="modal-subtotal" class="text-[#7c3aed] dark:text-purple-400 font-bold text-lg">R$ 0,00</span>
         </div>
 
         <div class="flex gap-3">
             <button id="btn-cancel" class="flex-1 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-xl font-semibold transition border border-gray-200 dark:border-gray-600">
                 Cancelar
             </button>
-            <button id="btn-add-to-cart" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold transition shadow-lg shadow-indigo-500/20">
+            <button id="btn-add-to-cart" style="color: white !important;" 
+                    class="flex-1 py-3 bg-[#7c3aed] text-white rounded-xl font-semibold transition shadow-lg shadow-purple-500/20">
                 Adicionar
             </button>
         </div>
@@ -219,6 +231,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const CART_STORAGE_KEY = 'wizard_sub_local_cart';
     let cart = loadCartFromStorage();
     let selectedProduct = null;
+    
+    // Dados iniciais de produtos para JS
+    const allProducts = @json($products);
+    let currentPage = 1;
+    let itemsPerPage = 6;
+    let currentCategory = 'all';
+    let searchQuery = '';
 
     // Modal elements
     const modal = document.getElementById('quantity-modal');
@@ -228,6 +247,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cart.length > 0) {
         updateCartUI();
     }
+    
+    // Renderizar produtos inicial
+    renderProducts();
 
     // Função para salvar carrinho no localStorage
     function saveCartToStorage() {
@@ -247,75 +269,188 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // Category filter
+    const activeCatClasses = ['bg-gradient-to-r','from-[#7c3aed]','to-purple-500','text-white','shadow-lg','border-transparent'];
+    const inactiveCatClasses = ['bg-white','dark:bg-slate-900','text-gray-700','dark:text-gray-200','border','border-gray-200','dark:border-slate-700','shadow-sm'];
+
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.category-btn').forEach(b => {
-                b.classList.remove('active', 'bg-indigo-600', 'text-white');
-                b.classList.add('bg-gray-800', 'text-gray-300');
+                b.classList.remove('active', ...activeCatClasses);
+                b.classList.add(...inactiveCatClasses);
             });
-            this.classList.add('active', 'bg-indigo-600', 'text-white');
-            this.classList.remove('bg-gray-800', 'text-gray-300');
+            this.classList.add('active', ...activeCatClasses);
+            this.classList.remove(...inactiveCatClasses);
 
-            const category = this.dataset.category;
-            document.querySelectorAll('.product-card').forEach(card => {
-                if (category === 'all' || card.dataset.category === category) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
+            currentCategory = this.dataset.category;
+            currentPage = 1;
+            renderProducts();
+        });
+    });
+
+    // Search input
+    document.getElementById('product-search').addEventListener('input', function(e) {
+        searchQuery = e.target.value.toLowerCase();
+        currentPage = 1;
+        renderProducts();
+    });
+
+    function renderProducts() {
+        const grid = document.getElementById('products-grid');
+        
+        // 1. Filtrar
+        const filtered = allProducts.filter(p => {
+            const matchesCategory = currentCategory === 'all' || p.category === currentCategory;
+            const matchesSearch = p.name.toLowerCase().includes(searchQuery);
+            return matchesCategory && matchesSearch;
+        });
+
+        // 2. Paginar
+        const totalItems = filtered.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        const start = (currentPage - 1) * itemsPerPage;
+        const paginated = filtered.slice(start, start + itemsPerPage);
+
+        // 3. Renderizar Grid
+        grid.innerHTML = '';
+        if (paginated.length === 0) {
+            grid.innerHTML = `
+                <div class="col-span-full py-12 text-center">
+                    <div class="w-16 h-16 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa-solid fa-magnifying-glass text-gray-400 text-xl"></i>
+                    </div>
+                    <p class="text-gray-500 dark:text-gray-400 font-medium">Nenhum produto encontrado</p>
+                </div>
+            `;
+        } else {
+            paginated.forEach(product => {
+                const card = createProductCard(product);
+                grid.appendChild(card);
+            });
+        }
+
+        // 4. Renderizar Controles de Paginação
+        renderPagination(totalPages);
+    }
+
+    function createProductCard(product) {
+        const div = document.createElement('div');
+        div.className = 'product-card bg-white dark:bg-slate-900 rounded-2xl overflow-hidden cursor-pointer transition-all group shadow-[0_18px_50px_-30px_rgba(124,58,237,0.55)] border border-gray-100 dark:border-slate-800 hover:shadow-[0_24px_60px_-32px_rgba(124,58,237,0.75)]';
+        
+        const imageUrl = product.image ? `/storage/${product.image.replace('public/', '')}` : null;
+        
+        div.innerHTML = `
+            <div class="aspect-[4/3] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-900 p-4 flex items-center justify-center relative">
+                ${imageUrl ? 
+                    `<img src="${imageUrl}" alt="${product.name}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500">` : 
+                    `<svg class="w-12 h-12 md:w-16 md:h-16 text-gray-400 dark:text-gray-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>`
                 }
-            });
-        });
-    });
+                ${product.allow_price_edit ? 
+                    `<div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium shadow-md">
+                        <i class="fa-solid fa-pen text-[10px] mr-1"></i>Editável
+                    </div>` : ''
+                }
+            </div>
+            <div class="p-4 flex flex-col gap-2">
+                <div>
+                    <h3 class="text-gray-900 dark:text-white font-bold text-base md:text-lg leading-snug">${product.name}</h3>
+                </div>
+                <p class="text-[#7c3aed] dark:text-purple-300 font-bold text-lg">R$ ${parseFloat(product.price).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
+                <div class="flex">
+                    <span class="inline-flex items-center justify-center w-full py-2 rounded-xl bg-gradient-to-r from-[#7c3aed] to-purple-500 text-white text-sm font-semibold shadow-lg shadow-purple-500/30">
+                        + Adicionar
+                    </span>
+                </div>
+            </div>
+        `;
 
-    // Product click - open modal
-    document.querySelectorAll('.product-card').forEach(card => {
-        card.addEventListener('click', function() {
-            let iconHtml = '';
-            const img = this.querySelector('img');
-            const svg = this.querySelector('svg');
+        div.addEventListener('click', () => handleProductClick(product));
+        return div;
+    }
 
-            if (img) {
-                iconHtml = img.outerHTML;
-            } else if (svg) {
-                iconHtml = svg.outerHTML;
-            }
+    function renderPagination(totalPages) {
+        const container = document.getElementById('pagination-container');
+        container.innerHTML = '';
+        
+        if (totalPages <= 1) return;
 
-            selectedProduct = {
-                id: this.dataset.id,
-                name: this.dataset.name,
-                price: parseFloat(this.dataset.price),
-                originalPrice: parseFloat(this.dataset.price),
-                requiresCustomization: this.dataset.requiresCustomization === 'true',
-                allowPriceEdit: this.dataset.allowPriceEdit === 'true',
-                hasQuantityPricing: this.dataset.hasQuantityPricing === 'true',
-                quantityPricing: JSON.parse(this.dataset.quantityPricing || '[]'),
-                icon: iconHtml
-            };
+        // Botão Anterior
+        const prevBtn = document.createElement('button');
+        prevBtn.className = `w-10 h-10 rounded-xl flex items-center justify-center border transition ${currentPage === 1 ? 'border-gray-100 text-gray-300 cursor-not-allowed' : 'border-gray-200 text-gray-600 hover:border-[#7c3aed] hover:text-[#7c3aed] dark:border-slate-700 dark:text-gray-400'}`;
+        prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.onclick = () => { currentPage--; renderProducts(); };
+        container.appendChild(prevBtn);
 
-            document.getElementById('modal-product-name').textContent = selectedProduct.name;
-            document.getElementById('modal-product-price').textContent = formatCurrency(selectedProduct.price);
-            document.getElementById('modal-icon').innerHTML = selectedProduct.icon;
-            document.getElementById('modal-quantity').value = 1;
+        // Números das Páginas
+        for (let i = 1; i <= totalPages; i++) {
+            const pageBtn = document.createElement('button');
+            const isActive = currentPage === i;
+            pageBtn.className = `w-10 h-10 rounded-xl font-bold transition ${isActive ? 'bg-[#7c3aed] text-white shadow-lg shadow-purple-500/30 border-transparent' : 'border border-gray-200 text-gray-600 hover:border-[#7c3aed] hover:text-[#7c3aed] dark:border-slate-700 dark:text-gray-400'}`;
+            pageBtn.textContent = i;
+            pageBtn.onclick = () => { currentPage = i; renderProducts(); };
+            container.appendChild(pageBtn);
+        }
 
-            // Gerenciar campo de preço editável
-            const priceEditSection = document.getElementById('price-edit-section');
-            const customPriceInput = document.getElementById('modal-custom-price');
-            const originalPriceDisplay = document.getElementById('original-price-display');
-            
-            if (selectedProduct.allowPriceEdit) {
-                priceEditSection.classList.remove('hidden');
-                customPriceInput.value = formatNumber(selectedProduct.price);
-                originalPriceDisplay.textContent = formatCurrency(selectedProduct.originalPrice);
-            } else {
-                priceEditSection.classList.add('hidden');
-            }
+        // Botão Próximo
+        const nextBtn = document.createElement('button');
+        nextBtn.className = `w-10 h-10 rounded-xl flex items-center justify-center border transition ${currentPage === totalPages ? 'border-gray-100 text-gray-300 cursor-not-allowed' : 'border-gray-200 text-gray-600 hover:border-[#7c3aed] hover:text-[#7c3aed] dark:border-slate-700 dark:text-gray-400'}`;
+        nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.onclick = () => { currentPage++; renderProducts(); };
+        container.appendChild(nextBtn);
+    }
 
-            // Atualizar subtotal inicial
-            updateModalSubtotal();
+    function handleProductClick(product) {
+        let iconHtml = '';
+        const imageUrl = product.image ? `/storage/${product.image.replace('public/', '')}` : null;
 
-            openModal();
-        });
-    });
+        if (imageUrl) {
+            iconHtml = `<img src="${imageUrl}" alt="${product.name}" class="w-full h-full object-cover rounded-xl">`;
+        } else {
+            iconHtml = `<svg class="w-12 h-12 md:w-16 md:h-16 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>`;
+        }
+
+        selectedProduct = {
+            id: product.id,
+            name: product.name,
+            price: parseFloat(product.price),
+            originalPrice: parseFloat(product.price),
+            requiresCustomization: product.requires_customization === true || product.requires_customization === 1,
+            allowPriceEdit: product.allow_price_edit === true || product.allow_price_edit === 1,
+            hasQuantityPricing: product.has_quantity_pricing === true || product.has_quantity_pricing === 1,
+            quantityPricing: product.quantity_pricing || [],
+            icon: iconHtml
+        };
+
+        document.getElementById('modal-product-name').textContent = selectedProduct.name;
+        document.getElementById('modal-product-price').textContent = formatCurrency(selectedProduct.price);
+        document.getElementById('modal-icon').innerHTML = selectedProduct.icon;
+        document.getElementById('modal-quantity').value = 1;
+
+        // Gerenciar campo de preço editável
+        const priceEditSection = document.getElementById('price-edit-section');
+        const customPriceInput = document.getElementById('modal-custom-price');
+        const originalPriceDisplay = document.getElementById('original-price-display');
+        
+        if (selectedProduct.allowPriceEdit) {
+            priceEditSection.classList.remove('hidden');
+            customPriceInput.value = formatNumber(selectedProduct.price);
+            originalPriceDisplay.textContent = formatCurrency(selectedProduct.originalPrice);
+        } else {
+            priceEditSection.classList.add('hidden');
+        }
+
+        // Atualizar subtotal inicial
+        updateModalSubtotal();
+        openModal();
+    }
+
+    // Modal logic (kept from previous version but adapted where needed)
+    // ... (rest of the JS logic remains the same)
 
     // Quantity controls
     document.getElementById('btn-decrease').addEventListener('click', function() {
@@ -469,14 +604,14 @@ document.addEventListener('DOMContentLoaded', function() {
             totalItems += item.quantity;
 
             const itemEl = document.createElement('div');
-            itemEl.className = 'cart-item bg-gray-700/50 rounded-xl p-3 flex items-center gap-3';
+            itemEl.className = 'cart-item bg-purple-50 dark:bg-gray-700/50 rounded-xl p-3 flex items-center gap-3 border border-purple-100 dark:border-transparent';
             itemEl.innerHTML = `
                 <div class="flex-1">
-                    <p class="text-white font-medium text-sm">${item.name}</p>
-                    <p class="text-gray-400 text-xs">${item.quantity}x ${formatCurrency(item.price)}</p>
+                    <p class="text-gray-900 dark:text-white font-medium text-sm">${item.name}</p>
+                    <p class="text-gray-500 dark:text-gray-400 text-xs">${item.quantity}x ${formatCurrency(item.price)}</p>
                 </div>
-                <p class="text-indigo-400 font-bold">${formatCurrency(itemTotal)}</p>
-                <button class="text-gray-500 hover:text-red-500 transition" onclick="removeFromCart(${index})">
+                <p class="text-[#7c3aed] dark:text-purple-400 font-bold">${formatCurrency(itemTotal)}</p>
+                <button class="text-gray-400 hover:text-red-500 transition" onclick="removeFromCart(${index})">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -556,7 +691,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <style>
 .product-card.selected {
     ring: 2px;
-    ring-color: rgb(99 102 241);
+    ring-color: #7c3aed;
 }
 </style>
 @endsection

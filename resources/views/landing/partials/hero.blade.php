@@ -31,7 +31,7 @@
 
             {{-- CTAs --}}
             <div class="flex items-center gap-4 flex-wrap justify-center mt-8 animate-fade-in-up delay-400">
-                <a href="{{ route('register') }}" class="btn-primary text-base py-3 px-6">
+                <a href="{{ route('register.public') }}" class="btn-primary text-base py-3 px-6">
                     Teste Grátis
                 </a>
                 <a href="#features" class="btn-outline text-base py-3 px-6">

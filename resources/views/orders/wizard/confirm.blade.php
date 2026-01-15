@@ -9,12 +9,12 @@
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Confirmação do Pedido</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Revise os detalhes antes de confirmar</p>
             </div>
-            <span class="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-sm font-medium rounded-full">
+            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-[#7c3aed] dark:text-purple-400 text-sm font-medium rounded-full">
                 Pedido #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
             </span>
         </div>
         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1 mt-4">
-            <div class="bg-indigo-600 h-1 rounded-full w-full"></div>
+            <div class="bg-[#7c3aed] h-1 rounded-full w-full"></div>
         </div>
     </div>
 
@@ -35,7 +35,7 @@
         <div class="lg:col-span-2 space-y-4">
             
             <!-- Cliente -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm">
                 <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Cliente</h2>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                     <div>
@@ -56,7 +56,7 @@
             </div>
 
             <!-- Itens do Pedido -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm">
                 <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Itens do Pedido</h2>
                 
                 <div class="space-y-3">
@@ -68,9 +68,9 @@
                         $personalizacaoSubtotal = $item->sublimations->sum('final_price');
                         $itemTotal = ($item->unit_price * $item->quantity) + $personalizacaoSubtotal;
                     @endphp
-                    <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4">
+                    <div class="border border-gray-100 dark:border-slate-700/50 bg-gray-50/30 dark:bg-slate-800/20 rounded-xl p-4">
                         <div class="flex items-center justify-between mb-3">
-                            <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">ITEM {{ $index + 1 }}</span>
+                            <span class="text-xs font-semibold text-[#7c3aed] dark:text-purple-400">ITEM {{ $index + 1 }}</span>
                             <span class="text-lg font-bold text-gray-900 dark:text-white">R$ {{ number_format($itemTotal, 2, ',', '.') }}</span>
                         </div>
                         
@@ -128,7 +128,7 @@
                                     $locationName = $sub->location ? $sub->location->name : $sub->location_name;
                                     $appType = $sub->application_type ? strtoupper($sub->application_type) : 'APP';
                                 @endphp
-                                <span class="px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-medium rounded">
+                                <span class="px-2 py-1 bg-purple-50 dark:bg-purple-900/30 text-[#7c3aed] dark:text-purple-300 text-xs font-medium rounded">
                                     {{ $locationName }} - R$ {{ number_format($sub->final_price, 2, ',', '.') }}
                                 </span>
                                 @endforeach
@@ -200,7 +200,7 @@
                     <div class="border-t border-gray-200 dark:border-gray-700 pt-3">
                         <div class="flex justify-between">
                             <span class="text-gray-900 dark:text-white font-semibold">Total</span>
-                            <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">R$ {{ number_format($order->total, 2, ',', '.') }}</span>
+                            <span class="text-2xl font-bold text-[#7c3aed] dark:text-purple-400">R$ {{ number_format($order->total, 2, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>
@@ -209,14 +209,15 @@
                     @csrf
                     
                     <label class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer mb-4">
-                        <input type="checkbox" name="is_event" value="1" {{ old('is_event', ($order->is_event ?? false)) ? 'checked' : '' }} class="w-4 h-4 text-indigo-600 rounded">
+                        <input type="checkbox" name="is_event" value="1" {{ old('is_event', ($order->is_event ?? false)) ? 'checked' : '' }} class="w-4 h-4 text-[#7c3aed] rounded">
                         <div>
                             <span class="text-sm font-medium text-gray-900 dark:text-white block">Prioridade Evento</span>
                             <span class="text-xs text-gray-500 dark:text-gray-400">Produção acelerada</span>
                         </div>
                     </label>
 
-                    <button type="submit" id="finalize-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition">
+                    <button type="submit" id="finalize-btn" style="color: white !important;" 
+                            class="w-full bg-[#7c3aed] text-white font-semibold py-3 px-4 rounded-lg transition">
                         <span id="finalize-text">Confirmar Pedido</span>
                         <span id="finalize-loading" class="hidden">
                             <i class="fa-solid fa-spinner fa-spin mr-2"></i>Processando...
@@ -224,7 +225,7 @@
                     </button>
                     
                     <a href="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.payment') : route('orders.wizard.payment') }}" 
-                       class="block text-center text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 mt-3 transition">
+                       class="block text-center text-sm text-gray-500 dark:text-gray-400 hover:text-[#7c3aed] dark:hover:text-purple-400 mt-3 transition">
                         ← Voltar para Pagamento
                     </a>
                 </form>
@@ -243,7 +244,8 @@
             <button onclick="closeConfirmModal()" class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                 Cancelar
             </button>
-            <button onclick="confirmFinalize()" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+            <button onclick="confirmFinalize()" style="color: white !important;" 
+                    class="flex-1 px-4 py-2 bg-[#7c3aed] text-white rounded-lg transition">
                 Confirmar
             </button>
         </div>

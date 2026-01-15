@@ -591,7 +591,6 @@ html:not(.dark) .landing-page .text-white\/60,
 html:not(.dark) .landing-page .text-foreground,
 html:not(.dark) .landing-page .text-foreground\/80,
 html:not(.dark) .landing-page .text-muted-foreground {
-    color: var(--foreground) !important;
 }
 
 /* Destaques que devem permanecer roxos */

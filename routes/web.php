@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
     // Home/Dashboard
     // Nomear como "dashboard" para alinhar com o redirecionamento do login
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    Route::view('/vendas', 'sales.index')->name('sales.index');
     Route::get('/financeiro', [\App\Http\Controllers\FinancialController::class, 'index'])->name('financial.dashboard')->middleware('plan:financial');
     Route::get('/financeiro/nfe', [\App\Http\Controllers\Admin\InvoiceController::class, 'index'])->name('admin.invoices.index')->middleware('plan:financial');
     
@@ -180,6 +181,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\BudgetController::class, 'index'])->name('index');
         Route::get('novo', [\App\Http\Controllers\BudgetController::class, 'start'])->name('start');
         Route::post('cliente', [\App\Http\Controllers\BudgetController::class, 'storeClient'])->name('client');
+        Route::match(['get','post'],'personalizacao-tipo', [\App\Http\Controllers\BudgetController::class, 'personalizationType'])->name('personalization-type');
         Route::match(['get','post'],'itens', [\App\Http\Controllers\BudgetController::class, 'items'])->name('items');
         Route::match(['get','post'],'personalizacao', [\App\Http\Controllers\BudgetController::class, 'customization'])->name('customization');
         Route::delete('personalizacao/{index}', [\App\Http\Controllers\BudgetController::class, 'deleteCustomization'])->name('customization.delete');

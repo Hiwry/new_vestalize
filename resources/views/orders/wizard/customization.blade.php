@@ -6,19 +6,19 @@
         <div class="mb-6">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center space-x-2">
-                    <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-medium">3</div>
+                    <div class="w-6 h-6 bg-[#7c3aed] text-white rounded-full flex items-center justify-center text-xs font-medium">3</div>
                     <div>
-                        <span class="text-base font-medium text-indigo-600">Personalização</span>
+                        <span class="text-base font-medium text-[#7c3aed]">Personalização</span>
                         <p class="text-xs text-gray-500">Etapa 3 de 5</p>
                     </div>
                 </div>
                 <div class="text-right">
                     <div class="text-xs text-gray-500">Progresso</div>
-                    <div class="text-sm font-medium text-indigo-600">60%</div>
+                    <div class="text-sm font-medium text-[#7c3aed]">60%</div>
                 </div>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-1.5">
-                <div class="bg-indigo-600 h-1.5 rounded-full transition-all duration-500 ease-out" style="width: 60%"></div>
+                <div class="bg-[#7c3aed] h-1.5 rounded-full transition-all duration-500 ease-out" style="width: 60%"></div>
             </div>
         </div>
 
@@ -27,8 +27,8 @@
             <!-- Header -->
             <div class="px-6 py-4 border-b border-gray-200">
                 <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-indigo-100 rounded-md flex items-center justify-center">
-                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
+                        <svg class="w-4 h-4 text-[#7c3aed]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                         </svg>
                     </div>
@@ -50,8 +50,8 @@
                     @if($order->items->count() > 1)
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2 mb-3">
-                            <div class="w-5 h-5 bg-indigo-100 rounded-md flex items-center justify-center">
-                                <svg class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-5 h-5 bg-purple-100 rounded-md flex items-center justify-center">
+                                <svg class="w-3 h-3 text-[#7c3aed]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                                 </svg>
                             </div>
@@ -59,7 +59,7 @@
                         </div>
 
                         <div class="bg-gray-50 rounded-md p-4">
-                            <select id="selected-item" onchange="updateItemInfo()" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                            <select id="selected-item" onchange="updateItemInfo()" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-[#7c3aed] focus:ring-1 focus:ring-purple-500">
                                 @foreach($order->items as $item)
                                 <option value="{{ $item->id }}" 
                                         data-personalizacao="{{ $item->print_type }}"
@@ -81,8 +81,8 @@
                     <!-- Nome da Arte -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2 mb-3">
-                            <div class="w-5 h-5 bg-indigo-100 rounded-md flex items-center justify-center">
-                                <svg class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-5 h-5 bg-purple-100 rounded-md flex items-center justify-center">
+                                <svg class="w-3 h-3 text-[#7c3aed]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
                             </div>
@@ -91,7 +91,7 @@
 
                         <div class="bg-gray-50 rounded-md p-4">
                             <input type="text" id="art_name" name="art_name" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-[#7c3aed] focus:ring-1 focus:ring-purple-500"
                                    placeholder="Ex: Logo Empresa - DTF">
                         </div>
                     </div>
@@ -100,8 +100,8 @@
                     <!-- Arquivos da Arte -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2 mb-3">
-                            <div class="w-5 h-5 bg-indigo-100 rounded-md flex items-center justify-center">
-                                <svg class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-5 h-5 bg-purple-100 rounded-md flex items-center justify-center">
+                                <svg class="w-3 h-3 text-[#7c3aed]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                 </svg>
                             </div>
@@ -110,7 +110,7 @@
 
                         <div class="bg-gray-50 rounded-md p-4">
                             <input type="file" id="art_files" name="art_files[]" multiple
-                                   required class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100"
+                                   required class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-[#7c3aed]"
                                    onchange="displayFileList()">
                             <p class="text-xs text-gray-500 mt-2">Múltiplos arquivos: AI, PDF, PNG, JPG, CDR - Obrigatório pelo menos 1 arquivo</p>
                             <div id="file-list" class="mt-3 space-y-2"></div>
@@ -120,8 +120,8 @@
                     <!-- Tamanhos de Aplicação -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2 mb-3">
-                            <div class="w-5 h-5 bg-indigo-100 rounded-md flex items-center justify-center">
-                                <svg class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-5 h-5 bg-purple-100 rounded-md flex items-center justify-center">
+                                <svg class="w-3 h-3 text-[#7c3aed]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                 </svg>
                             </div>
@@ -139,8 +139,8 @@
                     <!-- Aplicações Adicionadas -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2 mb-3">
-                            <div class="w-5 h-5 bg-indigo-100 rounded-md flex items-center justify-center">
-                                <svg class="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-5 h-5 bg-purple-100 rounded-md flex items-center justify-center">
+                                <svg class="w-3 h-3 text-[#7c3aed]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                                 </svg>
                             </div>
@@ -156,7 +156,7 @@
                     </div>
 
                     <!-- Resumo -->
-                    <div class="bg-indigo-50 rounded-md p-4 border border-indigo-200">
+                    <div class="bg-purple-50 rounded-md p-4 border border-purple-100">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-medium text-gray-900">Resumo</h3>
                             <div class="text-xs text-gray-600">
@@ -166,9 +166,9 @@
                         <div id="price-breakdown" class="space-y-1 text-sm text-gray-600 mb-3">
                             <!-- Será preenchido via JavaScript -->
                         </div>
-                        <div class="flex justify-between items-center pt-3 border-t border-indigo-200">
+                        <div class="flex justify-between items-center pt-3 border-t border-purple-200">
                             <span class="text-sm font-medium text-gray-900">Total:</span>
-                            <span id="total-price" class="text-lg font-bold text-indigo-600">R$ 0,00</span>
+                            <span id="total-price" class="text-lg font-bold text-[#7c3aed]">R$ 0,00</span>
                         </div>
                     </div>
 
@@ -182,7 +182,8 @@
                             Voltar
                         </a>
                         <button type="submit" 
-                                class="px-6 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center">
+                                style="color: white !important;"
+                                class="px-6 py-2 bg-[#7c3aed] text-white text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 flex items-center">
                             Continuar
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -233,7 +234,7 @@
             <div class="px-6 py-4 space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Local da Aplicação *</label>
-                    <select id="modal-location" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                    <select id="modal-location" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-[#7c3aed] focus:ring-1 focus:ring-purple-500">
                         <option value="">Selecione</option>
                     </select>
                 </div>
@@ -242,7 +243,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Quantidade *</label>
                     <input type="number" id="modal-quantity" min="1" value="1" 
                            onchange="updateModalPrices()"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-[#7c3aed] focus:ring-1 focus:ring-purple-500">
                 </div>
 
                 @if(auth()->check() && auth()->user()->isAdmin())
@@ -250,7 +251,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Valor Unitário (R$) *</label>
                     <input type="number" id="modal-unit-price-input" step="0.01" min="0" value="0" 
                            onchange="updateModalPriceFromInput()"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-[#7c3aed] focus:ring-1 focus:ring-purple-500">
                 </div>
                 @endif
 
@@ -273,7 +274,8 @@
                     Cancelar
                 </button>
                 <button type="button" onclick="addApplication()" id="add-application-btn"
-                        class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                        style="color: white !important;"
+                        class="px-4 py-2 bg-[#7c3aed] text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed">
                     Adicionar
                 </button>
             </div>
@@ -328,7 +330,7 @@
             const container = document.getElementById('size-buttons');
             container.innerHTML = sizes.map(size => `
                 <button type="button" onclick="openModal(${size.id})" 
-                        class="p-3 border border-gray-300 rounded-md hover:border-indigo-500 hover:bg-indigo-50 transition text-center">
+                        class="p-3 border border-gray-300 rounded-md hover:border-[#7c3aed] hover:bg-purple-50 transition text-center">
                     <div class="font-medium text-sm">${size.name}</div>
                     <div class="text-xs text-gray-500 mt-1">${size.dimensions || ''}</div>
                 </button>

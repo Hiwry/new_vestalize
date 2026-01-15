@@ -16,10 +16,10 @@
    ============================================ */
 :root {
     /* Primary Purple (Avento Identity) */
-    --avento-primary: #8b5cf6;
-    --avento-primary-hover: #7c3aed;
-    --avento-primary-light: rgba(139, 92, 246, 0.1);
-    --avento-primary-glow: rgba(139, 92, 246, 0.3);
+    --avento-primary: #7c3aed;
+    --avento-primary-hover: #6d28d9;
+    --avento-primary-light: rgba(124, 58, 237, 0.05);
+    --avento-primary-glow: rgba(124, 58, 237, 0.3);
 
     /* Backgrounds - LIGHT MODE (Clean & White like landing page) */
     --avento-bg-primary: #ffffff;
@@ -51,7 +51,7 @@ html.dark {
 
     --avento-border: rgba(255, 255, 255, 0.02);
     --avento-border-light: rgba(255, 255, 255, 0.04);
-    --avento-border-purple: rgba(139, 92, 246, 0.1);
+    --avento-border-purple: rgba(124, 58, 237, 0.1);
 
     --avento-text-primary: #ffffff;
     --avento-text-secondary: #94a3b8;
@@ -93,7 +93,7 @@ html.dark {
 /* Sidebar logo text */
 .avento-theme #sidebar h1,
 .avento-theme aside h1 {
-    background: linear-gradient(135deg, var(--avento-primary), #a78bfa) !important;
+    background: linear-gradient(135deg, var(--avento-primary), #6d28d9) !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
@@ -139,7 +139,7 @@ html.dark {
 .avento-theme aside .bg-gray-50,
 .avento-theme .dark #sidebar .bg-gray-900\/50,
 .avento-theme .dark aside .bg-gray-900\/50 {
-    background: rgba(139, 92, 246, 0.05) !important;
+    background: rgba(124, 58, 237, 0.05) !important;
     border-radius: 0.5rem !important;
 }
 
@@ -175,7 +175,8 @@ html.dark {
 .avento-theme .dark .bg-slate-800 {
     background: var(--avento-bg-card) !important;
     border: 1px solid var(--avento-border) !important;
-    border-radius: 1rem !important;
+    border-radius: 1.5rem !important;
+    backdrop-filter: blur(16px) !important;
 }
 
 .avento-theme .glass-card:hover,
@@ -195,6 +196,8 @@ html.dark {
     background: var(--avento-bg-card) !important;
     border: 1px solid var(--avento-border) !important;
     box-shadow: var(--avento-shadow-md) !important;
+    border-radius: 1.5rem !important;
+    backdrop-filter: blur(16px) !important;
 }
 
 /* ============================================
@@ -209,18 +212,18 @@ html.dark {
 
 .avento-theme .to-purple-600,
 .avento-theme .to-purple-500 {
-    --tw-gradient-to: #a78bfa !important;
+    --tw-gradient-to: #6d28d9 !important;
 }
 
-.avento-theme .bg-gradient-to-r,
-.avento-theme .bg-gradient-to-br {
-    background: linear-gradient(135deg, var(--avento-primary), #a78bfa) !important;
+/* Gradients only for specific primary elements */
+.avento-theme .bg-primary-gradient {
+    background: linear-gradient(135deg, var(--avento-primary), #6d28d9) !important;
 }
 
 /* Text gradient */
 .avento-theme .bg-clip-text.text-transparent,
 .avento-theme .text-gradient {
-    background: linear-gradient(135deg, var(--avento-primary), #a78bfa) !important;
+    background: linear-gradient(135deg, var(--avento-primary), #6d28d9) !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
@@ -234,6 +237,9 @@ html.dark {
 .avento-theme button[type="submit"] {
     background: var(--avento-primary) !important;
     color: #ffffff !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    font-weight: 700 !important;
 }
 
 .avento-theme .bg-indigo-600:hover,
@@ -248,15 +254,22 @@ html.dark {
 /* Primary button with gradient */
 .avento-theme .btn-primary-gradient,
 .avento-theme .bg-purple-600 {
-    background: linear-gradient(135deg, var(--avento-primary), #a78bfa) !important;
+    background: linear-gradient(135deg, var(--avento-primary), #6d28d9) !important;
     color: #ffffff !important;
 }
 
 .avento-theme .btn-primary,
 .avento-theme button[type="submit"] {
     border: none !important;
-    box-shadow: var(--avento-shadow-sm) !important;
-    transition: all 0.3s ease !important;
+    box-shadow: 0 10px 25px rgba(124, 58, 237, 0.2) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border-radius: 0.75rem !important;
+}
+
+.avento-theme .btn-primary:hover,
+.avento-theme button[type="submit"]:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 15px 30px rgba(124, 58, 237, 0.3) !important;
 }
 
 /* ============================================
@@ -269,13 +282,30 @@ html.dark {
     border: 1px solid var(--avento-border) !important;
     color: var(--avento-text-primary) !important;
     border-radius: 0.75rem !important;
+    padding: 0.75rem 1rem !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Fix for browser autofill "strange gray" background */
+.avento-theme input:-webkit-autofill,
+.avento-theme input:-webkit-autofill:hover,
+.avento-theme input:-webkit-autofill:focus,
+.avento-theme textarea:-webkit-autofill,
+.avento-theme textarea:-webkit-autofill:hover,
+.avento-theme textarea:-webkit-autofill:focus,
+.avento-theme select:-webkit-autofill,
+.avento-theme select:-webkit-autofill:hover,
+.avento-theme select:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--avento-text-primary) !important;
+    -webkit-box-shadow: 0 0 0px 1000px var(--avento-bg-input) inset !important;
+    transition: background-color 5000s ease-in-out 0s !important;
 }
 
 .avento-theme input:focus,
 .avento-theme select:focus,
 .avento-theme textarea:focus {
     border-color: var(--avento-primary) !important;
-    box-shadow: 0 0 0 3px var(--avento-primary-light) !important;
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2) !important;
     outline: none !important;
 }
 
@@ -394,6 +424,28 @@ html.dark {
     color: var(--avento-primary) !important;
 }
 
+/* Ensure purple brand blocks keep glyphs white */
+.avento-theme .bg-\[\#7c3aed\],
+.avento-theme .bg-\[\#7c3aed\] *,
+.avento-theme .bg-\[\#7c3aed\] svg,
+.avento-theme .bg-\[\#7c3aed\] path,
+.avento-theme .bg-\[\#7c3aed\] circle {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+/* Helper class to force white glyphs inside purple blocks */
+.avento-theme .force-white,
+.avento-theme .force-white *,
+.avento-theme .force-white svg,
+.avento-theme .force-white path,
+.avento-theme .force-white circle {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
 /* ============================================
    Borders
    ============================================ */
@@ -463,7 +515,7 @@ html.dark {
 /* Modal gradient header */
 .avento-theme .bg-gradient-to-r.from-blue-600.to-indigo-600,
 .avento-theme .bg-gradient-to-r.from-indigo-600.to-purple-600 {
-    background: linear-gradient(135deg, var(--avento-primary), #a78bfa) !important;
+    background: linear-gradient(135deg, var(--avento-primary), #6d28d9) !important;
 }
 
 /* ============================================
@@ -514,9 +566,12 @@ html.dark {
 
 /* Dashboard header icon */
 .avento-theme .w-10.h-10.rounded-2xl.bg-gradient-to-br,
-.avento-theme .w-12.h-12.rounded-2xl.bg-gradient-to-br {
-    background: linear-gradient(135deg, var(--avento-primary), #a78bfa) !important;
-    box-shadow: 0 4px 20px var(--avento-primary-glow) !important;
+.avento-theme .w-12.h-12.rounded-2xl.bg-gradient-to-br,
+.avento-theme .w-10.h-10.rounded-xl,
+.avento-theme .w-12.h-12.rounded-xl {
+    background: linear-gradient(135deg, var(--avento-primary), #6d28d9) !important;
+    box-shadow: 0 8px 16px rgba(124, 58, 237, 0.2) !important;
+    border-radius: 0.75rem !important;
 }
 
 /* Stat cards icons */
@@ -599,7 +654,7 @@ html.dark {
 /* Logo text */
 .avento-theme #sidebar h1,
 .avento-theme aside h1 {
-    background: linear-gradient(135deg, #8b5cf6, #a78bfa) !important;
+    background: linear-gradient(135deg, var(--avento-primary), #6d28d9) !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
@@ -627,7 +682,7 @@ html.dark {
 /* Menu items hover */
 .avento-theme #sidebar nav a:hover,
 .avento-theme aside nav a:hover {
-    background: rgba(139, 92, 246, 0.08) !important;
+    background: rgba(124, 58, 237, 0.08) !important;
     color: #1f2937 !important;
     /* Texto escuro no light mode */
 }
@@ -645,10 +700,10 @@ html.dark {
 .avento-theme aside nav a.bg-purple-600,
 .avento-theme aside nav a.bg-blue-600,
 .avento-theme aside nav a.bg-indigo-600 {
-    background: rgba(139, 92, 246, 0.12) !important;
-    color: #8b5cf6 !important;
+    background: var(--avento-primary-light) !important;
+    color: var(--avento-primary) !important;
     font-weight: 700 !important;
-    border-left: 4px solid #8b5cf6 !important;
+    border-left: 4px solid var(--avento-primary) !important;
     border-radius: 0 8px 8px 0 !important;
     padding-left: 0.8rem !important;
     margin-left: 0 !important;
@@ -659,7 +714,7 @@ html.dark {
 /* Force icon color for active main link */
 .avento-theme #sidebar nav a.bg-purple-600 svg,
 .avento-theme aside nav a.bg-purple-600 svg {
-    color: #8b5cf6 !important;
+    color: var(--avento-primary) !important;
 }
 
 .dark.avento-theme #sidebar nav a.bg-purple-600,
@@ -668,9 +723,9 @@ html.dark {
 .dark.avento-theme aside nav a.bg-purple-600,
 .dark.avento-theme aside nav a.bg-blue-600,
 .dark.avento-theme aside nav a.bg-indigo-600 {
-    background: rgba(139, 92, 246, 0.2) !important;
+    background: rgba(124, 58, 237, 0.1) !important;
     color: #ffffff !important;
-    border-left: 4px solid #8b5cf6 !important;
+    border-left: 4px solid var(--avento-primary) !important;
     border-radius: 0 8px 8px 0 !important;
     padding-left: 0.8rem !important;
     margin-left: 0 !important;
@@ -705,7 +760,7 @@ html.dark {
 
 .avento-theme #sidebar nav button:hover,
 .avento-theme aside nav button:hover {
-    background: rgba(139, 92, 246, 0.08) !important;
+    background: rgba(124, 58, 237, 0.08) !important;
     color: #e4e4e7 !important;
 }
 
@@ -736,10 +791,10 @@ html.dark {
 .avento-theme #sidebar nav div a.bg-blue-600,
 .avento-theme aside nav div a.bg-purple-600,
 .avento-theme aside nav div a.bg-blue-600 {
-    background: rgba(139, 92, 246, 0.12) !important;
-    color: #8b5cf6 !important;
+    background: var(--avento-primary-light) !important;
+    color: var(--avento-primary) !important;
     font-weight: 700 !important;
-    border-left: 4px solid #8b5cf6 !important;
+    border-left: 4px solid var(--avento-primary) !important;
     border-radius: 0 8px 8px 0 !important;
     padding-left: 0.8rem !important;
     box-shadow: none !important;
@@ -749,21 +804,21 @@ html.dark {
 .dark.avento-theme #sidebar nav div a.bg-blue-600,
 .dark.avento-theme aside nav div a.bg-purple-600,
 .dark.avento-theme aside nav div a.bg-blue-600 {
-    background: rgba(139, 92, 246, 0.2) !important;
+    background: rgba(124, 58, 237, 0.1) !important;
     color: #ffffff !important;
-    border-left: 4px solid #8b5cf6 !important;
+    border-left: 4px solid var(--avento-primary) !important;
 }
 
 /* Submenu Hover */
 .avento-theme #sidebar nav div a:hover,
 .avento-theme aside nav div a:hover {
-    background: rgba(139, 92, 246, 0.06) !important;
-    color: #8b5cf6 !important;
+    background: rgba(124, 58, 237, 0.04) !important;
+    color: var(--avento-primary) !important;
 }
 
 .dark.avento-theme #sidebar nav div a:hover,
 .dark.avento-theme aside nav div a:hover {
-    background: rgba(139, 92, 246, 0.1) !important;
+    background: rgba(124, 58, 237, 0.1) !important;
     color: #ffffff !important;
 }
 
@@ -787,8 +842,8 @@ html.dark {
 /* Mobile menu button */
 .avento-theme .md\:hidden button.bg-indigo-600,
 .avento-theme .md\:hidden button[class*="bg-indigo"] {
-    background: linear-gradient(135deg, #7c3aed, #8b5cf6) !important;
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3) !important;
+    background: linear-gradient(135deg, var(--avento-primary), var(--avento-primary-hover)) !important;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3) !important;
 }
 
 /* Notification panel in mobile */
@@ -842,7 +897,7 @@ html.dark {
 }
 
 .avento-theme .dark .text-white {
-    color: var(--avento-text-primary) !important;
+    color: #ffffff !important;
 }
 
 /* Remove light mode backgrounds */
@@ -884,7 +939,7 @@ html.dark {
     background: #030303 !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
     color: #ffffff !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 1), 0 0 15px rgba(139, 92, 246, 0.02) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 1), 0 0 15px rgba(124, 58, 237, 0.02) !important;
 }
 
 /* Specific Shadow and Glow for Dark Mode Differentiation */
@@ -980,7 +1035,7 @@ html.dark {
     background: #8b5cf6;
     border-radius: 8px;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
     z-index: 1;
 }
 
@@ -1029,13 +1084,13 @@ html.dark {
 }
 
 .profile-btn-custom:hover {
-    background: rgba(139, 92, 246, 0.05) !important;
-    border-color: rgba(139, 92, 246, 0.1) !important;
+    background: rgba(124, 58, 237, 0.05) !important;
+    border-color: rgba(124, 58, 237, 0.1) !important;
 }
 
 .dark .profile-btn-custom:hover {
-    background: rgba(139, 92, 246, 0.1) !important;
-    border-color: rgba(139, 92, 246, 0.2) !important;
+    background: rgba(124, 58, 237, 0.1) !important;
+    border-color: rgba(124, 58, 237, 0.2) !important;
 }
 
 .profile-avatar-custom {
@@ -1050,5 +1105,5 @@ html.dark {
     color: #ffffff !important;
     font-size: 12px;
     font-weight: 700;
-    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.2);
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.2);
 }

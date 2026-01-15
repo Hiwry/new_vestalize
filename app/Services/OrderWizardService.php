@@ -27,9 +27,11 @@ class OrderWizardService
     /**
      * Resolve a store_id para o pedido baseado no usuário
      */
-    public function resolveStoreId(): ?int
+    public function resolveStoreId(?\App\Models\User $user = null): ?int
     {
-        $user = Auth::user();
+        $user = $user ?? Auth::user();
+        if (!$user) return null;
+        
         $storeId = null;
         
         // Primeiro, tentar obter loja do tenant do usuário
@@ -51,10 +53,10 @@ class OrderWizardService
         
         // Fallbacks para casos específicos de role (se ainda não encontrou)
         if (!$storeId) {
-            if ($user->isAdminLoja()) {
+            if (method_exists($user, 'isAdminLoja') && $user->isAdminLoja()) {
                 $storeIds = $user->getStoreIds();
                 $storeId = !empty($storeIds) ? $storeIds[0] : null;
-            } elseif ($user->isVendedor()) {
+            } elseif (method_exists($user, 'isVendedor') && $user->isVendedor()) {
                 // Vendedor: buscar loja associada através da tabela store_user
                 $userStores = $user->stores()->get();
                 if ($userStores->isNotEmpty()) {
@@ -65,9 +67,11 @@ class OrderWizardService
         
         // Se ainda não encontrou (super admin ou usuário sem tenant), usar loja principal
         if (!$storeId) {
-            $mainStore = Store::where('is_main', true)
-                ->where('tenant_id', $user->tenant_id)
-                ->first();
+            $mainStoreQuery = Store::where('is_main', true);
+            if ($user->tenant_id) {
+                $mainStoreQuery->where('tenant_id', $user->tenant_id);
+            }
+            $mainStore = $mainStoreQuery->first();
             
             if (!$mainStore && !$user->tenant_id) {
                 $mainStore = Store::where('is_main', true)->first();
@@ -526,40 +530,48 @@ class OrderWizardService
     {
         return DB::transaction(function () use ($validated, $user) {
             $storeId = $this->resolveStoreId($user);
-            
-            // Cliente
-            if (!empty($validated['client_id'])) {
-                $client = \App\Models\Client::findOrFail($validated['client_id']);
-                $client->update($validated);
-            } else {
-                $validated['store_id'] = $storeId;
-                $client = \App\Models\Client::create($validated);
-            }
-
-            // Buscar status do tenant do usuário ou fallback
             $tenantId = $user->tenant_id;
+
+            // Se for super admin (sem tenant fixo), tentar pegar o tenant da loja resolvida
             if ($tenantId === null && $storeId) {
                 $store = Store::find($storeId);
                 $tenantId = $store?->tenant_id;
             }
             
+            // Cliente
+            if (!empty($validated['client_id'])) {
+                $client = \App\Models\Client::findOrFail($validated['client_id']);
+                $client->update(array_merge($validated, ['tenant_id' => $tenantId]));
+            } else {
+                $validated['store_id'] = $storeId;
+                $validated['tenant_id'] = $tenantId;
+                $client = \App\Models\Client::create($validated);
+            }
+
+            // Buscar status do tenant
             $status = \App\Models\Status::withoutGlobalScopes()
                 ->where('tenant_id', $tenantId)
                 ->orderBy('position')
                 ->first();
             
-            // Fallback: primeiro status de qualquer tenant
+            // Fallback: primeiro status disponível em qualquer tenant se não houver no tenant atual
             if (!$status) {
                 $status = \App\Models\Status::withoutGlobalScopes()->orderBy('id')->first();
             }
+
+            // Se MESMO ASSIM for null (banco vazio), lançar erro explicativo
+            if (!$status) {
+                throw new \Exception("Nenhum status configurado no sistema. Por favor, execute o StatusSeeder.");
+            }
+
             $deliveryDate = \App\Helpers\DateHelper::calculateDeliveryDate(Carbon::now(), 15);
 
             $order = Order::create([
-                'tenant_id' => $user->tenant_id,
+                'tenant_id' => $tenantId,
                 'client_id' => $client->id,
                 'user_id' => $user->id,
                 'store_id' => $storeId,
-                'status_id' => $status?->id ?? \App\Models\Status::withoutGlobalScopes()->orderBy('id')->first()?->id,
+                'status_id' => $status->id,
                 'order_date' => now()->toDateString(),
                 'delivery_date' => $deliveryDate->toDateString(),
                 'is_draft' => true,

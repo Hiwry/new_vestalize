@@ -176,6 +176,54 @@
         .bg-blue-600 { background-color: var(--brand-primary) !important; }
         .border-blue-600 { border-color: var(--brand-primary) !important; }
 
+        /* Sidebar visibilidade (nova skin) */
+        #sidebar {
+            background: linear-gradient(180deg, #f5f7ff 0%, #f9fbff 100%) !important;
+            border-right: 1px solid #e5e7eb !important;
+            box-shadow: 0 20px 60px -35px rgba(31, 41, 55, 0.25);
+        }
+        #sidebar nav a {
+            color: #1f2937 !important;
+            border-radius: 14px;
+            padding: 10px 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        #sidebar nav a svg {
+            color: inherit !important;
+        }
+        #sidebar nav a:hover {
+            background: #eef2ff !important;
+            color: #1d4ed8 !important;
+            box-shadow: 0 12px 32px -18px rgba(29, 78, 216, 0.35);
+        }
+        /* Tratar links já marcados com bg roxo como "ativos" */
+        #sidebar nav a[class*="bg-purple-600"] {
+            background: #1d4ed8 !important;
+            color: #fff !important;
+            box-shadow: 0 14px 32px -14px rgba(29, 78, 216, 0.45) !important;
+        }
+        #sidebar nav a[class*="bg-purple-600"] svg {
+            color: #fff !important;
+        }
+        .dark #sidebar {
+            background: #0b0f1a !important;
+            border-color: #1f2937 !important;
+            box-shadow: none;
+        }
+        .dark #sidebar nav a {
+            color: #e5e7eb !important;
+        }
+        .dark #sidebar nav a:hover {
+            background: rgba(124, 58, 237, 0.1) !important;
+            color: #c4d4ff !important;
+            box-shadow: none;
+        }
+        .dark #sidebar nav a[class*="bg-purple-600"] {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
+            color: #fff !important;
+        }
+
 
         /* Prevenir flash durante carregamento - aplicar ANTES do Tailwind */
         /* Prevenir flash durante carregamento - aplicar ANTES do Tailwind */

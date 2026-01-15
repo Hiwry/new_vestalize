@@ -191,7 +191,7 @@ class BudgetController extends Controller
         $budgetData['client_id'] = $clientId;
         Session::put('budget_data', $budgetData);
 
-        return redirect()->route('budget.items');
+        return redirect()->route('budget.personalization-type');
     }
 
     /**
@@ -318,6 +318,18 @@ class BudgetController extends Controller
         // Exibir formulário
         $items = session('budget_items', []);
         return view('budgets.wizard.items', compact('items'));
+    }
+
+    public function personalizationType(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $types = $request->input('types', []);
+            Session::put('budget_personalization_types', $types);
+            return redirect()->route('budget.items');
+        }
+
+        $selectedTypes = Session::get('budget_personalization_types', []);
+        return view('budgets.wizard.personalization-type', compact('selectedTypes'));
     }
 
     /**

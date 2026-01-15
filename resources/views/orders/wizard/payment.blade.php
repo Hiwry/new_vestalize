@@ -2,11 +2,51 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto">
+    <style>
+        .payment-input {
+            height: 46px;
+            border-radius: 12px;
+            padding: 0.65rem 0.9rem;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 8px 24px -16px rgba(124, 58, 237, 0.35);
+            transition: all 0.18s ease;
+        }
+        .payment-input:focus {
+            border-color: #7c3aed;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18);
+        }
+        .payment-input::placeholder {
+            color: #94a3b8;
+        }
+        .payment-input::-webkit-outer-spin-button,
+        .payment-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .payment-input {
+            -moz-appearance: textfield;
+        }
+        .dark .payment-input {
+            background: #0f172a;
+            border-color: #24334d;
+            color: #e2e8f0;
+            box-shadow: 0 12px 30px -18px rgba(0, 0, 0, 0.7);
+        }
+        .dark .payment-input:focus {
+            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.25);
+        }
+        .dark .payment-input::placeholder {
+            color: #64748b;
+        }
+    </style>
         <!-- Progress Bar -->
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 dark:from-indigo-600 dark:to-indigo-700 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-500/20 dark:shadow-indigo-600/20">4</div>
+                    <div class="w-10 h-10 bg-[#7c3aed] text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">4</div>
                     <div>
                         <span class="text-lg font-bold text-gray-900 dark:text-white">Pagamento</span>
                         <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa 4 de 5</p>
@@ -14,11 +54,11 @@
                 </div>
                 <div class="text-right">
                     <div class="text-xs text-gray-500 dark:text-slate-400 font-medium">Progresso</div>
-                    <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">80%</div>
+                    <div class="text-2xl font-bold text-[#7c3aed] dark:text-[#a78bfa]">80%</div>
                 </div>
             </div>
             <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-2.5 shadow-inner">
-                <div class="bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-500 dark:to-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out shadow-lg shadow-indigo-500/30 dark:shadow-indigo-600/30" style="width: 80%"></div>
+                <div class="bg-[#7c3aed] h-2.5 rounded-full transition-all duration-500 ease-out shadow-lg shadow-purple-500/30 dark:shadow-purple-600/30" style="width: 80%"></div>
             </div>
         </div>
 
@@ -27,25 +67,27 @@
             <!-- Header -->
             <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-gray-50 to-white dark:from-slate-800/50 dark:to-slate-900/50">
                 <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 dark:from-indigo-600 dark:to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20 dark:shadow-indigo-600/20">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">Configuração de Pagamento</h1>
-                        <p class="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Defina valores, formas de pagamento e datas</p>
+                    <div class="flex items-center">
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                             <div class="w-8 h-8 bg-[#7c3aed] rounded-lg flex items-center justify-center shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                            Configuração de Pagamento
+                        </h1>
                     </div>
                 </div>
+                <p class="text-sm text-gray-500 dark:text-slate-400 mt-1 pl-10">Defina valores, formas de pagamento e datas</p>
             </div>
 
             <!-- Content -->
             <div class="p-6">
             <!-- Resumo do Pedido -->
-                <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 p-5 mb-6">
+                <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 mb-6 shadow-sm">
                     <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-5 h-5 bg-indigo-100 dark:bg-indigo-900/30 rounded-md flex items-center justify-center">
-                            <svg class="w-3 h-3 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-5 h-5 bg-purple-100 dark:bg-purple-900/30 rounded-md flex items-center justify-center">
+                            <svg class="w-3 h-3 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                             </svg>
                         </div>
@@ -63,7 +105,7 @@
                             <span class="font-medium text-gray-900 dark:text-white" id="total-pieces">{{ $order->items->sum('quantity') }}</span>
                         </div>
                         
-                        <div class="border-t border-indigo-200 dark:border-indigo-800 pt-2 mt-2">
+                        <div class="border-t border-purple-200 dark:border-purple-800 pt-2 mt-2">
                             <div class="flex justify-between">
                                 <span class="text-gray-700 dark:text-slate-300">Subtotal (Etapa 2 + 3):</span>
                                 <span class="font-medium text-gray-900 dark:text-white" id="subtotal">R$ {{ number_format($order->subtotal, 2, ',', '.') }}</span>
@@ -75,7 +117,7 @@
                         </div>
                         
                         <!-- Acréscimo Especial (personalizável) -->
-                        <div class="flex items-center justify-between mt-2 pt-2 border-t border-indigo-100 dark:border-indigo-800/50">
+                        <div class="flex items-center justify-between mt-2 pt-2 border-t border-purple-100 dark:border-purple-800/50">
                             <div class="flex items-center space-x-2">
                                 <span class="text-gray-700 dark:text-slate-300 text-sm">Acréscimo Especial:</span>
                                 <span class="text-xs text-gray-500 dark:text-slate-400">(digitar valor)</span>
@@ -84,7 +126,7 @@
                                 <span class="text-sm text-orange-600 dark:text-orange-400">+R$</span>
                                 <input type="number" id="custom_surcharge" step="0.01" min="0" value="0"
                                        onchange="calculateTotal()" oninput="calculateTotal()"
-                                       class="w-20 px-2 py-1 text-right text-sm rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-400">
+                                       class="w-20 px-2 py-1 text-right text-sm rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:border-[#7c3aed] dark:focus:border-[#7c3aed] focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed]">
                             </div>
                         </div>
                         
@@ -98,10 +140,10 @@
                             <span class="font-medium text-green-600 dark:text-green-400" id="discount-display">-R$ 0,00</span>
                         </div>
                         
-                        <div class="border-t border-indigo-200 dark:border-indigo-800 pt-2 mt-2">
+                        <div class="border-t border-purple-200 dark:border-purple-800 pt-2 mt-2">
                             <div class="flex justify-between text-base font-bold">
                                 <span class="text-gray-900 dark:text-white">Total Final:</span>
-                                <span id="total-final" class="text-indigo-600 dark:text-indigo-400">R$ {{ number_format($order->subtotal, 2, ',', '.') }}</span>
+                                <span id="total-final" class="text-[#7c3aed] dark:text-purple-400">R$ {{ number_format($order->subtotal, 2, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>
@@ -120,55 +162,55 @@
                     <!-- Data de Entrada -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-5 h-5 bg-indigo-100 dark:bg-indigo-900/30 rounded-md flex items-center justify-center">
-                                <svg class="w-3 h-3 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-5 h-5 bg-purple-100 dark:bg-purple-900/30 rounded-md flex items-center justify-center">
+                                <svg class="w-3 h-3 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
                             </div>
                             <h3 class="text-sm font-medium text-gray-900 dark:text-white">Data de Entrada *</h3>
                         </div>
-                        <div class="bg-gray-50 dark:bg-slate-800/50 rounded-md p-4">
+                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm">
                             <input type="date" id="entry_date" name="entry_date" required
                                    value="{{ $sessionPaymentData['entry_date'] ?? $order->payments->first()->entry_date ?? $order->entry_date ?? date('Y-m-d') }}"
-                                   class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">
+                                   class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:border-[#7c3aed] dark:focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
                         </div>
                     </div>
 
                     <!-- Taxa de Entrega -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-5 h-5 bg-indigo-100 dark:bg-indigo-900/30 rounded-md flex items-center justify-center">
-                                <svg class="w-3 h-3 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-5 h-5 bg-purple-100 dark:bg-purple-900/30 rounded-md flex items-center justify-center">
+                                <svg class="w-3 h-3 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5-2a9 9 0 11-18 0 9 9 0 0118 0z M9 16h6"></path>
                                 </svg>
                             </div>
                             <h3 class="text-sm font-medium text-gray-900 dark:text-white">Taxa de Entrega</h3>
                         </div>
-                        <div class="bg-gray-50 dark:bg-slate-800/50 rounded-md p-4">
+                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm">
                             <label for="delivery_fee" class="block text-xs text-gray-600 dark:text-slate-400 mb-2">Valor da Taxa (R$)</label>
                             <input type="number" id="delivery_fee" name="delivery_fee" step="0.01" min="0" value="{{ $sessionPaymentData['delivery_fee'] ?? $order->delivery_fee ?? 0 }}"
                                    onchange="calculateTotal()"
                                    placeholder="0.00"
-                                   class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">
+                                   class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:border-[#7c3aed] dark:focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
                         </div>
                     </div>
 
                     <!-- Desconto -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-5 h-5 bg-indigo-100 dark:bg-indigo-900/30 rounded-md flex items-center justify-center">
-                                <svg class="w-3 h-3 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-5 h-5 bg-purple-100 dark:bg-purple-900/30 rounded-md flex items-center justify-center">
+                                <svg class="w-3 h-3 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                                 </svg>
                             </div>
                             <h3 class="text-sm font-medium text-gray-900 dark:text-white">Desconto</h3>
                         </div>
-                        <div class="bg-gray-50 dark:bg-slate-800/50 rounded-md p-4">
+                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label for="discount_type" class="block text-xs text-gray-600 dark:text-slate-400 mb-2">Tipo de Desconto</label>
                                     <select id="discount_type" onchange="updateDiscountType()"
-                                            class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">
+                                            class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:border-[#7c3aed] dark:focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
                                         <option value="none">Sem Desconto</option>
                                         <option value="percentage">Porcentagem (%)</option>
                                         <option value="fixed">Valor Fixo (R$)</option>
@@ -180,7 +222,7 @@
                                     </label>
                                     <input type="number" id="discount_value" step="0.01" min="0" value="0" disabled
                                            onchange="calculateTotal()"
-                                           class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed">
+                                           class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:border-[#7c3aed] dark:focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed">
                                 </div>
                             </div>
                             <div id="discount-preview" class="mt-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md hidden">
@@ -199,22 +241,22 @@
                     <!-- Formas de Pagamento -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-5 h-5 bg-indigo-100 dark:bg-indigo-900/30 rounded-md flex items-center justify-center">
-                                <svg class="w-3 h-3 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-5 h-5 bg-purple-100 dark:bg-purple-900/30 rounded-md flex items-center justify-center">
+                                <svg class="w-3 h-3 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                                 </svg>
                             </div>
                             <h3 class="text-sm font-medium text-gray-900 dark:text-white">Adicionar Pagamento</h3>
                         </div>
 
-                        <div class="bg-gray-50 dark:bg-slate-800/50 rounded-md p-4">
+                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm">
                             <!-- Formulário de Adicionar Pagamento -->
                             <div class="bg-white dark:bg-slate-800 rounded-md p-4 border border-gray-200 dark:border-slate-700 mb-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                                     <div>
                                         <label class="block text-xs text-gray-600 dark:text-slate-400 mb-2">Forma de Pagamento</label>
                                         <select id="new-payment-method" 
-                                                class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">
+                                                class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:border-[#7c3aed] dark:focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
                                             <option value="pix">PIX</option>
                                             <option value="dinheiro">Dinheiro</option>
                                             <option value="cartao">Cartão</option>
@@ -226,25 +268,25 @@
                                         <label class="block text-xs text-gray-600 dark:text-slate-400 mb-2">Valor (R$)</label>
                                         <input type="number" id="new-payment-amount" step="0.01" min="0" value="0"
                                                placeholder="0.00"
-                                               class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">
+                                               class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:border-[#7c3aed] dark:focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
                                     </div>
                                 </div>
                                 
                                 <!-- Valor Sugerido -->
-                                <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-4 mb-4 border border-indigo-200 dark:border-indigo-800">
+                                <div class="bg-gradient-to-r from-purple-50 to-purple-50 dark:from-purple-900/20 dark:to-purple-900/20 rounded-lg p-4 mb-4 border border-purple-200 dark:border-purple-800">
                                     <div class="flex items-center justify-between mb-2">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center">
-                                                <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center">
+                                                <svg class="w-4 h-4 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                                                 </svg>
                                             </div>
                                             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Valor Sugerido (50%)</span>
                                         </div>
-                                        <span class="text-xl font-bold text-indigo-600 dark:text-indigo-400" id="suggested-amount">R$ 0,00</span>
+                                        <span class="text-xl font-bold text-[#7c3aed] dark:text-purple-400" id="suggested-amount">R$ 0,00</span>
                                     </div>
-                                    <button type="button" onclick="useSuggestedAmount()" 
-                                            class="w-full mt-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
+                                    <button type="button" onclick="useSuggestedAmount()" style="color: white !important;" 
+                                            class="w-full mt-2 px-4 py-2 bg-[#7c3aed] text-white rounded-md text-sm font-semibold transition-all flex items-center justify-center gap-2 shadow-sm">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                         </svg>
@@ -252,8 +294,8 @@
                                     </button>
                                 </div>
 
-                                <button type="button" onclick="addPaymentMethod()" 
-                                        class="w-full px-4 py-2.5 bg-indigo-600 dark:bg-indigo-500 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors text-sm font-medium shadow-lg shadow-indigo-500/20 dark:shadow-indigo-600/20">
+                                <button type="button" onclick="addPaymentMethod()" style="color: white !important;" 
+                                        class="w-full px-4 py-2.5 bg-[#7c3aed] text-white rounded-md transition-colors text-sm font-medium shadow-lg shadow-purple-500/20 dark:shadow-purple-600/20">
                                     Adicionar Pagamento
                                 </button>
                             </div>
@@ -264,14 +306,14 @@
                         </div>
 
                             <!-- Resumo de Pagamentos -->
-                            <div class="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-md border border-indigo-200 dark:border-indigo-800">
+                            <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-md border border-purple-200 dark:border-purple-800">
                                 <div class="flex justify-between text-sm mb-1">
                                     <span class="text-gray-700 dark:text-slate-300">Total Pago:</span>
                                     <span class="font-semibold text-gray-900 dark:text-white" id="total-paid">R$ 0,00</span>
                                 </div>
                             <div class="flex justify-between text-sm">
                                     <span class="text-gray-700 dark:text-slate-300">Restante:</span>
-                                    <span class="font-semibold text-indigo-600 dark:text-indigo-400" id="remaining">R$ 0,00</span>
+                                    <span class="font-semibold text-[#7c3aed] dark:text-purple-400" id="remaining">R$ 0,00</span>
                             </div>
                             </div>
                         </div>
@@ -287,7 +329,8 @@
                             Voltar
                         </a>
                         <button type="submit" 
-                                class="px-6 py-2 bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-500 dark:to-indigo-600 text-white text-sm font-medium rounded-md hover:from-indigo-700 hover:to-indigo-600 dark:hover:from-indigo-600 dark:hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:ring-offset-2 flex items-center shadow-lg shadow-indigo-500/20 dark:shadow-indigo-600/20 transition-all">
+                                style="color: white !important;"
+                                class="px-6 py-2 bg-[#7c3aed] text-white text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:ring-offset-2 flex items-center shadow-lg shadow-purple-500/20 dark:shadow-purple-600/20 transition-all">
                             Continuar
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -537,7 +580,7 @@
                 <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-md border border-gray-200 dark:border-slate-700 transition-colors">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center">
-                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
                         </div>
@@ -547,7 +590,7 @@
                     </div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <span class="text-base font-bold text-indigo-600 dark:text-indigo-400">R$ ${pm.amount.toFixed(2).replace('.', ',')}</span>
+                        <span class="text-base font-bold text-[#7c3aed] dark:text-purple-400">R$ ${pm.amount.toFixed(2).replace('.', ',')}</span>
                         <button type="button" onclick="removePaymentMethod(${pm.id})" 
                                 class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors"
                                 title="Remover">
@@ -578,7 +621,7 @@
             } else {
                 remainingLabel.textContent = 'Restante:';
                 remainingElement.textContent = `R$ ${remaining.toFixed(2).replace('.', ',')}`;
-                remainingElement.className = 'font-semibold text-indigo-600 dark:text-indigo-400';
+                remainingElement.className = 'font-semibold text-[#7c3aed] dark:text-purple-400';
             }
 
             // Atualizar campo hidden

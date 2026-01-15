@@ -70,7 +70,7 @@
                     @endforeach
                 </ul>
                 
-                <a href="{{ route('register') }}" class="btn-outline w-full text-center">
+                <a href="{{ route('register.public') }}" class="btn-outline w-full text-center">
                     Começar Teste Grátis
                 </a>
             </div>
@@ -107,7 +107,7 @@
                     @endforeach
                 </ul>
                 
-                <a href="{{ route('register') }}" class="btn-primary w-full text-center">
+                <a href="{{ route('register.public') }}" class="btn-primary w-full text-center">
                     Começar Teste Grátis
                 </a>
             </div>
