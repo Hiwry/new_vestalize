@@ -141,6 +141,21 @@
                         @enderror
                     </div>
 
+                    {{-- Código de Indicação --}}
+                    <div>
+                        <label class="block text-xs font-bold text-muted uppercase tracking-widest mb-2">
+                            Código de Indicação (Opcional)
+                        </label>
+                        <input type="text"
+                               name="referral_code"
+                               value="{{ old('referral_code', $ref ?? '') }}"
+                               class="input-theme w-full px-4 py-4 rounded-xl focus:outline-none"
+                               placeholder="CÓDIGO INDICADOR">
+                        @error('referral_code')
+                            <p class="mt-2 text-xs text-red-400 italic font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     {{-- Dados do usuário --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="md:col-span-2">
@@ -264,5 +279,54 @@
     </div>
 
     <script src="{{ asset('js/landing.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const referralInput = document.querySelector('input[name="referral_code"]');
+            const referralLabel = referralInput.previousElementSibling;
+            let timeout = null;
+
+            function validateReferral(code) {
+                if (!code) {
+                    referralInput.classList.remove('border-green-500', 'border-red-500');
+                    return;
+                }
+
+                fetch(`/api/affiliates/validate/${code}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.valid) {
+                            referralInput.classList.add('border-green-500');
+                            referralInput.classList.remove('border-red-500');
+                            // Adicionar feedback visual suave
+                            let feedback = referralInput.parentNode.querySelector('.referral-feedback');
+                            if (!feedback) {
+                                feedback = document.createElement('p');
+                                feedback.className = 'referral-feedback mt-2 text-xs text-green-400 font-medium italic';
+                                referralInput.parentNode.appendChild(feedback);
+                            }
+                            feedback.textContent = `✓ Indicado por: ${data.affiliate_name}`;
+                        }
+                    })
+                    .catch(error => {
+                        referralInput.classList.add('border-red-500');
+                        referralInput.classList.remove('border-green-500');
+                        let feedback = referralInput.parentNode.querySelector('.referral-feedback');
+                        if (feedback) feedback.remove();
+                    });
+            }
+
+            referralInput.addEventListener('input', function() {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    validateReferral(this.value.trim());
+                }, 500);
+            });
+
+            // Validar se já vier preenchido (via URL)
+            if (referralInput.value) {
+                validateReferral(referralInput.value.trim());
+            }
+        });
+    </script>
 </body>
 </html>

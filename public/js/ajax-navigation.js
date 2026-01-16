@@ -405,15 +405,9 @@
         }
     }
 
-    // Interceptar cliques nos links da sidebar
-    function setupSidebarNavigation() {
-        const sidebar = document.querySelector('#sidebar');
-        if (!sidebar) {
-            return;
-        }
-
-        // Usar delegação de eventos para links que podem ser adicionados dinamicamente
-        sidebar.addEventListener('click', async (e) => {
+    // Interceptar cliques em links globalmente para navegação SPA
+    function setupGlobalNavigation() {
+        document.body.addEventListener('click', async (e) => {
             // Encontrar o link mais próximo
             let link = e.target;
             while (link && link.tagName !== 'A') {
@@ -430,13 +424,14 @@
                 link.href.startsWith('tel:') ||
                 link.href.startsWith('javascript:') ||
                 link.hasAttribute('data-no-ajax') ||
+                link.hasAttribute('data-no-js-nav') ||
                 link.classList.contains('no-ajax') ||
                 link.hasAttribute('download')) {
                 return;
             }
 
-            // Ignorar se for um link dentro de um formulário
-            if (link.closest('form')) {
+            // Ignorar se for um link dentro de um formulário que não seja apenas navegação
+            if (link.closest('form') && link.type !== 'button') {
                 return;
             }
 
@@ -448,7 +443,7 @@
             // Verificar se é uma URL interna
             let url;
             try {
-                url = new URL(href, window.location.origin);
+                url = new URL(link.href);
                 if (url.origin !== window.location.origin) {
                     return; // Link externo, deixar comportamento padrão
                 }
@@ -456,16 +451,21 @@
                 return; // URL inválida
             }
 
-            // Nunca usar AJAX para o catálogo público (/catalogo)
-            if (isCatalogPublicUrl(url.href)) {
-                return; // deixar o navegador fazer um load completo
+            // Nunca usar AJAX para o catálogo público (/catalogo) ou rotas de logout/login explicitas
+            const path = url.pathname;
+            if (isCatalogPublicUrl(url.href) ||
+                path.startsWith('/logout') ||
+                path.startsWith('/login') ||
+                path.startsWith('/register')) {
+                return;
             }
 
-            // Verificar se já está na mesma URL
+            // Se for o mesmo caminho e mesma query, não fazer nada
             const currentPath = window.location.pathname + window.location.search;
             const targetPath = url.pathname + url.search;
             if (currentPath === targetPath) {
-                return; // Já está na mesma página
+                e.preventDefault();
+                return;
             }
 
             // Prevenir comportamento padrão
@@ -474,7 +474,7 @@
 
             // Carregar página via AJAX
             await loadPage(url.href);
-        }, true); // Usar capture phase para garantir que interceptamos antes de outros handlers
+        }, true);
     }
 
     // Lidar com navegação do navegador (voltar/avançar)
@@ -488,15 +488,16 @@
 
             loadPage(e.state.url);
         } else {
-            window.location.reload();
+            // Fallback para quando o estado é perdido
+            loadPage(window.location.href);
         }
     });
 
     // Inicializar quando o DOM estiver pronto
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupSidebarNavigation);
+        document.addEventListener('DOMContentLoaded', setupGlobalNavigation);
     } else {
-        setupSidebarNavigation();
+        setupGlobalNavigation();
     }
 
     // Atualizar links ativos na inicialização

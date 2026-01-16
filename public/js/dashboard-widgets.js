@@ -63,8 +63,8 @@ class DashboardWidgets {
             
             .widget-chosen {
                 transform: scale(1.02) rotate(1deg);
-                box-shadow: 0 25px 60px -15px rgba(99, 102, 241, 0.35),
-                            0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+                box-shadow: 0 25px 60px -15px rgba(124, 58, 237, 0.35),
+                            0 0 0 3px rgba(124, 58, 237, 0.2) !important;
                 z-index: 1000;
             }
             
@@ -135,13 +135,13 @@ class DashboardWidgets {
             }
             
             .widget-control-btn:hover {
-                color: rgb(79, 70, 229);
-                background: rgb(238, 242, 255);
+                color: #7c3aed;
+                background: rgba(124, 58, 237, 0.1);
             }
             
             .dark .widget-control-btn:hover {
-                color: rgb(129, 140, 248);
-                background: rgba(79, 70, 229, 0.2);
+                color: #a78bfa;
+                background: rgba(124, 58, 237, 0.2);
             }
             
             /* Animação de Entrada */
@@ -182,7 +182,7 @@ class DashboardWidgets {
                 transform: translate(-50%, -50%);
                 width: 40px;
                 height: 5px;
-                background: rgba(99, 102, 241, 0.3);
+                background: rgba(124, 58, 237, 0.3);
                 border-radius: 3px;
                 opacity: 0;
                 transition: opacity 0.2s;
@@ -214,7 +214,7 @@ class DashboardWidgets {
             .widget-ripple {
                 position: absolute;
                 border-radius: 50%;
-                background: rgba(99, 102, 241, 0.3);
+                background: rgba(124, 58, 237, 0.3);
                 transform: scale(0);
                 animation: ripple 0.6s ease-out;
                 pointer-events: none;

@@ -1,94 +1,134 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="min-h-screen bg-[#f7f8fb] text-[#0f172a] dark:bg-[#0b1020] dark:text-white">
-    <div class="max-w-6xl mx-auto px-4 py-10 space-y-10">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <p class="text-sm uppercase tracking-[0.25em] text-[#6b7280] font-semibold dark:text-gray-300">Central de Vendas</p>
-                <h1 class="text-3xl md:text-4xl font-black leading-tight mt-1 text-[#0f172a] dark:text-white">Escolha o fluxo que deseja abrir</h1>
-                <p class="text-[#4b5563] dark:text-gray-300 mt-2 max-w-3xl">Pedidos, orçamentos, PDV e acompanhamento visual reunidos em um hub único.</p>
-            </div>
-            <div class="px-4 py-3 rounded-2xl bg-white border border-gray-200 shadow-sm dark:bg-white/5 dark:border-white/10">
-                <div class="text-xs uppercase tracking-wide text-[#6b7280] dark:text-gray-300">Atalhos</div>
-                <div class="text-sm text-[#111827] dark:text-gray-100">{{ now()->format('d/m/Y') }}</div>
-            </div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12 animate-fade-in-up">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div class="space-y-2">
+            <span class="inline-block px-3 py-1 rounded-full bg-primary-light text-primary text-xs font-bold tracking-widest uppercase mb-2">
+                Central de Vendas
+            </span>
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight text-white leading-none">
+                Escolha o fluxo que <span class="text-gradient">deseja abrir</span>
+            </h1>
+            <p class="text-muted text-lg max-w-2xl font-medium">
+                Pedidos, orçamentos, PDV e acompanhamento visual reunidos em um hub único e intuitivo.
+            </p>
         </div>
-
-        @php
-            $cards = [
-                [
-                    'title' => 'Pedidos',
-                    'desc' => 'Gerencie, edite e acompanhe pedidos em andamento.',
-                    'route' => route('orders.index'),
-                    'accent' => '#1f2937',
-                    'icon' => 'M3 3h18v4H3V3zm2 6h14l-1.5 12h-11L5 9zm4 2v6m6-6v6',
-                ],
-                [
-                    'title' => 'Orçamentos',
-                    'desc' => 'Crie e revise propostas comerciais em poucos cliques.',
-                    'route' => route('budget.index'),
-                    'accent' => '#4338ca',
-                    'icon' => 'M12 8c-1.657 0-3 1.343-3 3v7h6v-7c0-1.657-1.343-3-3-3zm0-4a3 3 0 110 6 3 3 0 010-6z',
-                ],
-                [
-                    'title' => 'Link de Orçamento',
-                    'desc' => 'Disponibilize links públicos para aprovação de clientes.',
-                    'route' => route('admin.quote-settings.index'),
-                    'accent' => '#0ea5e9',
-                    'icon' => 'M15 7h5v5m0-5l-8 8-4-4-6 6',
-                ],
-                [
-                    'title' => 'PDV',
-                    'desc' => 'Registre vendas rápidas em balcão com o ponto de venda.',
-                    'route' => route('pdv.index'),
-                    'accent' => '#ea580c',
-                    'icon' => 'M4 7h16v2H4V7zm2 4h12v8H6v-8zm2-8h8v2H8V3z',
-                ],
-                [
-                    'title' => 'Clientes',
-                    'desc' => 'Acesse a base de clientes e consulte histórico.',
-                    'route' => route('clients.index'),
-                    'accent' => '#0f766e',
-                    'icon' => 'M5 20h14M12 14a4 4 0 100-8 4 4 0 000 8z',
-                ],
-                [
-                    'title' => 'Kanban',
-                    'desc' => 'Visualize o pipeline de produção em tempo real.',
-                    'route' => route('kanban.index'),
-                    'accent' => '#7c3aed',
-                    'icon' => 'M5 6h4v12H5V6zm5 0h4v8h-4V6zm5 0h4v10h-4V6z',
-                ],
-            ];
-        @endphp
-
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            @foreach($cards as $card)
-                <a href="{{ $card['route'] }}" class="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-lg dark:border-white/10 dark:bg-[#111827]">
-                    <div class="absolute top-0 left-0 w-full h-1.5" style="background-color: {{ $card['accent'] }};"></div>
-                    <div class="relative h-full px-5 py-6 flex flex-col gap-4">
-                        <div class="flex items-center justify-between">
-                            <div class="w-11 h-11 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200 dark:bg-white/10 dark:border-white/10">
-                                <svg class="w-6 h-6 text-[#111827] dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $card['icon'] }}" />
-                                </svg>
-                            </div>
-                            <span class="text-xs uppercase tracking-[0.2em] text-gray-500 font-semibold dark:text-gray-300">Acessar</span>
-                        </div>
-                        <div class="space-y-2">
-                            <h3 class="text-xl font-extrabold text-[#0f172a] leading-tight dark:text-white">{{ $card['title'] }}</h3>
-                            <p class="text-sm text-[#4b5563] leading-relaxed dark:text-gray-300">{{ $card['desc'] }}</p>
-                        </div>
-                        <div class="mt-auto flex items-center gap-2 text-sm font-semibold text-[#111827] dark:text-white">
-                            <span class="group-hover:translate-x-1 transition-transform">Ir agora</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                    </div>
-                </a>
-            @endforeach
+        
+        <div class="hidden md:flex items-center gap-4 px-6 py-4 rounded-2xl bg-card-bg border border-border shadow-2xl backdrop-blur-md">
+            <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                <i class="fa-solid fa-calendar-day text-lg"></i>
+            </div>
+            <div>
+                <p class="text-[10px] uppercase tracking-widest text-muted font-bold">Atalhos rápidos</p>
+                <p class="text-sm font-bold text-white tracking-tight">{{ now()->translatedFormat('l, d \d\e F') }}</p>
+            </div>
         </div>
     </div>
+
+    @php
+        $cards = [
+            [
+                'title' => 'Pedidos',
+                'desc' => 'Gerencie, edite e acompanhe pedidos em andamento com precisão total.',
+                'route' => route('orders.index'),
+                'accent' => '#7c3aed', // Purple
+                'icon' => 'fa-shopping-bag',
+                'delay' => 'delay-100'
+            ],
+            [
+                'title' => 'Orçamentos',
+                'desc' => 'Crie e revise propostas comerciais elegantes para seus clientes em segundos.',
+                'route' => route('budget.index'),
+                'accent' => '#3b82f6', // Blue
+                'icon' => 'fa-file-invoice-dollar',
+                'delay' => 'delay-200'
+            ],
+            [
+                'title' => 'Link de Orçamento',
+                'desc' => 'Gere links públicos profissionais para aprovação direta do cliente.',
+                'route' => route('admin.quote-settings.index'),
+                'accent' => '#06b6d4', // Cyan
+                'icon' => 'fa-paper-plane',
+                'delay' => 'delay-300'
+            ],
+            [
+                'title' => 'PDV',
+                'desc' => 'Ponto de venda otimizado para vendas rápidas e checkout eficiente.',
+                'route' => route('pdv.index'),
+                'accent' => '#f97316', // Orange
+                'icon' => 'fa-cash-register',
+                'delay' => 'delay-400'
+            ],
+            [
+                'title' => 'Clientes',
+                'desc' => 'Base de dados CRM completa para gerir o relacionamento com seus clientes.',
+                'route' => route('clients.index'),
+                'accent' => '#10b981', // Emerald
+                'icon' => 'fa-users',
+                'delay' => 'delay-500'
+            ],
+            [
+                'title' => 'Kanban',
+                'desc' => 'Gestão visual da produção. Acompanhe cada etapa em tempo real.',
+                'route' => route('kanban.index'),
+                'accent' => '#d946ef', // Fuchsia
+                'icon' => 'fa-layer-group',
+                'delay' => 'delay-500'
+            ],
+        ];
+    @endphp
+
+    <!-- Grid Layout -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        @foreach($cards as $card)
+            <a href="{{ $card['route'] }}" 
+               class="group relative h-64 rounded-3xl bg-card-bg border border-border p-8 transition-all duration-300 hover:border-primary/50 hover:bg-card-hover hover-lift shadow-2xl overflow-hidden {{ $card['delay'] }}">
+                
+                <!-- Decoration -->
+                <div class="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors"></div>
+                <div class="absolute top-0 left-0 w-1.5 h-full opacity-0 group-hover:opacity-100 transition-opacity" style="background: {{ $card['accent'] }}"></div>
+
+                <div class="relative h-full flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div class="w-14 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/10 group-hover:border-primary/20" style="color: {{ $card['accent'] }}">
+                            <i class="fa-solid {{ $card['icon'] }} text-2xl"></i>
+                        </div>
+                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
+                            <span class="text-[10px] uppercase tracking-tighter font-black text-primary">Acessar</span>
+                            <i class="fa-solid fa-arrow-right text-[10px] text-primary"></i>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 mt-4">
+                        <h3 class="text-2xl font-bold text-white tracking-tight group-hover:text-primary transition-colors">
+                            {{ $card['title'] }}
+                        </h3>
+                        <p class="text-muted text-sm leading-relaxed line-clamp-2">
+                            {{ $card['desc'] }}
+                        </p>
+                    </div>
+
+                    <div class="pt-4 border-t border-white/5 flex items-center justify-between">
+                        <span class="text-xs font-bold text-muted transition-colors group-hover:text-white">Ir agora</span>
+                        <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-all duration-300 group-hover:bg-primary group-hover:text-white">
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        @endforeach
+    </div>
 </div>
+
+<style>
+    /* Custom Clamp if tailwind line-clamp plugin is missing */
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
 @endsection

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Plan;
 use App\Models\Store;
 use App\Models\Status;
+use App\Models\Affiliate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -18,10 +19,12 @@ class PublicRegistrationController extends Controller
     /**
      * Mostrar formulário de registro
      */
-    public function show()
+    public function show(Request $request)
     {
         $plans = Plan::all();
-        return view('auth.registro', compact('plans'));
+        $ref = $request->query('ref');
+        
+        return view('auth.registro', compact('plans', 'ref'));
     }
 
     /**
@@ -35,15 +38,25 @@ class PublicRegistrationController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'plan_id' => 'required|exists:plans,id',
+            'referral_code' => 'nullable|string|exists:affiliates,code',
         ]);
 
         // 1. Criar o Tenant com o Plano selecionado pelo usuário e 7 Dias de Teste
         $planId = $request->plan_id;
+        $affiliateId = null;
+
+        if ($request->referral_code) {
+            $affiliate = Affiliate::where('code', strtoupper($request->referral_code))->first();
+            if ($affiliate) {
+                $affiliateId = $affiliate->id;
+            }
+        }
 
         $tenant = Tenant::create([
             'name' => $request->company_name,
             'email' => $request->email,
             'plan_id' => $planId,
+            'affiliate_id' => $affiliateId,
             'store_code' => Tenant::generateStoreCode(),
             'status' => 'active',
             'trial_ends_at' => now()->addDays(7),

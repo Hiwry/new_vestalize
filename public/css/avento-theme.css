@@ -237,7 +237,6 @@ html.dark {
 .avento-theme button[type="submit"] {
     background: var(--avento-primary) !important;
     color: #ffffff !important;
-    text-transform: uppercase !important;
     letter-spacing: 0.05em !important;
     font-weight: 700 !important;
 }

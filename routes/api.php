@@ -18,6 +18,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Validação de Afiliado (Público)
+Route::get('/affiliates/validate/{code}', [\App\Http\Controllers\AffiliateController::class, 'validateCode']);
+
 // Rotas da API sem autenticação
 
 // Adicionais de Sublimação

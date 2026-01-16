@@ -42,11 +42,11 @@
     
     @php
         // Cores para tema claro
-        $pLight = auth()->user()->tenant->primary_color ?? '#4f46e5';
-        $sLight = auth()->user()->tenant->secondary_color ?? '#7c3aed';
+        $pLight = auth()->user()->tenant->primary_color ?? '#7c3aed';
+        $sLight = auth()->user()->tenant->secondary_color ?? '#a855f7';
         // Cores para tema escuro (com fallback para versões mais claras das cores light)
-        $pDark = auth()->user()->tenant->primary_color_dark ?? '#818cf8';
-        $sDark = auth()->user()->tenant->secondary_color_dark ?? '#a78bfa';
+        $pDark = auth()->user()->tenant->primary_color_dark ?? '#a78bfa';
+        $sDark = auth()->user()->tenant->secondary_color_dark ?? '#c084fc';
         
         // Luminance check para tema claro
         $isLightBg = false;
@@ -70,21 +70,37 @@
         /* Alinha dashboard ao design system da landing */
         /* Sincronizar variáveis globais com o tema Avento */
         :root {
-            --background: var(--avento-bg-primary, #f8fafc);
-            --card-bg: var(--avento-bg-card, #ffffff);
-            --border: var(--avento-border, rgba(0, 0, 0, 0.05));
-            --foreground: var(--avento-text-primary, #0f172a);
-            --muted: var(--avento-text-secondary, #475569);
-            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+            --primary: #7c3aed;
+            --primary-hover: #8b5cf6;
+            --primary-light: rgba(124, 58, 237, 0.1);
+
+            --background: #000000;
+            --foreground: #fafafa;
+            --muted: #a1a1aa;
+            --border: #1a1a1a;
+            --card-bg: #030303;
+            --card-hover: #080808;
+            --input-bg: #050505;
+            --navbar-bg: rgba(0, 0, 0, 0.8);
+            --glow-opacity: 0.12;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
         }
 
         .dark {
+            --primary: #7c3aed;
+            --primary-hover: #8b5cf6;
+            --primary-light: rgba(124, 58, 237, 0.18);
+
             --background: #000000;
+            --foreground: #fafafa;
+            --muted: #a1a1aa;
+            --border: #1a1a1a;
             --card-bg: #030303;
-            --border: rgba(255, 255, 255, 0.03);
-            --foreground: #ffffff;
-            --muted: #94a3b8;
-            --shadow: 0 20px 50px -12px rgba(0, 0, 0, 1);
+            --card-hover: #080808;
+            --input-bg: #050505;
+            --navbar-bg: rgba(0, 0, 0, 0.8);
+            --glow-opacity: 0.12;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
         }
 
         /* Alinha dashboard ao design system da landing */
@@ -92,24 +108,40 @@
             background-color: var(--background);
             color: var(--foreground);
         }
+        .landing-bg {
+            background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, var(--glow-opacity)), transparent),
+                        var(--background);
+            opacity: 1;
+        }
         /* Backgrounds - FORÇA TOTAL NO PRETO ABSOLUTO */
         .bg-gray-50, .bg-slate-50, .bg-zinc-50, .bg-neutral-50, .bg-stone-50,
         .bg-gray-100, .bg-slate-100, .bg-zinc-100,
         .bg-gray-900, .bg-slate-900, .bg-zinc-900, .bg-neutral-900, .bg-stone-900,
         .dark .bg-gray-900, .dark .bg-slate-900, .dark .bg-zinc-900, .dark .bg-neutral-900, .dark .bg-stone-900,
-        .dark .bg-gray-950, .dark .bg-slate-950, .dark .bg-zinc-950, .dark .bg-neutral-950 {
+        .dark .bg-gray-950, .dark .bg-slate-950, .dark .bg-zinc-950, .dark .bg-neutral-950,
+        .dark .bg-black {
             background-color: var(--background) !important;
         }
 
-        /* Cards e Widgets - FORÇA TOTAL NO PRETO CARD */
+        /* Cards e Widgets - FORÇA TOTAL NO PRETO CARD (#030303) */
         .bg-white,
         .bg-gray-200, .bg-slate-200, .bg-zinc-200,
         .bg-gray-800, .bg-slate-800, .bg-zinc-800, .bg-neutral-800, .bg-stone-800,
         .dark .bg-gray-800, .dark .bg-slate-800, .dark .bg-zinc-800, .dark .bg-neutral-800, .dark .bg-stone-800,
+        .dark .bg-gray-900, .dark .bg-slate-900, .dark .bg-zinc-900, .dark .bg-neutral-900, .dark .bg-stone-900,
         .dark [class*="bg-slate-800"], .dark [class*="bg-gray-800"], .dark [class*="bg-zinc-800"] {
             background-color: var(--card-bg) !important;
             box-shadow: var(--shadow) !important;
             border: 1px solid var(--border) !important;
+            backdrop-filter: blur(8px);
+        }
+
+        /* Sub-seções e Inputs (Ligeiramente mais escuros que o card) */
+        .dark .bg-gray-700, .dark .bg-slate-700, .dark .bg-zinc-700,
+        .bg-gray-50, .dark .bg-gray-600,
+        input, select, textarea {
+            background-color: var(--input-bg) !important;
+            border-color: var(--border) !important;
         }
 
         /* Texto */
@@ -178,12 +210,12 @@
 
         /* Sidebar visibilidade (nova skin) */
         #sidebar {
-            background: linear-gradient(180deg, #f5f7ff 0%, #f9fbff 100%) !important;
-            border-right: 1px solid #e5e7eb !important;
-            box-shadow: 0 20px 60px -35px rgba(31, 41, 55, 0.25);
+            background: linear-gradient(180deg, rgba(18, 14, 34, 0.96) 0%, #080612 60%, #030204 100%) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+            box-shadow: 0 22px 70px -40px rgba(0, 0, 0, 0.8);
         }
         #sidebar nav a {
-            color: #1f2937 !important;
+            color: #e5e7f0 !important;
             border-radius: 14px;
             padding: 10px 12px;
             font-weight: 600;
@@ -193,34 +225,38 @@
             color: inherit !important;
         }
         #sidebar nav a:hover {
-            background: #eef2ff !important;
-            color: #1d4ed8 !important;
-            box-shadow: 0 12px 32px -18px rgba(29, 78, 216, 0.35);
+            background: rgba(124, 58, 237, 0.16) !important;
+            color: #ffffff !important;
+            box-shadow: 0 14px 36px -20px rgba(124, 58, 237, 0.6);
         }
         /* Tratar links já marcados com bg roxo como "ativos" */
         #sidebar nav a[class*="bg-purple-600"] {
-            background: #1d4ed8 !important;
+            background: linear-gradient(135deg, #a855f7, #7c3aed) !important;
             color: #fff !important;
-            box-shadow: 0 14px 32px -14px rgba(29, 78, 216, 0.45) !important;
+            box-shadow: 0 16px 42px -18px rgba(124, 58, 237, 0.6) !important;
+            text-transform: none !important;
         }
         #sidebar nav a[class*="bg-purple-600"] svg {
             color: #fff !important;
         }
+        #sidebar nav a[class*="bg-gradient-to-r"] {
+            text-transform: none !important;
+        }
         .dark #sidebar {
-            background: #0b0f1a !important;
-            border-color: #1f2937 !important;
+            background: linear-gradient(180deg, rgba(18, 14, 34, 0.96) 0%, #080612 60%, #030204 100%) !important;
+            border-color: rgba(255, 255, 255, 0.05) !important;
             box-shadow: none;
         }
         .dark #sidebar nav a {
-            color: #e5e7eb !important;
+            color: #e5e7f0 !important;
         }
         .dark #sidebar nav a:hover {
-            background: rgba(124, 58, 237, 0.1) !important;
-            color: #c4d4ff !important;
+            background: rgba(124, 58, 237, 0.16) !important;
+            color: #ffffff !important;
             box-shadow: none;
         }
         .dark #sidebar nav a[class*="bg-purple-600"] {
-            background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
+            background: linear-gradient(135deg, #a855f7, #7c3aed) !important;
             color: #fff !important;
         }
 
@@ -228,13 +264,13 @@
         /* Prevenir flash durante carregamento - aplicar ANTES do Tailwind */
         /* Prevenir flash durante carregamento - aplicar ANTES do Tailwind */
         html {
-            background-color: var(--avento-bg-primary, #f8fafc);
-            color: var(--avento-text-primary, #0f172a);
+            background-color: var(--background);
+            color: var(--foreground);
         }
         
         body {
-            background-color: var(--avento-bg-primary, #f8fafc);
-            color: var(--avento-text-primary, #0f172a);
+            background-color: var(--background);
+            color: var(--foreground);
         }
         
         /* Prevenir flash em elementos comuns - remover transições durante carregamento */
@@ -244,7 +280,7 @@
         
         /* Forçar background correto imediatamente */
         #main-content, main, body, html {
-            background-color: var(--avento-bg-primary) !important;
+            background-color: var(--background) !important;
             transition: none !important;
         }
         
