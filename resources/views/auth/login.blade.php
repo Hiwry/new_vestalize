@@ -179,12 +179,12 @@
                     <div class="flex items-center">
                         <button type="button" @click="rememberState = !rememberState" class="flex items-center group select-none outline-none">
                             <div class="w-6 h-6 rounded-lg border-2 transition-all flex items-center justify-center"
-                                 :class="rememberState ? 'bg-purple-600 border-purple-600' : 'bg-white/5 border-white/10'">
+                                 :class="rememberState ? 'bg-purple-600 border-purple-600' : 'bg-[var(--input-bg)] border-[var(--border)]'">
                                 <svg x-show="rememberState" x-cloak class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"/>
                                 </svg>
                             </div>
-                            <span class="ml-3 text-sm font-medium text-muted group-hover:text-white transition-colors font-semibold">Lembrar de mim</span>
+                            <span class="ml-3 text-sm font-medium text-muted group-hover:text-[var(--foreground)] transition-colors font-semibold">Lembrar de mim</span>
                         </button>
                     </div>
 
@@ -197,7 +197,7 @@
                 {{-- Sign up link --}}
                 <p class="mt-8 text-center text-sm text-muted">
                     Novo por aqui? 
-                    <a href="{{ route('register.public') }}" class="font-bold text-white hover:text-purple-400 transition-colors">
+                    <a href="{{ route('register.public') }}" class="font-bold text-[var(--foreground)] hover:text-purple-400 transition-colors">
                         Comece seu teste grátis
                     </a>
                 </p>

@@ -37,6 +37,9 @@
     --avento-text-primary: #0f172a;
     --avento-text-secondary: #475569;
     --avento-text-muted: #94a3b8;
+
+    /* Utilities for light mode dashboard */
+    --avento-sidebar-item-hover: rgba(124, 58, 237, 0.05);
 }
 
 /* DEEP DARK THEME (The true Dark Mode) */
@@ -56,6 +59,8 @@ html.dark {
     --avento-text-primary: #ffffff;
     --avento-text-secondary: #94a3b8;
     --avento-text-muted: #4b5563;
+
+    --avento-sidebar-item-hover: rgba(255, 255, 255, 0.05);
 }
 
 /* ============================================
@@ -434,15 +439,29 @@ html.dark {
     stroke: #ffffff !important;
 }
 
-/* Helper class to force white glyphs inside purple blocks */
-.avento-theme .force-white,
-.avento-theme .force-white *,
-.avento-theme .force-white svg,
-.avento-theme .force-white path,
-.avento-theme .force-white circle {
+/* Adaptive Typography */
+.text-adaptive {
     color: #ffffff !important;
-    fill: #ffffff !important;
-    stroke: #ffffff !important;
+}
+
+html:not(.dark) .text-adaptive {
+    color: var(--avento-text-primary) !important;
+}
+
+/* Force specific colors in Light Mode for elements that usually use text-white */
+html:not(.dark) .avento-theme .text-white:not(.stay-white),
+html:not(.dark) .avento-theme .text-white\/80:not(.stay-white),
+html:not(.dark) .avento-theme .text-white\/70:not(.stay-white) {
+    color: var(--avento-text-primary) !important;
+}
+
+html:not(.dark) .avento-theme .bg-white\/5 {
+    background-color: var(--avento-bg-secondary) !important;
+}
+
+html:not(.dark) .avento-theme .border-white\/5,
+html:not(.dark) .avento-theme .border-white\/10 {
+    border-color: var(--avento-border) !important;
 }
 
 /* ============================================
@@ -660,84 +679,163 @@ html.dark {
     font-weight: 700 !important;
 }
 
-/* All menu items - reset */
+/* All menu items - consistent base */
 .avento-theme #sidebar nav a,
 .avento-theme aside nav a {
     background: transparent !important;
     color: #71717a !important;
-    margin: 0 0.5rem !important;
-    border-radius: 8px !important;
+    margin: 4px 10px !important;
+    border-radius: 12px !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     border: none !important;
     box-shadow: none !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.avento-theme #sidebar.sidebar-collapsed nav a,
+.avento-theme aside.sidebar-collapsed nav a {
+    margin: 4px auto !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    width: 44px !important;
+    height: 44px !important;
 }
 
 .dark.avento-theme #sidebar nav a,
 .dark.avento-theme aside nav a {
     color: #94a3b8 !important;
-    /* Slate-400 para dark mode */
 }
 
 /* Menu items hover */
 .avento-theme #sidebar nav a:hover,
 .avento-theme aside nav a:hover {
     background: rgba(124, 58, 237, 0.08) !important;
-    color: #1f2937 !important;
-    /* Texto escuro no light mode */
+    color: var(--avento-primary) !important;
 }
 
 .dark.avento-theme #sidebar nav a:hover,
 .dark.avento-theme aside nav a:hover {
+    background: rgba(124, 58, 237, 0.12) !important;
     color: #ffffff !important;
-    /* Texto claro no dark mode */
+}
+/* Active menu item - HIGH VISIBILITY CLEAN STYLE */
+/* First, a general reset to avoid phantom borders */
+.avento-theme #sidebar nav a,
+.avento-theme aside nav a {
+    border-left: none !important;
 }
 
-/* Active menu item - HIGH VISIBILITY CLEAN STYLE */
-.avento-theme #sidebar nav a.bg-purple-600,
-.avento-theme #sidebar nav a.bg-blue-600,
-.avento-theme #sidebar nav a.bg-indigo-600,
-.avento-theme aside nav a.bg-purple-600,
-.avento-theme aside nav a.bg-blue-600,
-.avento-theme aside nav a.bg-indigo-600 {
+/* Explicitly apply expanded styles */
+.avento-theme #sidebar.sidebar-expanded nav a.active-link,
+.avento-theme aside.sidebar-expanded nav a.active-link {
     background: var(--avento-primary-light) !important;
     color: var(--avento-primary) !important;
     font-weight: 700 !important;
     border-left: 4px solid var(--avento-primary) !important;
     border-radius: 0 8px 8px 0 !important;
-    padding-left: 0.8rem !important;
-    margin-left: 0 !important;
-    /* Indicator touches edge */
+    padding-left: 2.125rem !important; /* increased from 1.25rem to align with mx-2+px-4 inactive items */
+    margin-left: -0.5rem !important; /* Bleed into the nav's px-2 to touch the sidebar edge */
+    margin-right: 0.5rem !important; 
     box-shadow: none !important;
 }
 
-/* Force icon color for active main link */
-.avento-theme #sidebar nav a.bg-purple-600 svg,
-.avento-theme aside nav a.bg-purple-600 svg {
+/* Active item when collapsed - PERFECTLY CENTERED */
+.avento-theme #sidebar.sidebar-collapsed nav a.active-link,
+.avento-theme aside.sidebar-collapsed nav a.active-link {
+    background: var(--avento-primary-light) !important;
     color: var(--avento-primary) !important;
+    border-radius: 12px !important;
+    margin: 4px auto !important;
+    border-left: none !important;
+    padding: 0 !important;
+    width: 44px !important;
+    height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-.dark.avento-theme #sidebar nav a.bg-purple-600,
-.dark.avento-theme #sidebar nav a.bg-blue-600,
-.dark.avento-theme #sidebar nav a.bg-indigo-600,
-.dark.avento-theme aside nav a.bg-purple-600,
-.dark.avento-theme aside nav a.bg-blue-600,
-.dark.avento-theme aside nav a.bg-indigo-600 {
+/* Force icon color for active main link */
+.avento-theme #sidebar nav a.active-link svg,
+.avento-theme aside nav a.active-link svg,
+.avento-theme #sidebar nav a.active-link i,
+.avento-theme aside nav a.active-link i {
+    color: var(--avento-primary) !important;
+    margin: 0 !important;
+}
+
+.dark.avento-theme #sidebar.sidebar-collapsed nav a.active-link,
+.dark.avento-theme aside.sidebar-collapsed nav a.active-link {
+    background: rgba(124, 58, 237, 0.15) !important;
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    margin: 4px auto !important;
+    border-left: none !important;
+    padding: 0 !important;
+    width: 44px !important;
+    height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Explicitly apply dark expanded styles (Restored) */
+.dark.avento-theme #sidebar.sidebar-expanded nav a.active-link,
+.dark.avento-theme aside.sidebar-expanded nav a.active-link {
     background: rgba(124, 58, 237, 0.1) !important;
     color: #ffffff !important;
     border-left: 4px solid var(--avento-primary) !important;
     border-radius: 0 8px 8px 0 !important;
-    padding-left: 0.8rem !important;
-    margin-left: 0 !important;
+    padding-left: 2.125rem !important;
+    margin-left: -0.5rem !important;
+    margin-right: 0.5rem !important;
 }
 
-.dark.avento-theme #sidebar nav a.bg-purple-600 svg,
-.dark.avento-theme aside nav a.bg-purple-600 svg {
+.dark.avento-theme #sidebar nav a.active-link svg,
+.dark.avento-theme aside nav a.active-link svg,
+.dark.avento-theme #sidebar nav a.active-link i,
+.dark.avento-theme aside nav a.active-link i {
     color: #ffffff !important;
+    margin: 0 !important;
+}
+
+/* Base style for ALL sidebar links to ensure alignment */
+.avento-theme #sidebar nav a,
+.avento-theme aside nav a {
+    display: flex !important;
+    align-items: center !important;
+    border-left: none !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.avento-theme #sidebar.sidebar-collapsed nav a,
+.avento-theme aside.sidebar-collapsed nav a {
+    justify-content: center !important;
+    width: 44px !important;
+    height: 44px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+}
+
+/* HEADER AND FOOTER CENTERING */
+.avento-theme #sidebar.sidebar-collapsed .justify-center,
+.avento-theme aside.sidebar-collapsed .justify-center {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.avento-theme #sidebar.sidebar-collapsed button,
+.avento-theme aside.sidebar-collapsed button {
+    margin-left: auto !important;
+    margin-right: auto !important;
 }
 
 /* Reset for normal links (NOT active) */
-.avento-theme #sidebar nav a:not(.bg-purple-600):not(.bg-blue-600):not(.bg-indigo-600),
-.avento-theme aside nav a:not(.bg-purple-600):not(.bg-blue-600):not(.bg-indigo-600) {
+.avento-theme #sidebar nav a:not(.active-link),
+.avento-theme aside nav a:not(.active-link) {
     background: transparent !important;
     color: #71717a !important;
     box-shadow: none !important;
@@ -786,10 +884,8 @@ html.dark {
 }
 
 /* Submenu active item - HIGH VISIBILITY */
-.avento-theme #sidebar nav div a.bg-purple-600,
-.avento-theme #sidebar nav div a.bg-blue-600,
-.avento-theme aside nav div a.bg-purple-600,
-.avento-theme aside nav div a.bg-blue-600 {
+.avento-theme #sidebar nav div a.active-link,
+.avento-theme aside nav div a.active-link {
     background: var(--avento-primary-light) !important;
     color: var(--avento-primary) !important;
     font-weight: 700 !important;
@@ -799,10 +895,8 @@ html.dark {
     box-shadow: none !important;
 }
 
-.dark.avento-theme #sidebar nav div a.bg-purple-600,
-.dark.avento-theme #sidebar nav div a.bg-blue-600,
-.dark.avento-theme aside nav div a.bg-purple-600,
-.dark.avento-theme aside nav div a.bg-blue-600 {
+.dark.avento-theme #sidebar nav div a.active-link,
+.dark.avento-theme aside nav div a.active-link {
     background: rgba(124, 58, 237, 0.1) !important;
     color: #ffffff !important;
     border-left: 4px solid var(--avento-primary) !important;
@@ -1000,6 +1094,13 @@ html.dark {
     border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
     z-index: 10;
     transition: all 0.3s ease;
+}
+
+.sidebar-collapsed .sidebar-footer-custom {
+    padding: 1.25rem 0 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .dark .sidebar-footer-custom {

@@ -74,7 +74,7 @@
 
 <!-- Barra Mobile Superior com botão único -->
 <!-- Barra Mobile Superior Suave (Neutral BG + Indigo Button) -->
-<div class="md:hidden fixed top-0 inset-x-0 h-16 bg-black/80 backdrop-blur-lg border-b border-white/5 z-50 flex items-center justify-between px-4 transition-all duration-300">
+<div class="md:hidden fixed top-0 inset-x-0 h-16 bg-background/80 backdrop-blur-lg border-b border-border z-50 flex items-center justify-between px-4 transition-all duration-300">
     <button @click.stop="toggle()"
             class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary hover:bg-primary-hover text-white focus:outline-none transition-all duration-200 shadow-lg shadow-primary/20 active:scale-95">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,19 +144,19 @@
 </div>
 
 <!-- Overlay Mobile -->
-<div x-show="mobileOpen && isMobile()" x-cloak @click="closeMobile()" class="fixed inset-0 bg-black/50 z-30 md:hidden"></div>
+<div x-show="mobileOpen && isMobile()" x-cloak @click="closeMobile()" class="fixed inset-0 bg-neutral-900/50 z-30 md:hidden"></div>
 
 <!-- Sidebar -->
 <aside id="sidebar" 
-       :class="[
-            isMobile() ? 'w-full max-w-full' : (expanded ? 'w-64' : 'w-20'),
+        :class="[
+            isMobile() ? 'w-full max-w-full sidebar-expanded' : (expanded ? 'w-64 sidebar-expanded' : 'w-16 sidebar-collapsed'),
             (mobileOpen || !isMobile()) ? 'translate-x-0' : '-translate-x-full'
-       ]"
-       class="fixed top-0 left-0 z-[60] h-screen bg-black border-r border-white/5 overflow-hidden transition-all duration-300 ease-in-out transform md:translate-x-0 shadow-2xl">
+        ]"
+       class="fixed top-0 left-0 z-[60] h-screen bg-card-bg border-r border-border overflow-hidden transition-all duration-300 ease-in-out transform md:translate-x-0 shadow-2xl">
     
     <!-- Header do Sidebar com Botão Toggle -->
-    <div class="flex items-center justify-between h-20 px-4 border-b border-white/5 bg-black transition-all duration-300"
-         :class="expanded ? '' : 'justify-center px-0'">
+    <div class="flex items-center justify-between h-20 px-4 border-b border-border bg-card-bg transition-all duration-300 relative"
+         :class="expanded ? '' : 'justify-center !px-0'">
         <div class="flex items-center overflow-hidden" x-show="expanded">
             @if(auth()->user()->tenant && auth()->user()->tenant->logo_path)
                 <img src="{{ Storage::url(auth()->user()->tenant->logo_path) }}" alt="Logo" class="h-10 w-auto object-contain">
@@ -168,12 +168,14 @@
         </div>
         <div class="flex items-center" :class="expanded ? 'gap-2' : ''">
             <button @click="toggle()" 
-                    class="flex-shrink-0 p-2.5 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all duration-200"
+                    class="flex items-center justify-center p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all duration-200"
                     :class="expanded ? '' : 'mx-auto'">
-                <svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
-                     :class="expanded ? '' : 'rotate-180'">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
-                </svg>
+                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
+                         :class="expanded ? '' : 'rotate-180'">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                    </svg>
+                </div>
             </button>
         </div>
     </div>
@@ -181,61 +183,81 @@
     <!-- Menu Items -->
     <nav class="flex flex-col px-2 py-4 space-y-1 overflow-y-auto h-[calc(100vh-8rem)] scrollbar-thin">
         
-        <!-- Dashboard (Always visible) -->
-        <a href="{{ route('dashboard') }}" 
-           class="flex items-center px-4 py-3.5 text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->is('dashboard') ? 'bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg shadow-primary/30' : 'text-muted hover:bg-white/5 hover:text-white' }}"
-           :class="expanded ? 'justify-start' : 'justify-center'"
-           title="Dashboard">
-            <svg class="flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span class="whitespace-nowrap overflow-hidden transition-all duration-300 ml-4"
-                  x-show="expanded">
-                Tela Inicial
-            </span>
-        </a>
+        <div class="text-nowrap">
+            <a href="{{ route('dashboard') }}" 
+               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->routeIs('dashboard') || request()->is('/')) ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+               :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+               title="Tela Inicial">
+                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                </div>
+                <span class="ml-4 whitespace-nowrap overflow-hidden transition-all duration-300" x-show="expanded">
+                    Tela Inicial
+                </span>
+            </a>
+        </div>
 
         @if(Auth::user()->isEstoque() && !Auth::user()->isAdmin())
             <!-- Sidebar Simplificada para Estoque (Sem grupos) -->
             <!-- ... Itens estoque ... -->
              <a href="{{ route('stocks.index') }}" 
-               class="flex items-center px-4 py-3 text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->is('stocks*') ? 'bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg shadow-primary/30' : 'text-muted hover:bg-white/5 hover:text-white' }}"
-               :class="expanded ? 'justify-start' : 'justify-center'">
-               <i class="fa-solid fa-boxes-stacked h-5 w-5 flex items-center justify-center text-lg"></i>
+               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->is('stocks*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+               :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+               title="Estoque">
+                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <i class="fa-solid fa-boxes-stacked text-lg"></i>
+                </div>
                 <span class="ml-4" x-show="expanded">Estoque</span>
             </a>
              <a href="{{ route('stock-requests.index') }}" 
-                class="flex items-center px-4 py-3 text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('stock-requests.*') ? 'bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg shadow-primary/30' : 'text-muted hover:bg-white/5 hover:text-white' }}"
-                :class="expanded ? 'justify-start' : 'justify-center'">
-                <i class="fa-solid fa-file-invoice h-5 w-5 flex items-center justify-center text-lg"></i>
-                 <span class="ml-4" x-show="expanded">Solicitações</span>
+                class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('stock-requests.*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+                :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                title="Solicitações">
+                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <i class="fa-solid fa-file-invoice text-lg"></i>
+                </div>
+                <span class="ml-4" x-show="expanded">Solicitações</span>
              </a>
-              <a href="{{ route('sewing-machines.index') }}" 
-                class="flex items-center px-4 py-3 text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('sewing-machines.*') ? 'bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg shadow-primary/30' : 'text-muted hover:bg-white/5 hover:text-white' }}"
-                :class="expanded ? 'justify-start' : 'justify-center'">
-                <i class="fa-solid fa-scissors h-5 w-5 flex items-center justify-center text-lg"></i>
-                 <span class="ml-4" x-show="expanded">Máquinas</span>
+             <a href="{{ route('sewing-machines.index') }}" 
+                class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('sewing-machines.*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+                :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                title="Máquinas">
+                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <i class="fa-solid fa-scissors text-lg"></i>
+                </div>
+                <span class="ml-4" x-show="expanded">Máquinas</span>
              </a>
-              <a href="{{ route('production-supplies.index') }}" 
-                class="flex items-center px-4 py-3 text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('production-supplies.*') ? 'bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg shadow-primary/30' : 'text-muted hover:bg-white/5 hover:text-white' }}"
-                :class="expanded ? 'justify-start' : 'justify-center'">
-                <i class="fa-solid fa-thread h-5 w-5 flex items-center justify-center text-lg"></i>
-                 <span class="ml-4" x-show="expanded">Suprimentos</span>
+             <a href="{{ route('production-supplies.index') }}" 
+                class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('production-supplies.*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+                :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                title="Suprimentos">
+                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <i class="fa-solid fa-thread text-lg"></i>
+                </div>
+                <span class="ml-4" x-show="expanded">Suprimentos</span>
              </a>
-              <a href="{{ route('uniforms.index') }}" 
-                class="flex items-center px-4 py-3 text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('uniforms.*') ? 'bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg shadow-primary/30' : 'text-muted hover:bg-white/5 hover:text-white' }}"
-                :class="expanded ? 'justify-start' : 'justify-center'">
-                <i class="fa-solid fa-shirt h-5 w-5 flex items-center justify-center text-lg"></i>
-                 <span class="ml-4" x-show="expanded">Uniformes/EPI</span>
+             <a href="{{ route('uniforms.index') }}" 
+                class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('uniforms.*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+                :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                title="Uniformes/EPI">
+                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <i class="fa-solid fa-shirt text-lg"></i>
+                </div>
+                <span class="ml-4" x-show="expanded">Uniformes/EPI</span>
              </a>
         @else
             <!-- Sidebar Completa com Grupos -->
             
             <div class="mt-2 text-nowrap">
                 <a href="{{ route('sales.index') }}"
-                   class="flex items-center w-full px-4 py-3.5 text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('sales.index') ? 'bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg shadow-primary/30' : 'text-muted hover:bg-white/5 hover:text-white' }}"
-                   :class="expanded ? 'justify-start' : 'justify-center'">
-                    <i class="fa-solid fa-cart-shopping h-5 w-5 flex items-center justify-center text-lg"></i>
+                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->is('vendas*') || request()->routeIs('sales.*')) ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   title="Vendas">
+                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                        <i class="fa-solid fa-cart-shopping text-lg"></i>
+                    </div>
                     <span class="ml-4" x-show="expanded">Vendas</span>
                 </a>
             </div>
@@ -243,72 +265,52 @@
             <!-- GRUPO: ESTOQUE -->
              @if((Auth::user()->isAdmin() || Auth::user()->isEstoque() || Auth::user()->isVendedor()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('stock')))
              <div class="mt-1">
-                <button @click="toggleGroup('estoque')"
-                        class="flex items-center w-full px-4 py-3.5 text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
-                        :class="expanded ? 'justify-between' : 'justify-center'">
-                    <div class="flex items-center">
-                        <i class="fa-solid fa-boxes-stacked h-5 w-5 flex items-center justify-center text-lg group-hover:text-primary transition-colors"></i>
-                        <span class="ml-4" x-show="expanded">Estoque</span>
+                <a href="{{ Auth::user()->isVendedor() ? route('stocks.view') : route('stocks.index') }}"
+                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->routeIs('stocks.*') || request()->routeIs('fabric-pieces.*') || request()->routeIs('sewing-machines.*') || request()->routeIs('production-supplies.*') || request()->routeIs('uniforms.*') || request()->routeIs('stock-requests.*')) ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   title="Estoque">
+                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                        <i class="fa-solid fa-boxes-stacked text-lg"></i>
                     </div>
-                    <i x-show="expanded" class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" :class="openGroups.estoque ? 'rotate-90 text-primary' : ''"></i>
-                </button>
-                
-                <div x-show="openGroups.estoque && expanded" x-collapse x-cloak class="space-y-1 my-1 px-2">
-                    <a href="{{ Auth::user()->isVendedor() ? route('stocks.view') : route('stocks.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ (request()->routeIs('stocks.*') || request()->routeIs('stocks.view')) ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Geral
-                    </a>
-                    <a href="{{ route('fabric-pieces.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('fabric-pieces.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Peças de Tecido
-                    </a>
-                    <a href="{{ route('sewing-machines.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('sewing-machines.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Máquinas
-                    </a>
-                    <a href="{{ route('production-supplies.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('production-supplies.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Suprimentos
-                    </a>
-                    <a href="{{ route('uniforms.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('uniforms.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Uniformes/EPI
-                    </a>
-                    @if(!Auth::user()->isVendedor())
-                    <a href="{{ route('stock-requests.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('stock-requests.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Solicitações
-                    </a>
-                    @endif
-                </div>
+                    <span class="ml-4" x-show="expanded">Estoque</span>
+                </a>
             </div>
             @endif
 
              @if(Auth::user()->isAdmin())
             <div class="mt-1">
                 <button @click="toggleGroup('catalogo')"
-                        class="flex items-center w-full px-4 py-3.5 text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
-                        :class="expanded ? 'justify-between' : 'justify-center'">
+                        class="flex items-center w-full text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
+                        :class="expanded ? 'px-4 py-3.5 justify-between' : 'justify-center p-3.5 mx-auto'"
+                        title="Catálogo">
                     <div class="flex items-center">
-                        <i class="fa-solid fa-list-ul h-5 w-5 flex items-center justify-center text-lg group-hover:text-primary transition-colors"></i>
+                        <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                            <i class="fa-solid fa-list-ul text-lg group-hover:text-primary transition-colors"></i>
+                        </div>
                         <span class="ml-4" x-show="expanded">Catálogo</span>
                     </div>
                     <i x-show="expanded" class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" :class="openGroups.catalogo ? 'rotate-90 text-primary' : ''"></i>
                 </button>
                 
                 <div x-show="openGroups.catalogo && expanded" x-collapse x-cloak class="space-y-1 my-1 px-2">
-                    <a href="{{ route('admin.products.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.products.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('admin.products.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.products.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Produtos
                     </a>
-                    <a href="{{ route('admin.categories.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.categories.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('admin.categories.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.categories.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Categorias
                     </a>
-                    <a href="{{ route('admin.tecidos.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.tecidos.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('admin.tecidos.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.tecidos.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Tecidos
                     </a>
-                    <a href="{{ route('admin.modelos.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.modelos.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('admin.modelos.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.modelos.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Modelos
                     </a>
                     @if(Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('sublimation_total'))
-                    <a href="{{ route('admin.sublimation-products.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.sublimation-products.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('admin.sublimation-products.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.sublimation-products.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Sublimação Total
                     </a>
                     @endif
-                    <a href="{{ route('admin.sub-local-products.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.sub-local-products.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('admin.sub-local-products.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.sub-local-products.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Sublimação Local
                     </a>
                 </div>
@@ -319,20 +321,23 @@
              @if(Auth::user()->isProducao() || Auth::user()->isAdmin())
             <div class="mt-1">
                 <button @click="toggleGroup('producao')"
-                        class="flex items-center w-full px-4 py-3.5 text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
-                        :class="expanded ? 'justify-between' : 'justify-center'">
+                        class="flex items-center w-full text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
+                        :class="expanded ? 'px-4 py-3.5 justify-between' : 'justify-center p-3.5 mx-auto'"
+                        title="Produção">
                     <div class="flex items-center">
-                        <i class="fa-solid fa-industry h-5 w-5 flex items-center justify-center text-lg group-hover:text-primary transition-colors"></i>
+                        <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                            <i class="fa-solid fa-industry text-lg group-hover:text-primary transition-colors"></i>
+                        </div>
                         <span class="ml-4" x-show="expanded">Produção</span>
                     </div>
                     <i x-show="expanded" class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" :class="openGroups.producao ? 'rotate-90 text-primary' : ''"></i>
                 </button>
                 
                 <div x-show="openGroups.producao && expanded" x-collapse x-cloak class="space-y-1 my-1 px-2">
-                    <a href="{{ route('production.dashboard') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('production.dashboard') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('production.dashboard') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('production.dashboard') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Dashboard
                     </a>
-                    <a href="{{ route('production.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('production.index') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('production.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('production.index') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Ordens
                     </a>
                 </div>
@@ -342,29 +347,32 @@
              @if((Auth::user()->isAdmin() || Auth::user()->isCaixa()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('financial')))
             <div class="mt-1">
                 <button @click="toggleGroup('financeiro')"
-                        class="flex items-center w-full px-4 py-3.5 text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
-                        :class="expanded ? 'justify-between' : 'justify-center'">
+                        class="flex items-center w-full text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
+                        :class="expanded ? 'px-4 py-3.5 justify-between' : 'justify-center p-3.5 mx-auto'"
+                        title="Financeiro">
                     <div class="flex items-center">
-                        <i class="fa-solid fa-coins h-5 w-5 flex items-center justify-center text-lg group-hover:text-primary transition-colors"></i>
+                        <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                            <i class="fa-solid fa-coins text-lg group-hover:text-primary transition-colors"></i>
+                        </div>
                         <span class="ml-4" x-show="expanded">Financeiro</span>
                     </div>
                     <i x-show="expanded" class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" :class="openGroups.financeiro ? 'rotate-90 text-primary' : ''"></i>
                 </button>
                 
                 <div x-show="openGroups.financeiro && expanded" x-collapse x-cloak class="space-y-1 my-1 px-2">
-                    <a href="{{ route('financial.dashboard') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('financial.dashboard') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('financial.dashboard') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('financial.dashboard') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Dashboard
                     </a>
-                    <a href="{{ route('cash.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('cash.index') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('cash.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('cash.index') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Caixa
                     </a>
-                    <a href="{{ route('cash.approvals.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('cash.approvals.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('cash.approvals.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('cash.approvals.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Aprovações PDV
                     </a>
-                    <a href="{{ route('admin.invoices.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.invoices.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('admin.invoices.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.invoices.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Notas Fiscais
                     </a>
-                    <a href="{{ route('admin.invoice-config.edit') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.invoice-config.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('admin.invoice-config.edit') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.invoice-config.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Configuração NF-e
                     </a>
                 </div>
@@ -374,9 +382,12 @@
             @if(Auth::user()->tenant_id !== null && auth()->user()->tenant?->canAccess('subscription_module'))
             <div class="mt-2 text-nowrap">
                 <a href="{{ route('subscription.index') }}"
-                   class="flex items-center w-full px-4 py-3.5 text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->is('subscription*') ? 'bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg shadow-primary/30' : 'text-muted hover:bg-white/5 hover:text-white' }}"
-                   :class="expanded ? 'justify-start' : 'justify-center'">
-                    <i class="fa-solid fa-credit-card h-5 w-5 flex items-center justify-center text-lg"></i>
+                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->is('subscription*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   title="Minha Assinatura">
+                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                        <i class="fa-solid fa-credit-card text-lg"></i>
+                    </div>
                     <span class="ml-4" x-show="expanded">Minha Assinatura</span>
                 </a>
             </div>
@@ -389,28 +400,31 @@
             @if(Auth::user()->isAdmin() && Auth::user()->tenant_id === null)
             <div class="mt-1">
                 <button @click="toggleGroup('assinaturas')"
-                        class="flex items-center w-full px-4 py-3.5 text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
-                        :class="expanded ? 'justify-between' : 'justify-center'">
+                        class="flex items-center w-full text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
+                        :class="expanded ? 'px-4 py-3.5 justify-between' : 'justify-center p-3.5 mx-auto'"
+                        title="Assinaturas">
                     <div class="flex items-center">
-                        <i class="fa-solid fa-users-gear h-5 w-5 flex items-center justify-center text-lg group-hover:text-primary transition-colors"></i>
+                        <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                            <i class="fa-solid fa-users-gear text-lg group-hover:text-primary transition-colors"></i>
+                        </div>
                         <span class="ml-4" x-show="expanded">Assinaturas</span>
                     </div>
                     <i x-show="expanded" class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" :class="openGroups.assinaturas ? 'rotate-90 text-primary' : ''"></i>
                 </button>
                 <div x-show="openGroups.assinaturas && expanded" x-collapse x-cloak class="space-y-1 my-1 px-2">
-                    <a href="{{ route('admin.tenants.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.tenants.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('admin.tenants.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.tenants.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Gerenciar Tenants
                     </a>
-                    <a href="{{ route('admin.plans.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.plans.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('admin.plans.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.plans.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Planos
                     </a>
-                    <a href="{{ route('admin.subscription-payments.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.subscription-payments.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('admin.subscription-payments.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.subscription-payments.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Pagamentos
                     </a>
-                    <a href="{{ route('admin.affiliates.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.affiliates.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('admin.affiliates.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.affiliates.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Afiliados
                     </a>
-                    <a href="{{ route('admin.leads.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.leads.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('admin.leads.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.leads.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Lista VIP 🚀
                     </a>
                 </div>
@@ -420,28 +434,31 @@
              <!-- GRUPO: SISTEMA -->
             <div class="mt-1">
                  <button @click="toggleGroup('sistema')"
-                        class="flex items-center w-full px-4 py-3.5 text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
-                        :class="expanded ? 'justify-between' : 'justify-center'">
+                        class="flex items-center w-full text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
+                        :class="expanded ? 'px-4 py-3.5 justify-between' : 'justify-center p-3.5 mx-auto'"
+                        title="Sistema">
                     <div class="flex items-center">
-                        <i class="fa-solid fa-gears h-5 w-5 flex items-center justify-center text-lg group-hover:text-primary transition-colors"></i>
+                        <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                            <i class="fa-solid fa-gears text-lg group-hover:text-primary transition-colors"></i>
+                        </div>
                         <span class="ml-4" x-show="expanded">Sistema</span>
                     </div>
                     <i x-show="expanded" class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" :class="openGroups.sistema ? 'rotate-90 text-primary' : ''"></i>
                 </button>
-                 <div x-show="openGroups.sistema && expanded" x-collapse x-cloak class="space-y-1 my-1 px-2">
+                  <div x-show="openGroups.sistema && expanded" x-collapse x-cloak class="space-y-1 my-1 px-2">
                     @if(!Auth::user()->isVendedor())
-                    <a href="{{ route('settings.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('settings.index') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('settings.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('settings.index') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Configurações
                     </a>
                     @endif
-                     <a href="{{ route('links.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('links.index') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                     <a href="{{ route('links.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('links.index') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Links Úteis
                     </a>
                     @if(Auth::user()->isAdmin())
-                    <a href="{{ route('admin.users.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.users.*') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('admin.users.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.users.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Usuários
                     </a>
-                    <a href="{{ route('admin.audit.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.audit.index') ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('admin.audit.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.audit.index') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Auditoria
                     </a>
                     @endif
@@ -475,18 +492,21 @@
 
          <!-- Mini Toggle (Collapsed Sidebar) -->
          <button x-show="!expanded" @click="isDark = !isDark; localStorage.setItem('dark', isDark); isDark ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark')"
-                 class="w-12 h-12 flex items-center justify-center mx-auto mb-6 rounded-2xl transition-all group"
-                 :class="isDark ? 'text-primary bg-primary/10 hover:bg-primary/20' : 'text-primary bg-primary/5 hover:bg-primary/10'">
-             <i class="fa-solid text-lg transition-transform group-hover:rotate-12" :class="isDark ? 'fa-moon' : 'fa-sun'"></i>
+                 class="w-11 h-11 flex items-center justify-center mx-auto mb-4 rounded-xl transition-all group text-primary bg-primary/10 hover:bg-primary/20"
+                 title="Mudar Tema">
+             <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+               <i class="fa-solid text-lg transition-transform group-hover:rotate-12" :class="isDark ? 'fa-moon' : 'fa-sun'"></i>
+             </div>
          </button>
 
         <button @click="showProfileModal = true" 
-                class="flex items-center p-2 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all w-full group"
-                :class="expanded ? 'justify-start' : 'justify-center'">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-black text-xs shadow-lg group-hover:scale-110 transition-transform">
+                class="flex items-center rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all group w-full"
+                :class="expanded ? 'p-2 justify-start' : 'justify-center mx-auto py-2'"
+                title="Meu Perfil">
+            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white stay-white font-black text-xs shadow-lg group-hover:scale-105 transition-transform">
                 {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
             </div>
-            <div class="flex flex-col items-start ml-3 overflow-hidden" x-show="expanded">
+            <div class="flex flex-col items-start ml-3 overflow-hidden text-nowrap" x-show="expanded">
                 <span class="text-xs font-black text-white truncate w-full max-w-[140px] tracking-tight">
                     {{ auth()->user()->name }}
                 </span>
@@ -535,7 +555,7 @@
         <div class="pt-14 px-8 pb-8">
             <div class="flex justify-between items-start">
                 <div>
-                     <h3 class="text-2xl font-black text-white tracking-tighter">{{ auth()->user()->name }}</h3>
+                     <h3 class="text-2xl font-black text-adaptive tracking-tighter">{{ auth()->user()->name }}</h3>
                      <p class="text-sm font-medium text-muted">{{ auth()->user()->email }}</p>
                 </div>
                 <!-- Badge Role -->
@@ -550,9 +570,9 @@
 
             <div class="mt-8 space-y-3">
                  @if(auth()->user()->store)
-                <div class="flex items-center p-4 bg-white/5 rounded-2xl border border-white/5">
-                    <div class="w-10 h-10 rounded-xl bg-black/40 flex items-center justify-center text-muted mr-4">
-                         <i class="fa-solid fa-store text-sm"></i>
+                <div class="flex items-center p-4 bg-primary/5 rounded-2xl border border-primary/10 transition-all">
+                    <div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary mr-4 shadow-sm">
+                         <i class="fa-solid fa-store text-sm stay-white"></i>
                     </div>
                     <div>
                         <p class="text-[10px] font-black text-muted uppercase tracking-widest">Unidade</p>
@@ -561,9 +581,9 @@
                 </div>
                 @endif
                 
-                <div class="flex items-center p-4 bg-white/5 rounded-2xl border border-white/5">
-                    <div class="w-10 h-10 rounded-xl bg-black/40 flex items-center justify-center text-muted mr-4">
-                         <i class="fa-solid fa-calendar text-sm"></i>
+                <div class="flex items-center p-4 bg-primary/5 rounded-2xl border border-primary/10 transition-all">
+                    <div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary mr-4 shadow-sm">
+                         <i class="fa-solid fa-calendar text-sm stay-white"></i>
                     </div>
                     <div>
                         <p class="text-[10px] font-black text-muted uppercase tracking-widest">Início</p>
@@ -579,7 +599,7 @@
                         Sair
                     </button>
                 </form>
-                 <button @click="showProfileModal = false" class="flex-1 py-4 px-6 bg-white/5 text-white hover:bg-white/10 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-95">
+                 <button @click="showProfileModal = false" class="flex-1 py-4 px-6 bg-primary/10 text-adaptive hover:bg-primary/20 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-95">
                     Voltar
                 </button>
             </div>

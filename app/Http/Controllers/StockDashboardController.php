@@ -37,7 +37,17 @@ class StockDashboardController extends Controller
                 ],
                 'lowStockItems' => collect([]),
                 'recentActivity' => collect([]),
-                'isSuperAdmin' => true
+                'recentActivity' => collect([]),
+                'isSuperAdmin' => true,
+                'vendedores' => collect([]),
+                'fabrics' => collect([]),
+                'colors' => collect([]),
+                'vendorId' => null,
+                'fabricId' => null,
+                'colorId' => null,
+                'period' => 'month',
+                'startDate' => now(),
+                'endDate' => now()
             ]);
         }
 

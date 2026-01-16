@@ -4,7 +4,7 @@
         <div class="flex flex-col items-center text-center">
             {{-- Badge --}}
             <div class="animate-fade-in-up badge-glow flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full">
-                <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-purple-600 text-white shadow-sm shadow-purple-500/20">
+                <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-purple-600 text-white stay-white shadow-sm shadow-purple-500/20">
                     Novo
                 </span>
                 <span class="text-sm text-foreground/80 font-medium">

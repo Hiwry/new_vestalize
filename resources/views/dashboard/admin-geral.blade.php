@@ -10,7 +10,7 @@
                 <span class="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black tracking-widest uppercase w-fit">
                     Visão Geral do Negócio
                 </span>
-                <h1 class="text-4xl md:text-5xl font-black tracking-tight text-white leading-none">
+                <h1 class="text-4xl md:text-5xl font-black tracking-tight text-adaptive leading-none">
                     @if(Auth::user()->tenant)
                         <span class="text-gradient">{{ Auth::user()->tenant->name }}</span>
                     @else
@@ -87,14 +87,14 @@
             <div class="px-6 py-4 rounded-3xl bg-card-bg border border-border shadow-2xl backdrop-blur-md relative overflow-hidden group">
                 <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
                 <div class="flex items-center gap-4 relative z-10">
-                    <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                        <i class="fa-solid fa-bolt-lightning text-xl"></i>
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white">
+                        <i class="fa-solid fa-bolt-lightning text-xl stay-white"></i>
                     </div>
                     <div>
                         <p class="text-[10px] uppercase tracking-widest text-muted font-bold">Status Global</p>
                         <div class="flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <p class="text-sm font-bold text-white tracking-tight">Sistema Online</p>
+                            <p class="text-sm font-bold text-adaptive tracking-tight">Sistema Online</p>
                         </div>
                     </div>
                 </div>
@@ -111,8 +111,8 @@
             <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
             <div class="flex flex-col h-full justify-between gap-6">
                 <div class="flex items-start justify-between">
-                    <div class="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary text-2xl group-hover:scale-110 transition-transform shadow-inner">
-                        <i class="fa-solid fa-box-open"></i>
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform shadow-inner">
+                        <i class="fa-solid fa-box-open stay-white"></i>
                     </div>
                     @if(isset($variacaoPedidos))
                     <span class="px-2 py-1 rounded-lg text-[10px] font-black {{ $variacaoPedidos >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400' }}">
@@ -121,7 +121,7 @@
                     @endif
                 </div>
                 <div>
-                    <h3 class="text-4xl font-black text-white tracking-tighter">{{ number_format($totalPedidos, 0, '.', '.') }}</h3>
+                    <h3 class="text-4xl font-black text-adaptive tracking-tighter">{{ number_format($totalPedidos, 0, '.', '.') }}</h3>
                     <p class="text-xs font-black text-muted uppercase tracking-widest mt-1">Pedidos Totais</p>
                 </div>
             </div>
@@ -133,8 +133,8 @@
             @if(Auth::user()->tenant && Auth::user()->tenant->canAccess('financial'))
             <div class="flex flex-col h-full justify-between gap-6">
                 <div class="flex items-start justify-between">
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 text-2xl group-hover:scale-110 transition-transform shadow-inner">
-                        <i class="fa-solid fa-sack-dollar"></i>
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-600 flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform shadow-inner">
+                        <i class="fa-solid fa-sack-dollar stay-white"></i>
                     </div>
                     @if(isset($variacaoFaturamento))
                     <span class="px-2 py-1 rounded-lg text-[10px] font-black {{ $variacaoFaturamento >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400' }}">
@@ -143,14 +143,14 @@
                     @endif
                 </div>
                 <div>
-                    <h3 class="text-4xl font-black text-white tracking-tighter">R$ {{ number_format($totalFaturamento, 0, ',', '.') }}</h3>
+                    <h3 class="text-4xl font-black text-adaptive tracking-tighter">R$ {{ number_format($totalFaturamento, 0, ',', '.') }}</h3>
                     <p class="text-xs font-black text-muted uppercase tracking-widest mt-1">Faturamento Bruto</p>
                 </div>
             </div>
             @else
             <div class="flex flex-col h-full justify-center items-center text-center space-y-4">
-                <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-muted">
-                    <i class="fa-solid fa-lock text-xl"></i>
+                <div class="w-12 h-12 rounded-xl bg-purple-600 flex items-center justify-center text-white">
+                    <i class="fa-solid fa-lock text-xl stay-white"></i>
                 </div>
                 <p class="text-[10px] font-black uppercase text-muted tracking-widest leading-tight">Métrica Bloqueada<br><span class="text-primary">Upgrade Pro</span></p>
             </div>
@@ -163,8 +163,8 @@
             @if(!Auth::user()->tenant || Auth::user()->tenant->canAccess('financial'))
             <div class="flex flex-col h-full justify-between gap-6">
                 <div class="flex items-start justify-between">
-                    <div class="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400 text-2xl group-hover:scale-110 transition-transform shadow-inner">
-                        <i class="fa-solid fa-chart-pie"></i>
+                    <div class="w-14 h-14 rounded-2xl bg-purple-600 flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform shadow-inner">
+                        <i class="fa-solid fa-chart-pie stay-white"></i>
                     </div>
                     @if(isset($variacaoTicketMedio))
                     <span class="px-2 py-1 rounded-lg text-[10px] font-black {{ $variacaoTicketMedio >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400' }}">
@@ -173,7 +173,7 @@
                     @endif
                 </div>
                 <div>
-                    <h3 class="text-4xl font-black text-white tracking-tighter">R$ {{ number_format($ticketMedio ?? 0, 0, ',', '.') }}</h3>
+                    <h3 class="text-4xl font-black text-adaptive tracking-tighter">R$ {{ number_format($ticketMedio ?? 0, 0, ',', '.') }}</h3>
                     <p class="text-xs font-black text-muted uppercase tracking-widest mt-1">Ticket Médio</p>
                 </div>
             </div>
@@ -192,8 +192,8 @@
             <a href="{{ route('stock-requests.index', ['status' => 'pendente']) }}" class="flex flex-col h-full justify-between gap-6">
                 <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-colors"></div>
                 <div class="flex items-start justify-between relative z-10">
-                    <div class="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 text-2xl group-hover:scale-110 transition-transform shadow-inner">
-                        <i class="fa-solid fa-truck-ramp-box"></i>
+                    <div class="w-14 h-14 rounded-2xl bg-amber-600 flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform shadow-inner">
+                        <i class="fa-solid fa-truck-ramp-box stay-white"></i>
                     </div>
                     @if($solicitacoesPendentesCount > 0)
                     <span class="flex h-3 w-3 relative">
@@ -203,7 +203,7 @@
                     @endif
                 </div>
                 <div class="relative z-10">
-                    <h3 class="text-4xl font-black text-white tracking-tighter">{{ $solicitacoesPendentesCount }}</h3>
+                    <h3 class="text-4xl font-black text-adaptive tracking-tighter">{{ $solicitacoesPendentesCount }}</h3>
                     <p class="text-xs font-black text-muted uppercase tracking-widest mt-1">Logística Pendente</p>
                 </div>
             </a>
@@ -215,35 +215,35 @@
     @if(Auth::user()->tenant && Auth::user()->tenant->canAccess('pdv'))
     <div class="rounded-3xl bg-card-bg border border-border p-6 hover-lift transition-all">
         <div class="flex items-center justify-between mb-4">
-            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                <i class="fa-solid fa-store text-sm"></i>
+            <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white">
+                <i class="fa-solid fa-store text-sm stay-white"></i>
             </div>
             <span class="text-[10px] font-black uppercase tracking-widest text-muted">Vendas PDV</span>
         </div>
-        <p class="text-2xl font-black text-white tracking-tight">{{ $vendasPDV ?? 0 }} <span class="text-xs font-medium text-muted">vendas</span></p>
+        <p class="text-2xl font-black text-adaptive tracking-tight">{{ $vendasPDV ?? 0 }} <span class="text-xs font-medium text-muted">vendas</span></p>
         <p class="text-sm font-bold text-emerald-500 mt-1">R$ {{ number_format($vendasPDVValor ?? 0, 2, ',', '.') }}</p>
     </div>
     @endif
 
     <div class="rounded-3xl bg-card-bg border border-border p-6 hover-lift transition-all">
         <div class="flex items-center justify-between mb-4">
-            <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                <i class="fa-solid fa-globe text-sm"></i>
+            <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white">
+                <i class="fa-solid fa-globe text-sm stay-white"></i>
             </div>
             <span class="text-[10px] font-black uppercase tracking-widest text-muted">Pedidos Online</span>
         </div>
-        <p class="text-2xl font-black text-white tracking-tight">{{ $pedidosOnline ?? 0 }} <span class="text-xs font-medium text-muted">pedidos</span></p>
+        <p class="text-2xl font-black text-adaptive tracking-tight">{{ $pedidosOnline ?? 0 }} <span class="text-xs font-medium text-muted">pedidos</span></p>
         <p class="text-sm font-bold text-primary mt-1">R$ {{ number_format($pedidosOnlineValor ?? 0, 2, ',', '.') }}</p>
     </div>
 
     <div class="rounded-3xl bg-card-bg border border-border p-6 hover-lift transition-all">
         <div class="flex items-center justify-between mb-4">
-            <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-muted">
-                <i class="fa-solid fa-calendar-day text-sm"></i>
+            <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white">
+                <i class="fa-solid fa-calendar-day text-sm stay-white"></i>
             </div>
             <span class="text-[10px] font-black uppercase tracking-widest text-muted">Atividade Hoje</span>
         </div>
-        <p class="text-2xl font-black text-white tracking-tight">{{ $pedidosHoje }} <span class="text-xs font-medium text-muted">novos</span></p>
+        <p class="text-2xl font-black text-adaptive tracking-tight">{{ $pedidosHoje }} <span class="text-xs font-medium text-muted">novos</span></p>
         <div class="flex items-center gap-2 mt-1">
             <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
             <p class="text-xs font-bold text-muted">Capturados agora</p>
@@ -253,12 +253,12 @@
     @if(Auth::user()->tenant && Auth::user()->tenant->canAccess('financial'))
     <div class="rounded-3xl bg-card-bg border border-border p-6 hover-lift transition-all">
         <div class="flex items-center justify-between mb-4">
-            <div class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500">
-                <i class="fa-solid fa-hand-holding-dollar text-sm"></i>
+            <div class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white">
+                <i class="fa-solid fa-hand-holding-dollar text-sm stay-white"></i>
             </div>
             <span class="text-[10px] font-black uppercase tracking-widest text-muted">Recebimentos</span>
         </div>
-        <p class="text-2xl font-black text-white tracking-tight">{{ $pagamentosPendentes->count() }} <span class="text-xs font-medium text-muted">pendentes</span></p>
+        <p class="text-2xl font-black text-adaptive tracking-tight">{{ $pagamentosPendentes->count() }} <span class="text-xs font-medium text-muted">pendentes</span></p>
         <p class="text-sm font-bold text-red-500 mt-1">R$ {{ number_format($totalPendente, 2, ',', '.') }}</p>
     </div>
     @endif
@@ -330,7 +330,7 @@
                 <canvas id="{{ (isset($faturamentoPorLoja) && $faturamentoPorLoja->count() > 1) ? 'faturamentoLojaChart' : 'faturamentoMensalChart' }}"></canvas>
             @else
                 <div class="flex flex-col items-center justify-center h-full text-center space-y-4">
-                     <i class="fa-solid fa-lock-open text-4xl text-white/5"></i>
+                     <i class="fa-solid fa-lock-open text-4xl text-muted/20"></i>
                      <p class="text-sm font-medium text-muted">Histórico financeiro detalhado indisponível no plano atual.</p>
                 </div>
             @endif
@@ -359,14 +359,14 @@
     <!-- Top Clients Ranking -->
     @if(!Auth::user()->tenant || (Auth::user()->tenant && Auth::user()->tenant->canAccess('crm')))
     <div id="widget-ranking-clientes" class="rounded-3xl bg-card-bg border border-border overflow-hidden shadow-2xl transition-all hover:border-primary/30">
-        <div class="px-8 py-6 border-b border-border bg-white/5 flex items-center justify-between">
-            <h2 class="text-lg font-black text-white italic tracking-tight">VIP Clientes</h2>
+        <div class="px-8 py-6 border-b border-border bg-primary/5 flex items-center justify-between">
+            <h2 class="text-lg font-black text-adaptive italic tracking-tight">VIP Clientes</h2>
             <i class="fa-solid fa-crown text-amber-500"></i>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full">
                 <thead>
-                    <tr class="bg-black/20">
+                    <tr class="bg-indigo-50/50 dark:bg-primary/10">
                         <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Cliente</th>
                         <th class="px-8 py-4 text-center text-[10px] font-black text-muted uppercase tracking-widest">Pedidos</th>
                         <th class="px-8 py-4 text-right text-[10px] font-black text-muted uppercase tracking-widest">Total Gasto</th>
@@ -374,13 +374,13 @@
                 </thead>
                 <tbody class="divide-y divide-border/50">
                     @forelse($topClientes as $cliente)
-                    <tr class="hover:bg-white/5 transition-colors group">
+                    <tr class="transition-colors group">
                         <td class="px-8 py-5">
                             <div class="flex items-center gap-4">
                                 <div class="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-black text-xs ring-1 ring-primary/30 group-hover:scale-110 transition-transform">
                                     {{ substr($cliente->name, 0, 1) }}
                                 </div>
-                                <span class="text-sm font-bold text-white tracking-tight">{{ $cliente->name }}</span>
+                                <span class="text-sm font-bold text-adaptive tracking-tight">{{ $cliente->name }}</span>
                             </div>
                         </td>
                         <td class="px-8 py-5 text-center text-sm font-medium text-muted">{{ $cliente->total_pedidos }}</td>
@@ -401,14 +401,14 @@
     @if(isset($topVendedores) && $topVendedores->isNotEmpty())
         @if(!Auth::user()->tenant || (Auth::user()->tenant && Auth::user()->tenant->canAccess('reports_simple')))
         <div class="rounded-3xl bg-card-bg border border-border overflow-hidden shadow-2xl transition-all hover:border-primary/30">
-            <div class="px-8 py-6 border-b border-border bg-white/5 flex items-center justify-between">
-                <h2 class="text-lg font-black text-white italic tracking-tight">Time Comercial</h2>
+            <div class="px-8 py-6 border-b border-border bg-primary/5 flex items-center justify-between">
+                <h2 class="text-lg font-black text-adaptive italic tracking-tight">Time Comercial</h2>
                 <i class="fa-solid fa-medal text-primary"></i>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full">
                     <thead>
-                        <tr class="bg-black/20">
+                        <tr class="bg-indigo-50/50 dark:bg-primary/10">
                             <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Vendedor</th>
                             <th class="px-8 py-4 text-center text-[10px] font-black text-muted uppercase tracking-widest">Metas/Pedidos</th>
                             <th class="px-8 py-4 text-right text-[10px] font-black text-muted uppercase tracking-widest">Resultado</th>
@@ -416,9 +416,9 @@
                     </thead>
                     <tbody class="divide-y divide-border/50">
                         @foreach($topVendedores as $vendedor)
-                        <tr class="hover:bg-white/5 transition-colors group">
+                        <tr class="transition-colors group">
                             <td class="px-8 py-5">
-                                <span class="text-sm font-bold text-white tracking-tight">{{ $vendedor->name }}</span>
+                                <span class="text-sm font-bold text-adaptive tracking-tight">{{ $vendedor->name }}</span>
                             </td>
                             <td class="px-8 py-5 text-center text-sm font-medium text-muted">{{ $vendedor->total_pedidos }}</td>
                             <td class="px-8 py-5 text-right font-black text-primary tracking-tight">R$ {{ number_format($vendedor->total_faturamento, 2, ',', '.') }}</td>
@@ -431,14 +431,14 @@
         @endif
     @elseif(Auth::user()->tenant && Auth::user()->tenant->canAccess('financial'))
     <div class="rounded-3xl bg-card-bg border border-border overflow-hidden shadow-2xl transition-all hover:border-red-500/30">
-        <div class="px-8 py-6 border-b border-border bg-white/5 flex items-center justify-between">
-            <h2 class="text-lg font-black text-white italic tracking-tight">Contas a Receber</h2>
+        <div class="px-8 py-6 border-b border-border bg-primary/5 flex items-center justify-between">
+            <h2 class="text-lg font-black text-adaptive italic tracking-tight">Contas a Receber</h2>
             <i class="fa-solid fa-hourglass-half text-red-500"></i>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full">
                 <thead>
-                    <tr class="bg-black/20">
+                    <tr class="bg-indigo-50/50 dark:bg-primary/10">
                         <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Protocolo</th>
                         <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Cliente</th>
                         <th class="px-8 py-4 text-right text-[10px] font-black text-muted uppercase tracking-widest">Saldo Devedor</th>
@@ -446,11 +446,11 @@
                 </thead>
                 <tbody class="divide-y divide-border/50">
                     @forelse($pagamentosPendentes as $pagamento)
-                    <tr class="hover:bg-white/5 transition-colors group">
+                    <tr class="transition-colors group">
                         <td class="px-8 py-5 text-sm font-black text-primary">
                             <a href="{{ route('orders.show', $pagamento->order->id) }}" class="hover:underline">#{{ str_pad($pagamento->order->id, 6, '0', STR_PAD_LEFT) }}</a>
                         </td>
-                        <td class="px-8 py-5 text-sm font-medium text-white">
+                        <td class="px-8 py-5 text-sm font-medium text-adaptive">
                             {{ $pagamento->order->client ? $pagamento->order->client->name : 'Consumidor Final' }}
                         </td>
                         <td class="px-8 py-5 text-right font-black text-red-500 tracking-tight">R$ {{ number_format($pagamento->remaining_amount, 2, ',', '.') }}</td>
@@ -470,7 +470,7 @@
 <!-- Trending Products Section -->
 @if(isset($produtosMaisVendidos) && $produtosMaisVendidos->isNotEmpty() && (!Auth::user()->tenant || (Auth::user()->tenant && Auth::user()->tenant->canAccess('reports_simple'))))
 <div class="rounded-3xl bg-card-bg border border-border overflow-hidden shadow-2xl mb-12">
-    <div class="px-8 py-6 border-b border-border flex items-center justify-between bg-white/5">
+    <div class="px-8 py-6 border-b border-border flex items-center justify-between bg-primary/5">
         <h2 class="text-xl font-black text-white flex items-center gap-3">
             <i class="fa-solid fa-fire text-orange-500"></i>
             Produtos em Alta
@@ -480,7 +480,7 @@
     <div class="overflow-x-auto">
         <table class="min-w-full">
             <thead>
-                <tr class="bg-black/20">
+                <tr class="bg-indigo-50/50 dark:bg-primary/10">
                     <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Produto</th>
                     <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Quantidade</th>
                     <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Faturamento</th>
@@ -488,8 +488,8 @@
             </thead>
             <tbody class="divide-y divide-border/50">
                 @foreach($produtosMaisVendidos as $produto)
-                <tr class="hover:bg-white/5 transition-colors">
-                    <td class="px-8 py-5 text-sm font-bold text-white tracking-tight">{{ $produto->print_type ?? 'N/A' }}</td>
+                <tr class="transition-colors">
+                    <td class="px-8 py-5 text-sm font-bold text-adaptive tracking-tight">{{ $produto->print_type ?? 'N/A' }}</td>
                     <td class="px-8 py-5 text-sm font-medium text-muted">{{ $produto->total_vendido }} un.</td>
                     <td class="px-8 py-5 text-sm font-black text-emerald-500">R$ {{ number_format($produto->total_faturamento, 2, ',', '.') }}</td>
                 </tr>
@@ -502,7 +502,7 @@
 
 <!-- Recent Activity Timeline -->
 <div class="rounded-3xl bg-card-bg border border-border overflow-hidden shadow-2xl mb-12">
-    <div class="px-8 py-6 border-b border-border bg-white/5 flex items-center justify-between">
+    <div class="px-8 py-6 border-b border-border bg-primary/5 flex items-center justify-between">
         <h2 class="text-xl font-black text-white flex items-center gap-3">
             <i class="fa-solid fa-clock-rotate-left text-primary"></i>
             Fluxo Recente de Transações
@@ -514,7 +514,7 @@
     <div class="overflow-x-auto">
         <table class="min-w-full">
             <thead>
-                <tr class="bg-black/20">
+                <tr class="bg-indigo-50/50 dark:bg-primary/10">
                     <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Tipo</th>
                     <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Referência</th>
                     <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Identificação</th>
@@ -545,7 +545,7 @@
                             {{ $pedido->status->name }}
                         </span>
                     </td>
-                    <td class="px-8 py-5 text-sm font-black text-white text-right">R$ {{ number_format($pedido->total, 2, ',', '.') }}</td>
+                    <td class="px-8 py-5 text-sm font-black text-adaptive text-right">R$ {{ number_format($pedido->total, 2, ',', '.') }}</td>
                     <td class="px-8 py-5 text-right font-bold text-muted text-[10px]">{{ $pedido->created_at->diffForHumans() }}</td>
                 </tr>
                 @empty
@@ -607,10 +607,11 @@
     function initCharts() {
         if (typeof Chart === 'undefined') return;
         
-        const isDark = true; // Premium theme is always centered on dark/absolute black
-        const textColor = '#a1a1aa';
-        const gridColor = 'rgba(255, 255, 255, 0.05)';
-        const borderColor = '#030303';
+        const isDark = document.documentElement.classList.contains('dark');
+        Chart.defaults.font.family = "'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif";
+        const textColor = isDark ? '#a1a1aa' : '#1e293b';
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+        const borderColor = isDark ? '#030303' : '#ffffff';
         const primaryColor = '#7c3aed';
         
         // Cleanup existing instances
@@ -624,15 +625,17 @@
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: { color: textColor, usePointStyle: true, padding: 25, font: { family: 'Inter', size: 11, weight: '700' } }
+                    labels: { color: textColor, usePointStyle: true, padding: 25, font: { family: "'Inter', 'Segoe UI', 'Roboto', sans-serif", size: 12, weight: '700' } }
                 },
                 tooltip: {
-                    backgroundColor: '#050505',
-                    titleFont: { family: 'Inter', weight: '800', size: 13 },
-                    bodyFont: { family: 'Inter' },
+                    backgroundColor: isDark ? '#050505' : '#ffffff',
+                    titleColor: isDark ? '#ffffff' : '#0f172a',
+                    bodyColor: isDark ? '#a1a1aa' : '#64748b',
+                    titleFont: { family: "'Inter', 'Segoe UI', 'Roboto', sans-serif", weight: '800', size: 14 },
+                    bodyFont: { family: "'Inter', 'Segoe UI', 'Roboto', sans-serif", weight: '700', size: 13 },
                     padding: 16,
                     cornerRadius: 16,
-                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
                     borderWidth: 1,
                     displayColors: true,
                     boxPadding: 8
@@ -652,9 +655,10 @@
                         datasets: [{
                             data: validData.map(i => i.total),
                             backgroundColor: validData.map(i => i.color),
-                            borderWidth: 6,
-                            borderColor: borderColor,
-                            hoverOffset: 20
+                            hoverBackgroundColor: validData.map(i => i.color),
+                            borderWidth: 0,
+                            hoverOffset: 0,
+                            spacing: 0
                         }]
                     },
                     options: {
@@ -692,8 +696,8 @@
                         pointRadius: 0,
                         pointHoverRadius: 8,
                         pointHoverBackgroundColor: primaryColor,
-                        pointHoverBorderColor: '#fff',
-                        pointHoverBorderWidth: 4
+                        pointHoverBorderColor: primaryColor,
+                        pointHoverBorderWidth: 2
                     }]
                 },
                 options: {
@@ -703,9 +707,9 @@
                     scales: {
                         y: { 
                             grid: { color: gridColor, drawBorder: false }, 
-                            ticks: { color: textColor, font: { size: 10, weight: '700' }, callback: v => v > 0 ? 'R$ ' + v.toLocaleString('pt-BR') : '' }
+                            ticks: { color: textColor, font: { family: 'Inter', size: 10, weight: '700' }, callback: v => v > 0 ? 'R$ ' + v.toLocaleString('pt-BR') : '' }
                         },
-                        x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10, weight: '700' } } }
+                        x: { grid: { display: false }, ticks: { color: textColor, font: { family: 'Inter', size: 10, weight: '700' } } }
                     }
                 }
             });
@@ -721,9 +725,10 @@
                     datasets: [{
                         data: dashboardData.pagamentoData.map(i => i.total),
                         backgroundColor: ['#7c3aed', '#10b981', '#f59e0b', '#3b82f6', '#ef4444'],
-                        borderWidth: 6,
-                        borderColor: borderColor,
-                        hoverOffset: 15
+                        hoverBackgroundColor: ['#7c3aed', '#10b981', '#f59e0b', '#3b82f6', '#ef4444'],
+                        borderWidth: 0,
+                        hoverOffset: 0,
+                        spacing: 0
                     }]
                 },
                 options: { ...commonOptions, cutout: '75%' }
@@ -744,7 +749,8 @@
                         datasets: [{
                             label: 'Faturamento',
                             data: data.map(i => i.total),
-                            backgroundColor: isLoja ? 'rgba(124, 58, 237, 0.8)' : 'rgba(16, 185, 129, 0.1)',
+                            backgroundColor: isLoja ? primaryColor : '#10b981',
+                            hoverBackgroundColor: isLoja ? primaryColor : '#10b981',
                             borderColor: isLoja ? primaryColor : '#10b981',
                             borderWidth: isLoja ? 0 : 4,
                             borderRadius: 12,
@@ -756,8 +762,8 @@
                         ...commonOptions,
                         plugins: { ...commonOptions.plugins, legend: { display: false } },
                         scales: {
-                            y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10, weight: '700' } } },
-                            x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10, weight: '700' } } }
+                            y: { grid: { color: gridColor }, ticks: { color: textColor, font: { family: 'Inter', size: 10, weight: '700' } } },
+                            x: { grid: { display: false }, ticks: { color: textColor, font: { family: 'Inter', size: 10, weight: '700' } } }
                         }
                     }
                 });

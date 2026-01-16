@@ -1,61 +1,47 @@
 @extends('layouts.admin')
 
+@extends('layouts.admin')
+
 @section('content')
-<div class="px-4 py-6">
-    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <!-- Header Section -->
+    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-                <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                </svg>
+            <h1 class="text-3xl font-black text-gray-900 dark:text-white flex items-center gap-3">
+                <div class="p-2 bg-primary/10 rounded-xl text-primary">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
                 Dashboard de Estoque
             </h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p class="text-gray-500 dark:text-gray-400 mt-1 text-lg font-medium">
                 Visão geral e métricas do estoque em tempo real.
             </p>
         </div>
+
         <div class="flex flex-wrap items-center gap-3">
-            <!-- Filtro de Período -->
+            <!-- Time Period Filter -->
             <form method="GET" action="{{ route('stocks.dashboard') }}" id="periodFilterForm" class="flex items-center gap-2">
-                <select name="period" id="period" 
-                        onchange="this.form.submit()"
-                        class="px-4 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition-all">
+                <select name="period" onchange="this.form.submit()" 
+                        class="px-4 py-2.5 border-0 ring-1 ring-gray-200 dark:ring-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-semibold shadow-sm focus:ring-2 focus:ring-primary focus:outline-none cursor-pointer">
                     <option value="today" {{ ($period ?? 'month') === 'today' ? 'selected' : '' }}>Hoje</option>
                     <option value="week" {{ ($period ?? 'month') === 'week' ? 'selected' : '' }}>Esta Semana</option>
                     <option value="month" {{ ($period ?? 'month') === 'month' ? 'selected' : '' }}>Este Mês</option>
                     <option value="year" {{ ($period ?? 'month') === 'year' ? 'selected' : '' }}>Este Ano</option>
-                    <option value="custom" {{ ($period ?? 'month') === 'custom' ? 'selected' : '' }}>Personalizado</option>
                 </select>
-                
+
+                <!-- Custom Date Range -->
                 @if(($period ?? 'month') === 'custom')
-                <div class="flex items-center gap-2">
-                    <input type="date" name="start_date" value="{{ $startDate->format('Y-m-d') ?? '' }}" 
-                           class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm">
-                    <input type="date" name="end_date" value="{{ $endDate->format('Y-m-d') ?? '' }}" 
-                           class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm">
-                    <button type="submit" class="p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    </button>
-                </div>
                 @endif
             </form>
 
-            <!-- Filtros Avançados -->
-            <form method="GET" action="{{ route('stocks.dashboard') }}" class="flex flex-wrap items-center gap-2 border-l border-gray-200 dark:border-gray-700 pl-3">
-                @if(isset($period)) <input type="hidden" name="period" value="{{ $period }}"> @endif
-                
-                @if(isset($vendedores) && $vendedores->count() > 0)
-                <select name="vendor_id" onchange="this.form.submit()" 
-                        class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition-all">
-                    <option value="">Vendedor: Todos</option>
-                    @foreach($vendedores as $v)
-                        <option value="{{ $v->id }}" {{ request('vendor_id') == $v->id ? 'selected' : '' }}>{{ $v->name }}</option>
-                    @endforeach
-                </select>
-                @endif
-
+            <!-- Filters -->
+             <form method="GET" action="{{ route('stocks.dashboard') }}" class="flex items-center gap-2">
+                 @if(isset($period)) <input type="hidden" name="period" value="{{ $period }}"> @endif
+                 
                 <select name="fabric_id" onchange="this.form.submit()" 
-                        class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition-all">
+                        class="px-4 py-2.5 border-0 ring-1 ring-gray-200 dark:ring-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-semibold shadow-sm focus:ring-2 focus:ring-primary focus:outline-none cursor-pointer">
                     <option value="">Tecido: Todos</option>
                     @foreach($fabrics as $f)
                         <option value="{{ $f->id }}" {{ request('fabric_id') == $f->id ? 'selected' : '' }}>{{ $f->name }}</option>
@@ -63,7 +49,7 @@
                 </select>
 
                 <select name="color_id" onchange="this.form.submit()" 
-                        class="px-3 py-2 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition-all">
+                        class="px-4 py-2.5 border-0 ring-1 ring-gray-200 dark:ring-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-semibold shadow-sm focus:ring-2 focus:ring-primary focus:outline-none cursor-pointer">
                     <option value="">Cor: Todas</option>
                     @foreach($colors as $c)
                         <option value="{{ $c->id }}" {{ request('color_id') == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
@@ -71,181 +57,205 @@
                 </select>
             </form>
 
-            <div class="flex gap-2 border-l border-gray-200 dark:border-gray-700 pl-3">
-                <a href="{{ route('stocks.history') }}" class="px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition flex items-center gap-2 text-sm font-semibold">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    Histórico
-                </a>
-                <a href="{{ route('stocks.index') }}" class="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition flex items-center gap-2 text-sm font-semibold">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                    Estoque
-                </a>
-            </div>
+            <div class="h-8 w-px bg-gray-200 dark:bg-gray-700 mx-2 hidden md:block"></div>
+
+            <!-- Action Buttons -->
+            <a href="{{ route('stocks.history') }}" class="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl shadow-lg transition-all duration-300 font-bold text-sm flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left" style="color: #ffffff !important;"></i>
+                Histórico
+            </a>
+            <a href="{{ route('stocks.index', ['view' => 'table']) }}" class="px-5 py-2.5 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm transition-all duration-300 font-bold text-sm flex items-center gap-2">
+                <i class="fa-solid fa-boxes-stacked"></i>
+                Estoque
+            </a>
         </div>
     </div>
 
-    <!-- Cards KPI -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <!-- Total Itens -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-5 border-l-4 border-blue-500">
-            <div class="flex justify-between items-start">
+    <!-- KPI Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <!-- Total Items -->
+        <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+            <div class="flex justify-between items-start z-10 relative">
                 <div>
-                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total de Peças</h3>
-                    <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ number_format($totalItems, 0, ',', '.') }}</p>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total de Peças</p>
+                    <h3 class="text-4xl font-black text-gray-900 dark:text-white">{{ number_format($totalItems, 0, ',', '.') }}</h3>
+                    <p class="text-xs font-bold text-purple-600 mt-3 bg-purple-50 dark:bg-purple-900/20 px-3 py-1.5 rounded-lg inline-block">
+                        {{ $totalSKUs }} SKUs distintos
+                    </p>
                 </div>
-                <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                    </svg>
+                <div class="w-14 h-14 rounded-2xl bg-purple-600 flex items-center justify-center shadow-lg shadow-purple-200 dark:shadow-none transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fa-solid fa-cube text-xl text-white" style="color: #ffffff !important;"></i>
                 </div>
             </div>
-            <p class="text-xs text-gray-500 mt-2">{{ $totalSKUs }} SKUs distintos</p>
         </div>
 
-        <!-- Alerta Estoque Baixo -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-5 border-l-4 border-red-500">
-            <div class="flex justify-between items-start">
+        <!-- Low Stock -->
+        <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+            <div class="flex justify-between items-start z-10 relative">
                 <div>
-                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Alertas de Baixo Estoque</h3>
-                    <p class="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">{{ $lowStockCount }}</p>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Alertas de Baixo Estoque</p>
+                    <h3 class="text-4xl font-black text-red-500 dark:text-red-500">{{ $lowStockCount }}</h3>
+                    <p class="text-xs font-bold text-red-500 mt-3 bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-lg inline-block">
+                        Itens abaixo do mínimo
+                    </p>
                 </div>
-                <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg text-red-600 dark:text-red-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
+                 <div class="w-14 h-14 rounded-2xl bg-red-600 flex items-center justify-center shadow-lg shadow-red-200 dark:shadow-none transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fa-solid fa-triangle-exclamation text-xl text-white" style="color: #ffffff !important;"></i>
                 </div>
             </div>
-            <p class="text-xs text-gray-500 mt-2">Itens abaixo do mínimo definido</p>
         </div>
 
-        <!-- Solicitações Pendentes -->
+        <!-- Pending Requests -->
         <a href="{{ route('stock-requests.index', ['status' => 'pendente']) }}" class="block">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-5 border-l-4 border-yellow-500 hover:shadow-lg transition-all duration-300">
-                <div class="flex justify-between items-start">
+            <div class="h-full bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+                <div class="flex justify-between items-start z-10 relative">
                     <div>
-                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Solicitações Pendentes</h3>
-                        <p class="text-2xl font-bold {{ $pendingRequests > 0 ? 'text-amber-600' : 'text-gray-800 dark:text-white' }} mt-1">{{ $pendingRequests }}</p>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Solicitações Pendentes</p>
+                        <h3 class="text-4xl font-black text-gray-900 dark:text-white">{{ $pendingRequests }}</h3>
+                        <p class="text-xs font-bold text-amber-500 mt-3 bg-amber-50 dark:bg-amber-900/20 px-3 py-1.5 rounded-lg inline-block">
+                            Aguardando aprovação
+                        </p>
                     </div>
-                    <div class="p-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 rounded-lg">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
+                    <div class="w-14 h-14 rounded-2xl bg-amber-500 flex items-center justify-center shadow-lg shadow-amber-200 dark:shadow-none transform group-hover:scale-110 transition-transform duration-300">
+                        <i class="fa-solid fa-calendar-check text-xl text-white" style="color: #ffffff !important;"></i>
                     </div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2">Aguardando aprovação</p>
             </div>
         </a>
 
-        <!-- Estatísticas Gerais -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-5 border-l-4 border-green-500">
-             <div class="flex justify-between items-start">
+        <!-- Movements Today -->
+        <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+            <div class="flex justify-between items-start z-10 relative">
                 <div>
-                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Movimentações Hoje</h3>
-                    <p class="text-2xl font-bold text-green-600 dark:text-green-400 mt-1">
+                     <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Movimentações Hoje</p>
+                    <h3 class="text-4xl font-black text-emerald-500 dark:text-emerald-500">
                         {{ array_sum(array_slice($movementsData['entries'], -1)) + array_sum(array_slice($movementsData['exits'], -1)) }}
+                    </h3>
+                    <p class="text-xs font-bold text-emerald-500 mt-3 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 rounded-lg inline-block">
+                        Entradas e saídas registradas
                     </p>
                 </div>
-                <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
-                    </svg>
+                 <div class="w-14 h-14 rounded-2xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-200 dark:shadow-none transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fa-solid fa-chart-line text-xl text-white" style="color: #ffffff !important;"></i>
                 </div>
             </div>
-            <p class="text-xs text-gray-500 mt-2">Entradas e saídas registradas</p>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <!-- Gráfico de Movimentações -->
-        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Movimentações Recentes (7 dias)</h3>
-            <div class="h-64 relative">
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Chart -->
+        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Movimentações Recentes (7 dias)</h3>
+                <div class="flex items-center gap-4 text-xs font-semibold">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+                        <span class="text-gray-500">Entradas</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-red-400"></span>
+                        <span class="text-gray-500">Saídas</span>
+                    </div>
+                </div>
+            </div>
+            <div class="relative h-72 w-full">
                 <canvas id="movementsChart"></canvas>
             </div>
         </div>
 
-        <!-- Distribuição por Loja -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Estoque por Loja</h3>
-            <div class="h-64 relative flex justify-center">
+        <!-- Secondary Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm flex flex-col">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Estoque por Loja</h3>
+            <div class="relative flex-1 flex items-center justify-center">
                 <canvas id="storeChart"></canvas>
             </div>
         </div>
     </div>
 
+    <!-- Details Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Itens com Estoque Baixo -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div class="px-4 py-3 bg-red-50 dark:bg-red-900/20 border-b border-red-100 dark:border-red-900/30 flex justify-between items-center">
-                <h3 class="font-bold text-red-800 dark:text-red-200 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                    Prioridade de Reposição
+        <!-- Products List (previously Low Stock) -->
+        <div class="bg-gray-900 rounded-3xl border border-gray-800 overflow-hidden shadow-lg">
+            <div class="px-6 py-6 flex justify-between items-center">
+                <h3 class="font-bold text-white flex items-center gap-2 text-lg">
+                    <i class="fa-solid fa-fire text-orange-500"></i>
+                    Produtos em Alta
                 </h3>
-                <a href="{{ route('stocks.index', ['filter_low_stock' => 1]) }}" class="text-xs text-red-600 hover:text-red-800 underline">Ver todos</a>
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Performance por SKU</span>
             </div>
-            <table class="w-full text-sm">
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                    @forelse($lowStockItems as $item)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                        <td class="px-4 py-2">
-                            <div class="font-medium text-gray-800 dark:text-gray-200">{{ $item->cutType->name ?? '-' }}</div>
-                            <div class="text-xs text-gray-500">{{ $item->store->name ?? '-' }}</div>
-                        </td>
-                        <td class="px-4 py-2 text-xs text-gray-500">
-                            SIZE: {{ $item->size }}
-                        </td>
-                        <td class="px-4 py-2 text-right">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200">
-                                {{ $item->quantity }} / {{ (int)$item->min_stock }}
-                            </span>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="3" class="px-4 py-4 text-center text-gray-500">Nenhum alerta de estoque baixo.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+            
+            <!-- Table Header -->
+            <div class="bg-[#8B5CF6] px-6 py-3 flex text-[10px] font-black text-white uppercase tracking-widest">
+                <div class="w-1/2">Produto</div>
+                <div class="w-1/4 text-center">Quantidade</div>
+                <div class="w-1/4 text-right">Situação</div>
+            </div>
 
-        <!-- Atividade Recente -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div class="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="font-bold text-gray-800 dark:text-white">Últimas Atividades</h3>
-            </div>
-            <div class="divide-y divide-gray-200 dark:divide-gray-700">
-                @forelse($recentActivity as $activity)
-                <div class="px-4 py-3 flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                    <div class="mt-1">
-                        @if($activity->action_type == 'entrada')
-                            <span class="w-2 h-2 rounded-full bg-green-500 block"></span>
-                        @elseif($activity->action_type == 'saida')
-                            <span class="w-2 h-2 rounded-full bg-red-500 block"></span>
-                        @else
-                            <span class="w-2 h-2 rounded-full bg-blue-500 block"></span>
-                        @endif
+            <div class="divide-y divide-gray-800">
+                @forelse($lowStockItems as $item)
+                <div class="px-6 py-4 flex items-center hover:bg-white/5 transition-colors">
+                    <div class="w-1/2">
+                        <div class="font-bold text-white text-sm">{{ $item->cutType->name ?? 'Item s/ nome' }}</div>
+                        <div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">{{ $item->store->name ?? '-' }}</div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                            {{ ucfirst($activity->action_type) }} - {{ $activity->cutType->name ?? 'Item' }}
-                        </p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {{ $activity->user->name ?? 'Sistema' }} • {{ $activity->store->name ?? '-' }}
-                        </p>
+                    <div class="w-1/4 text-center">
+                        <span class="text-sm font-bold text-white">{{ $item->quantity }} un.</span>
                     </div>
-                    <div class="text-xs text-gray-500 whitespace-nowrap">
-                        {{ $activity->action_date->diffForHumans() }}
+                    <div class="w-1/4 text-right">
+                         <span class="text-xs font-bold {{ $item->quantity == 0 ? 'text-red-500' : 'text-amber-500' }}">
+                            {{ $item->quantity == 0 ? 'Sem Estoque' : 'Baixo' }}
+                        </span>
                     </div>
                 </div>
                 @empty
-                <div class="px-4 py-4 text-center text-gray-500">Nenhuma atividade recente.</div>
+                <div class="p-8 text-center text-gray-500">
+                    <p class="text-sm">Nenhum registro encontrado.</p>
+                </div>
                 @endforelse
             </div>
-            <div class="p-2 text-center bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
-                <a href="{{ route('stocks.history') }}" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Ver histórico completo &rarr;</a>
+        </div>
+
+        <!-- Recent Transactions List -->
+        <div class="bg-gray-900 rounded-3xl border border-gray-800 overflow-hidden shadow-lg flex flex-col">
+            <div class="px-6 py-6 flex justify-between items-center">
+                <h3 class="font-bold text-white flex items-center gap-2 text-lg">
+                    <i class="fa-solid fa-clock-rotate-left text-purple-400"></i>
+                    Fluxo Recente de Transações
+                </h3>
+                <a href="{{ route('stocks.history') }}" class="text-[10px] font-bold text-purple-400 hover:text-white uppercase tracking-widest transition-colors flex items-center gap-1">
+                    Ver Todos <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                </a>
+            </div>
+            
+            <!-- Table Header -->
+            <div class="bg-[#8B5CF6] px-6 py-3 flex text-[10px] font-black text-white uppercase tracking-widest">
+                <div class="w-1/3">Referência</div>
+                <div class="w-1/3">Identificação</div>
+                <div class="w-1/3 text-right">Cronologia</div>
+            </div>
+
+            <div class="divide-y divide-gray-800 flex-1">
+                @forelse($recentActivity as $activity)
+                <div class="px-6 py-4 flex items-center hover:bg-white/5 transition-colors">
+                    <div class="w-1/3">
+                        <span class="px-2 py-1 rounded-md bg-white/10 border border-white/10 text-[10px] font-bold text-white uppercase tracking-wider">
+                            {{ $activity->action_type == 'entrada' ? 'ENTRADA' : 'SAÍDA' }}
+                        </span>
+                    </div>
+                    <div class="w-1/3">
+                        <div class="font-bold text-white text-sm truncate">{{ $activity->cutType->name ?? 'Item' }}</div>
+                        <div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-0.5 truncate">{{ $activity->user->name ?? 'Sistema' }}</div>
+                    </div>
+                    <div class="w-1/3 text-right">
+                        <span class="text-xs font-bold text-gray-400">{{ $activity->created_at->diffForHumans() }}</span>
+                    </div>
+                </div>
+                @empty
+                <div class="p-8 text-center text-gray-500">
+                    <p class="text-sm">Nenhuma atividade recente.</p>
+                </div>
+                @endforelse
             </div>
         </div>
     </div>
@@ -255,8 +265,9 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Chart.js Configuration
-        Chart.defaults.color = document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#4B5563';
+        Chart.defaults.color = document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#6B7280';
         Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.font.size = 11;
 
         // Movements Chart
         const ctxMovements = document.getElementById('movementsChart').getContext('2d');
@@ -268,38 +279,37 @@
                     {
                         label: 'Entradas',
                         data: {!! json_encode($movementsData['entries']) !!},
-                        backgroundColor: 'rgba(34, 197, 94, 0.5)', // green-500
-                        borderColor: 'rgb(34, 197, 94)',
-                        borderWidth: 1
+                        backgroundColor: '#34d399', // emerald-400
+                        borderRadius: 4,
+                        barThickness: 12,
                     },
                     {
                         label: 'Saídas',
                         data: {!! json_encode($movementsData['exits']) !!},
-                        backgroundColor: 'rgba(239, 68, 68, 0.5)', // red-500
-                        borderColor: 'rgb(239, 68, 68)',
-                        borderWidth: 1
+                        backgroundColor: '#f87171', // red-400
+                        borderRadius: 4,
+                        barThickness: 12,
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false } // Custom legend in HTML
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                        }
+                            color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false,
+                        },
+                        ticks: { padding: 10 }
                     },
                     x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
+                        grid: { display: false },
+                        ticks: { padding: 10 }
                     }
                 }
             }
@@ -309,28 +319,39 @@
         const ctxStore = document.getElementById('storeChart').getContext('2d');
         const storeData = {!! json_encode($stockByStore) !!};
         
+        // Handle empty scenario nicely
+        const hasData = Object.keys(storeData).length > 0;
+        
         new Chart(ctxStore, {
             type: 'doughnut',
             data: {
-                labels: Object.keys(storeData),
+                labels: hasData ? Object.keys(storeData) : ['Sem dados'],
                 datasets: [{
-                    data: Object.values(storeData),
-                    backgroundColor: [
-                        'rgba(99, 102, 241, 0.7)', // Indigo
-                        'rgba(59, 130, 246, 0.7)', // Blue
-                        'rgba(168, 85, 247, 0.7)', // Purple
-                        'rgba(236, 72, 153, 0.7)', // Pink
-                        'rgba(249, 115, 22, 0.7)', // Orange
-                    ],
-                    borderWidth: 0
+                    data: hasData ? Object.values(storeData) : [1],
+                    backgroundColor: hasData ? [
+                        '#818cf8', // Indigo
+                        '#34d399', // Emerald
+                        '#f472b6', // Pink
+                        '#fbbf24', // Amber
+                        '#60a5fa', // Blue
+                    ] : ['#e5e7eb'], // Gray for empty
+                    borderWidth: 0,
+                    hoverOffset: 4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                cutout: '75%',
                 plugins: {
                     legend: {
-                            position: 'right',
+                        position: 'left',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 20,
+                            font: { size: 11 }
+                        }
                     }
                 }
             }

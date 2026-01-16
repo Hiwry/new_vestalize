@@ -45,33 +45,41 @@
 
             // Verificação mais precisa para determinar se está ativo
             const isExactMatch = currentPath === linkPath;
+            // Verifica prefixo, mas ignora rotas raiz ou excessivamente genéricas
             const isPrefixMatch = linkPath !== '/' &&
                 linkPath !== '/dashboard' &&
-                linkPath !== '/cash' &&
-                linkPath !== '/financeiro' &&
-                currentPath.startsWith(linkPath + '/');
-            const isActive = isExactMatch || isPrefixMatch;
+                currentPath.startsWith(linkPath); 
+            
+            // Lógica especial para Vendas/Sales
+            const isSalesMatch = (linkPath === '/sales' || linkPath === '/vendas') && 
+                                 (currentPath.startsWith('/sales') || currentPath.startsWith('/vendas'));
 
-            // Limpar classes de estado ativo de QUALQUER link
-            link.classList.remove('bg-purple-600', 'bg-blue-600', 'bg-indigo-600', 'text-white');
+            const isActive = isExactMatch || isPrefixMatch || isSalesMatch;
 
-            // Adicionar classes de estado inativo padrão (se não tiver)
-            if (!isActive) {
-                link.classList.add('text-gray-400');
+            // Classes padrão para links INATIVOS (copiado do Blade)
+            // text-muted hover:bg-white/5 hover:text-white
+            
+            if (isActive) {
+                // Estado ATIVO
+                link.classList.add('active-link');
+                link.classList.remove('text-muted', 'hover:bg-white/5', 'hover:text-white');
+                
+                // Limpar classes legacy se existirem
+                link.classList.remove('bg-purple-600', 'bg-blue-600', 'bg-indigo-600', 'text-white', 'text-gray-400');
             } else {
-                // Adicionar classe de estado ativo
-                link.classList.remove('text-gray-400');
-                link.classList.add('bg-purple-600');
+                // Estado INATIVO
+                link.classList.remove('active-link');
+                link.classList.add('text-muted', 'hover:bg-white/5', 'hover:text-white');
+                
+                // Limpar classes legacy se existirem
+                link.classList.remove('bg-purple-600', 'bg-blue-600', 'bg-indigo-600', 'text-white', 'text-gray-400');
             }
 
-            // Atualizar ícone se existir
-            const icon = link.querySelector('svg');
+            // Atualizar ícone se existir (opcional, já que o CSS lida com isso via .active-link)
+            // Mas mantemos limpeza de classes antigas
+            const icon = link.querySelector('svg, i');
             if (icon) {
-                if (isActive) {
-                    icon.classList.remove('text-gray-500', 'dark:text-gray-400');
-                } else {
-                    icon.classList.add('text-gray-500', 'dark:text-gray-400');
-                }
+                 icon.classList.remove('text-gray-500', 'dark:text-gray-400', 'text-white', 'text-primary');
             }
         });
     }

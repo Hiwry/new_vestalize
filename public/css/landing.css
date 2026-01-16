@@ -584,13 +584,18 @@
    ============================= */
 
 /* Força textos claros herdados a usarem o foreground escuro do tema */
-html:not(.dark) .landing-page .text-white,
-html:not(.dark) .landing-page .text-white\/80,
-html:not(.dark) .landing-page .text-white\/70,
-html:not(.dark) .landing-page .text-white\/60,
+html:not(.dark) .landing-page .text-white:not(.stay-white),
+html:not(.dark) .landing-page .text-white\/80:not(.stay-white),
+html:not(.dark) .landing-page .text-white\/70:not(.stay-white),
+html:not(.dark) .landing-page .text-white\/60:not(.stay-white),
 html:not(.dark) .landing-page .text-foreground,
 html:not(.dark) .landing-page .text-foreground\/80,
 html:not(.dark) .landing-page .text-muted-foreground {
+    color: var(--foreground) !important;
+}
+
+html:not(.dark) .landing-page .text-muted {
+    color: var(--muted) !important;
 }
 
 /* Destaques que devem permanecer roxos */
@@ -600,9 +605,29 @@ html:not(.dark) .landing-page .text-muted-foreground {
     -webkit-text-fill-color: currentColor;
 }
 
+/* Força branco em elementos específicos (mesmo no light mode) */
+.stay-white {
+    color: #ffffff !important;
+}
+
 /* Títulos animados do hero */
 html:not(.dark) .landing-page .landing-title .animate-word:not(.text-gradient-primary) {
     color: var(--foreground) !important;
+}
+
+/* Gradiente adaptativo para títulos sobre fundo variado */
+.text-adaptive-gradient {
+    background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.7));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+html:not(.dark) .text-adaptive-gradient {
+    background: linear-gradient(to right, var(--foreground), var(--muted));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 /* Força destaque roxo em ambas variações */

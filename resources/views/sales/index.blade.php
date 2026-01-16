@@ -16,13 +16,13 @@
             </p>
         </div>
         
-        <div class="hidden md:flex items-center gap-4 px-6 py-4 rounded-2xl bg-card-bg border border-border shadow-2xl backdrop-blur-md">
-            <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                <i class="fa-solid fa-calendar-day text-lg"></i>
+        <div class="hidden md:flex items-center gap-4 px-6 py-4 rounded-2xl bg-white dark:bg-card-bg border border-gray-100 dark:border-border shadow-xl backdrop-blur-md">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/30">
+                <i class="fa-solid fa-calendar-day text-lg text-white" style="color: #ffffff !important;"></i>
             </div>
             <div>
-                <p class="text-[10px] uppercase tracking-widest text-muted font-bold">Atalhos rápidos</p>
-                <p class="text-sm font-bold text-white tracking-tight">{{ now()->translatedFormat('l, d \d\e F') }}</p>
+                <p class="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-400 font-bold">Atalhos rápidos</p>
+                <p class="text-sm font-bold text-gray-900 dark:text-white tracking-tight capitalize">{{ now()->translatedFormat('l, d \d\e F') }}</p>
             </div>
         </div>
     </div>

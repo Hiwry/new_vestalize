@@ -74,16 +74,16 @@
             --primary-hover: #8b5cf6;
             --primary-light: rgba(124, 58, 237, 0.1);
 
-            --background: #000000;
-            --foreground: #fafafa;
-            --muted: #a1a1aa;
-            --border: #1a1a1a;
-            --card-bg: #030303;
-            --card-hover: #080808;
-            --input-bg: #050505;
-            --navbar-bg: rgba(0, 0, 0, 0.8);
-            --glow-opacity: 0.12;
-            --shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            --background: #ffffff;
+            --foreground: #0f172a;
+            --muted: #64748b;
+            --border: rgba(0, 0, 0, 0.05);
+            --card-bg: #ffffff;
+            --card-hover: #f9fafb;
+            --input-bg: #f8fafc;
+            --navbar-bg: rgba(255, 255, 255, 0.8);
+            --glow-opacity: 0.05;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
         }
 
         .dark {
@@ -113,20 +113,45 @@
                         var(--background);
             opacity: 1;
         }
-        /* Backgrounds - FORÇA TOTAL NO PRETO ABSOLUTO */
+        /* Backgrounds - Respeita o tema */
+        .bg-background { background-color: var(--background); }
+        .bg-card-bg { background-color: var(--card-bg); }
+        .bg-input-bg { background-color: var(--input-bg); }
+        
+        /* Light mode: Ensure clean backgrounds */
         .bg-gray-50, .bg-slate-50, .bg-zinc-50, .bg-neutral-50, .bg-stone-50,
         .bg-gray-100, .bg-slate-100, .bg-zinc-100,
-        .bg-gray-900, .bg-slate-900, .bg-zinc-900, .bg-neutral-900, .bg-stone-900,
+        .bg-white {
+            background-color: #ffffff; /* Default white for light mode */
+        }
+
+        /* Cards and Widgets */
+        .bg-white,
+        .bg-gray-200, .bg-slate-200, .bg-zinc-200 {
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+        }
+
+        /* Sub-sections and Inputs */
+        .bg-gray-50,
+        input, select, textarea {
+            background-color: var(--input-bg);
+            border-color: var(--border);
+        }
+
+        /* Dark mode overrides */
+        .dark .bg-gray-50, .dark .bg-slate-50, .dark .bg-zinc-50, .dark .bg-neutral-50, .dark .bg-stone-50,
+        .dark .bg-gray-100, .dark .bg-slate-100, .dark .bg-zinc-100,
         .dark .bg-gray-900, .dark .bg-slate-900, .dark .bg-zinc-900, .dark .bg-neutral-900, .dark .bg-stone-900,
         .dark .bg-gray-950, .dark .bg-slate-950, .dark .bg-zinc-950, .dark .bg-neutral-950,
         .dark .bg-black {
             background-color: var(--background) !important;
         }
 
-        /* Cards e Widgets - FORÇA TOTAL NO PRETO CARD (#030303) */
-        .bg-white,
-        .bg-gray-200, .bg-slate-200, .bg-zinc-200,
-        .bg-gray-800, .bg-slate-800, .bg-zinc-800, .bg-neutral-800, .bg-stone-800,
+        .dark .bg-white,
+        .dark .bg-gray-200, .dark .bg-slate-200, .dark .bg-zinc-200,
         .dark .bg-gray-800, .dark .bg-slate-800, .dark .bg-zinc-800, .dark .bg-neutral-800, .dark .bg-stone-800,
         .dark .bg-gray-900, .dark .bg-slate-900, .dark .bg-zinc-900, .dark .bg-neutral-900, .dark .bg-stone-900,
         .dark [class*="bg-slate-800"], .dark [class*="bg-gray-800"], .dark [class*="bg-zinc-800"] {
@@ -136,13 +161,16 @@
             backdrop-filter: blur(8px);
         }
 
-        /* Sub-seções e Inputs (Ligeiramente mais escuros que o card) */
         .dark .bg-gray-700, .dark .bg-slate-700, .dark .bg-zinc-700,
-        .bg-gray-50, .dark .bg-gray-600,
-        input, select, textarea {
+        .dark .bg-gray-50, .dark .bg-gray-600,
+        .dark input, .dark select, .dark textarea {
             background-color: var(--input-bg) !important;
             border-color: var(--border) !important;
         }
+
+        /* Texto - Respeita o tema */
+        .text-adaptive-primary { color: var(--foreground); }
+        .text-adaptive-muted { color: var(--muted); }
 
         /* Texto */
         .dark .text-gray-900, .dark .text-slate-900, .dark .text-zinc-900, .dark .text-white { color: var(--foreground) !important; }
@@ -208,56 +236,15 @@
         .bg-blue-600 { background-color: var(--brand-primary) !important; }
         .border-blue-600 { border-color: var(--brand-primary) !important; }
 
-        /* Sidebar visibilidade (nova skin) */
+        /* Sidebar - Dinâmico */
         #sidebar {
-            background: linear-gradient(180deg, rgba(18, 14, 34, 0.96) 0%, #080612 60%, #030204 100%) !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
-            box-shadow: 0 22px 70px -40px rgba(0, 0, 0, 0.8);
+            background: var(--background) !important;
+            border-right: 1px solid var(--border) !important;
         }
-        #sidebar nav a {
-            color: #e5e7f0 !important;
-            border-radius: 14px;
-            padding: 10px 12px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-        #sidebar nav a svg {
-            color: inherit !important;
-        }
-        #sidebar nav a:hover {
-            background: rgba(124, 58, 237, 0.16) !important;
-            color: #ffffff !important;
-            box-shadow: 0 14px 36px -20px rgba(124, 58, 237, 0.6);
-        }
-        /* Tratar links já marcados com bg roxo como "ativos" */
-        #sidebar nav a[class*="bg-purple-600"] {
-            background: linear-gradient(135deg, #a855f7, #7c3aed) !important;
-            color: #fff !important;
-            box-shadow: 0 16px 42px -18px rgba(124, 58, 237, 0.6) !important;
-            text-transform: none !important;
-        }
-        #sidebar nav a[class*="bg-purple-600"] svg {
-            color: #fff !important;
-        }
-        #sidebar nav a[class*="bg-gradient-to-r"] {
-            text-transform: none !important;
-        }
+        
         .dark #sidebar {
             background: linear-gradient(180deg, rgba(18, 14, 34, 0.96) 0%, #080612 60%, #030204 100%) !important;
-            border-color: rgba(255, 255, 255, 0.05) !important;
-            box-shadow: none;
-        }
-        .dark #sidebar nav a {
-            color: #e5e7f0 !important;
-        }
-        .dark #sidebar nav a:hover {
-            background: rgba(124, 58, 237, 0.16) !important;
-            color: #ffffff !important;
-            box-shadow: none;
-        }
-        .dark #sidebar nav a[class*="bg-purple-600"] {
-            background: linear-gradient(135deg, #a855f7, #7c3aed) !important;
-            color: #fff !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
         }
 
 

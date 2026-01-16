@@ -153,9 +153,7 @@
                         <div class="bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/10 rounded-xl p-4 border border-blue-100 dark:border-blue-800/50">
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-8 h-8 bg-blue-500/20 dark:bg-blue-400/20 rounded-lg flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-white dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7.5l8.5-4.25a2 2 0 011.8 0L22 7.5l-8.7 4.35a2 2 0 01-1.8 0L3 7.5zm0 9l8.5 4.25a2 2 0 001.8 0L22 16.5m-19-6l8.5 4.25a2 2 0 001.8 0L22 10.5" />
-                                    </svg>
+                                    <i class="fa-solid fa-boxes-stacked text-blue-600 dark:text-blue-400"></i>
                                 </div>
                                 <p class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Total de Itens</p>
                             </div>

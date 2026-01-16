@@ -36,7 +36,7 @@
     @include('landing.partials.navbar')
     
     {{-- Main Content --}}
-    <main class="min-h-screen text-white">
+    <main class="min-h-screen">
         {{-- Spacer para compensar o navbar fixo --}}
         <div class="h-32 lg:h-48"></div>
 

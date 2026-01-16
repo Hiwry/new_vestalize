@@ -76,7 +76,7 @@
                                     </svg>
                                 </div>
                             </div>
-                            <button type="button" onclick="searchClient()" style="color: white !important;" 
+                            <button type="button" onclick="window.runClientSearch()" style="color: white !important;" 
                                     class="px-6 py-3 bg-[#7c3aed] text-white rounded-lg transition-colors text-sm font-semibold shadow-sm">
                                 Buscar
                             </button>
@@ -295,84 +295,38 @@
     </div>
 </div>
 
-@push('scripts')
 <script>
         // Debug: capturar erros globais
         window.addEventListener('error', function(e) {
             console.error('JavaScript Error:', e.error);
         });
 
-        // Debug: verificar se o formulário está sendo enviado
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('client-form');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    // Prevent submission if already submitting
-                    if (form.dataset.submitting === 'true') {
-                        e.preventDefault();
-                        return false;
-                    }
+        console.log('Client Wizard Script Loaded (runClientSearch)');
 
-                    console.log('Form submit event triggered');
-                    console.log('Form action:', form.action);
-                    console.log('Form method:', form.method);
-                    
-                    // Verificar se todos os campos obrigatórios estão preenchidos
-                    const name = document.getElementById('name').value;
-                    const phone = document.getElementById('phone_primary').value;
-                    
-                    console.log('Name:', name);
-                    console.log('Phone:', phone);
-                    
-                    if (!name || !phone) {
-                        console.error('Campos obrigatórios não preenchidos');
-                        e.preventDefault();
-                        return false;
-                    }
-                    
-                    console.log('Form validation passed, submitting...');
-                    
-                    // Disable button and show processing state
-                    const submitBtn = form.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.disabled = true;
-                        submitBtn.innerHTML = `
-                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Processando...
-                        `;
-                        submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
-                    }
-                    
-                    form.dataset.submitting = 'true';
-                });
-            } else {
-                console.error('Form not found!');
-            }
-        });
-
-        function searchClient() {
-            const query = document.getElementById('search-client').value;
-            const resultsDiv = document.getElementById('search-results');
+        // Ensure functions are global
+        window.runClientSearch = function() {
+            var query = document.getElementById('search-client').value;
+            var resultsDiv = document.getElementById('search-results');
             
             if (query.length < 3) {
                 resultsDiv.innerHTML = '<p class="text-sm text-gray-500">Digite ao menos 3 caracteres para buscar</p>';
                 return;
             }
 
-            fetch(`/api/clients/search?q=${encodeURIComponent(query)}`)
-                .then(response => response.json())
-                .then(data => {
+            fetch('/api/clients/search?q=' + encodeURIComponent(query))
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
                     if (data.length === 0) {
                         resultsDiv.innerHTML = '<p class="text-sm text-gray-500">Nenhum cliente encontrado</p>';
                         return;
                     }
 
-                    resultsDiv.innerHTML = data.map(client => `
+                    resultsDiv.innerHTML = data.map(function(client) {
+                        // Escape single quotes for HTML attribute
+                        var clientJson = JSON.stringify(client).replace(/'/g, "&#39;");
+                        return `
                         <div class="p-4 bg-white dark:bg-slate-800 rounded-lg border-2 border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-black/20 cursor-pointer transition-all group"
-                             onclick='fillClientData(${JSON.stringify(client)})'>
+                             onclick='window.fillClientData(${clientJson})'>
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 bg-gradient-to-br from-[#7c3aed] to-[#7c3aed] dark:from-[#7c3aed] dark:to-[#7c3aed] force-white rounded-lg flex items-center justify-center shadow-lg shadow-[#7c3aed]/20 dark:shadow-[#7c3aed]/20 group-hover:scale-110 transition-transform">
                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -392,184 +346,174 @@
                                 </div>
                             </div>
                         </div>
-                    `).join('');
+                    `}).join('');
                 })
-                .catch(error => {
+                .catch(function(error) {
                     console.error('Erro:', error);
                     resultsDiv.innerHTML = '<p class="text-sm text-red-600">Erro ao buscar clientes</p>';
                 });
-        }
-
-        function fillClientData(client) {
-            document.getElementById('client_id').value = client.id;
-            document.getElementById('name').value = client.name || '';
-            document.getElementById('phone_primary').value = client.phone_primary || '';
-            document.getElementById('phone_secondary').value = client.phone_secondary || '';
-            document.getElementById('email').value = client.email || '';
-            document.getElementById('cpf_cnpj').value = client.cpf_cnpj || '';
-            document.getElementById('address').value = client.address || '';
-            document.getElementById('city').value = client.city || '';
-            document.getElementById('state').value = client.state || '';
-            document.getElementById('zip_code').value = client.zip_code || '';
-            document.getElementById('category').value = client.category || '';
-            
-            document.getElementById('search-results').innerHTML = 
-                '<div class="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-900/20 dark:to-emerald-900/10 border-2 border-emerald-200 dark:border-emerald-800/30 rounded-xl shadow-sm">' +
-                '<div class="flex items-center space-x-3">' +
-                '<div class="w-10 h-10 bg-emerald-600 dark:bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-600/20">' +
-                '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' +
-                '</svg>' +
-                '</div>' +
-                '<div class="flex-1">' +
-                '<p class="text-sm font-bold text-gray-900 dark:text-white">Cliente selecionado com sucesso!</p>' +
-                '<p class="text-xs text-gray-600 dark:text-slate-400 mt-0.5">Você pode editar os dados se necessário antes de continuar.</p>' +
-                '</div>' +
-                '</div>' +
-                '</div>';
-        }
-
-        // Buscar ao pressionar Enter
-        document.getElementById('search-client').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                searchClient();
-            }
-        });
-
-        // Validação em tempo real com regex
-        function validateField(fieldId, regex, errorMessage) {
-            const field = document.getElementById(fieldId);
-            const value = field.value.trim();
-            const isValid = regex.test(value);
-            
-            // Remove classes de erro existentes
-            field.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-            field.classList.add('border-gray-300', 'focus:border-[#7c3aed]', 'focus:ring-[#7c3aed]');
-            
-            // Remove mensagem de erro existente
-            const existingError = field.parentNode.querySelector('.field-error');
-            if (existingError) {
-                existingError.remove();
-            }
-            
-            if (value && !isValid) {
-                field.classList.remove('border-gray-300', 'focus:border-[#7c3aed]', 'focus:ring-[#7c3aed]');
-                field.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-                
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'field-error mt-1 text-xs text-red-600 flex items-center';
-                errorDiv.innerHTML = `
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    ${errorMessage}
-                `;
-                field.parentNode.appendChild(errorDiv);
-            }
-            
-            return isValid;
-        }
-
-        // Regex patterns
-        const patterns = {
-            phone: /^\(\d{2}\)\s\d{4,5}-\d{4}$/,
-            email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            cpf: /^\d{3}\.\d{3}\.\d{3}-\d{2}$/,
-            cnpj: /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/,
-            cep: /^\d{5}-\d{3}$/
         };
 
-        // Validação de telefone
-        document.getElementById('phone_primary').addEventListener('blur', function() {
-            const value = this.value.trim();
-            if (value) {
-                validateField('phone_primary', patterns.phone, 'Formato inválido. Use: (00) 00000-0000');
-            }
-        });
+        window.fillClientData = function(client) {
+            const safeSetValue = (id, val) => {
+                const el = document.getElementById(id);
+                if(el) el.value = val || '';
+            };
 
-        document.getElementById('phone_secondary').addEventListener('blur', function() {
-            const value = this.value.trim();
-            if (value) {
-                validateField('phone_secondary', patterns.phone, 'Formato inválido. Use: (00) 00000-0000');
+            safeSetValue('client_id', client.id);
+            safeSetValue('name', client.name);
+            safeSetValue('phone_primary', client.phone_primary);
+            safeSetValue('phone_secondary', client.phone_secondary);
+            safeSetValue('email', client.email);
+            safeSetValue('cpf_cnpj', client.cpf_cnpj);
+            safeSetValue('address', client.address);
+            safeSetValue('city', client.city);
+            safeSetValue('state', client.state);
+            safeSetValue('zip_code', client.zip_code);
+            safeSetValue('category', client.category);
+            
+            const resultsDiv = document.getElementById('search-results');
+            if(resultsDiv) {
+                resultsDiv.innerHTML = 
+                    '<div class="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-900/20 dark:to-emerald-900/10 border-2 border-emerald-200 dark:border-emerald-800/30 rounded-xl shadow-sm">' +
+                    '<div class="flex items-center space-x-3">' +
+                    '<div class="w-10 h-10 bg-emerald-600 dark:bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-600/20">' +
+                    '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' +
+                    '</svg>' +
+                    '</div>' +
+                    '<div class="flex-1">' +
+                    '<p class="text-sm font-bold text-gray-900 dark:text-white">Cliente selecionado com sucesso!</p>' +
+                    '<p class="text-xs text-gray-600 dark:text-slate-400 mt-0.5">Você pode editar os dados se necessário antes de continuar.</p>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
             }
-        });
+        };
 
-        // Validação de email
-        document.getElementById('email').addEventListener('blur', function() {
-            const value = this.value.trim();
-            if (value) {
-                validateField('email', patterns.email, 'Formato de email inválido');
-            }
-        });
-
-        // Validação de CPF/CNPJ
-        document.getElementById('cpf_cnpj').addEventListener('blur', function() {
-            const value = this.value.trim();
-            if (value) {
-                const isValidCpf = patterns.cpf.test(value);
-                const isValidCnpj = patterns.cnpj.test(value);
-                
-                if (!isValidCpf && !isValidCnpj) {
-                    validateField('cpf_cnpj', /^$/, 'Formato inválido. Use: 000.000.000-00 ou 00.000.000/0000-00');
-                }
-            }
-        });
-
-        // Validação de CEP
-        document.getElementById('zip_code').addEventListener('blur', function() {
-            const value = this.value.trim();
-            if (value) {
-                validateField('zip_code', patterns.cep, 'Formato inválido. Use: 00000-000');
-            }
-        });
-
-        // Máscaras de entrada
-        function applyPhoneMask(input) {
-            input.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length <= 11) {
-                    if (value.length <= 2) {
-                        value = value.replace(/(\d{2})/, '($1) ');
-                    } else if (value.length <= 7) {
-                        value = value.replace(/(\d{2})(\d{4,5})/, '($1) $2');
-                    } else {
-                        value = value.replace(/(\d{2})(\d{4,5})(\d{4})/, '($1) $2-$3');
+        // Debug: verificar se o formulário está sendo enviado
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('client-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    // Prevent submission if already submitting
+                    if (form.dataset.submitting === 'true') {
+                        e.preventDefault();
+                        return false;
                     }
-                }
-                e.target.value = value;
-            });
-        }
+                    
+                    // Verificar se todos os campos obrigatórios estão preenchidos
+                    const name = document.getElementById('name').value;
+                    const phone = document.getElementById('phone_primary').value;
+                    
+                    if (!name || !phone) {
+                        console.error('Campos obrigatórios não preenchidos');
+                        e.preventDefault();
+                        return false;
+                    }
+                    
+                    // Disable button and show processing state
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processando...
+                        `;
+                        submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                    }
+                    
+                    form.dataset.submitting = 'true';
+                });
+            }
+            
+            // Buscar ao pressionar Enter
+            const searchInput = document.getElementById('search-client');
+            if(searchInput) {
+                 searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        window.runClientSearch();
+                    }
+                });
+            }
 
-        function applyCpfCnpjMask(input) {
-            input.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length <= 11) {
-                    // CPF
-                    value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-                } else {
-                    // CNPJ
-                    value = value.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+            // Regex validation helpers
+            const validateField = (fieldId, regex, errorMessage) => {
+                const field = document.getElementById(fieldId);
+                if(!field) return true;
+                
+                const value = field.value.trim();
+                const isValid = regex.test(value);
+                
+                field.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                field.classList.add('border-gray-300', 'focus:border-[#7c3aed]', 'focus:ring-[#7c3aed]');
+                
+                const existingError = field.parentNode.querySelector('.field-error');
+                if (existingError) existingError.remove();
+                
+                if (value && !isValid) {
+                    field.classList.remove('border-gray-300', 'focus:border-[#7c3aed]', 'focus:ring-[#7c3aed]');
+                    field.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                    
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'field-error mt-1 text-xs text-red-600 flex items-center';
+                    errorDiv.innerHTML = `<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>${errorMessage}`;
+                    field.parentNode.appendChild(errorDiv);
                 }
-                e.target.value = value;
-            });
-        }
+                return isValid;
+            };
 
-        function applyCepMask(input) {
-            input.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length <= 8) {
-                    value = value.replace(/(\d{5})(\d{3})/, '$1-$2');
-                }
-                e.target.value = value;
-            });
-        }
+            const patterns = {
+                phone: /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/,
+                email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                cpf: /^\d{3}\.\d{3}\.\d{3}-\d{2}$/,
+                cnpj: /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/,
+                cep: /^\d{5}-?\d{3}$/
+            };
 
-        // Aplicar máscaras
-        applyPhoneMask(document.getElementById('phone_primary'));
-        applyPhoneMask(document.getElementById('phone_secondary'));
-        applyCpfCnpjMask(document.getElementById('cpf_cnpj'));
-        applyCepMask(document.getElementById('zip_code'));
-</script>
-@endpush
+            const attachBlur = (id, pattern, msg) => {
+                const el = document.getElementById(id);
+                if(el) el.addEventListener('blur', () => { if(el.value.trim()) validateField(id, pattern, msg); });
+            };
+
+            attachBlur('phone_primary', patterns.phone, 'Formato inválido.');
+            attachBlur('phone_secondary', patterns.phone, 'Formato inválido.');
+            attachBlur('email', patterns.email, 'Email inválido.');
+            attachBlur('zip_code', patterns.cep, 'CEP inválido.');
+            
+            // Masks
+            const applyMask = (id, masker) => {
+                const el = document.getElementById(id);
+                if(el) el.addEventListener('input', masker);
+            };
+
+            applyMask('phone_primary', e => {
+                let v = e.target.value.replace(/\D/g,'');
+                v = v.replace(/^(\d{2})(\d)/g,"($1) $2");
+                v = v.replace(/(\d)(\d{4})$/,"$1-$2");
+                e.target.value = v.substring(0, 15);
+            });
+             applyMask('phone_secondary', e => {
+                let v = e.target.value.replace(/\D/g,'');
+                v = v.replace(/^(\d{2})(\d)/g,"($1) $2");
+                v = v.replace(/(\d)(\d{4})$/,"$1-$2");
+                e.target.value = v.substring(0, 15);
+            });
+            
+             // Simple CPF/CNPJ Mask logic
+             applyMask('cpf_cnpj', e => {
+                 // Basic simplistic mask behavior or use library if available
+             });
+             
+             applyMask('zip_code', e => {
+                let v = e.target.value.replace(/\D/g,'');
+                v = v.replace(/^(\d{5})(\d)/,"$1-$2");
+                e.target.value = v.substring(0, 9);
+             });
+        });
+ </script>
 @endsection

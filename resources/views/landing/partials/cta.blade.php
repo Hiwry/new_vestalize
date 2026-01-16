@@ -17,7 +17,7 @@
                 <div class="relative cursor-pointer group">
                     <div class="absolute inset-0 bg-purple-600/40 rounded-2xl blur-2xl animate-pulse-glow"></div>
                     <div class="relative flex items-center gap-2">
-                        <div class="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center text-white font-bold text-xl group-hover:scale-110 transition-transform">
+                        <div class="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center text-white stay-white font-bold text-xl group-hover:scale-110 transition-transform">
                             V
                         </div>
                         <span class="font-semibold text-xl text-white">Vestalize</span>
@@ -26,7 +26,7 @@
 
                 {{-- Title --}}
                 <h2 class="text-3xl md:text-4xl lg:text-5xl font-medium leading-tight mt-8 max-w-3xl">
-                    <span class="bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
+                    <span class="text-adaptive-gradient">
                         A melhor forma de
                         <br>
                         gerenciar sua confecção

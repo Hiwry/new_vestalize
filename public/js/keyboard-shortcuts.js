@@ -399,20 +399,4 @@ if (document.readyState === 'loading') {
     initKeyboardShortcuts();
 }
 
-// Indicador visual de atalhos (tooltip no canto)
-const shortcutHint = document.createElement('div');
-shortcutHint.id = 'shortcut-hint';
-shortcutHint.className = 'fixed bottom-6 right-24 z-50 hidden md:flex items-center gap-2 px-3 py-2 bg-gray-800 dark:bg-gray-700 text-white text-sm rounded-lg shadow-lg opacity-60 hover:opacity-100 transition-opacity cursor-pointer';
-shortcutHint.innerHTML = `
-    <kbd class="px-1.5 py-0.5 bg-gray-600 rounded text-xs">?</kbd>
-    <span>Atalhos</span>
-`;
-shortcutHint.onclick = () => keyboardShortcuts?.toggleHelpModal();
-
-if (document.body) {
-    document.body.appendChild(shortcutHint);
-} else {
-    document.addEventListener('DOMContentLoaded', () => {
-        document.body.appendChild(shortcutHint);
-    });
-}
+// Keyboard shortcuts initialized.

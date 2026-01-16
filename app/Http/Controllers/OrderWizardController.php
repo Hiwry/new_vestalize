@@ -68,7 +68,7 @@ class OrderWizardController extends Controller
             ]]);
             session(['fresh_customization_cleanup' => true]);
 
-            return redirect()->route('orders.wizard.personalization-type');
+            return redirect()->route('orders.wizard.sewing');
         } catch (\Exception $e) {
             \Log::error('Error starting order: ' . $e->getMessage());
             return redirect()->back()->withInput()->with('error', 'Erro ao iniciar pedido: ' . $e->getMessage());
@@ -76,68 +76,18 @@ class OrderWizardController extends Controller
     }
 
     /**
-     * Etapa 2: Escolher tipo de personalização
+     * Etapa 2: Escolher tipo de personalização (Deprecated/Skipped)
      */
     public function personalizationType(Request $request)
     {
-        // Verificar se tem ordem ou cliente na sessão
-        $orderId = session('current_order_id');
-        
-        if (!$orderId && !session('wizard.client')) {
-            return redirect()->route('orders.wizard.start')->with('error', 'Selecione um cliente primeiro.');
-        }
-
-        // Se não tem wizard.client mas tem order_id, buscar do pedido
-        if (!session('wizard.client') && $orderId) {
-            $order = Order::with('client')->find($orderId);
-            if ($order && $order->client) {
-                session(['wizard.client' => [
-                    'id' => $order->client->id,
-                    'name' => $order->client->name,
-                    'phone_primary' => $order->client->phone_primary,
-                    'email' => $order->client->email,
-                ]]);
-            }
-        }
-
-        return view('orders.wizard.personalization-type');
+        return redirect()->route('orders.wizard.sewing');
     }
 
     /**
-     * Etapa 3: Itens baseados no tipo de personalização
+     * Etapa 3: Itens baseados no tipo de personalização (Deprecated/Skipped)
      */
     public function items(Request $request)
     {
-        // Aceitar múltiplos tipos selecionados OU tipo único (retrocompatível)
-        $types = $request->get('types', []);
-        $singleType = $request->get('type');
-        
-        // Se veio tipo único (links antigos), converter para array
-        if (empty($types) && $singleType) {
-            $types = [$singleType];
-        }
-        
-        // Se ainda não tem tipos, buscar da sessão
-        if (empty($types)) {
-            $types = session('wizard.personalization_types', []);
-        }
-        
-        if (empty($types)) {
-            return redirect()->route('orders.wizard.personalization-type')->with('error', 'Selecione pelo menos um tipo de personalização.');
-        }
-
-        // Salvar tipos na sessão
-        session(['wizard.personalization_types' => $types]);
-        session(['wizard.personalization_type' => $types[0]]); // Manter compatibilidade
-
-        // Se for apenas sublimação local, ir para tela específica
-        if (count($types) === 1 && $types[0] === 'sub_local') {
-            $products = \App\Models\SubLocalProduct::where('is_active', true)->orderBy('sort_order')->get();
-            return view('orders.wizard.items-sub-local', compact('products'));
-        }
-        
-        // Para qualquer outra combinação, vai para o fluxo de costura padrão
-        // Os tipos selecionados serão usados para pré-selecionar as personalizações
         return redirect()->route('orders.wizard.sewing');
     }
 
@@ -188,6 +138,12 @@ class OrderWizardController extends Controller
                 ->orderBy('name')
                 ->get();
             
+            // Buscar opções de personalização para seleção no wizard
+            $personalizationOptions = \App\Models\ProductOption::where('type', 'personalizacao')
+                ->where('active', true)
+                ->orderBy('name')
+                ->get();
+
             // Obter loja atual do usuário (respeitando isolamento de tenant)
             $user = Auth::user();
             $currentStoreId = null;
@@ -236,44 +192,10 @@ class OrderWizardController extends Controller
             // Habilitar se: tenant habilitou OU se existem tipos cadastrados (para super admin)
             $sublimationEnabled = ($user->tenant && $user->tenant->sublimation_total_enabled) || $sublimationTypes->isNotEmpty();
             
-            // Tipos de personalização pré-selecionados na etapa anterior
-            $preselectedTypes = session('wizard.personalization_types', []);
-            
-            // Mapeamento de slugs para nomes que podem existir nas product_options
-            $typeToNameMapping = [
-                'sub_local' => ['Sublimação Local', 'Sub Local', 'SUB. LOCAL'],
-                'serigrafia' => ['Serigrafia', 'SERIGRAFIA'],
-                'dtf' => ['DTF', 'D.T.F.', 'D.T.F'],
-                'bordado' => ['Bordado', 'BORDADO'],
-                'emborrachado' => ['Emborrachado', 'EMBORRACHADO'],
-                'lisas' => ['Lisas', 'LISAS', 'Lisa'],
-                'sub_total' => ['Sublimação Total', 'Sub Total', 'SUB. TOTAL'],
-            ];
-            
-            // Buscar IDs de personalizações que correspondem aos tipos selecionados
+            $preselectedTypes = [];
             $preselectedIds = [];
-            if (!empty($preselectedTypes)) {
-                $namesToSearch = [];
-                foreach ($preselectedTypes as $type) {
-                    if (isset($typeToNameMapping[$type])) {
-                        $namesToSearch = array_merge($namesToSearch, $typeToNameMapping[$type]);
-                    }
-                }
-                
-                if (!empty($namesToSearch)) {
-                    $preselectedIds = \App\Models\ProductOption::where('type', 'personalizacao')
-                        ->where('active', true)
-                        ->where(function($query) use ($namesToSearch) {
-                            foreach ($namesToSearch as $name) {
-                                $query->orWhere('name', 'LIKE', '%' . $name . '%');
-                            }
-                        })
-                        ->pluck('id')
-                        ->toArray();
-                }
-            }
             
-            return view('orders.wizard.sewing', compact('order', 'fabrics', 'colors', 'currentStoreId', 'sublimationTypes', 'sublimationEnabled', 'preselectedTypes', 'preselectedIds'));
+            return view('orders.wizard.sewing', compact('order', 'fabrics', 'colors', 'personalizationOptions', 'currentStoreId', 'sublimationTypes', 'sublimationEnabled', 'preselectedTypes', 'preselectedIds'));
         }
 
         $action = $request->input('action', 'add');
