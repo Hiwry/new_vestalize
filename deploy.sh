@@ -6,8 +6,10 @@ set -e
 echo "Iniciando deploy..."
 
 # 1. Atualizar o repositório
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+echo "Branch detectada: $BRANCH"
 echo "Baixando atualizações do git..."
-git pull origin versao-testes
+git pull origin $BRANCH
 
 # 2. Instalar dependências do PHP
 echo "Instalando dependências do Composer..."
