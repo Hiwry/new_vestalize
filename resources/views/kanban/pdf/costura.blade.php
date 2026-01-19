@@ -112,14 +112,14 @@
                                 'PP' => '#FF8C00', 'P' => '#FFD700', 'M' => '#4169E1', 
                                 'G' => '#DC143C', 'GG' => '#32CD32', 'EXG' => '#8A2BE2',
                                 'G1' => '#78909C', 'G2' => '#78909C', 'G3' => '#78909C',
-                                'ESPECIAL' => '#E91E63'
+                                'Especial' => '#E91E63', 'ESPECIAL' => '#E91E63'
                             ];
                             $sizeTextColors = ['P' => '#333333'];
                         @endphp
                         @foreach(['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3', 'ESPECIAL'] as $size)
-                            @php $qty = $itemSizes[$size] ?? $itemSizes[strtolower($size)] ?? 0; @endphp
+                            @php $qty = $itemSizes[$size] ?? $itemSizes[strtoupper($size)] ?? $itemSizes[strtolower($size)] ?? 0; @endphp
                             @if($qty > 0)
-                            <div style="background: {{ $sizeColors[$size] }}; color: {{ $sizeTextColors[$size] ?? 'white' }}; padding: 6px 8px; margin-bottom: 5px; border-radius: 6px; text-align: center; font-weight: bold;">
+                            <div style="background: {{ $sizeColors[$size] ?? '#78909C' }}; color: {{ $sizeTextColors[$size] ?? 'white' }}; padding: 6px 8px; margin-bottom: 5px; border-radius: 6px; text-align: center; font-weight: bold;">
                                 <span style="font-size: 9px; display: block;">{{ $size }}</span>
                                 <span style="font-size: 14px;">{{ $qty }}</span>
                             </div>
@@ -184,6 +184,17 @@
                     <div style="background: #ffffff; border: 2px solid #ef4444; border-radius: 10px; padding: 12px;">
                         <div style="font-size: 10px; font-weight: bold; text-align: center; margin-bottom: 10px; text-transform: uppercase; color: #ef4444;">Adicionais / Detalhes</div>
                         
+                        {{-- Modelagem do Cliente --}}
+                        @php
+                            $printDesc = is_array($item->print_desc) ? $item->print_desc : (is_string($item->print_desc) ? json_decode($item->print_desc, true) : []);
+                            $isClientModeling = $printDesc['is_client_modeling'] ?? false;
+                        @endphp
+                        @if($isClientModeling)
+                            <div style="background: #fef08a; border: 2px solid #eab308; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; color: #854d0e; font-size: 11px; font-weight: bold; text-align: center;">
+                                ESPECIAL - MODELAGEM DO CLIENTE
+                            </div>
+                        @endif
+                        
                         {{-- Cores Adicionais (Gola/Detalhe) --}}
                         @if($item->collar_color)
                             <div style="background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 6px 10px; margin-bottom: 5px; color: #0369a1; font-size: 10px; font-weight: bold;">
@@ -230,7 +241,7 @@
                             @endif
                         @endforeach
 
-                        @if(!$item->sublimation_addons && $item->sublimations->whereNotNull('color_details')->isEmpty() && $item->sublimations->whereNotNull('seller_notes')->isEmpty() && $item->sublimations->where('application_type', 'sub. total')->whereNotNull('addons')->isEmpty())
+                        @if(!$isClientModeling && !$item->collar_color && !$item->detail_color && !$item->sublimation_addons && $item->sublimations->whereNotNull('color_details')->isEmpty() && $item->sublimations->whereNotNull('seller_notes')->isEmpty() && $item->sublimations->where('application_type', 'sub. total')->whereNotNull('addons')->isEmpty())
                             <div style="color: #94a3b8; font-size: 10px; text-align: center; padding-top: 50px;">Nenhum detalhe adicional</div>
                         @endif
                     </div>

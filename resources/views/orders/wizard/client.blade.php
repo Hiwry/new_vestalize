@@ -302,6 +302,7 @@
         });
 
         console.log('Client Wizard Script Loaded (runClientSearch)');
+        const clientSearchUrl = "{{ url('/api/clients/search') }}";
 
         // Ensure functions are global
         window.runClientSearch = function() {
@@ -313,7 +314,7 @@
                 return;
             }
 
-            fetch('/api/clients/search?q=' + encodeURIComponent(query))
+            fetch(clientSearchUrl + '?q=' + encodeURIComponent(query))
                 .then(function(response) { return response.json(); })
                 .then(function(data) {
                     if (data.length === 0) {

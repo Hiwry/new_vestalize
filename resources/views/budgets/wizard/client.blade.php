@@ -157,6 +157,7 @@
 @push('scripts')
 <script>
     // Busca de clientes
+    const clientSearchUrl = "{{ url('/api/clients/search') }}";
     const searchInput = document.getElementById('search-client');
     const searchResults = document.getElementById('search-results');
     let debounceTimeout;
@@ -194,7 +195,7 @@
         }
 
         debounceTimeout = setTimeout(() => {
-            fetch(`/api/clients/search?q=${encodeURIComponent(query)}`)
+            fetch(`${clientSearchUrl}?q=${encodeURIComponent(query)}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.length === 0) {

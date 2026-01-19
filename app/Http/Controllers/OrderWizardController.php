@@ -255,11 +255,13 @@ class OrderWizardController extends Controller
             'collar_color' => 'nullable|string|max:100',
             'detail_color' => 'nullable|string|max:100',
             'apply_surcharge' => 'nullable|boolean',
+            'is_client_modeling' => 'nullable|boolean',
+            'existing_cover_image' => 'nullable|string'
         ]);
 
         $order = Order::with('items')->findOrFail(session('current_order_id'));
 
-        $coverImagePath = null;
+        $coverImagePath = $validated['existing_cover_image'] ?? null;
         if ($request->hasFile('item_cover_image')) {
             $coverImagePath = $this->imageProcessor->processAndStore(
                 $request->file('item_cover_image'),
@@ -360,6 +362,8 @@ class OrderWizardController extends Controller
             'collar_color' => 'nullable|string|max:100',
             'detail_color' => 'nullable|string|max:100',
             'apply_surcharge' => 'nullable|boolean',
+            'is_client_modeling' => 'nullable|boolean',
+            'existing_cover_image' => 'nullable|string'
         ]);
 
         $order = Order::with('items')->findOrFail(session('current_order_id'));
@@ -393,6 +397,10 @@ class OrderWizardController extends Controller
         $item = $order->items()->findOrFail($itemId);
 
         $this->orderWizardService->processDeleteItem($item);
+        
+        // Refresh order to get updated items list
+        $order->refresh();
+        $order->load('items');
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -611,25 +619,56 @@ class OrderWizardController extends Controller
                 'addons' => 'nullable|array',
                 'regata_discount' => 'nullable|boolean',
                 'editing_personalization_id' => 'nullable|integer',
+                'linked_item_ids' => 'nullable|array',
+                'linked_item_ids.*' => 'nullable|integer|exists:order_items,id',
             ]);
             
             $orderId = session('current_order_id') ?? session('edit_order_id');
             $order = Order::with('items')->findOrFail($orderId);
-            $item = ($validated['item_id'] == 0) ? $order->items()->first() : $order->items()->findOrFail($validated['item_id']);
-
+            
             $applicationImagePath = null;
             if ($request->hasFile('application_image')) {
                 $applicationImagePath = $request->file('application_image')->store('orders/applications', 'public');
             }
 
-            $this->orderWizardService->processSavePersonalization(
-                $item, 
-                $validated, 
-                $applicationImagePath, 
-                $request->file('art_files', [])
-            );
+            // Get list of items to apply personalization to
+            $linkedItemIds = $validated['linked_item_ids'] ?? [$validated['item_id']];
+            $linkedItemIds = array_unique(array_filter($linkedItemIds));
+            
+            // If no linked items, use the original item_id
+            if (empty($linkedItemIds)) {
+                $linkedItemIds = [$validated['item_id']];
+            }
+            
+            $successCount = 0;
+            foreach ($linkedItemIds as $itemId) {
+                $item = $order->items()->find($itemId);
+                if (!$item) continue;
+                
+                // For linked items, use the item's own quantity instead of the form quantity
+                $itemValidated = $validated;
+                $itemValidated['quantity'] = $item->quantity;
+                
+                // Recalculate prices based on item's quantity
+                if (isset($itemValidated['unit_price']) && $itemValidated['unit_price'] > 0) {
+                    $itemValidated['final_price'] = $itemValidated['unit_price'] * $item->quantity;
+                }
+                
+                // For linked items, use the same personalization data but with correct quantity
+                $this->orderWizardService->processSavePersonalization(
+                    $item, 
+                    $itemValidated, 
+                    $applicationImagePath, 
+                    $request->file('art_files', [])
+                );
+                $successCount++;
+            }
 
-            return response()->json(['success' => true, 'message' => 'Personalização adicionada com sucesso!']);
+            $message = $successCount > 1 
+                ? "Personalização aplicada em {$successCount} itens com sucesso!" 
+                : 'Personalização adicionada com sucesso!';
+            
+            return response()->json(['success' => true, 'message' => $message]);
         } catch (\Exception $e) {
             \Log::error('Error adding personalization: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Erro ao adicionar personalização: ' . $e->getMessage()], 500);

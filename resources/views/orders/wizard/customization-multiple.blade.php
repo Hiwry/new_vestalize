@@ -457,6 +457,42 @@
                 <input type="hidden" id="modal_personalization_id" name="personalization_id">
                 <input type="hidden" id="editing_personalization_id" name="editing_personalization_id">
 
+                <!-- Vincular a outros itens -->
+                @if($order->items->count() > 1)
+                <div id="linkItemsSection" class="bg-gradient-to-r from-blue-600/20 to-blue-600/10 border border-blue-500/30 rounded-xl p-4 ring-1 ring-blue-500/20">
+                    <label class="flex items-center gap-2 text-sm font-semibold text-blue-300 mb-3">
+                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                        </svg>
+                        Aplicar em outros itens também
+                    </label>
+                    <p class="text-xs text-slate-400 mb-3">Marque os itens que receberão a mesma personalização (mesma arte, local e tamanho)</p>
+                    
+                    <div class="space-y-2" id="linkItemsCheckboxes">
+                        @foreach($order->items as $item)
+                        <label class="flex items-center p-2 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-blue-500/50 cursor-pointer transition-colors link-item-label" data-item-id="{{ $item->id }}">
+                            <input type="checkbox" name="linked_item_ids[]" value="{{ $item->id }}" 
+                                   class="link-item-checkbox w-4 h-4 text-blue-500 border-slate-600 rounded focus:ring-blue-500 bg-slate-700">
+                            <div class="ml-3 flex-1">
+                                <span class="text-sm font-medium text-white">Item {{ $item->item_number }}</span>
+                                <span class="text-xs text-slate-400 ml-2">{{ $item->model }} • {{ $item->quantity }} pç</span>
+                            </div>
+                            <span class="text-xs text-slate-500">{{ $item->print_type }}</span>
+                        </label>
+                        @endforeach
+                    </div>
+                    
+                    <div id="linkedItemsSummary" class="mt-3 p-2 bg-green-900/30 border border-green-700/50 rounded-lg hidden">
+                        <div class="flex items-center text-sm text-green-400">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span>Esta personalização será aplicada em <strong id="linkedItemsCount">0</strong> itens</span>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
                 <!-- Grid de Localização e Tamanho -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Localização (oculto para SUB. TOTAL) -->
@@ -738,6 +774,13 @@
         
         // Configurações de personalização (charge_by_color, etc.)
         const personalizationSettings = @json($personalizationSettings ?? []);
+        
+        // Mapa de quantidades por item (para auto-preencher quantidade)
+        const itemQuantitiesMap = {
+            @foreach($order->items as $item)
+            '{{ $item->id }}': {{ $item->quantity }},
+            @endforeach
+        };
 
         const artItemSelect = document.getElementById('order_art_item');
         const artNameInput = document.getElementById('order_art_name');
@@ -969,8 +1012,123 @@
                 `;
             }
             
+            // Gerenciar checkboxes de itens vinculados
+            setupLinkedItemsCheckboxes(itemId);
+            
             // Mostrar modal
             document.getElementById('personalizationModal').classList.remove('hidden');
+        }
+
+        // Função para configurar checkboxes de itens vinculados
+        let mainLinkedItemId = null;
+        
+        function setupLinkedItemsCheckboxes(currentItemId) {
+            mainLinkedItemId = currentItemId;
+            const checkboxes = document.querySelectorAll('.link-item-checkbox');
+            const labels = document.querySelectorAll('.link-item-label');
+            
+            // Desmarcar e remover destaque de todos primeiro
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+                // Remover listeners antigos
+                cb.replaceWith(cb.cloneNode(true));
+            });
+            
+            // Re-selecionar após clonar
+            const newCheckboxes = document.querySelectorAll('.link-item-checkbox');
+            const newLabels = document.querySelectorAll('.link-item-label');
+            
+            newLabels.forEach(label => {
+                label.classList.remove('ring-2', 'ring-purple-500', 'bg-purple-900/30');
+            });
+            
+            // Marcar e destacar o item atual (obrigatório)
+            newCheckboxes.forEach(cb => {
+                if (cb.value == currentItemId) {
+                    cb.checked = true;
+                    const label = cb.closest('.link-item-label');
+                    if (label) {
+                        label.classList.add('ring-2', 'ring-purple-500', 'bg-purple-900/30');
+                    }
+                }
+                
+                // Adicionar listener para prevenir desmarcação do item principal
+                cb.addEventListener('click', function(e) {
+                    if (this.value == mainLinkedItemId && !this.checked) {
+                        e.preventDefault();
+                        this.checked = true;
+                    }
+                });
+                
+                // Adicionar listener para resumo
+                cb.addEventListener('change', updateLinkedItemsSummary);
+            });
+            
+            updateLinkedItemsSummary();
+        }
+        
+        // Atualizar resumo de itens vinculados
+        function updateLinkedItemsSummary() {
+            const checkboxes = document.querySelectorAll('.link-item-checkbox:checked');
+            const summary = document.getElementById('linkedItemsSummary');
+            const countEl = document.getElementById('linkedItemsCount');
+            const quantityInput = document.getElementById('quantity');
+            
+            // Quando há itens vinculados, NÃO atualizamos a quantidade no formulário
+            // porque cada item receberá sua própria quantidade automaticamente
+            // Apenas mostramos o resumo informativo
+            
+            if (!summary || !countEl) return;
+            
+            if (checkboxes.length > 1) {
+                // Construir lista de itens com suas quantidades
+                let itemsList = [];
+                let totalQty = 0;
+                checkboxes.forEach(cb => {
+                    const qty = itemQuantitiesMap[cb.value] || 0;
+                    totalQty += qty;
+                    const label = cb.closest('.link-item-label');
+                    const itemName = label ? label.querySelector('.text-sm.font-medium')?.textContent : `Item ${cb.value}`;
+                    itemsList.push(`${itemName}: ${qty} pç`);
+                });
+                
+                // Atualizar resumo com detalhes
+                summary.innerHTML = `
+                    <div class="text-sm text-green-400">
+                        <div class="flex items-center mb-2">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <strong>${checkboxes.length} itens vinculados</strong> (${totalQty} peças no total)
+                        </div>
+                        <p class="text-xs text-slate-400 ml-6">Cada item receberá a personalização com sua própria quantidade de peças</p>
+                    </div>
+                `;
+                summary.classList.remove('hidden');
+                
+                // Desabilitar campo de quantidade quando itens estão vinculados
+                if (quantityInput) {
+                    quantityInput.disabled = true;
+                    quantityInput.classList.add('opacity-50', 'cursor-not-allowed');
+                    quantityInput.value = totalQty;
+                    quantityInput.title = 'Quantidade será calculada automaticamente para cada item';
+                }
+            } else {
+                summary.classList.add('hidden');
+                
+                // Habilitar campo de quantidade quando apenas 1 item
+                if (quantityInput) {
+                    quantityInput.disabled = false;
+                    quantityInput.classList.remove('opacity-50', 'cursor-not-allowed');
+                    quantityInput.title = '';
+                    // Preencher com quantidade do item selecionado
+                    const singleItemId = checkboxes[0]?.value;
+                    if (singleItemId && itemQuantitiesMap[singleItemId]) {
+                        quantityInput.value = itemQuantitiesMap[singleItemId];
+                        quantityInput.dispatchEvent(new Event('change'));
+                    }
+                }
+            }
         }
 
         // FUNÇÃO REMOVIDA: setupFormValidation() - Não é mais necessária
@@ -2122,11 +2280,8 @@
                 
                 const data = await response.json();
                 if (response.ok && data.success) {
-                    // Atualizar interface dinamicamente
-                    await updatePersonalizationsList();
-                    
-                    // Mostrar mensagem de sucesso
-                    showSuccessMessage('Personalização removida com sucesso!');
+                    // Recarregar página para mostrar alterações
+                    window.location.reload();
                 } else {
                     console.error('Erro ao remover personalização:', data.message);
                     alert('Erro ao remover personalização: ' + (data.message || 'Erro desconhecido'));

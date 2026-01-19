@@ -748,8 +748,6 @@
         setTimeout(function() {
             location.reload();
         }, 30000);
-
-        });
     </script>
 
     <!-- Modal de Termos e Condições -->

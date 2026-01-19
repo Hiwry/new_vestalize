@@ -247,7 +247,21 @@ class OrderWizardService
             'art_notes' => $validated['art_notes'] ?? null,
             'collar_color' => $validated['collar_color'] ?? null,
             'detail_color' => $validated['detail_color'] ?? null,
-            'print_desc' => json_encode(['apply_surcharge' => (bool)($validated['apply_surcharge'] ?? false)]),
+            'print_desc' => json_encode([
+                'apply_surcharge' => (bool)($validated['apply_surcharge'] ?? false),
+                'is_client_modeling' => (bool)($validated['is_client_modeling'] ?? false),
+                'wizard_ids' => [
+                    'tecido' => $validated['tecido'],
+                    'tipo_tecido' => $validated['tipo_tecido'] ?? null,
+                    'cor' => $validated['cor'],
+                    'tipo_corte' => $validated['tipo_corte'],
+                    'detalhe' => $validated['detalhe'] ?? null,
+                    'detail_color' => $validated['detail_color'] ?? null,
+                    'gola' => $validated['gola'],
+                    'collar_color' => $validated['collar_color'] ?? null,
+                    'personalizacao' => $validated['personalizacao'],
+                ],
+            ]),
         ]);
 
         $this->recalculateOrderTotals($order);
@@ -301,7 +315,7 @@ class OrderWizardService
             
             // Recalcular acréscimos de tamanho no backend
             $sizeSurcharges = [];
-            $largeSizes = ['GG', 'EXG', 'G1', 'G2', 'G3'];
+            $largeSizes = ['GG', 'EXG', 'G1', 'G2', 'G3', 'Especial', 'ESPECIAL'];
             $sizeQuantities = [];
             
             foreach ($order->items as $item) {
@@ -335,6 +349,28 @@ class OrderWizardService
             }
             
             $totalSurcharges = array_sum($sizeSurcharges);
+            
+            // Adicionar Taxa Fixa Especial se houver qualquer item Especial
+            $hasAnyEspecial = false;
+            foreach ($order->items as $item) {
+                $sizes = is_string($item->sizes) ? json_decode($item->sizes, true) : $item->sizes;
+                if (is_array($sizes)) {
+                    foreach ($sizes as $size => $qty) {
+                        if (strtoupper($size) === 'ESPECIAL' && $qty > 0) {
+                            $hasAnyEspecial = true;
+                            break 2;
+                        }
+                    }
+                }
+            }
+            
+            if ($hasAnyEspecial) {
+                $setupModel = \App\Models\SizeSurcharge::getSurchargeForSize('ESPECIAL', $subtotal);
+                if ($setupModel) {
+                    $totalSurcharges += (float)$setupModel->surcharge;
+                }
+            }
+
             $subtotalWithFees = $subtotal + $totalSurcharges + $delivery;
             
             // Lógica de Desconto
@@ -638,7 +674,21 @@ class OrderWizardService
             'art_notes' => $validated['art_notes'] ?? null,
             'collar_color' => $validated['collar_color'] ?? null,
             'detail_color' => $validated['detail_color'] ?? null,
-            'print_desc' => json_encode(['apply_surcharge' => (bool)($validated['apply_surcharge'] ?? false)]),
+            'print_desc' => json_encode([
+                'apply_surcharge' => (bool)($validated['apply_surcharge'] ?? false),
+                'is_client_modeling' => (bool)($validated['is_client_modeling'] ?? false),
+                'wizard_ids' => [
+                    'tecido' => $validated['tecido'],
+                    'tipo_tecido' => $validated['tipo_tecido'] ?? null,
+                    'cor' => $validated['cor'],
+                    'tipo_corte' => $validated['tipo_corte'],
+                    'detalhe' => $validated['detalhe'] ?? null,
+                    'detail_color' => $validated['detail_color'] ?? null,
+                    'gola' => $validated['gola'],
+                    'collar_color' => $validated['collar_color'] ?? null,
+                    'personalizacao' => $validated['personalizacao'],
+                ],
+            ]),
         ]);
 
         $order->items()->save($item);

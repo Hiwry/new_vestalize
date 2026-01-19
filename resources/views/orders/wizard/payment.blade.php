@@ -345,13 +345,14 @@
 
 @push('scripts')
 <script>
-        let paymentMethods = [];
-        let subtotal = {{ $order->subtotal }};
-        let deliveryFee = {{ $sessionPaymentData['delivery_fee'] ?? $order->delivery_fee ?? 0 }};
-        let sizeSurcharges = {};
-        let orderItems = @json($order->items);
-        let discountType = 'none';
-        let discountValue = 0;
+        // Global functions for AJAX navigation
+        window.paymentMethods = [];
+        window.subtotal = {{ $order->subtotal }};
+        window.deliveryFee = {{ $sessionPaymentData['delivery_fee'] ?? $order->delivery_fee ?? 0 }};
+        window.sizeSurcharges = {};
+        window.orderItems = @json($order->items);
+        window.discountType = 'none';
+        window.discountValue = 0;
 
         document.addEventListener('DOMContentLoaded', function() {
             // Priorizar dados da sessão (se o usuário voltou de uma etapa posterior)
@@ -361,7 +362,7 @@
                 @endphp
                 @if($sessionMethods && is_array($sessionMethods))
                     @foreach($sessionMethods as $pm)
-                        paymentMethods.push({
+                        window.paymentMethods.push({
                             id: {{ $pm['id'] ?? 'Date.now() + Math.random()' }},
                             method: '{{ $pm["method"] ?? "pix" }}',
                             amount: {{ $pm["amount"] ?? 0 }}
@@ -378,7 +379,7 @@
                 @endphp
                 @if($existingMethods && is_array($existingMethods))
                     @foreach($existingMethods as $pm)
-                        paymentMethods.push({
+                        window.paymentMethods.push({
                             id: Date.now() + Math.random(),
                             method: '{{ $pm["method"] ?? "pix" }}',
                             amount: {{ $pm["amount"] ?? 0 }}
@@ -394,12 +395,12 @@
             updateSuggestedAmount(); // Atualizar valor sugerido
         });
 
-        function calculateSizeSurcharges() {
+        window.calculateSizeSurcharges = function() {
             // Calcular acréscimos por tamanho (GG, EXG, G1, G2, G3)
-            const largeSizes = ['GG', 'EXG', 'G1', 'G2', 'G3'];
+            const largeSizes = ['GG', 'EXG', 'G1', 'G2', 'G3', 'Especial', 'ESPECIAL'];
             let totalSurcharge = 0;
             let surchargesHtml = '';
-            sizeSurcharges = {}; // Reset global object
+            window.sizeSurcharges = {}; // Reset global object
 
             // Helper to check if item is restricted (Infantil/Baby look)
             const isRestricted = (item) => {
@@ -423,7 +424,7 @@
             // Iterate all items and their sizes
             let sizeQuantities = {}; // { 'GG': 5, 'EXG': 2 } - only for applicable items
 
-            orderItems.forEach(item => {
+            window.orderItems.forEach(item => {
                 const restricted = isRestricted(item);
                 const forced = shouldApplySurcharge(item);
                 
@@ -445,12 +446,12 @@
             // Now fetch surcharges for the aggregated quantities
             const promises = Object.entries(sizeQuantities).map(([size, quantity]) => {
                 if (quantity > 0) {
-                    return fetch(`/api/size-surcharge/${size}?price=${subtotal}`)
+                    return fetch(`/api/size-surcharge/${size}?price=${window.subtotal}`)
                         .then(r => r.json())
                         .then(data => {
                             if (data.surcharge) {
                                 const surcharge = parseFloat(data.surcharge) * quantity;
-                                sizeSurcharges[size] = surcharge;
+                                window.sizeSurcharges[size] = surcharge;
                                 totalSurcharge += surcharge;
                                 
                                 surchargesHtml += `
@@ -466,13 +467,35 @@
             });
 
             Promise.all(promises).then(() => {
+                // Add flat Especial fee if any Especial exists
+                let flatEspecial = 0;
+                let hasEspecial = false;
+                window.orderItems.forEach(item => {
+                    const sizes = typeof item.sizes === 'string' ? JSON.parse(item.sizes) : item.sizes;
+                    if (sizes && Object.keys(sizes).some(s => s.toUpperCase() === 'ESPECIAL' && sizes[s] > 0)) {
+                        hasEspecial = true;
+                    }
+                });
+
+                if (hasEspecial) {
+                    // One-time R$ 35,00 fee
+                    flatEspecial = 35.00;
+                    totalSurcharge += flatEspecial;
+                    surchargesHtml += `
+                        <div class="flex justify-between text-xs font-bold mt-1 pt-1 border-t border-gray-100 dark:border-slate-700">
+                            <span class="text-gray-700 dark:text-slate-200">Taxa Especial (Setup):</span>
+                            <span class="text-orange-600 dark:text-orange-400">R$ 35,00</span>
+                        </div>
+                    `;
+                }
+
                 document.getElementById('surcharges-breakdown').innerHTML = surchargesHtml;
-                document.getElementById('size-surcharges-data').value = JSON.stringify(sizeSurcharges);
+                document.getElementById('size-surcharges-data').value = JSON.stringify(window.sizeSurcharges);
                 calculateTotal();
             });
         }
 
-        function addPaymentMethod() {
+        window.addPaymentMethod = function() {
             const method = document.getElementById('new-payment-method').value;
             const amountInput = document.getElementById('new-payment-amount').value;
             const amount = parseFloat(amountInput) || 0;
@@ -483,7 +506,7 @@
             }
             
             const id = Date.now();
-            paymentMethods.push({
+            window.paymentMethods.push({
                 id: id,
                 method: method,
                 amount: amount
@@ -552,31 +575,31 @@
             document.getElementById('new-payment-amount').value = suggestedAmount.toFixed(2);
         }
         
-        function updateSuggestedAmount() {
+        window.updateSuggestedAmount = function() {
             const totalFinal = getTotalFinal();
-            const totalPaid = paymentMethods.reduce((sum, pm) => sum + (parseFloat(pm.amount) || 0), 0);
+            const totalPaid = window.paymentMethods.reduce((sum, pm) => sum + (parseFloat(pm.amount) || 0), 0);
             const remaining = totalFinal - totalPaid;
             const suggestedAmount = remaining > 0 ? (remaining >= totalFinal * 0.5 ? totalFinal * 0.5 : remaining) : 0;
             
             document.getElementById('suggested-amount').textContent = `R$ ${suggestedAmount.toFixed(2).replace('.', ',')}`;
         }
 
-        function removePaymentMethod(id) {
-            paymentMethods = paymentMethods.filter(pm => pm.id !== id);
+        window.removePaymentMethod = function(id) {
+            window.paymentMethods = window.paymentMethods.filter(pm => pm.id !== id);
             renderPaymentMethods();
             calculatePayments();
             updateSuggestedAmount();
         }
 
-        function renderPaymentMethods() {
+        window.renderPaymentMethods = function() {
             const container = document.getElementById('payment-methods-list');
             
-            if (paymentMethods.length === 0) {
+            if (window.paymentMethods.length === 0) {
                 container.innerHTML = '<p class="text-gray-500 dark:text-slate-400 text-xs">Nenhum pagamento adicionado ainda.</p>';
                 return;
             }
 
-            container.innerHTML = paymentMethods.map((pm, index) => `
+            container.innerHTML = window.paymentMethods.map((pm, index) => `
                 <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-md border border-gray-200 dark:border-slate-700 transition-colors">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center">
@@ -604,8 +627,8 @@
         }
 
 
-        function calculatePayments() {
-            const totalPaid = paymentMethods.reduce((sum, pm) => sum + (parseFloat(pm.amount) || 0), 0);
+        window.calculatePayments = function() {
+            const totalPaid = window.paymentMethods.reduce((sum, pm) => sum + (parseFloat(pm.amount) || 0), 0);
             const totalFinal = getTotalFinal();
             const remaining = totalFinal - totalPaid;
 
@@ -625,23 +648,23 @@
             }
 
             // Atualizar campo hidden
-            document.getElementById('payment-methods-data').value = JSON.stringify(paymentMethods);
+            document.getElementById('payment-methods-data').value = JSON.stringify(window.paymentMethods);
         }
 
-        function updateDiscountType() {
-            discountType = document.getElementById('discount_type').value;
+        window.updateDiscountType = function() {
+            window.discountType = document.getElementById('discount_type').value;
             const discountInput = document.getElementById('discount_value');
             const discountLabel = document.getElementById('discount-label');
             const discountPreview = document.getElementById('discount-preview');
             
-            if (discountType === 'none') {
+            if (window.discountType === 'none') {
                 discountInput.disabled = true;
                 discountInput.value = 0;
-                discountValue = 0;
+                window.discountValue = 0;
                 discountPreview.classList.add('hidden');
             } else {
                 discountInput.disabled = false;
-                if (discountType === 'percentage') {
+                if (window.discountType === 'percentage') {
                     discountLabel.textContent = 'Porcentagem (%)';
                     discountInput.max = 100;
                     discountInput.placeholder = 'Ex: 10';
@@ -655,23 +678,23 @@
             calculateTotal();
         }
 
-        function calculateDiscount() {
-            if (discountType === 'none') {
+        window.calculateDiscount = function() {
+            if (window.discountType === 'none') {
                 return 0;
             }
             
-            discountValue = parseFloat(document.getElementById('discount_value').value) || 0;
-            const totalSurcharges = Object.values(sizeSurcharges).reduce((sum, val) => sum + val, 0);
-            const subtotalWithFees = subtotal + totalSurcharges + deliveryFee;
+            window.discountValue = parseFloat(document.getElementById('discount_value').value) || 0;
+            const totalSurcharges = Object.values(window.sizeSurcharges).reduce((sum, val) => sum + val, 0);
+            const subtotalWithFees = window.subtotal + totalSurcharges + window.deliveryFee;
             
             let discount = 0;
             
-            if (discountType === 'percentage') {
+            if (window.discountType === 'percentage') {
                 // Limitar porcentagem entre 0 e 100
-                discountValue = Math.min(Math.max(discountValue, 0), 100);
-                discount = (subtotalWithFees * discountValue) / 100;
-            } else if (discountType === 'fixed') {
-                discount = discountValue;
+                window.discountValue = Math.min(Math.max(window.discountValue, 0), 100);
+                discount = (subtotalWithFees * window.discountValue) / 100;
+            } else if (window.discountType === 'fixed') {
+                discount = window.discountValue;
                 // Não permitir desconto maior que o total
                 discount = Math.min(discount, subtotalWithFees);
             }
@@ -679,16 +702,16 @@
             return discount;
         }
 
-        function calculateTotal() {
-            deliveryFee = parseFloat(document.getElementById('delivery_fee').value) || 0;
+        window.calculateTotal = function() {
+            window.deliveryFee = parseFloat(document.getElementById('delivery_fee').value) || 0;
             const customSurcharge = parseFloat(document.getElementById('custom_surcharge').value) || 0;
             
-            const totalSurcharges = Object.values(sizeSurcharges).reduce((sum, val) => sum + val, 0);
+            const totalSurcharges = Object.values(window.sizeSurcharges).reduce((sum, val) => sum + val, 0);
             const discount = calculateDiscount();
-            const totalFinal = subtotal + totalSurcharges + customSurcharge + deliveryFee - discount;
+            const totalFinal = window.subtotal + totalSurcharges + customSurcharge + window.deliveryFee - discount;
 
             // Atualizar displays
-            document.getElementById('delivery-fee-display').textContent = `R$ ${deliveryFee.toFixed(2).replace('.', ',')}`;
+            document.getElementById('delivery-fee-display').textContent = `R$ ${window.deliveryFee.toFixed(2).replace('.', ',')}`;
             document.getElementById('total-final').textContent = `R$ ${totalFinal.toFixed(2).replace('.', ',')}`;
             
             // Mostrar desconto no resumo
@@ -699,8 +722,8 @@
                 // Mostrar preview do desconto
                 document.getElementById('discount-preview').classList.remove('hidden');
                 let discountText = '';
-                if (discountType === 'percentage') {
-                    discountText = `${discountValue}% (R$ ${discount.toFixed(2).replace('.', ',')})`;
+                if (window.discountType === 'percentage') {
+                    discountText = `${window.discountValue}% (R$ ${discount.toFixed(2).replace('.', ',')})`;
                 } else {
                     discountText = `R$ ${discount.toFixed(2).replace('.', ',')}`;
                 }
@@ -711,18 +734,18 @@
             }
             
             // Atualizar campos hidden
-            document.getElementById('discount-type-data').value = discountType;
-            document.getElementById('discount-value-data').value = discountValue;
+            document.getElementById('discount-type-data').value = window.discountType;
+            document.getElementById('discount-value-data').value = window.discountValue;
             
             calculatePayments();
             updateSuggestedAmount();
         }
 
-        function getTotalFinal() {
-            const totalSurcharges = Object.values(sizeSurcharges).reduce((sum, val) => sum + val, 0);
+        window.getTotalFinal = function() {
+            const totalSurcharges = Object.values(window.sizeSurcharges).reduce((sum, val) => sum + val, 0);
             const customSurcharge = parseFloat(document.getElementById('custom_surcharge').value) || 0;
             const discount = calculateDiscount();
-            return subtotal + totalSurcharges + customSurcharge + deliveryFee - discount;
+            return window.subtotal + totalSurcharges + customSurcharge + window.deliveryFee - discount;
         }
 
 </script>

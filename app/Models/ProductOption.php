@@ -39,13 +39,15 @@ class ProductOption extends Model
                 return;
             }
 
-            $user = Auth::user();
+            if (Auth::check()) {
+                $user = Auth::user();
 
-            // Tenants devem ver suas opções e as globais
-            $builder->where(function ($query) use ($user) {
-                $query->where('tenant_id', $user->tenant_id)
-                      ->orWhereNull('tenant_id');
-            });
+                // Tenants devem ver suas opções e as globais
+                $builder->where(function ($query) use ($user) {
+                    $query->where('tenant_id', $user->tenant_id)
+                          ->orWhereNull('tenant_id');
+                });
+            }
         });
     }
 

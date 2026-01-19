@@ -5,7 +5,7 @@
     <title>OS {{ $order->id }} - Arte/Personalizacao</title>
     <style>
         @page {
-            margin: 8mm;
+            margin: 5mm;
             size: A4 landscape;
         }
         * {
@@ -22,7 +22,7 @@
 </head>
 <body>
     @foreach($order->items as $item)
-    <div style="page-break-after: {{ $loop->last ? 'auto' : 'always' }}; padding: 5px;">
+    <div style="page-break-inside: avoid; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px; padding: 10px; background: white;">
         
         <!-- Item Header -->
         <div style="background: #475569; color: white; padding: 6px 12px; border-radius: 6px; margin-bottom: 8px; font-size: 11px; font-weight: bold;">
@@ -77,7 +77,11 @@
         </table>
 
         <!-- Especificacoes Compactas (Fita Azul Clara) -->
-        <div style="background: #f1f5f9; padding: 6px 10px; margin-bottom: 8px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 9px;">
+        @php
+            $printDesc = is_array($item->print_desc) ? $item->print_desc : (is_string($item->print_desc) ? json_decode($item->print_desc, true) : []);
+            $isClientModeling = $printDesc['is_client_modeling'] ?? false;
+        @endphp
+        <div style="background: #f1f5f9; padding: 4px 10px; margin-bottom: 6px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 9px;">
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
                     <td><strong>Tecido:</strong> {{ strtoupper($item->fabric ?? 'N/A') }}</td>
@@ -85,12 +89,15 @@
                     <td><strong>Gola:</strong> {{ strtoupper($item->collar ?? 'N/A') }}</td>
                     <td><strong>Modelo:</strong> {{ strtoupper($item->model ?? 'N/A') }}</td>
                     <td><strong>Estampa:</strong> {{ strtoupper($item->print_type ?? 'N/A') }}</td>
+                    @if($isClientModeling)
+                    <td style="background: #fef08a; border: 1px solid #eab308; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #854d0e;">ESPECIAL - MODELAGEM CLIENTE</td>
+                    @endif
                 </tr>
             </table>
         </div>
 
         <!-- Layout Central -->
-        <div style="text-align: center; margin-bottom: 12px;">
+        <div style="text-align: center; margin-bottom: 8px;">
             @php
                 $imageData = $itemImages[$item->id] ?? [];
                 $hasCoverImage = $imageData['hasCoverImage'] ?? false;
@@ -104,7 +111,7 @@
                         $imgSrc = 'file://' . $imgSrc;
                     }
                 @endphp
-                <img src="{{ $imgSrc }}" alt="Capa" style="max-height: 250px; max-width: 100%; border-radius: 8px; border: 1px solid #dee2e6;">
+                <img src="{{ $imgSrc }}" alt="Capa" style="max-height: 200px; max-width: 100%; border-radius: 8px; border: 1px solid #dee2e6;">
             @endif
         </div>
 
@@ -154,7 +161,7 @@
                                 }
                             @endphp
                             @if($appImageData)
-                                <img src="{{ $appImageData }}" style="max-height: 180px; max-width: 100%; border-radius: 6px; border: 1px solid #e2e8f0; padding: 4px; background: white;">
+                                <img src="{{ $appImageData }}" style="max-height: 140px; max-width: 100%; border-radius: 6px; border: 1px solid #e2e8f0; padding: 4px; background: white;">
                             @endif
                         @endif
                     </td>
@@ -241,13 +248,25 @@
             </div>
         </div>
 
-        <!-- Observacoes -->
-        @if($item->art_notes || $order->notes)
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 15px;">
-            <div style="font-size: 10px; margin-bottom: 6px; text-transform: uppercase; color: #475569; font-weight: bold;">OBSERVACOES</div>
-            <div style="font-size: 11px; color: #1e293b; line-height: 1.4;">
-                @if($item->art_notes)<strong>Item:</strong> {{ $item->art_notes }}<br>@endif
-                @if($order->notes)<strong>Geral:</strong> {{ $order->notes }}@endif
+        {{-- Observacoes apenas de personalização, não de costura --}}
+        @php
+            $hasPersonalizationNotes = false;
+            foreach($item->sublimations as $sub) {
+                if ($sub->seller_notes) {
+                    $hasPersonalizationNotes = true;
+                    break;
+                }
+            }
+        @endphp
+        @if($hasPersonalizationNotes || $order->notes)
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px;">
+            <div style="font-size: 9px; margin-bottom: 4px; text-transform: uppercase; color: #475569; font-weight: bold;">OBSERVAÇÕES</div>
+            <div style="font-size: 10px; color: #1e293b; line-height: 1.3;">
+                @foreach($item->sublimations as $sub)
+                    @if($sub->seller_notes)
+                        <strong>App {{ $loop->iteration }}:</strong> {{ $sub->seller_notes }}<br>
+                    @endif
+                @endforeach
             </div>
         </div>
         @endif

@@ -48,29 +48,29 @@
             // Verifica prefixo, mas ignora rotas raiz ou excessivamente genéricas
             const isPrefixMatch = linkPath !== '/' &&
                 linkPath !== '/dashboard' &&
-                currentPath.startsWith(linkPath); 
-            
+                currentPath.startsWith(linkPath);
+
             // Lógica especial para Vendas/Sales
-            const isSalesMatch = (linkPath === '/sales' || linkPath === '/vendas') && 
-                                 (currentPath.startsWith('/sales') || currentPath.startsWith('/vendas'));
+            const isSalesMatch = (linkPath === '/sales' || linkPath === '/vendas') &&
+                (currentPath.startsWith('/sales') || currentPath.startsWith('/vendas'));
 
             const isActive = isExactMatch || isPrefixMatch || isSalesMatch;
 
             // Classes padrão para links INATIVOS (copiado do Blade)
             // text-muted hover:bg-white/5 hover:text-white
-            
+
             if (isActive) {
                 // Estado ATIVO
                 link.classList.add('active-link');
                 link.classList.remove('text-muted', 'hover:bg-white/5', 'hover:text-white');
-                
+
                 // Limpar classes legacy se existirem
                 link.classList.remove('bg-purple-600', 'bg-blue-600', 'bg-indigo-600', 'text-white', 'text-gray-400');
             } else {
                 // Estado INATIVO
                 link.classList.remove('active-link');
                 link.classList.add('text-muted', 'hover:bg-white/5', 'hover:text-white');
-                
+
                 // Limpar classes legacy se existirem
                 link.classList.remove('bg-purple-600', 'bg-blue-600', 'bg-indigo-600', 'text-white', 'text-gray-400');
             }
@@ -79,7 +79,7 @@
             // Mas mantemos limpeza de classes antigas
             const icon = link.querySelector('svg, i');
             if (icon) {
-                 icon.classList.remove('text-gray-500', 'dark:text-gray-400', 'text-white', 'text-primary');
+                icon.classList.remove('text-gray-500', 'dark:text-gray-400', 'text-white', 'text-primary');
             }
         });
     }
@@ -223,6 +223,8 @@
                 defer: script.defer
             }));
 
+            console.log(`AJAX: Found ${scriptData.length} scripts to execute`);
+
             // Remover scripts do tempDiv antes de mover (para não duplicar)
             tempDiv.querySelectorAll('script').forEach(script => script.remove());
 
@@ -236,55 +238,49 @@
 
             // Executar scripts coletados
             scriptData.forEach((scriptInfo, index) => {
-                // Para scripts inline, envolver em um IIFE ou verificar se já existe
-                if (!scriptInfo.src && scriptInfo.text) {
-                    // Tentar executar o script em um escopo isolado
-                    try {
-                        // Criar um script com conteúdo modificado para evitar redeclarações
+                try {
+                    if (!scriptInfo.src && scriptInfo.text) {
+                        console.log(`AJAX: Executing inline script ${index}`);
                         const scriptText = scriptInfo.text;
 
                         // Verificar se contém declarações const/let que podem causar conflito
                         const hasVariableDeclarations = /(?:^|\s)(const|let)\s+(\w+)/g.test(scriptText);
 
-                        if (hasVariableDeclarations) {
-                            // Envolver em um bloco para criar novo escopo
-                            const wrappedScript = `(function() { ${scriptText} })();`;
-                            const newScript = document.createElement('script');
-                            newScript.textContent = wrappedScript;
-                            document.body.appendChild(newScript);
-                            // Remover após um tempo para evitar acúmulo
-                            setTimeout(() => {
-                                if (newScript.parentNode) {
-                                    newScript.parentNode.removeChild(newScript);
-                                }
-                            }, 1000);
-                        } else {
-                            // Script sem declarações de variáveis, executar normalmente
-                            const newScript = document.createElement('script');
-                            newScript.textContent = scriptText;
-                            document.body.appendChild(newScript);
-                            setTimeout(() => {
-                                if (newScript.parentNode) {
-                                    newScript.parentNode.removeChild(newScript);
-                                }
-                            }, 1000);
-                        }
-                    } catch (error) {
-                        console.warn('Erro ao executar script inline:', error);
-                    }
-                } else if (scriptInfo.src) {
-                    // Para scripts externos, verificar se já foram carregados
-                    const existingScript = document.querySelector(`script[src="${scriptInfo.src}"]`);
-                    if (!existingScript) {
                         const newScript = document.createElement('script');
-                        scriptInfo.attributes.forEach(attr => {
-                            newScript.setAttribute(attr.name, attr.value);
-                        });
-                        newScript.src = scriptInfo.src;
-                        newScript.async = scriptInfo.async;
-                        newScript.defer = scriptInfo.defer;
+                        if (hasVariableDeclarations) {
+                            console.log(`AJAX: Script ${index} has variable declarations, wrapping in IIFE`);
+                            // Envolver em um bloco para criar novo escopo
+                            newScript.textContent = `(function() { \n${scriptText}\n })();`;
+                        } else {
+                            newScript.textContent = scriptText;
+                        }
+
                         document.body.appendChild(newScript);
+                        // Remover após um tempo para evitar acúmulo, mas manter tempo suficiente
+                        setTimeout(() => {
+                            if (newScript.parentNode) {
+                                newScript.parentNode.removeChild(newScript);
+                            }
+                        }, 2000);
+                    } else if (scriptInfo.src) {
+                        console.log(`AJAX: Loading external script: ${scriptInfo.src}`);
+                        // Para scripts externos, verificar se já foram carregados
+                        // Mas para scripts de página específicos, talvez queiramos recarregar?
+                        // Por enquanto, seguimos a lógica de evitar duplicatas
+                        const existingScript = document.querySelector(`script[src="${scriptInfo.src}"]`);
+                        if (!existingScript) {
+                            const newScript = document.createElement('script');
+                            scriptInfo.attributes.forEach(attr => {
+                                newScript.setAttribute(attr.name, attr.value);
+                            });
+                            newScript.src = scriptInfo.src;
+                            newScript.async = scriptInfo.async;
+                            newScript.defer = scriptInfo.defer;
+                            document.body.appendChild(newScript);
+                        }
                     }
+                } catch (e) {
+                    console.error(`AJAX: Error executing script ${index}:`, e);
                 }
             });
 

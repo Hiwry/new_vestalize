@@ -317,6 +317,7 @@
         window.addEventListener('error', function(e) {
             console.error('JavaScript Error:', e.error);
         });
+        const clientSearchUrl = "{{ url('/api/clients/search') }}";
 
         // Debug: verificar se o formulário está sendo enviado
         document.addEventListener('DOMContentLoaded', function() {
@@ -356,7 +357,7 @@
                 return;
             }
 
-            fetch(`/api/clients/search?q=${encodeURIComponent(query)}`)
+            fetch(`${clientSearchUrl}?q=${encodeURIComponent(query)}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.length === 0) {

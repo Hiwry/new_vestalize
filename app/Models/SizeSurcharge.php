@@ -31,7 +31,10 @@ class SizeSurcharge extends Model
             self::$valuesEnsured = true;
         }
         
-        return self::where('size', $size)
+        // Normalizar 'Especial' para 'ESPECIAL' (case-insensitive)
+        $normalizedSize = strtoupper($size) === 'ESPECIAL' ? 'ESPECIAL' : $size;
+        
+        return self::where('size', $normalizedSize)
             ->where('price_from', '<=', $totalPrice)
             ->where(function($query) use ($totalPrice) {
                 $query->whereNull('price_to')
@@ -58,14 +61,14 @@ class SizeSurcharge extends Model
             ['size' => 'GG', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 5.00],
             
             // EXG - Acréscimos por faixa de preço
-            ['size' => 'EXG', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 1.00],
-            ['size' => 'EXG', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 4.00],
-            ['size' => 'EXG', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 10.00],
+            ['size' => 'EXG', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 8.00],
+            ['size' => 'EXG', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 10.00],
+            ['size' => 'EXG', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 12.00],
             
             // G1 - Acréscimos por faixa de preço
-            ['size' => 'G1', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 2.00],
-            ['size' => 'G1', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 4.00],
-            ['size' => 'G1', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 10.00],
+            ['size' => 'G1', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 11.00],
+            ['size' => 'G1', 'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 15.00],
+            ['size' => 'G1', 'price_from' => 50.00, 'price_to' => null, 'surcharge' => 20.00],
             
             // G2 - Acréscimos por faixa de preço
             ['size' => 'G2', 'price_from' => 0, 'price_to' => 19.99, 'surcharge' => 5.00],

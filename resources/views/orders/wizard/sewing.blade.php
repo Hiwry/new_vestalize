@@ -106,6 +106,11 @@
 
                             <!-- Personalização agora é selecionada dentro do modal -->
                             <div id="hidden-personalizacao-container"></div>
+                            <!-- Campos escondidos para envio ao backend -->
+                            <input type="hidden" name="quantity" id="quantity" value="0">
+                            <input type="hidden" name="unit_price" id="unit_price" value="0">
+                            <input type="hidden" name="unit_cost" id="unit_cost" value="0">
+                            <input type="hidden" name="art_notes" id="art_notes" value="">
                             <!-- Personalização movida para o Wizard (Etapa 1) -->
 
                             <!-- Wizard Trigger / Main Configuration Card -->
@@ -132,79 +137,6 @@
                                     <!-- Price Preview (Hidden initially) -->
                                     <div id="main-price-preview" class="hidden mt-2">
                                          <span class="text-lg font-bold text-[#7c3aed] dark:text-purple-400">Total: <span id="main-price-value">R$ 0,00</span></span>
-                                    </div>
-                                </div>
-
-                                <!-- Tamanhos (Moved) -->
-                                <div class="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700">
-                                    <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Tamanhos e Quantidades</label>
-                                    <div class="grid grid-cols-5 gap-2 mb-2">
-                                        <div>
-                                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">PP</label>
-                                            <input type="number" name="tamanhos[PP]" min="0" value="0" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">P</label>
-                                            <input type="number" name="tamanhos[P]" min="0" value="0" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">M</label>
-                                            <input type="number" name="tamanhos[M]" min="0" value="0" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">G</label>
-                                            <input type="number" name="tamanhos[G]" min="0" value="0" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">GG</label>
-                                            <input type="number" name="tamanhos[GG]" min="0" value="0" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
-                                        </div>
-                                    </div>
-                                    <div class="grid grid-cols-5 gap-2 mb-3">
-                                        <div>
-                                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">EXG</label>
-                                            <input type="number" name="tamanhos[EXG]" min="0" value="0" onchange="calculateTotal()" class="size-input-restricted w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">G1</label>
-                                            <input type="number" name="tamanhos[G1]" min="0" value="0" onchange="calculateTotal()" class="size-input-restricted w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">G2</label>
-                                            <input type="number" name="tamanhos[G2]" min="0" value="0" onchange="calculateTotal()" class="size-input-restricted w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">G3</label>
-                                            <input type="number" name="tamanhos[G3]" min="0" value="0" onchange="calculateTotal()" class="size-input-restricted w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">Especial</label>
-                                            <input type="number" name="tamanhos[Especial]" min="0" value="0" onchange="calculateTotal()" class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all">
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Checkbox para acréscimo independente (apenas para Infantil/Baby look) -->
-                                    <div id="surcharge-checkbox-container" class="hidden mb-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                                        <label class="flex items-center cursor-pointer">
-                                            <input type="checkbox" name="apply_surcharge" id="apply_surcharge" value="1" class="w-4 h-4 text-[#7c3aed] dark:text-[#7c3aed] border-gray-300 dark:border-slate-600 rounded focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] bg-white dark:bg-slate-700">
-                                            <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Aplicar acréscimo de tamanho especial (independente do tamanho)</span>
-                                        </label>
-                                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-1 ml-6">Marque esta opção se desejar cobrar o acréscimo mesmo sendo modelo Infantil ou Baby look.</p>
-                                    </div>
-                                    <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-sm font-semibold text-gray-700 dark:text-slate-300">Total de peças:</span>
-                                            <span class="text-xl font-bold text-[#7c3aed] dark:text-[#7c3aed]" id="total-pecas">0</span>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" name="quantity" id="quantity" value="0">
-                                    
-                                    <!-- Informações de Estoque por Tamanho -->
-                                    <div id="stock-info-section" class="hidden mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                                        <h6 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Estoque Disponível por Tamanho:</h6>
-                                        <div id="stock-by-size" class="space-y-2">
-                                            <!-- Será preenchido via JavaScript -->
-                                        </div>
                                     </div>
                                 </div>
 
@@ -237,7 +169,7 @@
                                      onclick="closeSewingWizard()"></div>
 
                                 <!-- Modal Panel -->
-                                <div class="absolute inset-0 flex items-center justify-center p-4">
+                                <div class="absolute inset-0 flex items-start justify-center p-4 pt-10 sm:pt-14 overflow-y-auto">
                                     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col transform transition-all animate-fade-in-up border border-gray-200 dark:border-slate-700">
                                         
                                         <!-- Header -->
@@ -311,8 +243,14 @@
                                             <!-- Step 5: Detalhe -->
                                             <div id="step-5" class="wizard-step hidden">
                                                 <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Selecione o Detalhe</h4>
-                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="wizard-options-detalhe">
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4" id="wizard-options-detalhe">
                                                     <!-- Filled by JS -->
+                                                </div>
+                                                <div class="p-3 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                    <label class="flex items-center cursor-pointer">
+                                                        <input type="checkbox" id="different_detail_color_cb" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]">
+                                                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Cor do detalhe diferente do tecido?</span>
+                                                    </label>
                                                 </div>
                                             </div>
 
@@ -327,8 +265,14 @@
                                             <!-- Step 7: Gola -->
                                             <div id="step-7" class="wizard-step hidden">
                                                 <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Selecione a Gola</h4>
-                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="wizard-options-gola">
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4" id="wizard-options-gola">
                                                     <!-- Filled by JS -->
+                                                </div>
+                                                <div class="p-3 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                    <label class="flex items-center cursor-pointer">
+                                                        <input type="checkbox" id="different_collar_color_cb" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]">
+                                                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Cor da gola diferente do tecido?</span>
+                                                    </label>
                                                 </div>
                                             </div>
 
@@ -358,6 +302,14 @@
                                                     <label class="flex items-center cursor-pointer">
                                                         <input type="checkbox" id="wizard_apply_surcharge" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]">
                                                         <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Aplicar acréscimo de tamanho especial</span>
+                                                    </label>
+                                                </div>
+
+                                                <!-- Checkbox para Modelagem do Cliente (Aparece se Especial > 0) -->
+                                                <div id="wizard-modeling-container" class="hidden mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                                    <label class="flex items-center cursor-pointer">
+                                                        <input type="checkbox" id="wizard_is_client_modeling" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]">
+                                                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Tamanho especial é pela modelagem do cliente?</span>
                                                     </label>
                                                 </div>
                                                 
@@ -465,74 +417,7 @@
 
                             <!-- Tamanhos (Moved above) -->
 
-                            <!-- Resumo de Preços -->
-                            <div class="p-5 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
-                                <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Resumo de Preços</label>
-                                <div class="space-y-2 text-sm">
-                                    <div class="flex justify-between p-2 bg-white dark:bg-slate-800 rounded">
-                                        <span class="text-gray-600 dark:text-slate-400">Tipo de Corte:</span>
-                                        <span class="font-semibold text-gray-900 dark:text-white" id="price-corte">R$ 0,00</span>
-                                    </div>
-                                    <div class="flex justify-between p-2 bg-white dark:bg-slate-800 rounded">
-                                        <span class="text-gray-600 dark:text-slate-400">Detalhe:</span>
-                                        <span class="font-semibold text-gray-900 dark:text-white" id="price-detalhe">R$ 0,00</span>
-                                    </div>
-                                    <div class="flex justify-between p-2 bg-white dark:bg-slate-800 rounded">
-                                        <span class="text-gray-600 dark:text-slate-400">Gola:</span>
-                                        <span class="font-semibold text-gray-900 dark:text-white" id="price-gola">R$ 0,00</span>
-                                    </div>
-                                    <div class="flex justify-between items-center p-3 bg-white dark:bg-slate-800 border border-red-200 dark:border-red-900/50 rounded-lg mt-2 shadow-sm">
-                                        <span class="text-red-600 dark:text-red-400 font-bold">Custo Unitário:</span>
-                                        <div class="flex items-center space-x-1">
-                                            <span class="text-red-600 dark:text-red-400 font-bold">R$</span>
-                                            <input type="number" name="unit_cost" id="unit_cost" step="0.01" min="0" value="0.00" class="w-24 bg-transparent border-none text-red-600 dark:text-red-400 font-bold text-xl text-right focus:ring-0 p-0">
-                                        </div>
-                                    </div>
-                                    <div class="flex justify-between items-center p-3 bg-white dark:bg-slate-800 border border-purple-200 dark:border-purple-900/50 rounded-lg mt-2 shadow-md">
-                                        <span class="text-[#7c3aed] dark:text-purple-400 font-bold">Valor Unitário:</span>
-                                        <span class="font-bold text-[#7c3aed] dark:text-purple-400 text-xl" id="price-total">R$ 0,00</span>
-                                    </div>
-                                </div>
-                                <input type="hidden" name="unit_price" id="unit_price" value="0">
-                            </div>
-
-                            <!-- Imagem de Capa do Item -->
-                            <div class="p-5 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
-                                <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Imagem de Capa do Item</label>
-                                <div class="space-y-3">
-                                    <!-- Preview Container -->
-                                    <div id="cover-image-preview-container" class="hidden">
-                                        <p class="text-xs text-gray-500 mb-2">Imagem Atual:</p>
-                                        <div class="relative inline-block group">
-                                            <img id="cover-image-preview" src="" alt="Capa do item" class="h-24 w-24 object-cover rounded-lg border border-gray-200 dark:border-slate-700">
-                                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all rounded-lg"></div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Upload Input -->
-                                    <div class="flex items-center justify-center w-full">
-                                        <label for="item_cover_image" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 transition-all">
-                                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                                <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                                                </svg>
-                                                <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Clique para enviar</span> ou arraste</p>
-                                                <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG ou WEBP (Max. 10MB)</p>
-                                            </div>
-                                            <input id="item_cover_image" name="item_cover_image" type="file" class="hidden" accept="image/*" onchange="previewCoverImage(this)" />
-                                        </label>
-                                    </div>
-                                    <div id="file-name-display" class="hidden text-sm text-gray-600 dark:text-slate-400 text-center"></div>
-                                </div>
-                            </div>
-
-                            <!-- Observações -->
-                            <div class="p-5 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
-                                <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Observações <span class="text-gray-500 dark:text-slate-400 font-normal text-xs">(opcional)</span></label>
-                                <textarea name="art_notes" rows="3" placeholder="Informações importantes para a produção..." class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-sm">{{ old('art_notes', isset($editData) ? ($editData['art_notes'] ?? '') : '') }}</textarea>
-                            </div>
-
-                            <!-- Botões (Removido - controllado pelo Wizard) -->
+                            <!-- <!-- Botões (Removido - controllado pelo Wizard) -->
                             <!-- <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-slate-700"> ... </div> -->
                         </form>
                     </div>
@@ -580,6 +465,20 @@
             tecido: @json($fabrics ?? []),
             cor: @json($colors ?? []),
             personalizacao: @json($personalizationOptions ?? [])
+        };
+        
+        const storageUrl = "{{ asset('storage') }}/";
+
+        // Ícones e cores específicos por tipo de personalização
+        const personalizationIconMap = {
+            dtf:            { icon: 'fa-print',        bubble: 'bg-orange-100 dark:bg-orange-900/30',  color: 'text-orange-600 dark:text-orange-400' },
+            serigrafia:     { icon: 'fa-fill-drip',    bubble: 'bg-indigo-100 dark:bg-indigo-900/30',  color: 'text-indigo-600 dark:text-indigo-400' },
+            bordado:        { icon: 'fa-pen-nib',      bubble: 'bg-pink-100 dark:bg-pink-900/30',      color: 'text-pink-600 dark:text-pink-400' },
+            emborrachado:   { icon: 'fa-cubes',        bubble: 'bg-emerald-100 dark:bg-emerald-900/30',color: 'text-emerald-600 dark:text-emerald-400' },
+            sub_local:      { icon: 'fa-layer-group',  bubble: 'bg-purple-100 dark:bg-purple-900/30',  color: 'text-purple-600 dark:text-purple-400' },
+            sub_total:      { icon: 'fa-image',        bubble: 'bg-cyan-100 dark:bg-cyan-900/30',      color: 'text-cyan-700 dark:text-cyan-300' },
+            lisas:          { icon: 'fa-shirt',        bubble: 'bg-gray-100 dark:bg-slate-800',        color: 'text-gray-600 dark:text-gray-300' },
+            default:        { icon: 'fa-shirt',        bubble: 'bg-gray-100 dark:bg-slate-800',        color: 'text-[#7c3aed] dark:text-[#7c3aed]' }
         };
 
         @php
@@ -700,15 +599,18 @@
 
             // UI de processamento
             const submitBtn = document.getElementById('submit-button');
-            const originalText = submitBtn.innerText;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Processando...
-            `;
+            let originalText = '';
+            if (submitBtn) {
+                originalText = submitBtn.innerText;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processando...
+                `;
+            }
             form.dataset.submitting = 'true';
 
             try {
@@ -785,8 +687,10 @@
                 alert('Ocorreu um erro ao processar sua solicitação.');
             } finally {
                 // Restaurar botão
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = document.getElementById('form-action').value === 'update_item' ? 'Salvar Alterações' : 'Adicionar Item';
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = document.getElementById('form-action').value === 'update_item' ? 'Salvar Alterações' : 'Adicionar Item';
+                }
                 form.dataset.submitting = 'false';
             }
         });
@@ -962,8 +866,7 @@
                 // This would require parsing the hidden inputs back into wizardData
             }
             
-            // Set Step 1
-            if(wizardCurrentStep === 1) loadWizardOptionsForStep(1);
+            // Start or Update UI
             updateWizardUI();
         }
 
@@ -976,11 +879,35 @@
             if (!validateStep(wizardCurrentStep)) return;
 
             if (wizardCurrentStep < wizardTotalSteps) {
+                // Skip logic for Detail Color
+                if (wizardCurrentStep === 5) {
+                    const isDifferentDetail = document.getElementById('different_detail_color_cb').checked;
+                    const detail = wizardData.detalhe;
+                    // Skip Step 6 if no detail or same color as fabric requested
+                    if (!detail || detail.name.toLowerCase().includes('sem') || !isDifferentDetail) {
+                        wizardData.detail_color = wizardData.cor;
+                        wizardCurrentStep += 2; // Jump to Step 7 (Gola)
+                        loadWizardOptionsForStep(wizardCurrentStep);
+                        updateWizardUI();
+                        return;
+                    }
+                }
+
+                // Skip logic for Collar Color
+                if (wizardCurrentStep === 7) {
+                    const isDifferentCollar = document.getElementById('different_collar_color_cb').checked;
+                    const gola = wizardData.gola;
+                    // Skip Step 8 if no collar or same color as fabric requested
+                    if (!gola || gola.name.toLowerCase().includes('sem') || !isDifferentCollar) {
+                        wizardData.collar_color = wizardData.cor;
+                        wizardCurrentStep += 2; // Jump to Step 9 (Tamanhos)
+                        loadWizardOptionsForStep(wizardCurrentStep);
+                        updateWizardUI();
+                        return;
+                    }
+                }
+
                 wizardCurrentStep++;
-                
-                // Skip logic if needed (e.g. if no detail selected via "Sem Detalhe" logic)
-                // For now, linear flow.
-                
                 loadWizardOptionsForStep(wizardCurrentStep);
                 updateWizardUI();
             }
@@ -988,6 +915,28 @@
 
         function wizardPrevStep() {
             if (wizardCurrentStep > 1) {
+                // Skip logic backward for Detail Color
+                if (wizardCurrentStep === 7) {
+                    const isDifferentDetail = document.getElementById('different_detail_color_cb').checked;
+                    const detail = wizardData.detalhe;
+                    if (!detail || detail.name.toLowerCase().includes('sem') || !isDifferentDetail) {
+                        wizardCurrentStep -= 2; // Go back to Step 5 (Detalhe)
+                        updateWizardUI();
+                        return;
+                    }
+                }
+
+                // Skip logic backward for Sizes
+                if (wizardCurrentStep === 9) {
+                    const isDifferentCollar = document.getElementById('different_collar_color_cb').checked;
+                    const gola = wizardData.gola;
+                    if (!gola || gola.name.toLowerCase().includes('sem') || !isDifferentCollar) {
+                        wizardCurrentStep -= 2; // Go back to Step 7 (Gola)
+                        updateWizardUI();
+                        return;
+                    }
+                }
+
                 wizardCurrentStep--;
                 updateWizardUI();
             }
@@ -1051,7 +1000,7 @@
                 if (stepEl) {
                     if (i === wizardCurrentStep) {
                         stepEl.classList.remove('hidden');
-                         // Trigger animations/focus if needed
+                        loadWizardOptionsForStep(wizardCurrentStep);
                     } else {
                         stepEl.classList.add('hidden');
                     }
@@ -1222,15 +1171,15 @@
             container.innerHTML = options.personalizacao.map(item => {
                 const isSelected = wizardData.personalizacao.includes(item.id.toString()) || wizardData.personalizacao.includes(item.id);
                 const activeClass = isSelected ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20' : '';
-                // Icon mapping (optional)
-                const icon = item.icon || 'fa-shirt'; 
+                const key = (item.slug || item.name || '').toString().trim().toLowerCase().replace(/\s+/g, '_');
+                const style = personalizationIconMap[key] || personalizationIconMap.default;
                 
                 return `
                 <div class="wizard-option-card group cursor-pointer p-4 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center gap-2 ${activeClass}"
                      data-id="${item.id}"
                      onclick="toggleWizardPersonalizacao(this)">
-                    <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-[#7c3aed]">
-                         <i class="fa-solid ${icon}"></i>
+                    <div class="w-10 h-10 rounded-full ${style.bubble} flex items-center justify-center ${style.color}">
+                         <i class="fa-solid ${style.icon}"></i>
                     </div>
                     <span class="text-xs font-bold text-center text-gray-700 dark:text-slate-300 group-hover:text-[#7c3aed]">${item.name}</span>
                 </div>
@@ -1267,21 +1216,26 @@
         // --- Step 2: Tecidos ---
         function loadWizardTecidos() {
             const select = document.getElementById('wizard_tecido');
-            if(!select || select.options.length > 1) return; // Already loaded?
+            if(!select) return;
             
-            let items = options.tecido || [];
-            
-            // Filter by Personalization logic (legacy support)
-            if (selectedPersonalizacoes && selectedPersonalizacoes.length > 0) {
-                items = items.filter(tecido => {
-                    if (!tecido.parent_ids || tecido.parent_ids.length === 0) return true;
-                    // Ensure type safety
-                    return tecido.parent_ids.some(parentId => selectedPersonalizacoes.includes(parentId) || selectedPersonalizacoes.includes(parentId.toString()));
-                });
+            if (select.options.length <= 1) {
+                let items = options.tecido || [];
+                
+                if (selectedPersonalizacoes && selectedPersonalizacoes.length > 0) {
+                    items = items.filter(tecido => {
+                        if (!tecido.parent_ids || tecido.parent_ids.length === 0) return true;
+                        return tecido.parent_ids.some(parentId => selectedPersonalizacoes.includes(parentId) || selectedPersonalizacoes.includes(parentId.toString()));
+                    });
+                }
+
+                select.innerHTML = '<option value="">Selecione o tecido</option>' + 
+                    items.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
             }
 
-            select.innerHTML = '<option value="">Selecione o tecido</option>' + 
-                items.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
+            if (wizardData.tecido) {
+                select.value = wizardData.tecido.id;
+                loadWizardTiposTecido();
+            }
         }
         
         function loadWizardTiposTecido() {
@@ -1295,19 +1249,36 @@
                  return;
              }
              
-             const fabricName = select.options[select.selectedIndex].text;
-             wizardData.tecido = { id: fabricId, name: fabricName, price: 0 }; // Prices are usually on cut types?
-             
-             // Loads subtypes
-             const subItems = (options.tipo_tecido || []).filter(t => t.parent_id == fabricId);
-             if(subItems.length > 0) {
-                 typeContainer.classList.remove('hidden');
-                 typeSelect.innerHTML = '<option value="">Selecione o tipo</option>' + 
-                    subItems.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
-             } else {
-                 typeContainer.classList.add('hidden');
-                 wizardData.tipo_tecido = null;
-             }
+              const fabricName = select.options[select.selectedIndex].text;
+              
+              // Only overwrite if changed or null
+              if (!wizardData.tecido || wizardData.tecido.id != fabricId) {
+                  wizardData.tecido = { id: fabricId, name: fabricName, price: 0 };
+              }
+              
+              // Loads subtypes
+              const subItems = (options.tipo_tecido || []).filter(t => t.parent_id == fabricId);
+              if(subItems.length > 0) {
+                  typeContainer.classList.remove('hidden');
+                  
+                  // Avoid unnecessary re-rendering if options are the same? 
+                  // For now just ensure value is preserved.
+                  typeSelect.innerHTML = '<option value="">Selecione o tipo</option>' + 
+                     subItems.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
+                  
+                  if (wizardData.tipo_tecido) {
+                      // Check if current tipo_tecido is still valid for this fabric
+                      const stillValid = subItems.find(s => s.id == wizardData.tipo_tecido.id);
+                      if (stillValid) {
+                          typeSelect.value = wizardData.tipo_tecido.id;
+                      } else {
+                          wizardData.tipo_tecido = null;
+                      }
+                  }
+              } else {
+                  typeContainer.classList.add('hidden');
+                  wizardData.tipo_tecido = null;
+              }
              
              // Reload colors since they depend on fabric
              loadWizardCores(); // Pre-load next step
@@ -1344,29 +1315,36 @@
              }
              
              // Fill Grid
-             container.innerHTML = items.map(color => `
-                <div class="wizard-option-card group cursor-pointer p-3 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center gap-2"
+             container.innerHTML = items.map(color => {
+                const isActive = wizardData.cor && wizardData.cor.id == color.id;
+                const activeClass = isActive ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20' : '';
+                return `
+                <div class="wizard-option-card group cursor-pointer p-3 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center gap-2 ${activeClass}"
                      data-id="${color.id}"
                      onclick="selectWizardColor(this)">
                     <div class="w-8 h-8 rounded-full shadow-sm ring-2 ring-gray-100 dark:ring-slate-800" style="background-color: ${color.hex_code || '#ccc'}"></div>
                     <span class="text-xs font-bold text-center text-gray-700 dark:text-slate-300 group-hover:text-[#7c3aed]">${color.name}</span>
                 </div>
-            `).join('');
+                `;
+             }).join('');
             
             // Fill Select options for text search
-            if(select) {
+             if(select) {
                  select.innerHTML = '<option value="">Selecione uma cor</option>' + 
                     items.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
                  
+                 if (wizardData.cor) {
+                     select.value = wizardData.cor.id;
+                 }
+
                  // Bind select change
                  select.onchange = function() {
                      if(this.value) {
-                         // Mock element for selectWizardColor
                          const mockEl = { dataset: { id: this.value } };
                          selectWizardColor(mockEl);
                      }
                  };
-            }
+             }
         }
 
         function selectWizardColor(element) {
@@ -1383,11 +1361,26 @@
         // --- Step 8: Calculate Total ---
         function calculateWizardTotal() {
             let total = 0;
+            let especialQty = 0;
             document.querySelectorAll('.wizard-size-input').forEach(input => {
-                total += parseInt(input.value) || 0;
+                const qty = parseInt(input.value) || 0;
+                total += qty;
+                if (input.dataset.size === 'Especial') especialQty = qty;
             });
             document.getElementById('wizard-total-pieces').textContent = total;
             document.getElementById('summary-pecas-val').textContent = total;
+
+            // Show/Hide modeling checkbox
+            const modelingContainer = document.getElementById('wizard-modeling-container');
+            if (modelingContainer) {
+                if (especialQty > 0) {
+                    modelingContainer.classList.remove('hidden');
+                } else {
+                    modelingContainer.classList.add('hidden');
+                    document.getElementById('wizard_is_client_modeling').checked = false;
+                }
+            }
+
             return total;
         }
         // Bind input change
@@ -1416,6 +1409,10 @@
              document.getElementById('wizard-image-preview-container').classList.add('hidden');
              document.getElementById('wizard-image-placeholder').classList.remove('hidden');
              wizardData.image = null;
+             
+             // Clear existing hidden image if any
+             const existingImg = document.getElementById('existing_cover_image_hidden');
+             if(existingImg) existingImg.value = '';
         }
         
         // --- Step 10: Summary & Submit ---
@@ -1450,9 +1447,29 @@
             document.getElementById('gola_hidden').value = wizardData.gola ? wizardData.gola.id : '';
             document.getElementById('collar_color_hidden').value = wizardData.collar_color ? wizardData.collar_color.id : '';
             
+            // Populate apply_surcharge and is_client_modeling
+            const hiddenInputs = [
+                { id: 'apply_surcharge_hidden', name: 'apply_surcharge', value: document.getElementById('wizard_apply_surcharge').checked ? '1' : '0' },
+                { id: 'is_client_modeling_hidden', name: 'is_client_modeling', value: document.getElementById('wizard_is_client_modeling').checked ? '1' : '0' },
+                { id: 'existing_cover_image_hidden', name: 'existing_cover_image', value: (typeof wizardData.image === 'string') ? wizardData.image : '' }
+            ];
+
+            hiddenInputs.forEach(meta => {
+                let input = document.getElementById(meta.id);
+                if(!input) {
+                    input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.id = meta.id;
+                    input.name = meta.name;
+                    document.getElementById('sewing-form').appendChild(input);
+                }
+                input.value = meta.value;
+            });
+
             // 2. Populate Sizes
             const sizeContainer = document.getElementById('hidden-sizes-container');
             sizeContainer.innerHTML = '';
+            let totalQty = 0;
             for (const [size, qty] of Object.entries(wizardData.sizes)) {
                 if(qty > 0) {
                    const input = document.createElement('input');
@@ -1460,7 +1477,13 @@
                    input.name = `tamanhos[${size}]`; // Correct name format for backend
                    input.value = qty;
                    sizeContainer.appendChild(input);
+                   totalQty += parseInt(qty) || 0;
                 }
+            }
+            // Atualiza quantidade total esperada pelo backend
+            const qtyInput = document.getElementById('quantity');
+            if (qtyInput) {
+                qtyInput.value = totalQty;
             }
             
             // 3. Populate Notes & Cost
@@ -1486,14 +1509,34 @@
                  cInput.value = cost;
                  sizeContainer.appendChild(cInput);
             }
+            // Unit price
+            const unitPriceInput = document.getElementById('unit_price');
+            if (unitPriceInput) {
+                const finalPrice = wizardData.unit_price || parseFloat((document.getElementById('wizard-final-price')?.textContent || '0').replace(/[R$\\s\\.]/g,'').replace(',','.')) || 0;
+                unitPriceInput.value = finalPrice;
+            }
             
-            // 4. Move Image Input to Form?
-            // The file input `wizard_file_input` is inside the modal, which is IN the form.
-            // But it needs `name="item_cover_image"`.
+            // 4. Populate Personalizacao inputs
+            const personalizacaoContainer = document.getElementById('hidden-personalizacao-container');
+            personalizacaoContainer.innerHTML = '';
+            wizardData.personalizacao.forEach(pId => {
+                const pInput = document.createElement('input');
+                pInput.type = 'hidden';
+                pInput.name = 'personalizacao[]';
+                pInput.value = pId;
+                personalizacaoContainer.appendChild(pInput);
+            });
+            
+            // 5. Ensure file input has correct name
             document.getElementById('wizard_file_input').name = 'item_cover_image';
             
-            // 5. Submit Form
-            document.getElementById('sewing-form').submit();
+            // 6. Submit Form (Use requestSubmit to trigger AJAX listener)
+            const form = document.getElementById('sewing-form');
+            if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit();
+            } else {
+                form.dispatchEvent(new Event('submit', { cancelable: true }));
+            }
         }
 
 
@@ -1552,10 +1595,197 @@
         // Legacy functions removed to prevent syntax/reference errors.
         // Editing flows should utilize openSewingWizard(itemData) logic.
         
-        function editItem(itemId) {
-            // TODO: Implement edit logic for the new Wizard
-            alert('A edição de itens será adaptada para o novo Wizard em breve.');
-            console.log('Edit requested for:', itemId);
+        async function editItem(itemId) {
+            await populateWizardFromItem(itemId, false);
+        }
+
+        async function duplicateItem(itemId) {
+            await populateWizardFromItem(itemId, true);
+        }
+
+        async function populateWizardFromItem(itemId, isDuplicate) {
+            const item = itemsData.find(i => i.id == itemId);
+            if (!item) {
+                alert('Item não encontrado.');
+                return;
+            }
+
+            // Ensure options are loaded (they come from AJAX)
+            if (Object.keys(optionsWithParents).length === 0) {
+                 console.log('Waiting for options to load...');
+                 await new Promise(resolve => setTimeout(resolve, 800));
+                 if (Object.keys(optionsWithParents).length === 0) {
+                     alert('As opções de produtos ainda estão carregando. Por favor, aguarde um segundo e tente novamente.');
+                     return;
+                 }
+            }
+
+            // Reset wizardData
+            wizardData = {
+                tecido: null,
+                tipo_tecido: null,
+                cor: null,
+                tipo_corte: null,
+                detalhe: null,
+                detail_color: null,
+                gola: null,
+                collar_color: null,
+                personalizacao: [],
+                image: item.cover_image || null,
+                imageUrl: item.cover_image_url || null,
+                notes: item.art_notes || '',
+                sizes: {},
+                unit_cost: item.unit_cost || 0
+            };
+
+            // Set editing ID
+            document.getElementById('editing-item-id').value = isDuplicate ? '' : itemId;
+            document.getElementById('form-action').value = isDuplicate ? 'add_item' : 'update_item';
+            document.getElementById('form-title').textContent = isDuplicate ? 'Duplicar Item' : 'Editar Item';
+            
+            // Parse print_desc for wizard_ids or fallback
+            let printDesc = {};
+            try {
+                printDesc = typeof item.print_desc === 'string' ? JSON.parse(item.print_desc) : item.print_desc;
+            } catch(e) { console.error('Erro ao parsear print_desc', e); }
+
+            const wIds = printDesc.wizard_ids || {};
+            
+            // Helper to find option by name if ID is missing
+            const findOptionByName = (listKey, name) => {
+                const list = getOptionList([listKey]);
+                if (!name) return null;
+                const cleanName = name.split(' - ')[0].trim().toLowerCase();
+                return list.find(o => o.name.toLowerCase().includes(cleanName)) || null;
+            };
+
+            // Restore from IDs or Name fallback
+            if (wIds.tecido) {
+                const tissue = getOptionList(['tecido']).find(o => o.id == wIds.tecido);
+                if (tissue) wizardData.tecido = { id: tissue.id, name: tissue.name, price: parseFloat(tissue.price || 0) };
+            } else {
+                 const opt = findOptionByName('tecido', item.fabric);
+                 if(opt) wizardData.tecido = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
+            }
+
+            if (wIds.tipo_tecido) {
+                const subTissue = getOptionList(['tipo_tecido']).find(o => o.id == wIds.tipo_tecido);
+                 if (subTissue) wizardData.tipo_tecido = { id: subTissue.id, name: subTissue.name, price: parseFloat(subTissue.price || 0) };
+            }
+
+            if (wIds.cor) {
+                const color = getOptionList(['cor']).find(o => o.id == wIds.cor);
+                if (color) wizardData.cor = { id: color.id, name: color.name, price: 0 };
+            } else {
+                 const opt = findOptionByName('cor', item.color);
+                 if(opt) wizardData.cor = { id: opt.id, name: opt.name, price: 0 };
+            }
+
+            if (wIds.tipo_corte) {
+                const cut = getOptionList(['tipo_corte', 'corte']).find(o => o.id == wIds.tipo_corte);
+                if (cut) wizardData.tipo_corte = { id: cut.id, name: cut.name, price: parseFloat(cut.price || 0) };
+            } else {
+                 const opt = findOptionByName('tipo_corte', item.model);
+                 if(opt) wizardData.tipo_corte = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
+            }
+
+            if (wIds.detalhe) {
+                const detail = getOptionList(['detalhe']).find(o => o.id == wIds.detalhe);
+                if (detail) wizardData.detalhe = { id: detail.id, name: detail.name, price: parseFloat(detail.price || 0) };
+            } else {
+                 const opt = findOptionByName('detalhe', item.detail);
+                 if(opt) wizardData.detalhe = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
+            }
+
+            if (wIds.detail_color) {
+                const dc = getOptionList(['cor']).find(o => o.id == wIds.detail_color);
+                if (dc) wizardData.detail_color = { id: dc.id, name: dc.name, price: 0 };
+            } else {
+                 const opt = findOptionByName('cor', item.detail_color);
+                 if(opt) wizardData.detail_color = { id: opt.id, name: opt.name, price: 0 };
+            }
+
+            if (wIds.gola) {
+                const collar = getOptionList(['gola']).find(o => o.id == wIds.gola);
+                if (collar) wizardData.gola = { id: collar.id, name: collar.name, price: parseFloat(collar.price || 0) };
+            } else {
+                 const opt = findOptionByName('gola', item.collar);
+                 if(opt) wizardData.gola = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
+            }
+
+            if (wIds.collar_color) {
+                const cc = getOptionList(['cor']).find(o => o.id == wIds.collar_color);
+                if (cc) wizardData.collar_color = { id: cc.id, name: cc.name, price: 0 };
+            } else {
+                 const opt = findOptionByName('cor', item.collar_color);
+                 if(opt) wizardData.collar_color = { id: opt.id, name: opt.name, price: 0 };
+            }
+
+            if (Array.isArray(wIds.personalizacao)) {
+                wizardData.personalizacao = wIds.personalizacao.map(id => id.toString());
+            } else {
+                // Fallback for personalizacao is harder because it's a string of names
+                if (item.print_type) {
+                    const names = item.print_type.split(',').map(n => n.trim().toLowerCase());
+                    const allP = getOptionList(['personalizacao']);
+                    wizardData.personalizacao = allP
+                        .filter(p => names.includes(p.name.toLowerCase()))
+                        .map(p => p.id.toString());
+                }
+            }
+
+            // Sizes
+            let itemSizes = {};
+            try {
+                itemSizes = typeof item.sizes === 'string' ? JSON.parse(item.sizes) : item.sizes;
+            } catch(e) {}
+            wizardData.sizes = itemSizes || {};
+
+            // Pre-fill checkboxes for "different color" if needed
+            if (wizardData.detail_color && wizardData.cor && wizardData.detail_color.id != wizardData.cor.id) {
+                document.getElementById('different_detail_color_cb').checked = true;
+            } else {
+                document.getElementById('different_detail_color_cb').checked = false;
+            }
+            if (wizardData.collar_color && wizardData.cor && wizardData.collar_color.id != wizardData.cor.id) {
+                document.getElementById('different_collar_color_cb').checked = true;
+            } else {
+                document.getElementById('different_collar_color_cb').checked = false;
+            }
+
+            // Sync other UI elements
+            document.getElementById('wizard_notes').value = wizardData.notes;
+            document.getElementById('wizard_unit_cost').value = wizardData.unit_cost;
+            document.getElementById('wizard_apply_surcharge').checked = !!printDesc.apply_surcharge;
+            document.getElementById('wizard_is_client_modeling').checked = !!printDesc.is_client_modeling;
+
+            // Fill size inputs
+            document.querySelectorAll('.wizard-size-input').forEach(input => {
+                const s = input.dataset.size;
+                input.value = wizardData.sizes[s] || 0;
+            });
+            
+            calculateWizardTotal();
+            
+            // Image preview
+            if (wizardData.imageUrl) {
+                document.getElementById('wizard-image-preview').src = wizardData.imageUrl;
+                document.getElementById('wizard-image-preview-container').classList.remove('hidden');
+                document.getElementById('wizard-image-placeholder').classList.add('hidden');
+            } else if (wizardData.image && typeof wizardData.image === 'string') {
+                document.getElementById('wizard-image-preview').src = storageUrl + wizardData.image;
+                document.getElementById('wizard-image-preview-container').classList.remove('hidden');
+                document.getElementById('wizard-image-placeholder').classList.add('hidden');
+            } else {
+                clearWizardImage();
+            }
+
+            // Sync global filter
+            selectedPersonalizacoes = [...wizardData.personalizacao];
+
+            // Open Wizard
+            wizardCurrentStep = isDuplicate ? 4 : 1; 
+            openSewingWizard();
         }
         
         function previewCoverImage(input) {
@@ -1578,25 +1808,44 @@
             }
         }
 
+
         function cancelEdit() {
-            document.getElementById('editing-item-id').value = '';
-            document.getElementById('form-action').value = 'add_item';
-            document.getElementById('form-title').textContent = 'Adicionar Novo Item';
-            document.getElementById('submit-button').innerHTML = 'Adicionar Item';
+            const editingItemId = document.getElementById('editing-item-id');
+            const formAction = document.getElementById('form-action');
+            const formTitle = document.getElementById('form-title');
+            const submitButton = document.getElementById('submit-button');
+            const sewingForm = document.getElementById('sewing-form');
+            const coverPreviewContainer = document.getElementById('cover-image-preview-container');
+            const coverPreview = document.getElementById('cover-image-preview');
+            const fileNameDisplay = document.getElementById('file-name-display');
             
-            document.getElementById('sewing-form').reset();
+            if (editingItemId) editingItemId.value = '';
+            if (formAction) formAction.value = 'add_item';
+            if (formTitle) formTitle.textContent = 'Adicionar Novo Item';
+            if (submitButton) submitButton.innerHTML = 'Adicionar Item';
+            if (sewingForm) sewingForm.reset();
             
             // Limpar preview de imagem
-            document.getElementById('cover-image-preview-container').classList.add('hidden');
-            document.getElementById('cover-image-preview').src = '';
-            document.getElementById('file-name-display').classList.add('hidden');
-            document.getElementById('file-name-display').textContent = '';
+            if (coverPreviewContainer) coverPreviewContainer.classList.add('hidden');
+            if (coverPreview) coverPreview.src = '';
+            if (fileNameDisplay) {
+                fileNameDisplay.classList.add('hidden');
+                fileNameDisplay.textContent = '';
+            }
             
             document.querySelectorAll('.personalizacao-checkbox').forEach(checkbox => {
                 checkbox.checked = false;
             });
             
-
+            // Reset wizard data
+            wizardData = {
+                tecido: null, tipo_tecido: null, cor: null, tipo_corte: null,
+                detalhe: null, detail_color: null, gola: null, collar_color: null,
+                personalizacao: [], image: null, imageUrl: null, notes: '', sizes: {}, unit_cost: 0
+            };
+            selectedPersonalizacoes = [];
+            wizardCurrentStep = 1;
+            closeSewingWizard();
         }
 
         @if(isset($editData))

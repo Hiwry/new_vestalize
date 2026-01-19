@@ -443,6 +443,12 @@
                         </tr>
                     </tbody>
                 </table>
+
+                @if(isset($printDesc['is_client_modeling']) && $printDesc['is_client_modeling'])
+                <div style="margin-top: 5px; padding: 4px; background-color: #d1fae5; border: 1px solid #10b981; color: #065f46; font-weight: bold; font-size: 9px; text-transform: uppercase; text-align: center;">
+                    * Tamanho Especial: Cliente possui modelagem própria
+                </div>
+                @endif
             @endif
         </div>
 
@@ -457,7 +463,7 @@
             }
             
             // Tamanhos que têm acréscimo
-            $sizesWithSurcharge = ['GG', 'EXG', 'G1', 'G2', 'G3'];
+            $sizesWithSurcharge = ['GG', 'EXG', 'G1', 'G2', 'G3', 'ESPECIAL', 'Especial'];
             $hasSurcharges = false;
             $totalSurcharges = 0;
             $surchargesDetails = [];

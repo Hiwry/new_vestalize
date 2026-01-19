@@ -254,7 +254,7 @@
                     $totalSurcharges = 0;
                     
                     if (is_array($sizes) && !empty($sizes)) {
-                        foreach (['GG', 'EXG', 'G1', 'G2', 'G3'] as $size) {
+                        foreach (['GG', 'EXG', 'G1', 'G2', 'G3', 'ESPECIAL', 'Especial'] as $size) {
                             $qty = $sizes[$size] ?? 0;
                             if ($qty > 0 && $item->unit_price > 0) {
                                 $surchargeData = \App\Models\SizeSurcharge::getSurchargeForSize($size, $item->unit_price);

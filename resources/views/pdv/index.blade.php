@@ -907,8 +907,8 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                         <div id="stock-${s.toLowerCase()}" class="hidden absolute z-50 top-full left-0 w-32 bg-white shadow-lg rounded p-2 text-xs"></div>
                     </div>`).join('')}
                 </div>
-                <div class="grid grid-cols-4 gap-2 gap-y-8">
-                     ${['EXG','G1','G2','G3'].map(s => `
+                <div class="grid grid-cols-5 gap-2 gap-y-8">
+                     ${['EXG','G1','G2','G3','Especial'].map(s => `
                     <div class="relative group">
                         <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-400 mb-0.5 text-center uppercase">${s}</label>
                         <input type="number" id="modal-size-${s.toLowerCase()}" min="0" value="" placeholder="0"
@@ -952,7 +952,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
 
 // Atualizar total de quantidade
 window.updateTotalQuantity = function updateTotalQuantity() {
-    const sizes = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3'];
+    const sizes = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3', 'Especial'];
     let total = 0;
     
     sizes.forEach(size => {
@@ -1375,7 +1375,7 @@ async function calculateSizeSurcharges() {
     const hasGG = document.getElementById('modal-size-gg') !== null;
     const hasEXG = document.getElementById('modal-size-exg') !== null;
     
-    let sizes = ['G1', 'G2', 'G3'];
+    let sizes = ['G1', 'G2', 'G3', 'Especial'];
     if (hasGG) sizes.unshift('GG');
     if (hasEXG) sizes.unshift('EXG');
     
@@ -2705,6 +2705,8 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
+const clientSearchUrl = "{{ url('/api/clients/search') }}";
+
 // Função para buscar clientes
 window.searchClient = function searchClient() {
     const query = document.getElementById('search-client').value;
@@ -2718,7 +2720,7 @@ window.searchClient = function searchClient() {
         return;
     }
 
-    fetch(`/api/clients/search?q=${encodeURIComponent(query)}`)
+    fetch(`${clientSearchUrl}?q=${encodeURIComponent(query)}`)
         .then(response => response.json())
         .then(data => {
             if (data.length === 0) {

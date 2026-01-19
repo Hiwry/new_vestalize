@@ -55,27 +55,57 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                                 </svg>
                             </div>
-                            <h2 class="text-sm font-medium text-gray-900">Selecione o Item</h2>
+                            <h2 class="text-sm font-medium text-gray-900">Selecione os Itens</h2>
                         </div>
 
                         <div class="bg-gray-50 rounded-md p-4">
-                            <select id="selected-item" onchange="updateItemInfo()" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:border-[#7c3aed] focus:ring-1 focus:ring-purple-500">
-                                @foreach($order->items as $item)
-                                <option value="{{ $item->id }}" 
-                                        data-personalizacao="{{ $item->print_type }}"
-                                        data-quantidade="{{ $item->quantity }}">
-                                    Item {{ $item->item_number }} - {{ $item->print_type }} ({{ $item->quantity }} peças)
-                                </option>
-                                @endforeach
-                            </select>
+                            <!-- Checkbox para vincular todos os itens -->
+                            <div class="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-md">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" id="link-all-items" onchange="toggleLinkAllItems()" 
+                                           class="w-4 h-4 text-[#7c3aed] border-gray-300 rounded focus:ring-purple-500">
+                                    <span class="ml-2 text-sm font-medium text-gray-900">
+                                        <svg class="w-4 h-4 inline-block mr-1 text-[#7c3aed]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        Aplicar mesma personalização em TODOS os itens
+                                    </span>
+                                </label>
+                                <p class="text-xs text-gray-600 mt-1 ml-6">Marque esta opção se todos os itens terão exatamente a mesma arte/escudo/logo</p>
+                            </div>
                             
-                            <div id="item-details" class="mt-3 p-3 bg-white rounded border border-gray-200 text-sm">
-                                <!-- Será preenchido via JavaScript -->
+                            <!-- Lista de itens com checkboxes individuais -->
+                            <div id="items-selection-container">
+                                <p class="text-xs text-gray-600 mb-2">Ou selecione itens específicos:</p>
+                                <div class="space-y-2" id="items-checkboxes">
+                                    @foreach($order->items as $item)
+                                    <label class="flex items-center p-2 bg-white border border-gray-200 rounded-md hover:border-[#7c3aed] cursor-pointer transition-colors item-checkbox-label">
+                                        <input type="checkbox" name="linked_items[]" value="{{ $item->id }}" 
+                                               class="item-checkbox w-4 h-4 text-[#7c3aed] border-gray-300 rounded focus:ring-purple-500"
+                                               onchange="updateLinkedItemsCount()">
+                                        <div class="ml-3 flex-1">
+                                            <span class="text-sm font-medium text-gray-900">Item {{ $item->item_number }}</span>
+                                            <span class="text-xs text-gray-500 ml-2">{{ $item->model }} - {{ $item->print_type }}</span>
+                                        </div>
+                                        <span class="text-xs text-gray-500">{{ $item->quantity }} pç</span>
+                                    </label>
+                                    @endforeach
+                                </div>
+                            </div>
+                            
+                            <!-- Resumo de itens vinculados -->
+                            <div id="linked-items-summary" class="mt-3 p-2 bg-green-50 border border-green-200 rounded-md hidden">
+                                <div class="flex items-center text-sm text-green-800">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span><strong id="linked-count">0</strong> itens receberão esta personalização (<strong id="linked-total-qty">0</strong> peças no total)</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                     @else
-                    <input type="hidden" id="selected-item" value="{{ $order->items->first()->id }}">
+                    <input type="hidden" name="linked_items[]" value="{{ $order->items->first()->id }}">
                     @endif
 
                     <!-- Nome da Arte -->
@@ -295,23 +325,70 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadData();
             @if($order->items->count() > 1)
-            updateItemInfo();
+            // Select first item by default
+            const firstCheckbox = document.querySelector('.item-checkbox');
+            if (firstCheckbox) {
+                firstCheckbox.checked = true;
+                updateLinkedItemsCount();
+            }
             @endif
         });
 
-        function updateItemInfo() {
-            const select = document.getElementById('selected-item');
-            if (!select) return;
+        // Items data for calculating totals
+        const itemsQtyMap = {
+            @foreach($order->items as $item)
+            '{{ $item->id }}': {{ $item->quantity }},
+            @endforeach
+        };
+
+        function toggleLinkAllItems() {
+            const linkAll = document.getElementById('link-all-items');
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            const container = document.getElementById('items-selection-container');
             
-            const option = select.options[select.selectedIndex];
-            const details = document.getElementById('item-details');
-            
-            if (details && option && option.dataset) {
-                details.innerHTML = `
-                    <p><strong>Personalização:</strong> ${option.dataset.personalizacao}</p>
-                    <p><strong>Quantidade:</strong> ${option.dataset.quantidade} peças</p>
-                `;
+            if (linkAll.checked) {
+                // Check all items and disable individual selection
+                checkboxes.forEach(cb => {
+                    cb.checked = true;
+                    cb.disabled = true;
+                });
+                container.classList.add('opacity-50');
+            } else {
+                // Enable individual selection
+                checkboxes.forEach(cb => {
+                    cb.disabled = false;
+                });
+                container.classList.remove('opacity-50');
             }
+            
+            updateLinkedItemsCount();
+        }
+
+        function updateLinkedItemsCount() {
+            const checkboxes = document.querySelectorAll('.item-checkbox:checked');
+            const summary = document.getElementById('linked-items-summary');
+            const countEl = document.getElementById('linked-count');
+            const qtyEl = document.getElementById('linked-total-qty');
+            
+            if (!summary || !countEl || !qtyEl) return;
+            
+            if (checkboxes.length === 0) {
+                summary.classList.add('hidden');
+                return;
+            }
+            
+            let totalQty = 0;
+            checkboxes.forEach(cb => {
+                totalQty += itemsQtyMap[cb.value] || 0;
+            });
+            
+            countEl.textContent = checkboxes.length;
+            qtyEl.textContent = totalQty;
+            summary.classList.remove('hidden');
+            
+            // Update total shirts for price calculation
+            totalShirts = totalQty;
+            document.getElementById('total-shirts').value = totalQty;
         }
 
         function loadData() {

@@ -588,10 +588,12 @@
     <script src="{{ asset('js/onboarding-tour.js') }}"></script>
     <!-- AJAX Navigation Script -->
     <script src="{{ asset('js/ajax-navigation.js') }}" defer></script>
+    <!-- Fallbacks para busca de clientes (suporte AJAX) -->
+    <script src="{{ asset('js/client-search-fallback.js') }}" defer></script>
     <!-- Paste Modal Script -->
     <script src="{{ asset('js/paste-modal.js') }}" defer></script>
 </head>
-<body class="h-full landing-page antialiased">
+<body class="h-full landing-page antialiased" data-client-search-url="{{ url('/api/clients/search') }}">
     <div class="landing-bg"></div>
     <div class="h-screen overflow-hidden relative">
         <!-- Sidebar -->

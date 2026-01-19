@@ -432,7 +432,7 @@ class PDVController extends Controller
             $sizeSurcharges = [];
             $totalSurcharges = 0;
             if (!empty($sizeQuantities) && Schema::hasTable('size_surcharges')) {
-                foreach (['GG', 'EXG', 'G1', 'G2', 'G3'] as $size) {
+                foreach (['GG', 'EXG', 'G1', 'G2', 'G3', 'Especial', 'ESPECIAL'] as $size) {
                     $qty = $sizeQuantities[$size] ?? 0;
                     if ($qty > 0 && $unitPrice > 0) {
                         $surchargeData = SizeSurcharge::getSurchargeForSize($size, $unitPrice);
@@ -887,7 +887,7 @@ class PDVController extends Controller
                     
                     if (!empty($sizeQuantities) && Schema::hasTable('size_surcharges')) {
                         $newSizeSurcharges = [];
-                        foreach (['GG', 'EXG', 'G1', 'G2', 'G3'] as $size) {
+                        foreach (['GG', 'EXG', 'G1', 'G2', 'G3', 'Especial', 'ESPECIAL'] as $size) {
                             $qty = $sizeQuantities[$size] ?? 0;
                             if ($qty > 0 && $unitPrice > 0) {
                                 $surchargeData = SizeSurcharge::getSurchargeForSize($size, $unitPrice);
