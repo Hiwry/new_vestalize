@@ -27,6 +27,15 @@ class Budget extends Model
         'observations',
         'admin_notes',
         'status',
+        // Quick budget fields
+        'is_quick',
+        'contact_name',
+        'contact_phone',
+        'deadline_days',
+        'product_internal',
+        'technique',
+        'quantity',
+        'unit_price',
     ];
 
     protected $casts = [
@@ -34,7 +43,37 @@ class Budget extends Model
         'subtotal' => 'decimal:2',
         'discount' => 'decimal:2',
         'total' => 'decimal:2',
+        'is_quick' => 'boolean',
+        'unit_price' => 'decimal:2',
     ];
+
+    /**
+     * Check if this is a quick budget
+     */
+    public function isQuick(): bool
+    {
+        return (bool) $this->is_quick;
+    }
+
+    /**
+     * Get contact info (from client or contact fields for quick budgets)
+     */
+    public function getContactInfo(): array
+    {
+        if ($this->isQuick() && !$this->client_id) {
+            return [
+                'name' => $this->contact_name,
+                'phone' => $this->contact_phone,
+                'email' => null,
+            ];
+        }
+        
+        return [
+            'name' => $this->client?->name,
+            'phone' => $this->client?->phone_primary,
+            'email' => $this->client?->email,
+        ];
+    }
 
     public function client(): BelongsTo
     {
@@ -86,3 +125,4 @@ class Budget extends Model
         return $query->where('store_id', $storeIds);
     }
 }
+

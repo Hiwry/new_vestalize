@@ -62,7 +62,7 @@
                         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Gerencie os tamanhos disponíveis</p>
                     </div>
                     <button type="button" onclick="console.log('Botão Adicionar Tamanho clicado'); window.dispatchEvent(new CustomEvent('open-modal', { detail: 'add-size-modal' }));" 
-                            class="inline-flex items-center px-3 py-2 bg-green-600 dark:bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 dark:hover:bg-green-700 transition-colors">
+                            class="inline-flex items-center px-3 py-2 bg-green-600 dark:bg-green-600 text-white stay-white text-sm font-medium rounded-md hover:bg-green-700 dark:hover:bg-green-700 transition-colors">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -123,7 +123,7 @@
                     <div class="flex items-center gap-3">
                         <span id="row-count" class="text-sm text-gray-600 dark:text-gray-400">0 faixas</span>
                         <button type="button" onclick="addQuantityRow()" 
-                                class="inline-flex items-center px-3 py-2 bg-indigo-600 dark:bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition-colors">
+                                class="inline-flex items-center px-3 py-2 bg-indigo-600 dark:bg-indigo-600 text-white stay-white text-sm font-medium rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition-colors">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>
@@ -222,7 +222,7 @@
                     <div class="flex items-center gap-3">
                         <span id="color-row-count" class="text-sm text-gray-600 dark:text-gray-400">0 faixas</span>
                         <button type="button" onclick="addColorRow()" 
-                                class="inline-flex items-center px-3 py-2 bg-purple-600 dark:bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 dark:hover:bg-purple-700 transition-colors">
+                                class="inline-flex items-center px-3 py-2 bg-purple-600 dark:bg-purple-600 text-white stay-white text-sm font-medium rounded-md hover:bg-purple-700 dark:hover:bg-purple-700 transition-colors">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>
@@ -355,7 +355,7 @@
                 Voltar
             </a>
             <button type="submit" 
-                    class="inline-flex items-center justify-center px-6 py-2 text-sm font-medium bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition-colors">
+                    class="inline-flex items-center justify-center px-6 py-2 text-sm font-medium bg-indigo-600 dark:bg-indigo-600 text-white stay-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition-colors">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>

@@ -26,7 +26,7 @@
         
         <!-- Item Header -->
         <div style="background: #475569; color: white; padding: 6px 12px; border-radius: 6px; margin-bottom: 8px; font-size: 11px; font-weight: bold;">
-            ITEM {{ $item->item_number ?? $loop->iteration }} - {{ $item->quantity }} PECAS
+            ITEM {{ $item->item_number ?? $loop->iteration }} - {{ $item->quantity }} PEÇAS
         </div>
         
         <!-- Header Principal -->
@@ -34,8 +34,11 @@
             <tr>
                 <!-- EVENTO -->
                 <td style="width: 12%; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; text-align: center; vertical-align: middle; padding: 12px;">
-                    <div style="font-size: 14px; font-weight: bold; color: {{ ($order->is_event || (isset($order->contract_type) && strtoupper($order->contract_type) === 'EVENTO')) ? '#dc3545' : '#495057' }};">
-                        @if($order->is_event || (isset($order->contract_type) && strtoupper($order->contract_type) === 'EVENTO'))
+                    @php
+                        $contractType = isset($order->contract_type) ? \Illuminate\Support\Str::upper($order->contract_type) : null;
+                    @endphp
+                    <div style="font-size: 14px; font-weight: bold; color: {{ ($order->is_event || $contractType === 'EVENTO') ? '#dc3545' : '#495057' }};">
+                        @if($order->is_event || $contractType === 'EVENTO')
                             EVENTO
                         @else
                             PEDIDO
@@ -46,7 +49,7 @@
                 <!-- NOME DA ARTE + OS -->
                 <td style="width: 60%; background: #6366f1; border-radius: 8px; text-align: center; vertical-align: middle; padding: 15px; color: white;">
                     <div style="font-size: 24px; font-weight: bold; color: white; margin-bottom: 5px;">
-                        {{ strtoupper($item->art_name ?? 'SEM NOME') }}
+                        {{ \Illuminate\Support\Str::upper($item->art_name ?? 'SEM NOME') }}
                     </div>
                     <div style="font-size: 16px; font-weight: bold; color: white; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 15px; border-radius: 20px;">
                         OS {{ $order->id }}
@@ -115,9 +118,17 @@
                                 'Especial' => '#E91E63', 'ESPECIAL' => '#E91E63'
                             ];
                             $sizeTextColors = ['P' => '#333333'];
+                            // Normaliza chaves para garantir exibição de ESPECIAL/EXG etc.
+                            $normalizedSizes = [];
+                            foreach ($itemSizes as $sKey => $sQty) {
+                                $normalizedKey = \Illuminate\Support\Str::upper(trim($sKey));
+                                $normalizedSizes[$normalizedKey] = ($normalizedSizes[$normalizedKey] ?? 0) + intval($sQty);
+                            }
                         @endphp
                         @foreach(['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3', 'ESPECIAL'] as $size)
-                            @php $qty = $itemSizes[$size] ?? $itemSizes[strtoupper($size)] ?? $itemSizes[strtolower($size)] ?? 0; @endphp
+                            @php
+                                $qty = $normalizedSizes[\Illuminate\Support\Str::upper($size)] ?? 0;
+                            @endphp
                             @if($qty > 0)
                             <div style="background: {{ $sizeColors[$size] ?? '#78909C' }}; color: {{ $sizeTextColors[$size] ?? 'white' }}; padding: 6px 8px; margin-bottom: 5px; border-radius: 6px; text-align: center; font-weight: bold;">
                                 <span style="font-size: 9px; display: block;">{{ $size }}</span>
@@ -156,10 +167,10 @@
                     </div>
                 </td>
                 
-                <!-- ESPECIFICACOES -->
+                <!-- ESPECIFICAÇÕES -->
                 <td style="width: 17%; vertical-align: top;">
                     <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 12px;">
-                        <div style="font-size: 10px; font-weight: bold; text-align: center; margin-bottom: 10px; text-transform: uppercase; color: #475569;">Especificacoes</div>
+                        <div style="font-size: 10px; font-weight: bold; text-align: center; margin-bottom: 10px; text-transform: uppercase; color: #475569;">Especificações</div>
                         @php
                             $specs = [
                                 'Tecido' => $item->fabric,
@@ -173,7 +184,7 @@
                         @foreach($specs as $label => $value)
                         <div style="background: #e2e8f0; border-radius: 6px; padding: 6px 10px; margin-bottom: 6px;">
                             <div style="font-size: 8px; color: #64748b; text-transform: uppercase;">{{ $label }}</div>
-                            <div style="font-size: 11px; font-weight: bold; color: #1e293b;">{{ $value ? strtoupper($value) : 'N/A' }}</div>
+                            <div style="font-size: 11px; font-weight: bold; color: #1e293b;">{{ $value ? \Illuminate\Support\Str::upper($value) : 'N/A' }}</div>
                         </div>
                         @endforeach
                     </div>

@@ -6,7 +6,7 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-[#7c3aed] text-white force-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]" style="color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;">1</div>
+                    <div class="w-10 h-10 bg-[#7c3aed] text-white stay-white force-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]" style="color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;">1</div>
                     <div>
                         <span class="text-lg font-bold text-gray-900 dark:text-white">Dados do Cliente</span>
                         <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa 1 de 5</p>
@@ -30,7 +30,7 @@
                     <div class="flex items-center">
                         <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                              <div class="w-8 h-8 bg-[#7c3aed] force-white rounded-lg flex items-center justify-center shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
                             </div>
@@ -77,7 +77,7 @@
                                 </div>
                             </div>
                             <button type="button" onclick="window.runClientSearch()" style="color: white !important;" 
-                                    class="px-6 py-3 bg-[#7c3aed] text-white rounded-lg transition-colors text-sm font-semibold shadow-sm">
+                                    class="px-6 py-3 bg-[#7c3aed] text-white stay-white rounded-lg transition-colors text-sm font-semibold shadow-sm">
                                 Buscar
                             </button>
                         </div>
@@ -281,7 +281,7 @@
                     </a>
                     <button type="submit" 
                             style="color: white !important;"
-                            class="inline-flex items-center px-8 py-3 bg-[#7c3aed] text-white font-semibold rounded-xl shadow-sm transition-colors text-sm"
+                            class="inline-flex items-center px-8 py-3 bg-[#7c3aed] text-white stay-white font-semibold rounded-xl shadow-sm transition-colors text-sm"
                             onclick="console.log('Button clicked'); return true;">
                         Continuar
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,226 +295,241 @@
     </div>
 </div>
 
+@push('page-scripts')
 <script>
-        // Debug: capturar erros globais
-        window.addEventListener('error', function(e) {
-            console.error('JavaScript Error:', e.error);
-        });
+<script>
+(function() {
+    console.log('Client Wizard Script Loaded');
+    const clientSearchUrl = "{{ url('/api/clients/search') }}";
 
-        console.log('Client Wizard Script Loaded (runClientSearch)');
-        const clientSearchUrl = "{{ url('/api/clients/search') }}";
+    function initClientPage() {
+        console.log('Initializing Client Page...');
+        const form = document.getElementById('client-form');
+        if (form && !form.dataset.listenerAttached) {
+            form.addEventListener('submit', function(e) {
+                if (form.dataset.submitting === 'true') {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                const name = document.getElementById('name').value;
+                const phone = document.getElementById('phone_primary').value;
+                
+                if (!name || !phone) {
+                    console.error('Campos obrigatórios não preenchidos');
+                    e.preventDefault();
+                    return false;
+                }
+                
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processando...
+                    `;
+                    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                }
+                
+                form.dataset.submitting = 'true';
+            });
+            form.dataset.listenerAttached = 'true';
+        }
 
-        // Ensure functions are global
-        window.runClientSearch = function() {
-            var query = document.getElementById('search-client').value;
-            var resultsDiv = document.getElementById('search-results');
-            
-            if (query.length < 3) {
-                resultsDiv.innerHTML = '<p class="text-sm text-gray-500">Digite ao menos 3 caracteres para buscar</p>';
-                return;
-            }
+        const searchInput = document.getElementById('search-client');
+        if (searchInput && !searchInput.dataset.listenerAttached) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    window.runClientSearch();
+                }
+            });
+            searchInput.dataset.listenerAttached = 'true';
+        }
 
-            fetch(clientSearchUrl + '?q=' + encodeURIComponent(query))
-                .then(function(response) { return response.json(); })
-                .then(function(data) {
-                    if (data.length === 0) {
-                        resultsDiv.innerHTML = '<p class="text-sm text-gray-500">Nenhum cliente encontrado</p>';
-                        return;
-                    }
+        // Attach masks and validation
+        setupMasksAndValidation();
+    }
 
-                    resultsDiv.innerHTML = data.map(function(client) {
-                        // Escape single quotes for HTML attribute
-                        var clientJson = JSON.stringify(client).replace(/'/g, "&#39;");
-                        return `
-                        <div class="p-4 bg-white dark:bg-slate-800 rounded-lg border-2 border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-black/20 cursor-pointer transition-all group"
-                             onclick='window.fillClientData(${clientJson})'>
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-gradient-to-br from-[#7c3aed] to-[#7c3aed] dark:from-[#7c3aed] dark:to-[#7c3aed] force-white rounded-lg flex items-center justify-center shadow-lg shadow-[#7c3aed]/20 dark:shadow-[#7c3aed]/20 group-hover:scale-110 transition-transform">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                    </svg>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-semibold text-gray-900 dark:text-white">${client.name}</div>
-                                    <div class="text-xs text-gray-600 dark:text-slate-400 mt-0.5">
-                                        ${client.phone_primary || ''} ${client.email ? '• ' + client.email : ''}
-                                    </div>
-                                </div>
-                                <div class="text-[#7c3aed] dark:text-[#7c3aed] group-hover:translate-x-1 transition-transform">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                    </svg>
+    function runClientSearch() {
+        var queryInput = document.getElementById('search-client');
+        var resultsDiv = document.getElementById('search-results');
+        if (!queryInput || !resultsDiv) return;
+
+        var query = queryInput.value;
+        if (query.length < 3) {
+            resultsDiv.innerHTML = '<p class="text-sm text-gray-500">Digite ao menos 3 caracteres para buscar</p>';
+            return;
+        }
+
+        fetch(clientSearchUrl + '?q=' + encodeURIComponent(query))
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.length === 0) {
+                    resultsDiv.innerHTML = '<p class="text-sm text-gray-500">Nenhum cliente encontrado</p>';
+                    return;
+                }
+
+                resultsDiv.innerHTML = data.map(function(client) {
+                    var clientJson = JSON.stringify(client).replace(/'/g, "&#39;");
+                    return `
+                    <div class="p-4 bg-white dark:bg-slate-800 rounded-lg border-2 border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-black/20 cursor-pointer transition-all group"
+                         onclick='window.fillClientData(${clientJson})'>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-[#7c3aed] to-[#7c3aed] rounded-lg flex items-center justify-center shadow-lg shadow-[#7c3aed]/20 group-hover:scale-110 transition-transform">
+                                <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-semibold text-gray-900 dark:text-white">${client.name}</div>
+                                <div class="text-xs text-gray-600 dark:text-slate-400 mt-0.5">
+                                    ${client.phone_primary || ''} ${client.email ? '• ' + client.email : ''}
                                 </div>
                             </div>
+                            <div class="text-[#7c3aed] dark:text-[#7c3aed] group-hover:translate-x-1 transition-transform">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
                         </div>
-                    `}).join('');
-                })
-                .catch(function(error) {
-                    console.error('Erro:', error);
-                    resultsDiv.innerHTML = '<p class="text-sm text-red-600">Erro ao buscar clientes</p>';
-                });
+                    </div>
+                `}).join('');
+            })
+            .catch(function(error) {
+                console.error('Erro:', error);
+                resultsDiv.innerHTML = '<p class="text-sm text-red-600">Erro ao buscar clientes</p>';
+            });
+    }
+    window.runClientSearch = runClientSearch;
+
+    function fillClientData(client) {
+        const safeSetValue = (id, val) => {
+            const el = document.getElementById(id);
+            if(el) el.value = val || '';
         };
 
-        window.fillClientData = function(client) {
-            const safeSetValue = (id, val) => {
-                const el = document.getElementById(id);
-                if(el) el.value = val || '';
-            };
+        safeSetValue('client_id', client.id);
+        safeSetValue('name', client.name);
+        safeSetValue('phone_primary', client.phone_primary);
+        safeSetValue('phone_secondary', client.phone_secondary);
+        safeSetValue('email', client.email);
+        safeSetValue('cpf_cnpj', client.cpf_cnpj);
+        safeSetValue('address', client.address);
+        safeSetValue('city', client.city);
+        safeSetValue('state', client.state);
+        safeSetValue('zip_code', client.zip_code);
+        safeSetValue('category', client.category);
+        
+        const resultsDiv = document.getElementById('search-results');
+        if(resultsDiv) {
+            resultsDiv.innerHTML = 
+                '<div class="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-900/20 dark:to-emerald-900/10 border-2 border-emerald-200 dark:border-emerald-800/30 rounded-xl shadow-sm">' +
+                '<div class="flex items-center space-x-3">' +
+                '<div class="w-10 h-10 bg-emerald-600 dark:bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-600/20">' +
+                '<svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' +
+                '</svg>' +
+                '</div>' +
+                '<div class="flex-1">' +
+                '<p class="text-sm font-bold text-gray-900 dark:text-white">Cliente selecionado com sucesso!</p>' +
+                '<p class="text-xs text-gray-600 dark:text-slate-400 mt-0.5">Você pode editar os dados se necessário antes de continuar.</p>' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+        }
+    }
+    window.fillClientData = fillClientData;
 
-            safeSetValue('client_id', client.id);
-            safeSetValue('name', client.name);
-            safeSetValue('phone_primary', client.phone_primary);
-            safeSetValue('phone_secondary', client.phone_secondary);
-            safeSetValue('email', client.email);
-            safeSetValue('cpf_cnpj', client.cpf_cnpj);
-            safeSetValue('address', client.address);
-            safeSetValue('city', client.city);
-            safeSetValue('state', client.state);
-            safeSetValue('zip_code', client.zip_code);
-            safeSetValue('category', client.category);
+    function setupMasksAndValidation() {
+        const patterns = {
+            phone: /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/,
+            email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            cep: /^\d{5}-?\d{3}$/
+        };
+
+        const validateField = (fieldId, regex, errorMessage) => {
+            const field = document.getElementById(fieldId);
+            if(!field) return true;
             
-            const resultsDiv = document.getElementById('search-results');
-            if(resultsDiv) {
-                resultsDiv.innerHTML = 
-                    '<div class="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-900/20 dark:to-emerald-900/10 border-2 border-emerald-200 dark:border-emerald-800/30 rounded-xl shadow-sm">' +
-                    '<div class="flex items-center space-x-3">' +
-                    '<div class="w-10 h-10 bg-emerald-600 dark:bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-600/20">' +
-                    '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' +
-                    '</svg>' +
-                    '</div>' +
-                    '<div class="flex-1">' +
-                    '<p class="text-sm font-bold text-gray-900 dark:text-white">Cliente selecionado com sucesso!</p>' +
-                    '<p class="text-xs text-gray-600 dark:text-slate-400 mt-0.5">Você pode editar os dados se necessário antes de continuar.</p>' +
-                    '</div>' +
-                    '</div>' +
-                    '</div>';
+            const value = field.value.trim();
+            const isValid = regex.test(value);
+            
+            field.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+            field.classList.add('border-gray-200', 'focus:border-[#7c3aed]', 'focus:ring-[#7c3aed]');
+            
+            const existingError = field.parentNode.querySelector('.field-error');
+            if (existingError) existingError.remove();
+            
+            if (value && !isValid) {
+                field.classList.remove('border-gray-200', 'focus:border-[#7c3aed]', 'focus:ring-[#7c3aed]');
+                field.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'field-error mt-1 text-xs text-red-600 flex items-center';
+                errorDiv.innerHTML = `<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>${errorMessage}`;
+                field.parentNode.appendChild(errorDiv);
+            }
+            return isValid;
+        };
+
+        const attachBlur = (id, pattern, msg) => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.removeEventListener('blur', el._blurHandler);
+                el._blurHandler = () => { if(el.value.trim()) validateField(id, pattern, msg); };
+                el.addEventListener('blur', el._blurHandler);
             }
         };
 
-        // Debug: verificar se o formulário está sendo enviado
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('client-form');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    // Prevent submission if already submitting
-                    if (form.dataset.submitting === 'true') {
-                        e.preventDefault();
-                        return false;
-                    }
-                    
-                    // Verificar se todos os campos obrigatórios estão preenchidos
-                    const name = document.getElementById('name').value;
-                    const phone = document.getElementById('phone_primary').value;
-                    
-                    if (!name || !phone) {
-                        console.error('Campos obrigatórios não preenchidos');
-                        e.preventDefault();
-                        return false;
-                    }
-                    
-                    // Disable button and show processing state
-                    const submitBtn = form.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.disabled = true;
-                        submitBtn.innerHTML = `
-                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Processando...
-                        `;
-                        submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
-                    }
-                    
-                    form.dataset.submitting = 'true';
-                });
+        attachBlur('phone_primary', patterns.phone, 'Formato inválido.');
+        attachBlur('phone_secondary', patterns.phone, 'Formato inválido.');
+        attachBlur('email', patterns.email, 'Email inválido.');
+        attachBlur('zip_code', patterns.cep, 'CEP inválido.');
+        
+        const applyMask = (id, masker) => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.removeEventListener('input', el._maskerHandler);
+                el._maskerHandler = masker;
+                el.addEventListener('input', el._maskerHandler);
             }
-            
-            // Buscar ao pressionar Enter
-            const searchInput = document.getElementById('search-client');
-            if(searchInput) {
-                 searchInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        window.runClientSearch();
-                    }
-                });
-            }
+        };
 
-            // Regex validation helpers
-            const validateField = (fieldId, regex, errorMessage) => {
-                const field = document.getElementById(fieldId);
-                if(!field) return true;
-                
-                const value = field.value.trim();
-                const isValid = regex.test(value);
-                
-                field.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-                field.classList.add('border-gray-300', 'focus:border-[#7c3aed]', 'focus:ring-[#7c3aed]');
-                
-                const existingError = field.parentNode.querySelector('.field-error');
-                if (existingError) existingError.remove();
-                
-                if (value && !isValid) {
-                    field.classList.remove('border-gray-300', 'focus:border-[#7c3aed]', 'focus:ring-[#7c3aed]');
-                    field.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-                    
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'field-error mt-1 text-xs text-red-600 flex items-center';
-                    errorDiv.innerHTML = `<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>${errorMessage}`;
-                    field.parentNode.appendChild(errorDiv);
-                }
-                return isValid;
-            };
+        const phoneMask = e => {
+            let v = e.target.value.replace(/\D/g,'');
+            v = v.replace(/^(\d{2})(\d)/g,"($1) $2");
+            v = v.replace(/(\d)(\d{4})$/,"$1-$2");
+            e.target.value = v.substring(0, 15);
+        };
 
-            const patterns = {
-                phone: /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/,
-                email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                cpf: /^\d{3}\.\d{3}\.\d{3}-\d{2}$/,
-                cnpj: /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/,
-                cep: /^\d{5}-?\d{3}$/
-            };
-
-            const attachBlur = (id, pattern, msg) => {
-                const el = document.getElementById(id);
-                if(el) el.addEventListener('blur', () => { if(el.value.trim()) validateField(id, pattern, msg); });
-            };
-
-            attachBlur('phone_primary', patterns.phone, 'Formato inválido.');
-            attachBlur('phone_secondary', patterns.phone, 'Formato inválido.');
-            attachBlur('email', patterns.email, 'Email inválido.');
-            attachBlur('zip_code', patterns.cep, 'CEP inválido.');
-            
-            // Masks
-            const applyMask = (id, masker) => {
-                const el = document.getElementById(id);
-                if(el) el.addEventListener('input', masker);
-            };
-
-            applyMask('phone_primary', e => {
-                let v = e.target.value.replace(/\D/g,'');
-                v = v.replace(/^(\d{2})(\d)/g,"($1) $2");
-                v = v.replace(/(\d)(\d{4})$/,"$1-$2");
-                e.target.value = v.substring(0, 15);
-            });
-             applyMask('phone_secondary', e => {
-                let v = e.target.value.replace(/\D/g,'');
-                v = v.replace(/^(\d{2})(\d)/g,"($1) $2");
-                v = v.replace(/(\d)(\d{4})$/,"$1-$2");
-                e.target.value = v.substring(0, 15);
-            });
-            
-             // Simple CPF/CNPJ Mask logic
-             applyMask('cpf_cnpj', e => {
-                 // Basic simplistic mask behavior or use library if available
-             });
-             
-             applyMask('zip_code', e => {
-                let v = e.target.value.replace(/\D/g,'');
-                v = v.replace(/^(\d{5})(\d)/,"$1-$2");
-                e.target.value = v.substring(0, 9);
-             });
+        applyMask('phone_primary', phoneMask);
+        applyMask('phone_secondary', phoneMask);
+        
+        applyMask('zip_code', e => {
+            let v = e.target.value.replace(/\D/g,'');
+            v = v.replace(/^(\d{5})(\d)/,"$1-$2");
+            e.target.value = v.substring(0, 9);
         });
- </script>
+    }
+
+    // Expose initialization for AJAX loading
+    window._clientInitSetup = function() {
+        document.removeEventListener('ajax-content-loaded', initClientPage);
+        document.addEventListener('ajax-content-loaded', initClientPage);
+    };
+    window._clientInitSetup();
+
+    // Also run on DOMContentLoaded for initial load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initClientPage);
+    } else {
+        initClientPage();
+    }
+})();
+</script>
+@endpush
 @endsection

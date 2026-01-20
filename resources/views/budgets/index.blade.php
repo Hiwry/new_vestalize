@@ -8,10 +8,21 @@
             <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Orçamentos</h1>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Gerencie todos os orçamentos</p>
         </div>
-        <a href="{{ route('budget.start') }}" 
-           class="w-full md:w-auto px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition text-center shadow-sm">
-            + Novo Orçamento
-        </a>
+        <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+            <a href="{{ route('budget.quick-create') }}" 
+               class="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-md hover:from-emerald-600 hover:to-teal-700 transition shadow-sm font-medium"
+               style="color: #fff !important;">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                Orçamento Rápido
+            </a>
+            <a href="{{ route('budget.start') }}" 
+               class="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 rounded-md hover:bg-indigo-700 transition shadow-sm"
+               style="color: #fff !important;">
+                + Novo Orçamento
+            </a>
+        </div>
     </div>
 
     @if(session('success'))
@@ -94,7 +105,14 @@
                 <div class="flex justify-between items-start mb-3">
                     <div>
                         <span class="text-xs font-bold text-gray-500 dark:text-gray-400">#{{ str_pad($budget->id, 6, '0', STR_PAD_LEFT) }}</span>
-                        <h3 class="font-semibold text-gray-900 dark:text-gray-100">{{ $budget->client->name }}</h3>
+                        <h3 class="font-semibold text-gray-900 dark:text-gray-100">
+                            @if($budget->is_quick)
+                                {{ $budget->contact_name ?? 'Cliente' }}
+                                <span class="ml-1 px-1.5 py-0.5 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded">⚡ Rápido</span>
+                            @else
+                                {{ $budget->client->name ?? 'Cliente' }}
+                            @endif
+                        </h3>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Criado em {{ $budget->created_at->format('d/m/Y') }}</p>
                     </div>
                     <div class="text-right space-y-1">
@@ -190,7 +208,12 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                            {{ $budget->client->name }}
+                            @if($budget->is_quick)
+                                {{ $budget->contact_name ?? 'Contato' }}
+                                <span class="ml-1 px-1.5 py-0.5 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded">⚡</span>
+                            @else
+                                {{ $budget->client->name ?? 'Cliente' }}
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                             {{ $budget->created_at->format('d/m/Y') }}

@@ -47,7 +47,12 @@ class ClientController extends Controller
     public function getProductOptionsWithParents(): JsonResponse
     {
         $options = [
-            'personalizacao' => ProductOption::where('type', 'personalizacao')->where('active', true)->orderBy('order')->get(),
+            'personalizacao' => ProductOption::where('type', 'personalizacao')->where('active', true)->orderBy('order')->get()->map(function($item) {
+                return [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                ];
+            }),
             'tecido' => ProductOption::with('parents')->where('type', 'tecido')->where('active', true)->orderBy('order')->get()->map(function($item) {
                 return [
                     'id' => $item->id,

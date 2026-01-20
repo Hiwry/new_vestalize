@@ -241,9 +241,9 @@
     </div>
 </div>
 
-@push('scripts')
+@push('page-scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+(function() {
     const checkboxes = document.querySelectorAll('.personalization-checkbox');
     const continueBtn = document.getElementById('continue-btn');
     const selectionInfo = document.getElementById('selection-info');
@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Selecione pelo menos um tipo de personalização.');
         }
     });
-});
+})();
 </script>
 @endpush
 @endsection

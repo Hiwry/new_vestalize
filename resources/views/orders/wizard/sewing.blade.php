@@ -1,6 +1,58 @@
 @extends('layouts.admin')
 
 @section('content')
+<script>
+(function() {
+    function initSewingPage() {
+        console.log('Initializing Sewing Page...');
+        if (typeof window.loadOptions === 'function') window.loadOptions();
+        if (typeof window.initSublimationForm === 'function') window.initSublimationForm();
+        
+        // Form submit handler
+        const form = document.getElementById('sewing-form');
+        if (form && !form.dataset.listenerAttached) {
+            form.addEventListener('submit', function(e) {
+                if (typeof window.handleSewingFormSubmit === 'function') {
+                    window.handleSewingFormSubmit(e);
+                }
+            });
+            form.dataset.listenerAttached = 'true';
+        }
+
+        // Size input listeners
+        document.querySelectorAll('input[name^="tamanhos"]').forEach(input => {
+            input.addEventListener('change', function() {
+                if (typeof window.calculateTotal === 'function') {
+                    window.calculateTotal();
+                }
+            });
+        });
+
+        // Wizard size input listeners
+        document.querySelectorAll('.wizard-size-input').forEach(input => {
+            input.addEventListener('input', function() {
+                if (typeof window.calculateWizardTotal === 'function') {
+                    window.calculateWizardTotal();
+                }
+            });
+        });
+    }
+
+    // Expose initialization for AJAX loading
+    window._sewingInitSetup = function() {
+        document.removeEventListener('ajax-content-loaded', initSewingPage);
+        document.addEventListener('ajax-content-loaded', initSewingPage);
+    };
+    window._sewingInitSetup();
+
+    // Also run on DOMContentLoaded for initial load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSewingPage);
+    } else {
+        initSewingPage();
+    }
+})();
+</script>
 <style>
 /* Animações Premium */
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -34,7 +86,7 @@
     <div class="mb-6 sm:mb-8 animate-fade-in-up">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#7c3aed] text-white rounded-xl sm:rounded-2xl flex items-center justify-center text-sm sm:text-base font-black shadow-xl shadow-purple-500/30 animate-float">2</div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#7c3aed] text-white stay-white rounded-xl sm:rounded-2xl flex items-center justify-center text-sm sm:text-base font-black shadow-xl shadow-purple-500/30 animate-float">2</div>
                 <div>
                     <span class="text-base sm:text-xl font-black text-gray-900 dark:text-white">Costura e <span class="text-[#7c3aed]">Personalização</span></span>
                     <p class="text-[10px] sm:text-xs text-gray-500 dark:text-slate-400 mt-0.5 font-bold uppercase tracking-widest">Etapa 2 de 5</p>
@@ -62,7 +114,7 @@
     @if(session('success'))
     <div class="mb-4 sm:mb-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg animate-fade-in-up">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-green-500/30">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white stay-white shrink-0 shadow-lg shadow-green-500/30">
                 <i class="fa-solid fa-check text-xs sm:text-sm"></i>
             </div>
             <p class="text-xs sm:text-sm font-bold text-green-800 dark:text-green-300">{{ session('success') }}</p>
@@ -73,7 +125,7 @@
     @if(session('error'))
     <div class="mb-4 sm:mb-6 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 border border-red-200 dark:border-red-800/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg animate-fade-in-up">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-red-500/30">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center text-white stay-white shrink-0 shadow-lg shadow-red-500/30">
                 <i class="fa-solid fa-xmark text-xs sm:text-sm"></i>
             </div>
             <p class="text-xs sm:text-sm font-bold text-red-800 dark:text-red-300">{{ session('error') }}</p>
@@ -88,8 +140,8 @@
                 <!-- Header Premium -->
                 <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 dark:border-slate-800 bg-white dark:from-slate-800/50 dark:to-slate-900/50">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/10 border border-gray-200 dark:border-slate-700">
-                            <i class="fa-solid fa-plus text-[#7c3aed] text-sm sm:text-base"></i>
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#7c3aed] rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30 border border-[#7c3aed]">
+                            <i class="fa-solid fa-plus text-white stay-white text-sm sm:text-base"></i>
                         </div>
                         <div>
                             <h1 class="text-base sm:text-xl font-black text-gray-900 dark:text-white" id="form-title">Adicionar Novo Item</h1>
@@ -392,7 +444,7 @@
                                                         </div>
                                                     </div>
 
-                                                    <button type="button" onclick="submitSewingWizard()" class="w-full py-4 mt-6 bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all transform hover:scale-[1.02]">
+                                                    <button type="button" onclick="submitSewingWizard()" class="w-full py-4 mt-6 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all transform hover:scale-[1.02]">
                                                         Confirmar e Adicionar Item
                                                     </button>
                                                 </div>
@@ -406,7 +458,7 @@
                                                 ← Voltar
                                             </button>
                                             <div class="flex gap-2">
-                                                <button type="button" id="wizard-next-btn" onclick="wizardNextStep()" class="px-6 py-2 bg-[#7c3aed] hover:bg-[#6d28d9] text-white text-sm font-bold rounded-lg transition-all shadow-md shadow-purple-500/20">
+                                                <button type="button" id="wizard-next-btn" onclick="wizardNextStep()" class="px-6 py-2 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white text-sm font-bold rounded-lg transition-all shadow-md shadow-purple-500/20">
                                                     Próximo
                                                 </button>
                                             </div>
@@ -445,7 +497,7 @@
                     <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 font-medium transition-colors">
                         Cancelar
                     </button>
-                    <button type="button" onclick="confirmDelete()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium shadow-lg shadow-red-500/30 transition-all transform hover:scale-105">
+                    <button type="button" onclick="confirmDelete()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white stay-white rounded-lg font-medium shadow-lg shadow-red-500/30 transition-all transform hover:scale-105">
                         Sim, Remover
                     </button>
                 </div>
@@ -458,1066 +510,1100 @@
 @include('orders.wizard.partials.sublimation_modal')
 @endif
 
-@push('scripts')
+@push('page-scripts')
 <script>
-        // Options for Wizard
-        let options = {
-            tecido: @json($fabrics ?? []),
-            cor: @json($colors ?? []),
-            personalizacao: @json($personalizationOptions ?? [])
-        };
-        
-        const storageUrl = "{{ asset('storage') }}/";
+(function() {
+    // Options for Wizard
+    let options = {
+        tecido: @json($fabrics ?? []),
+        cor: @json($colors ?? []),
+        personalizacao: @json($personalizationOptions ?? [])
+    };
+    window.options = options;
+    
+    const storageUrl = "{{ asset('storage') }}/";
+    window.storageUrl = storageUrl;
 
-        // Ícones e cores específicos por tipo de personalização
-        const personalizationIconMap = {
-            dtf:            { icon: 'fa-print',        bubble: 'bg-orange-100 dark:bg-orange-900/30',  color: 'text-orange-600 dark:text-orange-400' },
-            serigrafia:     { icon: 'fa-fill-drip',    bubble: 'bg-indigo-100 dark:bg-indigo-900/30',  color: 'text-indigo-600 dark:text-indigo-400' },
-            bordado:        { icon: 'fa-pen-nib',      bubble: 'bg-pink-100 dark:bg-pink-900/30',      color: 'text-pink-600 dark:text-pink-400' },
-            emborrachado:   { icon: 'fa-cubes',        bubble: 'bg-emerald-100 dark:bg-emerald-900/30',color: 'text-emerald-600 dark:text-emerald-400' },
-            sub_local:      { icon: 'fa-layer-group',  bubble: 'bg-purple-100 dark:bg-purple-900/30',  color: 'text-purple-600 dark:text-purple-400' },
-            sub_total:      { icon: 'fa-image',        bubble: 'bg-cyan-100 dark:bg-cyan-900/30',      color: 'text-cyan-700 dark:text-cyan-300' },
-            lisas:          { icon: 'fa-shirt',        bubble: 'bg-gray-100 dark:bg-slate-800',        color: 'text-gray-600 dark:text-gray-300' },
-            default:        { icon: 'fa-shirt',        bubble: 'bg-gray-100 dark:bg-slate-800',        color: 'text-[#7c3aed] dark:text-[#7c3aed]' }
-        };
+    // Ícones e cores específicos por tipo de personalização
+    const personalizationIconMap = {
+        dtf:            { icon: 'fa-print',        bubble: 'bg-orange-100 dark:bg-orange-900/30',  color: 'text-orange-600 dark:text-orange-400' },
+        serigrafia:     { icon: 'fa-fill-drip',    bubble: 'bg-indigo-100 dark:bg-indigo-900/30',  color: 'text-indigo-600 dark:text-indigo-400' },
+        bordado:        { icon: 'fa-pen-nib',      bubble: 'bg-pink-100 dark:bg-pink-900/30',      color: 'text-pink-600 dark:text-pink-400' },
+        emborrachado:   { icon: 'fa-cubes',        bubble: 'bg-emerald-100 dark:bg-emerald-900/30',color: 'text-emerald-600 dark:text-emerald-400' },
+        sub_local:      { icon: 'fa-layer-group',  bubble: 'bg-purple-100 dark:bg-purple-900/30',  color: 'text-purple-600 dark:text-purple-400' },
+        sub_total:      { icon: 'fa-image',        bubble: 'bg-cyan-100 dark:bg-cyan-900/30',      color: 'text-cyan-700 dark:text-cyan-300' },
+        lisas:          { icon: 'fa-shirt',        bubble: 'bg-gray-100 dark:bg-slate-800',        color: 'text-gray-600 dark:text-gray-300' },
+        default:        { icon: 'fa-shirt',        bubble: 'bg-gray-100 dark:bg-slate-800',        color: 'text-[#7c3aed] dark:text-[#7c3aed]' }
+    };
+    window.personalizationIconMap = personalizationIconMap;
 
-        @php
-            $safeSublimationTypes = isset($sublimationTypes) 
-                ? $sublimationTypes->map(fn($t) => ['slug' => $t->slug, 'name' => $t->name])->values()
-                : [];
-            $safePreselectedTypes = $preselectedTypes ?? [];
-        @endphp
+    // Mapa de cores conhecidas por nome
+    const colorNameToHex = {
+        'preto': '#000000', 'black': '#000000',
+        'branco': '#FFFFFF', 'white': '#FFFFFF',
+        'azul': '#2563EB', 'blue': '#2563EB', 'azul marinho': '#1E3A5F', 'azul royal': '#4169E1', 'azul celeste': '#87CEEB', 'azul turquesa': '#40E0D0',
+        'vermelho': '#DC2626', 'red': '#DC2626', 'vermelho escuro': '#8B0000', 'bordô': '#800020', 'vinho': '#722F37',
+        'verde': '#16A34A', 'green': '#16A34A', 'verde limão': '#32CD32', 'verde escuro': '#006400', 'verde musgo': '#8A9A5B', 'verde militar': '#4B5320', 'verde água': '#66CDAA',
+        'amarelo': '#F59E0B', 'yellow': '#F59E0B', 'amarelo ouro': '#FFD700', 'mostarda': '#FFDB58',
+        'laranja': '#EA580C', 'orange': '#EA580C',
+        'rosa': '#EC4899', 'pink': '#EC4899', 'rosa claro': '#FFB6C1', 'rosa pink': '#FF69B4', 'rosa bebê': '#F4C2C2',
+        'roxo': '#7C3AED', 'purple': '#7C3AED', 'violeta': '#8B5CF6', 'lilás': '#C8A2C8',
+        'cinza': '#6B7280', 'gray': '#6B7280', 'grey': '#6B7280', 'cinza claro': '#D1D5DB', 'cinza escuro': '#374151', 'cinza mescla': '#9CA3AF', 'mescla': '#9CA3AF', 'chumbo': '#36454F',
+        'marrom': '#92400E', 'brown': '#92400E', 'café': '#6F4E37', 'chocolate': '#7B3F00', 'caramelo': '#FFD59A', 'bege': '#F5F5DC',
+        'nude': '#E3BC9A', 'salmão': '#FA8072', 'coral': '#FF7F50', 'creme': '#FFFDD0', 'off-white': '#FAF9F6',
+        'dourado': '#FFD700', 'gold': '#FFD700', 'prata': '#C0C0C0', 'silver': '#C0C0C0',
+        'cyan': '#06B6D4', 'ciano': '#06B6D4', 'magenta': '#D946EF', 'fucsia': '#FF00FF'
+    };
+    window.colorNameToHex = colorNameToHex;
 
-        // SUB. TOTAL - Dados e Configurações
-        const sublimationEnabled = {{ isset($sublimationEnabled) && $sublimationEnabled ? 'true' : 'false' }};
-        const sublimationTypes = @json($safeSublimationTypes);
-        let sublimationAddonsCache = {};
-        
-        // Tipos de personalização pré-selecionados na etapa anterior
-        const preselectedPersonalizationTypes = @json($safePreselectedTypes);
+    function getColorHex(colorName) {
+        if (!colorName) return '#ccc';
+        const normalized = colorName.toLowerCase().trim();
+        return colorNameToHex[normalized] || '#ccc';
+    }
+    window.getColorHex = getColorHex;
 
-        let itemToDeleteId = null;
+    @php
+        $safeSublimationTypes = isset($sublimationTypes) 
+            ? $sublimationTypes->map(fn($t) => ['slug' => $t->slug, 'name' => $t->name])->values()
+            : [];
+        $safePreselectedTypes = $preselectedTypes ?? [];
+    @endphp
 
-        function openDeleteModal(itemId) {
-            itemToDeleteId = itemId;
-            document.getElementById('delete-modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
-        }
+    // SUB. TOTAL - Dados e Configurações
+    const sublimationEnabled = {{ isset($sublimationEnabled) && $sublimationEnabled ? 'true' : 'false' }};
+    window.sublimationEnabled = sublimationEnabled;
+    const sublimationTypes = @json($safeSublimationTypes);
+    window.sublimationTypes = sublimationTypes;
+    let sublimationAddonsCache = {};
+    window.sublimationAddonsCache = sublimationAddonsCache;
+    
+    // Tipos de personalização pré-selecionados na etapa anterior
+    const preselectedPersonalizationTypes = @json($safePreselectedTypes);
+    window.preselectedPersonalizationTypes = preselectedPersonalizationTypes;
 
-        function closeDeleteModal() {
-            document.getElementById('delete-modal').classList.add('hidden');
-            document.body.style.overflow = 'auto'; // Restore scrolling
-            itemToDeleteId = null;
-        }
+    let itemToDeleteId = null;
 
-        // Variável global para dados dos itens (agora 'let' para permitir atualização)
-        let itemsData = {!! json_encode($order->items->toArray()) !!};
+    function openDeleteModal(itemId) {
+        itemToDeleteId = itemId;
+        const modal = document.getElementById('delete-modal');
+        if (modal) modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; 
+    }
+    window.openDeleteModal = openDeleteModal;
 
-        async function confirmDelete() {
-            if (!itemToDeleteId) return;
+    function closeDeleteModal() {
+        const modal = document.getElementById('delete-modal');
+        if (modal) modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        itemToDeleteId = null;
+    }
+    window.closeDeleteModal = closeDeleteModal;
 
-            const btn = document.querySelector('#delete-modal button.bg-red-600');
-            const originalText = btn.innerText;
+    // Variável global para dados dos itens
+    let itemsData = {!! json_encode($order->items->toArray()) !!};
+    window.itemsData = itemsData;
+
+    async function confirmDelete() {
+        if (!itemToDeleteId) return;
+
+        const btn = document.querySelector('#delete-modal button.bg-red-600');
+        const originalText = btn ? btn.innerText : 'Sim, Remover';
+        if (btn) {
             btn.innerHTML = 'Removendo...';
             btn.disabled = true;
+        }
 
-            try {
-                const formData = new FormData();
-                formData.append('action', 'delete_item');
-                formData.append('item_id', itemToDeleteId);
-                formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+        try {
+            const formData = new FormData();
+            formData.append('action', 'delete_item');
+            formData.append('item_id', itemToDeleteId);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
-                const response = await fetch("{{ route('orders.wizard.sewing') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: formData
-                });
+            const response = await fetch("{{ route('orders.wizard.sewing') }}", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
 
-                const data = await response.json();
+            const data = await response.json();
 
-                if (data.success) {
-                    // Atualizar HTML da sidebar
-                    document.getElementById('items-sidebar-container').innerHTML = data.html;
-                    
-                    // Atualizar dados dos itens
-                    if (data.items_data) {
-                        itemsData = data.items_data;
-                    }
-                    
-                    // Fechar modal
-                    closeDeleteModal();
-                    
-                    // Mostrar toast/notificação de sucesso (opcional)
-                    // alert(data.message); 
-                } else {
-                    alert('Erro ao remover item: ' + (data.message || 'Erro desconhecido'));
+            if (data.success) {
+                // Atualizar HTML da sidebar
+                const sidebar = document.getElementById('items-sidebar-container');
+                if (sidebar) sidebar.innerHTML = data.html;
+                
+                // Atualizar dados dos itens
+                if (data.items_data) {
+                    itemsData = data.items_data;
+                    window.itemsData = itemsData;
                 }
-            } catch (error) {
-                console.error('Erro na exclusão:', error);
-                alert('Erro ao processar a exclusão.');
-            } finally {
+                
+                closeDeleteModal();
+            } else {
+                alert('Erro ao remover item: ' + (data.message || 'Erro desconhecido'));
+            }
+        } catch (error) {
+            console.error('Erro na exclusão:', error);
+            alert('Erro ao processar a exclusão.');
+        } finally {
+            if (btn) {
                 btn.innerText = originalText;
                 btn.disabled = false;
             }
         }
+    }
+    window.confirmDelete = confirmDelete;
 
-        document.getElementById('sewing-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const form = this;
-            if (form.dataset.submitting === 'true') return;
-
-            // Validação atualizada para o Wizard
-            const personalizacaoInputs = document.querySelectorAll('input[name="personalizacao[]"]');
-            
-            if (personalizacaoInputs.length === 0) {
-                 // Fallback check for preselected (edit mode)
-                 const preselected = document.querySelectorAll('.preselected-personalization');
-                 if (preselected.length === 0) {
-                     alert('Por favor, selecione pelo menos uma personalização.');
-                     return;
-                 }
-            }
-
-            const quantity = parseInt(document.getElementById('quantity').value || 0); // Ensure val or 0
-             // Get total quantity from inputs if quantity hidden is not updated (it should be by calculateTotal)
-            
-            if (quantity === 0) {
-                 // Check if any size input has value > 0
-                 let hasSize = false;
-                 document.querySelectorAll('input[name^="tamanhos"]').forEach(i => {
-                     if(parseInt(i.value) > 0) hasSize = true;
-                 });
-                 if (!hasSize) {
-                     alert('Por favor, adicione pelo menos uma peça nos tamanhos.');
-                     return;
-                 }
-            }
-
-            // UI de processamento
-            const submitBtn = document.getElementById('submit-button');
-            let originalText = '';
-            if (submitBtn) {
-                originalText = submitBtn.innerText;
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = `
-                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processando...
-                `;
-            }
-            form.dataset.submitting = 'true';
-
-            try {
-                const formData = new FormData(form);
-                
-                // Garantir que headers de AJAX sejam enviados
-                const actionUrl = form.dataset.actionUrl || form.getAttribute('action');
-                console.log('Submitting sewing form to:', actionUrl);
-                const response = await fetch(actionUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    const text = await response.text();
-                    console.error('Erro HTTP na submissão:', response.status, text);
-                    alert('Erro ao salvar item: ' + (response.statusText || 'erro HTTP'));
-                    return;
-                }
-
-                const rawText = await response.text();
-                let data;
-                try {
-                    data = JSON.parse(rawText);
-                } catch (parseError) {
-                    console.error('Erro ao interpretar resposta JSON:', parseError, rawText);
-                    alert('Erro ao salvar item: resposta inválida do servidor.');
-                    return;
-                }
-
-                if (data.success) {
-                    // Atualizar HTML da sidebar
-                    if (data.html) {
-                        document.getElementById('items-sidebar-container').innerHTML = data.html;
-                    }
-
-                    // Atualizar dados dos itens
-                    if (data.items_data) {
-                        itemsData = data.items_data;
-                    }
-
-                    // Limpar formulário se foi uma adição (não edição)
-                    const action = document.getElementById('form-action').value;
-                    if (action === 'add_item') {
-                        cancelEdit(); // Helper que reseta o form
-                    } else {
-                        cancelEdit(); // Sai do modo de edição
-                        // Mostrar mensagem específica de atualização
-                    }
-
-                    // Scroll para o topo ou feedback visual
-                    // Opcional: mostrar toast
-                    window.location.reload(); // garante que o item apareÇa mesmo se a atualizaÇõÇœo via JS falhar
-                    
-                } else {
-                     // Lidar com erros de validação (se o servidor retornar JSON de erro 422)
-                     if (data.errors) {
-                         let msg = 'Erros de validação:\n';
-                         for (let field in data.errors) {
-                             msg += `- ${data.errors[field].join(', ')}\n`;
-                         }
-                         alert(msg);
-                     } else {
-                         alert(data.message || 'Erro ao salvar item.');
-                     }
-                }
-
-            } catch (error) {
-                console.error('Erro no envio:', error);
-                alert('Ocorreu um erro ao processar sua solicitação.');
-            } finally {
-                // Restaurar botão
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = document.getElementById('form-action').value === 'update_item' ? 'Salvar Alterações' : 'Adicionar Item';
-                }
-                form.dataset.submitting = 'false';
-            }
-        });
-
-        let optionsWithParents = {};
-
-        document.addEventListener('DOMContentLoaded', function() {
-            loadOptions();
-        });
-
-        function loadOptions() {
-            fetch('/api/product-options')
-                .then(response => response.json())
-                .then(data => {
-                    options = data;
-                    return fetch('/api/product-options-with-parents');
-                })
-                .then(response => response.json())
-                .then(data => {
-                    optionsWithParents = data;
-                    console.log('Options loaded.');
-                    // Pre-load logic if needed or just wait for wizard open
-                })
-                .catch(error => {
-                    console.error('Erro ao carregar opções:', error);
-                });
-        }
-
-        // (Funções de renderização legadas removidas e substituídas pelo Wizard JS)
+    async function handleSewingFormSubmit(e) {
+        if (e) e.preventDefault();
         
-        async function loadStockByCutType() {
-            // (Esta função era usada pelo sistema antigo, mas o Wizard reimplantou sua própria versão ou usa esta se compatível)
-            // O Wizard chama loadStockByCutType(), então devemos manter esta função se ela não foi duplicada.
-            // Verificando minha edição anterior: Eu NÃO incluí loadStockByCutType no bloco do wizard.
-            // Onde está loadStockByCutType agora?
-            // Está nas linhas 1106-1183 do original.
-            // Se eu remover tudo até 1186, eu vou remover loadStockByCutType!
-            // ERRO NO PLANO: loadStockByCutType é necessário.
-            // Vou Abortar a remoção neste bloco e fazer uma remoção mais seletiva.
-        }
+        const form = document.getElementById('sewing-form');
+        if (!form || form.dataset.submitting === 'true') return;
 
-        // (Funções legadas removidas: togglePersonalizacao, renderTecidos, etc.)
+        // Validação atualizada para o Wizard
+        const personalizacaoInputs = document.querySelectorAll('input[name="personalizacao[]"]');
         
-        // --- FUNÇõES UTILITÁRIAS MANTIDAS ---
-        
-        // Buscar estoque por tipo de corte
-        async function loadStockByCutType() {
-            const cutTypeId = document.getElementById('tipo_corte')?.value;
-            
-            if (!cutTypeId) {
-                const stockSection = document.getElementById('stock-info-section');
-                if (stockSection) stockSection.classList.add('hidden');
-                return;
-            }
-            
-            try {
-                const params = new URLSearchParams({
-                    cut_type_id: cutTypeId
-                });
-                
-                const response = await fetch(`/api/stocks/by-cut-type?${params}`);
-                const data = await response.json();
-                
-                const stockSection = document.getElementById('stock-info-section');
-                const stockBySize = document.getElementById('stock-by-size');
-                
-                if (data.success && data.stock_by_size && data.stock_by_size.length > 0) {
-                    let html = '';
-                    data.stock_by_size.forEach(item => {
-                        const hasStock = item.available > 0;
-                        const bgColor = hasStock ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600';
-                        
-                        // Mostrar detalhes por loja
-                        let storeDetails = '';
-                        if (item.stores && item.stores.length > 0) {
-                            storeDetails = item.stores.map(store => {
-                                const storeHasStock = store.available > 0;
-                                const storeColor = storeHasStock ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500';
-                                const storeBg = storeHasStock ? 'bg-green-100 dark:bg-green-900/40' : 'bg-gray-100 dark:bg-gray-600';
-                                return `<span class="ml-2 px-2 py-0.5 text-xs rounded ${storeBg} ${storeColor}" title="${store.store_name}">
-                                    ${store.store_name.replace('Loja ', '')}: ${store.available}${store.reserved > 0 ? ' (R:' + store.reserved + ')' : ''}
-                                </span>`;
-                            }).join('');
-                        }
-                        
-                        html += `
-                            <div class="p-2 ${bgColor} rounded border">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">${item.size}:</span>
-                                    ${hasStock ? `
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200">
-                                            ✓ ${item.available} total
-                                        </span>
-                                    ` : `
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200">
-                                            ✗ Sem estoque
-                                        </span>
-                                    `}
-                                </div>
-                                <div class="flex flex-wrap gap-1 mt-1">
-                                    ${storeDetails}
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    if (stockSection && stockBySize) {
-                        stockSection.classList.remove('hidden');
-                        stockBySize.innerHTML = html;
-                    }
-                } else {
-                    if (stockSection) {
-                        stockSection.classList.remove('hidden');
-                        if (stockBySize) {
-                            stockBySize.innerHTML = '<p class="text-sm text-yellow-600 dark:text-yellow-400 text-center py-2">⚠ Nenhum estoque cadastrado para este produto</p>';
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Erro ao buscar estoque:', error);
-                const stockSection = document.getElementById('stock-info-section');
-                if (stockSection) stockSection.classList.add('hidden');
-            }
-        }
-        
-        // Adicionar listeners para mudanças nos tamanhos
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('input[name^="tamanhos"]').forEach(input => {
-                input.addEventListener('change', function() {
-                    calculateTotal();
-                });
-            });
-            
-            // Listeners para recálculo de custo
-
-        });
-
-
-
-        // --- SEWING WIZARD LOGIC (11 Steps) ---
-        let wizardCurrentStep = 1;
-        const wizardTotalSteps = 11; 
-        const isAdmin = @json(auth()->user()->isAdmin());
-        
-        let wizardData = {
-            tecido: null,
-            tipo_tecido: null,
-            cor: null,
-            tipo_corte: null,
-            detalhe: null,
-            detail_color: null,
-            gola: null,
-            collar_color: null,
-            personalizacao: [], // Array of IDs
-            image: null,
-            notes: '',
-            sizes: {}, // {PP: 5, M: 2 ...}
-            unit_cost: 0
-        };
-
-        // Global filter for subsequent steps
-        let selectedPersonalizacoes = [];
-
-        function openSewingWizard() {
-            document.getElementById('sewing-wizard-modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            // Initialize or Restore State?
-            // For now, simple reset if empty, or keep state if editing
-            if (!wizardData.tecido && document.getElementById('tecido_hidden').value) {
-                // TODO: Load from hidden inputs if editing an existing item (Edit Mode)
-                // This would require parsing the hidden inputs back into wizardData
-            }
-            
-            // Start or Update UI
-            updateWizardUI();
-        }
-
-        function closeSewingWizard() {
-            document.getElementById('sewing-wizard-modal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-
-        function wizardNextStep() {
-            if (!validateStep(wizardCurrentStep)) return;
-
-            if (wizardCurrentStep < wizardTotalSteps) {
-                // Skip logic for Detail Color
-                if (wizardCurrentStep === 5) {
-                    const isDifferentDetail = document.getElementById('different_detail_color_cb').checked;
-                    const detail = wizardData.detalhe;
-                    // Skip Step 6 if no detail or same color as fabric requested
-                    if (!detail || detail.name.toLowerCase().includes('sem') || !isDifferentDetail) {
-                        wizardData.detail_color = wizardData.cor;
-                        wizardCurrentStep += 2; // Jump to Step 7 (Gola)
-                        loadWizardOptionsForStep(wizardCurrentStep);
-                        updateWizardUI();
-                        return;
-                    }
-                }
-
-                // Skip logic for Collar Color
-                if (wizardCurrentStep === 7) {
-                    const isDifferentCollar = document.getElementById('different_collar_color_cb').checked;
-                    const gola = wizardData.gola;
-                    // Skip Step 8 if no collar or same color as fabric requested
-                    if (!gola || gola.name.toLowerCase().includes('sem') || !isDifferentCollar) {
-                        wizardData.collar_color = wizardData.cor;
-                        wizardCurrentStep += 2; // Jump to Step 9 (Tamanhos)
-                        loadWizardOptionsForStep(wizardCurrentStep);
-                        updateWizardUI();
-                        return;
-                    }
-                }
-
-                wizardCurrentStep++;
-                loadWizardOptionsForStep(wizardCurrentStep);
-                updateWizardUI();
-            }
-        }
-
-        function wizardPrevStep() {
-            if (wizardCurrentStep > 1) {
-                // Skip logic backward for Detail Color
-                if (wizardCurrentStep === 7) {
-                    const isDifferentDetail = document.getElementById('different_detail_color_cb').checked;
-                    const detail = wizardData.detalhe;
-                    if (!detail || detail.name.toLowerCase().includes('sem') || !isDifferentDetail) {
-                        wizardCurrentStep -= 2; // Go back to Step 5 (Detalhe)
-                        updateWizardUI();
-                        return;
-                    }
-                }
-
-                // Skip logic backward for Sizes
-                if (wizardCurrentStep === 9) {
-                    const isDifferentCollar = document.getElementById('different_collar_color_cb').checked;
-                    const gola = wizardData.gola;
-                    if (!gola || gola.name.toLowerCase().includes('sem') || !isDifferentCollar) {
-                        wizardCurrentStep -= 2; // Go back to Step 7 (Gola)
-                        updateWizardUI();
-                        return;
-                    }
-                }
-
-                wizardCurrentStep--;
-                updateWizardUI();
-            }
-        }
-        
-        function validateStep(step) {
-            if (step === 1) { // Personalização
-                 if (!wizardData.personalizacao || wizardData.personalizacao.length === 0) {
-                     alert('Selecione pelo menos uma personalização.');
-                     return false;
-                 }
-            }
-            if (step === 2) { // Tecido
-                if (!wizardData.tecido) {
-                    alert('Selecione um tecido para continuar.');
-                    return false;
-                }
-            }
-            if (step === 3) { // Cor
-                if (!wizardData.cor) {
-                    alert('Selecione uma cor para continuar.');
-                    return false;
-                }
-            }
-            if (step === 4) { // Corte
-                 if (!wizardData.tipo_corte) {
-                    alert('Selecione um tipo de corte.');
-                    return false;
-                }
-            }
-            if (step === 9) { // Sizes
-                const total = calculateWizardTotal();
-                if (total <= 0) {
-                    alert('Informe a quantidade de peças (pelo menos 1).');
-                    return false;
-                }
-                wizardData.sizes = {};
-                document.querySelectorAll('.wizard-size-input').forEach(input => {
-                    const val = parseInt(input.value) || 0;
-                    if(val > 0) wizardData.sizes[input.dataset.size] = val;
-                });
-            }
-            return true;
-        }
-
-        function updateWizardUI() {
-            // Update Title
-            const titles = [
-                "Personalização", "Tecido", "Cor do Tecido", "Modelo", "Detalhe", "Cor do Detalhe", 
-                "Gola", "Cor da Gola", "Tamanhos", "Imagem / Obs", "Resumo"
-            ];
-            document.getElementById('wizard-step-title').textContent = `${titles[wizardCurrentStep-1]} (Etapa ${wizardCurrentStep} de ${wizardTotalSteps})`;
-            
-            // Progress Bar
-            const progress = (wizardCurrentStep / wizardTotalSteps) * 100;
-            document.getElementById('wizard-progress').style.width = `${progress}%`;
-
-            // Toggle Steps
-            for (let i = 1; i <= wizardTotalSteps; i++) {
-                const stepEl = document.getElementById(`step-${i}`);
-                if (stepEl) {
-                    if (i === wizardCurrentStep) {
-                        stepEl.classList.remove('hidden');
-                        loadWizardOptionsForStep(wizardCurrentStep);
-                    } else {
-                        stepEl.classList.add('hidden');
-                    }
-                }
-            }
-            
-            // Update Prev Button
-            const prevBtn = document.getElementById('wizard-prev-btn');
-            const nextBtn = document.getElementById('wizard-next-btn');
-            
-            if (prevBtn) {
-                prevBtn.disabled = wizardCurrentStep === 1;
-                prevBtn.classList.toggle('opacity-50', wizardCurrentStep === 1);
-                prevBtn.classList.toggle('cursor-not-allowed', wizardCurrentStep === 1);
-            }
-            
-            // Hide Next button on last step (Step 10 is Summary with its own Confirm button)
-            // Actually Step 10 has "Confirmar", so hide the standard "Next" button on Step 10
-            if (nextBtn) {
-                if(wizardCurrentStep === wizardTotalSteps) {
-                    nextBtn.classList.add('hidden');
-                } else {
-                    nextBtn.classList.remove('hidden');
-                }
-            }
-
-            // If Step 11, update summary values
-            if (wizardCurrentStep === 11) {
-                updateFinalSummary();
-            }
-        }
-
-        function getOptionList(possibleKeys) {
-            for (const key of possibleKeys) {
-                if (options[key] && Array.isArray(options[key]) && options[key].length) {
-                    return options[key];
-                }
-                if (optionsWithParents[key] && Array.isArray(optionsWithParents[key]) && optionsWithParents[key].length) {
-                    return optionsWithParents[key];
-                }
-            }
-            return [];
-        }
-
-        function filterByParent(items, parentId) {
-            if (!parentId) return items;
-            return items.filter(item => {
-                if (Array.isArray(item.parent_ids)) {
-                    return item.parent_ids.includes(parseInt(parentId)) || item.parent_ids.includes(parentId);
-                }
-                if (item.parent_id !== undefined && item.parent_id !== null) {
-                    return item.parent_id == parentId;
-                }
-                return true;
-            });
-        }
-
-        function renderOptionCards(containerId, fieldKey, sourceKeys, parentId = null) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-
-            let items = getOptionList(sourceKeys);
-            if (parentId) {
-                items = filterByParent(items, parentId);
-            }
-
-            if (!items || items.length === 0) {
-                container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Nenhuma opção disponível.</div>';
-                return;
-            }
-
-            container.innerHTML = items.map(item => {
-                const isActive = wizardData[fieldKey] && wizardData[fieldKey].id == item.id;
-                const price = parseFloat(item.price || 0);
-                return `
-                    <div class="wizard-option-card p-4 rounded-xl border ${isActive ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20' : 'border-gray-200 dark:border-slate-700'} hover:border-[#7c3aed] dark:hover:border-[#7c3aed] cursor-pointer transition-all"
-                        onclick="selectWizardOption('${fieldKey}', '${item.id}', '${item.name.replace(/'/g, '')}', ${price}, true)">
-                        <div class="flex items-center justify-between">
-                            <span class="font-semibold text-gray-800 dark:text-gray-100">${item.name}</span>
-                            ${price > 0 ? `<span class="text-xs font-bold text-[#7c3aed]">R$ ${price.toFixed(2).replace('.', ',')}</span>` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderWizardCorteOptions() {
-            renderOptionCards('wizard-options-corte', 'tipo_corte', ['tipo_corte', 'corte', 'cut_types']);
-        }
-
-        function renderWizardDetalheOptions() {
-            renderOptionCards('wizard-options-detalhe', 'detalhe', ['detalhe', 'detail']);
-        }
-
-        function renderWizardDetailColorOptions() {
-            const detailId = wizardData.detalhe ? wizardData.detalhe.id : null;
-            if (!detailId) {
-                const container = document.getElementById('wizard-options-cor-detalhe');
-                if (container) container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Selecione um detalhe primeiro.</div>';
-                return;
-            }
-            renderOptionCards('wizard-options-cor-detalhe', 'detail_color', ['cor', 'cor_detalhe', 'detail_color'], detailId);
-        }
-
-        function renderWizardGolaOptions() {
-            renderOptionCards('wizard-options-gola', 'gola', ['gola', 'collar']);
-        }
-
-        function renderWizardCollarColorOptions() {
-            const collarId = wizardData.gola ? wizardData.gola.id : null;
-            if (!collarId) {
-                const container = document.getElementById('wizard-options-cor-gola');
-                if (container) container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Selecione a gola primeiro.</div>';
-                return;
-            }
-            renderOptionCards('wizard-options-cor-gola', 'collar_color', ['cor', 'cor_gola', 'collar_color'], collarId);
-        }
-
-        function loadWizardOptionsForStep(step) {
-            if (step === 1) renderWizardPersonalizacao();
-            if (step === 2) loadWizardTecidos();
-            if (step === 3) loadWizardCores(); // Uses Fabric ID
-            if (step === 4) renderWizardCorteOptions();
-            if (step === 5) renderWizardDetalheOptions();
-            if (step === 6) renderWizardDetailColorOptions();
-            if (step === 7) renderWizardGolaOptions();
-            if (step === 8) renderWizardCollarColorOptions();
-            // Step 9 is static inputs
-            // Step 10 is static uploads
-        }
-        
-        function selectWizardOption(field, value, name, price = 0, autoAdvance = true) {
-            // Update local state
-            wizardData[field] = { id: value, name: name, price: parseFloat(price) };
-            
-            // Log for debug
-            console.log(`Selected ${field}:`, wizardData[field]);
-
-            // Visual Feedback (Highlighter)
-            // Remove ring from siblings
-            const container = document.getElementById(`wizard-options-${field.replace('_', '-')}`) 
-                           || document.getElementById(`wizard-options-${field}`); // fallback
-            
-            if (container) {
-                 const cards = container.querySelectorAll('.wizard-option-card');
-                 cards.forEach(c => c.classList.remove('ring-2', 'ring-[#7c3aed]'));
-                 // This is tricky as we don't pass the element 'this' here easily unless we change the HTML calls
-                 // But the HTML calls usually do: onclick="selectWizardOption(..., this)" or handle it inline.
-                 // My rendered HTML does inline class toggling. Good.
-            }
-
-            if (autoAdvance) {
-                setTimeout(() => wizardNextStep(), 300);
-            }
-        }
-
-        // --- Step 1: Personalização ---
-        function renderWizardPersonalizacao() {
-            const container = document.getElementById('wizard-options-personalizacao');
-            if(!container) return;
-            
-            // Check if options exist
-            if (!options.personalizacao || options.personalizacao.length === 0) {
-                container.innerHTML = '<p class="col-span-full text-center text-gray-500">Nenhuma opção disponível.</p>';
-                return;
-            }
-
-            container.innerHTML = options.personalizacao.map(item => {
-                const isSelected = wizardData.personalizacao.includes(item.id.toString()) || wizardData.personalizacao.includes(item.id);
-                const activeClass = isSelected ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20' : '';
-                const key = (item.slug || item.name || '').toString().trim().toLowerCase().replace(/\s+/g, '_');
-                const style = personalizationIconMap[key] || personalizationIconMap.default;
-                
-                return `
-                <div class="wizard-option-card group cursor-pointer p-4 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center gap-2 ${activeClass}"
-                     data-id="${item.id}"
-                     onclick="toggleWizardPersonalizacao(this)">
-                    <div class="w-10 h-10 rounded-full ${style.bubble} flex items-center justify-center ${style.color}">
-                         <i class="fa-solid ${style.icon}"></i>
-                    </div>
-                    <span class="text-xs font-bold text-center text-gray-700 dark:text-slate-300 group-hover:text-[#7c3aed]">${item.name}</span>
-                </div>
-                `;
-            }).join('');
-        }
-
-        function toggleWizardPersonalizacao(element) {
-            const id = element.dataset.id.toString();
-            const index = wizardData.personalizacao.indexOf(id);
-            
-            if (index > -1) {
-                // Remove
-                wizardData.personalizacao.splice(index, 1);
-                element.classList.remove('ring-2', 'ring-[#7c3aed]', 'bg-purple-50', 'dark:bg-purple-900/20');
-            } else {
-                // Add
-                wizardData.personalizacao.push(id);
-                element.classList.add('ring-2', 'ring-[#7c3aed]', 'bg-purple-50', 'dark:bg-purple-900/20');
-            }
-            
-            // Sync with global for filtering
-            selectedPersonalizacoes = [...wizardData.personalizacao];
-            
-            // Update hidden input logic
-             const hiddenContainer = document.getElementById('hidden-personalizacao-container');
-             if(hiddenContainer) {
-                 hiddenContainer.innerHTML = wizardData.personalizacao.map(pid => 
-                     `<input type="hidden" name="personalizacao[]" value="${pid}">`
-                 ).join('');
-             }
-        }
-
-        // --- Step 2: Tecidos ---
-        function loadWizardTecidos() {
-            const select = document.getElementById('wizard_tecido');
-            if(!select) return;
-            
-            if (select.options.length <= 1) {
-                let items = options.tecido || [];
-                
-                if (selectedPersonalizacoes && selectedPersonalizacoes.length > 0) {
-                    items = items.filter(tecido => {
-                        if (!tecido.parent_ids || tecido.parent_ids.length === 0) return true;
-                        return tecido.parent_ids.some(parentId => selectedPersonalizacoes.includes(parentId) || selectedPersonalizacoes.includes(parentId.toString()));
-                    });
-                }
-
-                select.innerHTML = '<option value="">Selecione o tecido</option>' + 
-                    items.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
-            }
-
-            if (wizardData.tecido) {
-                select.value = wizardData.tecido.id;
-                loadWizardTiposTecido();
-            }
-        }
-        
-        function loadWizardTiposTecido() {
-             const select = document.getElementById('wizard_tecido');
-             const typeContainer = document.getElementById('wizard-tipo-tecido-container');
-             const typeSelect = document.getElementById('wizard_tipo_tecido');
-             
-             const fabricId = select.value;
-             if(!fabricId) {
-                 wizardData.tecido = null;
+        if (personalizacaoInputs.length === 0) {
+             const preselected = document.querySelectorAll('.preselected-personalization');
+             if (preselected.length === 0) {
+                 alert('Por favor, selecione pelo menos uma personalização.');
                  return;
              }
-             
-              const fabricName = select.options[select.selectedIndex].text;
-              
-              // Only overwrite if changed or null
-              if (!wizardData.tecido || wizardData.tecido.id != fabricId) {
-                  wizardData.tecido = { id: fabricId, name: fabricName, price: 0 };
-              }
-              
-              // Loads subtypes
-              const subItems = (options.tipo_tecido || []).filter(t => t.parent_id == fabricId);
-              if(subItems.length > 0) {
-                  typeContainer.classList.remove('hidden');
-                  
-                  // Avoid unnecessary re-rendering if options are the same? 
-                  // For now just ensure value is preserved.
-                  typeSelect.innerHTML = '<option value="">Selecione o tipo</option>' + 
-                     subItems.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
-                  
-                  if (wizardData.tipo_tecido) {
-                      // Check if current tipo_tecido is still valid for this fabric
-                      const stillValid = subItems.find(s => s.id == wizardData.tipo_tecido.id);
-                      if (stillValid) {
-                          typeSelect.value = wizardData.tipo_tecido.id;
-                      } else {
-                          wizardData.tipo_tecido = null;
-                      }
-                  }
-              } else {
-                  typeContainer.classList.add('hidden');
-                  wizardData.tipo_tecido = null;
-              }
-             
-             // Reload colors since they depend on fabric
-             loadWizardCores(); // Pre-load next step
         }
+
+        const quantity = parseInt(document.getElementById('quantity').value || 0);
         
-        function onWizardTipoTecidoChange() {
-             const select = document.getElementById('wizard_tipo_tecido');
-             if(select.value) {
-                 wizardData.tipo_tecido = { id: select.value, name: select.options[select.selectedIndex].text };
-             } else {
-                 wizardData.tipo_tecido = null;
+        if (quantity === 0) {
+             let hasSize = false;
+             document.querySelectorAll('input[name^="tamanhos"]').forEach(i => {
+                 if(parseInt(i.value) > 0) hasSize = true;
+             });
+             if (!hasSize) {
+                 alert('Por favor, adicione pelo menos uma peça nos tamanhos.');
+                 return;
              }
         }
 
-        // --- Step 2: Cores ---
-        // --- Step 3: Cores ---
-        function loadWizardCores() {
-             const container = document.getElementById('wizard-colors-grid');
-             const select = document.getElementById('wizard_cor'); // Search select
-             if(!container) return;
-             
-             let items = options.cor || [];
-             const tecidoId = wizardData.tecido ? wizardData.tecido.id : null;
-             
-             if (selectedPersonalizacoes.length > 0 || tecidoId) {
-                items = items.filter(cor => {
-                    if (!cor.parent_ids || cor.parent_ids.length === 0) return true;
-                    // Fix: Ensure comparison logic is valid
-                    // Assuming parent_ids matches either Personalization IDs or Fabric IDs
-                    const matchesP = selectedPersonalizacoes.length > 0 && cor.parent_ids.some(pid => selectedPersonalizacoes.includes(pid.toString()));
-                    const matchesT = tecidoId && cor.parent_ids.includes(parseInt(tecidoId));
-                    return matchesP || matchesT;
-                });
-             }
-             
-             // Fill Grid
-             container.innerHTML = items.map(color => {
-                const isActive = wizardData.cor && wizardData.cor.id == color.id;
-                const activeClass = isActive ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20' : '';
-                return `
-                <div class="wizard-option-card group cursor-pointer p-3 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center gap-2 ${activeClass}"
-                     data-id="${color.id}"
-                     onclick="selectWizardColor(this)">
-                    <div class="w-8 h-8 rounded-full shadow-sm ring-2 ring-gray-100 dark:ring-slate-800" style="background-color: ${color.hex_code || '#ccc'}"></div>
-                    <span class="text-xs font-bold text-center text-gray-700 dark:text-slate-300 group-hover:text-[#7c3aed]">${color.name}</span>
-                </div>
-                `;
-             }).join('');
+        // UI de processamento
+        const submitBtn = document.getElementById('submit-button');
+        let originalText = '';
+        if (submitBtn) {
+            originalText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Processando...
+            `;
+        }
+        form.dataset.submitting = 'true';
+
+        try {
+            const formData = new FormData(form);
+            const actionUrl = form.dataset.actionUrl || form.getAttribute('action');
             
-            // Fill Select options for text search
-             if(select) {
-                 select.innerHTML = '<option value="">Selecione uma cor</option>' + 
-                    items.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-                 
-                 if (wizardData.cor) {
-                     select.value = wizardData.cor.id;
-                 }
+            const response = await fetch(actionUrl, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
 
-                 // Bind select change
-                 select.onchange = function() {
-                     if(this.value) {
-                         const mockEl = { dataset: { id: this.value } };
-                         selectWizardColor(mockEl);
-                     }
-                 };
-             }
-        }
-
-        function selectWizardColor(element) {
-            const id = element.dataset ? element.dataset.id : element; // Fallback? No, always use object from select
-            // Actually, for select.onchange above, I passed an object with dataset.id
-            const color = (options.cor || []).find(c => c.id == id);
-            if(color) {
-                wizardData.cor = { id: color.id, name: color.name };
-                document.getElementById('wizard_cor').value = color.id;
-                wizardNextStep();
+            if (!response.ok) {
+                const text = await response.text();
+                console.error('Erro HTTP na submissão:', response.status, text);
+                alert('Erro ao salvar item: ' + (response.statusText || 'erro HTTP'));
+                return;
             }
+
+            const data = await response.json();
+
+            if (data.success) {
+                if (data.html) {
+                    const sidebar = document.getElementById('items-sidebar-container');
+                    if (sidebar) sidebar.innerHTML = data.html;
+                }
+
+                if (data.items_data) {
+                    itemsData = data.items_data;
+                    window.itemsData = itemsData;
+                }
+
+                const action = document.getElementById('form-action').value;
+                if (action === 'add_item') {
+                    cancelEdit(); 
+                } else {
+                    cancelEdit();
+                }
+
+                window.location.reload(); 
+                
+            } else {
+                 if (data.errors) {
+                     let msg = 'Erros de validação:\n';
+                     for (let field in data.errors) {
+                         msg += `- ${data.errors[field].join(', ')}\n`;
+                     }
+                     alert(msg);
+                 } else {
+                     alert(data.message || 'Erro ao salvar item.');
+                 }
+            }
+
+        } catch (error) {
+            console.error('Erro no envio:', error);
+            alert('Ocorreu um erro ao processar sua solicitação.');
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = document.getElementById('form-action').value === 'update_item' ? 'Salvar Alterações' : 'Adicionar Item';
+            }
+            if (form) form.dataset.submitting = 'false';
+        }
+    }
+    window.handleSewingFormSubmit = handleSewingFormSubmit;
+
+    let optionsWithParents = {};
+    window.optionsWithParents = optionsWithParents;
+
+    function loadOptions() {
+        fetch('/api/product-options')
+            .then(response => response.json())
+            .then(data => {
+                options = data;
+                window.options = options;
+                return fetch('/api/product-options-with-parents');
+            })
+            .then(response => response.json())
+            .then(data => {
+                optionsWithParents = data;
+                window.optionsWithParents = optionsWithParents;
+                console.log('Options loaded.');
+            })
+            .catch(error => {
+                console.error('Erro ao carregar opções:', error);
+            });
+    }
+    window.loadOptions = loadOptions;
+
+    async function loadStockByCutType() {
+        const cutTypeId = document.getElementById('tipo_corte')?.value;
+        
+        if (!cutTypeId) {
+            const stockSection = document.getElementById('stock-info-section');
+            if (stockSection) stockSection.classList.add('hidden');
+            return;
         }
         
-        // --- Step 8: Calculate Total ---
-        function calculateWizardTotal() {
-            let total = 0;
-            let especialQty = 0;
-            document.querySelectorAll('.wizard-size-input').forEach(input => {
-                const qty = parseInt(input.value) || 0;
-                total += qty;
-                if (input.dataset.size === 'Especial') especialQty = qty;
+        try {
+            const params = new URLSearchParams({
+                cut_type_id: cutTypeId
             });
-            document.getElementById('wizard-total-pieces').textContent = total;
-            document.getElementById('summary-pecas-val').textContent = total;
+            
+            const response = await fetch(`/api/stocks/by-cut-type?${params}`);
+            const data = await response.json();
+            
+            const stockSection = document.getElementById('stock-info-section');
+            const stockBySize = document.getElementById('stock-by-size');
+            
+            if (data.success && data.stock_by_size && data.stock_by_size.length > 0) {
+                let html = '';
+                data.stock_by_size.forEach(item => {
+                    const hasStock = item.available > 0;
+                    const bgColor = hasStock ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600';
+                    
+                    let storeDetails = '';
+                    if (item.stores && item.stores.length > 0) {
+                        storeDetails = item.stores.map(store => {
+                            const storeHasStock = store.available > 0;
+                            const storeColor = storeHasStock ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500';
+                            const storeBg = storeHasStock ? 'bg-green-100 dark:bg-green-900/40' : 'bg-gray-100 dark:bg-gray-600';
+                            return `<span class="ml-2 px-2 py-0.5 text-xs rounded ${storeBg} ${storeColor}" title="${store.store_name}">
+                                ${store.store_name.replace('Loja ', '')}: ${store.available}${store.reserved > 0 ? ' (R:' + store.reserved + ')' : ''}
+                            </span>`;
+                        }).join('');
+                    }
+                    
+                    html += `
+                        <div class="p-2 ${bgColor} rounded border">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">${item.size}:</span>
+                                ${hasStock ? `
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200">
+                                        ✓ ${item.available} total
+                                    </span>
+                                ` : `
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200">
+                                        ✗ Sem estoque
+                                    </span>
+                                `}
+                            </div>
+                            <div class="flex flex-wrap gap-1 mt-1">
+                                ${storeDetails}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                if (stockSection && stockBySize) {
+                    stockSection.classList.remove('hidden');
+                    stockBySize.innerHTML = html;
+                }
+            } else {
+                if (stockSection) {
+                    stockSection.classList.remove('hidden');
+                    if (stockBySize) {
+                        stockBySize.innerHTML = '<p class="text-sm text-yellow-600 dark:text-yellow-400 text-center py-2">⚠ Nenhum estoque cadastrado para este produto</p>';
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao buscar estoque:', error);
+            const stockSection = document.getElementById('stock-info-section');
+            if (stockSection) stockSection.classList.add('hidden');
+        }
+    }
+    window.loadStockByCutType = loadStockByCutType;
 
-            // Show/Hide modeling checkbox
-            const modelingContainer = document.getElementById('wizard-modeling-container');
-            if (modelingContainer) {
-                if (especialQty > 0) {
-                    modelingContainer.classList.remove('hidden');
-                } else {
-                    modelingContainer.classList.add('hidden');
-                    document.getElementById('wizard_is_client_modeling').checked = false;
+    function calculateTotal() {
+        let total = 0;
+        document.querySelectorAll('input[name^="tamanhos"]').forEach(input => {
+            total += parseInt(input.value) || 0;
+        });
+        const qtyInput = document.getElementById('quantity');
+        if (qtyInput) qtyInput.value = total;
+        
+        // Update sidebar if needed...
+    }
+    window.calculateTotal = calculateTotal;
+
+
+
+    // --- WIZARD LOGIC ---
+    let wizardCurrentStep = 1;
+    window.wizardCurrentStep = wizardCurrentStep;
+    const wizardTotalSteps = 11;
+    window.wizardTotalSteps = wizardTotalSteps;
+    const isAdmin = @json(auth()->user()->isAdmin());
+    window.isAdmin = isAdmin;
+
+    let wizardData = {
+        tecido: null,
+        tipo_tecido: null,
+        cor: null,
+        tipo_corte: null,
+        detalhe: null,
+        detail_color: null,
+        gola: null,
+        collar_color: null,
+        personalizacao: [],
+        image: null,
+        imageUrl: null,
+        notes: '',
+        sizes: {},
+        unit_cost: 0,
+        unit_price: 0
+    };
+    window.wizardData = wizardData;
+
+    let selectedPersonalizacoes = [];
+    window.selectedPersonalizacoes = selectedPersonalizacoes;
+
+    function openSewingWizard() {
+        const modal = document.getElementById('sewing-wizard-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            updateWizardUI();
+        }
+    }
+    window.openSewingWizard = openSewingWizard;
+
+    function closeSewingWizard() {
+        const modal = document.getElementById('sewing-wizard-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    }
+    window.closeSewingWizard = closeSewingWizard;
+
+    function wizardNextStep() {
+        if (!validateStep(wizardCurrentStep)) return;
+
+        if (wizardCurrentStep < wizardTotalSteps) {
+            // Skip logic for Detail Color
+            if (wizardCurrentStep === 5) {
+                const isDifferentDetail = document.getElementById('different_detail_color_cb')?.checked;
+                const detail = wizardData.detalhe;
+                if (!detail || detail.name.toLowerCase().includes('sem') || !isDifferentDetail) {
+                    wizardData.detail_color = wizardData.cor;
+                    wizardCurrentStep += 2;
+                    window.wizardCurrentStep = wizardCurrentStep;
+                    updateWizardUI();
+                    return;
                 }
             }
 
-            return total;
-        }
-        // Bind input change
-        document.addEventListener('input', function(e) {
-            if(e.target.classList.contains('wizard-size-input')) {
-                calculateWizardTotal();
+            // Skip logic for Collar Color
+            if (wizardCurrentStep === 7) {
+                const isDifferentCollar = document.getElementById('different_collar_color_cb')?.checked;
+                const gola = wizardData.gola;
+                if (!gola || gola.name.toLowerCase().includes('sem') || !isDifferentCollar) {
+                    wizardData.collar_color = wizardData.cor;
+                    wizardCurrentStep += 2;
+                    window.wizardCurrentStep = wizardCurrentStep;
+                    updateWizardUI();
+                    return;
+                }
             }
+
+            wizardCurrentStep++;
+            window.wizardCurrentStep = wizardCurrentStep;
+            updateWizardUI();
+        }
+    }
+    window.wizardNextStep = wizardNextStep;
+
+    function wizardPrevStep() {
+        if (wizardCurrentStep > 1) {
+            // Skip logic backward for Detail Color
+            if (wizardCurrentStep === 7) {
+                const isDifferentDetail = document.getElementById('different_detail_color_cb')?.checked;
+                const detail = wizardData.detalhe;
+                if (!detail || detail.name.toLowerCase().includes('sem') || !isDifferentDetail) {
+                    wizardCurrentStep -= 2;
+                    window.wizardCurrentStep = wizardCurrentStep;
+                    updateWizardUI();
+                    return;
+                }
+            }
+
+            // Skip logic backward for Sizes
+            if (wizardCurrentStep === 9) {
+                const isDifferentCollar = document.getElementById('different_collar_color_cb')?.checked;
+                const gola = wizardData.gola;
+                if (!gola || gola.name.toLowerCase().includes('sem') || !isDifferentCollar) {
+                    wizardCurrentStep -= 2;
+                    window.wizardCurrentStep = wizardCurrentStep;
+                    updateWizardUI();
+                    return;
+                }
+            }
+
+            wizardCurrentStep--;
+            window.wizardCurrentStep = wizardCurrentStep;
+            updateWizardUI();
+        }
+    }
+    window.wizardPrevStep = wizardPrevStep;
+
+    function validateStep(step) {
+        if (step === 1) {
+             if (!wizardData.personalizacao || wizardData.personalizacao.length === 0) {
+                 alert('Selecione pelo menos uma personalização.');
+                 return false;
+             }
+        }
+        if (step === 2) {
+            if (!wizardData.tecido) {
+                alert('Selecione um tecido para continuar.');
+                return false;
+            }
+        }
+        if (step === 3) {
+            if (!wizardData.cor) {
+                alert('Selecione uma cor para continuar.');
+                return false;
+            }
+        }
+        if (step === 4) {
+             if (!wizardData.tipo_corte) {
+                alert('Selecione um tipo de corte.');
+                return false;
+            }
+        }
+        if (step === 9) {
+            const total = calculateWizardTotal();
+            if (total <= 0) {
+                alert('Informe a quantidade de peças (pelo menos 1).');
+                return false;
+            }
+            wizardData.sizes = {};
+            document.querySelectorAll('.wizard-size-input').forEach(input => {
+                const val = parseInt(input.value) || 0;
+                if(val > 0) wizardData.sizes[input.dataset.size] = val;
+            });
+        }
+        return true;
+    }
+    window.validateStep = validateStep;
+
+    function updateWizardUI() {
+        const titles = [
+            "Personalização", "Tecido", "Cor do Tecido", "Modelo", "Detalhe", "Cor do Detalhe", 
+            "Gola", "Cor da Gola", "Tamanhos", "Imagem / Obs", "Resumo"
+        ];
+        const titleEl = document.getElementById('wizard-step-title');
+        if (titleEl) titleEl.textContent = `${titles[wizardCurrentStep-1]} (Etapa ${wizardCurrentStep} de ${wizardTotalSteps})`;
+        
+        const progressEl = document.getElementById('wizard-progress');
+        if (progressEl) progressEl.style.width = `${(wizardCurrentStep / wizardTotalSteps) * 100}%`;
+
+        for (let i = 1; i <= wizardTotalSteps; i++) {
+            const stepEl = document.getElementById(`step-${i}`);
+            if (stepEl) {
+                if (i === wizardCurrentStep) {
+                    stepEl.classList.remove('hidden');
+                    loadWizardOptionsForStep(wizardCurrentStep);
+                } else {
+                    stepEl.classList.add('hidden');
+                }
+            }
+        }
+        
+        const prevBtn = document.getElementById('wizard-prev-btn');
+        if (prevBtn) {
+            prevBtn.disabled = wizardCurrentStep === 1;
+            prevBtn.classList.toggle('opacity-50', wizardCurrentStep === 1);
+            prevBtn.classList.toggle('cursor-not-allowed', wizardCurrentStep === 1);
+        }
+        
+        const nextBtn = document.getElementById('wizard-next-btn');
+        if (nextBtn) {
+            if(wizardCurrentStep === wizardTotalSteps) {
+                nextBtn.classList.add('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+            }
+        }
+
+        const submitBtn = document.getElementById('wizard-submit-btn');
+        if (submitBtn) {
+            if (wizardCurrentStep === wizardTotalSteps) {
+                submitBtn.classList.remove('hidden');
+            } else {
+                submitBtn.classList.add('hidden');
+            }
+        }
+
+        if (wizardCurrentStep === 11) {
+            updateFinalSummary();
+        }
+    }
+    window.updateWizardUI = updateWizardUI;
+
+    function getOptionList(possibleKeys) {
+        for (const key of possibleKeys) {
+            if (options && options[key] && Array.isArray(options[key]) && options[key].length) {
+                return options[key];
+            }
+            if (optionsWithParents && optionsWithParents[key] && Array.isArray(optionsWithParents[key]) && optionsWithParents[key].length) {
+                return optionsWithParents[key];
+            }
+        }
+        return [];
+    }
+    window.getOptionList = getOptionList;
+
+    function filterByParent(items, parentId) {
+        if (!parentId) return items;
+        return items.filter(item => {
+            if (Array.isArray(item.parent_ids)) {
+                return item.parent_ids.includes(parseInt(parentId)) || item.parent_ids.includes(parentId);
+            }
+            if (item.parent_id !== undefined && item.parent_id !== null) {
+                return item.parent_id == parentId;
+            }
+            return true;
+        });
+    }
+    window.filterByParent = filterByParent;
+
+    function renderOptionCards(containerId, fieldKey, sourceKeys, parentId = null) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        let items = getOptionList(sourceKeys);
+        if (parentId) {
+            items = filterByParent(items, parentId);
+        }
+
+        if (!items || items.length === 0) {
+            container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Nenhuma opção disponível.</div>';
+            return;
+        }
+
+        container.innerHTML = items.map(item => {
+            const isActive = wizardData[fieldKey] && wizardData[fieldKey].id == item.id;
+            const price = parseFloat(item.price || 0);
+            return `
+                <div class="wizard-option-card p-4 rounded-xl border ${isActive ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : 'border-gray-200 dark:border-slate-700'} hover:border-[#7c3aed] dark:hover:border-[#7c3aed] cursor-pointer transition-all"
+                    onclick="selectWizardOption('${fieldKey}', '${item.id}', '${item.name.replace(/'/g, '')}', ${price}, true)">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold text-gray-800 dark:text-gray-100">${item.name}</span>
+                        ${price > 0 ? `<span class="text-xs font-bold text-[#7c3aed]">R$ ${price.toFixed(2).replace('.', ',')}</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    window.renderOptionCards = renderOptionCards;
+
+    function renderWizardCorteOptions() {
+        renderOptionCards('wizard-options-corte', 'tipo_corte', ['tipo_corte', 'corte', 'cut_types']);
+    }
+    window.renderWizardCorteOptions = renderWizardCorteOptions;
+
+    function renderWizardDetalheOptions() {
+        renderOptionCards('wizard-options-detalhe', 'detalhe', ['detalhe', 'detail']);
+    }
+    window.renderWizardDetalheOptions = renderWizardDetalheOptions;
+
+    function renderWizardDetailColorOptions() {
+        const detailId = wizardData.detalhe ? wizardData.detalhe.id : null;
+        if (!detailId) {
+            const container = document.getElementById('wizard-options-cor-detalhe');
+            if (container) container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Selecione um detalhe primeiro.</div>';
+            return;
+        }
+        renderOptionCards('wizard-options-cor-detalhe', 'detail_color', ['cor', 'cor_detalhe', 'detail_color'], detailId);
+    }
+    window.renderWizardDetailColorOptions = renderWizardDetailColorOptions;
+
+    function renderWizardGolaOptions() {
+        renderOptionCards('wizard-options-gola', 'gola', ['gola', 'collar']);
+    }
+    window.renderWizardGolaOptions = renderWizardGolaOptions;
+
+    function renderWizardCollarColorOptions() {
+        const collarId = wizardData.gola ? wizardData.gola.id : null;
+        if (!collarId) {
+            const container = document.getElementById('wizard-options-cor-gola');
+            if (container) container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Selecione a gola primeiro.</div>';
+            return;
+        }
+        renderOptionCards('wizard-options-cor-gola', 'collar_color', ['cor', 'cor_gola', 'collar_color'], collarId);
+    }
+    window.renderWizardCollarColorOptions = renderWizardCollarColorOptions;
+
+    function loadWizardOptionsForStep(step) {
+        if (step === 1) renderWizardPersonalizacao();
+        if (step === 2) loadWizardTecidos();
+        if (step === 3) loadWizardCores();
+        if (step === 4) renderWizardCorteOptions();
+        if (step === 5) renderWizardDetalheOptions();
+        if (step === 6) renderWizardDetailColorOptions();
+        if (step === 7) renderWizardGolaOptions();
+        if (step === 8) renderWizardCollarColorOptions();
+    }
+    window.loadWizardOptionsForStep = loadWizardOptionsForStep;
+
+    function selectWizardOption(field, value, name, price = 0, autoAdvance = true) {
+        wizardData[field] = { id: value, name: name, price: parseFloat(price) };
+        
+        const containerId = `wizard-options-${field.replace(/_/g, '-')}`;
+        const container = document.getElementById(containerId);
+        
+        if (container) {
+             const cards = container.querySelectorAll('.wizard-option-card');
+             cards.forEach(c => c.classList.remove('ring-2', 'ring-[#7c3aed]', 'bg-purple-50', 'dark:bg-purple-900/20', 'shadow-sm'));
+        }
+
+        if (autoAdvance) {
+            setTimeout(() => wizardNextStep(), 300);
+        }
+    }
+    window.selectWizardOption = selectWizardOption;
+
+    // --- Step 1: Personalização ---
+    function renderWizardPersonalizacao() {
+        const container = document.getElementById('wizard-options-personalizacao');
+        if(!container) return;
+        
+        if (!options.personalizacao || options.personalizacao.length === 0) {
+            container.innerHTML = '<p class="col-span-full text-center text-gray-500">Nenhuma opção disponível.</p>';
+            return;
+        }
+
+        container.innerHTML = options.personalizacao.map(item => {
+            const isSelected = wizardData.personalizacao.includes(item.id.toString()) || wizardData.personalizacao.includes(item.id);
+            const activeClass = isSelected ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : '';
+            const key = (item.slug || item.name || '').toString().trim().toLowerCase().replace(/\s+/g, '_');
+            const style = personalizationIconMap[key] || personalizationIconMap.default;
+            
+            return `
+            <div class="wizard-option-card group cursor-pointer p-4 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center gap-2 ${activeClass}"
+                 data-id="${item.id}"
+                 onclick="toggleWizardPersonalizacao(this)">
+                <div class="w-10 h-10 rounded-full ${style.bubble} flex items-center justify-center ${style.color}">
+                     <i class="fa-solid ${style.icon}"></i>
+                </div>
+                <span class="text-xs font-bold text-center text-gray-700 dark:text-slate-300 group-hover:text-[#7c3aed]">${item.name}</span>
+            </div>
+            `;
+        }).join('');
+    }
+    window.renderWizardPersonalizacao = renderWizardPersonalizacao;
+
+    function toggleWizardPersonalizacao(element) {
+        if (!element || !element.dataset.id) return;
+        const id = element.dataset.id.toString();
+        const index = wizardData.personalizacao.indexOf(id);
+        
+        if (index > -1) {
+            wizardData.personalizacao.splice(index, 1);
+            element.classList.remove('ring-2', 'ring-[#7c3aed]', 'bg-purple-50', 'dark:bg-purple-900/20', 'shadow-sm');
+        } else {
+            wizardData.personalizacao.push(id);
+            element.classList.add('ring-2', 'ring-[#7c3aed]', 'bg-purple-50', 'dark:bg-purple-900/20', 'shadow-sm');
+        }
+        
+        selectedPersonalizacoes = [...wizardData.personalizacao];
+        window.selectedPersonalizacoes = selectedPersonalizacoes;
+        
+         const hiddenContainer = document.getElementById('hidden-personalizacao-container');
+         if(hiddenContainer) {
+             hiddenContainer.innerHTML = wizardData.personalizacao.map(pid => 
+                 `<input type="hidden" name="personalizacao[]" value="${pid}">`
+             ).join('');
+         }
+    }
+    window.toggleWizardPersonalizacao = toggleWizardPersonalizacao;
+
+    // --- Step 2: Tecidos ---
+    function loadWizardTecidos() {
+        const select = document.getElementById('wizard_tecido');
+        if(!select) return;
+        
+        if (select.options.length <= 1) {
+            let items = options.tecido || [];
+            
+            if (selectedPersonalizacoes && selectedPersonalizacoes.length > 0) {
+                items = items.filter(tecido => {
+                    if (!tecido.parent_ids || tecido.parent_ids.length === 0) return true;
+                    return tecido.parent_ids.some(parentId => selectedPersonalizacoes.includes(parentId) || selectedPersonalizacoes.includes(parentId.toString()));
+                });
+            }
+
+            select.innerHTML = '<option value="">Selecione o tecido</option>' + 
+                items.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
+        }
+
+        if (wizardData.tecido) {
+            select.value = wizardData.tecido.id;
+            loadWizardTiposTecido();
+        }
+    }
+    window.loadWizardTecidos = loadWizardTecidos;
+    
+    function loadWizardTiposTecido() {
+         const select = document.getElementById('wizard_tecido');
+         const typeContainer = document.getElementById('wizard-tipo-tecido-container');
+         const typeSelect = document.getElementById('wizard_tipo_tecido');
+         
+         if (!select || !typeContainer || !typeSelect) return;
+
+         const fabricId = select.value;
+         if(!fabricId) {
+             wizardData.tecido = null;
+             return;
+         }
+         
+          const fabricName = select.options[select.selectedIndex].text;
+          
+          if (!wizardData.tecido || wizardData.tecido.id != fabricId) {
+              wizardData.tecido = { id: fabricId, name: fabricName, price: 0 };
+          }
+          
+          const subItems = (options.tipo_tecido || []).filter(t => t.parent_id == fabricId);
+          if(subItems.length > 0) {
+              typeContainer.classList.remove('hidden');
+              typeSelect.innerHTML = '<option value="">Selecione o tipo</option>' + 
+                 subItems.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
+              
+              if (wizardData.tipo_tecido) {
+                  const stillValid = subItems.find(s => s.id == wizardData.tipo_tecido.id);
+                  if (stillValid) {
+                      typeSelect.value = wizardData.tipo_tecido.id;
+                  } else {
+                      wizardData.tipo_tecido = null;
+                  }
+              }
+          } else {
+              typeContainer.classList.add('hidden');
+              wizardData.tipo_tecido = null;
+          }
+         
+         loadWizardCores(); 
+    }
+    window.loadWizardTiposTecido = loadWizardTiposTecido;
+    
+    function onWizardTipoTecidoChange() {
+         const select = document.getElementById('wizard_tipo_tecido');
+         if(select && select.value) {
+             wizardData.tipo_tecido = { id: select.value, name: select.options[select.selectedIndex].text };
+         } else {
+             wizardData.tipo_tecido = null;
+         }
+    }
+    window.onWizardTipoTecidoChange = onWizardTipoTecidoChange;
+
+    // --- Step 3: Cores ---
+    function loadWizardCores() {
+         const container = document.getElementById('wizard-colors-grid');
+         const select = document.getElementById('wizard_cor'); 
+         if(!container) return;
+         
+         let items = options.cor || [];
+         const tecidoId = wizardData.tecido ? wizardData.tecido.id : null;
+         
+         if (selectedPersonalizacoes.length > 0 || tecidoId) {
+            items = items.filter(cor => {
+                if (!cor.parent_ids || cor.parent_ids.length === 0) return true;
+                const matchesP = selectedPersonalizacoes.length > 0 && cor.parent_ids.some(pid => selectedPersonalizacoes.includes(pid.toString()));
+                const matchesT = tecidoId && cor.parent_ids.includes(parseInt(tecidoId));
+                return matchesP || matchesT;
+            });
+         }
+         
+         container.innerHTML = items.map(color => {
+            const isActive = wizardData.cor && wizardData.cor.id == color.id;
+            const activeClass = isActive ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : '';
+            return `
+            <div class="wizard-option-card group cursor-pointer p-3 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center gap-2 ${activeClass}"
+                 data-id="${color.id}"
+                 onclick="selectWizardColor(this)">
+                <div class="w-8 h-8 rounded-full shadow-sm ring-2 ring-gray-100 dark:ring-slate-800" style="background-color: ${color.hex_code || getColorHex(color.name)}"></div>
+                <span class="text-xs font-bold text-center text-gray-700 dark:text-slate-300 group-hover:text-[#7c3aed]">${color.name}</span>
+            </div>
+            `;
+         }).join('');
+        
+         if(select) {
+             select.innerHTML = '<option value="">Selecione uma cor</option>' + 
+                items.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+             
+             if (wizardData.cor) {
+                 select.value = wizardData.cor.id;
+             }
+
+             select.onchange = function() {
+                 if(this.value) {
+                     const mockEl = { dataset: { id: this.value } };
+                     selectWizardColor(mockEl);
+                 }
+             };
+         }
+    }
+    window.loadWizardCores = loadWizardCores;
+
+    function selectWizardColor(element) {
+        const id = element.dataset ? element.dataset.id : element; 
+        const color = (options.cor || []).find(c => c.id == id);
+        if(color) {
+            wizardData.cor = { id: color.id, name: color.name };
+            const select = document.getElementById('wizard_cor');
+            if (select) select.value = color.id;
+            wizardNextStep();
+        }
+    }
+    window.selectWizardColor = selectWizardColor;
+        
+    // --- Step 8: Calculate Total ---
+    function calculateWizardTotal() {
+        const inputs = document.querySelectorAll('.wizard-size-input');
+        let total = 0;
+        let especialQty = 0;
+        
+        inputs.forEach(input => {
+            const qty = parseInt(input.value) || 0;
+            total += qty;
+            if (input.dataset.size === 'Especial') especialQty = qty;
+        });
+        
+        const totalPiecesEl = document.getElementById('wizard-total-pieces');
+        if (totalPiecesEl) totalPiecesEl.textContent = total;
+        
+        const summaryPecasVal = document.getElementById('summary-pecas-val');
+        if (summaryPecasVal) summaryPecasVal.textContent = total;
+
+        const modelingContainer = document.getElementById('wizard-modeling-container');
+        if (modelingContainer) {
+            if (especialQty > 0) {
+                modelingContainer.classList.remove('hidden');
+            } else {
+                modelingContainer.classList.add('hidden');
+                const modelingCheckbox = document.getElementById('wizard_is_client_modeling');
+                if (modelingCheckbox) modelingCheckbox.checked = false;
+            }
+        }
+
+        return total;
+    }
+    window.calculateWizardTotal = calculateWizardTotal;
+
+    function previewWizardImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewImg = document.getElementById('wizard-image-preview');
+                const previewContainer = document.getElementById('wizard-image-preview-container');
+                const placeholder = document.getElementById('wizard-image-placeholder');
+                
+                if (previewImg) previewImg.src = e.target.result;
+                if (previewContainer) previewContainer.classList.remove('hidden');
+                if (placeholder) placeholder.classList.add('hidden');
+                
+                wizardData.image = input.files[0];
+                window.wizardData = wizardData;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    window.previewWizardImage = previewWizardImage;
+
+    function clearWizardImage() {
+        const fileInput = document.getElementById('wizard_file_input');
+        if (fileInput) fileInput.value = '';
+        
+        const previewContainer = document.getElementById('wizard-image-preview-container');
+        const placeholder = document.getElementById('wizard-image-placeholder');
+        
+        if (previewContainer) previewContainer.classList.add('hidden');
+        if (placeholder) placeholder.classList.remove('hidden');
+        
+        wizardData.image = null;
+        window.wizardData = wizardData;
+        
+        const existingImg = document.getElementById('existing_cover_image_hidden');
+        if(existingImg) existingImg.value = '';
+    }
+    window.clearWizardImage = clearWizardImage;
+
+    function updateFinalSummary() {
+        const summaryTecido = document.getElementById('summary-tecido-val');
+        if (summaryTecido) summaryTecido.textContent = wizardData.tecido ? wizardData.tecido.name : '-';
+        
+        const summaryCor = document.getElementById('summary-cor-val');
+        if (summaryCor) summaryCor.textContent = wizardData.cor ? wizardData.cor.name : '-';
+        
+        const summaryModelo = document.getElementById('summary-modelo-val');
+        if (summaryModelo) summaryModelo.textContent = wizardData.tipo_corte ? wizardData.tipo_corte.name : '-';
+        
+        let unitPrice = 0;
+        if(wizardData.tipo_corte) unitPrice += wizardData.tipo_corte.price;
+        if(wizardData.detalhe) unitPrice += wizardData.detalhe.price;
+        if(wizardData.gola) unitPrice += wizardData.gola.price;
+        
+        const finalPriceEl = document.getElementById('wizard-final-price');
+        if (finalPriceEl) finalPriceEl.textContent = 'R$ ' + unitPrice.toFixed(2).replace('.', ',');
+        
+        wizardData.unit_price = unitPrice;
+        window.wizardData = wizardData;
+    }
+    window.updateFinalSummary = updateFinalSummary;
+        
+    function submitSewingWizard() {
+        const tecidoHidden = document.getElementById('tecido_hidden');
+        if (tecidoHidden) tecidoHidden.value = wizardData.tecido ? wizardData.tecido.id : '';
+        
+        const tipoTecidoHidden = document.getElementById('tipo_tecido_hidden');
+        if (tipoTecidoHidden) tipoTecidoHidden.value = wizardData.tipo_tecido ? wizardData.tipo_tecido.id : '';
+        
+        const corHidden = document.getElementById('cor_hidden');
+        if (corHidden) corHidden.value = wizardData.cor ? wizardData.cor.id : '';
+        
+        const tipoCorteHidden = document.getElementById('tipo_corte_hidden');
+        if (tipoCorteHidden) tipoCorteHidden.value = wizardData.tipo_corte ? wizardData.tipo_corte.id : '';
+        
+        const detalheHidden = document.getElementById('detalhe_hidden');
+        if (detalheHidden) detalheHidden.value = wizardData.detalhe ? wizardData.detalhe.id : '';
+        
+        const detailColorHidden = document.getElementById('detail_color_hidden');
+        if (detailColorHidden) detailColorHidden.value = wizardData.detail_color ? wizardData.detail_color.id : '';
+        
+        const golaHidden = document.getElementById('gola_hidden');
+        if (golaHidden) golaHidden.value = wizardData.gola ? wizardData.gola.id : '';
+        
+        const collarColorHidden = document.getElementById('collar_color_hidden');
+        if (collarColorHidden) collarColorHidden.value = wizardData.collar_color ? wizardData.collar_color.id : '';
+        
+        const hiddenInputs = [
+            { id: 'apply_surcharge_hidden', name: 'apply_surcharge', value: document.getElementById('wizard_apply_surcharge')?.checked ? '1' : '0' },
+            { id: 'is_client_modeling_hidden', name: 'is_client_modeling', value: document.getElementById('wizard_is_client_modeling')?.checked ? '1' : '0' },
+            { id: 'existing_cover_image_hidden', name: 'existing_cover_image', value: (typeof wizardData.image === 'string') ? wizardData.image : '' }
+        ];
+
+        hiddenInputs.forEach(meta => {
+            let input = document.getElementById(meta.id);
+            if(!input) {
+                input = document.createElement('input');
+                input.type = 'hidden';
+                input.id = meta.id;
+                input.name = meta.name;
+                const form = document.getElementById('sewing-form');
+                if (form) form.appendChild(input);
+            }
+            input.value = meta.value;
         });
 
-        // --- Step 9: Image & Notes ---
-        function previewWizardImage(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('wizard-image-preview').src = e.target.result;
-                    document.getElementById('wizard-image-preview-container').classList.remove('hidden');
-                    document.getElementById('wizard-image-placeholder').classList.add('hidden');
-                    // Store file logic handled by form submit of input element
-                    wizardData.image = input.files[0];
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-        function clearWizardImage() {
-             document.getElementById('wizard_file_input').value = '';
-             document.getElementById('wizard-image-preview-container').classList.add('hidden');
-             document.getElementById('wizard-image-placeholder').classList.remove('hidden');
-             wizardData.image = null;
-             
-             // Clear existing hidden image if any
-             const existingImg = document.getElementById('existing_cover_image_hidden');
-             if(existingImg) existingImg.value = '';
-        }
-        
-        // --- Step 10: Summary & Submit ---
-        function updateFinalSummary() {
-            document.getElementById('summary-tecido-val').textContent = wizardData.tecido ? wizardData.tecido.name : '-';
-            document.getElementById('summary-cor-val').textContent = wizardData.cor ? wizardData.cor.name : '-';
-            document.getElementById('summary-modelo-val').textContent = wizardData.tipo_corte ? wizardData.tipo_corte.name : '-';
-            
-            // Calculate Prices
-            let unitPrice = 0;
-            if(wizardData.tipo_corte) unitPrice += wizardData.tipo_corte.price;
-            if(wizardData.detalhe) unitPrice += wizardData.detalhe.price;
-            if(wizardData.gola) unitPrice += wizardData.gola.price;
-            
-            // Apply Surcharge
-            const applySurcharge = document.getElementById('wizard_apply_surcharge').checked;
-            // TODO: Surcharge logic (R$ 5.00 extra, etc.) - Legacy logic was complicated. 
-            // For now just sum base options.
-            
-            document.getElementById('wizard-final-price').textContent = 'R$ ' + unitPrice.toFixed(2).replace('.', ',');
-            wizardData.unit_price = unitPrice;
-        }
-        
-        function submitSewingWizard() {
-            // 1. Populate Hidden Inputs in Main Form
-            document.getElementById('tecido_hidden').value = wizardData.tecido ? wizardData.tecido.id : '';
-            document.getElementById('tipo_tecido_hidden').value = wizardData.tipo_tecido ? wizardData.tipo_tecido.id : '';
-            document.getElementById('cor_hidden').value = wizardData.cor ? wizardData.cor.id : '';
-            document.getElementById('tipo_corte_hidden').value = wizardData.tipo_corte ? wizardData.tipo_corte.id : '';
-            document.getElementById('detalhe_hidden').value = wizardData.detalhe ? wizardData.detalhe.id : '';
-            document.getElementById('detail_color_hidden').value = wizardData.detail_color ? wizardData.detail_color.id : '';
-            document.getElementById('gola_hidden').value = wizardData.gola ? wizardData.gola.id : '';
-            document.getElementById('collar_color_hidden').value = wizardData.collar_color ? wizardData.collar_color.id : '';
-            
-            // Populate apply_surcharge and is_client_modeling
-            const hiddenInputs = [
-                { id: 'apply_surcharge_hidden', name: 'apply_surcharge', value: document.getElementById('wizard_apply_surcharge').checked ? '1' : '0' },
-                { id: 'is_client_modeling_hidden', name: 'is_client_modeling', value: document.getElementById('wizard_is_client_modeling').checked ? '1' : '0' },
-                { id: 'existing_cover_image_hidden', name: 'existing_cover_image', value: (typeof wizardData.image === 'string') ? wizardData.image : '' }
-            ];
-
-            hiddenInputs.forEach(meta => {
-                let input = document.getElementById(meta.id);
-                if(!input) {
-                    input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.id = meta.id;
-                    input.name = meta.name;
-                    document.getElementById('sewing-form').appendChild(input);
-                }
-                input.value = meta.value;
-            });
-
-            // 2. Populate Sizes
-            const sizeContainer = document.getElementById('hidden-sizes-container');
+        const sizeContainer = document.getElementById('hidden-sizes-container');
+        if (sizeContainer) {
             sizeContainer.innerHTML = '';
             let totalQty = 0;
             for (const [size, qty] of Object.entries(wizardData.sizes)) {
                 if(qty > 0) {
                    const input = document.createElement('input');
                    input.type = 'hidden';
-                   input.name = `tamanhos[${size}]`; // Correct name format for backend
+                   input.name = `tamanhos[${size}]`;
                    input.value = qty;
                    sizeContainer.appendChild(input);
                    totalQty += parseInt(qty) || 0;
                 }
             }
-            // Atualiza quantidade total esperada pelo backend
             const qtyInput = document.getElementById('quantity');
-            if (qtyInput) {
-                qtyInput.value = totalQty;
-            }
-            
-            // 3. Populate Notes & Cost
-            const notes = document.getElementById('wizard_notes').value;
-             // Append notes input if not exists
-            if(!document.querySelector('input[name="art_notes"]')) {
-                 const nInput = document.createElement('input');
-                 nInput.type = 'hidden';
-                 nInput.name = 'art_notes';
-                 nInput.value = notes;
-                 sizeContainer.appendChild(nInput); // reuse container
-            } else {
-                 document.querySelector('input[name="art_notes"]').value = notes;
-            }
-            
-            // Unit Cost (Admin)
-            if (isAdmin) {
-                const cost = document.getElementById('wizard_unit_cost').value;
-                 // Append cost input
-                 const cInput = document.createElement('input');
-                 cInput.type = 'hidden';
-                 cInput.name = 'unit_cost';
-                 cInput.value = cost;
-                 sizeContainer.appendChild(cInput);
-            }
-            // Unit price
-            const unitPriceInput = document.getElementById('unit_price');
-            if (unitPriceInput) {
-                const finalPrice = wizardData.unit_price || parseFloat((document.getElementById('wizard-final-price')?.textContent || '0').replace(/[R$\\s\\.]/g,'').replace(',','.')) || 0;
-                unitPriceInput.value = finalPrice;
-            }
-            
-            // 4. Populate Personalizacao inputs
-            const personalizacaoContainer = document.getElementById('hidden-personalizacao-container');
+            if (qtyInput) qtyInput.value = totalQty;
+        }
+        
+        const notes = document.getElementById('wizard_notes')?.value || '';
+        const artNotesInput = document.querySelector('input[name="art_notes"]');
+        if(!artNotesInput) {
+             const nInput = document.createElement('input');
+             nInput.type = 'hidden';
+             nInput.name = 'art_notes';
+             nInput.value = notes;
+             if (sizeContainer) sizeContainer.appendChild(nInput);
+        } else {
+             artNotesInput.value = notes;
+        }
+        
+        if (isAdmin) {
+            const cost = document.getElementById('wizard_unit_cost')?.value || 0;
+             const cInput = document.createElement('input');
+             cInput.type = 'hidden';
+             cInput.name = 'unit_cost';
+             cInput.value = cost;
+             if (sizeContainer) sizeContainer.appendChild(cInput);
+        }
+
+        const unitPriceInput = document.getElementById('unit_price');
+        if (unitPriceInput) {
+            const finalPrice = wizardData.unit_price || parseFloat((document.getElementById('wizard-final-price')?.textContent || '0').replace(/[R$\s\.]/g,'').replace(',','.')) || 0;
+            unitPriceInput.value = finalPrice;
+        }
+        
+        const personalizacaoContainer = document.getElementById('hidden-personalizacao-container');
+        if (personalizacaoContainer) {
             personalizacaoContainer.innerHTML = '';
             wizardData.personalizacao.forEach(pId => {
                 const pInput = document.createElement('input');
@@ -1526,563 +1612,479 @@
                 pInput.value = pId;
                 personalizacaoContainer.appendChild(pInput);
             });
-            
-            // 5. Ensure file input has correct name
-            document.getElementById('wizard_file_input').name = 'item_cover_image';
-            
-            // 6. Submit Form (Use requestSubmit to trigger AJAX listener)
-            const form = document.getElementById('sewing-form');
+        }
+        
+        const wizardFile = document.getElementById('wizard_file_input');
+        if (wizardFile) wizardFile.name = 'item_cover_image';
+        
+        const form = document.getElementById('sewing-form');
+        if (form) {
             if (typeof form.requestSubmit === 'function') {
                 form.requestSubmit();
             } else {
                 form.dispatchEvent(new Event('submit', { cancelable: true }));
             }
         }
+    }
+    window.submitSewingWizard = submitSewingWizard;
 
+    async function editItem(itemId) {
+        await populateWizardFromItem(itemId, false);
+    }
+    window.editItem = editItem;
 
+    async function duplicateItem(itemId) {
+        await populateWizardFromItem(itemId, true);
+    }
+    window.duplicateItem = duplicateItem;
 
+    async function populateWizardFromItem(itemId, isDuplicate) {
+        const item = itemsData.find(i => i.id == itemId);
+        if (!item) {
+            alert('Item não encontrado.');
+            return;
+        }
+
+        if (Object.keys(optionsWithParents).length === 0) {
+             console.log('Waiting for options to load...');
+             await new Promise(resolve => setTimeout(resolve, 800));
+             if (Object.keys(optionsWithParents).length === 0) {
+                 alert('As opções de produtos ainda estão carregando. Por favor, aguarde um segundo e tente novamente.');
+                 return;
+             }
+        }
+
+        wizardData = {
+            tecido: null,
+            tipo_tecido: null,
+            cor: null,
+            tipo_corte: null,
+            detalhe: null,
+            detail_color: null,
+            gola: null,
+            collar_color: null,
+            personalizacao: [],
+            image: item.cover_image || null,
+            imageUrl: item.cover_image_url || null,
+            notes: item.art_notes || '',
+            sizes: {},
+            unit_cost: item.unit_cost || 0
+        };
+        window.wizardData = wizardData;
+
+        const editingItemId = document.getElementById('editing-item-id');
+        if (editingItemId) editingItemId.value = isDuplicate ? '' : itemId;
         
-        // Legacy stock checking functions (checkStockForAllSizes, createStockRequestForSize) 
-        // removed as they referenced old DOM elements.
-        // Stock checking should be integrated into the Wizard steps (e.g., Step 9).
+        const formAction = document.getElementById('form-action');
+        if (formAction) formAction.value = isDuplicate ? 'add_item' : 'update_item';
+        
+        const formTitle = document.getElementById('form-title');
+        if (formTitle) formTitle.textContent = isDuplicate ? 'Duplicar Item' : 'Editar Item';
+        
+        let printDesc = {};
+        try {
+            printDesc = typeof item.print_desc === 'string' ? JSON.parse(item.print_desc) : item.print_desc;
+        } catch(e) { console.error('Erro ao parsear print_desc', e); }
 
-        /* Duplicate submit handler (legacy) disabled
-        document.getElementById('sewing-form').addEventListener('submit', function(e) {
-            return; // duplicate handler disabled
-            const form = this;
-            if (form.dataset.submitting === 'true') {
-                e.preventDefault();
-                return false;
-            }
+        const wIds = printDesc.wizard_ids || {};
+        
+        const findOptionByName = (listKey, name) => {
+            const list = getOptionList([listKey]);
+            if (!name) return null;
+            const cleanName = name.split(' - ')[0].trim().toLowerCase();
+            return list.find(o => o.name.toLowerCase().includes(cleanName)) || null;
+        };
 
-            const checkboxes = document.querySelectorAll('.personalizacao-checkbox');
-            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-            
-            if (checkedCount === 0) {
-                e.preventDefault();
-                alert('Por favor, selecione pelo menos uma personalização.');
-                return false;
-            }
+        if (wIds.tecido) {
+            const tissue = getOptionList(['tecido']).find(o => o.id == wIds.tecido);
+            if (tissue) wizardData.tecido = { id: tissue.id, name: tissue.name, price: parseFloat(tissue.price || 0) };
+        } else {
+             const opt = findOptionByName('tecido', item.fabric);
+             if(opt) wizardData.tecido = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
+        }
 
-            const quantity = parseInt(document.getElementById('quantity').value);
-            if (quantity === 0) {
-                e.preventDefault();
-                alert('Por favor, adicione pelo menos uma peça nos tamanhos.');
-                return false;
-            }
+        if (wIds.tipo_tecido) {
+            const subTissue = getOptionList(['tipo_tecido']).find(o => o.id == wIds.tipo_tecido);
+             if (subTissue) wizardData.tipo_tecido = { id: subTissue.id, name: subTissue.name, price: parseFloat(subTissue.price || 0) };
+        }
 
-            // Disable button and show processing state
-            const submitBtn = document.getElementById('submit-button');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                const originalText = submitBtn.innerText;
-                submitBtn.innerHTML = `
-                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processando...
-                `;
-                submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+        if (wIds.cor) {
+            const color = getOptionList(['cor']).find(o => o.id == wIds.cor);
+            if (color) wizardData.cor = { id: color.id, name: color.name, price: 0 };
+        } else {
+             const opt = findOptionByName('cor', item.color);
+             if(opt) wizardData.cor = { id: opt.id, name: opt.name, price: 0 };
+        }
+
+        if (wIds.tipo_corte) {
+            const cut = getOptionList(['tipo_corte', 'corte']).find(o => o.id == wIds.tipo_corte);
+            if (cut) wizardData.tipo_corte = { id: cut.id, name: cut.name, price: parseFloat(cut.price || 0) };
+        } else {
+             const opt = findOptionByName('tipo_corte', item.model);
+             if(opt) wizardData.tipo_corte = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
+        }
+
+        if (wIds.detalhe) {
+            const detail = getOptionList(['detalhe']).find(o => o.id == wIds.detalhe);
+            if (detail) wizardData.detalhe = { id: detail.id, name: detail.name, price: parseFloat(detail.price || 0) };
+        } else {
+             const opt = findOptionByName('detalhe', item.detail);
+             if(opt) wizardData.detalhe = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
+        }
+
+        if (wIds.detail_color) {
+            const dc = getOptionList(['cor']).find(o => o.id == wIds.detail_color);
+            if (dc) wizardData.detail_color = { id: dc.id, name: dc.name, price: 0 };
+        } else {
+             const opt = findOptionByName('cor', item.detail_color);
+             if(opt) wizardData.detail_color = { id: opt.id, name: opt.name, price: 0 };
+        }
+
+        if (wIds.gola) {
+            const collar = getOptionList(['gola']).find(o => o.id == wIds.gola);
+            if (collar) wizardData.gola = { id: collar.id, name: collar.name, price: parseFloat(collar.price || 0) };
+        } else {
+             const opt = findOptionByName('gola', item.collar);
+             if(opt) wizardData.gola = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
+        }
+
+        if (wIds.collar_color) {
+            const cc = getOptionList(['cor']).find(o => o.id == wIds.collar_color);
+            if (cc) wizardData.collar_color = { id: cc.id, name: cc.name, price: 0 };
+        } else {
+             const opt = findOptionByName('cor', item.collar_color);
+             if(opt) wizardData.collar_color = { id: opt.id, name: opt.name, price: 0 };
+        }
+
+        if (Array.isArray(wIds.personalizacao)) {
+            wizardData.personalizacao = wIds.personalizacao.map(id => id.toString());
+        } else {
+            if (item.print_type) {
+                const names = item.print_type.split(',').map(n => n.trim().toLowerCase());
+                const allP = getOptionList(['personalizacao']);
+                wizardData.personalizacao = allP
+                    .filter(p => names.includes(p.name.toLowerCase()))
+                    .map(p => p.id.toString());
             }
-            
-            form.dataset.submitting = 'true';
-            
-            return true;
+        }
+
+        let itemSizes = {};
+        try {
+            itemSizes = typeof item.sizes === 'string' ? JSON.parse(item.sizes) : item.sizes;
+        } catch(e) {}
+        wizardData.sizes = itemSizes || {};
+
+        const diffDetailCb = document.getElementById('different_detail_color_cb');
+        if (diffDetailCb) {
+            diffDetailCb.checked = (wizardData.detail_color && wizardData.cor && wizardData.detail_color.id != wizardData.cor.id);
+        }
+        
+        const diffCollarCb = document.getElementById('different_collar_color_cb');
+        if (diffCollarCb) {
+            diffCollarCb.checked = (wizardData.collar_color && wizardData.cor && wizardData.collar_color.id != wizardData.cor.id);
+        }
+
+        const wizardNotes = document.getElementById('wizard_notes');
+        if (wizardNotes) wizardNotes.value = wizardData.notes;
+        
+        const wizardUnitCost = document.getElementById('wizard_unit_cost');
+        if (wizardUnitCost) wizardUnitCost.value = wizardData.unit_cost;
+        
+        const applySurcharge = document.getElementById('wizard_apply_surcharge');
+        if (applySurcharge) applySurcharge.checked = !!printDesc.apply_surcharge;
+        
+        const isClientModeling = document.getElementById('wizard_is_client_modeling');
+        if (isClientModeling) isClientModeling.checked = !!printDesc.is_client_modeling;
+
+        document.querySelectorAll('.wizard-size-input').forEach(input => {
+            const s = input.dataset.size;
+            input.value = wizardData.sizes[s] || 0;
         });
-        */
-
-        // Legacy functions removed to prevent syntax/reference errors.
-        // Editing flows should utilize openSewingWizard(itemData) logic.
         
-        async function editItem(itemId) {
-            await populateWizardFromItem(itemId, false);
-        }
-
-        async function duplicateItem(itemId) {
-            await populateWizardFromItem(itemId, true);
-        }
-
-        async function populateWizardFromItem(itemId, isDuplicate) {
-            const item = itemsData.find(i => i.id == itemId);
-            if (!item) {
-                alert('Item não encontrado.');
-                return;
-            }
-
-            // Ensure options are loaded (they come from AJAX)
-            if (Object.keys(optionsWithParents).length === 0) {
-                 console.log('Waiting for options to load...');
-                 await new Promise(resolve => setTimeout(resolve, 800));
-                 if (Object.keys(optionsWithParents).length === 0) {
-                     alert('As opções de produtos ainda estão carregando. Por favor, aguarde um segundo e tente novamente.');
-                     return;
-                 }
-            }
-
-            // Reset wizardData
-            wizardData = {
-                tecido: null,
-                tipo_tecido: null,
-                cor: null,
-                tipo_corte: null,
-                detalhe: null,
-                detail_color: null,
-                gola: null,
-                collar_color: null,
-                personalizacao: [],
-                image: item.cover_image || null,
-                imageUrl: item.cover_image_url || null,
-                notes: item.art_notes || '',
-                sizes: {},
-                unit_cost: item.unit_cost || 0
-            };
-
-            // Set editing ID
-            document.getElementById('editing-item-id').value = isDuplicate ? '' : itemId;
-            document.getElementById('form-action').value = isDuplicate ? 'add_item' : 'update_item';
-            document.getElementById('form-title').textContent = isDuplicate ? 'Duplicar Item' : 'Editar Item';
-            
-            // Parse print_desc for wizard_ids or fallback
-            let printDesc = {};
-            try {
-                printDesc = typeof item.print_desc === 'string' ? JSON.parse(item.print_desc) : item.print_desc;
-            } catch(e) { console.error('Erro ao parsear print_desc', e); }
-
-            const wIds = printDesc.wizard_ids || {};
-            
-            // Helper to find option by name if ID is missing
-            const findOptionByName = (listKey, name) => {
-                const list = getOptionList([listKey]);
-                if (!name) return null;
-                const cleanName = name.split(' - ')[0].trim().toLowerCase();
-                return list.find(o => o.name.toLowerCase().includes(cleanName)) || null;
-            };
-
-            // Restore from IDs or Name fallback
-            if (wIds.tecido) {
-                const tissue = getOptionList(['tecido']).find(o => o.id == wIds.tecido);
-                if (tissue) wizardData.tecido = { id: tissue.id, name: tissue.name, price: parseFloat(tissue.price || 0) };
-            } else {
-                 const opt = findOptionByName('tecido', item.fabric);
-                 if(opt) wizardData.tecido = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
-            }
-
-            if (wIds.tipo_tecido) {
-                const subTissue = getOptionList(['tipo_tecido']).find(o => o.id == wIds.tipo_tecido);
-                 if (subTissue) wizardData.tipo_tecido = { id: subTissue.id, name: subTissue.name, price: parseFloat(subTissue.price || 0) };
-            }
-
-            if (wIds.cor) {
-                const color = getOptionList(['cor']).find(o => o.id == wIds.cor);
-                if (color) wizardData.cor = { id: color.id, name: color.name, price: 0 };
-            } else {
-                 const opt = findOptionByName('cor', item.color);
-                 if(opt) wizardData.cor = { id: opt.id, name: opt.name, price: 0 };
-            }
-
-            if (wIds.tipo_corte) {
-                const cut = getOptionList(['tipo_corte', 'corte']).find(o => o.id == wIds.tipo_corte);
-                if (cut) wizardData.tipo_corte = { id: cut.id, name: cut.name, price: parseFloat(cut.price || 0) };
-            } else {
-                 const opt = findOptionByName('tipo_corte', item.model);
-                 if(opt) wizardData.tipo_corte = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
-            }
-
-            if (wIds.detalhe) {
-                const detail = getOptionList(['detalhe']).find(o => o.id == wIds.detalhe);
-                if (detail) wizardData.detalhe = { id: detail.id, name: detail.name, price: parseFloat(detail.price || 0) };
-            } else {
-                 const opt = findOptionByName('detalhe', item.detail);
-                 if(opt) wizardData.detalhe = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
-            }
-
-            if (wIds.detail_color) {
-                const dc = getOptionList(['cor']).find(o => o.id == wIds.detail_color);
-                if (dc) wizardData.detail_color = { id: dc.id, name: dc.name, price: 0 };
-            } else {
-                 const opt = findOptionByName('cor', item.detail_color);
-                 if(opt) wizardData.detail_color = { id: opt.id, name: opt.name, price: 0 };
-            }
-
-            if (wIds.gola) {
-                const collar = getOptionList(['gola']).find(o => o.id == wIds.gola);
-                if (collar) wizardData.gola = { id: collar.id, name: collar.name, price: parseFloat(collar.price || 0) };
-            } else {
-                 const opt = findOptionByName('gola', item.collar);
-                 if(opt) wizardData.gola = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
-            }
-
-            if (wIds.collar_color) {
-                const cc = getOptionList(['cor']).find(o => o.id == wIds.collar_color);
-                if (cc) wizardData.collar_color = { id: cc.id, name: cc.name, price: 0 };
-            } else {
-                 const opt = findOptionByName('cor', item.collar_color);
-                 if(opt) wizardData.collar_color = { id: opt.id, name: opt.name, price: 0 };
-            }
-
-            if (Array.isArray(wIds.personalizacao)) {
-                wizardData.personalizacao = wIds.personalizacao.map(id => id.toString());
-            } else {
-                // Fallback for personalizacao is harder because it's a string of names
-                if (item.print_type) {
-                    const names = item.print_type.split(',').map(n => n.trim().toLowerCase());
-                    const allP = getOptionList(['personalizacao']);
-                    wizardData.personalizacao = allP
-                        .filter(p => names.includes(p.name.toLowerCase()))
-                        .map(p => p.id.toString());
-                }
-            }
-
-            // Sizes
-            let itemSizes = {};
-            try {
-                itemSizes = typeof item.sizes === 'string' ? JSON.parse(item.sizes) : item.sizes;
-            } catch(e) {}
-            wizardData.sizes = itemSizes || {};
-
-            // Pre-fill checkboxes for "different color" if needed
-            if (wizardData.detail_color && wizardData.cor && wizardData.detail_color.id != wizardData.cor.id) {
-                document.getElementById('different_detail_color_cb').checked = true;
-            } else {
-                document.getElementById('different_detail_color_cb').checked = false;
-            }
-            if (wizardData.collar_color && wizardData.cor && wizardData.collar_color.id != wizardData.cor.id) {
-                document.getElementById('different_collar_color_cb').checked = true;
-            } else {
-                document.getElementById('different_collar_color_cb').checked = false;
-            }
-
-            // Sync other UI elements
-            document.getElementById('wizard_notes').value = wizardData.notes;
-            document.getElementById('wizard_unit_cost').value = wizardData.unit_cost;
-            document.getElementById('wizard_apply_surcharge').checked = !!printDesc.apply_surcharge;
-            document.getElementById('wizard_is_client_modeling').checked = !!printDesc.is_client_modeling;
-
-            // Fill size inputs
-            document.querySelectorAll('.wizard-size-input').forEach(input => {
-                const s = input.dataset.size;
-                input.value = wizardData.sizes[s] || 0;
-            });
-            
-            calculateWizardTotal();
-            
-            // Image preview
-            if (wizardData.imageUrl) {
-                document.getElementById('wizard-image-preview').src = wizardData.imageUrl;
-                document.getElementById('wizard-image-preview-container').classList.remove('hidden');
-                document.getElementById('wizard-image-placeholder').classList.add('hidden');
-            } else if (wizardData.image && typeof wizardData.image === 'string') {
-                document.getElementById('wizard-image-preview').src = storageUrl + wizardData.image;
-                document.getElementById('wizard-image-preview-container').classList.remove('hidden');
-                document.getElementById('wizard-image-placeholder').classList.add('hidden');
-            } else {
-                clearWizardImage();
-            }
-
-            // Sync global filter
-            selectedPersonalizacoes = [...wizardData.personalizacao];
-
-            // Open Wizard
-            wizardCurrentStep = isDuplicate ? 4 : 1; 
-            openSewingWizard();
-        }
+        calculateWizardTotal();
         
-        function previewCoverImage(input) {
-            const previewContainer = document.getElementById('cover-image-preview-container');
-            const previewImage = document.getElementById('cover-image-preview');
-            const fileNameDisplay = document.getElementById('file-name-display');
-            
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    previewImage.src = e.target.result;
-                    previewContainer.classList.remove('hidden');
-                }
-                
-                reader.readAsDataURL(input.files[0]);
-                
+        const previewImg = document.getElementById('wizard-image-preview');
+        const previewContainer = document.getElementById('wizard-image-preview-container');
+        const placeholder = document.getElementById('wizard-image-placeholder');
+        
+        if (wizardData.imageUrl) {
+            if (previewImg) previewImg.src = wizardData.imageUrl;
+            if (previewContainer) previewContainer.classList.remove('hidden');
+            if (placeholder) placeholder.classList.add('hidden');
+        } else if (wizardData.image && typeof wizardData.image === 'string') {
+            if (previewImg) previewImg.src = storageUrl + wizardData.image;
+            if (previewContainer) previewContainer.classList.remove('hidden');
+            if (placeholder) placeholder.classList.add('hidden');
+        } else {
+            clearWizardImage();
+        }
+
+        selectedPersonalizacoes = [...wizardData.personalizacao];
+        window.selectedPersonalizacoes = selectedPersonalizacoes;
+
+        wizardCurrentStep = isDuplicate ? 4 : 1; 
+        window.wizardCurrentStep = wizardCurrentStep;
+        openSewingWizard();
+    }
+    window.populateWizardFromItem = populateWizardFromItem;
+        
+    function previewCoverImage(input) {
+        const previewContainer = document.getElementById('cover-image-preview-container');
+        const previewImage = document.getElementById('cover-image-preview');
+        const fileNameDisplay = document.getElementById('file-name-display');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (previewImage) previewImage.src = e.target.result;
+                if (previewContainer) previewContainer.classList.remove('hidden');
+            }
+            reader.readAsDataURL(input.files[0]);
+            if (fileNameDisplay) {
                 fileNameDisplay.textContent = 'Arquivo selecionado: ' + input.files[0].name;
                 fileNameDisplay.classList.remove('hidden');
             }
         }
+    }
+    window.previewCoverImage = previewCoverImage;
 
-
-        function cancelEdit() {
-            const editingItemId = document.getElementById('editing-item-id');
-            const formAction = document.getElementById('form-action');
-            const formTitle = document.getElementById('form-title');
-            const submitButton = document.getElementById('submit-button');
-            const sewingForm = document.getElementById('sewing-form');
-            const coverPreviewContainer = document.getElementById('cover-image-preview-container');
-            const coverPreview = document.getElementById('cover-image-preview');
-            const fileNameDisplay = document.getElementById('file-name-display');
-            
-            if (editingItemId) editingItemId.value = '';
-            if (formAction) formAction.value = 'add_item';
-            if (formTitle) formTitle.textContent = 'Adicionar Novo Item';
-            if (submitButton) submitButton.innerHTML = 'Adicionar Item';
-            if (sewingForm) sewingForm.reset();
-            
-            // Limpar preview de imagem
-            if (coverPreviewContainer) coverPreviewContainer.classList.add('hidden');
-            if (coverPreview) coverPreview.src = '';
-            if (fileNameDisplay) {
-                fileNameDisplay.classList.add('hidden');
-                fileNameDisplay.textContent = '';
-            }
-            
-            document.querySelectorAll('.personalizacao-checkbox').forEach(checkbox => {
-                checkbox.checked = false;
-            });
-            
-            // Reset wizard data
-            wizardData = {
-                tecido: null, tipo_tecido: null, cor: null, tipo_corte: null,
-                detalhe: null, detail_color: null, gola: null, collar_color: null,
-                personalizacao: [], image: null, imageUrl: null, notes: '', sizes: {}, unit_cost: 0
-            };
-            selectedPersonalizacoes = [];
-            wizardCurrentStep = 1;
-            closeSewingWizard();
+    function cancelEdit() {
+        const editingItemId = document.getElementById('editing-item-id');
+        const formAction = document.getElementById('form-action');
+        const formTitle = document.getElementById('form-title');
+        const submitButton = document.getElementById('submit-button');
+        const sewingForm = document.getElementById('sewing-form');
+        const coverPreviewContainer = document.getElementById('cover-image-preview-container');
+        const coverPreview = document.getElementById('cover-image-preview');
+        const fileNameDisplay = document.getElementById('file-name-display');
+        
+        if (editingItemId) editingItemId.value = '';
+        if (formAction) formAction.value = 'add_item';
+        if (formTitle) formTitle.textContent = 'Adicionar Novo Item';
+        if (submitButton) submitButton.innerHTML = 'Adicionar Item';
+        if (sewingForm) sewingForm.reset();
+        
+        if (coverPreviewContainer) coverPreviewContainer.classList.add('hidden');
+        if (coverPreview) coverPreview.src = '';
+        if (fileNameDisplay) {
+            fileNameDisplay.classList.add('hidden');
+            fileNameDisplay.textContent = '';
         }
-
-        @if(isset($editData))
-        document.addEventListener('DOMContentLoaded', function() {
-            const submitButton = document.getElementById('submit-button');
-            const cancelButton = document.createElement('button');
-            cancelButton.type = 'button';
-            cancelButton.className = 'px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg';
-            cancelButton.innerHTML = 'Cancelar Edição';
-            cancelButton.onclick = cancelEdit;
-            
-            submitButton.parentNode.insertBefore(cancelButton, submitButton.nextSibling);
+        
+        document.querySelectorAll('.personalizacao-checkbox').forEach(checkbox => {
+            checkbox.checked = false;
         });
-        @endif
+        
+        wizardData = {
+            tecido: null, tipo_tecido: null, cor: null, tipo_corte: null,
+            detalhe: null, detail_color: null, gola: null, collar_color: null,
+            personalizacao: [], image: null, imageUrl: null, notes: '', sizes: {}, unit_cost: 0
+        };
+        window.wizardData = wizardData;
+        selectedPersonalizacoes = [];
+        window.selectedPersonalizacoes = selectedPersonalizacoes;
+        wizardCurrentStep = 1;
+        window.wizardCurrentStep = wizardCurrentStep;
+        closeSewingWizard();
+    }
+    window.cancelEdit = cancelEdit;
 
-        async function togglePin(itemId) {
-            try {
-                const response = await fetch(`/order-items/${itemId}/toggle-pin`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Recarregar a página para atualizar a ordem
-                    window.location.reload();
-                } else {
-                    alert('Erro ao alterar status do item: ' + (data.message || 'Erro desconhecido'));
+    async function togglePin(itemId) {
+        try {
+            const response = await fetch(`/order-items/${itemId}/toggle-pin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 }
-            } catch (error) {
-                console.error('Erro:', error);
-                alert('Erro ao processar solicitação');
-            }
-        }
-
-        // ==========================================
-        // FUNÇÕES DO MODAL SUB. TOTAL
-        // ==========================================
-        
-        function openSublimationModal() {
-            const modal = document.getElementById('sublimation-modal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-                // Reset form
-                document.getElementById('sublimation-form').reset();
-                document.getElementById('sub-total-pecas').textContent = '0';
-                document.getElementById('sub-total-price').textContent = 'R$ 0,00';
-                document.getElementById('sub_quantity').value = 0;
-            }
-        }
-        
-        function closeSublimationModal() {
-            const modal = document.getElementById('sublimation-modal');
-            if (modal) {
-                modal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            }
-        }
-        
-        async function loadSublimationAddons() {
-            const typeSlug = document.getElementById('sublimation_type').value;
-            const container = document.getElementById('sublimation-addons-container');
-            
-            if (!typeSlug) {
-                container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Selecione um tipo primeiro</p>';
-                return;
-            }
-            
-            // Verificar cache
-            if (sublimationAddonsCache[typeSlug]) {
-                renderSublimationAddons(sublimationAddonsCache[typeSlug]);
-                return;
-            }
-            
-            container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Carregando...</p>';
-            
-            try {
-                const response = await fetch(`/api/sublimation-total/addons/${typeSlug}`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    sublimationAddonsCache[typeSlug] = data.data;
-                    renderSublimationAddons(data.data);
-                    // Buscar preço base
-                    calculateSublimationPrice();
-                } else {
-                    container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Nenhum adicional</p>';
-                }
-            } catch (error) {
-                console.error('Erro ao carregar adicionais:', error);
-                container.innerHTML = '<p class="text-sm text-red-500 col-span-full">Erro ao carregar</p>';
-            }
-        }
-        
-        function renderSublimationAddons(addons) {
-            const container = document.getElementById('sublimation-addons-container');
-            
-            if (!addons || addons.length === 0) {
-                container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Nenhum adicional disponível</p>';
-                return;
-            }
-            
-            container.innerHTML = addons.map(addon => `
-                <label class="flex items-center px-3 py-2 border rounded-lg cursor-pointer transition-all border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-purple-300 dark:hover:border-purple-600">
-                    <input type="checkbox" name="sublimation_addons[]" value="${addon.id}" data-price="${addon.price}" onchange="calculateSublimationPrice()" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
-                    <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">${addon.name}</span>
-                    ${addon.price != 0 ? `<span class="ml-auto text-xs ${addon.price >= 0 ? 'text-green-600' : 'text-red-600'}">${addon.price >= 0 ? '+' : ''}R$ ${parseFloat(addon.price).toFixed(2).replace('.', ',')}</span>` : ''}
-                </label>
-            `).join('');
-        }
-        
-        function calculateSublimationTotal() {
-            const inputs = document.querySelectorAll('.sub-size-input');
-            let total = 0;
-            inputs.forEach(input => {
-                total += parseInt(input.value) || 0;
             });
-            document.getElementById('sub-total-pecas').textContent = total;
-            document.getElementById('sub_quantity').value = total;
-            
-            // Recalcular preço
-            calculateSublimationPrice();
+            const data = await response.json();
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Erro ao alterar status do item: ' + (data.message || 'Erro desconhecido'));
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao processar solicitação');
+        }
+    }
+    window.togglePin = togglePin;
+
+    function openSublimationModal() {
+        const modal = document.getElementById('sublimation-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            const form = document.getElementById('sublimation-form');
+            if (form) form.reset();
+            const totalPecas = document.getElementById('sub-total-pecas');
+            if (totalPecas) totalPecas.textContent = '0';
+            const totalPrice = document.getElementById('sub-total-price');
+            if (totalPrice) totalPrice.textContent = 'R$ 0,00';
+            const qtyInput = document.getElementById('sub_quantity');
+            if (qtyInput) qtyInput.value = 0;
+        }
+    }
+    window.openSublimationModal = openSublimationModal;
+    
+    function closeSublimationModal() {
+        const modal = document.getElementById('sublimation-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    }
+    window.closeSublimationModal = closeSublimationModal;
+    
+    async function loadSublimationAddons() {
+        const typeSlug = document.getElementById('sublimation_type')?.value;
+        const container = document.getElementById('sublimation-addons-container');
+        if (!typeSlug || !container) {
+            if (container) container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Selecione um tipo primeiro</p>';
+            return;
         }
         
-        async function calculateSublimationPrice() {
-            const typeSlug = document.getElementById('sublimation_type').value;
-            const quantity = parseInt(document.getElementById('sub_quantity').value) || 0;
-            
-            if (!typeSlug || quantity === 0) {
+        if (sublimationAddonsCache[typeSlug]) {
+            renderSublimationAddons(sublimationAddonsCache[typeSlug]);
+            return;
+        }
+        
+        container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Carregando...</p>';
+        
+        try {
+            const response = await fetch(`/api/sublimation-total/addons/${typeSlug}`);
+            const data = await response.json();
+            if (data.success) {
+                sublimationAddonsCache[typeSlug] = data.data;
+                renderSublimationAddons(data.data);
+                calculateSublimationPrice();
+            } else {
+                container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Nenhum adicional</p>';
+            }
+        } catch (error) {
+            console.error('Erro ao carregar adicionais:', error);
+            container.innerHTML = '<p class="text-sm text-red-500 col-span-full">Erro ao carregar</p>';
+        }
+    }
+    window.loadSublimationAddons = loadSublimationAddons;
+    
+    function renderSublimationAddons(addons) {
+        const container = document.getElementById('sublimation-addons-container');
+        if (!container) return;
+        
+        if (!addons || addons.length === 0) {
+            container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Nenhum adicional disponível</p>';
+            return;
+        }
+        
+        container.innerHTML = addons.map(addon => `
+            <label class="flex items-center px-3 py-2 border rounded-lg cursor-pointer transition-all border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-purple-300 dark:hover:border-purple-600">
+                <input type="checkbox" name="sublimation_addons[]" value="${addon.id}" data-price="${addon.price}" onchange="calculateSublimationPrice()" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">${addon.name}</span>
+                ${addon.price != 0 ? `<span class="ml-auto text-xs ${addon.price >= 0 ? 'text-green-600' : 'text-red-600'}">${addon.price >= 0 ? '+' : ''}R$ ${parseFloat(addon.price).toFixed(2).replace('.', ',')}</span>` : ''}
+            </label>
+        `).join('');
+    }
+    window.renderSublimationAddons = renderSublimationAddons;
+    
+    function calculateSublimationTotal() {
+        const inputs = document.querySelectorAll('.sub-size-input');
+        let total = 0;
+        inputs.forEach(input => {
+            total += parseInt(input.value) || 0;
+        });
+        const totalPecas = document.getElementById('sub-total-pecas');
+        if (totalPecas) totalPecas.textContent = total;
+        const qtyInput = document.getElementById('sub_quantity');
+        if (qtyInput) qtyInput.value = total;
+        calculateSublimationPrice();
+    }
+    window.calculateSublimationTotal = calculateSublimationTotal;
+    
+    async function calculateSublimationPrice() {
+        const typeSlug = document.getElementById('sublimation_type')?.value;
+        const quantity = parseInt(document.getElementById('sub_quantity')?.value) || 0;
+        
+        if (!typeSlug || quantity === 0) {
+            updateSublimationPreview();
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/sublimation-total/price/${typeSlug}/${quantity}`);
+            const data = await response.json();
+            if (data.success) {
+                let basePrice = parseFloat(data.price);
+                const selectedAddons = document.querySelectorAll('input[name="sublimation_addons[]"]:checked');
+                selectedAddons.forEach(addon => {
+                    basePrice += parseFloat(addon.dataset.price);
+                });
+                const unitPriceInput = document.getElementById('sub_unit_price');
+                if (unitPriceInput) unitPriceInput.value = basePrice.toFixed(2);
                 updateSublimationPreview();
-                return;
             }
-            
-            try {
-                const response = await fetch(`/api/sublimation-total/price/${typeSlug}/${quantity}`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    let basePrice = parseFloat(data.price);
-                    
-                    // Somar adicionais
-                    const selectedAddons = document.querySelectorAll('input[name="sublimation_addons[]"]:checked');
-                    selectedAddons.forEach(addon => {
-                        basePrice += parseFloat(addon.dataset.price);
-                    });
-                    
-                    document.getElementById('sub_unit_price').value = basePrice.toFixed(2);
-                    updateSublimationPreview();
-                }
-            } catch (error) {
-                console.error('Erro ao buscar preço:', error);
-            }
+        } catch (error) {
+            console.error('Erro ao buscar preço:', error);
         }
-        
-        function updateSublimationPreview() {
-            const unitPrice = parseFloat(document.getElementById('sub_unit_price').value) || 0;
-            const quantity = parseInt(document.getElementById('sub_quantity').value) || 0;
-            const total = unitPrice * quantity;
-            document.getElementById('sub-total-price').textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
-        }
-        
-        // Form submit do modal SUB. TOTAL
-        document.addEventListener('DOMContentLoaded', function() {
-            // Listener global para alternar a cor do detalhe
-            const detalheSelect = document.getElementById('detalhe');
-            const detailColorContainer = document.getElementById('detail_color_container');
-            const detailColorSelect = document.getElementById('detail_color');
-            if (detalheSelect && detailColorContainer) {
-                const toggleDetailColor = function() {
-                    if (detalheSelect.value) {
-                        detailColorContainer.style.display = 'block';
-                    } else {
-                        detailColorContainer.style.display = 'none';
-                        if (detailColorSelect) detailColorSelect.value = '';
-                    }
-                };
-                detalheSelect.addEventListener('change', toggleDetailColor);
-                toggleDetailColor();
-            }
+    }
+    window.calculateSublimationPrice = calculateSublimationPrice;
+    
+    function updateSublimationPreview() {
+        const unitPrice = parseFloat(document.getElementById('sub_unit_price')?.value) || 0;
+        const quantity = parseInt(document.getElementById('sub_quantity')?.value) || 0;
+        const total = unitPrice * quantity;
+        const totalPriceEl = document.getElementById('sub-total-price');
+        if (totalPriceEl) totalPriceEl.textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+    }
+    window.updateSublimationPreview = updateSublimationPreview;
 
-            const sublimationForm = document.getElementById('sublimation-form');
-            if (sublimationForm) {
-                sublimationForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    
-                    const quantity = parseInt(document.getElementById('sub_quantity').value) || 0;
-                    if (quantity === 0) {
-                        alert('Adicione pelo menos uma peça nos tamanhos.');
-                        return;
+    function initSublimationForm() {
+        const sublimationForm = document.getElementById('sublimation-form');
+        if (sublimationForm) {
+            sublimationForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const quantity = parseInt(document.getElementById('sub_quantity')?.value) || 0;
+                if (quantity === 0) {
+                    alert('Adicione pelo menos uma peça nos tamanhos.');
+                    return;
+                }
+                const artName = document.getElementById('sub_art_name')?.value.trim();
+                if (!artName) {
+                    alert('Informe o nome da arte.');
+                    return;
+                }
+                const btn = document.getElementById('submit-sublimation-btn');
+                const originalHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.37 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Adicionando...';
+                try {
+                    const formData = new FormData(sublimationForm);
+                    const actionUrl = sublimationForm.getAttribute('action');
+                    const response = await fetch(actionUrl, {
+                        method: 'POST',
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                        body: formData
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        closeSublimationModal();
+                        window.location.reload();
+                    } else {
+                        alert(data.message || 'Erro ao adicionar item.');
                     }
-                    
-                    const artName = document.getElementById('sub_art_name').value.trim();
-                    if (!artName) {
-                        alert('Informe o nome da arte.');
-                        return;
-                    }
-                    
-                    const btn = document.getElementById('submit-sublimation-btn');
-                    const originalHtml = btn.innerHTML;
-                    btn.disabled = true;
-                    btn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.37 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Adicionando...';
-                    
-                    try {
-                        const formData = new FormData(sublimationForm);
-                        const actionUrl = sublimationForm.getAttribute('action');
-                        const response = await fetch(actionUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            body: formData
-                        });
-                        
-                        const data = await response.json();
-                        
-                        if (data.success) {
-                            closeSublimationModal();
-                            window.location.reload();
-                        } else {
-                            alert(data.message || 'Erro ao adicionar item.');
-                        }
-                    } catch (error) {
-                        console.error('Erro:', error);
-                        alert('Erro ao processar solicitação.');
-                    } finally {
-                        btn.disabled = false;
-                        btn.innerHTML = originalHtml;
-                    }
-                });
-            }
-        });
+                } catch (error) {
+                    console.error('Erro:', error);
+                    alert('Erro ao processar solicitação.');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            });
+        }
+    }
+    window.initSublimationForm = initSublimationForm;
+})();
 </script>
 @endpush
 @endsection

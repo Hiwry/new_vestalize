@@ -14,12 +14,14 @@
         },
         isMobile() { return window.innerWidth < 768; },
         updateLayout() {
-            const mainContent = document.getElementById('main-content');
-            if (!mainContent) return;
             if (this.isMobile()) {
-                mainContent.style.marginLeft = '0';
+                document.documentElement.classList.remove('sidebar-expanded');
             } else {
-                mainContent.style.marginLeft = this.expanded ? '16rem' : '4rem';
+                if (this.expanded) {
+                    document.documentElement.classList.add('sidebar-expanded');
+                } else {
+                    document.documentElement.classList.remove('sidebar-expanded');
+                }
             }
         },
         toggle() {

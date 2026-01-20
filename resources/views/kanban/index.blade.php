@@ -269,12 +269,12 @@
 
                 @if(Auth::user()->isAdmin())
                 <a href="{{ route('kanban.columns.index') }}" 
-                   class="px-4 py-2 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] text-white dark:text-white rounded-full hover:from-[#8b5cf6] hover:to-[#7c3aed] flex items-center space-x-2 shadow-md">
+                   class="px-4 py-2 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] text-white stay-white dark:text-white rounded-full hover:from-[#8b5cf6] hover:to-[#7c3aed] flex items-center space-x-2 shadow-md">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
-                    <span class="text-white">Gerenciar Colunas</span>
+                    <span class="text-white stay-white">Gerenciar Colunas</span>
                 </a>
                 @endif
             </div>
@@ -299,8 +299,8 @@
                                class="w-full pl-12 pr-4 h-[52px] rounded-full border border-gray-200 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition-all text-sm md:text-base dark:border-[#1f2533] dark:bg-[#0a0d15] dark:text-gray-100">
                     </div>
                     <button type="submit" 
-                            class="px-6 md:px-10 py-3 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] text-white dark:text-white rounded-full hover:from-[#8b5cf6] hover:to-[#7c3aed] whitespace-nowrap font-bold transition-all shadow-lg shadow-purple-700/30 flex items-center justify-center gap-2 text-sm md:text-base">
-                        <span class="text-white">Buscar Pedido</span>
+                            class="px-6 md:px-10 py-3 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] text-white stay-white dark:text-white rounded-full hover:from-[#8b5cf6] hover:to-[#7c3aed] whitespace-nowrap font-bold transition-all shadow-lg shadow-purple-700/30 flex items-center justify-center gap-2 text-sm md:text-base">
+                        <span class="text-white stay-white">Buscar Pedido</span>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                         </svg>
@@ -554,7 +554,7 @@
                                                 <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-green-100 text-green-700 border border-green-200 dark:bg-green-500/15 dark:text-green-200 dark:border-green-400/30">Estoque ok</span>
                                             @endif
                                             @if($order->is_event)
-                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-purple-500/20 text-purple-200 border border-purple-400/40">Evento</span>
+                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-purple-100 text-purple-700 border border-purple-200 dark:bg-purple-500/20 dark:text-purple-200 dark:border-purple-400/40">Evento</span>
                                             @endif
                                         </div>
                                         <div class="flex items-center gap-1 text-gray-600 text-[11px] dark:text-gray-400">
@@ -565,26 +565,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Indicadores de status -->
-                                    <div class="flex gap-1">
-                                        @if($order->stock_status === 'total')
-                                            <div class="w-8 h-1.5 rounded-full bg-green-500" title="Estoque Total"></div>
-                                        @elseif($order->stock_status === 'partial')
-                                            <div class="w-8 h-1.5 rounded-full bg-yellow-500" title="Estoque Parcial"></div>
-                                        @elseif($order->stock_status === 'none')
-                                            <div class="w-8 h-1.5 rounded-full bg-red-500" title="Sem Estoque"></div>
-                                        @endif
-
-                                        @if($order->edit_status === 'requested')
-                                            <div class="w-8 h-1.5 rounded-full bg-orange-500" title="Edição Pendente"></div>
-                                        @endif
-
-                                        @if($order->is_event)
-                                            <div class="w-8 h-1.5 rounded-full bg-purple-500" title="Evento"></div>
-                                        @endif
-                                        
-                                        <div class="w-8 h-1.5 rounded-full bg-[#444c56]"></div>
-                                    </div>
+                                    {{-- Status indicators removed for cleaner design --}}
                                     
                                     <!-- Informações Texto -->
                                     <div class="space-y-1">
@@ -642,7 +623,7 @@
                                                 </div>
                                             @endif
                                             @if($deliveryDate)
-                                                <div class="flex items-center gap-1 text-amber-300">
+                                                <div class="flex items-center gap-1 text-amber-600 dark:text-amber-400">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                     </svg>

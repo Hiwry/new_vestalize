@@ -111,8 +111,8 @@
             }
         }
 
-        // Nunca usar AJAX para o catálogo público (/catalogo)
-        if (isCatalogPublicUrl(url)) {
+        // Nunca usar AJAX para o catálogo público (/catalogo) ou orçamento (/orcamento)
+        if (isCatalogPublicUrl(url) || (typeof url === 'string' && url.includes('/orcamento'))) {
             window.location.href = url;
             return;
         }
@@ -199,12 +199,21 @@
                 throw new Error('Resposta vazia do servidor');
             }
 
+            // Parsear uma vez para reutilizar DOM e capturar scripts fora do <main>
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
             // Extrair conteúdo principal
-            const newContent = extractMainContent(html);
-            if (!newContent) {
+            const mainEl = doc.querySelector('#main-content main') ||
+                doc.querySelector('main') ||
+                doc.querySelector('#main-content');
+
+            if (!mainEl) {
                 window.location.href = url;
                 return;
             }
+
+            const newContent = mainEl.innerHTML;
 
             // Atualizar conteúdo de forma que preserve e execute scripts
             // Primeiro, criar um container temporário
@@ -212,7 +221,10 @@
             tempDiv.innerHTML = newContent;
 
             // Coletar informações dos scripts ANTES de mover o conteúdo
-            const scriptData = Array.from(tempDiv.querySelectorAll('script')).map(script => ({
+            // Inclui scripts dentro e fora do <main> (ex.: @stack('scripts'))
+            const mainScripts = Array.from(tempDiv.querySelectorAll('script'));
+            const extraScripts = Array.from(doc.querySelectorAll('script')).filter(s => !mainEl.contains(s));
+            const scriptData = [...mainScripts, ...extraScripts].map(script => ({
                 src: script.src,
                 text: script.textContent,
                 attributes: Array.from(script.attributes).map(attr => ({
@@ -240,33 +252,20 @@
             scriptData.forEach((scriptInfo, index) => {
                 try {
                     if (!scriptInfo.src && scriptInfo.text) {
-                        console.log(`AJAX: Executing inline script ${index}`);
-                        const scriptText = scriptInfo.text;
-
-                        // Verificar se contém declarações const/let que podem causar conflito
-                        const hasVariableDeclarations = /(?:^|\s)(const|let)\s+(\w+)/g.test(scriptText);
+                        // Evitar re-execução de scripts de tema/localStorage já carregados
+                        if (scriptInfo.text.includes('localStorage.getItem') && scriptInfo.text.includes('dark')) return;
 
                         const newScript = document.createElement('script');
-                        if (hasVariableDeclarations) {
-                            console.log(`AJAX: Script ${index} has variable declarations, wrapping in IIFE`);
-                            // Envolver em um bloco para criar novo escopo
-                            newScript.textContent = `(function() { \n${scriptText}\n })();`;
-                        } else {
-                            newScript.textContent = scriptText;
-                        }
+                        newScript.textContent = `(function() { \ntry{\n${scriptInfo.text}\n}catch(e){console.error('AJAX Script Error:', e);}\n })();`;
 
                         document.body.appendChild(newScript);
-                        // Remover após um tempo para evitar acúmulo, mas manter tempo suficiente
                         setTimeout(() => {
                             if (newScript.parentNode) {
                                 newScript.parentNode.removeChild(newScript);
                             }
-                        }, 2000);
+                        }, 500);
                     } else if (scriptInfo.src) {
-                        console.log(`AJAX: Loading external script: ${scriptInfo.src}`);
                         // Para scripts externos, verificar se já foram carregados
-                        // Mas para scripts de página específicos, talvez queiramos recarregar?
-                        // Por enquanto, seguimos a lógica de evitar duplicatas
                         const existingScript = document.querySelector(`script[src="${scriptInfo.src}"]`);
                         if (!existingScript) {
                             const newScript = document.createElement('script');
@@ -455,9 +454,10 @@
                 return; // URL inválida
             }
 
-            // Nunca usar AJAX para o catálogo público (/catalogo) ou rotas de logout/login explicitas
+            // Nunca usar AJAX para o catálogo público (/catalogo) ou orçamento (/orcamento) ou rotas de logout/login explicitas
             const path = url.pathname;
             if (isCatalogPublicUrl(url.href) ||
+                path.startsWith('/orcamento') ||
                 path.startsWith('/logout') ||
                 path.startsWith('/login') ||
                 path.startsWith('/register')) {
@@ -484,8 +484,8 @@
     // Lidar com navegação do navegador (voltar/avançar)
     window.addEventListener('popstate', (e) => {
         if (e.state && e.state.url) {
-            // Se a URL for do catálogo público, forçar carregamento completo da página
-            if (isCatalogPublicUrl(e.state.url)) {
+            // Se a URL for do catálogo público ou orçamento, forçar carregamento completo da página
+            if (isCatalogPublicUrl(e.state.url) || (typeof e.state.url === 'string' && e.state.url.includes('/orcamento'))) {
                 window.location.href = e.state.url;
                 return;
             }

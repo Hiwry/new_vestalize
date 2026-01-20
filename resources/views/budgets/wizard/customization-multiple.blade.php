@@ -10,16 +10,16 @@
                     <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 dark:from-indigo-600 dark:to-indigo-700 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-500/20 dark:shadow-indigo-600/20">3</div>
                     <div>
                         <span class="text-lg font-bold text-gray-900 dark:text-white">Personalização</span>
-                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa 3 de 5</p>
+                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa 3 de 4</p>
                     </div>
                 </div>
                 <div class="text-right">
                     <div class="text-xs text-gray-500 dark:text-slate-400 font-medium">Progresso</div>
-                    <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">60%</div>
+                    <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">75%</div>
                 </div>
             </div>
             <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-2.5 shadow-inner">
-                <div class="bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-500 dark:to-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out shadow-lg shadow-indigo-500/30 dark:shadow-indigo-600/30" style="width: 60%"></div>
+                <div class="bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-500 dark:to-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out shadow-lg shadow-indigo-500/30 dark:shadow-indigo-600/30" style="width: 75%"></div>
             </div>
         </div>
 
@@ -220,7 +220,7 @@
                                             </div>
                                             <button 
                                                 type="button"
-                                                onclick="window.openPersonalizationModal({{ $item->id }}, '{{ $persName }}', {{ $persId }})"
+                                                onclick="window.openPersonalizationModal({{ $item->id }}, '{{ $persName }}', {{ $persId }}, {{ $item->quantity }})"
                                                 class="text-sm px-3 py-1.5 bg-indigo-600 dark:bg-indigo-500 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors font-medium">
                                                 + Adicionar
                                             </button>
@@ -400,11 +400,11 @@
                     </select>
                 </div>
 
-                <!-- Tamanho (oculto para SUB. TOTAL) -->
-                <div id="sizeField">
+                <!-- Tamanho (REMOVIDO para Orçamento) -->
+                <div id="sizeField" class="hidden">
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Tamanho</label>
-                    <select id="size" name="size" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all" data-required-for="!SUB. TOTAL">
-                        <option value="">Selecione...</option>
+                    <select id="size" name="size" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
+                        <option value="PADRÃO">PADRÃO</option>
                     </select>
                 </div>
 
@@ -459,9 +459,9 @@
                 <!-- Quantidade (oculto para SUB. TOTAL) -->
                 <div id="quantityField">
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Quantidade</label>
-                    <input type="number" id="quantity" name="quantity" min="1" value="1"
-                           class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all" data-required-for="!SUB. TOTAL">
-                    <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">Quantidade de peças para esta aplicação</p>
+                    <input type="number" id="quantity" name="quantity" min="1" value="1" readonly
+                           class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-slate-400 cursor-not-allowed focus:ring-0 transition-all" data-required-for="!SUB. TOTAL">
+                    <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">Quantidade automática conforme o item</p>
                 </div>
 
                 <!-- Cores (para Serigrafia e Emborrachado) -->
@@ -491,14 +491,7 @@
                 <input type="hidden" id="unit_price" name="unit_price" value="0">
                 <input type="hidden" id="final_price" name="final_price" value="0">
 
-                <!-- Upload de Imagem REMOVED -->
 
-                <!-- Upload de Arquivos REMOVED -->
-                <input type="file" id="art_files" name="art_files[]" multiple class="hidden">
-
-                <!-- Detalhes das Cores REMOVED -->
-
-                <!-- Observações do Vendedor REMOVED -->
 
                 <!-- Botões -->
                 <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-slate-700">
@@ -647,7 +640,7 @@
 
 
         // Tornar a função globalmente acessível
-        window.openPersonalizationModal = function(itemId, persType, persId) {
+        window.openPersonalizationModal = function(itemId, persType, persId, itemQuantity = 1) {
             
             currentItemId = itemId;
             currentPersonalizationType = persType;
@@ -704,9 +697,6 @@
                 toggleField('colorDetailsField', false);
                 toggleField('addonsField', true);
                 
-                // Resetar quantidade para 1
-                if(document.getElementById('quantity')) document.getElementById('quantity').value = 1;
-                
                 setupAddonListeners();
             } else if (normalizedType === 'DTF') {
                 toggleField('locationField', true);
@@ -726,6 +716,11 @@
                 toggleField('quantityField', true);
                 toggleField('colorDetailsField', true);
                 toggleField('addonsField', false);
+            }
+
+            // Definir quantidade automaticamente para TODOS os tipos
+            if(document.getElementById('quantity')) {
+                document.getElementById('quantity').value = itemQuantity;
             }
             
             setTimeout(() => {
@@ -852,24 +847,16 @@
             } else {
                 const location = document.getElementById('location').value;
                 const size = document.getElementById('size').value;
-                const artFiles = document.getElementById('art_files').files.length;
                 
                 if (!location) {
                     isValid = false;
                     errorMessage += 'Localização é obrigatória.\n';
                 }
                 
+                // Forçar um tamanho padrão se estiver vazio para orçamentos
                 if (!size) {
-                    isValid = false;
-                    errorMessage += 'Tamanho é obrigatório.\n';
+                    document.getElementById('size').value = 'PADRÃO';
                 }
-                
-                /*
-                if (artFiles === 0) {
-                    isValid = false;
-                    errorMessage += 'Pelo menos um arquivo da arte é obrigatório.\n';
-                }
-                */
                 
                 if (isValid) {
                     document.getElementById('location').name = 'location';
@@ -946,97 +933,8 @@
             // File upload elements removed - no cleanup needed
         }
 
-        // Função para lidar com mudança na imagem da aplicação
-        window.handleApplicationImageChange = function handleApplicationImageChange(input) {
-            const file = input.files[0];
-            if (file) {
-                // Validar tipo de arquivo
-                if (!file.type.match('image.*')) {
-                    alert('Por favor, selecione apenas arquivos de imagem (PNG, JPG, etc.)');
-                    input.value = '';
-                    return;
-                }
-                
-                // Validar tamanho (10MB)
-                if (file.size > 10 * 1024 * 1024) {
-                    alert('A imagem deve ter no máximo 10MB');
-                    input.value = '';
-                    return;
-                }
-                
-                // Mostrar preview
-                const fileName = file.name;
-                const fileSize = (file.size / 1024).toFixed(2);
-                const sizeUnit = fileSize > 1024 ? ((fileSize / 1024).toFixed(2) + ' MB') : (fileSize + ' KB');
-                
-                document.getElementById('application_image_name').textContent = fileName;
-                document.getElementById('application_image_size').textContent = sizeUnit;
-                document.getElementById('application_image_placeholder').classList.add('hidden');
-                document.getElementById('application_image_preview').classList.remove('hidden');
-                document.getElementById('application_image_dropzone').classList.remove('border-gray-300', 'dark:border-slate-600');
-                document.getElementById('application_image_dropzone').classList.add('border-green-400', 'dark:border-green-500', 'bg-green-50/30', 'dark:bg-green-900/20');
-                
-            }
-        }
+        // Removed handleApplicationImageChange and handleArtFilesChange
 
-        // Função para remover imagem da aplicação
-        window.removeApplicationImage = function removeApplicationImage() {
-            document.getElementById('application_image').value = '';
-            document.getElementById('application_image_placeholder').classList.remove('hidden');
-            document.getElementById('application_image_preview').classList.add('hidden');
-            document.getElementById('application_image_dropzone').classList.remove('border-green-400', 'dark:border-green-500', 'bg-green-50/30', 'dark:bg-green-900/20');
-            document.getElementById('application_image_dropzone').classList.add('border-gray-300', 'dark:border-slate-600');
-        }
-
-        // Função para lidar com mudança nos arquivos da arte
-        window.handleArtFilesChange = function handleArtFilesChange(input) {
-            const files = input.files;
-            const fileList = document.getElementById('selected_files_list');
-            fileList.innerHTML = '';
-            
-            if (files.length > 0) {
-                // Esconder placeholder
-                document.getElementById('art_files_placeholder').style.opacity = '0.5';
-                
-                // Mostrar cada arquivo
-                Array.from(files).forEach((file, index) => {
-                    const fileSize = (file.size / 1024).toFixed(2);
-                    const sizeUnit = fileSize > 1024 ? ((fileSize / 1024).toFixed(2) + ' MB') : (fileSize + ' KB');
-                    
-                    const fileDiv = document.createElement('div');
-                    fileDiv.className = 'flex items-center justify-between bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-3 border border-indigo-200 dark:border-indigo-800';
-                    fileDiv.innerHTML = `
-                        <div class="flex items-center space-x-3 flex-1 min-w-0">
-                            <div class="flex-shrink-0">
-                                <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-indigo-900 dark:text-indigo-100 truncate">${file.name}</p>
-                                <p class="text-xs text-indigo-700 dark:text-indigo-400">${sizeUnit}</p>
-                            </div>
-                        </div>
-                        <div class="flex-shrink-0 ml-3 text-indigo-600 dark:text-indigo-400">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        </div>
-                    `;
-                    fileList.appendChild(fileDiv);
-                });
-                
-                // Atualizar borda
-                document.getElementById('art_files_dropzone').classList.remove('border-indigo-200', 'dark:border-indigo-800');
-                document.getElementById('art_files_dropzone').classList.add('border-indigo-400', 'dark:border-indigo-500', 'bg-indigo-100/30', 'dark:bg-indigo-900/20');
-                
-            } else {
-                // Restaurar placeholder
-                document.getElementById('art_files_placeholder').style.opacity = '1';
-                document.getElementById('art_files_dropzone').classList.remove('border-indigo-400', 'dark:border-indigo-500', 'bg-indigo-100/30', 'dark:bg-indigo-900/20');
-                document.getElementById('art_files_dropzone').classList.add('border-indigo-200', 'dark:border-indigo-800');
-            }
-        }
 
 
 
@@ -1242,7 +1140,7 @@
         async function calculatePrice() {
             const persTypeRaw = document.getElementById('modal_personalization_type').value;
             const persType = normalizeTypeKey(persTypeRaw);
-            let size = document.getElementById('size').value;
+            let size = document.getElementById('size').value || 'PADRÃO';
             const colorCount = parseInt(document.getElementById('color_count')?.value || 1);
             
             let quantity = 1;
@@ -1252,26 +1150,25 @@
             }
             
             if (persType === 'SUB. TOTAL') {
-                // Se a quantidade for zero ou negativa, não mostrar preço.
-                // Para funcionar de 1 a 9, a quantidade deve ser > 0, então a condição de SAÍDA é <= 0.
-                if (!persType || quantity > 0) {
+                if (!persType || quantity <= 0) {
                     document.getElementById('priceDisplay').classList.add('hidden');
                     return;
                 }
             } else {
-                if (!size) {
-                    if (persType === 'SERIGRAFIA') {
-                        size = 'ESCUDO';
-                    } else if (persType === 'EMBORRACHADO') {
-                        size = 'ESCUDO';
-                    } else {
-                        size = 'A4';
-                    }
-                }
-                
                 if (!persType) {
                     document.getElementById('priceDisplay').classList.add('hidden');
                     return;
+                }
+                
+                // Se o tamanho não estiver definido, usar um fallback inteligente baseado no tipo
+                if (!size || size === 'PADRÃO') {
+                    if (persType === 'SERIGRAFIA' || persType === 'EMBORRACHADO') {
+                        size = 'ESCUDO';
+                    } else if (persType === 'DTF') {
+                        size = 'A5';
+                    } else {
+                        size = 'A4';
+                    }
                 }
             }
             
@@ -1290,7 +1187,6 @@
                 if (cachedPriceParams === currentParams && cachedBasePrice !== null) {
                     unitPrice = cachedBasePrice;
                     priceFound = true;
-                    // console.log('💰 Usando preço em cache:', unitPrice);
                 } else {
                     const apiUrl = `/api/personalization-prices/price?type=${apiType}&size=${encodeURIComponent(sizeForApi)}&quantity=${quantity}`;
                     
@@ -1305,13 +1201,10 @@
                     if (data.success && data.price !== undefined && data.price !== null) {
                         unitPrice = parseFloat(data.price);
                         
-                        // Se o preço for 0 e for SUB. TOTAL, usar preço padrão como base (fallback)
-                        // Isso corrige o problema onde a API pode retornar 0 para quantidades baixas
                         if (unitPrice === 0 && apiType === 'SUB. TOTAL') {
-                            unitPrice = 2.50; // Preço base padrão para SUB. TOTAL
+                            unitPrice = 2.50; 
                         }
                         
-                        // Atualizar cache
                         cachedBasePrice = unitPrice;
                         cachedPriceParams = currentParams;
                         priceFound = true;
@@ -1322,7 +1215,6 @@
                     const qty = parseInt(quantity);
                     const currentColorCount = parseInt(document.getElementById('color_count')?.value || 1);
                     
-                    // Para SUB. TOTAL, adicionar preços dos adicionais selecionados
                     if (apiType === 'SUB. TOTAL') {
                         const addonsTotal = calculateAddonsTotal();
                         unitPrice += addonsTotal;
@@ -1333,7 +1225,6 @@
                         
                         if (currentColorCount > 1) {
                             try {
-                                // Buscar preço da COR na tabela de preços de personalização
                                 const colorApiUrl = `/api/personalization-prices/price?type=${apiType}&size=COR&quantity=${qty}`;
                                 const colorResponse = await fetch(colorApiUrl, {
                                     headers: {
@@ -1341,31 +1232,13 @@
                                     }
                                 });
                                 
-                                if (!colorResponse.ok) {
-                                    throw new Error(`HTTP error! status: ${colorResponse.status}`);
-                                }
-                                
                                 const colorData = await colorResponse.json();
-                                
                                 if (colorData.success && colorData.price !== undefined) {
                                     colorPrice = parseFloat(colorData.price);
-                                } else {
-                                    console.warn('Preço de COR não encontrado para a quantidade:', qty);
                                 }
                                 
                                 const extraColors = currentColorCount - 1;
-                                const colorCost = colorPrice * extraColors;
-
-                                console.log('🎨 Serigraphy Debug:', {
-                                    basePrice: unitPrice,
-                                    quantity: qty,
-                                    colorCount: currentColorCount,
-                                    colorPricePerUnit: colorPrice,
-                                    extraColors: extraColors,
-                                    totalColorCost: colorCost
-                                });
-
-                                unitPrice += colorCost;
+                                unitPrice += (colorPrice * extraColors);
                             } catch (error) {
                                 console.error('Erro ao buscar preço da cor:', error);
                             }
@@ -1374,35 +1247,14 @@
                         if (currentColorCount >= 3 && colorPrice > 0) {
                             const applicationsWithDiscount = currentColorCount - 2;
                             const discountPerApplication = colorPrice * 0.5;
-                            const totalDiscount = discountPerApplication * applicationsWithDiscount;
-                            
-                            console.log('🏷️ Serigraphy Discount:', {
-                                applicationsWithDiscount: applicationsWithDiscount,
-                                discountPerApplication: discountPerApplication,
-                                totalDiscount: totalDiscount
-                            });
-
-                            unitPrice -= totalDiscount;
+                            unitPrice -= (discountPerApplication * applicationsWithDiscount);
                         }
-
-                        console.log('💰 Final Breakdown:', {
-                            finalUnitPrice: unitPrice,
-                            totalPrice: unitPrice * qty
-                        });
                     }
                         
                     const total = unitPrice * qty;
                     
-                    let formulaText = `R$ ${unitPrice.toFixed(2).replace('.', ',')} × ${qty} ${qty === 1 ? 'peça' : 'peças'}`;
-                    
-                    if ((apiType === 'SERIGRAFIA' || apiType === 'EMBORRACHADO') && colorCount >= 3) {
-                        const applicationsWithDiscount = colorCount - 2;
-                        formulaText += ` (${applicationsWithDiscount} aplicações com 50% desconto)`;
-                    }
-                    
                     document.getElementById('unitPrice').textContent = `R$ ${unitPrice.toFixed(2).replace('.', ',')}`;
                     document.getElementById('totalPrice').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
-                    document.getElementById('priceFormula').textContent = formulaText;
                     document.getElementById('unit_price').value = unitPrice;
                     document.getElementById('final_price').value = total;
                     document.getElementById('priceDisplay').classList.remove('hidden');
@@ -1438,7 +1290,7 @@
             
             document.getElementById('unitPrice').textContent = `R$ ${unitPrice.toFixed(2).replace('.', ',')}`;
             document.getElementById('totalPrice').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
-            document.getElementById('priceFormula').textContent = `R$ ${unitPrice.toFixed(2).replace('.', ',')} ? ${quantity} ${quantity === 1 ? 'pe?a' : 'pe?as'} (pre?o estimado)`;
+            document.getElementById('priceFormula').textContent = `R$ ${unitPrice.toFixed(2).replace('.', ',')} × ${quantity} ${quantity === 1 ? 'peça' : 'peças'} (preço estimado)`;
             document.getElementById('unit_price').value = unitPrice;
             document.getElementById('final_price').value = total;
             document.getElementById('priceDisplay').classList.remove('hidden');
@@ -1468,76 +1320,99 @@
         }
 
         // Adicionar listeners para recalcular preço
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('size').addEventListener('change', function() {
-                calculatePrice();
-            });
-            document.getElementById('quantity').addEventListener('input', function() {
-                calculatePrice();
-            });
+        
+        let budgetCustomizationInitialized = false;
+        function initBudgetCustomizationPage() {
+            if (budgetCustomizationInitialized) return;
+            budgetCustomizationInitialized = true;
+
+            const sizeEl = document.getElementById('size');
+            if (sizeEl) sizeEl.addEventListener('change', calculatePrice);
+
+            const qtyEl = document.getElementById('quantity');
+            if (qtyEl) qtyEl.addEventListener('input', calculatePrice);
+
             const colorCountField = document.getElementById('color_count');
             if (colorCountField) {
-                colorCountField.addEventListener('input', function() {
-                    calculatePrice();
-                });
-                colorCountField.addEventListener('change', function() {
-                    calculatePrice();
-                });
+                colorCountField.addEventListener('input', calculatePrice);
+                colorCountField.addEventListener('change', calculatePrice);
             }
-            document.getElementById('art_files').addEventListener('change', displaySelectedFiles);
-        });
+
+            const artFiles = document.getElementById('art_files');
+            if (artFiles) artFiles.addEventListener('change', displaySelectedFiles);
+
+            const form = document.getElementById('personalizationForm');
+            if (form && !form.dataset.listenerAttached) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    try {
+                        const response = await fetch('{{ route("orders.wizard.customization") }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                            },
+                            body: formData
+                        });
+                        const data = await response.json();
+                        if (response.ok) {
+                            closePersonalizationModal();
+                            await updatePersonalizationsList();
+                            showSuccessMessage('Personalização adicionada com sucesso!');
+                        } else {
+                            alert(data.message || 'Erro ao adicionar personalização');
+                        }
+                    } catch (error) {
+                        console.error('Erro:', error);
+                        alert('Erro ao adicionar personalização');
+                    }
+                });
+                form.dataset.listenerAttached = 'true';
+            }
+
+            // Re-attach modal close listeners if not already attached
+            const modal = document.getElementById('personalizationModal');
+            if (modal && !modal.dataset.closeListenerAttached) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closePersonalizationModal();
+                    }
+                });
+                modal.dataset.closeListenerAttached = 'true';
+            }
+
+            const deleteModal = document.getElementById('deleteConfirmationModal');
+            if (deleteModal && !deleteModal.dataset.closeListenerAttached) {
+                deleteModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                         // Check if function exists before calling, as it might be defined later
+                         if (typeof closeDeleteConfirmationModal === 'function') {
+                            closeDeleteConfirmationModal();
+                         }
+                    }
+                });
+                deleteModal.dataset.closeListenerAttached = 'true';
+            }
+
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initBudgetCustomizationPage, { once: true });
+        } else {
+            initBudgetCustomizationPage();
+        }
+        document.addEventListener('ajax-content-loaded', initBudgetCustomizationPage);
 
         // Submit do formulário
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('personalizationForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const formData = new FormData(this);
-                
-                try {
-                    const response = await fetch('{{ route("orders.wizard.customization") }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json',
-                        },
-                        body: formData
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (response.ok) {
-                        // Fechar modal
-                        closePersonalizationModal();
-                        
-                        // Atualizar interface dinamicamente
-                        await updatePersonalizationsList();
-                        
-                        // Mostrar mensagem de sucesso
-                        showSuccessMessage('Personalização adicionada com sucesso!');
-                    } else {
-                        alert(data.message || 'Erro ao adicionar personalização');
-                    }
-                } catch (error) {
-                    console.error('Erro:', error);
-                    alert('Erro ao adicionar personalização');
-                }
-            });
+                            
 
-            // Fechar modal ao clicar fora
-            document.getElementById('personalizationModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closePersonalizationModal();
-                }
-            });
+        // Removed invalid duplicate code block
 
-            // Fechar modal de confirmação ao clicar fora
-            document.getElementById('deleteConfirmationModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeDeleteConfirmationModal();
-                }
-            });
-        });
+
+
+        // Removed orphaned event listeners and closing brace
+
 
         // Função para atualizar a lista de personalizações dinamicamente
         async function updatePersonalizationsList() {

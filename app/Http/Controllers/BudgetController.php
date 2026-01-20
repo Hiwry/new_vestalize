@@ -31,13 +31,6 @@ class BudgetController extends Controller
     {
         $user = Auth::user();
         
-        // Super Admin (tenant_id === null) não deve ver dados de outros tenants sem selecionar contexto
-        if ($this->isSuperAdmin() && !$this->hasSelectedTenant()) {
-            return $this->emptySuperAdminResponse('budgets.index', [
-                'budgets' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
-            ]);
-        }
-
         $query = Budget::with(['client', 'user', 'items']);
         
         // Aplicar filtros baseados no role do usuário
@@ -145,53 +138,83 @@ class BudgetController extends Controller
      */
     public function storeClient(Request $request)
     {
-        // Se vier com dados de cliente novo (nome e contato preenchidos), criar cliente primeiro
-        if ($request->filled('client_name') && $request->filled('client_contact')) {
-            $validated = $request->validate([
-                'client_name' => 'required|string|max:255',
-                'client_contact' => 'required|string|max:50',
-            ]);
+        $validated = $request->validate([
+            'client_id' => 'nullable|exists:clients,id',
+            'name' => 'required|string|max:255',
+            'phone_primary' => 'required|string|max:50',
+            'phone_secondary' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:255',
+            'cpf_cnpj' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:2',
+            'zip_code' => 'nullable|string|max:12',
+            'category' => 'nullable|string|max:50',
+        ]);
 
-            // Obter store_id do usuário
-            $user = Auth::user();
-            $storeId = null;
-            
-            if ($user->isAdminLoja()) {
-                $storeIds = $user->getStoreIds();
-                $storeId = !empty($storeIds) ? $storeIds[0] : null;
-            } else {
-                $mainStore = Store::where('is_main', true)->first();
-                $storeId = $mainStore ? $mainStore->id : null;
-            }
-
-            // Verificar se já existe um cliente com o mesmo telefone
-            $existingClient = Client::where('phone_primary', $validated['client_contact'])->first();
-            
-            if ($existingClient) {
-                // Usar cliente existente
-                $clientId = $existingClient->id;
-            } else {
-                // Criar cliente novo com apenas nome e contato
-                $client = Client::create([
-                    'name' => $validated['client_name'],
-                    'phone_primary' => $validated['client_contact'],
-                    'store_id' => $storeId,
-                ]);
-                $clientId = $client->id;
-            }
+        // Obter store_id do usuário para novos clientes
+        $user = Auth::user();
+        $storeId = null;
+        
+        if ($user->isAdminLoja()) {
+            $storeIds = $user->getStoreIds();
+            $storeId = !empty($storeIds) ? $storeIds[0] : null;
         } else {
-            // Usar cliente existente (client_id precisa estar preenchido)
-            $validated = $request->validate([
-                'client_id' => 'required|exists:clients,id',
-            ]);
-            $clientId = $validated['client_id'];
+            $mainStore = Store::where('is_main', true)->first();
+            $storeId = $mainStore ? $mainStore->id : null;
         }
 
+        if (!empty($validated['client_id'])) {
+            $client = Client::findOrFail($validated['client_id']);
+            $client->update([
+                'name' => $validated['name'],
+                'phone_primary' => $validated['phone_primary'],
+                'phone_secondary' => $validated['phone_secondary'] ?? null,
+                'email' => $validated['email'] ?? null,
+                'cpf_cnpj' => $validated['cpf_cnpj'] ?? null,
+                'address' => $validated['address'] ?? null,
+                'city' => $validated['city'] ?? null,
+                'state' => $validated['state'] ?? null,
+                'zip_code' => $validated['zip_code'] ?? null,
+                'category' => $validated['category'] ?? null,
+            ]);
+            $clientId = $client->id;
+        } else {
+            // Tentar encontrar por telefone antes de criar duplicado
+            $existingClient = Client::where('phone_primary', $validated['phone_primary'])->first();
+            if ($existingClient) {
+                $existingClient->update($validated);
+                $clientId = $existingClient->id;
+            } else {
+                $client = Client::create(array_merge($validated, [
+                    'store_id' => $storeId,
+                    'tenant_id' => $user->tenant_id
+                ]));
+                $clientId = $client->id;
+            }
+        }
+
+        // Salvar IDs na sessão para o orçamento
         $budgetData = Session::get('budget_data', []);
         $budgetData['client_id'] = $clientId;
         Session::put('budget_data', $budgetData);
 
-        return redirect()->route('budget.personalization-type');
+        // Salvar dados no formato que a view espera (session('budget.client.*'))
+        Session::put('budget.client', [
+            'id' => $clientId,
+            'name' => $validated['name'],
+            'phone_primary' => $validated['phone_primary'],
+            'phone_secondary' => $validated['phone_secondary'] ?? '',
+            'email' => $validated['email'] ?? '',
+            'cpf_cnpj' => $validated['cpf_cnpj'] ?? '',
+            'address' => $validated['address'] ?? '',
+            'city' => $validated['city'] ?? '',
+            'state' => $validated['state'] ?? '',
+            'zip_code' => $validated['zip_code'] ?? '',
+            'category' => $validated['category'] ?? '',
+        ]);
+
+        return redirect()->route('budget.items');
     }
 
     /**
@@ -346,16 +369,34 @@ class BudgetController extends Controller
             $customizations = session('budget_customizations', []);
             $itemIndex = $data['item_id'] ?? 0;
             
+            // Lidar com upload de imagem da aplicação
+            $imagePath = null;
+            if ($request->hasFile('application_image')) {
+                $imagePath = $request->file('application_image')->store('budgets/applications', 'public');
+            }
+            
+            // Lidar com upload de arquivos da arte
+            $artFiles = [];
+            if ($request->hasFile('art_files')) {
+                foreach ($request->file('art_files') as $file) {
+                    $artFiles[] = $file->store('budgets/arts', 'public');
+                }
+            }
+            
             $customizations[] = [
                 'item_index' => $itemIndex,
                 'personalization_id' => $data['personalization_id'] ?? null,
                 'personalization_name' => $data['personalization_type'] ?? '',
                 'location' => $data['location'] ?? '',
-                'size' => $data['size'] ?? '',
+                'size' => $data['size'] ?? 'PADRÃO',
                 'quantity' => $data['quantity'] ?? 0,
                 'color_count' => $data['color_count'] ?? 1,
                 'unit_price' => $data['unit_price'] ?? 0,
                 'final_price' => $data['final_price'] ?? 0,
+                'image' => $imagePath,
+                'art_files' => $artFiles,
+                'color_details' => $data['color_details'] ?? '',
+                'notes' => $data['seller_notes'] ?? '',
             ];
             
             // Aplicar descontos automáticos
@@ -780,11 +821,11 @@ class BudgetController extends Controller
             abort(403, 'Você não tem permissão para converter orçamentos em pedidos.');
         }
         
-        // Verificar se o orçamento foi aprovado
-        if ($budget->status !== 'approved') {
+        // Verificar se o orçamento foi aprovado (para orçamentos normais)
+        if (!$budget->is_quick && $budget->status !== 'approved') {
             return redirect()->route('budget.index')
                 ->with('error', 'Apenas orçamentos aprovados podem ser convertidos em pedidos.');
-        }
+        }    
         
         // Buscar tamanhos disponíveis para seleção
         $availableSizes = ['PP', 'P', 'M', 'G', 'GG', 'XG', 'EXG', '2G', '3G', '4G', '5G', '6G'];
@@ -798,8 +839,13 @@ class BudgetController extends Controller
             'boleto' => 'Boleto',
             'transferencia' => 'Transferência',
         ];
+
+        $clients = collect();
+        if ($budget->is_quick) {
+            $clients = \App\Models\Client::orderBy('name')->get();
+        }
         
-        return view('budgets.convert-to-order', compact('budget', 'availableSizes', 'paymentMethods'));
+        return view('budgets.convert-to-order', compact('budget', 'availableSizes', 'paymentMethods', 'clients'));
     }
     
     /**
@@ -828,12 +874,12 @@ class BudgetController extends Controller
             'all_files' => $request->allFiles(),
         ]);
         
-        // Verificar se o orçamento foi aprovado
-        if ($budget->status !== 'approved') {
+        // Verificar se o orçamento foi aprovado (para orçamentos normais)
+        if (!$budget->is_quick && $budget->status !== 'approved') {
             \Log::warning('❌ Tentativa de converter orçamento não aprovado', ['budget_id' => $id, 'status' => $budget->status]);
             return redirect()->route('budget.index')
                 ->with('error', 'Apenas orçamentos aprovados podem ser convertidos em pedidos.');
-        }
+        }    
         
         return $this->processConversion($budget, $request);
     }
@@ -857,6 +903,7 @@ class BudgetController extends Controller
                 'delivery_date' => 'nullable|date',
                 'is_event' => 'nullable|boolean',
                 'discount_amount' => 'nullable|numeric|min:0',
+                'client_id' => $budget->client_id ? 'nullable|exists:clients,id' : 'required|exists:clients,id',
             ], [
                 'payment_method.required' => 'Selecione a forma de pagamento',
                 'payment_amount.required' => 'Informe o valor do pagamento',
@@ -961,8 +1008,32 @@ class BudgetController extends Controller
                 'user_id' => Auth::id()
             ]);
             
+            $clientId = $budget->client_id;
+            
+            if (!$clientId) {
+                if ($request->input('create_new_client') == '1') {
+                    $newClient = \App\Models\Client::create([
+                        'name' => $request->input('new_client_name'),
+                        'phone_primary' => $request->input('new_client_phone'),
+                        'store_id' => $storeId,
+                        'user_id' => Auth::id(),
+                        'tenant_id' => Auth::user()->tenant_id,
+                    ]);
+                    $clientId = $newClient->id;
+                    
+                    \Log::info('🆕 Novo cliente criado durante conversão', ['client_id' => $clientId, 'name' => $newClient->name]);
+                } else {
+                    $clientId = $request->input('client_id');
+                }
+            }
+            
+            // Se for orçamento rápido e vinculou cliente agora, atualizar o orçamento
+            if ($budget->is_quick && !$budget->client_id && $clientId) {
+                $budget->update(['client_id' => $clientId]);
+            }
+
             $order = \App\Models\Order::create([
-                'client_id' => $budget->client_id,
+                'client_id' => $clientId,
                 'user_id' => Auth::id(),
                 'store_id' => $storeId,
                 'status_id' => $status?->id ?? 1,
@@ -1202,8 +1273,13 @@ class BudgetController extends Controller
                 $order->update(['stock_status' => 'pending']);
             }
             
-            return redirect()->route('orders.show', $order->id)
-                ->with('success', 'Orçamento #' . $budget->budget_number . ' convertido em pedido #' . str_pad($order->id, 6, '0', STR_PAD_LEFT) . ' com sucesso!');
+            // Bridge: Set this as the current wizard order and redirect to sewing step
+            session(['current_order_id' => $order->id]);
+            
+            \Log::info('✅ Pedido criado e redirecionando para o wizard', ['order_id' => $order->id]);
+
+            return redirect()->route('orders.wizard.sewing')
+                ->with('success', 'Orçamento #' . $budget->budget_number . ' convertido em pedido com sucesso! Agora você está no wizard de produção.');
                 
         } catch (\Exception $e) {
             \Log::error('Erro ao converter orçamento em pedido:', [
@@ -1419,4 +1495,229 @@ class BudgetController extends Controller
         }
     }
 
+    /**
+     * Display quick budget creation form
+     */
+    public function quickCreate()
+    {
+        return view('budgets.quick-create');
+    }
+
+    /**
+     * Store a new quick budget
+     */
+    public function storeQuick(Request $request)
+    {
+        $validated = $request->validate([
+            'contact_name' => 'required|string|max:255',
+            'contact_phone' => 'required|string|max:50',
+            'technique' => 'required|string|max:100',
+            'quantity' => 'required|integer|min:1',
+            'unit_price' => 'required|numeric|min:0.01',
+            'deadline_days' => 'nullable|integer|min:1|max:365',
+            'product_internal' => 'nullable|string|max:255',
+            'observations' => 'nullable|string|max:2000',
+        ]);
+
+        try {
+            $user = Auth::user();
+            $storeId = null;
+            $tenantId = $user->tenant_id;
+            
+            if ($user->isAdminLoja()) {
+                $storeIds = $user->getStoreIds();
+                $storeId = !empty($storeIds) ? $storeIds[0] : null;
+            } else {
+                $mainStore = Store::where('is_main', true)->first();
+                $storeId = $mainStore ? $mainStore->id : null;
+                // For SuperAdmin, get tenant_id from the store
+                if ($tenantId === null && $mainStore) {
+                    $tenantId = $mainStore->tenant_id;
+                }
+            }
+
+            $quantity = $validated['quantity'];
+            $unitPrice = $validated['unit_price'];
+            $total = $quantity * $unitPrice;
+            $deadlineDays = $validated['deadline_days'] ?? 15;
+
+            $budget = Budget::create([
+                'client_id' => null, // Quick budgets don't require a client
+                'user_id' => Auth::id(),
+                'tenant_id' => $tenantId,
+                'store_id' => $storeId,
+                'budget_number' => Budget::generateBudgetNumber(),
+                'valid_until' => now()->addDays($deadlineDays),
+                'subtotal' => $total,
+                'discount' => 0,
+                'discount_type' => null,
+                'total' => $total,
+                'observations' => $validated['observations'] ?? null,
+                'status' => 'pending',
+                // Quick budget specific fields
+                'is_quick' => true,
+                'contact_name' => $validated['contact_name'],
+                'contact_phone' => $validated['contact_phone'],
+                'deadline_days' => $deadlineDays,
+                'product_internal' => $validated['product_internal'] ?? null,
+                'technique' => $validated['technique'],
+                'quantity' => $quantity,
+                'unit_price' => $unitPrice,
+            ]);
+
+            // For AJAX requests (save with actions)
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Orçamento rápido criado com sucesso!',
+                    'budget_id' => $budget->id,
+                    'budget_number' => $budget->budget_number,
+                    'redirect_url' => route('budget.show', $budget->id),
+                    'pdf_url' => route('budget.pdf', $budget->id),
+                    'whatsapp_url' => route('budget.whatsapp', $budget->id),
+                ]);
+            }
+
+            return redirect()->route('budget.show', $budget->id)
+                ->with('success', 'Orçamento Rápido #' . $budget->budget_number . ' criado com sucesso!');
+
+        } catch (\Exception $e) {
+            \Log::error('Erro ao criar orçamento rápido:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao criar orçamento: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return back()->withInput()->with('error', 'Erro ao criar orçamento: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Share budget via WhatsApp
+     */
+    public function shareWhatsApp($id)
+    {
+        $budget = Budget::findOrFail($id);
+        
+        // Verify access permission
+        $user = Auth::user();
+        if ($user->isVendedor() && $budget->user_id !== $user->id) {
+            abort(403, 'Você não tem permissão para compartilhar este orçamento.');
+        }
+        if ($user->isAdminLoja() && !$user->canAccessStore($budget->store_id)) {
+            abort(403, 'Você não tem permissão para compartilhar este orçamento.');
+        }
+
+        // Get contact info
+        $contactInfo = $budget->getContactInfo();
+        $contactName = $contactInfo['name'] ?? 'Cliente';
+        $contactPhone = $contactInfo['phone'] ?? '';
+
+        // Build message
+        $validDate = \Carbon\Carbon::parse($budget->valid_until)->startOfDay();
+        $today = now()->startOfDay();
+        $daysValid = $validDate->diffInDays($today); // Returns absolute difference
+
+        $message = "*Orçamento #{$budget->budget_number} (Validade {$daysValid} dias)*\n\n";
+        
+        if ($budget->isQuick()) {
+            $message .= "Modelo: " . ($budget->product_internal ?? 'Personalizado') . "\n";
+            $message .= "Cor: -\n";
+            $message .= "Tecido/ Malha: -\n";
+            $message .= "Serviço 🎨: {$budget->technique}\n";
+            $message .= "Tabela de quantidade: {$budget->quantity} unidades\n";
+            
+            $pixPrice = $budget->unit_price * 0.95;
+            $message .= "Valor unitário (CARTÃO/BOLETO*) R$ " . number_format($budget->unit_price, 2, ',', '.') . "\n";
+            $message .= "Valor Unitário(PIX/DINHEIRO) R$ " . number_format($pixPrice, 2, ',', '.') . "\n\n";
+        } else {
+            foreach ($budget->items as $index => $item) {
+                // Determine item details
+                $personalizationTypes = json_decode($item->personalization_types, true) ?? [];
+                $model = $personalizationTypes['model'] ?? 'Personalizado';
+                $printType = $personalizationTypes['print_type'] ?? '-';
+                
+                // Calculate item totals
+                $itemBaseTotal = $item->item_total;
+                $customizationsTotal = $item->customizations->sum('total_price');
+                $finalItemTotal = $itemBaseTotal + $customizationsTotal;
+                $finalUnitPrice = $item->quantity > 0 ? ($finalItemTotal / $item->quantity) : 0;
+                
+                if ($index > 0) $message .= "--------------------------------\n\n";
+                
+                $message .= "Modelo: {$model}\n";
+                $message .= "Cor: " . ($item->color ?? '-') . "\n";
+                $message .= "Tecido/ Malha: " . ($item->fabric ?? '-') . "\n";
+                
+                // Collect services
+                $services = [];
+                if ($item->customizations->count() > 0) {
+                     $locationMap = [1 => 'Frente', 2 => 'Costas', 3 => 'Manga Esq', 4 => 'Manga Dir', 5 => 'Lat Esq', 6 => 'Lat Dir', 7 => 'Capuz', 8 => 'Bolso'];
+                     foreach($item->customizations as $cust) {
+                         $locName = $locationMap[$cust->location] ?? $cust->location;
+                         $services[] = "{$cust->personalization_type} ({$locName})";
+                     }
+                } else {
+                     $services[] = $printType;
+                }
+                $servicesStr = implode(', ', array_unique($services));
+                
+                $message .= "Serviço 🎨: {$servicesStr}\n";
+                $message .= "Tabela de quantidade: {$item->quantity} unidades\n";
+                
+                $pixPrice = $finalUnitPrice * 0.95;
+                $message .= "Valor unitário (CARTÃO/BOLETO*) R$ " . number_format($finalUnitPrice, 2, ',', '.') . "\n";
+                $message .= "Valor Unitário(PIX/DINHEIRO) R$ " . number_format($pixPrice, 2, ',', '.') . "\n\n";
+            }
+        }
+        
+        $message .= "🎨 Valor de redesenhar ou criar a arte: A combinar se for preciso.\n\n";
+        
+        $message .= "📐 Valores referente aos tamanhos PP, P, M, G das básicas/regatas; e todos os tamanhos infantis/babylook.\n\n";
+        
+        $message .= "Acréscimo de tamanho: GG aumenta R$2,00 e EXG aumenta R$4,00. Especial: A combinar.\n\n";
+        
+        $message .= "Prazo de entrega padrão é de até 15 a 20 dias úteis. Converse conosco sobre seu prazo que vamos fazer o possível para ajudar você. 🗓\n\n";
+        
+        $message .= "💲Forma de pagamento:\n";
+        $message .= "💸 50% de entrada e 50% na entrega, se for em dinheiro ou pix.\n";
+        $message .= "💳 Pague por cartão de crédito de forma presencial ou virtual através de link. O valor pode ser parcelado e precisa ser pago integralmente na entrada do pedido.\n";
+        $message .= "* Para CNPJ aprovado emitimos boletos\n";
+        $message .= "**Valor promocional para compras realizadas fisicamente com pagamento a dinheiro espécie.\n\n";
+        
+        $message .= "📢 Esse é apenas o orçamento, no fechamento do pedido pode não ter o tecido e a cor correspondente, verificar a disponibilidade antes de fechar!\n\n";
+        
+        $message .= "Estamos à disposição para maiores informações! 💟💰";
+
+        // Clean phone number (remove non-digits)
+        $phone = preg_replace('/\D/', '', $contactPhone);
+        
+        // Add country code if not present
+        if (strlen($phone) <= 11) {
+            $phone = '55' . $phone;
+        }
+
+        // Build WhatsApp URL with rawurlencode to ensure line breaks work
+        $whatsappUrl = 'https://wa.me/' . $phone . '?text=' . rawurlencode($message);
+
+        // If AJAX, return URL and Message
+        if (request()->ajax() || request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'whatsapp_url' => $whatsappUrl,
+                'message' => $message,
+            ]);
+        }
+
+        // Redirect to WhatsApp
+        return redirect()->away($whatsappUrl);
+    }
+
 }
+

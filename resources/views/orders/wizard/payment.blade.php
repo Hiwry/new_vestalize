@@ -46,7 +46,7 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-[#7c3aed] text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">4</div>
+                    <div class="w-10 h-10 bg-[#7c3aed] text-white stay-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">4</div>
                     <div>
                         <span class="text-lg font-bold text-gray-900 dark:text-white">Pagamento</span>
                         <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa 4 de 5</p>
@@ -70,7 +70,7 @@
                     <div class="flex items-center">
                         <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                              <div class="w-8 h-8 bg-[#7c3aed] rounded-lg flex items-center justify-center shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                 </svg>
                             </div>
@@ -286,7 +286,7 @@
                                         <span class="text-xl font-bold text-[#7c3aed] dark:text-purple-400" id="suggested-amount">R$ 0,00</span>
                                     </div>
                                     <button type="button" onclick="useSuggestedAmount()" style="color: white !important;" 
-                                            class="w-full mt-2 px-4 py-2 bg-[#7c3aed] text-white rounded-md text-sm font-semibold transition-all flex items-center justify-center gap-2 shadow-sm">
+                                            class="w-full mt-2 px-4 py-2 bg-[#7c3aed] text-white stay-white rounded-md text-sm font-semibold transition-all flex items-center justify-center gap-2 shadow-sm">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                         </svg>
@@ -295,7 +295,7 @@
                                 </div>
 
                                 <button type="button" onclick="addPaymentMethod()" style="color: white !important;" 
-                                        class="w-full px-4 py-2.5 bg-[#7c3aed] text-white rounded-md transition-colors text-sm font-medium shadow-lg shadow-purple-500/20 dark:shadow-purple-600/20">
+                                        class="w-full px-4 py-2.5 bg-[#7c3aed] text-white stay-white rounded-md transition-colors text-sm font-medium shadow-lg shadow-purple-500/20 dark:shadow-purple-600/20">
                                     Adicionar Pagamento
                                 </button>
                             </div>
@@ -330,7 +330,7 @@
                         </a>
                         <button type="submit" 
                                 style="color: white !important;"
-                                class="px-6 py-2 bg-[#7c3aed] text-white text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:ring-offset-2 flex items-center shadow-lg shadow-purple-500/20 dark:shadow-purple-600/20 transition-all">
+                                class="px-6 py-2 bg-[#7c3aed] text-white stay-white text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:ring-offset-2 flex items-center shadow-lg shadow-purple-500/20 dark:shadow-purple-600/20 transition-all">
                             Continuar
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -342,412 +342,321 @@
         </div>
     </div>
 </div>
+</div>
+</div>
 
-@push('scripts')
 <script>
-        // Global functions for AJAX navigation
+(function() {
+    // State
+    window.paymentMethods = [];
+    window.subtotal = {{ $order->subtotal }};
+    window.deliveryFee = {{ $sessionPaymentData['delivery_fee'] ?? $order->delivery_fee ?? 0 }};
+    window.sizeSurcharges = {};
+    window.orderItems = @json($order->items);
+    window.discountType = 'none';
+    window.discountValue = 0;
+
+    function initPaymentPage() {
+        console.log('Initializing Payment Page...');
         window.paymentMethods = [];
-        window.subtotal = {{ $order->subtotal }};
-        window.deliveryFee = {{ $sessionPaymentData['delivery_fee'] ?? $order->delivery_fee ?? 0 }};
-        window.sizeSurcharges = {};
-        window.orderItems = @json($order->items);
-        window.discountType = 'none';
-        window.discountValue = 0;
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Priorizar dados da sessão (se o usuário voltou de uma etapa posterior)
-            @if(isset($sessionPaymentData) && !empty($sessionPaymentData['payment_methods']))
-                @php
-                    $sessionMethods = json_decode($sessionPaymentData['payment_methods'], true);
-                @endphp
-                @if($sessionMethods && is_array($sessionMethods))
-                    @foreach($sessionMethods as $pm)
-                        window.paymentMethods.push({
-                            id: {{ $pm['id'] ?? 'Date.now() + Math.random()' }},
-                            method: '{{ $pm["method"] ?? "pix" }}',
-                            amount: {{ $pm["amount"] ?? 0 }}
-                        });
-                    @endforeach
-                    renderPaymentMethods();
-                @endif
-            @elseif($order->payments && $order->payments->count() > 0)
-                @php
-                    $existingPayment = $order->payments->first();
-                    $existingMethods = is_array($existingPayment->payment_methods) 
-                        ? $existingPayment->payment_methods 
-                        : json_decode($existingPayment->payment_methods, true);
-                @endphp
-                @if($existingMethods && is_array($existingMethods))
-                    @foreach($existingMethods as $pm)
-                        window.paymentMethods.push({
-                            id: Date.now() + Math.random(),
-                            method: '{{ $pm["method"] ?? "pix" }}',
-                            amount: {{ $pm["amount"] ?? 0 }}
-                        });
-                    @endforeach
-                    renderPaymentMethods();
-                @endif
-            @endif
-
-            calculateSizeSurcharges();
-            calculateTotal(); // Atualizar totais com taxa de entrega
-            calculatePayments(); // Calcular restante inicial
-            updateSuggestedAmount(); // Atualizar valor sugerido
-        });
-
-        window.calculateSizeSurcharges = function() {
-            // Calcular acréscimos por tamanho (GG, EXG, G1, G2, G3)
-            const largeSizes = ['GG', 'EXG', 'G1', 'G2', 'G3', 'Especial', 'ESPECIAL'];
-            let totalSurcharge = 0;
-            let surchargesHtml = '';
-            window.sizeSurcharges = {}; // Reset global object
-
-            // Helper to check if item is restricted (Infantil/Baby look)
-            const isRestricted = (item) => {
-                const model = (item.model || '').toUpperCase();
-                const detail = (item.detail || '').toUpperCase();
-                return model.includes('INFANTIL') || model.includes('BABY LOOK') || 
-                       detail.includes('INFANTIL') || detail.includes('BABY LOOK');
-            };
-
-            // Helper to check if surcharge is forced via checkbox
-            const shouldApplySurcharge = (item) => {
-                if (!item.print_desc) return false;
-                try {
-                    const desc = typeof item.print_desc === 'string' ? JSON.parse(item.print_desc) : item.print_desc;
-                    return !!desc.apply_surcharge;
-                } catch (e) {
-                    return false;
-                }
-            };
-
-            // Iterate all items and their sizes
-            let sizeQuantities = {}; // { 'GG': 5, 'EXG': 2 } - only for applicable items
-
-            window.orderItems.forEach(item => {
-                const restricted = isRestricted(item);
-                const forced = shouldApplySurcharge(item);
-                
-                // If restricted AND not forced, skip this item's sizes for surcharge calculation
-                if (restricted && !forced) {
-                    return;
-                }
-
-                const sizes = typeof item.sizes === 'string' ? JSON.parse(item.sizes) : item.sizes;
-                if (sizes) {
-                    Object.entries(sizes).forEach(([size, qty]) => {
-                        if (largeSizes.includes(size)) {
-                            sizeQuantities[size] = (sizeQuantities[size] || 0) + parseInt(qty);
-                        }
+        
+        @if(isset($sessionPaymentData) && !empty($sessionPaymentData['payment_methods']))
+            @php
+                $sessionMethods = json_decode($sessionPaymentData['payment_methods'], true);
+            @endphp
+            @if($sessionMethods && is_array($sessionMethods))
+                @foreach($sessionMethods as $pm)
+                    window.paymentMethods.push({
+                        id: {{ $pm['id'] ?? 'Date.now() + Math.random()' }},
+                        method: '{{ $pm["method"] ?? "pix" }}',
+                        amount: {{ $pm["amount"] ?? 0 }}
                     });
-                }
-            });
+                @endforeach
+            @endif
+        @elseif($order->payments && $order->payments->count() > 0)
+            @php
+                $existingPayment = $order->payments->first();
+                $existingMethods = is_array($existingPayment->payment_methods) 
+                    ? $existingPayment->payment_methods 
+                    : json_decode($existingPayment->payment_methods, true);
+            @endphp
+            @if($existingMethods && is_array($existingMethods))
+                @foreach($existingMethods as $pm)
+                    window.paymentMethods.push({
+                        id: Date.now() + Math.random(),
+                        method: '{{ $pm["method"] ?? "pix" }}',
+                        amount: {{ $pm["amount"] ?? 0 }}
+                    });
+                @endforeach
+            @endif
+        @endif
 
-            // Now fetch surcharges for the aggregated quantities
-            const promises = Object.entries(sizeQuantities).map(([size, quantity]) => {
-                if (quantity > 0) {
-                    return fetch(`/api/size-surcharge/${size}?price=${window.subtotal}`)
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.surcharge) {
-                                const surcharge = parseFloat(data.surcharge) * quantity;
-                                window.sizeSurcharges[size] = surcharge;
-                                totalSurcharge += surcharge;
-                                
-                                surchargesHtml += `
-                                    <div class="flex justify-between text-xs">
-                                        <span class="text-gray-700 dark:text-slate-300">Acréscimo ${size} (${quantity}x):</span>
-                                        <span class="font-medium text-orange-600 dark:text-orange-400">+R$ ${surcharge.toFixed(2).replace('.', ',')}</span>
-                                    </div>
-                                `;
-                            }
-                        });
-                }
-                return Promise.resolve();
+        // Listeners for elements that might be re-loaded
+        const form = document.getElementById('payment-form');
+        if (form && !form.dataset.listenerAttached) {
+            form.addEventListener('submit', function(e) {
+                // Prepare hidden fields before submit
+                const methodsInput = document.getElementById('payment-methods-data');
+                const surchargesInput = document.getElementById('size-surcharges-data');
+                const discTypeInput = document.getElementById('discount-type-data');
+                const discValInput = document.getElementById('discount-value-data');
+                
+                if (methodsInput) methodsInput.value = JSON.stringify(window.paymentMethods);
+                if (surchargesInput) surchargesInput.value = JSON.stringify(window.sizeSurcharges);
+                if (discTypeInput) discTypeInput.value = window.discountType;
+                if (discValInput) discValInput.value = window.discountValue;
             });
+            form.dataset.listenerAttached = 'true';
+        }
 
-            Promise.all(promises).then(() => {
-                // Add flat Especial fee if any Especial exists
-                let flatEspecial = 0;
-                let hasEspecial = false;
-                window.orderItems.forEach(item => {
-                    const sizes = typeof item.sizes === 'string' ? JSON.parse(item.sizes) : item.sizes;
-                    if (sizes && Object.keys(sizes).some(s => s.toUpperCase() === 'ESPECIAL' && sizes[s] > 0)) {
-                        hasEspecial = true;
+        window.renderPaymentMethods();
+        window.calculateSizeSurcharges();
+        window.calculateTotal();
+        window.calculatePayments();
+        window.updateSuggestedAmount();
+    }
+    window.initPaymentPage = initPaymentPage;
+
+    window.calculateSizeSurcharges = function() {
+        const largeSizes = ['GG', 'EXG', 'G1', 'G2', 'G3', 'Especial', 'ESPECIAL'];
+        let totalSurcharge = 0;
+        let surchargesHtml = '';
+        window.sizeSurcharges = {};
+
+        const isRestricted = (item) => {
+            const model = (item.model || '').toUpperCase();
+            const detail = (item.detail || '').toUpperCase();
+            return model.includes('INFANTIL') || model.includes('BABY LOOK') || 
+                   detail.includes('INFANTIL') || detail.includes('BABY LOOK');
+        };
+
+        const shouldApplySurcharge = (item) => {
+            if (!item.print_desc) return false;
+            try {
+                const desc = typeof item.print_desc === 'string' ? JSON.parse(item.print_desc) : item.print_desc;
+                return !!desc.apply_surcharge;
+            } catch (e) { return false; }
+        };
+
+        let sizeQuantities = {};
+        window.orderItems.forEach(item => {
+            if (isRestricted(item) && !shouldApplySurcharge(item)) return;
+            const sizes = typeof item.sizes === 'string' ? JSON.parse(item.sizes) : item.sizes;
+            if (sizes) {
+                Object.entries(sizes).forEach(([size, qty]) => {
+                    if (largeSizes.includes(size)) {
+                        sizeQuantities[size] = (sizeQuantities[size] || 0) + parseInt(qty);
                     }
                 });
-
-                if (hasEspecial) {
-                    // One-time R$ 35,00 fee
-                    flatEspecial = 35.00;
-                    totalSurcharge += flatEspecial;
-                    surchargesHtml += `
-                        <div class="flex justify-between text-xs font-bold mt-1 pt-1 border-t border-gray-100 dark:border-slate-700">
-                            <span class="text-gray-700 dark:text-slate-200">Taxa Especial (Setup):</span>
-                            <span class="text-orange-600 dark:text-orange-400">R$ 35,00</span>
-                        </div>
-                    `;
-                }
-
-                document.getElementById('surcharges-breakdown').innerHTML = surchargesHtml;
-                document.getElementById('size-surcharges-data').value = JSON.stringify(window.sizeSurcharges);
-                calculateTotal();
-            });
-        }
-
-        window.addPaymentMethod = function() {
-            const method = document.getElementById('new-payment-method').value;
-            const amountInput = document.getElementById('new-payment-amount').value;
-            const amount = parseFloat(amountInput) || 0;
-            
-            if (amount <= 0) {
-                showToast('Por favor, informe um valor maior que zero.', 'error');
-                return;
             }
-            
-            const id = Date.now();
-            window.paymentMethods.push({
-                id: id,
-                method: method,
-                amount: amount
-            });
-            
-            // Limpar campos
-            document.getElementById('new-payment-amount').value = '0';
-            
-            renderPaymentMethods();
-            calculatePayments();
-            updateSuggestedAmount();
-            showToast('Pagamento adicionado com sucesso!', 'success');
-        }
-        
-        // Função para exibir notificação visual (toast)
-        function showToast(message, type = 'info') {
-            // Remover toast existente
-            const existingToast = document.getElementById('toast-notification');
-            if (existingToast) existingToast.remove();
-            
-            // Definir cores por tipo
-            const colors = {
-                success: 'bg-green-500',
-                error: 'bg-red-500',
-                warning: 'bg-yellow-500',
-                info: 'bg-indigo-500'
-            };
-            const icons = {
-                success: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>',
-                error: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>',
-                warning: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>',
-                info: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'
-            };
-            
-            // Criar elemento toast
-            const toast = document.createElement('div');
-            toast.id = 'toast-notification';
-            toast.className = `fixed top-4 right-4 z-50 flex items-center p-4 rounded-lg shadow-lg ${colors[type]} text-white transform transition-all duration-300 translate-x-full`;
-            toast.innerHTML = `
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">${icons[type]}</svg>
-                <span class="text-sm font-medium">${message}</span>
-                <button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            `;
-            
-            document.body.appendChild(toast);
-            
-            // Animar entrada
-            setTimeout(() => {
-                toast.classList.remove('translate-x-full');
-            }, 10);
-            
-            // Remover após 4 segundos
-            setTimeout(() => {
-                toast.classList.add('translate-x-full');
-                setTimeout(() => toast.remove(), 300);
-            }, 4000);
-        }
-        
-        function useSuggestedAmount() {
-            const totalFinal = getTotalFinal();
-            const suggestedAmount = totalFinal * 0.5;
-            document.getElementById('new-payment-amount').value = suggestedAmount.toFixed(2);
-        }
-        
-        window.updateSuggestedAmount = function() {
-            const totalFinal = getTotalFinal();
-            const totalPaid = window.paymentMethods.reduce((sum, pm) => sum + (parseFloat(pm.amount) || 0), 0);
-            const remaining = totalFinal - totalPaid;
-            const suggestedAmount = remaining > 0 ? (remaining >= totalFinal * 0.5 ? totalFinal * 0.5 : remaining) : 0;
-            
-            document.getElementById('suggested-amount').textContent = `R$ ${suggestedAmount.toFixed(2).replace('.', ',')}`;
-        }
+        });
 
-        window.removePaymentMethod = function(id) {
-            window.paymentMethods = window.paymentMethods.filter(pm => pm.id !== id);
-            renderPaymentMethods();
-            calculatePayments();
-            updateSuggestedAmount();
-        }
-
-        window.renderPaymentMethods = function() {
-            const container = document.getElementById('payment-methods-list');
-            
-            if (window.paymentMethods.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 dark:text-slate-400 text-xs">Nenhum pagamento adicionado ainda.</p>';
-                return;
+        const promises = Object.entries(sizeQuantities).map(([size, quantity]) => {
+            if (quantity > 0) {
+                return fetch(`/api/size-surcharge/${size}?price=${window.subtotal}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.surcharge) {
+                            const surcharge = parseFloat(data.surcharge) * quantity;
+                            window.sizeSurcharges[size] = surcharge;
+                            totalSurcharge += surcharge;
+                            surchargesHtml += `
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-gray-700 dark:text-slate-300">Acréscimo ${size} (${quantity}x):</span>
+                                    <span class="font-medium text-orange-600 dark:text-orange-400">+R$ ${surcharge.toFixed(2).replace('.', ',')}</span>
+                                </div>`;
+                        }
+                    });
             }
+            return Promise.resolve();
+        });
 
-            container.innerHTML = window.paymentMethods.map((pm, index) => `
-                <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-md border border-gray-200 dark:border-slate-700 transition-colors">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center">
-                            <svg class="w-4 h-4 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900 dark:text-white capitalize">${pm.method}</p>
-                            <p class="text-xs text-gray-500 dark:text-slate-400">Pagamento ${index + 1}</p>
+        Promise.all(promises).then(() => {
+            let hasEspecial = false;
+            window.orderItems.forEach(item => {
+                const sizes = typeof item.sizes === 'string' ? JSON.parse(item.sizes) : item.sizes;
+                if (sizes && Object.keys(sizes).some(s => s.toUpperCase() === 'ESPECIAL' && sizes[s] > 0)) hasEspecial = true;
+            });
+            if (hasEspecial) {
+                totalSurcharge += 35.00;
+                surchargesHtml += `
+                    <div class="flex justify-between text-xs font-bold mt-1 pt-1 border-t border-gray-100 dark:border-slate-700">
+                        <span class="text-gray-700 dark:text-slate-200">Taxa Especial (Setup):</span>
+                        <span class="text-orange-600 dark:text-orange-400">R$ 35,00</span>
+                    </div>`;
+            }
+            const breakdown = document.getElementById('surcharges-breakdown');
+            if (breakdown) breakdown.innerHTML = surchargesHtml;
+            window.calculateTotal();
+        });
+    };
+
+    window.addPaymentMethod = function() {
+        const method = document.getElementById('new-payment-method').value;
+        const amount = parseFloat(document.getElementById('new-payment-amount').value) || 0;
+        if (amount <= 0) {
+            window.showToast('Por favor, informe um valor maior que zero.', 'error');
+            return;
+        }
+        window.paymentMethods.push({ id: Date.now(), method: method, amount: amount });
+        document.getElementById('new-payment-amount').value = '0';
+        window.renderPaymentMethods();
+        window.calculatePayments();
+        window.updateSuggestedAmount();
+        window.showToast('Pagamento adicionado com sucesso!', 'success');
+    };
+
+    window.removePaymentMethod = function(id) {
+        window.paymentMethods = window.paymentMethods.filter(pm => pm.id !== id);
+        window.renderPaymentMethods();
+        window.calculatePayments();
+        window.updateSuggestedAmount();
+    };
+
+    window.renderPaymentMethods = function() {
+        const container = document.getElementById('payment-methods-list');
+        if (!container) return;
+        if (window.paymentMethods.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 dark:text-slate-400 text-xs">Nenhum pagamento adicionado ainda.</p>';
+            return;
+        }
+        container.innerHTML = window.paymentMethods.map((pm, index) => `
+            <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-md border border-gray-200 dark:border-slate-700 transition-colors">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     </div>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <span class="text-base font-bold text-[#7c3aed] dark:text-purple-400">R$ ${pm.amount.toFixed(2).replace('.', ',')}</span>
-                        <button type="button" onclick="removePaymentMethod(${pm.id})" 
-                                class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors"
-                                title="Remover">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white capitalize">${pm.method}</p>
+                        <p class="text-xs text-gray-500 dark:text-slate-400">Pagamento ${index + 1}</p>
                     </div>
                 </div>
-            `).join('');
-        }
+                <div class="flex items-center space-x-3">
+                    <span class="text-base font-bold text-[#7c3aed] dark:text-purple-400">R$ ${pm.amount.toFixed(2).replace('.', ',')}</span>
+                    <button type="button" onclick="window.removePaymentMethod(${pm.id})" class="text-red-600 hover:text-red-800 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                </div>
+            </div>`).join('');
+    };
 
-
-        window.calculatePayments = function() {
-            const totalPaid = window.paymentMethods.reduce((sum, pm) => sum + (parseFloat(pm.amount) || 0), 0);
-            const totalFinal = getTotalFinal();
-            const remaining = totalFinal - totalPaid;
-
-            document.getElementById('total-paid').textContent = `R$ ${totalPaid.toFixed(2).replace('.', ',')}`;
-            
-            // Atualizar label e valor do restante/crédito
-            const remainingElement = document.getElementById('remaining');
-            const remainingLabel = remainingElement.closest('.flex').querySelector('span:first-child');
+    window.calculatePayments = function() {
+        const totalPaid = window.paymentMethods.reduce((sum, pm) => sum + pm.amount, 0);
+        const totalFinal = window.getTotalFinal();
+        const remaining = totalFinal - totalPaid;
+        const paidEl = document.getElementById('total-paid');
+        const remEl = document.getElementById('remaining');
+        if (paidEl) paidEl.textContent = `R$ ${totalPaid.toFixed(2).replace('.', ',')}`;
+        if (remEl) {
+            const label = remEl.closest('.flex').querySelector('span:first-child');
             if (remaining < 0) {
-                remainingLabel.textContent = 'Crédito do Cliente:';
-                remainingElement.textContent = `R$ ${Math.abs(remaining).toFixed(2).replace('.', ',')}`;
-                remainingElement.className = 'font-semibold text-green-600 dark:text-green-400';
+                if (label) label.textContent = 'Crédito do Cliente:';
+                remEl.textContent = `R$ ${Math.abs(remaining).toFixed(2).replace('.', ',')}`;
+                remEl.className = 'font-semibold text-green-600 dark:text-green-400';
             } else {
-                remainingLabel.textContent = 'Restante:';
-                remainingElement.textContent = `R$ ${remaining.toFixed(2).replace('.', ',')}`;
-                remainingElement.className = 'font-semibold text-[#7c3aed] dark:text-purple-400';
+                if (label) label.textContent = 'Restante:';
+                remEl.textContent = `R$ ${remaining.toFixed(2).replace('.', ',')}`;
+                remEl.className = 'font-semibold text-[#7c3aed] dark:text-purple-400';
             }
-
-            // Atualizar campo hidden
-            document.getElementById('payment-methods-data').value = JSON.stringify(window.paymentMethods);
         }
+    };
 
-        window.updateDiscountType = function() {
-            window.discountType = document.getElementById('discount_type').value;
-            const discountInput = document.getElementById('discount_value');
-            const discountLabel = document.getElementById('discount-label');
-            const discountPreview = document.getElementById('discount-preview');
-            
-            if (window.discountType === 'none') {
-                discountInput.disabled = true;
-                discountInput.value = 0;
-                window.discountValue = 0;
-                discountPreview.classList.add('hidden');
-            } else {
-                discountInput.disabled = false;
-                if (window.discountType === 'percentage') {
-                    discountLabel.textContent = 'Porcentagem (%)';
-                    discountInput.max = 100;
-                    discountInput.placeholder = 'Ex: 10';
-                } else {
-                    discountLabel.textContent = 'Valor (R$)';
-                    discountInput.removeAttribute('max');
-                    discountInput.placeholder = 'Ex: 10.00';
-                }
-            }
-            
-            calculateTotal();
+    window.updateDiscountType = function() {
+        window.discountType = document.getElementById('discount_type').value;
+        const input = document.getElementById('discount_value');
+        const label = document.getElementById('discount-label');
+        if (!input || !label) return;
+        if (window.discountType === 'none') {
+            input.disabled = true;
+            input.value = 0;
+            window.discountValue = 0;
+            document.getElementById('discount-preview')?.classList.add('hidden');
+        } else {
+            input.disabled = false;
+            label.textContent = window.discountType === 'percentage' ? 'Porcentagem (%)' : 'Valor (R$)';
         }
+        window.calculateTotal();
+    };
 
-        window.calculateDiscount = function() {
-            if (window.discountType === 'none') {
-                return 0;
-            }
-            
-            window.discountValue = parseFloat(document.getElementById('discount_value').value) || 0;
-            const totalSurcharges = Object.values(window.sizeSurcharges).reduce((sum, val) => sum + val, 0);
-            const subtotalWithFees = window.subtotal + totalSurcharges + window.deliveryFee;
-            
-            let discount = 0;
-            
-            if (window.discountType === 'percentage') {
-                // Limitar porcentagem entre 0 e 100
-                window.discountValue = Math.min(Math.max(window.discountValue, 0), 100);
-                discount = (subtotalWithFees * window.discountValue) / 100;
-            } else if (window.discountType === 'fixed') {
-                discount = window.discountValue;
-                // Não permitir desconto maior que o total
-                discount = Math.min(discount, subtotalWithFees);
-            }
-            
-            return discount;
+    window.calculateDiscount = function() {
+        if (window.discountType === 'none') return 0;
+        window.discountValue = parseFloat(document.getElementById('discount_value')?.value) || 0;
+        const totalSurcharges = Object.values(window.sizeSurcharges).reduce((sum, val) => sum + val, 0);
+        const subtotalWithFees = window.subtotal + totalSurcharges + window.deliveryFee;
+        if (window.discountType === 'percentage') {
+            window.discountValue = Math.min(Math.max(window.discountValue, 0), 100);
+            return (subtotalWithFees * window.discountValue) / 100;
         }
+        return Math.min(window.discountValue, subtotalWithFees);
+    };
 
-        window.calculateTotal = function() {
-            window.deliveryFee = parseFloat(document.getElementById('delivery_fee').value) || 0;
-            const customSurcharge = parseFloat(document.getElementById('custom_surcharge').value) || 0;
-            
-            const totalSurcharges = Object.values(window.sizeSurcharges).reduce((sum, val) => sum + val, 0);
-            const discount = calculateDiscount();
-            const totalFinal = window.subtotal + totalSurcharges + customSurcharge + window.deliveryFee - discount;
+    window.getTotalFinal = function() {
+        const totalSurcharges = Object.values(window.sizeSurcharges).reduce((sum, val) => sum + val, 0);
+        const customSurcharge = parseFloat(document.getElementById('custom_surcharge')?.value) || 0;
+        return window.subtotal + totalSurcharges + customSurcharge + window.deliveryFee - window.calculateDiscount();
+    };
 
-            // Atualizar displays
-            document.getElementById('delivery-fee-display').textContent = `R$ ${window.deliveryFee.toFixed(2).replace('.', ',')}`;
-            document.getElementById('total-final').textContent = `R$ ${totalFinal.toFixed(2).replace('.', ',')}`;
-            
-            // Mostrar desconto no resumo
+    window.calculateTotal = function() {
+        window.deliveryFee = parseFloat(document.getElementById('delivery_fee')?.value) || 0;
+        const discount = window.calculateDiscount();
+        const totalFinal = window.getTotalFinal();
+        const feeDisp = document.getElementById('delivery-fee-display');
+        const totalDisp = document.getElementById('total-final');
+        if (feeDisp) feeDisp.textContent = `R$ ${window.deliveryFee.toFixed(2).replace('.', ',')}`;
+        if (totalDisp) totalDisp.textContent = `R$ ${totalFinal.toFixed(2).replace('.', ',')}`;
+        const summary = document.getElementById('discount-summary');
+        const disp = document.getElementById('discount-display');
+        if (summary && disp) {
             if (discount > 0) {
-                document.getElementById('discount-summary').classList.remove('hidden');
-                document.getElementById('discount-display').textContent = `-R$ ${discount.toFixed(2).replace('.', ',')}`;
-                
-                // Mostrar preview do desconto
-                document.getElementById('discount-preview').classList.remove('hidden');
-                let discountText = '';
-                if (window.discountType === 'percentage') {
-                    discountText = `${window.discountValue}% (R$ ${discount.toFixed(2).replace('.', ',')})`;
-                } else {
-                    discountText = `R$ ${discount.toFixed(2).replace('.', ',')}`;
-                }
-                document.getElementById('discount-preview-text').textContent = discountText;
-            } else {
-                document.getElementById('discount-summary').classList.add('hidden');
-                document.getElementById('discount-preview').classList.add('hidden');
-            }
-            
-            // Atualizar campos hidden
-            document.getElementById('discount-type-data').value = window.discountType;
-            document.getElementById('discount-value-data').value = window.discountValue;
-            
-            calculatePayments();
-            updateSuggestedAmount();
+                summary.classList.remove('hidden');
+                disp.textContent = `-R$ ${discount.toFixed(2).replace('.', ',')}`;
+            } else summary.classList.add('hidden');
         }
+        window.calculatePayments();
+        window.updateSuggestedAmount();
+    };
 
-        window.getTotalFinal = function() {
-            const totalSurcharges = Object.values(window.sizeSurcharges).reduce((sum, val) => sum + val, 0);
-            const customSurcharge = parseFloat(document.getElementById('custom_surcharge').value) || 0;
-            const discount = calculateDiscount();
-            return window.subtotal + totalSurcharges + customSurcharge + window.deliveryFee - discount;
-        }
+    window.updateSuggestedAmount = function() {
+        const totalFinal = window.getTotalFinal();
+        const paid = window.paymentMethods.reduce((sum, pm) => sum + pm.amount, 0);
+        const rem = totalFinal - paid;
+        const suggested = rem > 0 ? (rem >= totalFinal * 0.5 ? totalFinal * 0.5 : rem) : 0;
+        const el = document.getElementById('suggested-amount');
+        if (el) el.textContent = `R$ ${suggested.toFixed(2).replace('.', ',')}`;
+    };
 
+    window.useSuggestedAmount = function() {
+        const totalFinal = window.getTotalFinal();
+        const paid = window.paymentMethods.reduce((sum, pm) => sum + pm.amount, 0);
+        const rem = totalFinal - paid;
+        const suggested = rem > 0 ? (rem >= totalFinal * 0.5 ? totalFinal * 0.5 : rem) : 0;
+        const input = document.getElementById('new-payment-amount');
+        if (input) input.value = suggested.toFixed(2);
+    };
+
+    window.showToast = function(message, type = 'info') {
+        const existing = document.getElementById('toast-notification');
+        if (existing) existing.remove();
+        const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-indigo-500' };
+        const toast = document.createElement('div');
+        toast.id = 'toast-notification';
+        toast.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${colors[type] || colors.info} text-white transform transition-all duration-300 translate-x-full`;
+        toast.innerHTML = `<span class="text-sm font-medium">${message}</span>`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+        setTimeout(() => { toast.classList.add('translate-x-full'); setTimeout(() => toast.remove(), 300); }, 3000);
+    };
+
+    // Initialization
+    window._paymentInitSetup = function() {
+        document.removeEventListener('ajax-content-loaded', initPaymentPage);
+        document.addEventListener('ajax-content-loaded', initPaymentPage);
+    };
+    window._paymentInitSetup();
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPaymentPage);
+    } else {
+        initPaymentPage();
+    }
+})();
 </script>
-@endpush
 @endsection

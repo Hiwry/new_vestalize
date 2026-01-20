@@ -12,7 +12,7 @@
         <div class="mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-[#7c3aed] text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">3</div>
+                    <div class="w-10 h-10 bg-[#7c3aed] text-white stay-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">3</div>
                     <div>
                         <span class="text-lg font-bold text-gray-900 dark:text-white">Personalização</span>
                         <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa 3 de 5</p>
@@ -36,7 +36,7 @@
                     <div class="flex items-center">
                         <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                              <div class="w-8 h-8 bg-[#7c3aed] rounded-lg flex items-center justify-center shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                                 </svg>
                             </div>
@@ -54,7 +54,7 @@
                 
                 <!-- Card do Formulário -->
                 <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm">
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
                         
                         <!-- Nome da Arte -->
                         <div class="lg:col-span-4">
@@ -68,7 +68,7 @@
                             </label>
                             <input id="order_art_name" type="text" name="order_art_name" value="{{ $order->items->first()?->art_name }}" 
                                    placeholder="Ex: Logo Cliente, Frente PV"
-                                   class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                                   class="w-full h-11 px-4 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] focus:border-transparent transition-all">
                         </div>
                         
                         <!-- Arquivos -->
@@ -82,10 +82,8 @@
                                 Arquivos
                                 <span class="text-xs font-normal text-gray-400 dark:text-slate-500">(Corel, PDF)</span>
                             </label>
-                            <div class="relative">
-                                <input id="order_art_files" type="file" name="order_art_files[]" multiple accept=".cdr,.pdf,.ai,.eps"
-                                       class="w-full text-sm text-gray-600 dark:text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 dark:file:bg-emerald-900/30 dark:file:text-emerald-400 hover:file:bg-emerald-100 dark:hover:file:bg-emerald-900/50 cursor-pointer border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-[#7c3aed]">
-                            </div>
+                            <input id="order_art_files" type="file" name="order_art_files[]" multiple accept=".cdr,.pdf,.ai,.eps"
+                                   class="w-full h-11 flex items-center text-sm text-gray-600 dark:text-slate-300 file:mr-3 file:h-full file:py-0 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 dark:file:bg-emerald-900/30 dark:file:text-emerald-400 hover:file:bg-emerald-100 dark:hover:file:bg-emerald-900/50 cursor-pointer border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-[#7c3aed]">
                         </div>
                         
                         <!-- Aplicar no Item -->
@@ -99,7 +97,7 @@
                                 Aplicar no Item
                             </label>
                             <select id="order_art_item" name="item_id" 
-                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                                    class="w-full h-11 px-4 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] focus:border-transparent transition-all">
                                 @foreach($order->items as $item)
                                     <option value="{{ $item->id }}" {{ $loop->first ? 'selected' : '' }}>
                                         Item {{ $item->item_number }} • {{ $item->quantity }} peças • {{ $item->fabric }}
@@ -109,8 +107,8 @@
                         </div>
                         
                         <!-- Botão -->
-                        <div class="lg:col-span-1 flex items-end">
-                            <button type="submit" class="w-full px-4 py-2.5 bg-gradient-to-r from-[#7c3aed] to-[#7c3aed] dark:from-[#7c3aed] dark:to-[#7c3aed] text-white rounded-lg shadow-lg shadow-[#7c3aed]/25 hover:shadow-[#7c3aed]/40 hover:from-[#7c3aed] hover:to-[#7c3aed] transition-all font-semibold text-sm flex items-center justify-center gap-2">
+                        <div class="lg:col-span-1">
+                            <button type="submit" class="w-full h-11 px-4 bg-[#7c3aed] text-white stay-white rounded-lg shadow-lg shadow-[#7c3aed]/25 hover:bg-[#6d28d9] hover:shadow-[#7c3aed]/40 transition-all font-semibold text-sm flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
@@ -152,8 +150,8 @@
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         <div class="bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/10 rounded-xl p-4 border border-blue-100 dark:border-blue-800/50">
                             <div class="flex items-center gap-3 mb-2">
-                                <div class="w-8 h-8 bg-blue-500/20 dark:bg-blue-400/20 rounded-lg flex items-center justify-center">
-                                    <i class="fa-solid fa-boxes-stacked text-blue-600 dark:text-blue-400"></i>
+                                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/30">
+                                    <i class="fa-solid fa-boxes-stacked text-white stay-white"></i>
                                 </div>
                                 <p class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Total de Itens</p>
                             </div>
@@ -161,8 +159,8 @@
                         </div>
                         <div class="bg-gradient-to-br from-violet-50 to-violet-100/50 dark:from-violet-900/20 dark:to-violet-800/10 rounded-xl p-4 border border-violet-100 dark:border-violet-800/50">
                             <div class="flex items-center gap-3 mb-2">
-                                <div class="w-8 h-8 bg-violet-500/20 dark:bg-violet-400/20 rounded-lg flex items-center justify-center">
-                                    <i class="fa-solid fa-tag text-violet-600 dark:text-violet-400"></i>
+                                <div class="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center shadow-lg shadow-violet-500/30">
+                                    <i class="fa-solid fa-tag text-white stay-white"></i>
                                 </div>
                                 <p class="text-xs font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wide">Total de Peças</p>
                             </div>
@@ -323,13 +321,13 @@
                                             <button 
                                                 type="button"
                                                 onclick="openPersonalizationModal({{ $item->id }}, '{{ $persName }}', {{ $persId }})"
-                                                class="text-sm px-3 py-1.5 bg-[#7c3aed] text-white rounded-lg hover:bg-[#7c3aed] transition-colors font-medium">
+                                                class="text-sm px-3 py-1.5 bg-[#7c3aed] text-white stay-white rounded-lg hover:bg-[#7c3aed] transition-colors font-medium">
                                                 + Adicionar
                                             </button>
                                         </div>
                                         
                                         <!-- Lista de Personalizações Adicionadas -->
-                                        <div id="personalizations-list-{{ $item->id }}-{{ $persId }}" class="space-y-2">
+                                        <div id="personalizations-list-{{ $item->id }}-{{ $persId }}" class="space-y-2 personalizations-list">
                                             @if($existingPersonalizations->count() > 0)
                                                 @foreach($existingPersonalizations as $pers)
                                                     <div class="p-3 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
@@ -416,7 +414,7 @@
                         ← Voltar
                     </a>
                     <a href="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.payment') : route('orders.wizard.payment') }}" 
-                       class="px-6 py-2.5 text-sm bg-[#7c3aed] text-white rounded-lg hover:opacity-90 font-semibold transition-all">
+                       class="px-6 py-2.5 text-sm bg-[#7c3aed] text-white stay-white rounded-lg hover:opacity-90 font-semibold transition-all">
                         Continuar →
                     </a>
                 </div>
@@ -426,23 +424,23 @@
     </div>
 
     <!-- Modal de Adicionar Personalização -->
-    <div id="personalizationModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-700/50 animate-slideUp">
+    <div id="personalizationModal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-slate-700/50 animate-slideUp">
             
             <!-- Modal Header com gradiente e ícone -->
-            <div class="px-6 py-5 border-b border-slate-700/50 flex items-center justify-between sticky top-0 bg-gradient-to-r from-purple-600/20 via-slate-900 to-slate-900 z-10 backdrop-blur-sm">
+            <div class="px-6 py-5 border-b border-gray-200 dark:border-slate-700/50 flex items-center justify-between sticky top-0 bg-gradient-to-r from-purple-100 via-white to-white dark:from-purple-600/20 dark:via-slate-900 dark:to-slate-900 z-10 backdrop-blur-sm">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center ring-1 ring-purple-500/30">
-                        <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-500/20 rounded-xl flex items-center justify-center ring-1 ring-purple-300 dark:ring-purple-500/30">
+                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold text-white" id="modalTitle">Adicionar Aplicação</h3>
-                        <p class="text-sm text-slate-400 mt-0.5" id="modalSubtitle">Configure os detalhes da personalização</p>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white" id="modalTitle">Adicionar Aplicação</h3>
+                        <p class="text-sm text-gray-500 dark:text-slate-400 mt-0.5" id="modalSubtitle">Configure os detalhes da personalização</p>
                     </div>
                 </div>
-                <button type="button" onclick="closePersonalizationModal()" class="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all">
+                <button type="button" onclick="closePersonalizationModal()" class="p-2 text-gray-400 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -497,14 +495,14 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Localização (oculto para SUB. TOTAL) -->
                     <div id="locationField">
-                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-200 mb-2">
-                            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2">
+                            <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
                             Localização
                         </label>
-                        <select id="location" name="location" class="w-full px-4 py-3 border border-slate-600 rounded-xl bg-slate-800 text-white focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition-all cursor-pointer" data-required-for="!SUB. TOTAL">
+                        <select id="location" name="location" class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition-all cursor-pointer" data-required-for="!SUB. TOTAL">
                             <option value="">Selecione...</option>
                             @foreach($locations as $location)
                                 <option value="{{ $location->id }}">{{ $location->name }}</option>
@@ -514,13 +512,13 @@
 
                     <!-- Tamanho (oculto para SUB. TOTAL) -->
                     <div id="sizeField">
-                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-200 mb-2">
-                            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2">
+                            <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
                             </svg>
                             Tamanho
                         </label>
-                        <select id="size" name="size" class="w-full px-4 py-3 border border-slate-600 rounded-xl bg-slate-800 text-white focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition-all cursor-pointer" data-required-for="!SUB. TOTAL">
+                        <select id="size" name="size" class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition-all cursor-pointer" data-required-for="!SUB. TOTAL">
                             <option value="">Selecione...</option>
                         </select>
                     </div>
@@ -572,15 +570,15 @@
 
                 <!-- Quantidade (oculto para SUB. TOTAL) -->
                 <div id="quantityField">
-                    <label class="flex items-center gap-2 text-sm font-semibold text-slate-200 mb-2">
-                        <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2">
+                        <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
                         </svg>
                         Quantidade
                     </label>
-                    <input type="number" id="quantity" name="quantity" min="1" value="1"
-                           class="w-full px-4 py-3 border border-slate-600 rounded-xl bg-slate-800 text-white focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition-all" data-required-for="!SUB. TOTAL">
-                    <p class="mt-1.5 text-xs text-slate-400">Quantidade de peças para esta aplicação</p>
+                    <input type="number" id="quantity" name="quantity" min="1" value="1" readonly
+                           class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-xl bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-0 cursor-not-allowed transition-all" data-required-for="!SUB. TOTAL">
+                    <p class="mt-1.5 text-xs text-gray-500 dark:text-slate-400">Quantidade de peças para esta aplicação</p>
                 </div>
 
                 <!-- Cores (para Serigrafia e Emborrachado) -->
@@ -607,7 +605,7 @@
                                 <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <span class="text-sm font-semibold text-slate-300">Preço por Aplicação:</span>
+                                <span class="text-sm font-semibold text-gray-700 dark:text-slate-300">Preço por Aplicação:</span>
                             </div>
                             <span class="text-2xl font-bold text-indigo-400" id="unitPrice">R$ 0,00</span>
                         </div>
@@ -704,7 +702,7 @@
                             Cancelar
                         </button>
                         <button type="submit" 
-                                class="px-6 py-2.5 text-sm bg-gradient-to-r from-[#7c3aed] to-[#7c3aed] hover:from-[#7c3aed] hover:to-[#7c3aed] text-white rounded-xl font-semibold transition-all shadow-lg shadow-purple-900/30 flex items-center gap-2">
+                                class="px-6 py-2.5 text-sm bg-gradient-to-r from-[#7c3aed] to-[#7c3aed] hover:from-[#7c3aed] hover:to-[#7c3aed] text-white stay-white rounded-xl font-semibold transition-all shadow-lg shadow-purple-900/30 flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
@@ -757,8 +755,9 @@
     });
 @endphp
 
-@push('scripts')
 <script>
+    (function(window) {
+        // Global variables/state
         let currentItemId = '';
         let currentPersonalizationType = '';
         let currentPersonalizationId = '';
@@ -768,7 +767,8 @@
 
         // Dados de tamanhos por tipo
         const personalizationSizes = @json($personalizationData);
-        const normalizeTypeKey = (type) => type.trim().toUpperCase();
+        const normalizeTypeKey = (type) => type && type.trim().toUpperCase();
+        window.normalizeTypeKey = normalizeTypeKey;
         const orderArtData = @json($orderArtData);
         const personalizationLookup = @json($personalizationLookup->map->id); // Mapeamento de Nome -> ID
         
@@ -782,9 +782,13 @@
             @endforeach
         };
 
+        // --- DOM Elements ---
         const artItemSelect = document.getElementById('order_art_item');
         const artNameInput = document.getElementById('order_art_name');
         const artPreview = document.getElementById('order_art_preview');
+        const personalizationForm = document.getElementById('personalizationForm');
+
+        // --- Functions ---
 
         function renderOrderArtPreview(itemId) {
             if (!artPreview) return;
@@ -793,7 +797,7 @@
             let html = '';
 
             if (data.art_name) {
-                html += `<p class=\"mb-2 text-sm text-gray-700 dark:text-slate-200\"><strong class=\"text-gray-900 dark:text-white\">Nome da Arte:</strong> <span class=\"text-gray-800 dark:text-slate-200\">${data.art_name}</span></p>`;
+                html += `<p class="mb-2 text-sm text-gray-700 dark:text-slate-200"><strong class="text-gray-900 dark:text-white">Nome da Arte:</strong> <span class="text-gray-800 dark:text-slate-200">${data.art_name}</span></p>`;
             }
 
             if (files.length) {
@@ -810,6 +814,7 @@
             artPreview.innerHTML = html;
             artPreview.classList.remove('hidden');
         }
+        window.renderOrderArtPreview = renderOrderArtPreview;
 
         if (artItemSelect && artNameInput) {
             renderOrderArtPreview(artItemSelect.value);
@@ -820,7 +825,6 @@
             });
         }
 
-        const personalizationForm = document.getElementById('personalizationForm');
         let listenerRegistered = false;
         
         if (personalizationForm && !listenerRegistered) {
@@ -828,7 +832,6 @@
             listenerRegistered = true;
         }
         
-        // Função para carregar tamanhos
         function loadSizes(type) {
             const sizeSelect = document.getElementById('size');
             sizeSelect.innerHTML = '<option value="">Selecione...</option>';
@@ -863,11 +866,12 @@
                 }
             }
         }
-        // Carregar adicionais de sublimação
+        window.loadSizes = loadSizes;
         function loadAddons() {
             const addBtn = document.getElementById('addAddonBtn');
             const regataCheck = document.getElementById('regataCheckbox');
             const quantityInput = document.getElementById('quantity');
+            const colorCountInput = document.getElementById('color_count');
 
             // Remover listeners antigos para evitar duplicação
             if (addBtn) {
@@ -886,10 +890,18 @@
                 quantityInput.addEventListener('input', calculatePrice);
                 quantityInput.addEventListener('change', calculatePrice);
             }
+
+            if (colorCountInput) {
+                colorCountInput.removeEventListener('input', calculatePrice);
+                colorCountInput.removeEventListener('change', calculatePrice);
+                colorCountInput.addEventListener('input', calculatePrice);
+                colorCountInput.addEventListener('change', calculatePrice);
+            }
         }
+        window.loadAddons = loadAddons;
 
 
-        window.openPersonalizationModal = function openPersonalizationModal(itemId, persType, persId) {
+        function openPersonalizationModal(itemId, persType, persId) {
             
             currentItemId = itemId;
             currentPersonalizationType = persType;
@@ -945,8 +957,9 @@
                 document.getElementById('colorDetailsField').classList.add('hidden');
                 document.getElementById('addonsField').classList.remove('hidden');
                 
-                // Resetar quantidade para 1
-                document.getElementById('quantity').value = 1;
+                // Preencher quantidade automaticamente com a quantidade do item clicado
+                const itemQty = itemQuantitiesMap[itemId] || 1;
+                document.getElementById('quantity').value = itemQty;
                 
                 loadAddons();
             } else if (normalizedType === 'DTF') {
@@ -956,6 +969,11 @@
                 document.getElementById('quantityField').classList.remove('hidden');
                 document.getElementById('colorDetailsField').classList.add('hidden');
                 document.getElementById('addonsField').classList.remove('hidden');
+
+                // Preencher quantidade automaticamente com a quantidade do item clicado
+                const itemQty = itemQuantitiesMap[itemId] || 1;
+                document.getElementById('quantity').value = itemQty;
+
                 loadAddons();
             } else if (normalizedType === 'SUB. LOCAL') {
                 // Para SUB. LOCAL: mostrar localização e tamanho único, ocultar detalhes das cores
@@ -964,6 +982,11 @@
                 document.getElementById('quantityField').classList.remove('hidden');
                 document.getElementById('colorDetailsField').classList.add('hidden');
                 document.getElementById('addonsField').classList.remove('hidden');
+
+                // Preencher quantidade automaticamente com a quantidade do item clicado
+                const itemQty = itemQuantitiesMap[itemId] || 1;
+                document.getElementById('quantity').value = itemQty;
+
                 loadAddons();
             } else {
                 // Para outros tipos: mostrar localização, tamanho único, detalhes das cores e adicionais
@@ -972,6 +995,11 @@
                 document.getElementById('quantityField').classList.remove('hidden');
                 document.getElementById('colorDetailsField').classList.remove('hidden');
                 document.getElementById('addonsField').classList.remove('hidden');
+
+                // Preencher quantidade automaticamente com a quantidade do item clicado
+                const itemQty = itemQuantitiesMap[itemId] || 1;
+                document.getElementById('quantity').value = itemQty;
+
                 loadAddons();
             }
             
@@ -1018,6 +1046,7 @@
             // Mostrar modal
             document.getElementById('personalizationModal').classList.remove('hidden');
         }
+        window.openPersonalizationModal = openPersonalizationModal;
 
         // Função para configurar checkboxes de itens vinculados
         let mainLinkedItemId = null;
@@ -1326,15 +1355,16 @@
                 return false;
             }
         }
+        window.handleFormSubmit = handleFormSubmit;
 
-        window.closePersonalizationModal = function closePersonalizationModal() {
+        function closePersonalizationModal() {
             const modal = document.getElementById('personalizationModal');
             if (modal) modal.classList.add('hidden');
             currentItemId = '';
             currentPersonalizationType = '';
             currentPersonalizationId = '';
             
-            // Limpar feedback de uploads ao fechar (com null checks)
+            // Limpar feedback de uploads ao fechar (with null checks)
             if (typeof removeApplicationImage === 'function') {
                 removeApplicationImage();
             }
@@ -1350,9 +1380,10 @@
                 artFilesDropzoneEl.classList.add('border-purple-200', 'dark:border-purple-800');
             }
         }
+        window.closePersonalizationModal = closePersonalizationModal;
 
         // Função para lidar com mudança na imagem da aplicação
-        window.handleApplicationImageChange = function handleApplicationImageChange(input) {
+        function handleApplicationImageChange(input) {
             const file = input.files[0];
             if (file) {
                 // Validar tipo de arquivo
@@ -1383,20 +1414,24 @@
                 
             }
         }
+        window.handleApplicationImageChange = handleApplicationImageChange;
 
         // Função para remover imagem da aplicação
-        window.removeApplicationImage = function removeApplicationImage() {
+        function removeApplicationImage() {
             document.getElementById('application_image').value = '';
             document.getElementById('application_image_placeholder').classList.remove('hidden');
             document.getElementById('application_image_preview').classList.add('hidden');
             document.getElementById('application_image_dropzone').classList.remove('border-green-400', 'dark:border-green-500', 'bg-green-50/30', 'dark:bg-green-900/20');
             document.getElementById('application_image_dropzone').classList.add('border-gray-300', 'dark:border-slate-600');
         }
+        window.removeApplicationImage = removeApplicationImage;
 
         // Função para lidar com mudança nos arquivos da arte
-        window.handleArtFilesChange = function handleArtFilesChange(input) {
+        function handleArtFilesChange(input) {
             const files = input.files;
             const fileList = document.getElementById('selected_files_list');
+            
+            if (!fileList) return; // Ensure fileList exists
             fileList.innerHTML = '';
             
             const artFilesPlaceholder = document.getElementById('art_files_placeholder');
@@ -1449,6 +1484,7 @@
                 }
             }
         }
+        window.handleArtFilesChange = handleArtFilesChange;
 
 
 
@@ -1469,32 +1505,9 @@
         const availableAddons = @json($addonsData);
 
 
-        // Carregar adicionais de sublimação
-        async function loadAddons() {
-            // Configurar evento do botão adicionar
-            const addAddonBtn = document.getElementById('addAddonBtn');
-            if (addAddonBtn) {
-                addAddonBtn.addEventListener('click', openAddonModal);
-            }
-            
-            // Configurar evento do campo quantidade para recalcular preço
-            const quantityInput = document.getElementById('quantity');
-            if (quantityInput) {
-                quantityInput.addEventListener('input', calculatePrice);
-                quantityInput.addEventListener('change', calculatePrice);
-            }
-            
-            // Configurar evento do campo cor para recalcular preço
-            const colorCountInput = document.getElementById('color_count');
-            if (colorCountInput) {
-                colorCountInput.addEventListener('input', calculatePrice);
-                colorCountInput.addEventListener('change', calculatePrice);
-            }
-        }
 
 
-        // Modal para selecionar adicionais
-        window.openAddonModal = function openAddonModal() {
+        function openAddonModal() {
             // Limpar modal anterior se existir
             const oldModal = document.getElementById('addonModal');
             if (oldModal) oldModal.remove();
@@ -1633,13 +1646,15 @@
             };
             document.addEventListener('keydown', handleEsc);
         }
+        window.openAddonModal = openAddonModal;
 
-        window.closeAddonModal = function closeAddonModal() {
+        function closeAddonModal() {
             const modal = document.getElementById('addonModal');
             if (modal) modal.remove();
         }
+        window.closeAddonModal = closeAddonModal;
 
-        window.confirmAddAddon = function confirmAddAddon() {
+        function confirmAddAddon() {
             const checkboxes = document.querySelectorAll('.addon-checkbox:checked');
             const addonsList = document.getElementById('addonsList');
             const addonsSelect = document.getElementById('addons');
@@ -1710,8 +1725,8 @@
             updateAddonsPrices();
             closeAddonModal();
         }
+        window.confirmAddAddon = confirmAddAddon;
 
-        // Atualizar preços dos adicionais selecionados
         function updateAddonsPrices() {
             const selectedAddons = Array.from(document.getElementById('addons').selectedOptions);
             const pricesContainer = document.getElementById('addons-prices');
@@ -1761,6 +1776,7 @@
             // Recalcular preço após atualizar adicionais
             calculatePrice();
         }
+        window.updateAddonsPrices = updateAddonsPrices;
 
 
         function getSelectedEffects() {
@@ -1770,8 +1786,8 @@
             if (document.getElementById('effect_neon')?.checked) effects.push('Neon');
             return effects;
         }
+        window.getSelectedEffects = getSelectedEffects;
 
-        // Calcular preço
         async function calculatePrice() {
             const persTypeRaw = document.getElementById('modal_personalization_type').value;
             const persType = normalizeTypeKey(persTypeRaw);
@@ -1858,7 +1874,7 @@
                     const useColorCharge = typeSetting && typeSetting.charge_by_color;
                     
                     if (useColorCharge && currentColorCount > 1) {
-                        // Usa color_price_per_unit das configurações ou fallback para valor padrão
+                        // Usa color_price_per_unit das configurações or fallback para valor padrão
                         const colorPricePerUnit = typeSetting.color_price_per_unit || 2.00;
                         const extraColors = currentColorCount - 1;
                         unitPrice += colorPricePerUnit * extraColors;
@@ -1957,15 +1973,19 @@
                 showDefaultPrice(quantity, persType);
             }
         }
+        window.calculatePrice = calculatePrice;
 
-        function showDefaultPrice(quantity, persType) {
+        function showDefaultPrice(quantity = null, persType = null) {
+            if (persType === null) persType = document.getElementById('modal_personalization_type').value;
+            if (quantity === null) quantity = parseInt(document.getElementById('quantity').value) || 0;
             const normalizedType = normalizeTypeKey(persType);
+            
             const defaultPrices = {
                 'SERIGRAFIA': 5.00,
-                'EMBORRACHADO': 8.00,
-                'SUBLIMACAO': 3.50,
+                'BORDADO': 10.00,
+                'EMBORRACHADO': 15.00,
+                'SUBLIMAÇÃO': 8.00,
                 'SUB. TOTAL': 2.50,
-                'BORDADO': 12.00,
                 'DTF': 4.00
             };
             
@@ -1976,16 +1996,12 @@
             }
             document.getElementById('effects_applied').value = selectedEffects.join(', ');
 
-
-            // Adicionar preço dos adicionais se for SUB. TOTAL
             if (normalizedType === 'SUB. TOTAL') {
                 const addonsSelect = document.getElementById('addons');
                 let addonsTotal = 0;
                 
                 if (addonsSelect) {
                     const selectedAddons = Array.from(addonsSelect.selectedOptions);
-                    
-                    // Verificar desconto REGATA
                     const regataCheckbox = document.getElementById('regataCheckbox');
                     if (regataCheckbox && regataCheckbox.checked) {
                         addonsTotal += -3.00;
@@ -1999,12 +2015,10 @@
                         }
                     });
                 }
-                
                 unitPrice += addonsTotal;
             }
 
             const total = unitPrice * quantity;
-            
             document.getElementById('unitPrice').textContent = `R$ ${unitPrice.toFixed(2).replace('.', ',')}`;
             document.getElementById('totalPrice').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
             document.getElementById('priceFormula').textContent = `R$ ${unitPrice.toFixed(2).replace('.', ',')} × ${quantity} ${quantity === 1 ? 'peça' : 'peças'} (preço estimado)`;
@@ -2012,8 +2026,8 @@
             document.getElementById('final_price').value = total;
             document.getElementById('priceDisplay').classList.remove('hidden');
         }
+        window.showDefaultPrice = showDefaultPrice;
 
-        // Mostrar arquivos selecionados
         function displaySelectedFiles() {
             const fileInput = document.getElementById('art_files');
             const filesList = document.getElementById('selected_files_list');
@@ -2037,103 +2051,16 @@
                 filesList.innerHTML = '';
             }
         }
+        window.displaySelectedFiles = displaySelectedFiles;
 
-        // Adicionar listeners para recalcular preço
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('size').addEventListener('change', function() {
-                calculatePrice();
-            });
-            document.getElementById('quantity').addEventListener('input', function() {
-                calculatePrice();
-            });
-        const colorCountField = document.getElementById('color_count');
-        if (colorCountField) {
-            colorCountField.addEventListener('input', function() {
-                calculatePrice();
-            });
-            colorCountField.addEventListener('change', function() {
-                calculatePrice();
-            });
-        }
-
-        ['effect_dourado','effect_prata','effect_neon'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.addEventListener('change', calculatePrice);
-            }
-        });
-        
-        const artFilesForListener = document.getElementById('art_files');
-        if (artFilesForListener) artFilesForListener.addEventListener('change', displaySelectedFiles);
-        });
-
-        // Submit do formulário
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('personalizationForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const formData = new FormData(this);
-                
-                try {
-                    const response = await fetch('{{ route("orders.wizard.customization") }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json',
-                        },
-                        body: formData
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (response.ok) {
-                        // Fechar modal
-                        closePersonalizationModal();
-                        
-                        // Atualizar interface dinamicamente
-                        await updatePersonalizationsList();
-                        
-                        // Mostrar mensagem de sucesso
-                        showSuccessMessage('Personalização adicionada com sucesso!');
-                    } else {
-                        alert(data.message || 'Erro ao adicionar personalização');
-                    }
-                } catch (error) {
-                    console.error('Erro:', error);
-                    alert('Erro ao adicionar personalização');
-                }
-            });
-
-            // Fechar modal ao clicar fora
-            document.getElementById('personalizationModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closePersonalizationModal();
-                }
-            });
-
-            // Fechar modal de confirmação ao clicar fora
-            document.getElementById('deleteConfirmationModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeDeleteConfirmationModal();
-                }
-            });
-        });
-
-        // Função para atualizar a lista de personalizações dinamicamente
         async function updatePersonalizationsList() {
             try {
-                
-                // Mostrar indicador de carregamento
                 showLoadingIndicator();
-                
-                // Determinar a rota correta baseado no contexto (criação vs edição)
                 const isEditing = {{ request()->routeIs('orders.edit.*') ? 'true' : 'false' }};
                 const refreshUrl = isEditing 
                     ? '{{ route("orders.edit.customization") }}' 
                     : '{{ route("orders.wizard.customization.refresh") }}';
                 
-                
-                // Fazer uma requisição para obter os dados atualizados
                 const response = await fetch(refreshUrl, {
                     method: 'GET',
                     headers: {
@@ -2145,24 +2072,19 @@
                 
                 if (response.ok) {
                     const html = await response.text();
-                    
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = html;
                     
-                    const newSummary = tempDiv.querySelector('.bg-white.rounded-lg.border.border-gray-200.p-4.mb-6');
+                    const newSummary = tempDiv.querySelector('.bg-gray-50.dark:bg-slate-800\\/50.rounded-lg.border.border-gray-200.dark:border-slate-700.p-5.mb-6');
                     if (newSummary) {
-                        const currentSummary = document.querySelector('.bg-white.rounded-lg.border.border-gray-200.p-4.mb-6');
-                        if (currentSummary) {
-                            currentSummary.innerHTML = newSummary.innerHTML;
-                        }
+                        const currentSummary = document.querySelector('.bg-gray-50.dark:bg-slate-800\\/50.rounded-lg.border.border-gray-200.dark:border-slate-700.p-5.mb-6');
+                        if (currentSummary) currentSummary.innerHTML = newSummary.innerHTML;
                     }
                     
                     const newItemsContainer = tempDiv.querySelector('.space-y-6');
                     if (newItemsContainer) {
                         const currentItemsContainer = document.querySelector('.space-y-6');
-                        if (currentItemsContainer) {
-                            currentItemsContainer.innerHTML = newItemsContainer.innerHTML;
-                        }
+                        if (currentItemsContainer) currentItemsContainer.innerHTML = newItemsContainer.innerHTML;
                     }
                     
                     reapplyEventListeners();
@@ -2170,23 +2092,28 @@
                 } else {
                     console.error('Erro ao atualizar lista:', response.status);
                     hideLoadingIndicator();
+                    // Fallback to reload if AJAX fails
+                    window.location.reload();
                 }
             } catch (error) {
-                console.error('Erro ao atualizar lista de personalizações:', error);
+                console.error('Erro ao atualizar lista:', error);
                 hideLoadingIndicator();
+                window.location.reload();
             }
         }
+        window.updatePersonalizationsList = updatePersonalizationsList;
 
         function reapplyEventListeners() {
+            document.removeEventListener('paste', window.handlePaste);
+            document.addEventListener('paste', window.handlePaste);
+            setupArtFilesDropzone();
         }
+        window.reapplyEventListeners = reapplyEventListeners;
 
-        // Função para mostrar indicador de carregamento
         function showLoadingIndicator() {
-            // Remover indicadores anteriores
-            const existingIndicators = document.querySelectorAll('.loading-indicator');
-            existingIndicators.forEach(indicator => indicator.remove());
+            const existing = document.querySelectorAll('.loading-indicator');
+            existing.forEach(el => el.remove());
             
-            // Criar novo indicador
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'loading-indicator fixed top-4 right-4 bg-[#7c3aed] text-white px-4 py-2 rounded-md shadow-lg z-50';
             loadingDiv.innerHTML = `
@@ -2195,190 +2122,116 @@
                     <span>Atualizando...</span>
                 </div>
             `;
-            
             document.body.appendChild(loadingDiv);
         }
+        window.showLoadingIndicator = showLoadingIndicator;
 
-        // Função para esconder indicador de carregamento
         function hideLoadingIndicator() {
             const indicators = document.querySelectorAll('.loading-indicator');
-            indicators.forEach(indicator => indicator.remove());
+            indicators.forEach(el => el.remove());
         }
+        window.hideLoadingIndicator = hideLoadingIndicator;
 
-        // Função para mostrar mensagem de sucesso
         function showSuccessMessage(message) {
-            // Remover mensagens anteriores
-            const existingMessages = document.querySelectorAll('.success-message');
-            existingMessages.forEach(msg => msg.remove());
-            
-            // Criar nova mensagem
-            const successDiv = document.createElement('div');
-            successDiv.className = 'success-message mb-4 p-3 bg-green-50 border border-green-200 text-green-800 rounded-md text-sm';
-            successDiv.textContent = message;
-            
-            // Inserir no topo da página
-            const content = document.querySelector('.max-w-4xl.mx-auto.px-4.py-6');
-            if (content) {
-                content.insertBefore(successDiv, content.firstChild);
-                
-                // Remover após 3 segundos
-                setTimeout(() => {
-                    successDiv.remove();
-                }, 3000);
-            }
+            alert(message);
         }
+        window.showSuccessMessage = showSuccessMessage;
 
-        // Abrir modal de confirmação de exclusão
-        window.removePersonalization = function removePersonalization(id) {
-            console.log('🗑️ Solicitando remoção de personalização ID:', id);
+        function removePersonalization(id) {
             pendingDeleteId = id;
-            
-            // Buscar informações da personalização para mostrar no modal
-            const personalizationCard = document.querySelector(`button[onclick*="deletePersonalization(${id})"]`)?.closest('.border');
-            let info = `Personalização ID: ${id}`;
-            
-            if (personalizationCard) {
-                const typeText = personalizationCard.querySelector('.font-medium')?.textContent;
-                const priceText = personalizationCard.querySelector('.text-[#7c3aed]')?.textContent;
-                if (typeText) info = `<strong>${typeText}</strong>`;
-                if (priceText) info += `<br><span class="text-gray-600">${priceText}</span>`;
+            const modal = document.getElementById('deleteConfirmationModal');
+            if (modal) {
+                const infoEl = document.getElementById('delete-item-info');
+                if (infoEl) infoEl.innerHTML = `Excluir personalização #${id}?`;
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
             }
-            
-            document.getElementById('delete-item-info').innerHTML = info;
-            document.getElementById('deleteConfirmationModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
         }
-        
-        // Fechar modal de confirmação
-        window.closeDeleteConfirmationModal = function closeDeleteConfirmationModal() {
-            console.log('✖️ Cancelando exclusão');
-            document.getElementById('deleteConfirmationModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
+        window.removePersonalization = removePersonalization;
+
+        function closeDeleteConfirmationModal() {
+            const modal = document.getElementById('deleteConfirmationModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
             pendingDeleteId = null;
         }
-        
-        // Confirmar e executar exclusão
-        window.confirmDeletePersonalization = async function confirmDeletePersonalization() {
-            if (!pendingDeleteId) {
-                console.error('❌ Nenhuma personalização pendente para exclusão');
-                return;
-            }
-            
-            
+        window.closeDeleteConfirmationModal = closeDeleteConfirmationModal;
+
+        async function confirmDeletePersonalization() {
+            if (!pendingDeleteId) return;
             const id = pendingDeleteId;
             closeDeleteConfirmationModal();
-            
-            try {
-                const response = await fetch(`/api/personalizations/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
-                });
-                
-                const data = await response.json();
-                if (response.ok && data.success) {
-                    // Recarregar página para mostrar alterações
-                    window.location.reload();
-                } else {
-                    console.error('Erro ao remover personalização:', data.message);
-                    alert('Erro ao remover personalização: ' + (data.message || 'Erro desconhecido'));
+            deletePersonalization(id);
+        }
+        window.confirmDeletePersonalization = confirmDeletePersonalization;
+
+        function deletePersonalization(id) {
+            const url = `/api/personalizations/${id}`;
+            fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 }
-            } catch (error) {
-                console.error('Erro na requisição:', error);
-                alert('Erro ao remover personalização: ' + error.message);
-            }
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Erro ao excluir');
+                return data;
+            })
+            .then(data => {
+                if (data.success) {
+                    updatePersonalizationsList();
+                } else {
+                    alert('Erro: ' + (data.message || 'Erro desconhecido'));
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao excluir:', error);
+                alert('Erro ao excluir: ' + error.message);
+            });
         }
-        
-        // Alias para deletePersonalization (usado nos botões das personalizações órfãs)
-        window.deletePersonalization = function deletePersonalization(id) {
-            console.log('🔄 deletePersonalization alias chamado para ID:', id);
-            return removePersonalization(id);
-        }
-        
-        // Função para editar personalização
+        window.deletePersonalization = deletePersonalization;
+
         async function editPersonalization(id) {
             try {
-                console.log('🔧 Editando personalização ID:', id);
-                // Buscar dados da personalização
-                const response = await fetch(`/api/personalizations/${id}`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Erro ao carregar personalização');
-                }
-                
+                const response = await fetch(`/api/personalizations/${id}`);
                 const data = await response.json();
+                
+                if (!data.success) throw new Error(data.message || 'Erro ao carregar');
+                
                 const pers = data.personalization;
-                
-                const persType = pers.application_type.toUpperCase();
+                const persType = pers.application_type;
+                const itemId = pers.order_item_id;
                 const normalizedType = normalizeTypeKey(persType);
-                
-                // Buscar o ID do tipo de personalização (da lookup local primeiro, fallback para API se necessário)
-                let persId = personalizationLookup[persType] || personalizationLookup[normalizedType] || '';
-                
-                if (!persId) {
-                    console.log('🔍 ID não encontrado localmente para:', persType, '. Buscando na API...');
-                    persId = await fetch(`/api/product-options?type=personalizacao&name=${encodeURIComponent(persType)}`, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        }
-                    })
-                    .then(r => r.json())
-                    .then(data => data.id || '')
-                    .catch(() => '');
-                }
-                
-                
-                // Preencher modal com dados da personalização
-                document.getElementById('modal_item_id').value = pers.order_item_id;
+
+                document.getElementById('modal_item_id').value = itemId;
                 document.getElementById('modal_personalization_type').value = persType;
-                document.getElementById('editing_personalization_id').value = pers.id; // ID da personalização existente para edição
+                document.getElementById('modal_personalization_id').value = '';
+                document.getElementById('editing_personalization_id').value = id;
                 
-                if (!persId) {
-                    console.error('⚠️ Não foi possível encontrar o ID do tipo de personalização para:', persType);
-                    // Tentar um fallback se o ID veio vazio da API (pode acontecer se o nome não bater exatamente)
-                    // Mas como agora a API está ativa, deve funcionar melhor.
+                const typeSetting = personalizationSettings[normalizedType] || personalizationSettings[persType];
+                const useColorCharge = typeSetting && typeSetting.charge_by_color;
+                
+                if (useColorCharge || normalizedType === "SERIGRAFIA" || normalizedType === "EMBORRACHADO") {
+                    document.getElementById('colorCountField').classList.remove('hidden');
+                    const effectsField = document.getElementById('effectsField');
+                    if (effectsField) effectsField.classList.remove('hidden');
+                    
+                    const appliedEffects = pers.effects_applied ? pers.effects_applied.split(',').map(e => e.trim()) : [];
+                    ['effect_dourado','effect_prata','effect_neon'].forEach(effId => {
+                        const el = document.getElementById(effId);
+                        const effectName = effId.replace('effect_', '').charAt(0).toUpperCase() + effId.replace('effect_', '').slice(1);
+                        if (el) el.checked = appliedEffects.includes(effectName);
+                    });
+                } else {
+                    document.getElementById('colorCountField').classList.add('hidden');
+                    const effectsField = document.getElementById('effectsField');
+                    if (effectsField) effectsField.classList.add('hidden');
                 }
-                
-                document.getElementById('modal_personalization_id').value = persId; // ID do tipo de personalização
-                
-                // Atualizar botão de submit para "Salvar"
-                const submitBtn = document.getElementById('personalizationForm').querySelector('button[type="submit"]');
-                if (submitBtn) {
-                    submitBtn.innerHTML = `
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        Salvar Alterações
-                    `;
-                }
-                
-                // Mostrar/ocultar campos baseado no tipo (igual openPersonalizationModal)
-                            if (normalizedType === "SERIGRAFIA" || normalizedType === "EMBORRACHADO") {
-                document.getElementById('colorCountField').classList.remove('hidden');
-                // Resetar campo de cores para valor padrão
-                document.getElementById('color_count').value = '1';
-                const effectsField = document.getElementById('effectsField');
-                if (effectsField) effectsField.classList.remove('hidden');
-                ['effect_dourado','effect_prata','effect_neon'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.checked = false;
-                });
-            } else {
-                document.getElementById('colorCountField').classList.add('hidden');
-                const effectsField = document.getElementById('effectsField');
-                if (effectsField) effectsField.classList.add('hidden');
-            }
                 
                 if (normalizedType === 'SUB. TOTAL') {
                     document.getElementById('locationField').classList.add('hidden');
@@ -2386,16 +2239,6 @@
                     document.getElementById('colorDetailsField').classList.add('hidden');
                     document.getElementById('addonsField').classList.remove('hidden');
                     loadAddons();
-                } else if (normalizedType === 'DTF') {
-                    document.getElementById('locationField').classList.remove('hidden');
-                    document.getElementById('sizeField').classList.remove('hidden');
-                    document.getElementById('colorDetailsField').classList.add('hidden');
-                    document.getElementById('addonsField').classList.add('hidden');
-                } else if (normalizedType === 'SUB. LOCAL') {
-                    document.getElementById('locationField').classList.remove('hidden');
-                    document.getElementById('sizeField').classList.remove('hidden');
-                    document.getElementById('colorDetailsField').classList.add('hidden');
-                    document.getElementById('addonsField').classList.add('hidden');
                 } else {
                     document.getElementById('locationField').classList.remove('hidden');
                     document.getElementById('sizeField').classList.remove('hidden');
@@ -2403,103 +2246,112 @@
                     document.getElementById('addonsField').classList.add('hidden');
                 }
                 
-                // IMPORTANTE: Carregar tamanhos ANTES de definir o valor
                 loadSizes(normalizedType);
+                await new Promise(resolve => setTimeout(resolve, 150));
                 
-                // Aguardar um pouco para garantir que as opções foram carregadas
-                await new Promise(resolve => setTimeout(resolve, 100));
+                if (pers.location_id) document.getElementById('location').value = pers.location_id;
+                if (pers.size_name) document.getElementById('size').value = pers.size_name;
+                if (pers.quantity) document.getElementById('quantity').value = pers.quantity;
+                if (pers.color_count) document.getElementById('color_count').value = pers.color_count;
+                if (pers.color_details) document.getElementById('color_details').value = pers.color_details;
+                if (pers.seller_notes) document.getElementById('seller_notes').value = pers.seller_notes;
                 
-                
-                // Agora sim preencher os campos
-                if (pers.location_id && document.getElementById('location')) {
-                    document.getElementById('location').value = pers.location_id;
-                } else if (pers.location_name && document.getElementById('location')) {
-                    // Tentar encontrar pelo nome se não tiver ID
-                    const locationSelect = document.getElementById('location');
-                    for (let option of locationSelect.options) {
-                        if (option.textContent === pers.location_name) {
-                            locationSelect.value = option.value;
-                            break;
-                        }
-                    }
-                }
-                
-                if (pers.size_name && document.getElementById('size')) {
-                    document.getElementById('size').value = pers.size_name;
-                    
-                    // Verificar se o valor foi realmente aplicado
-                    const actualValue = document.getElementById('size').value;
-                    if (actualValue !== pers.size_name) {
-                        console.error('Tamanho não foi aplicado. Valor esperado:', pers.size_name, 'Valor atual:', actualValue);
-                    }
-                }
-                if (pers.quantity && document.getElementById('quantity')) {
-                    document.getElementById('quantity').value = pers.quantity;
-                }
-                if (pers.color_count && document.getElementById('color_count')) {
-                    document.getElementById('color_count').value = pers.color_count;
-                }
-                if (pers.color_details && document.getElementById('color_details')) {
-                    document.getElementById('color_details').value = pers.color_details;
-                }
-                if (pers.seller_notes && document.getElementById('seller_notes')) {
-                    document.getElementById('seller_notes').value = pers.seller_notes;
-                }
-                
-                // Atualizar título do modal
                 document.getElementById('modalTitle').textContent = `Editar ${persType}`;
-                
-                // Abrir modal
                 document.getElementById('personalizationModal').classList.remove('hidden');
                 
             } catch (error) {
-                console.error('Erro ao carregar personalização:', error);
-                alert('Erro ao carregar personalização: ' + error.message);
+                console.error('Erro ao editar:', error);
+                alert('Erro ao carregar: ' + error.message);
             }
         }
+        window.editPersonalization = editPersonalization;
 
-        // Global Paste Event Listener
-        document.addEventListener('paste', function(e) {
-            // Check if modal is open
-            if (document.getElementById('personalizationModal').classList.contains('hidden')) {
-                return;
+        function initCustomizationPage() {
+            if (typeof renderOrderArtPreview === 'function' && artItemSelect) {
+                renderOrderArtPreview(artItemSelect.value);
             }
 
-            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            let blob = null;
+            ['location', 'size', 'color_count', 'quantity'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.removeEventListener('change', calculatePrice);
+                    el.addEventListener('change', calculatePrice);
+                }
+            });
 
+            const pForm = document.getElementById('personalizationForm');
+            if (pForm) {
+                pForm.removeEventListener('submit', handleFormSubmit);
+                pForm.addEventListener('submit', handleFormSubmit);
+            }
+
+            document.removeEventListener('paste', handlePaste);
+            document.addEventListener('paste', handlePaste);
+            setupArtFilesDropzone();
+
+            const artFilesEl = document.getElementById('art_files');
+            if (artFilesEl) {
+                artFilesEl.removeEventListener('change', displaySelectedFiles);
+                artFilesEl.addEventListener('change', displaySelectedFiles);
+            }
+        }
+        window.initCustomizationPage = initCustomizationPage;
+
+        function handlePaste(e) {
+            if (document.getElementById('personalizationModal').classList.contains('hidden')) return;
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
             for (let i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf('image') !== -1) {
-                    blob = items[i].getAsFile();
+                    const blob = items[i].getAsFile();
+                    const fileInput = document.getElementById('application_image');
+                    if (fileInput) {
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(blob);
+                        fileInput.files = dataTransfer.files;
+                        handleApplicationImageChange(fileInput);
+                    }
                     break;
                 }
             }
+        }
+        window.handlePaste = handlePaste;
 
-            if (blob) {
-                const fileInput = document.getElementById('application_image');
-                
-                // Create a DataTransfer to generate a FileList
-                const dataTransfer = new DataTransfer();
-                
-                // Create a new File from the blob (preserving name if possible, or generating one)
-                // Note: Blob from clipboard usually doesn't have a specific name, so we generate one.
-                const file = new File([blob], "pasted-image-" + Date.now() + ".png", { type: blob.type });
-                
-                dataTransfer.items.add(file);
-                fileInput.files = dataTransfer.files;
+        function setupArtFilesDropzone() {
+            const dropzone = document.getElementById('art_files_dropzone');
+            const input = document.getElementById('art_files');
+            if (!dropzone || !input) return;
 
-                // Trigger change event to update preview
-                handleApplicationImageChange(fileInput);
-                
-                // Optional: visual feedback
-                const dropzone = document.getElementById('application_image_dropzone');
-                dropzone.classList.add('ring-2', 'ring-[#7c3aed]', 'ring-offset-2');
-                setTimeout(() => {
-                    dropzone.classList.remove('ring-2', 'ring-[#7c3aed]', 'ring-offset-2');
-                }, 200);
-            }
-        });
+            ['dragenter', 'dragover'].forEach(name => {
+                dropzone.addEventListener(name, (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    dropzone.classList.add('border-[#7c3aed]', 'bg-purple-100/30');
+                });
+            });
 
+            ['dragleave', 'drop'].forEach(name => {
+                dropzone.addEventListener(name, (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    dropzone.classList.remove('border-[#7c3aed]', 'bg-purple-100/30');
+                });
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                input.files = dt.files;
+                handleArtFilesChange(input);
+            });
+        }
+        window.setupArtFilesDropzone = setupArtFilesDropzone;
+
+        document.addEventListener('DOMContentLoaded', initCustomizationPage);
+
+        if (!window._customizationInitSetup) {
+            window._customizationInitSetup = true;
+            document.addEventListener('ajax-content-loaded', () => {
+                if (typeof window.initCustomizationPage === 'function') window.initCustomizationPage();
+            });
+        }
+    })(window);
 </script>
-@endpush
 @endsection
+```

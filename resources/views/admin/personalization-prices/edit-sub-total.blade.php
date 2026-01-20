@@ -61,7 +61,7 @@
                         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">CACHARREL/PP - Faixas por quantidade</p>
                     </div>
                     <button type="button" onclick="addBasePriceRow()" 
-                            class="inline-flex items-center px-3 py-2 bg-blue-600 dark:bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors">
+                            class="inline-flex items-center px-3 py-2 bg-blue-600 dark:bg-blue-600 text-white stay-white text-sm font-medium rounded-md hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -135,7 +135,7 @@
 
                     <div class="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
                         <button type="submit" 
-                                class="inline-flex items-center px-6 py-2 bg-blue-600 dark:bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors">
+                                class="inline-flex items-center px-6 py-2 bg-blue-600 dark:bg-blue-600 text-white stay-white text-sm font-medium rounded-md hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
@@ -155,7 +155,7 @@
                         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Preços dos adicionais de sublimação</p>
                     </div>
                     <button type="button" onclick="addAddonRow()" 
-                            class="inline-flex items-center px-3 py-2 bg-purple-600 dark:bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 dark:hover:bg-purple-700 transition-colors">
+                            class="inline-flex items-center px-3 py-2 bg-purple-600 dark:bg-purple-600 text-white stay-white text-sm font-medium rounded-md hover:bg-purple-700 dark:hover:bg-purple-700 transition-colors">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -229,7 +229,7 @@
 
                     <div class="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
                         <button type="submit" 
-                                class="inline-flex items-center px-6 py-2 bg-purple-600 dark:bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 dark:hover:bg-purple-700 transition-colors">
+                                class="inline-flex items-center px-6 py-2 bg-purple-600 dark:bg-purple-600 text-white stay-white text-sm font-medium rounded-md hover:bg-purple-700 dark:hover:bg-purple-700 transition-colors">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>

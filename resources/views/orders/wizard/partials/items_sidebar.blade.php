@@ -60,7 +60,7 @@
             <form method="POST" action="{{ isset($editData) ? route('orders.edit.sewing') : route('orders.wizard.sewing') }}" class="mt-4">
                 @csrf
                 <input type="hidden" name="action" value="finish">
-                <button type="submit" class="w-full px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all text-sm">
+                <button type="submit" class="w-full px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white stay-white font-semibold rounded-lg transition-all text-sm">
                     Finalizar e Prosseguir →
                 </button>
             </form>

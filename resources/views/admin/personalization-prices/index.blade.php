@@ -134,7 +134,7 @@
                         <!-- Action Buttons -->
                         <div class="flex gap-2">
                             <a href="{{ route('admin.personalization-prices.edit', $typeKey) }}" 
-                               class="flex-1 inline-flex items-center justify-center px-3 py-2.5 bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white text-sm font-medium rounded-md transition-colors duration-150">
+                               class="flex-1 inline-flex items-center justify-center px-3 py-2.5 bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white stay-white text-sm font-medium rounded-md transition-colors duration-150">
                                 <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
@@ -168,7 +168,7 @@
                         <input type="text" name="name" placeholder="Ex: Frente, Costa, Manga Esquerda" required
                                class="w-40 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
                         <button type="submit"
-                                class="inline-flex items-center px-3 py-2 bg-green-600 dark:bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 dark:hover:bg-green-700 transition-colors">
+                                class="inline-flex items-center px-3 py-2 bg-green-600 dark:bg-green-600 text-white stay-white text-xs font-semibold rounded-lg hover:bg-green-700 dark:hover:bg-green-700 transition-colors">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>

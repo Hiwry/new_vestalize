@@ -252,42 +252,83 @@
     </div>
 </div>
 
-@push('scripts')
+@push('page-scripts')
 <script>
-let formSubmitted = false;
+(function() {
+    let formSubmitted = false;
 
-document.getElementById('finalize-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    if (!formSubmitted) {
-        document.getElementById('confirmModal').classList.remove('hidden');
-        document.getElementById('confirmModal').classList.add('flex');
+    function initConfirmPage() {
+        console.log('Initializing Confirm Page...');
+        const finalizeForm = document.getElementById('finalize-form');
+        if (finalizeForm && !finalizeForm.dataset.listenerAttached) {
+            finalizeForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (!formSubmitted) {
+                    window.openConfirmModal();
+                }
+            });
+            finalizeForm.dataset.listenerAttached = 'true';
+        }
+
+        const escapeListener = function(e) {
+            if (e.key === 'Escape') window.closeConfirmModal();
+        };
+        document.removeEventListener('keydown', escapeListener);
+        document.addEventListener('keydown', escapeListener);
     }
-});
 
-function closeConfirmModal() {
-    document.getElementById('confirmModal').classList.add('hidden');
-    document.getElementById('confirmModal').classList.remove('flex');
-}
+    function openConfirmModal() {
+        const modal = document.getElementById('confirmModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+    }
+    window.openConfirmModal = openConfirmModal;
 
-function confirmFinalize() {
-    formSubmitted = true;
-    closeConfirmModal();
-    
-    const btn = document.getElementById('finalize-btn');
-    const text = document.getElementById('finalize-text');
-    const loading = document.getElementById('finalize-loading');
-    
-    btn.disabled = true;
-    btn.classList.add('opacity-75');
-    text.classList.add('hidden');
-    loading.classList.remove('hidden');
-    
-    document.getElementById('finalize-form').submit();
-}
+    function closeConfirmModal() {
+        const modal = document.getElementById('confirmModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+    window.closeConfirmModal = closeConfirmModal;
 
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeConfirmModal();
-});
+    function confirmFinalize() {
+        formSubmitted = true;
+        closeConfirmModal();
+        
+        const btn = document.getElementById('finalize-btn');
+        const text = document.getElementById('finalize-text');
+        const loading = document.getElementById('finalize-loading');
+        
+        if (btn) {
+            btn.disabled = true;
+            btn.classList.add('opacity-75');
+        }
+        if (text) text.classList.add('hidden');
+        if (loading) loading.classList.remove('hidden');
+        
+        const form = document.getElementById('finalize-form');
+        if (form) form.submit();
+    }
+    window.confirmFinalize = confirmFinalize;
+
+    // Expose initialization
+    window._confirmInitSetup = function() {
+        document.removeEventListener('ajax-content-loaded', initConfirmPage);
+        document.addEventListener('ajax-content-loaded', initConfirmPage);
+    };
+    window._confirmInitSetup();
+
+    // DOMContentLoaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initConfirmPage);
+    } else {
+        initConfirmPage();
+    }
+})();
 </script>
 @endpush
 @endsection

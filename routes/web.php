@@ -195,12 +195,14 @@ Route::middleware('auth')->group(function () {
         Route::post('{id}/rejeitar', [\App\Http\Controllers\BudgetController::class, 'reject'])->name('reject');
         Route::get('{id}/converter-pedido', [\App\Http\Controllers\BudgetController::class, 'showConvertForm'])->name('convert-form');
         Route::post('{id}/converter-pedido', [\App\Http\Controllers\BudgetController::class, 'convertToOrder'])->name('convert-to-order');
+        
+        // Quick Budget (Orçamento Rápido)
+        Route::get('rapido', [\App\Http\Controllers\BudgetController::class, 'quickCreate'])->name('quick-create');
+        Route::post('rapido', [\App\Http\Controllers\BudgetController::class, 'storeQuick'])->name('quick-store');
+        Route::get('{id}/whatsapp', [\App\Http\Controllers\BudgetController::class, 'shareWhatsApp'])->name('whatsapp');
     });
 
-    // Produtos Sublimação Local
-    Route::resource('sub-local-products', \App\Http\Controllers\Admin\SubLocalProductController::class, [
-        'as' => 'admin'
-    ]);
+
 
     // Notificações
     Route::prefix('notifications')->name('notifications.')->group(function () {
@@ -562,6 +564,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         // Toggle habilitar/desabilitar SUB. TOTAL
         Route::post('/toggle-enabled', [\App\Http\Controllers\Admin\SublimationProductController::class, 'toggleEnabled'])->name('toggle-enabled');
     });
+
+    // Produtos Sublimação Local
+    Route::resource('sub-local-products', \App\Http\Controllers\Admin\SubLocalProductController::class);
 });
 
 // Peças de Tecido (dentro do middleware auth)

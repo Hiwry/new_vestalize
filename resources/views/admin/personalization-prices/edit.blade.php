@@ -82,7 +82,7 @@
                             <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100">Tamanhos Disponíveis</h3>
                         </div>
                         <button type="button" onclick="openAddSizeModal()" 
-                                class="inline-flex items-center px-3 py-2 bg-green-600 dark:bg-green-600 hover:bg-green-700 dark:hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors">
+                                class="inline-flex items-center px-3 py-2 bg-green-600 dark:bg-green-600 hover:bg-green-700 dark:hover:bg-green-700 text-white stay-white text-sm font-medium rounded-md transition-colors">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>
@@ -99,7 +99,7 @@
                 <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-600">
                     <span class="text-sm font-medium text-gray-700 dark:text-gray-300" id="quantity-ranges-count">0 faixas de quantidade</span>
                     <button type="button" onclick="addNewQuantityRange()" 
-                            class="inline-flex items-center px-3 py-2 bg-green-600 dark:bg-green-600 hover:bg-green-700 dark:hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors">
+                            class="inline-flex items-center px-3 py-2 bg-green-600 dark:bg-green-600 hover:bg-green-700 dark:hover:bg-green-700 text-white stay-white text-sm font-medium rounded-md transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -134,7 +134,7 @@
                         Voltar
                     </a>
                     <button type="submit" 
-                            class="inline-flex items-center justify-center px-6 py-2 text-sm font-medium bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition-colors">
+                            class="inline-flex items-center justify-center px-6 py-2 text-sm font-medium bg-indigo-600 dark:bg-indigo-600 text-white stay-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
@@ -184,7 +184,7 @@
             </button>
             <button type="button" 
                     onclick="confirmAddSize()"
-                    class="px-5 py-2 text-sm font-medium text-white bg-indigo-600 dark:bg-indigo-600 hover:bg-indigo-700 dark:hover:bg-indigo-700 rounded-md transition-colors">
+                    class="px-5 py-2 text-sm font-medium text-white stay-white bg-indigo-600 dark:bg-indigo-600 hover:bg-indigo-700 dark:hover:bg-indigo-700 rounded-md transition-colors">
                 Adicionar
             </button>
         </div>
@@ -350,20 +350,20 @@
                 <td class="px-4 py-3.5">
                     <div class="flex flex-col gap-2">
                         <div class="relative group">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-xs font-bold" title="Preço de Venda">V</span>
-                            <span class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm">R$</span>
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-xs">R$</span>
                             <input type="number" name="prices[${index}][${size.toLowerCase()}][price]" 
                                    value="${price}" step="0.01" min="0"
                                    placeholder="Preço"
-                                   class="w-full pl-12 pr-3 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all placeholder-gray-400">
+                                   title="Preço de Venda"
+                                   class="w-full pl-9 pr-3 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all placeholder-gray-400">
                         </div>
                         <div class="relative group">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-red-500 dark:text-red-400 text-xs font-bold" title="Preço de Custo">C</span>
-                            <span class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm">R$</span>
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-red-500 dark:text-red-400 text-xs">R$</span>
                             <input type="number" name="prices[${index}][${size.toLowerCase()}][cost]" 
                                    value="${cost}" step="0.01" min="0"
                                    placeholder="Custo"
-                                   class="w-full pl-12 pr-3 py-1.5 border border-red-200 dark:border-red-900/30 rounded-lg text-sm bg-red-50 dark:bg-red-900/10 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 transition-all placeholder-gray-400">
+                                   title="Preço de Custo"
+                                   class="w-full pl-9 pr-3 py-1.5 border border-red-200 dark:border-red-900/30 rounded-lg text-sm bg-red-50 dark:bg-red-900/10 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 transition-all placeholder-gray-400">
                         </div>
                     </div>
                 </td>
@@ -472,6 +472,14 @@
             closeAddSizeModal();
         }
     });
+
+    // Expor funções para navegação AJAX
+    window.openAddSizeModal = openAddSizeModal;
+    window.closeAddSizeModal = closeAddSizeModal;
+    window.confirmAddSize = confirmAddSize;
+    window.removeSize = removeSize;
+    window.addNewQuantityRange = addNewQuantityRange;
+    window.removePriceRow = removePriceRow;
 </script>
 @endpush
 @endsection

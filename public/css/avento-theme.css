@@ -449,10 +449,62 @@ html:not(.dark) .text-adaptive {
 }
 
 /* Force specific colors in Light Mode for elements that usually use text-white */
-html:not(.dark) .avento-theme .text-white:not(.stay-white),
-html:not(.dark) .avento-theme .text-white\/80:not(.stay-white),
-html:not(.dark) .avento-theme .text-white\/70:not(.stay-white) {
+/* EXCEPTION: Elements with colored backgrounds (buttons, badges) should keep white text */
+html:not(.dark) .avento-theme .text-white:not(.stay-white):not([class*="bg-indigo"]):not([class*="bg-purple"]):not([class*="bg-blue"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-orange"]):not([class*="bg-emerald"]):not([class*="bg-[#7c3aed]"]),
+html:not(.dark) .avento-theme .text-white\/80:not(.stay-white):not([class*="bg-indigo"]):not([class*="bg-purple"]):not([class*="bg-blue"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-orange"]):not([class*="bg-emerald"]):not([class*="bg-[#7c3aed]"]),
+html:not(.dark) .avento-theme .text-white\/70:not(.stay-white):not([class*="bg-indigo"]):not([class*="bg-purple"]):not([class*="bg-blue"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-orange"]):not([class*="bg-emerald"]):not([class*="bg-[#7c3aed]"]) {
     color: var(--avento-text-primary) !important;
+}
+
+/* Ensure buttons/links with colored backgrounds ALWAYS have white text */
+/* HIGH SPECIFICITY RULES to override other styles */
+html:not(.dark) .avento-theme a.bg-indigo-600,
+html:not(.dark) .avento-theme button.bg-indigo-600,
+html:not(.dark) .avento-theme .bg-indigo-600,
+html:not(.dark) .avento-theme a.bg-indigo-500,
+html:not(.dark) .avento-theme button.bg-indigo-500,
+html:not(.dark) .avento-theme .bg-indigo-500,
+html:not(.dark) .avento-theme a.bg-purple-600,
+html:not(.dark) .avento-theme button.bg-purple-600,
+html:not(.dark) .avento-theme .bg-purple-600,
+html:not(.dark) .avento-theme a.bg-purple-500,
+html:not(.dark) .avento-theme button.bg-purple-500,
+html:not(.dark) .avento-theme .bg-purple-500,
+html:not(.dark) .avento-theme a.bg-blue-600,
+html:not(.dark) .avento-theme button.bg-blue-600,
+html:not(.dark) .avento-theme .bg-blue-600,
+html:not(.dark) .avento-theme a.bg-green-600,
+html:not(.dark) .avento-theme button.bg-green-600,
+html:not(.dark) .avento-theme .bg-green-600,
+html:not(.dark) .avento-theme a.bg-green-500,
+html:not(.dark) .avento-theme button.bg-green-500,
+html:not(.dark) .avento-theme .bg-green-500,
+html:not(.dark) .avento-theme a.bg-red-600,
+html:not(.dark) .avento-theme button.bg-red-600,
+html:not(.dark) .avento-theme .bg-red-600,
+html:not(.dark) .avento-theme a.bg-emerald-600,
+html:not(.dark) .avento-theme button.bg-emerald-600,
+html:not(.dark) .avento-theme .bg-emerald-600,
+html:not(.dark) .avento-theme a.bg-orange-600,
+html:not(.dark) .avento-theme button.bg-orange-600,
+html:not(.dark) .avento-theme .bg-orange-600,
+html:not(.dark) .avento-theme .bg-\[#7c3aed\] {
+    color: #ffffff !important;
+}
+
+/* Force white text on text-white class when inside colored background elements */
+html:not(.dark) .avento-theme .bg-indigo-600 .text-white,
+html:not(.dark) .avento-theme .bg-indigo-500 .text-white,
+html:not(.dark) .avento-theme .bg-purple-600 .text-white,
+html:not(.dark) .avento-theme .bg-purple-500 .text-white,
+html:not(.dark) .avento-theme .bg-blue-600 .text-white,
+html:not(.dark) .avento-theme .bg-green-600 .text-white,
+html:not(.dark) .avento-theme .bg-green-500 .text-white,
+html:not(.dark) .avento-theme .bg-red-600 .text-white,
+html:not(.dark) .avento-theme .bg-emerald-600 .text-white,
+html:not(.dark) .avento-theme .bg-orange-600 .text-white,
+html:not(.dark) .avento-theme .bg-\[#7c3aed\] .text-white {
+    color: #ffffff !important;
 }
 
 html:not(.dark) .avento-theme .bg-white\/5 {

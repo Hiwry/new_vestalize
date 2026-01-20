@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8">
@@ -26,7 +26,7 @@
         
         <!-- Item Header -->
         <div style="background: #475569; color: white; padding: 6px 12px; border-radius: 6px; margin-bottom: 8px; font-size: 11px; font-weight: bold;">
-            ITEM {{ $item->item_number ?? $loop->iteration }} - {{ $item->quantity }} PECAS
+            ITEM {{ $item->item_number ?? $loop->iteration }} - {{ $item->quantity }} PEÇAS
         </div>
         
         <!-- Header Principal -->
@@ -34,8 +34,11 @@
             <tr>
                 <!-- EVENTO -->
                 <td style="width: 12%; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; text-align: center; vertical-align: middle; padding: 12px;">
-                    <div style="font-size: 14px; font-weight: bold; color: {{ ($order->is_event || (isset($order->contract_type) && strtoupper($order->contract_type) === 'EVENTO')) ? '#dc3545' : '#495057' }};">
-                        @if($order->is_event || (isset($order->contract_type) && strtoupper($order->contract_type) === 'EVENTO'))
+                    @php
+                        $contractType = isset($order->contract_type) ? \Illuminate\Support\Str::upper($order->contract_type) : null;
+                    @endphp
+                    <div style="font-size: 14px; font-weight: bold; color: {{ ($order->is_event || $contractType === 'EVENTO') ? '#dc3545' : '#495057' }};">
+                        @if($order->is_event || $contractType === 'EVENTO')
                             EVENTO
                         @else
                             PEDIDO
@@ -46,7 +49,7 @@
                 <!-- NOME DA ARTE + OS -->
                 <td style="width: 60%; background: #6366f1; border-radius: 8px; text-align: center; vertical-align: middle; padding: 15px; color: white;">
                     <div style="font-size: 24px; font-weight: bold; color: white; margin-bottom: 5px;">
-                        {{ strtoupper($item->art_name ?? 'SEM NOME') }}
+                        {{ \Illuminate\Support\Str::upper($item->art_name ?? 'SEM NOME') }}
                     </div>
                     <div style="font-size: 16px; font-weight: bold; color: white; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 15px; border-radius: 20px;">
                         OS {{ $order->id }}
@@ -128,7 +131,7 @@
             @endphp
             <table style="width: 100%; border-collapse: separate; border-spacing: 0 5px; margin-bottom: 8px;">
                 <tr>
-                    <!-- Imagem da Personalização -->
+                    <!-- Imagem da PersonalizaÃ§Ã£o -->
                     <td style="width: 35%; vertical-align: top; text-align: center; padding-right: 15px;">
                         @if($sub->application_image && extension_loaded('gd'))
                             @php
@@ -166,7 +169,7 @@
                         @endif
                     </td>
 
-                    <!-- Tabela de Dados da Personalização -->
+                    <!-- Tabela de Dados da PersonalizaÃ§Ã£o -->
                     <td style="width: 65%; vertical-align: top;">
                         <div style="background-color: #7e22ce; color: white; padding: 6px 12px; border-radius: 6px; margin-bottom: 6px; font-size: 11px; font-weight: bold; text-align: center;">
                             APLICAÇÃO {{ $index + 1 }} - {{ $appType }}
@@ -232,9 +235,14 @@
                     <tr>
                         @php
                             $itemSizes = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) ? json_decode($item->sizes, true) : []);
+                            $normalizedSizes = [];
+                            foreach ($itemSizes ?? [] as $sKey => $sQty) {
+                                $normalizedKey = \Illuminate\Support\Str::upper(trim($sKey));
+                                $normalizedSizes[$normalizedKey] = ($normalizedSizes[$normalizedKey] ?? 0) + intval($sQty);
+                            }
                         @endphp
                         @foreach(['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3', 'ESPECIAL'] as $size)
-                            @php $qty = $itemSizes[$size] ?? $itemSizes[strtolower($size)] ?? 0; @endphp
+                            @php $qty = $normalizedSizes[\Illuminate\Support\Str::upper($size)] ?? 0; @endphp
                             <td style="border: 1px solid #e2e8f0; padding: 8px; text-align: center; font-size: 12px; font-weight: bold; background: white;">{{ $qty }}</td>
                         @endforeach
                     </tr>
@@ -248,7 +256,7 @@
             </div>
         </div>
 
-        {{-- Observacoes apenas de personalização, não de costura --}}
+        {{-- Observacoes apenas de personalizaÃ§Ã£o, nÃ£o de costura --}}
         @php
             $hasPersonalizationNotes = false;
             foreach($item->sublimations as $sub) {
@@ -260,7 +268,7 @@
         @endphp
         @if($hasPersonalizationNotes || $order->notes)
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px;">
-            <div style="font-size: 9px; margin-bottom: 4px; text-transform: uppercase; color: #475569; font-weight: bold;">OBSERVAÇÕES</div>
+            <div style="font-size: 9px; margin-bottom: 4px; text-transform: uppercase; color: #475569; font-weight: bold;">OBSERVAÃ‡Ã•ES</div>
             <div style="font-size: 10px; color: #1e293b; line-height: 1.3;">
                 @foreach($item->sublimations as $sub)
                     @if($sub->seller_notes)
@@ -278,3 +286,5 @@
     @endforeach
 </body>
 </html>
+
+

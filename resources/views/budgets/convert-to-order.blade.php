@@ -52,23 +52,80 @@
                 <!-- Cliente e Valor -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <span class="text-xs text-gray-600 dark:text-gray-400 block mb-1">Cliente:</span>
-                                <span class="font-medium text-gray-900 dark:text-white block">{{ $budget->client->name }}</span>
-                                @if($budget->client->phone)
-                                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ $budget->client->phone }}</span>
-                                @endif
+                        @if($budget->client)
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs text-gray-600 dark:text-gray-400 block mb-1">Cliente Vinculado:</span>
+                                    <span class="font-medium text-gray-900 dark:text-white block">{{ $budget->client->name }}</span>
+                                    @if($budget->client->phone_primary)
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">{{ $budget->client->phone_primary }}</span>
+                                    @endif
+                                </div>
+                                <a href="{{ route('clients.edit', $budget->client->id) }}" 
+                                target="_blank"
+                                class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors">
+                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                    Editar Cliente
+                                </a>
                             </div>
-                            <a href="{{ route('clients.edit', $budget->client->id) }}" 
-                               target="_blank"
-                               class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors">
-                                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
-                                Editar Cliente
-                            </a>
-                        </div>
+                            <input type="hidden" name="client_id" value="{{ $budget->client_id }}">
+                        @else
+                            <div x-data="{ clientType: 'existing' }" class="space-y-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 block mb-1">Contato do Orçamento Rápido:</span>
+                                        <span class="font-medium text-gray-900 dark:text-white block">{{ $budget->contact_name }}</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">{{ $budget->contact_phone }}</span>
+                                    </div>
+                                    <div class="px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase rounded">
+                                        Vincular Cliente Necessário
+                                    </div>
+                                </div>
+
+                                <div class="flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                    <button type="button" 
+                                            @click="clientType = 'existing'"
+                                            :class="clientType === 'existing' ? 'bg-white dark:bg-gray-600 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'"
+                                            class="flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all">
+                                        Cliente Existente
+                                    </button>
+                                    <button type="button" 
+                                            @click="clientType = 'new'"
+                                            :class="clientType === 'new' ? 'bg-white dark:bg-gray-600 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'"
+                                            class="flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all">
+                                        Criar Novo Cliente
+                                    </button>
+                                </div>
+                                
+                                <div x-show="clientType === 'existing'" class="pt-1">
+                                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                                        Selecionar Cliente <span class="text-red-500">*</span>
+                                    </label>
+                                    <select name="client_id" x-bind:required="clientType === 'existing'" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 transition-all">
+                                        <option value="">Selecione um cliente...</option>
+                                        @foreach($clients as $client)
+                                            <option value="{{ $client->id }}">{{ $client->name }} ({{ $client->phone_primary }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div x-show="clientType === 'new'" class="pt-1 space-y-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nome completo <span class="text-red-500">*</span></label>
+                                        <input type="text" name="new_client_name" value="{{ $budget->contact_name }}" x-bind:required="clientType === 'new'"
+                                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 transition-all">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">WhatsApp <span class="text-red-500">*</span></label>
+                                        <input type="text" name="new_client_phone" value="{{ $budget->contact_phone }}" x-bind:required="clientType === 'new'"
+                                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 transition-all">
+                                    </div>
+                                    <input type="hidden" name="create_new_client" x-bind:value="clientType === 'new' ? '1' : '0'">
+                                </div>
+                            </div>
+                        @endif
                     </div>
                     <div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
                         <span class="text-xs text-gray-600 dark:text-gray-400 block mb-1">Valor Total:</span>

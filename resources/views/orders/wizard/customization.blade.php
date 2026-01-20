@@ -313,345 +313,310 @@
     </div>
 </div>
 
-@push('scripts')
+@push('page-scripts')
 <script>
-        let sizes = [];
-        let locations = [];
-        let applications = [];
-        let totalShirts = {{ session('total_shirts', 0) }};
-        let currentSize = '';
-        let isAdmin = {{ auth()->check() && auth()->user()->isAdmin() ? 'true' : 'false' }};
+(function() {
+    // State
+    window.sublimationSizes = [];
+    window.sublimationLocations = [];
+    window.sublimations = [];
+    window.totalShirts = {{ session('total_shirts', 0) }};
+    window.currentSubSize = null;
+    window.isUserAdmin = {{ auth()->check() && auth()->user()->isAdmin() ? 'true' : 'false' }};
+    window.pendingDeleteIndex = null;
 
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-            @if($order->items->count() > 1)
-            // Select first item by default
+    // Items data for calculating totals
+    const itemsQtyMap = {
+        @foreach($order->items as $item)
+        '{{ $item->id }}': {{ $item->quantity }},
+        @endforeach
+    };
+
+    function initCustomizationPage() {
+        console.log('Initializing Customization Page...');
+        window.sublimations = [];
+        
+        // Listeners
+        const form = document.getElementById('customization-form');
+        if (form && !form.dataset.listenerAttached) {
+            form.addEventListener('submit', function(e) {
+                document.getElementById('sublimations-data').value = JSON.stringify(window.sublimations);
+            });
+            form.dataset.listenerAttached = 'true';
+        }
+
+        const artFiles = document.getElementById('art_files');
+        if (artFiles && !artFiles.dataset.listenerAttached) {
+            artFiles.addEventListener('change', window.displayFileList);
+            artFiles.dataset.listenerAttached = 'true';
+        }
+
+        @if($order->items->count() > 1)
+        // Select first item by default if nothing selected
+        const checked = document.querySelectorAll('.item-checkbox:checked');
+        if (checked.length === 0) {
             const firstCheckbox = document.querySelector('.item-checkbox');
             if (firstCheckbox) {
                 firstCheckbox.checked = true;
-                updateLinkedItemsCount();
+                window.updateLinkedItemsCount();
             }
-            @endif
+        }
+        @endif
+
+        window.loadCustomizationData();
+    }
+
+    window.toggleLinkAllItems = function() {
+        const linkAll = document.getElementById('link-all-items');
+        const checkboxes = document.querySelectorAll('.item-checkbox');
+        const container = document.getElementById('items-selection-container');
+        if (!linkAll) return;
+        
+        checkboxes.forEach(cb => {
+            cb.checked = linkAll.checked;
+            cb.disabled = linkAll.checked;
         });
-
-        // Items data for calculating totals
-        const itemsQtyMap = {
-            @foreach($order->items as $item)
-            '{{ $item->id }}': {{ $item->quantity }},
-            @endforeach
-        };
-
-        function toggleLinkAllItems() {
-            const linkAll = document.getElementById('link-all-items');
-            const checkboxes = document.querySelectorAll('.item-checkbox');
-            const container = document.getElementById('items-selection-container');
-            
-            if (linkAll.checked) {
-                // Check all items and disable individual selection
-                checkboxes.forEach(cb => {
-                    cb.checked = true;
-                    cb.disabled = true;
-                });
-                container.classList.add('opacity-50');
-            } else {
-                // Enable individual selection
-                checkboxes.forEach(cb => {
-                    cb.disabled = false;
-                });
-                container.classList.remove('opacity-50');
-            }
-            
-            updateLinkedItemsCount();
+        
+        if (container) {
+            if (linkAll.checked) container.classList.add('opacity-50');
+            else container.classList.remove('opacity-50');
         }
+        window.updateLinkedItemsCount();
+    }
 
-        function updateLinkedItemsCount() {
-            const checkboxes = document.querySelectorAll('.item-checkbox:checked');
-            const summary = document.getElementById('linked-items-summary');
-            const countEl = document.getElementById('linked-count');
-            const qtyEl = document.getElementById('linked-total-qty');
-            
-            if (!summary || !countEl || !qtyEl) return;
-            
-            if (checkboxes.length === 0) {
-                summary.classList.add('hidden');
-                return;
-            }
-            
-            let totalQty = 0;
-            checkboxes.forEach(cb => {
-                totalQty += itemsQtyMap[cb.value] || 0;
-            });
-            
-            countEl.textContent = checkboxes.length;
-            qtyEl.textContent = totalQty;
-            summary.classList.remove('hidden');
-            
-            // Update total shirts for price calculation
-            totalShirts = totalQty;
-            document.getElementById('total-shirts').value = totalQty;
+    window.updateLinkedItemsCount = function() {
+        const checkboxes = document.querySelectorAll('.item-checkbox:checked');
+        const summary = document.getElementById('linked-items-summary');
+        const countEl = document.getElementById('linked-count');
+        const qtyEl = document.getElementById('linked-total-qty');
+        const hiddenTotal = document.getElementById('total-shirts');
+        
+        if (!summary || !countEl || !qtyEl) return;
+        
+        if (checkboxes.length === 0) {
+            summary.classList.add('hidden');
+            return;
         }
+        
+        let totalQty = 0;
+        checkboxes.forEach(cb => {
+            totalQty += itemsQtyMap[cb.value] || 0;
+        });
+        
+        countEl.textContent = checkboxes.length;
+        qtyEl.textContent = totalQty;
+        summary.classList.remove('hidden');
+        
+        window.totalShirts = totalQty;
+        if (hiddenTotal) hiddenTotal.value = totalQty;
+    }
 
-        function loadData() {
-            Promise.all([
-                fetch('/api/sublimation-sizes').then(r => r.json()),
-                fetch('/api/sublimation-locations').then(r => r.json())
-            ]).then(([sizesData, locationsData]) => {
-                sizes = sizesData;
-                locations = locationsData;
-                renderSizeButtons();
-                renderLocationOptions();
-            });
-        }
+    window.loadCustomizationData = function() {
+        Promise.all([
+            fetch('/api/sublimation-sizes').then(r => r.json()),
+            fetch('/api/sublimation-locations').then(r => r.json())
+        ]).then(([sizesData, locationsData]) => {
+            window.sublimationSizes = sizesData;
+            window.sublimationLocations = locationsData;
+            window.renderSizeButtons();
+            window.renderLocationOptions();
+        });
+    }
 
-        function renderSizeButtons() {
-            const container = document.getElementById('size-buttons');
-            container.innerHTML = sizes.map(size => `
-                <button type="button" onclick="openModal(${size.id})" 
-                        class="p-3 border border-gray-300 rounded-md hover:border-[#7c3aed] hover:bg-purple-50 transition text-center">
-                    <div class="font-medium text-sm">${size.name}</div>
-                    <div class="text-xs text-gray-500 mt-1">${size.dimensions || ''}</div>
-                </button>
-            `).join('');
-        }
+    window.renderSizeButtons = function() {
+        const container = document.getElementById('size-buttons');
+        if (!container) return;
+        container.innerHTML = window.sublimationSizes.map(size => `
+            <button type="button" onclick="window.openSubModal(${size.id})" 
+                    class="p-3 border border-gray-300 rounded-md hover:border-[#7c3aed] hover:bg-purple-50 transition text-center">
+                <div class="font-medium text-sm">${size.name}</div>
+                <div class="text-xs text-gray-500 mt-1">${size.dimensions || ''}</div>
+            </button>
+        `).join('');
+    }
 
-        function renderLocationOptions() {
-            const select = document.getElementById('modal-location');
-            select.innerHTML = '<option value="">Selecione</option>' + 
-                locations.map(loc => `<option value="${loc.id}">${loc.name}</option>`).join('');
-        }
+    window.renderLocationOptions = function() {
+        const select = document.getElementById('modal-location');
+        if (!select) return;
+        select.innerHTML = '<option value="">Selecione</option>' + 
+            window.sublimationLocations.map(loc => `<option value="${loc.id}">${loc.name}</option>`).join('');
+    }
 
-        function openModal(sizeId) {
-            currentSize = sizes.find(s => s.id === sizeId);
-            
-            if (!currentSize) {
-                console.error('Tamanho não encontrado:', sizeId);
-                alert('Erro: Tamanho não encontrado');
-                return;
-            }
-            
-            // Resetar campos do modal
-            const dimensions = currentSize.dimensions || '';
-            document.getElementById('modal-size-name').textContent = dimensions ? `${currentSize.name} (${dimensions})` : currentSize.name;
-            document.getElementById('modal-quantity').value = 1;
-            document.getElementById('modal-location').value = '';
-            document.getElementById('modal-unit-price').textContent = 'Carregando...';
-            document.getElementById('modal-subtotal').textContent = 'R$ 0,00';
-            
-            const addBtn = document.getElementById('add-application-btn');
+    window.openSubModal = function(sizeId) {
+        window.currentSubSize = window.sublimationSizes.find(s => s.id === sizeId);
+        if (!window.currentSubSize) return;
+        
+        const dimensions = window.currentSubSize.dimensions || '';
+        document.getElementById('modal-size-name').textContent = dimensions ? `${window.currentSubSize.name} (${dimensions})` : window.currentSubSize.name;
+        document.getElementById('modal-quantity').value = 1;
+        document.getElementById('modal-location').value = '';
+        document.getElementById('modal-unit-price').textContent = 'Carregando...';
+        document.getElementById('modal-subtotal').textContent = 'R$ 0,00';
+        
+        const addBtn = document.getElementById('add-application-btn');
+        if (addBtn) {
             addBtn.disabled = true;
             addBtn.textContent = 'Carregando...';
-            
-            document.getElementById('application-modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            
-            fetch(`/api/sublimation-price/${sizeId}/${totalShirts}`)
-                .then(r => {
-                    if (!r.ok) throw new Error('Erro ao buscar preço');
-                    return r.json();
-                })
-                .then(data => {
-                    currentSize.price = parseFloat(data.price);
-                    updateModalPrices();
+        }
+        
+        document.getElementById('application-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        
+        fetch(`/api/sublimation-price/${sizeId}/${window.totalShirts}`)
+            .then(r => r.json())
+            .then(data => {
+                window.currentSubSize.price = parseFloat(data.price);
+                window.updateModalPrices();
+                if (addBtn) {
                     addBtn.disabled = false;
                     addBtn.textContent = 'Adicionar';
-                })
-                .catch(error => {
-                    console.error('Erro ao buscar preço:', error);
-                    alert('Erro ao carregar preço. Por favor, tente novamente.');
-                    closeModal();
-                });
+                }
+            })
+            .catch(() => {
+                alert('Erro ao carregar preço');
+                window.closeSubModal();
+            });
+    }
+
+    window.closeSubModal = function() {
+        document.getElementById('application-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        window.currentSubSize = null;
+    }
+
+    window.updateModalPrices = function() {
+        if (!window.currentSubSize) return;
+        const qty = parseInt(document.getElementById('modal-quantity').value) || 1;
+        const price = window.currentSubSize.price || 0;
+        const sub = price * qty;
+        document.getElementById('modal-unit-price').textContent = `R$ ${price.toFixed(2).replace('.', ',')}`;
+        document.getElementById('modal-subtotal').textContent = `R$ ${sub.toFixed(2).replace('.', ',')}`;
+        const input = document.getElementById('modal-unit-price-input');
+        if (input) input.value = price.toFixed(2);
+    }
+
+    window.updateModalPriceFromInput = function() {
+        if (!window.isUserAdmin) return;
+        const val = parseFloat(document.getElementById('modal-unit-price-input').value) || 0;
+        if (window.currentSubSize) window.currentSubSize.price = val;
+        window.updateModalPrices();
+    }
+
+    window.addApplication = function() {
+        const locId = document.getElementById('modal-location').value;
+        const qty = parseInt(document.getElementById('modal-quantity').value);
+        if (!locId || !qty || !window.currentSubSize) {
+            alert('Preencha todos os campos');
+            return;
         }
-
-        function closeModal() {
-            document.getElementById('application-modal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            document.getElementById('modal-location').value = '';
-            document.getElementById('modal-quantity').value = 1;
-            currentSize = null;
-            document.getElementById('modal-size-name').textContent = '';
-            document.getElementById('modal-unit-price').textContent = 'R$ 0,00';
-            document.getElementById('modal-subtotal').textContent = 'R$ 0,00';
-            
-            const addBtn = document.getElementById('add-application-btn');
-            addBtn.disabled = false;
-            addBtn.textContent = 'Adicionar';
-            
-            if (document.getElementById('modal-unit-price-input')) {
-                document.getElementById('modal-unit-price-input').value = 0;
-            }
-        }
-
-        function updateModalPrices() {
-            if (!currentSize || typeof currentSize.price !== 'number') {
-                console.error('currentSize ou price não definido');
-                return;
-            }
-            
-            const quantity = parseInt(document.getElementById('modal-quantity').value) || 1;
-            const unitPrice = currentSize.price;
-            const subtotal = unitPrice * quantity;
-
-            document.getElementById('modal-unit-price').textContent = `R$ ${unitPrice.toFixed(2).replace('.', ',')}`;
-            document.getElementById('modal-subtotal').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
-            if (document.getElementById('modal-unit-price-input')) {
-                document.getElementById('modal-unit-price-input').value = unitPrice.toFixed(2);
-            }
-        }
-
-        function updateModalPriceFromInput() {
-            if (!isAdmin) return;
-            const inputPrice = parseFloat(document.getElementById('modal-unit-price-input').value) || 0;
-            currentSize.price = inputPrice;
-            updateModalPrices();
-        }
-
-        function addApplication() {
-            const locationId = document.getElementById('modal-location').value;
-            const quantity = parseInt(document.getElementById('modal-quantity').value);
-
-            if (!locationId || !quantity) {
-                alert('Preencha todos os campos obrigatórios');
-                return;
-            }
-
-            if (!currentSize || !currentSize.id || typeof currentSize.price !== 'number') {
-                console.error('currentSize inválido');
-                alert('Erro ao adicionar aplicação. Por favor, tente novamente.');
-                closeModal();
-                return;
-            }
-
-            const location = locations.find(l => l.id == locationId);
-            if (!location) {
-                console.error('Local não encontrado:', locationId);
-                alert('Local de aplicação inválido');
-                return;
-            }
-
-            const unitPrice = currentSize.price;
-            const subtotal = unitPrice * quantity;
-
-            const newApp = {
-                size_id: currentSize.id,
-                size_name: currentSize.name,
-                size_dimensions: currentSize.dimensions,
-                location_id: locationId,
-                location_name: location.name,
-                quantity: quantity,
-                unit_price: unitPrice,
-                subtotal: subtotal
-            };
-
-            applications.push(newApp);
-            renderApplications();
-            updatePriceBreakdown();
-            closeModal();
-        }
-
-        function renderApplications() {
-            const container = document.getElementById('applications-list');
-            const noApps = document.getElementById('no-applications');
-            
-            if (applications.length === 0) {
-                noApps.classList.remove('hidden');
-                container.innerHTML = '';
-                return;
-            }
-
-            noApps.classList.add('hidden');
-            container.innerHTML = applications.map((app, index) => `
-                <div class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-md">
-                    <div class="flex-1">
-                        <div class="text-sm font-medium text-gray-900">${app.size_name} - ${app.location_name}</div>
-                        <div class="text-xs text-gray-500">${app.quantity}x R$ ${app.unit_price.toFixed(2).replace('.', ',')}</div>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <span class="text-sm font-medium text-gray-900">R$ ${app.subtotal.toFixed(2).replace('.', ',')}</span>
-                        <button type="button" onclick="removeApplication(${index})" 
-                                class="text-red-600 hover:text-red-800">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        let pendingDeleteIndex = null;
-
-        function removeApplication(index) {
-            // Guardar índice e mostrar modal de confirmação
-            pendingDeleteIndex = index;
-            const app = applications[index];
-            
-            document.getElementById('delete-item-info').innerHTML = `
-                <div class="font-medium text-gray-900">${app.size_name} - ${app.location_name}</div>
-                <div class="text-xs text-gray-500 mt-1">Quantidade: ${app.quantity} | Valor: R$ ${app.subtotal.toFixed(2).replace('.', ',')}</div>
-            `;
-            
-            document.getElementById('delete-confirmation-modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('delete-confirmation-modal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            pendingDeleteIndex = null;
-        }
-
-        function confirmDelete() {
-            if (pendingDeleteIndex !== null) {
-                applications.splice(pendingDeleteIndex, 1);
-                renderApplications();
-                updatePriceBreakdown();
-            }
-            closeDeleteModal();
-        }
-
-        function updatePriceBreakdown() {
-            const total = applications.reduce((sum, app) => sum + app.subtotal, 0);
-            
-            document.getElementById('total-price').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
-            
-            const breakdown = document.getElementById('price-breakdown');
-            if (applications.length === 0) {
-                breakdown.innerHTML = '<p class="text-sm text-gray-500">Nenhuma aplicação adicionada</p>';
-            } else {
-                breakdown.innerHTML = applications.map(app => 
-                    `<div class="flex justify-between">
-                        <span>${app.size_name} - ${app.location_name} (${app.quantity}x)</span>
-                        <span>R$ ${app.subtotal.toFixed(2).replace('.', ',')}</span>
-                    </div>`
-                ).join('');
-            }
-        }
-
-
-        function displayFileList() {
-            const files = document.getElementById('art_files').files;
-            const container = document.getElementById('file-list');
-            
-            if (files.length === 0) {
-                container.innerHTML = '';
-                return;
-            }
-
-            container.innerHTML = Array.from(files).map(file => `
-                <div class="flex items-center p-2 bg-white border border-gray-200 rounded text-sm">
-                    <svg class="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    <span class="text-gray-700">${file.name}</span>
-                    <span class="ml-auto text-xs text-gray-500">${(file.size / 1024).toFixed(1)} KB</span>
-                </div>
-            `).join('');
-        }
-
-        // Submeter formulário
-        document.getElementById('customization-form').addEventListener('submit', function(e) {
-            document.getElementById('sublimations-data').value = JSON.stringify(applications);
+        const loc = window.sublimationLocations.find(l => l.id == locId);
+        const price = window.currentSubSize.price || 0;
+        window.sublimations.push({
+            size_id: window.currentSubSize.id,
+            size_name: window.currentSubSize.name,
+            size_dimensions: window.currentSubSize.dimensions,
+            location_id: locId,
+            location_name: loc ? loc.name : 'N/A',
+            quantity: qty,
+            unit_price: price,
+            subtotal: price * qty
         });
+        window.renderApplications();
+        window.updatePriceBreakdown();
+        window.closeSubModal();
+    }
+
+    window.renderApplications = function() {
+        const container = document.getElementById('applications-list');
+        const noApps = document.getElementById('no-applications');
+        if (!container || !noApps) return;
+        if (window.sublimations.length === 0) {
+            noApps.classList.remove('hidden');
+            container.innerHTML = '';
+            return;
+        }
+        noApps.classList.add('hidden');
+        container.innerHTML = window.sublimations.map((app, index) => `
+            <div class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-md">
+                <div class="flex-1">
+                    <div class="text-sm font-medium text-gray-900">${app.size_name} - ${app.location_name}</div>
+                    <div class="text-xs text-gray-500">${app.quantity}x R$ ${app.unit_price.toFixed(2).replace('.', ',')}</div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-sm font-medium text-gray-900">R$ ${app.subtotal.toFixed(2).replace('.', ',')}</span>
+                    <button type="button" onclick="window.removeApplication(${index})" class="text-red-600 hover:text-red-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                </div>
+            </div>`).join('');
+    }
+
+    window.removeApplication = function(index) {
+        window.pendingDeleteIndex = index;
+        const app = window.sublimations[index];
+        const info = document.getElementById('delete-item-info');
+        if (info) {
+            info.innerHTML = `
+                <div class="font-medium text-gray-900">${app.size_name} - ${app.location_name}</div>
+                <div class="text-xs text-gray-500 mt-1">Quantidade: ${app.quantity} | Valor: R$ ${app.subtotal.toFixed(2).replace('.', ',')}</div>`;
+        }
+        document.getElementById('delete-confirmation-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    window.closeDeleteModal = function() {
+        document.getElementById('delete-confirmation-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        window.pendingDeleteIndex = null;
+    }
+
+    window.confirmDelete = function() {
+        if (window.pendingDeleteIndex !== null) {
+            window.sublimations.splice(window.pendingDeleteIndex, 1);
+            window.renderApplications();
+            window.updatePriceBreakdown();
+        }
+        window.closeDeleteModal();
+    }
+
+    window.updatePriceBreakdown = function() {
+        const total = window.sublimations.reduce((sum, app) => sum + app.subtotal, 0);
+        const totalEl = document.getElementById('total-price');
+        if (totalEl) totalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+        const breakdown = document.getElementById('price-breakdown');
+        if (!breakdown) return;
+        if (window.sublimations.length === 0) {
+            breakdown.innerHTML = '<p class="text-sm text-gray-500">Nenhuma aplicação adicionada</p>';
+        } else {
+            breakdown.innerHTML = window.sublimations.map(app => 
+                `<div class="flex justify-between"><span>${app.size_name} - ${app.location_name} (${app.quantity}x)</span><span>R$ ${app.subtotal.toFixed(2).replace('.', ',')}</span></div>`
+            ).join('');
+        }
+    }
+
+    window.displayFileList = function() {
+        const files = document.getElementById('art_files').files;
+        const container = document.getElementById('file-list');
+        if (!container) return;
+        container.innerHTML = Array.from(files).map(file => `
+            <div class="flex items-center p-2 bg-white border border-gray-200 rounded text-sm">
+                <svg class="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span class="text-gray-700">${file.name}</span>
+                <span class="ml-auto text-xs text-gray-500">${(file.size / 1024).toFixed(1)} KB</span>
+            </div>`).join('');
+    }
+
+    // Initialization
+    window._customizationInitSetup = function() {
+        document.removeEventListener('ajax-content-loaded', initCustomizationPage);
+        document.addEventListener('ajax-content-loaded', initCustomizationPage);
+    };
+    window._customizationInitSetup();
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCustomizationPage);
+    } else {
+        initCustomizationPage();
+    }
+})();
 </script>
 @endpush
 @endsection

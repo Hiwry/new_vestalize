@@ -634,26 +634,33 @@
     @include('components.side-panel')
 
 
+    <style>
+        :root {
+            --sidebar-width: 0px;
+        }
+        @media (min-width: 768px) {
+            :root {
+                --sidebar-width: 4rem;
+            }
+            :root.sidebar-expanded {
+                --sidebar-width: 16rem;
+            }
+        }
+        #main-content {
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+
     <!-- Scripts -->
     <script>
-        // Inicializar margem do conteúdo baseado no estado da sidebar
-        // Inicializar margem do conteúdo baseado no estado da sidebar
-        document.addEventListener('DOMContentLoaded', function() {
+        // Sincronizar classe da sidebar no HTML para o CSS variable funcionar
+        (function() {
             const sidebarExpanded = localStorage.getItem('sidebarExpanded') === 'true';
-            const mainContent = document.getElementById('main-content');
-            
-            function isMobile() {
-                return window.innerWidth < 768;
+            if (sidebarExpanded && window.innerWidth >= 768) {
+                document.documentElement.classList.add('sidebar-expanded');
             }
-
-            if (mainContent) {
-                if (isMobile()) {
-                    mainContent.style.marginLeft = '0';
-                } else {
-                    mainContent.style.marginLeft = sidebarExpanded ? '16rem' : '4rem';
-                }
-            }
-        });
+        })();
     </script>
 
     {{-- Global Toast Notification System --}}

@@ -174,7 +174,7 @@
     </div>
 </div>
 
-@push('scripts')
+@push('page-scripts')
 <script>
         let sizes = [];
         let locations = [];

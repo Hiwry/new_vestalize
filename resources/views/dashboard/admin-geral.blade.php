@@ -366,10 +366,10 @@
         <div class="overflow-x-auto">
             <table class="min-w-full">
                 <thead>
-                    <tr class="bg-indigo-50/50 dark:bg-primary/10">
-                        <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Cliente</th>
-                        <th class="px-8 py-4 text-center text-[10px] font-black text-muted uppercase tracking-widest">Pedidos</th>
-                        <th class="px-8 py-4 text-right text-[10px] font-black text-muted uppercase tracking-widest">Total Gasto</th>
+                    <tr class="bg-primary/80 dark:bg-primary/60">
+                        <th class="px-8 py-4 text-left text-[10px] font-black text-white uppercase tracking-widest">Cliente</th>
+                        <th class="px-8 py-4 text-center text-[10px] font-black text-white uppercase tracking-widest">Pedidos</th>
+                        <th class="px-8 py-4 text-right text-[10px] font-black text-white uppercase tracking-widest">Total Gasto</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border/50">
@@ -408,10 +408,10 @@
             <div class="overflow-x-auto">
                 <table class="min-w-full">
                     <thead>
-                        <tr class="bg-indigo-50/50 dark:bg-primary/10">
-                            <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Vendedor</th>
-                            <th class="px-8 py-4 text-center text-[10px] font-black text-muted uppercase tracking-widest">Metas/Pedidos</th>
-                            <th class="px-8 py-4 text-right text-[10px] font-black text-muted uppercase tracking-widest">Resultado</th>
+                        <tr class="bg-primary/80 dark:bg-primary/60">
+                            <th class="px-8 py-4 text-left text-[10px] font-black text-white uppercase tracking-widest">Vendedor</th>
+                            <th class="px-8 py-4 text-center text-[10px] font-black text-white uppercase tracking-widest">Metas/Pedidos</th>
+                            <th class="px-8 py-4 text-right text-[10px] font-black text-white uppercase tracking-widest">Resultado</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border/50">
@@ -438,10 +438,10 @@
         <div class="overflow-x-auto">
             <table class="min-w-full">
                 <thead>
-                    <tr class="bg-indigo-50/50 dark:bg-primary/10">
-                        <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Protocolo</th>
-                        <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Cliente</th>
-                        <th class="px-8 py-4 text-right text-[10px] font-black text-muted uppercase tracking-widest">Saldo Devedor</th>
+                    <tr class="bg-primary/80 dark:bg-primary/60">
+                        <th class="px-8 py-4 text-left text-[10px] font-black text-white uppercase tracking-widest">Protocolo</th>
+                        <th class="px-8 py-4 text-left text-[10px] font-black text-white uppercase tracking-widest">Cliente</th>
+                        <th class="px-8 py-4 text-right text-[10px] font-black text-white uppercase tracking-widest">Saldo Devedor</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border/50">
@@ -480,10 +480,10 @@
     <div class="overflow-x-auto">
         <table class="min-w-full">
             <thead>
-                <tr class="bg-indigo-50/50 dark:bg-primary/10">
-                    <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Produto</th>
-                    <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Quantidade</th>
-                    <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Faturamento</th>
+                <tr class="bg-primary/80 dark:bg-primary/60">
+                    <th class="px-8 py-4 text-left text-[10px] font-black text-white uppercase tracking-widest">Produto</th>
+                    <th class="px-8 py-4 text-left text-[10px] font-black text-white uppercase tracking-widest">Quantidade</th>
+                    <th class="px-8 py-4 text-left text-[10px] font-black text-white uppercase tracking-widest">Faturamento</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-border/50">
@@ -514,13 +514,13 @@
     <div class="overflow-x-auto">
         <table class="min-w-full">
             <thead>
-                <tr class="bg-indigo-50/50 dark:bg-primary/10">
-                    <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Tipo</th>
-                    <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Referência</th>
-                    <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Identificação</th>
-                    <th class="px-8 py-4 text-left text-[10px] font-black text-muted uppercase tracking-widest">Situação</th>
-                    <th class="px-8 py-4 text-right text-[10px] font-black text-muted uppercase tracking-widest">Volume</th>
-                    <th class="px-8 py-4 text-right text-[10px] font-black text-muted uppercase tracking-widest">Cronologia</th>
+                <tr class="bg-primary/80 dark:bg-primary/60">
+                    <th class="px-8 py-4 text-left text-[10px] font-black text-white uppercase tracking-widest">Tipo</th>
+                    <th class="px-8 py-4 text-left text-[10px] font-black text-white uppercase tracking-widest">Referência</th>
+                    <th class="px-8 py-4 text-left text-[10px] font-black text-white uppercase tracking-widest">Identificação</th>
+                    <th class="px-8 py-4 text-left text-[10px] font-black text-white uppercase tracking-widest">Situação</th>
+                    <th class="px-8 py-4 text-right text-[10px] font-black text-white uppercase tracking-widest">Volume</th>
+                    <th class="px-8 py-4 text-right text-[10px] font-black text-white uppercase tracking-widest">Cronologia</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-border/50">

@@ -72,8 +72,8 @@
 
     // Função para carregar página via AJAX
     async function loadPage(url) {
-        // Nunca usar AJAX para o catálogo público (/catalogo)
-        if (isCatalogPublicUrl(url)) {
+        // Nunca usar AJAX para o catálogo público (/catalogo) ou orçamento (/orcamento)
+        if (isCatalogPublicUrl(url) || (typeof url === 'string' && url.includes('/orcamento'))) {
             window.location.href = url;
             return;
         }
@@ -139,26 +139,38 @@
             }
 
             const html = await response.text();
-            
+
             // Verificar se a resposta é HTML válido
             if (!html || html.trim().length === 0) {
                 throw new Error('Resposta vazia do servidor');
             }
-            
+
+            // Parsear apenas uma vez para reutilizar DOM e capturar scripts
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
             // Extrair conteúdo principal
-            const newContent = extractMainContent(html);
-            if (!newContent) {
+            const mainEl = doc.querySelector('#main-content main') ||
+                doc.querySelector('main') ||
+                doc.querySelector('#main-content');
+
+            if (!mainEl) {
                 window.location.href = url;
                 return;
             }
+
+            const newContent = mainEl.innerHTML;
 
             // Atualizar conteúdo de forma que preserve e execute scripts
             // Primeiro, criar um container temporário
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = newContent;
-            
+
             // Coletar informações dos scripts ANTES de mover o conteúdo
-            const scriptData = Array.from(tempDiv.querySelectorAll('script')).map(script => ({
+            // Inclui scripts dentro e fora do <main> (ex.: @stack('scripts'))
+            const mainScripts = Array.from(tempDiv.querySelectorAll('script'));
+            const extraScripts = Array.from(doc.querySelectorAll('script')).filter(s => !mainEl.contains(s));
+            const scriptData = [...mainScripts, ...extraScripts].map(script => ({
                 src: script.src,
                 text: script.textContent,
                 attributes: Array.from(script.attributes).map(attr => ({
@@ -168,7 +180,7 @@
                 async: script.async,
                 defer: script.defer
             }));
-            
+
             // Remover scripts do tempDiv antes de mover (para não duplicar)
             tempDiv.querySelectorAll('script').forEach(script => script.remove());
             
@@ -339,6 +351,19 @@
         }
     }
 
+    // Evitar AJAX em páginas de orçamento (/orcamento) para prevenir layout quebrado
+    function isBudgetUrl(urlOrPath) {
+        try {
+            const url = typeof urlOrPath === 'string' && urlOrPath.startsWith('/')
+                ? new URL(urlOrPath, window.location.origin)
+                : new URL(urlOrPath, window.location.origin);
+            const path = url.pathname || '';
+            return path === '/orcamento' || path.startsWith('/orcamento/');
+        } catch (e) {
+            return false;
+        }
+    }
+
     // Interceptar cliques nos links da sidebar
     function setupSidebarNavigation() {
         const sidebar = document.querySelector('#sidebar');
@@ -390,8 +415,8 @@
                 return; // URL inválida
             }
 
-            // Nunca usar AJAX para o catálogo público (/catalogo)
-            if (isCatalogPublicUrl(url.href)) {
+            // Nunca usar AJAX para o catálogo público (/catalogo) ou orçamento (/orcamento)
+            if (isCatalogPublicUrl(url.href) || url.pathname.startsWith('/orcamento')) {
                 return; // deixar o navegador fazer um load completo
             }
 
@@ -414,8 +439,8 @@
     // Lidar com navegação do navegador (voltar/avançar)
     window.addEventListener('popstate', (e) => {
         if (e.state && e.state.url) {
-            // Se a URL for do catálogo público, forçar carregamento completo da página
-            if (isCatalogPublicUrl(e.state.url)) {
+            // Se a URL for do catálogo público ou orçamento, forçar carregamento completo da página
+            if (isCatalogPublicUrl(e.state.url) || (typeof e.state.url === 'string' && e.state.url.includes('/orcamento'))) {
                 window.location.href = e.state.url;
                 return;
             }
@@ -443,4 +468,3 @@
     };
 
 })();
-
