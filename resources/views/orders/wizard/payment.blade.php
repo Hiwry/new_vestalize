@@ -451,9 +451,14 @@
             }
         });
 
+        // Calculate UNIT PRICE for surcharge lookup (subtotal / total pieces)
+        const totalPieces = window.orderItems.reduce((sum, item) => sum + parseInt(item.quantity || 0), 0);
+        const unitPrice = totalPieces > 0 ? window.subtotal / totalPieces : window.subtotal;
+        console.log('Size surcharge calculation:', { subtotal: window.subtotal, totalPieces, unitPrice });
+
         const promises = Object.entries(sizeQuantities).map(([size, quantity]) => {
             if (quantity > 0) {
-                return fetch(`/api/size-surcharge/${size}?price=${window.subtotal}`)
+                return fetch(`/api/size-surcharge/${size}?price=${unitPrice}`)
                     .then(r => r.json())
                     .then(data => {
                         if (data.surcharge) {
