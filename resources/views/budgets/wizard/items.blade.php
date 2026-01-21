@@ -500,8 +500,9 @@
 
         renderSelect('cor', optionsWithParents.cor || [], null, activeParentIds);
         
-        // Use Strict Mode for Tipo de Corte: Hides global (parentless) items to prevent mismatches
-        renderSelect('tipo_corte', optionsWithParents.tipo_corte || [], null, activeParentIds, true);
+        // Strict Mode + Category Constraints for Tipo de Corte
+        // We pass the selected Fabric ID to enforce that if an item has ANY fabric parent, it matches THIS one.
+        renderSelect('tipo_corte', optionsWithParents.tipo_corte || [], null, activeParentIds, true, tecidoId);
         
         const corteParentIds = tipoCorteId ? [tipoCorteId] : [];
         renderSelect('gola', optionsWithParents.gola || [], null, corteParentIds);
@@ -510,17 +511,37 @@
         updatePrice();
     }
 
-    function renderSelect(id, items, selectedValue, parentIdsToCheck, strictMode = false) {
+    /**
+     * @param strictMode If true, hides items with NO parents.
+     * @param requiredParentId If set (e.g. Fabric ID), enforces that IF the item has parents from that category (Fabric), it must match this ID.
+     */
+    function renderSelect(id, items, selectedValue, parentIdsToCheck, strictMode = false, requiredParentId = null) {
         const select = document.getElementById(id);
         if(!select) return;
         
+        // Prepare list of all Fabric IDs to identify which parents are fabrics
+        const allFabricIds = (optionsWithParents.tecido || []).map(t => t.id);
+
         let filtered = items;
         if (parentIdsToCheck && parentIdsToCheck.length > 0) {
              filtered = items.filter(item => {
-                // If Strict Mode is ON, hide items with no parents (globals)
-                // If Strict Mode is OFF, allow globals (empty parent_ids) to show
-                if (!item.parent_ids || item.parent_ids.length === 0) return !strictMode;
+                // 1. Strict Mode check
+                if ((!item.parent_ids || item.parent_ids.length === 0)) return !strictMode;
                 
+                // 2. Category Constraint Logic (e.g. Fabric consistency)
+                // If we have a requiredParentId (the selected Fabric), check if this item is linked to ANY OTHER fabric.
+                // If item.parent_ids contains a Fabric ID that is NOT the requiredParentId, it's a mismatch (exclusive).
+                if (requiredParentId && allFabricIds.length > 0) {
+                    const itemFabricParents = item.parent_ids.filter(pid => allFabricIds.includes(pid));
+                    // If the item is linked to fabrics, and NONE of them is the selected fabric, exclude it.
+                    if (itemFabricParents.length > 0 && !itemFabricParents.includes(requiredParentId)) {
+                        return false;
+                    }
+                }
+
+                // 3. Standard Intersection check (OR logic across active parents)
+                // Ensure at least one active parent is present.
+                // Note: If strict mode is true, we already checked length.
                 return item.parent_ids.some(pid => parentIdsToCheck.includes(pid));
             });
         }
@@ -528,6 +549,7 @@
         const current = selectedValue || select.value;
         const defaultTxt = select.options[0] ? select.options[0].text : "Selecione...";
         
+        // Reverted debug display: showing clean names again
         select.innerHTML = `<option value="">${defaultTxt}</option>` + 
             filtered.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name} ${i.price > 0 ? '(+R$'+i.price+')' : ''}</option>`).join('');
             
