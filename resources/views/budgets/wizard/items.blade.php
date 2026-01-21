@@ -501,8 +501,10 @@
         renderSelect('cor', optionsWithParents.cor || [], null, activeParentIds);
         
         // Strict Mode + Category Constraints for Tipo de Corte
-        // We pass the selected Fabric ID to enforce that if an item has ANY fabric parent, it matches THIS one.
-        renderSelect('tipo_corte', optionsWithParents.tipo_corte || [], null, activeParentIds, true, tecidoId);
+        // Use Tipo de Tecido ID (fabric subtype) as the constraint, since cut types are children of fabric types.
+        // If no Tipo de Tecido is selected, fall back to the main Tecido ID.
+        const fabricConstraintId = tipoTecidoId || tecidoId;
+        renderSelect('tipo_corte', optionsWithParents.tipo_corte || [], null, activeParentIds, true, fabricConstraintId);
         
         const corteParentIds = tipoCorteId ? [tipoCorteId] : [];
         renderSelect('gola', optionsWithParents.gola || [], null, corteParentIds);
@@ -513,14 +515,17 @@
 
     /**
      * @param strictMode If true, hides items with NO parents.
-     * @param requiredParentId If set (e.g. Fabric ID), enforces that IF the item has parents from that category (Fabric), it must match this ID.
+     * @param requiredParentId If set (e.g. Fabric Type ID), enforces that IF the item has parents from that category, it must match this ID.
      */
     function renderSelect(id, items, selectedValue, parentIdsToCheck, strictMode = false, requiredParentId = null) {
         const select = document.getElementById(id);
         if(!select) return;
         
-        // Prepare list of all Fabric IDs to identify which parents are fabrics
-        const allFabricIds = (optionsWithParents.tecido || []).map(t => t.id);
+        // Prepare list of all Fabric AND Fabric Type IDs to identify fabric-related parents
+        const allFabricIds = [
+            ...(optionsWithParents.tecido || []).map(t => t.id),
+            ...(optionsWithParents.tipo_tecido || (options.tipo_tecido || [])).map(t => t.id)
+        ];
 
         let filtered = items;
         if (parentIdsToCheck && parentIdsToCheck.length > 0) {
