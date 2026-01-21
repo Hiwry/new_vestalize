@@ -223,7 +223,7 @@ class BudgetController extends Controller
     public function items(Request $request)
     {
         $action = $request->input('action');
-        \Log::info('🔍 BUDGET ITEMS ACTION:', ['action' => $action, 'editing_item_id' => $request->input('editing_item_id'), 'all' => $request->all()]);
+
         // Se for continuar para próxima etapa
         if ($action === 'continue') {
             $items = session('budget_items', []);

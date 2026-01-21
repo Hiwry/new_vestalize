@@ -320,14 +320,6 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         loadOptions();
-        
-        // Debug: Log form data before submit
-        document.getElementById('item-form').addEventListener('submit', function(e) {
-            const actionValue = this.querySelector('input[name="action"]').value;
-            const editingId = document.getElementById('editing_item_id');
-            console.log('Form submitting with action:', actionValue, 'editing_item_id:', editingId ? editingId.value : 'null');
-            alert('Action: ' + actionValue + ', EditingID: ' + (editingId ? editingId.value : 'null'));
-        });
     });
 
     function openItemModal() {
