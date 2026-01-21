@@ -339,9 +339,19 @@ class OrderWizardService
                 }
             }
             
+            // Calculate unit price for surcharge tier lookup (subtotal / total pieces)
+            $totalPieces = $order->items->sum('quantity');
+            $unitPrice = $totalPieces > 0 ? $subtotal / $totalPieces : $subtotal;
+            
+            Log::info('Size surcharge calculation', [
+                'subtotal' => $subtotal,
+                'total_pieces' => $totalPieces,
+                'unit_price' => $unitPrice
+            ]);
+            
             foreach ($sizeQuantities as $size => $qty) {
                 if ($qty > 0) {
-                    $surchargeModel = \App\Models\SizeSurcharge::getSurchargeForSize($size, $subtotal);
+                    $surchargeModel = \App\Models\SizeSurcharge::getSurchargeForSize($size, $unitPrice);
                     if ($surchargeModel) {
                         $sizeSurcharges[$size] = (float)$surchargeModel->surcharge * $qty;
                     }
