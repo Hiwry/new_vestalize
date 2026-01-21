@@ -1160,7 +1160,60 @@
     window.renderOptionCards = renderOptionCards;
 
     function renderWizardCorteOptions() {
-        renderOptionCards('wizard-options-corte', 'tipo_corte', ['tipo_corte', 'corte', 'cut_types']);
+        const container = document.getElementById('wizard-options-corte');
+        if (!container) return;
+
+        // Get items from API
+        let items = getOptionList(['tipo_corte', 'corte', 'cut_types']);
+        
+        // Get the selected fabric type ID (tipo_tecido) or fallback to fabric ID (tecido)
+        const tipoTecidoId = wizardData.tipo_tecido ? parseInt(wizardData.tipo_tecido.id) : null;
+        const tecidoId = wizardData.tecido ? parseInt(wizardData.tecido.id) : null;
+        const fabricConstraintId = tipoTecidoId || tecidoId;
+
+        // Prepare list of all Fabric AND Fabric Type IDs
+        const allFabricIds = [
+            ...((options.tecido || []).map(t => parseInt(t.id))),
+            ...((options.tipo_tecido || []).map(t => parseInt(t.id)))
+        ];
+
+        // Advanced filtering: Category-aware filtering
+        if (fabricConstraintId) {
+            items = items.filter(item => {
+                // If item has no parents, hide it (strict mode)
+                if (!item.parent_ids || item.parent_ids.length === 0) return false;
+                
+                // Check if item has fabric/fabric type parents
+                const itemFabricParents = item.parent_ids.filter(pid => allFabricIds.includes(parseInt(pid)));
+                
+                // If item is linked to fabrics/types, ensure at least one matches our selected fabric type
+                if (itemFabricParents.length > 0) {
+                    return itemFabricParents.some(pid => parseInt(pid) === fabricConstraintId);
+                }
+                
+                // If item has no fabric parents but has other parents, allow it (might be linked to personalization only)
+                return true;
+            });
+        }
+
+        if (!items || items.length === 0) {
+            container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Nenhuma opção disponível para o tecido selecionado.</div>';
+            return;
+        }
+
+        container.innerHTML = items.map(item => {
+            const isActive = wizardData.tipo_corte && wizardData.tipo_corte.id == item.id;
+            const price = parseFloat(item.price || 0);
+            return `
+                <div class="wizard-option-card p-4 rounded-xl border ${isActive ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : 'border-gray-200 dark:border-slate-700'} hover:border-[#7c3aed] dark:hover:border-[#7c3aed] cursor-pointer transition-all"
+                    onclick="selectWizardOption('tipo_corte', '${item.id}', '${item.name.replace(/'/g, '')}', ${price}, true)">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold text-gray-800 dark:text-gray-100">${item.name}</span>
+                        ${price > 0 ? `<span class="text-xs font-bold text-[#7c3aed]">R$ ${price.toFixed(2).replace('.', ',')}</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
     window.renderWizardCorteOptions = renderWizardCorteOptions;
 
