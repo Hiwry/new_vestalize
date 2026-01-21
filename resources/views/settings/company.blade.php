@@ -50,87 +50,25 @@
                     Identidade Visual
                 </h2>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Logo Upload -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Logo da Empresa</label>
-                        <div class="flex items-center space-x-4">
-                            <div class="relative w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 flex items-center justify-center">
-                                @if($tenant->logo_path)
-                                    <img src="{{ asset('storage/' . $tenant->logo_path) }}" alt="Logo Total" class="w-full h-full object-contain">
-                                @else
-                                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                @endif
-                            </div>
-                            <div class="flex-1">
-                                <input type="file" name="logo" id="logo" accept="image/*" class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/30 dark:file:text-indigo-300 transition cursor-pointer">
-                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">PNG, JPG ou SVG. Max 2MB.</p>
-                            </div>
+                <!-- Logo Upload -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Logo da Empresa</label>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 flex items-center justify-center">
+                            @if($tenant->logo_path)
+                                <img src="{{ asset('storage/' . $tenant->logo_path) }}" alt="Logo Total" class="w-full h-full object-contain">
+                            @else
+                                <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            @endif
+                        </div>
+                        <div class="flex-1">
+                            <input type="file" name="logo" id="logo" accept="image/*" class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/30 dark:file:text-indigo-300 transition cursor-pointer">
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">PNG, JPG ou SVG. Max 2MB.</p>
                         </div>
                     </div>
-
-                    <!-- Cores -->
-                    <div class="space-y-5">
-                        <!-- Cor Primária -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cor Primária</label>
-                            <div class="grid grid-cols-2 gap-3">
-                                <!-- Light -->
-                                <div class="space-y-1">
-                                    <span class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                                        <svg class="w-3.5 h-3.5 mr-1 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/></svg>
-                                        Tema Claro
-                                    </span>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="color" name="primary_color_light" id="primary_color_light" value="{{ $tenant->primary_color ?? '#4F46E5' }}" class="h-10 w-10 p-0.5 border-0 ring-1 ring-gray-200 dark:ring-gray-600 rounded-lg overflow-hidden cursor-pointer bg-white dark:bg-gray-700">
-                                        <input type="text" id="primary_color_light_text" value="{{ $tenant->primary_color ?? '#4F46E5' }}" onchange="document.getElementById('primary_color_light').value = this.value" class="flex-1 px-3 py-2 text-xs border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white uppercase">
-                                    </div>
-                                </div>
-                                <!-- Dark -->
-                                <div class="space-y-1">
-                                    <span class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                                        <svg class="w-3.5 h-3.5 mr-1 text-indigo-400" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
-                                        Tema Escuro
-                                    </span>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="color" name="primary_color_dark" id="primary_color_dark" value="{{ $tenant->primary_color_dark ?? '#818CF8' }}" class="h-10 w-10 p-0.5 border-0 ring-1 ring-gray-200 dark:ring-gray-600 rounded-lg overflow-hidden cursor-pointer bg-white dark:bg-gray-700">
-                                        <input type="text" id="primary_color_dark_text" value="{{ $tenant->primary_color_dark ?? '#818CF8' }}" onchange="document.getElementById('primary_color_dark').value = this.value" class="flex-1 px-3 py-2 text-xs border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white uppercase">
-                                    </div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Usada em botões, cabeçalhos e destaques.</p>
-                        </div>
-
-                        <!-- Cor Secundária -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cor Secundária</label>
-                            <div class="grid grid-cols-2 gap-3">
-                                <!-- Light -->
-                                <div class="space-y-1">
-                                    <span class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                                        <svg class="w-3.5 h-3.5 mr-1 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/></svg>
-                                        Tema Claro
-                                    </span>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="color" name="secondary_color_light" id="secondary_color_light" value="{{ $tenant->secondary_color ?? '#6B7280' }}" class="h-10 w-10 p-0.5 border-0 ring-1 ring-gray-200 dark:ring-gray-600 rounded-lg overflow-hidden cursor-pointer bg-white dark:bg-gray-700">
-                                        <input type="text" id="secondary_color_light_text" value="{{ $tenant->secondary_color ?? '#6B7280' }}" onchange="document.getElementById('secondary_color_light').value = this.value" class="flex-1 px-3 py-2 text-xs border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white uppercase">
-                                    </div>
-                                </div>
-                                <!-- Dark -->
-                                <div class="space-y-1">
-                                    <span class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                                        <svg class="w-3.5 h-3.5 mr-1 text-indigo-400" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
-                                        Tema Escuro
-                                    </span>
-                                    <div class="flex items-center space-x-2">
-                                        <input type="color" name="secondary_color_dark" id="secondary_color_dark" value="{{ $tenant->secondary_color_dark ?? '#9CA3AF' }}" class="h-10 w-10 p-0.5 border-0 ring-1 ring-gray-200 dark:ring-gray-600 rounded-lg overflow-hidden cursor-pointer bg-white dark:bg-gray-700">
-                                        <input type="text" id="secondary_color_dark_text" value="{{ $tenant->secondary_color_dark ?? '#9CA3AF' }}" onchange="document.getElementById('secondary_color_dark').value = this.value" class="flex-1 px-3 py-2 text-xs border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white uppercase">
-                                    </div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Usada em bordas e elementos secundários.</p>
-                        </div>
-                    </div>
+                    <p class="mt-3 text-xs text-gray-500 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg">
+                        <strong>Nota:</strong> As cores do sistema são padronizadas (roxo). O logo será usado em PDFs e cabeçalhos.
+                    </p>
                 </div>
             </div>
 
@@ -235,25 +173,4 @@
         </div>
     </div>
 </form>
-
-<script>
-    // Preview de cor em tempo real
-    const primaryInput = document.getElementById('primary_color');
-    const primaryText = primaryInput.nextElementSibling;
-    
-    primaryText.addEventListener('input', function() {
-        if(/^#[0-9A-F]{6}$/i.test(this.value)) {
-            primaryInput.value = this.value;
-        }
-    });
-
-    const secondaryInput = document.getElementById('secondary_color');
-    const secondaryText = secondaryInput.nextElementSibling;
-
-    secondaryText.addEventListener('input', function() {
-        if(/^#[0-9A-F]{6}$/i.test(this.value)) {
-            secondaryInput.value = this.value;
-        }
-    });
-</script>
 @endsection

@@ -41,30 +41,17 @@
     </script>
     
     @php
-        // Cores para tema claro
-        $pLight = auth()->user()->tenant->primary_color ?? '#7c3aed';
-        $sLight = auth()->user()->tenant->secondary_color ?? '#a855f7';
-        // Cores para tema escuro (com fallback para versões mais claras das cores light)
-        $pDark = auth()->user()->tenant->primary_color_dark ?? '#a78bfa';
-        $sDark = auth()->user()->tenant->secondary_color_dark ?? '#c084fc';
+        // Cores padrão fixas (não mais personalizáveis por tenant)
+        $pLight = '#7c3aed'; // Purple padrão
+        $sLight = '#a855f7'; // Purple secondary
+        $pDark = '#a78bfa';  // Purple dark mode
+        $sDark = '#c084fc';  // Purple secondary dark
         
         // Luminance check para tema claro
         $isLightBg = false;
-        if (str_starts_with($pLight, '#') && strlen($pLight) >= 7) {
-            $r = hexdec(substr($pLight, 1, 2));
-            $g = hexdec(substr($pLight, 3, 2));
-            $b = hexdec(substr($pLight, 5, 2));
-            if ((0.2126 * $r + 0.7152 * $g + 0.0722 * $b) > 200) $isLightBg = true;
-        }
         
         // Luminance check para tema escuro
         $isDarkBgLight = false;
-        if (str_starts_with($pDark, '#') && strlen($pDark) >= 7) {
-            $r = hexdec(substr($pDark, 1, 2));
-            $g = hexdec(substr($pDark, 3, 2));
-            $b = hexdec(substr($pDark, 5, 2));
-            if ((0.2126 * $r + 0.7152 * $g + 0.0722 * $b) > 200) $isDarkBgLight = true;
-        }
     @endphp
     <style>
         /* Alinha dashboard ao design system da landing */
