@@ -1,6 +1,21 @@
 @extends('layouts.admin')
 
 @section('content')
+@php
+    // Fallback defaults for production dashboard variables
+    // These are set by ProductionDashboardController but this view may also be used by DashboardController
+    $statuses = $statuses ?? collect();
+    $statusStats = $statusStats ?? [];
+    $ordersByStatus = $ordersByStatus ?? [];
+    $allStatuses = $allStatuses ?? collect();
+    $selectedColumns = $selectedColumns ?? [];
+    $deliveryOrders = $deliveryOrders ?? collect();
+    $totalOrders = $totalOrders ?? 0;
+    $period = $period ?? 'month';
+    $deliveryFilter = $deliveryFilter ?? 'week';
+    $startDate = $startDate ?? now()->startOfMonth()->format('Y-m-d');
+    $endDate = $endDate ?? now()->endOfMonth()->format('Y-m-d');
+@endphp
 <style>
 /* Animações Premium */
 @keyframes fadeInUp {
