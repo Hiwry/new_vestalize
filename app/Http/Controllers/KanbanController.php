@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use ZipArchive;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -72,52 +73,64 @@ class KanbanController extends Controller
                 $query->whereDate('delivery_date', $deliveryDateFilter);
             }
         }])->orderBy('position')->get();
-        
-        // Filtrar colunas visíveis baseado na sessão ou padrões
-        $selectedColumns = $request->get('columns', session('kanban_columns', []));
-        
-        if (empty($selectedColumns)) {
-            // Colunas padrão específicas do fluxo de produção
-            $defaultStatusNames = [
-                'Pendente',
-                'Quando não assina',
-                'Inicio',
-                'Fila Corte',
-                'Cortado',
-                'Costura',
-                'Costurar Novamente',
-                'Personalização',
-                'Limpeza',
-                'Concluído'
-            ];
-            
-            // Normalizar nomes para comparação (slugify)
-            $normalizedDefaults = array_map(function($name) {
-                return \Illuminate\Support\Str::slug($name);
-            }, $defaultStatusNames);
-            
-            $selectedColumns = $statuses->filter(function($status) use ($normalizedDefaults, $defaultStatusNames) {
-                // Tenta match exato primeiro
-                if (in_array($status->name, $defaultStatusNames)) return true;
-                
-                // Tenta match normalizado
-                return in_array(\Illuminate\Support\Str::slug($status->name), $normalizedDefaults);
-            })->pluck('id')->toArray();
-            
-            // Se nenhum status padrão encontrado, usar todos
-            if (empty($selectedColumns)) {
-                $selectedColumns = $statuses->pluck('id')->toArray();
-            }
+
+        // Lista fixa de colunas padrão (ordem desejada)
+        $defaultColumnSlugs = [
+            'pendente',
+            'quando-nao-assina',
+            'inicio',
+            'fila-corte',
+            'cortado',
+            'costura',
+            'costurar-novamente',
+            'personalizacao',
+            'limpeza',
+            'concluido',
+        ];
+
+        // Identificar IDs das colunas padrão existentes para o tenant
+        $defaultStatusIds = $statuses
+            ->filter(fn ($status) => in_array(Str::slug($status->name), $defaultColumnSlugs))
+            ->sortBy(fn ($status) => array_search(Str::slug($status->name), $defaultColumnSlugs))
+            ->pluck('id')
+            ->values()
+            ->toArray();
+
+        // Filtrar colunas visíveis baseado em request ou sessão
+        $selectedColumns = (array) $request->get('columns', session('kanban_columns', []));
+        $selectedColumns = array_filter(array_map('intval', $selectedColumns));
+
+        $hasColumnParam = $request->has('columns');
+
+        // Detectar sessão antiga (<= 2 colunas ou sem interseção com padrão) e forçar reset
+        if (!$hasColumnParam && (count($selectedColumns) <= 2 || empty(array_intersect($selectedColumns, $defaultStatusIds)))) {
+            $selectedColumns = $defaultStatusIds;
         }
-        
+
+        // Se ainda estiver vazio, aplicar padrão; fallback para todas as colunas existentes
+        if (empty($selectedColumns)) {
+            $selectedColumns = $defaultStatusIds ?: $statuses->pluck('id')->toArray();
+        }
+
+        // Garantir que apenas IDs válidos sejam usados e manter ordem definida
+        $allStatusIds = $statuses->pluck('id')->toArray();
+        $selectedColumns = array_values(array_intersect($selectedColumns, $allStatusIds));
+
+        if (empty($selectedColumns)) {
+            $selectedColumns = $defaultStatusIds ?: $allStatusIds;
+        }
+
         // Salvar na sessão
         session(['kanban_columns' => $selectedColumns]);
-        
+
         // Guardar todos os status para o filtro modal
         $allStatuses = $statuses;
-        
-        // Filtrar status visíveis
-        $statuses = $statuses->whereIn('id', $selectedColumns);
+
+        // Filtrar status visíveis e respeitar ordem das colunas selecionadas
+        $statuses = $statuses
+            ->whereIn('id', $selectedColumns)
+            ->sortBy(fn ($status) => array_search($status->id, $selectedColumns))
+            ->values();
         
         $query = Order::with([
             'client', 
