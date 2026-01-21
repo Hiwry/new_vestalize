@@ -91,8 +91,17 @@ class KanbanController extends Controller
                 'Concluído'
             ];
             
-            $selectedColumns = $statuses->filter(function($status) use ($defaultStatusNames) {
-                return in_array($status->name, $defaultStatusNames);
+            // Normalizar nomes para comparação (slugify)
+            $normalizedDefaults = array_map(function($name) {
+                return \Illuminate\Support\Str::slug($name);
+            }, $defaultStatusNames);
+            
+            $selectedColumns = $statuses->filter(function($status) use ($normalizedDefaults, $defaultStatusNames) {
+                // Tenta match exato primeiro
+                if (in_array($status->name, $defaultStatusNames)) return true;
+                
+                // Tenta match normalizado
+                return in_array(\Illuminate\Support\Str::slug($status->name), $normalizedDefaults);
             })->pluck('id')->toArray();
             
             // Se nenhum status padrão encontrado, usar todos
