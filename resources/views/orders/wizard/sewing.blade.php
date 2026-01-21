@@ -1163,8 +1163,13 @@
         const container = document.getElementById('wizard-options-corte');
         if (!container) return;
 
-        // Get items from API
-        let items = getOptionList(['tipo_corte', 'corte', 'cut_types']);
+        // CRITICAL: Use optionsWithParents which contains parent_ids data
+        let items = optionsWithParents.tipo_corte || options.tipo_corte || [];
+        
+        console.log('=== renderWizardCorteOptions DEBUG ===');
+        console.log('wizardData.tecido:', wizardData.tecido);
+        console.log('wizardData.tipo_tecido:', wizardData.tipo_tecido);
+        console.log('Items before filter:', items.length, items.map(i => ({name: i.name, parent_ids: i.parent_ids})));
         
         // Get the selected fabric type ID (tipo_tecido) or fallback to fabric ID (tecido)
         const tipoTecidoId = wizardData.tipo_tecido ? parseInt(wizardData.tipo_tecido.id) : null;
@@ -1195,6 +1200,10 @@
                 return true;
             });
         }
+
+        console.log('fabricConstraintId:', fabricConstraintId);
+        console.log('allFabricIds:', allFabricIds);
+        console.log('Items after filter:', items.length, items.map(i => i.name));
 
         if (!items || items.length === 0) {
             container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Nenhuma opção disponível para o tecido selecionado.</div>';
