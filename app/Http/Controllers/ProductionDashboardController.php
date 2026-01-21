@@ -104,6 +104,7 @@ class ProductionDashboardController extends Controller
                 $defaultStatusNames = [
                     'Pendente',
                     'Quando não assina',
+                    'Assinado',
                     'Inicio',
                     'Fila Corte',
                     'Cortado',

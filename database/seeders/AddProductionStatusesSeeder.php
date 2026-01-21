@@ -12,6 +12,7 @@ class AddProductionStatusesSeeder extends Seeder
     {
         $newStatuses = [
             ['name' => 'Quando não assina', 'color' => '#EF4444', 'position' => 10],
+            ['name' => 'Assinado', 'color' => '#22C55E', 'position' => 12],
             ['name' => 'Inicio', 'color' => '#F59E0B', 'position' => 15],
             ['name' => 'Fila Corte', 'color' => '#6366F1', 'position' => 20],
             ['name' => 'Cortado', 'color' => '#3B82F6', 'position' => 25],

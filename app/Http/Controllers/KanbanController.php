@@ -78,6 +78,7 @@ class KanbanController extends Controller
         $defaultColumnSlugs = [
             'pendente',
             'quando-nao-assina',
+            'assinado',
             'inicio',
             'fila-corte',
             'cortado',
@@ -212,15 +213,29 @@ class KanbanController extends Controller
         // - Assinado: mover de "Quando não assina" -> "Pendente"
         $pendenteStatus = $allStatuses->firstWhere('name', 'Pendente');
         $naoAssinaStatus = $allStatuses->firstWhere('name', 'Quando não assina');
+        $assinadoStatus = $allStatuses->firstWhere('name', 'Assinado');
         if ($pendenteStatus && $naoAssinaStatus) {
             foreach ($orders as $order) {
                 $isConfirmed = (bool) $order->client_confirmed;
-                if (!$isConfirmed && $order->status_id === $pendenteStatus->id) {
-                    $order->status_id = $naoAssinaStatus->id;
-                    $order->setRelation('status', $naoAssinaStatus);
-                } elseif ($isConfirmed && $order->status_id === $naoAssinaStatus->id) {
-                    $order->status_id = $pendenteStatus->id;
-                    $order->setRelation('status', $pendenteStatus);
+                if ($assinadoStatus) {
+                    if ($isConfirmed && in_array($order->status_id, [$pendenteStatus->id, $naoAssinaStatus->id], true)) {
+                        $order->status_id = $assinadoStatus->id;
+                        $order->setRelation('status', $assinadoStatus);
+                    } elseif (!$isConfirmed && $order->status_id === $assinadoStatus->id) {
+                        $order->status_id = $naoAssinaStatus->id;
+                        $order->setRelation('status', $naoAssinaStatus);
+                    } elseif (!$isConfirmed && $order->status_id === $pendenteStatus->id) {
+                        $order->status_id = $naoAssinaStatus->id;
+                        $order->setRelation('status', $naoAssinaStatus);
+                    }
+                } else {
+                    if (!$isConfirmed && $order->status_id === $pendenteStatus->id) {
+                        $order->status_id = $naoAssinaStatus->id;
+                        $order->setRelation('status', $naoAssinaStatus);
+                    } elseif ($isConfirmed && $order->status_id === $naoAssinaStatus->id) {
+                        $order->status_id = $pendenteStatus->id;
+                        $order->setRelation('status', $pendenteStatus);
+                    }
                 }
             }
         }
