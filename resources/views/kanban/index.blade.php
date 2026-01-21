@@ -544,7 +544,9 @@
                                                 #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
                                             </span>
                                             @if($order->edit_status === 'requested')
-                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-orange-500/20 text-orange-200 border border-orange-400/40">Editado</span>
+                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-orange-500/20 text-orange-200 border border-orange-400/40">Sol. Edição</span>
+                                            @elseif($order->is_modified)
+                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-500/20 dark:text-blue-200 dark:border-blue-400/40">Editado</span>
                                             @endif
                                             @if($order->stock_status === 'none')
                                                 <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-red-100 text-red-700 border border-red-200 dark:bg-red-500/20 dark:text-red-200 dark:border-red-400/40">Sem estoque</span>
