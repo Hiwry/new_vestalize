@@ -499,7 +499,9 @@
         }
 
         renderSelect('cor', optionsWithParents.cor || [], null, activeParentIds);
-        renderSelect('tipo_corte', optionsWithParents.tipo_corte || [], null, activeParentIds);
+        
+        // Use Strict Mode for Tipo de Corte: Hides global (parentless) items to prevent mismatches
+        renderSelect('tipo_corte', optionsWithParents.tipo_corte || [], null, activeParentIds, true);
         
         const corteParentIds = tipoCorteId ? [tipoCorteId] : [];
         renderSelect('gola', optionsWithParents.gola || [], null, corteParentIds);
@@ -508,14 +510,17 @@
         updatePrice();
     }
 
-    function renderSelect(id, items, selectedValue, parentIdsToCheck) {
+    function renderSelect(id, items, selectedValue, parentIdsToCheck, strictMode = false) {
         const select = document.getElementById(id);
         if(!select) return;
         
         let filtered = items;
         if (parentIdsToCheck && parentIdsToCheck.length > 0) {
              filtered = items.filter(item => {
-                if (!item.parent_ids || item.parent_ids.length === 0) return true;
+                // If Strict Mode is ON, hide items with no parents (globals)
+                // If Strict Mode is OFF, allow globals (empty parent_ids) to show
+                if (!item.parent_ids || item.parent_ids.length === 0) return !strictMode;
+                
                 return item.parent_ids.some(pid => parentIdsToCheck.includes(pid));
             });
         }
@@ -526,6 +531,7 @@
         select.innerHTML = `<option value="">${defaultTxt}</option>` + 
             filtered.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name} ${i.price > 0 ? '(+R$'+i.price+')' : ''}</option>`).join('');
             
+        // Use loose comparison for string/number match
         if(current && filtered.find(x => x.id == current)) select.value = current;
     }
 
