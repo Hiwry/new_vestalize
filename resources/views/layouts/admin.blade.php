@@ -223,6 +223,38 @@
         .bg-blue-600 { background-color: var(--brand-primary) !important; }
         .border-blue-600 { border-color: var(--brand-primary) !important; }
 
+        /* ========================================
+           LIGHT MODE FIXES - Alert Backgrounds & Button Text
+           ======================================== */
+        /* Preserve yellow/amber alert backgrounds in light mode */
+        .bg-yellow-50 { background-color: #fefce8 !important; }
+        .bg-amber-50 { background-color: #fffbeb !important; }
+        .bg-orange-50 { background-color: #fff7ed !important; }
+        .bg-green-50 { background-color: #f0fdf4 !important; }
+        .bg-red-50 { background-color: #fef2f2 !important; }
+        .bg-blue-50 { background-color: #eff6ff !important; }
+        
+        /* Preserve alert border colors */
+        .border-yellow-200 { border-color: #fef08a !important; }
+        .border-amber-200 { border-color: #fde68a !important; }
+        .border-green-200 { border-color: #bbf7d0 !important; }
+        .border-red-200 { border-color: #fecaca !important; }
+        .border-blue-200 { border-color: #bfdbfe !important; }
+        
+        /* Ensure white text on colored buttons */
+        .bg-indigo-600, .bg-purple-600, .bg-green-600, .bg-red-600,
+        [class*="bg-gradient-to-r"][class*="from-indigo"],
+        [class*="bg-gradient-to-r"][class*="from-purple"],
+        [class*="bg-gradient-to-r"][class*="from-blue"] {
+            color: #ffffff !important;
+        }
+        
+        /* Fix text-white class to always be white */
+        .text-white { color: #ffffff !important; }
+        
+        /* Gradient button text fix */
+        .bg-gradient-to-r { color: #ffffff !important; }
+
         /* Sidebar - Dinâmico */
         #sidebar {
             background: var(--background) !important;
