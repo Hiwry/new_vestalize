@@ -567,6 +567,32 @@
         .dark .kanban-card .border-t {
             border-color: #4b5563 !important; /* gray-600 */
         }
+        
+        /* ========================================
+           CRITICAL: Button text must be white in light mode
+           These rules override Tailwind with high specificity
+           ======================================== */
+        :root:not(.dark) button.bg-indigo-600,
+        :root:not(.dark) button.bg-purple-600,
+        :root:not(.dark) button.bg-blue-600,
+        :root:not(.dark) button.bg-green-600,
+        :root:not(.dark) button.bg-red-600,
+        :root:not(.dark) button[class*="bg-gradient"],
+        :root:not(.dark) a.bg-indigo-600,
+        :root:not(.dark) a[class*="bg-gradient"],
+        :root:not(.dark) .bg-gradient-to-r,
+        :root:not(.dark) [class*="from-indigo-600"],
+        :root:not(.dark) [class*="from-purple-600"],
+        :root:not(.dark) [class*="from-blue-600"] {
+            color: #ffffff !important;
+        }
+        
+        /* Force white text on any element with text-white class */
+        .text-white,
+        button.text-white,
+        a.text-white {
+            color: #ffffff !important;
+        }
     </style>
     
     @stack('styles')
