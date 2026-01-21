@@ -73,6 +73,43 @@ class KanbanController extends Controller
             }
         }])->orderBy('position')->get();
         
+        // Filtrar colunas visíveis baseado na sessão ou padrões
+        $selectedColumns = $request->get('columns', session('kanban_columns', []));
+        
+        if (empty($selectedColumns)) {
+            // Colunas padrão específicas do fluxo de produção
+            $defaultStatusNames = [
+                'Pendente',
+                'Quando não assina',
+                'Inicio',
+                'Fila Corte',
+                'Cortado',
+                'Costura',
+                'Costurar Novamente',
+                'Personalização',
+                'Limpeza',
+                'Concluído'
+            ];
+            
+            $selectedColumns = $statuses->filter(function($status) use ($defaultStatusNames) {
+                return in_array($status->name, $defaultStatusNames);
+            })->pluck('id')->toArray();
+            
+            // Se nenhum status padrão encontrado, usar todos
+            if (empty($selectedColumns)) {
+                $selectedColumns = $statuses->pluck('id')->toArray();
+            }
+        }
+        
+        // Salvar na sessão
+        session(['kanban_columns' => $selectedColumns]);
+        
+        // Guardar todos os status para o filtro modal
+        $allStatuses = $statuses;
+        
+        // Filtrar status visíveis
+        $statuses = $statuses->whereIn('id', $selectedColumns);
+        
         $query = Order::with([
             'client', 
             'user', 
