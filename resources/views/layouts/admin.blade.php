@@ -19,8 +19,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        /* Apply Inter font globally */
-        *, *::before, *::after { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; }
+        /* Apply Inter font globally, but exclude Font Awesome icons */
+        *:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not(.fad),
+        *:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not(.fad)::before,
+        *:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not(.fad)::after {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        /* Ensure Font Awesome icons use their own font */
+        [class*="fa-"], .fa, .fas, .far, .fal, .fab, .fad,
+        [class*="fa-"]::before, .fa::before, .fas::before, .far::before, .fal::before, .fab::before, .fad::before {
+            font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", "Font Awesome 5 Pro", FontAwesome !important;
+        }
     </style>
 
     <!-- Meta Tags & Branding -->
