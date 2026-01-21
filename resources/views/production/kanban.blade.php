@@ -304,9 +304,10 @@
             <!-- Views -->
             
             <!-- Kanban View -->
-            <div x-show="view === 'kanban'" class="grid grid-cols-1 md:grid-cols-5 gap-4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100">
+            <div x-show="view === 'kanban'" class="overflow-x-auto pb-6" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100">
+            <div class="kanban-board flex gap-4 min-w-max">
             @foreach($statuses as $status)
-                <div class="kanban-column-wrapper bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="kanban-column-wrapper bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 w-72 min-w-[280px]">
                     <div class="px-4 py-3 font-semibold flex justify-between items-center" 
                          style="background: {{ $status->color }}; color: #fff">
                         <span>{{ $status->name }}</span>
@@ -468,11 +469,10 @@
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
-                </div>
-            <!-- End Kanban View -->
+            @endforeach
             </div>
+            </div>
+            <!-- End Kanban View -->
             
             <!-- Calendar View -->
             <div x-show="view === 'calendar'" class="calendar-container" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100">
