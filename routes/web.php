@@ -180,6 +180,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('orcamento')->name('budget.')->group(function () {
         Route::get('/', [\App\Http\Controllers\BudgetController::class, 'index'])->name('index');
         Route::get('novo', [\App\Http\Controllers\BudgetController::class, 'start'])->name('start');
+        Route::get('cliente', [\App\Http\Controllers\BudgetController::class, 'start'])->name('client.show'); // Redirect GET to start
         Route::post('cliente', [\App\Http\Controllers\BudgetController::class, 'storeClient'])->name('client');
         Route::match(['get','post'],'personalizacao-tipo', [\App\Http\Controllers\BudgetController::class, 'personalizationType'])->name('personalization-type');
         Route::match(['get','post'],'itens', [\App\Http\Controllers\BudgetController::class, 'items'])->name('items');

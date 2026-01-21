@@ -86,10 +86,36 @@
                 </div>
             </div>
 
+            <!-- Toggle Cliente Rápido -->
+            <div class="mb-6" x-data="{ quickMode: false }">
+                <div class="bg-gradient-to-br from-emerald-50 to-teal-100/50 dark:from-emerald-900/20 dark:to-teal-900/10 rounded-xl border-2 border-emerald-200 dark:border-emerald-800/30 p-4 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center shadow-md border border-emerald-100 dark:border-emerald-900/30">
+                                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-gray-900 dark:text-white">Cliente Rápido</h3>
+                                <p class="text-xs text-gray-600 dark:text-slate-400 mt-0.5">Preencha apenas nome e telefone</p>
+                            </div>
+                        </div>
+                        <button type="button" @click="quickMode = !quickMode; if(quickMode) { $dispatch('quick-mode-on') } else { $dispatch('quick-mode-off') }" 
+                                :class="quickMode ? 'bg-emerald-600' : 'bg-gray-300 dark:bg-gray-600'"
+                                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                            <span :class="quickMode ? 'translate-x-5' : 'translate-x-0'"
+                                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Formulário -->
-            <form method="POST" action="{{ route('budget.client') }}" id="client-form" class="space-y-6">
+            <form method="POST" action="{{ route('budget.client') }}" id="client-form" class="space-y-6" x-data="{ quickMode: false }" @quick-mode-on.window="quickMode = true" @quick-mode-off.window="quickMode = false">
                 @csrf
                 <input type="hidden" id="client_id" name="client_id" value="{{ session('budget.client.id', '') }}">
+                <input type="hidden" name="quick_client" :value="quickMode ? '1' : '0'">
 
                 <!-- Seção: Informações Básicas -->
                 <div class="space-y-3">
@@ -150,7 +176,7 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div x-show="!quickMode" x-transition class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="email" class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Email</label>
                                 <input id="email" name="email" type="email"
@@ -170,7 +196,7 @@
                 </div>
 
                 <!-- Seção: Endereço -->
-                <div class="space-y-3">
+                <div class="space-y-3" x-show="!quickMode" x-transition>
                     <div class="flex items-center space-x-3 mb-4">
                         <div class="w-10 h-10 bg-blue-100 dark:bg-blue-500/10 rounded-lg flex items-center justify-center ring-2 ring-blue-100 dark:ring-blue-500/20">
                             <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -220,7 +246,7 @@
                 </div>
 
                 <!-- Seção: Categoria -->
-                <div class="space-y-3">
+                <div class="space-y-3" x-show="!quickMode" x-transition>
                     <div class="flex items-center space-x-3 mb-4">
                         <div class="w-10 h-10 bg-amber-100 dark:bg-amber-500/10 rounded-lg flex items-center justify-center ring-2 ring-amber-100 dark:ring-amber-500/20">
                             <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -70,7 +70,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-gray-200 dark:border-gray-700 pt-4">
                     <div class="md:col-span-2 flex flex-col md:flex-row gap-2">
                         <button type="submit" 
-                                class="w-full md:w-auto px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                                class="w-full md:w-auto px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
+                                style="color: white !important;">
                             Filtrar
                         </button>
                         <a href="{{ route('budget.index') }}" 
