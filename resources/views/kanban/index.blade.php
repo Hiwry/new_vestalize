@@ -1220,12 +1220,12 @@
                 }
             };
 
-            // Drag and Drop functionality (apenas para administradores)
+            // Drag and Drop functionality (para administradores e produção)
             let draggedElement = null;
             let isDragging = false;
-            const isAdmin = {{ Auth::user()->isAdmin() ? 'true' : 'false' }};
+            const canMove = {{ (Auth::user()->isAdmin() || Auth::user()->isProducao()) ? 'true' : 'false' }};
 
-            if (isAdmin) {
+            if (canMove) {
             document.querySelectorAll('.kanban-card').forEach(card => {
                 card.addEventListener('dragstart', function(e) {
                     isDragging = true;
@@ -1472,7 +1472,7 @@
                             </svg>
                             Editar Pedido
                         </button>
-                        @if(Auth::user()->isAdmin())
+                        @if(Auth::user()->isAdmin() || Auth::user()->isProducao())
                         <div class="flex gap-2 flex-1">
                             <select id="move-status-select" 
                                     class="flex-1 px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-blue-300 dark:border-blue-600/30 rounded-md text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all">
