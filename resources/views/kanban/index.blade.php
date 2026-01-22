@@ -4,24 +4,38 @@
 <style>
     [x-cloak] { display: none !important; }
     
-    /* Visible horizontal scrollbar for Kanban board */
+    /* Permanent and visible horizontal scrollbar for Kanban board */
+    .kanban-scroll {
+        overflow-x: auto !important;
+        scrollbar-width: thin !important;
+        scrollbar-color: #7c3aed rgba(31, 41, 55, 0.8) !important;
+        padding-bottom: 30px !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
     .kanban-scroll::-webkit-scrollbar {
-        height: 10px;
+        height: 14px !important;
+        display: block !important;
     }
     .kanban-scroll::-webkit-scrollbar-track {
-        background: #374151;
-        border-radius: 5px;
+        background: rgba(31, 41, 55, 0.9) !important;
+        border-radius: 10px !important;
+        margin: 0 5px !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
     .kanban-scroll::-webkit-scrollbar-thumb {
-        background: linear-gradient(90deg, #7c3aed, #8b5cf6);
-        border-radius: 5px;
+        background: linear-gradient(90deg, #7c3aed, #8b5cf6, #d946ef, #7c3aed) !important;
+        background-size: 200% 100% !important;
+        border-radius: 10px !important;
+        border: 3px solid rgba(31, 41, 55, 1) !important;
+        box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5), 0 0 15px rgba(124, 58, 237, 0.4) !important;
     }
     .kanban-scroll::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(90deg, #8b5cf6, #7c3aed);
+        background-position: 100% 0 !important;
+        background: linear-gradient(90deg, #8b5cf6, #d946ef, #7c3aed, #8b5cf6) !important;
     }
-    .kanban-scroll {
-        scrollbar-width: auto;
-        scrollbar-color: #7c3aed #374151;
+    .kanban-scroll::-webkit-scrollbar-button {
+        display: none !important;
     }
     
     /* Custom Scrollbar for Calendar Events */

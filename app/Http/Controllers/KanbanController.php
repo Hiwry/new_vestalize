@@ -47,7 +47,8 @@ class KanbanController extends Controller
         $statuses = Status::where('tenant_id', $activeTenantId)
             ->withCount(['orders' => function($query) use ($personalizationType, $deliveryDateFilter) {
             $query->notDrafts()
-                  ->where('is_cancelled', false);
+                  ->where('is_cancelled', false)
+                  ->where('tenant_id', $activeTenantId); // Garantir filtro de tenant literal
             if (Auth::user()->isVendedor()) {
                 $query->byUser(Auth::id());
             }
@@ -79,6 +80,7 @@ class KanbanController extends Controller
             'pendente',
             'quando-nao-assina',
             'assinado',
+            'fila-de-impressao',
             'inicio',
             'fila-corte',
             'cortado',
@@ -143,7 +145,8 @@ class KanbanController extends Controller
             'pendingCancellation', 
             'pendingEditRequest'
         ])->notDrafts() // Usar scope
-          ->where('is_cancelled', false); // Excluir pedidos cancelados
+          ->where('is_cancelled', false) // Excluir pedidos cancelados
+          ->where('tenant_id', $activeTenantId); // Garantir filtro de tenant literal
 
         // Aplicar filtro de loja
         StoreHelper::applyStoreFilter($query);
@@ -210,31 +213,33 @@ class KanbanController extends Controller
 
         // Ajuste dinâmico de coluna baseado na assinatura do cliente
         // - Não assinado: mover de "Pendente" -> "Quando não assina"
-        // - Assinado: mover de "Quando não assina" -> "Pendente"
+        // - Assinado: mover para "Fila de Impressão" (ou Assinado/Pendente)
         $pendenteStatus = $allStatuses->firstWhere('name', 'Pendente');
         $naoAssinaStatus = $allStatuses->firstWhere('name', 'Quando não assina');
+        $impressaoStatus = $allStatuses->firstWhere('name', 'Fila de Impressão');
         $assinadoStatus = $allStatuses->firstWhere('name', 'Assinado');
+        
+        $targetAssinado = $impressaoStatus ?: ($assinadoStatus ?: $pendenteStatus);
+
         if ($pendenteStatus && $naoAssinaStatus) {
             foreach ($orders as $order) {
                 $isConfirmed = (bool) $order->client_confirmed;
-                if ($assinadoStatus) {
-                    if ($isConfirmed && in_array($order->status_id, [$pendenteStatus->id, $naoAssinaStatus->id], true)) {
-                        $order->status_id = $assinadoStatus->id;
-                        $order->setRelation('status', $assinadoStatus);
-                    } elseif (!$isConfirmed && $order->status_id === $assinadoStatus->id) {
-                        $order->status_id = $naoAssinaStatus->id;
-                        $order->setRelation('status', $naoAssinaStatus);
-                    } elseif (!$isConfirmed && $order->status_id === $pendenteStatus->id) {
-                        $order->status_id = $naoAssinaStatus->id;
-                        $order->setRelation('status', $naoAssinaStatus);
+                
+                if ($isConfirmed) {
+                    if (in_array($order->status_id, [$pendenteStatus->id, $naoAssinaStatus->id], true)) {
+                        if ($targetAssinado) {
+                            $order->status_id = $targetAssinado->id;
+                            $order->setRelation('status', $targetAssinado);
+                        }
                     }
                 } else {
-                    if (!$isConfirmed && $order->status_id === $pendenteStatus->id) {
+                    $idsToMoveBack = [$pendenteStatus->id];
+                    if ($impressaoStatus) $idsToMoveBack[] = $impressaoStatus->id;
+                    if ($assinadoStatus) $idsToMoveBack[] = $assinadoStatus->id;
+                    
+                    if (in_array($order->status_id, $idsToMoveBack, true)) {
                         $order->status_id = $naoAssinaStatus->id;
                         $order->setRelation('status', $naoAssinaStatus);
-                    } elseif ($isConfirmed && $order->status_id === $naoAssinaStatus->id) {
-                        $order->status_id = $pendenteStatus->id;
-                        $order->setRelation('status', $pendenteStatus);
                     }
                 }
             }

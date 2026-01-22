@@ -29,12 +29,13 @@ class StatusController extends Controller
             $activeTenantId = $firstStore ? $firstStore->tenant_id : 1;
         }
         
-        // Buscar status do tenant com contagem de pedidos filtrada por loja
+        // Buscar status do tenant com contagem de pedidos filtrada por loja e tenant
         $statuses = Status::where('tenant_id', $activeTenantId)
-            ->withCount(['orders' => function($query) {
+            ->withCount(['orders' => function($query) use ($activeTenantId) {
                 $query->notDrafts()
-                      ->where('is_cancelled', false);
-                // Aplicar filtro de loja
+                      ->where('is_cancelled', false)
+                      ->where('tenant_id', $activeTenantId); // Garantir filtro de tenant literal
+                // Aplicar filtro de loja adicional
                 StoreHelper::applyStoreFilter($query);
             }])
             ->orderBy('position')

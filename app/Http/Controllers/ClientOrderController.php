@@ -89,25 +89,25 @@ class ClientOrderController extends Controller
         $filaImpressaoStatus = Status::where('tenant_id', $tenantId)
             ->where(function($q) {
                 $q->where('name', 'Fila de Impressão')
-                  ->orWhere('name', 'like', '%Fila%')
-                  ->orWhere('name', 'like', '%Produção%')
+                  ->orWhere('name', 'Fila Impressão')
+                  ->orWhere('name', 'Impressão')
                   ->orWhere('name', 'Confirmado');
             })
             ->where('name', '!=', 'Pendente')
             ->orderByRaw("CASE 
                 WHEN name = 'Fila de Impressão' THEN 1 
-                WHEN name LIKE '%Fila%' THEN 2
-                WHEN name = 'Confirmado' THEN 3
-                WHEN name LIKE '%Produção%' THEN 4
+                WHEN name = 'Fila Impressão' THEN 2 
+                WHEN name = 'Impressão' THEN 3
+                WHEN name = 'Confirmado' THEN 4
                 ELSE 5 
             END")
             ->first();
         
-        // Se não encontrar nenhum status adequado, buscar o primeiro status que não seja Pendente
+        // Se não encontrar nenhum desses, buscar o primeiro status que NÃO seja Pendente ou Quando não assina
         if (!$filaImpressaoStatus) {
             $filaImpressaoStatus = Status::where('tenant_id', $tenantId)
-                ->where('name', '!=', 'Pendente')
-                ->orderBy('order')
+                ->whereNotIn('name', ['Pendente', 'Quando não assina'])
+                ->orderBy('position')
                 ->first();
         }
         
