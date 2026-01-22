@@ -77,10 +77,10 @@ class KanbanController extends Controller
 
         // Lista fixa de colunas padrão (ordem desejada)
         $defaultColumnSlugs = [
-            'pendente',
             'quando-nao-assina',
             'assinado',
             'fila-de-impressao',
+            'pendente',
             'inicio',
             'fila-corte',
             'cortado',
