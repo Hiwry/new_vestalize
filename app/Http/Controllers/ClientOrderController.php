@@ -95,11 +95,10 @@ class ClientOrderController extends Controller
             })
             ->where('name', '!=', 'Pendente')
             ->orderByRaw("CASE 
-                WHEN name = 'Fila de Impressão' THEN 1 
-                WHEN name = 'Fila Impressão' THEN 2 
-                WHEN name = 'Impressão' THEN 3
-                WHEN name = 'Confirmado' THEN 4
-                ELSE 5 
+                WHEN name = 'Fila de Impressão' THEN 1
+                WHEN name = 'Impressão' THEN 2
+                WHEN name = 'Confirmado' THEN 3
+                ELSE 4 
             END")
             ->first();
         

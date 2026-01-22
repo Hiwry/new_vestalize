@@ -211,9 +211,9 @@ class KanbanController extends Controller
         
         $orders = $query->orderBy('created_at', 'desc')->get();
 
-        // Ajuste dinâmico de coluna baseado na assinatura do cliente
-        // - Não assinado: mover de "Pendente" -> "Quando não assina"
-        // - Assinado: mover para "Fila de Impressão" (ou Assinado/Pendente)
+        // Ajuste dinâmico removido para evitar confusão visual.
+        // O status deve ser alterado no banco de dados para persistência real.
+        /*
         $pendenteStatus = $allStatuses->firstWhere('name', 'Pendente');
         $naoAssinaStatus = $allStatuses->firstWhere('name', 'Quando não assina');
         $impressaoStatus = $allStatuses->firstWhere('name', 'Fila de Impressão');
@@ -244,6 +244,7 @@ class KanbanController extends Controller
                 }
             }
         }
+        */
         
         // Verificar existência das imagens de capa
         foreach ($orders as $order) {
