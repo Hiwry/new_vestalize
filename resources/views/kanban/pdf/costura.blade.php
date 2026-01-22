@@ -5,7 +5,7 @@
     <title>OS {{ $order->id }} - Costura</title>
     <style>
         @page {
-            margin: 8mm;
+            margin: 10mm;
             size: A4 landscape;
         }
         * {
@@ -145,7 +145,7 @@
                 
                 <!-- IMAGEM DE CAPA -->
                 <td style="width: 58%; vertical-align: top;">
-                    <div style="background: #f1f5f9; border: 2px solid #cbd5e1; border-radius: 12px; padding: 15px; text-align: center; min-height: 340px;">
+                    <div style="background: #f1f5f9; border: 2px solid #cbd5e1; border-radius: 12px; padding: 15px; text-align: center;">
                         <div style="font-size: 11px; color: #64748b; margin-bottom: 10px; text-transform: uppercase;">Imagem de Capa do Layout</div>
                         @php
                             $imageData = $itemImages[$item->id] ?? [];

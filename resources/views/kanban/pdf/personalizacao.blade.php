@@ -5,7 +5,7 @@
     <title>OS {{ $order->id }} - Arte/Personalizacao</title>
     <style>
         @page {
-            margin: 5mm;
+            margin: 10mm;
             size: A4 landscape;
         }
         * {
