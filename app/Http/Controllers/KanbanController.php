@@ -46,51 +46,15 @@ class KanbanController extends Controller
         
         $statuses = Status::where('tenant_id', $activeTenantId)
             ->withCount(['orders' => function($query) use ($personalizationType, $deliveryDateFilter, $activeTenantId) {
-            $query->notDrafts()
-                  ->where('is_cancelled', false)
+            $query->kanbanVisible()
                   ->where('tenant_id', $activeTenantId); // Garantir filtro de tenant literal
+            
             if (Auth::user()->isVendedor()) {
                 $query->byUser(Auth::id());
             }
+
             // Aplicar filtro de loja
             StoreHelper::applyStoreFilter($query);
-            
-            // Aplicar filtro de personalização na contagem também
-            if ($personalizationType) {
-                $query->where(function($q) use ($personalizationType) {
-                    $q->whereHas('items', function($itemQuery) use ($personalizationType) {
-                        $itemQuery->where(function($subQuery) use ($personalizationType) {
-                            // Buscar por print_type (pode ser nome ou ID)
-                            $subQuery->where('print_type', 'like', "%{$personalizationType}%")
-                                    ->orWhereHas('sublimations', function($sublimationQuery) use ($personalizationType) {
-                                        $sublimationQuery->where('application_type', 'like', "%{$personalizationType}%");
-                                    });
-                        });
-                    });
-                });
-            }
-
-            if ($deliveryDateFilter) {
-                $query->whereDate('delivery_date', $deliveryDateFilter);
-            }
-
-            // --- SINCRONIZAÇÃO: Aplicar filtro de PDV na contagem também ---
-            // --- SINCRONIZAÇÃO: Aplicar filtro de PDV na contagem também ---
-            $query->where(function($q) {
-                $q->where('is_pdv', false)
-                  ->orWhere(function($subQ) {
-                      $subQ->where('is_pdv', true)
-                           ->whereHas('items', function($itemQuery) {
-                               $itemQuery->whereHas('sublimations', function($sublimationQuery) {
-                                   $sublimationQuery->where(function($locQuery) {
-                                       $locQuery->whereNotNull('location_id')
-                                               ->orWhereNotNull('location_name');
-                                   });
-                               });
-                           });
-                  });
-            });
-            // ---------------------------------------------------------
         }])->orderBy('position')->get();
 
         // Lista fixa de colunas padrão (ordem desejada)
@@ -168,35 +132,9 @@ class KanbanController extends Controller
             'items.sublimations',
             'pendingCancellation', 
             'pendingEditRequest'
-        ])->notDrafts() // Usar scope
-          ->where('is_cancelled', false) // Excluir pedidos cancelados
+        ])->kanbanVisible() // Usar scope centralizado
           ->where('tenant_id', $activeTenantId); // Garantir filtro de tenant literal
 
-        // Aplicar filtro de loja
-        StoreHelper::applyStoreFilter($query);
-
-        // Se for vendedor, mostrar apenas os pedidos que ele criou
-        if (Auth::user()->isVendedor()) {
-            $query->byUser(Auth::id());
-        }
-        
-        // Filtrar vendas do PDV: excluir vendas PDV que não têm sublimação local
-        $query->where(function($q) {
-            $q->where('is_pdv', false) // Pedidos normais sempre aparecem
-              ->orWhere(function($subQ) {
-                  // Vendas PDV só aparecem se tiverem sublimação local
-                  $subQ->where('is_pdv', true)
-                       ->whereHas('items', function($itemQuery) {
-                           $itemQuery->whereHas('sublimations', function($sublimationQuery) {
-                               // Sublimação local tem location_id ou location_name preenchido
-                               $sublimationQuery->where(function($locQuery) {
-                                   $locQuery->whereNotNull('location_id')
-                                           ->orWhereNotNull('location_name');
-                               });
-                           });
-                       });
-              });
-        });
         
         // Aplicar filtro de personalização
         if ($personalizationType) {

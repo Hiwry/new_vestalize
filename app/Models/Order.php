@@ -289,4 +289,28 @@ class Order extends Model
         
         return $query->where('store_id', $storeIds);
     }
+
+    /**
+     * Scope para pedidos visíveis no Kanban
+     * Exclui rascunhos, cancelados e vendas PDV sem personalização/sublimação local
+     */
+    public function scopeKanbanVisible($query)
+    {
+        return $query->notDrafts()
+            ->where('is_cancelled', false)
+            ->where(function($q) {
+                $q->where('is_pdv', false)
+                  ->orWhere(function($subQ) {
+                      $subQ->where('is_pdv', true)
+                           ->whereHas('items', function($itemQuery) {
+                               $itemQuery->whereHas('sublimations', function($sublimationQuery) {
+                                   $sublimationQuery->where(function($locQuery) {
+                                       $locQuery->whereNotNull('location_id')
+                                               ->orWhereNotNull('location_name');
+                                   });
+                               });
+                           });
+                  });
+            });
+    }
 }

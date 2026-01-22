@@ -32,27 +32,10 @@ class StatusController extends Controller
         // Buscar status do tenant com contagem de pedidos filtrada por loja e tenant
         $statuses = Status::where('tenant_id', $activeTenantId)
             ->withCount(['orders' => function($query) use ($activeTenantId) {
-                $query->notDrafts()
-                      ->where('is_cancelled', false)
+                $query->kanbanVisible()
                       ->where('tenant_id', $activeTenantId); // Garantir filtro de tenant literal
                 // Aplicar filtro de loja adicional
                 StoreHelper::applyStoreFilter($query);
-
-                // Filtrar vendas do PDV: excluir vendas PDV que não têm sublimação local
-                $query->where(function($q) {
-                    $q->where('is_pdv', false)
-                      ->orWhere(function($subQ) {
-                          $subQ->where('is_pdv', true)
-                               ->whereHas('items', function($itemQuery) {
-                                   $itemQuery->whereHas('sublimations', function($sublimationQuery) {
-                                       $sublimationQuery->where(function($locQuery) {
-                                           $locQuery->whereNotNull('location_id')
-                                                   ->orWhereNotNull('location_name');
-                                       });
-                                   });
-                               });
-                      });
-                });
             }])
             ->orderBy('position')
             ->get();
@@ -102,8 +85,8 @@ class StatusController extends Controller
 
     public function destroy(Status $status): RedirectResponse
     {
-        // Verificar se há pedidos nesta coluna (filtrado por tenant)
-        $ordersQuery = $status->orders()->notDrafts()->where('is_cancelled', false);
+        // Verificar se há pedidos nesta coluna (filtrado por tenant e visibilidade Kanban)
+        $ordersQuery = $status->orders()->kanbanVisible();
         StoreHelper::applyStoreFilter($ordersQuery);
         $ordersCount = $ordersQuery->count();
         
