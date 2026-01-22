@@ -85,18 +85,36 @@ class StatusController extends Controller
 
     public function destroy(Status $status): RedirectResponse
     {
-        // Verificar se há pedidos nesta coluna (filtrado por tenant e visibilidade Kanban)
+        // 1. Verificar se há pedidos que o usuário PODE ver
         $ordersQuery = $status->orders()->kanbanVisible();
         StoreHelper::applyStoreFilter($ordersQuery);
-        $ordersCount = $ordersQuery->count();
+        $visibleOrdersCount = $ordersQuery->count();
         
-        if ($ordersCount > 0) {
+        if ($visibleOrdersCount > 0) {
             return redirect()->route('kanban.columns.index')
-                ->with('error', "Não é possível excluir a coluna '{$status->name}' pois existem {$ordersCount} pedido(s) nela. Mova os pedidos para outra coluna primeiro.");
+                ->with('error', "Não é possível excluir a coluna '{$status->name}' pois existem {$visibleOrdersCount} pedido(s) visíveis nela. Mova os pedidos para outra coluna primeiro.");
         }
 
+        // 2. Resolver pedidos remanescentes (invisíveis, rascunhos ou de outras lojas do tenant)
+        // Procurar um status de fallback para o mesmo tenant (o primeiro da lista que não seja o atual)
+        $fallbackStatus = Status::where('tenant_id', $status->tenant_id)
+            ->where('id', '!=', $status->id)
+            ->orderBy('position')
+            ->first();
+
+        if (!$fallbackStatus) {
+            return redirect()->route('kanban.columns.index')
+                ->with('error', "Não é possível excluir a única coluna do Kanban.");
+        }
+
+        // Mover TODOS os pedidos deste status (do tenant) para o fallback para evitar erro de FK
+        \App\Models\Order::where('status_id', $status->id)
+            ->where('tenant_id', $status->tenant_id)
+            ->update(['status_id' => $fallbackStatus->id]);
+
         // Reordenar posições das colunas restantes
-        Status::where('position', '>', $status->position)
+        Status::where('tenant_id', $status->tenant_id)
+            ->where('position', '>', $status->position)
             ->decrement('position');
 
         $status->delete();
