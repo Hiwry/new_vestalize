@@ -77,8 +77,25 @@ return new class extends Migration
             }
         }
         
-        // Limpeza final: deletar qualquer status que sobrou e não está na lista correta
+        // Limpeza final: mover pedidos de qualquer status órfão para 'Pendente' antes de deletar
         $correctNames = array_column($correctOrder, 'name');
+        
+        $allTenants = Tenant::all();
+        foreach ($allTenants as $tenant) {
+            $pendente = Status::where('tenant_id', $tenant->id)->where('name', 'Pendente')->first();
+            if ($pendente) {
+                $orphans = Status::where('tenant_id', $tenant->id)
+                    ->whereNotIn('name', $correctNames)
+                    ->get();
+                
+                foreach ($orphans as $orphan) {
+                    \App\Models\Order::where('status_id', $orphan->id)->update(['status_id' => $pendente->id]);
+                    $orphan->delete();
+                }
+            }
+        }
+        
+        // Deletar qualquer registro global que tenha sobrado
         Status::whereNotIn('name', $correctNames)->delete();
     }
 
