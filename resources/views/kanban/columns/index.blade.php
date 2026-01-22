@@ -86,12 +86,11 @@
                             </button>
                             @endif
 
-                            <form method="POST" action="{{ route('kanban.columns.destroy', $status) }}" 
-                                  class="inline" 
-                                  onsubmit="return confirm('Tem certeza que deseja excluir esta coluna?')">
+                            <form id="delete-form-{{ $status->id }}" method="POST" action="{{ route('kanban.columns.destroy', $status) }}" class="inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" 
+                                <button type="button" 
+                                        onclick="openDeleteModal({{ $status->id }}, '{{ $status->name }}')"
                                         class="px-3 py-1 text-sm bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition
                                                {{ $status->orders_count > 0 ? 'opacity-50 cursor-not-allowed' : '' }}"
                                         {{ $status->orders_count > 0 ? 'disabled' : '' }}>
@@ -165,6 +164,35 @@
         </div>
     </div>
 
+    <!-- Modal para Confirmar Exclusão -->
+    <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl dark:shadow-gray-900/25 max-w-md w-full">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-medium dark:text-gray-100 italic">Confirmar Exclusão</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <p class="text-gray-600 dark:text-gray-300">
+                        Tem certeza que deseja excluir a coluna <strong id="deleteColumnName">-</strong>?
+                    </p>
+                    <p class="text-sm text-red-500 mt-2">
+                        Esta ação não pode ser desfeita.
+                    </p>
+                </div>
+                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 flex justify-end space-x-3">
+                    <button onclick="closeDeleteModal()" 
+                            class="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                        Cancelar
+                    </button>
+                    <button onclick="confirmDelete()" 
+                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition font-bold">
+                        Sim, Excluir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Inicializar Sortable apenas se houver colunas
         document.addEventListener('DOMContentLoaded', function() {
@@ -230,6 +258,7 @@
 
         // Modal de mover pedidos
         let currentStatusId = null;
+        let statusToDelete = null;
 
         function openMoveModal(statusId, statusName, ordersCount) {
             currentStatusId = statusId;
@@ -256,10 +285,34 @@
             form.submit();
         }
 
-        // Fechar modal ao clicar fora
-        document.getElementById('moveModal').addEventListener('click', function(e) {
-            if (e.target === this) {
+        // Modal de Deletar
+        function openDeleteModal(statusId, statusName) {
+            statusToDelete = statusId;
+            document.getElementById('deleteColumnName').textContent = statusName;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            statusToDelete = null;
+        }
+
+        function confirmDelete() {
+            if (statusToDelete) {
+                document.getElementById('delete-form-' + statusToDelete).submit();
+            }
+        }
+
+        // Fechar modais ao clicar fora
+        window.addEventListener('click', function(e) {
+            const moveModal = document.getElementById('moveModal');
+            const deleteModal = document.getElementById('deleteModal');
+            
+            if (e.target === moveModal) {
                 closeMoveModal();
+            }
+            if (e.target === deleteModal) {
+                closeDeleteModal();
             }
         });
     </script>
