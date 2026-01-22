@@ -267,7 +267,7 @@
                     </button>
                 </div>
 
-                @if(Auth::user()->isAdmin())
+                @if(Auth::user()->isAdmin() || Auth::user()->isProducao())
                 <a href="{{ route('kanban.columns.index') }}" 
                    class="px-4 py-2 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] text-white stay-white dark:text-white rounded-full hover:from-[#8b5cf6] hover:to-[#7c3aed] flex items-center space-x-2 shadow-md">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -519,8 +519,8 @@
                                     }
                                 }
                             @endphp
-                            <div class="kanban-card group/card bg-white border border-gray-200 text-gray-900 rounded-xl overflow-hidden {{ Auth::user()->isAdmin() ? 'cursor-move' : 'cursor-pointer' }} hover:bg-gray-50 transition-all duration-200 shadow-sm dark:bg-[#22272e] dark:border-[#373e47] dark:text-gray-100 dark:hover:bg-[#2d333b]" 
-                                 draggable="{{ Auth::user()->isAdmin() ? 'true' : 'false' }}" 
+                            <div class="kanban-card group/card bg-white border border-gray-200 text-gray-900 rounded-xl overflow-hidden {{ (Auth::user()->isAdmin() || Auth::user()->isProducao()) ? 'cursor-move' : 'cursor-pointer' }} hover:bg-gray-50 transition-all duration-200 shadow-sm dark:bg-[#22272e] dark:border-[#373e47] dark:text-gray-100 dark:hover:bg-[#2d333b]" 
+                                 draggable="{{ (Auth::user()->isAdmin() || Auth::user()->isProducao()) ? 'true' : 'false' }}" 
                                  data-order-id="{{ $order->id }}"
                                  onclick="event.stopPropagation(); if(typeof openOrderModal === 'function') { openOrderModal({{ $order->id }}); }">
                                 

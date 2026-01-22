@@ -253,6 +253,38 @@ Route::middleware('auth')->group(function () {
             }
             return app(\App\Http\Controllers\ProductionController::class)->downloadPdf(request());
         })->name('pdf');
+        
+        // Solicitações de Edição para Produção
+        Route::get('/edit-requests', function() {
+            if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
+                abort(403, 'Acesso negado. Apenas administradores e usuários de produção podem acessar.');
+            }
+            return app(\App\Http\Controllers\OrderEditRequestController::class)->index();
+        })->name('edit-requests.index');
+        
+        Route::get('/edit-requests/{editRequest}/changes', function($editRequest) {
+            if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
+                abort(403, 'Acesso negado.');
+            }
+            return app(\App\Http\Controllers\OrderEditRequestController::class)
+                ->showChanges(\App\Models\OrderEditRequest::findOrFail($editRequest));
+        })->name('edit-requests.changes');
+        
+        Route::post('/edit-requests/{editRequest}/approve', function($editRequest) {
+            if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
+                abort(403, 'Acesso negado.');
+            }
+            return app(\App\Http\Controllers\OrderEditRequestController::class)
+                ->approve(request(), \App\Models\OrderEditRequest::findOrFail($editRequest));
+        })->name('edit-requests.approve');
+        
+        Route::post('/edit-requests/{editRequest}/reject', function($editRequest) {
+            if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
+                abort(403, 'Acesso negado.');
+            }
+            return app(\App\Http\Controllers\OrderEditRequestController::class)
+                ->reject(request(), \App\Models\OrderEditRequest::findOrFail($editRequest));
+        })->name('edit-requests.reject');
     });
 
     // Gerenciamento de Clientes

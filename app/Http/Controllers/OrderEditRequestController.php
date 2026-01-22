@@ -68,11 +68,14 @@ class OrderEditRequestController extends Controller
                 ])
             ]);
 
-            // Notificar todos os admins
+            // Notificar todos os admins e usuários de produção
             $admins = User::where('role', 'admin')->get();
-            foreach ($admins as $admin) {
+            $producaoUsers = User::where('role', 'producao')->get();
+            $usersToNotify = $admins->merge($producaoUsers);
+            
+            foreach ($usersToNotify as $userToNotify) {
                 Notification::createEditRequest(
-                    $admin->id,
+                    $userToNotify->id,
                     $order->id,
                     str_pad($order->id, 6, '0', STR_PAD_LEFT),
                     Auth::user()->name
@@ -110,10 +113,10 @@ class OrderEditRequestController extends Controller
 
     public function approve(Request $request, OrderEditRequest $editRequest)
     {
-        // Verificar se o usuário é administrador
-        if (!Auth::user()->isAdmin()) {
+        // Verificar se o usuário é administrador ou de produção
+        if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
             return redirect()->route('admin.edit-requests.index')
-                ->with('error', 'Acesso negado. Apenas administradores podem aprovar edições.');
+                ->with('error', 'Acesso negado. Apenas administradores e usuários de produção podem aprovar edições.');
         }
 
         $request->validate([
@@ -302,10 +305,10 @@ class OrderEditRequestController extends Controller
 
     public function reject(Request $request, OrderEditRequest $editRequest)
     {
-        // Verificar se o usuário é administrador
-        if (!Auth::user()->isAdmin()) {
+        // Verificar se o usuário é administrador ou de produção
+        if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
             return redirect()->route('admin.edit-requests.index')
-                ->with('error', 'Acesso negado. Apenas administradores podem rejeitar edições.');
+                ->with('error', 'Acesso negado. Apenas administradores e usuários de produção podem rejeitar edições.');
         }
 
         $request->validate([
@@ -694,6 +697,11 @@ class OrderEditRequestController extends Controller
         $editRequests = OrderEditRequest::with(['order.client', 'user', 'approvedBy'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
+
+        // Retornar view apropriada com base no tipo de usuário
+        if (Auth::user()->isProducao() && !Auth::user()->isAdmin()) {
+            return view('production.edit-requests', compact('editRequests'));
+        }
 
         return view('admin.edit-requests.index', compact('editRequests'));
     }
