@@ -9,11 +9,37 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+use App\Helpers\StoreHelper;
+use Illuminate\Support\Facades\Auth;
+
 class StatusController extends Controller
 {
     public function index(): View
     {
-        $statuses = Status::withCount('orders')->orderBy('position')->get();
+        $user = Auth::user();
+        
+        // Determinar o tenant a ser usado
+        $activeTenantId = $user->tenant_id;
+        if ($activeTenantId === null) {
+            $activeTenantId = session('selected_tenant_id');
+        }
+        if ($activeTenantId === null) {
+            // Fallback: usar tenant_id da primeira loja encontrada ou tenant_id = 1
+            $firstStore = \App\Models\Store::first();
+            $activeTenantId = $firstStore ? $firstStore->tenant_id : 1;
+        }
+        
+        // Buscar status do tenant com contagem de pedidos filtrada por loja
+        $statuses = Status::where('tenant_id', $activeTenantId)
+            ->withCount(['orders' => function($query) {
+                $query->notDrafts()
+                      ->where('is_cancelled', false);
+                // Aplicar filtro de loja
+                StoreHelper::applyStoreFilter($query);
+            }])
+            ->orderBy('position')
+            ->get();
+            
         return view('kanban.columns.index', compact('statuses'));
     }
 
@@ -59,8 +85,10 @@ class StatusController extends Controller
 
     public function destroy(Status $status): RedirectResponse
     {
-        // Verificar se há pedidos nesta coluna
-        $ordersCount = $status->orders()->count();
+        // Verificar se há pedidos nesta coluna (filtrado por tenant)
+        $ordersQuery = $status->orders()->notDrafts()->where('is_cancelled', false);
+        StoreHelper::applyStoreFilter($ordersQuery);
+        $ordersCount = $ordersQuery->count();
         
         if ($ordersCount > 0) {
             return redirect()->route('kanban.columns.index')

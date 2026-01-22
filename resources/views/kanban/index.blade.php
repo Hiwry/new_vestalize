@@ -4,13 +4,24 @@
 <style>
     [x-cloak] { display: none !important; }
     
-    /* Hide scrollbar for horizontal scroll on mobile */
-    .scrollbar-hide::-webkit-scrollbar {
-        display: none;
+    /* Visible horizontal scrollbar for Kanban board */
+    .kanban-scroll::-webkit-scrollbar {
+        height: 10px;
     }
-    .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
+    .kanban-scroll::-webkit-scrollbar-track {
+        background: #374151;
+        border-radius: 5px;
+    }
+    .kanban-scroll::-webkit-scrollbar-thumb {
+        background: linear-gradient(90deg, #7c3aed, #8b5cf6);
+        border-radius: 5px;
+    }
+    .kanban-scroll::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(90deg, #8b5cf6, #7c3aed);
+    }
+    .kanban-scroll {
+        scrollbar-width: auto;
+        scrollbar-color: #7c3aed #374151;
     }
     
     /* Custom Scrollbar for Calendar Events */
@@ -461,7 +472,7 @@
         </div>
         @endif
 
-        <div x-show="view === 'kanban'" class="kanban-board flex gap-4 md:gap-6 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide">
+        <div x-show="view === 'kanban'" class="kanban-board flex gap-4 md:gap-6 overflow-x-auto pb-6 snap-x snap-mandatory kanban-scroll">
             @foreach($statuses as $status)
                 @php
                     // Gerar um gradiente baseado na cor do status

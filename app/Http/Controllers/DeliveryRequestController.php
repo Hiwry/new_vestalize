@@ -13,12 +13,17 @@ use Carbon\Carbon;
 
 class DeliveryRequestController extends Controller
 {
-    // Listar solicitações (para admin)
+    // Listar solicitações (para admin e produção)
     public function index()
     {
         $requests = DeliveryRequest::with(['order.client', 'requestedByUser'])
             ->orderBy('created_at', 'desc')
             ->get();
+
+        // Retornar view apropriada com base no tipo de usuário
+        if (Auth::user()->isProducao() && !Auth::user()->isAdmin()) {
+            return view('production.delivery-requests', compact('requests'));
+        }
 
         return view('delivery-requests.index', compact('requests'));
     }
@@ -83,11 +88,14 @@ class DeliveryRequestController extends Controller
                 'description' => "Solicitação de antecipação de entrega criada. Nova data: " . Carbon::parse($validated['requested_delivery_date'])->format('d/m/Y'),
             ]);
 
-            // Notificar todos os admins
+            // Notificar todos os admins e usuários de produção
             $admins = User::where('role', 'admin')->get();
-            foreach ($admins as $admin) {
+            $producaoUsers = User::where('role', 'producao')->get();
+            $usersToNotify = $admins->merge($producaoUsers);
+            
+            foreach ($usersToNotify as $userToNotify) {
                 Notification::createDeliveryRequestCreated(
-                    $admin->id,
+                    $userToNotify->id,
                     $order->id,
                     str_pad($order->id, 6, '0', STR_PAD_LEFT),
                     $user->name

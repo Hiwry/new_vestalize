@@ -351,6 +351,15 @@
                             <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-yellow-500 text-white">{{ $pendingEditRequests }}</span>
                         @endif
                     </a>
+                    <a href="{{ route('production.delivery-requests.index') }}" class="flex items-center justify-between pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('production.delivery-requests.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                        <span>Antecipações</span>
+                        @php
+                            $pendingDeliveryRequests = \App\Models\DeliveryRequest::where('status', 'pendente')->count();
+                        @endphp
+                        @if($pendingDeliveryRequests > 0)
+                            <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-orange-500 text-white">{{ $pendingDeliveryRequests }}</span>
+                        @endif
+                    </a>
                 </div>
             </div>
             @endif
