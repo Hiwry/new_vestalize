@@ -105,9 +105,15 @@ class KanbanController extends Controller
 
         $hasColumnParam = $request->has('columns');
 
-        // Detectar sessão antiga (<= 2 colunas ou sem interseção com padrão) e forçar reset
-        if (!$hasColumnParam && (count($selectedColumns) <= 2 || empty(array_intersect($selectedColumns, $defaultStatusIds)))) {
+        // Detectar sessão antiga (<= 2 colunas ou sem interseção com padrão ou versão desatualizada) e forçar reset
+        $currentKanbanVersion = 'v6';
+        if (!$hasColumnParam && (
+            session('kanban_order_version') !== $currentKanbanVersion ||
+            count($selectedColumns) <= 2 || 
+            empty(array_intersect($selectedColumns, $defaultStatusIds))
+        )) {
             $selectedColumns = $defaultStatusIds;
+            session(['kanban_order_version' => $currentKanbanVersion]);
         }
 
         // Se ainda estiver vazio, aplicar padrão; fallback para todas as colunas existentes
