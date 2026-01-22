@@ -45,7 +45,7 @@ class KanbanController extends Controller
         }
         
         $statuses = Status::where('tenant_id', $activeTenantId)
-            ->withCount(['orders' => function($query) use ($personalizationType, $deliveryDateFilter) {
+            ->withCount(['orders' => function($query) use ($personalizationType, $deliveryDateFilter, $activeTenantId) {
             $query->notDrafts()
                   ->where('is_cancelled', false)
                   ->where('tenant_id', $activeTenantId); // Garantir filtro de tenant literal
