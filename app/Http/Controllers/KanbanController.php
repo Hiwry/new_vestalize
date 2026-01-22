@@ -73,6 +73,23 @@ class KanbanController extends Controller
             if ($deliveryDateFilter) {
                 $query->whereDate('delivery_date', $deliveryDateFilter);
             }
+
+            // --- SINCRONIZAÇÃO: Aplicar filtro de PDV na contagem também ---
+            $query->where(function($q) {
+                $q->where('is_pdv', false)
+                  ->orWhere(function($subQ) {
+                      $subQ->where('is_pdv', true)
+                           ->whereHas('items', function($itemQuery) {
+                               $itemQuery->whereHas('sublimations', function($sublimationQuery) {
+                                   $sublimationQuery->where(function($locQuery) {
+                                       $locQuery->whereNotNull('location_id')
+                                               ->orWhereNotNull('location_name');
+                                   });
+                               });
+                           });
+                  });
+            });
+            // ---------------------------------------------------------
         }])->orderBy('position')->get();
 
         // Lista fixa de colunas padrão (ordem desejada)
