@@ -17,7 +17,7 @@ class ProductOptionController extends Controller
     {
         $type = $request->get('type', 'personalizacao');
         
-        $options = ProductOption::with('parents')
+        $options = ProductOption::with(['parents', 'parent'])
             ->where('type', $type)
             ->orderBy('order')
             ->paginate(20);
@@ -91,7 +91,10 @@ class ProductOptionController extends Controller
                     }
                     $user = Auth::user();
                     if ($user && $user->tenant_id !== null) {
-                        $query->where('tenant_id', $user->tenant_id);
+                        $query->where(function ($q) use ($user) {
+                            $q->where('tenant_id', $user->tenant_id)
+                              ->orWhereNull('tenant_id');
+                        });
                     }
                 }),
             ],
@@ -188,7 +191,10 @@ class ProductOptionController extends Controller
                     }
                     $user = Auth::user();
                     if ($user && $user->tenant_id !== null) {
-                        $query->where('tenant_id', $user->tenant_id);
+                        $query->where(function ($q) use ($user) {
+                            $q->where('tenant_id', $user->tenant_id)
+                              ->orWhereNull('tenant_id');
+                        });
                     }
                 }),
             ],

@@ -42,11 +42,14 @@ class ProductOption extends Model
             if (Auth::check()) {
                 $user = Auth::user();
 
-                // Tenants devem ver suas opções e as globais
-                $builder->where(function ($query) use ($user) {
-                    $query->where('tenant_id', $user->tenant_id)
-                          ->orWhereNull('tenant_id');
-                });
+                // Se o usuário tem tenant_id, filtrar por ele ou nulo (globais)
+                if ($user->tenant_id) {
+                    $builder->where(function ($query) use ($user) {
+                        $query->where('tenant_id', $user->tenant_id)
+                              ->orWhereNull('tenant_id');
+                    });
+                }
+                // Se for Super Admin (tenant_id null), ele vê tudo por padrão
             }
         });
     }
