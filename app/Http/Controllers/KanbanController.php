@@ -75,6 +75,7 @@ class KanbanController extends Controller
             }
 
             // --- SINCRONIZAÇÃO: Aplicar filtro de PDV na contagem também ---
+            // --- SINCRONIZAÇÃO: Aplicar filtro de PDV na contagem também ---
             $query->where(function($q) {
                 $q->where('is_pdv', false)
                   ->orWhere(function($subQ) {
@@ -123,7 +124,7 @@ class KanbanController extends Controller
         $hasColumnParam = $request->has('columns');
 
         // Detectar sessão antiga (<= 2 colunas ou sem interseção com padrão ou versão desatualizada) e forçar reset
-        $currentKanbanVersion = 'v6';
+        $currentKanbanVersion = 'v7';
         if (!$hasColumnParam && (
             session('kanban_order_version') !== $currentKanbanVersion ||
             count($selectedColumns) <= 2 || 

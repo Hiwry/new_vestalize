@@ -37,6 +37,22 @@ class StatusController extends Controller
                       ->where('tenant_id', $activeTenantId); // Garantir filtro de tenant literal
                 // Aplicar filtro de loja adicional
                 StoreHelper::applyStoreFilter($query);
+
+                // Filtrar vendas do PDV: excluir vendas PDV que não têm sublimação local
+                $query->where(function($q) {
+                    $q->where('is_pdv', false)
+                      ->orWhere(function($subQ) {
+                          $subQ->where('is_pdv', true)
+                               ->whereHas('items', function($itemQuery) {
+                                   $itemQuery->whereHas('sublimations', function($sublimationQuery) {
+                                       $sublimationQuery->where(function($locQuery) {
+                                           $locQuery->whereNotNull('location_id')
+                                                   ->orWhereNotNull('location_name');
+                                       });
+                                   });
+                               });
+                      });
+                });
             }])
             ->orderBy('position')
             ->get();
