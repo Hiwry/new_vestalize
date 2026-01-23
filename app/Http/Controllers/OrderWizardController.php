@@ -387,6 +387,19 @@ class OrderWizardController extends Controller
         // Atualizar personalizações na sessão
         session(['item_personalizations.' . $item->id => [$validated['personalizacao']]]);
 
+
+        $order->refresh();
+        $order->load('items');
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Item atualizado com sucesso!',
+                'html' => view('orders.wizard.partials.items_sidebar', compact('order'))->render(),
+                'items_data' => $order->items->toArray()
+            ]);
+        }
+
         return redirect()->route('orders.wizard.sewing')->with('success', 'Item atualizado com sucesso!');
     }
 

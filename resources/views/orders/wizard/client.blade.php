@@ -45,7 +45,7 @@
 
             <!-- Buscar Cliente Existente -->
             <div class="mb-6" x-data="{ showSearch: false }" @click.away="">
-                <div class="bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-900/20 dark:to-purple-900/10 rounded-xl border-2 border-purple-200 dark:border-purple-800/30 p-5 shadow-sm transition-all">
+                <div class="bg-white dark:bg-gradient-to-br dark:from-purple-900/20 dark:to-purple-900/10 rounded-xl border border-gray-200 dark:border-purple-800/30 p-5 shadow-sm transition-all">
                     <div class="flex items-center justify-between mb-3">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center shadow-md border border-purple-100 dark:border-purple-900/30">

@@ -15,6 +15,7 @@
         
         {{-- Dashboard --}}
         <a href="{{ route('dashboard') }}" 
+           data-no-ajax
            data-nav-item="dashboard"
            class="mobile-nav-link flex flex-col items-center justify-center w-16 h-full transition-all duration-300">
             <i class="fa-solid fa-house text-lg mb-1"></i>

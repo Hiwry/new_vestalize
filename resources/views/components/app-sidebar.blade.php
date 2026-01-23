@@ -59,8 +59,34 @@
         showProfileModal: false,
         lockScroll() { document.body.style.overflow = 'hidden'; },
         unlockScroll() { document.body.style.overflow = ''; },
+        syncThemeState(event) {
+            if (event && event.detail && typeof event.detail.dark === 'boolean') {
+                this.isDark = event.detail.dark;
+            } else {
+                this.isDark = document.documentElement.classList.contains('dark');
+            }
+        },
+        toggleTheme() {
+            if (typeof toggleDarkMode === 'function') {
+                toggleDarkMode();
+            } else {
+                this.isDark = !this.isDark;
+                localStorage.setItem('dark', this.isDark);
+                if (this.isDark) {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.style.colorScheme = 'dark';
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.style.colorScheme = 'light';
+                }
+            }
+        },
         init() {
             this.updateLayout();
+            this.syncThemeState();
+            window.addEventListener('dark-mode-toggled', (event) => {
+                this.syncThemeState(event);
+            });
             window.addEventListener('resize', () => {
                 this.updateLayout();
                 if (!this.isMobile()) {
@@ -139,7 +165,33 @@
             </div>
             
              <div x-show="notifications.length > 0" class="p-2 border-t border-gray-200 dark:border-gray-600 text-center bg-gray-50 dark:bg-gray-800">
+                <a href="{{ route('notifications.index') }}" class="mr-3 text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium">Ver todas</a>
                 <button @click="clearAll()" class="text-xs text-red-500 hover:text-red-700">Limpar tudo</button>
+            </div>
+        </div>
+
+
+        <!-- Modal Confirmar Limpeza (Mobile) -->
+        <div x-show="showClearModal" x-cloak class="fixed inset-0 z-[120] flex items-center justify-center px-4">
+            <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showClearModal = false"></div>
+            <div class="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-800 p-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-900 dark:text-white">Limpar notifica&ccedil;&otilde;es?</h3>
+                        <p class="text-xs text-gray-500 dark:text-slate-400">Remove todo o hist&oacute;rico.</p>
+                    </div>
+                </div>
+                <div class="mt-5 flex justify-end gap-2">
+                    <button type="button" @click="showClearModal = false"
+                            class="px-3 py-2 text-xs font-semibold text-gray-600 dark:text-slate-300">Cancelar</button>
+                    <button type="button" @click="confirmClearAll()" :disabled="clearing"
+                            class="px-3 py-2 text-xs font-semibold text-white stay-white bg-red-600 hover:bg-red-700 rounded-lg disabled:opacity-60">Limpar tudo</button>
+                </div>
             </div>
         </div>
     </div>
@@ -157,8 +209,8 @@
        class="fixed top-0 left-0 z-[60] h-screen bg-card-bg border-r border-border overflow-hidden transition-all duration-300 ease-in-out transform md:translate-x-0 shadow-2xl">
     
     <!-- Header do Sidebar com Botão Toggle -->
-    <div class="flex items-center justify-between h-20 px-4 border-b border-border bg-card-bg transition-all duration-300 relative"
-         :class="expanded ? '' : 'justify-center !px-0'">
+    <div class="flex items-center h-20 border-b border-border bg-card-bg transition-all duration-300 relative"
+         :class="expanded ? 'justify-between px-4' : 'justify-center px-0'">
         <div class="flex items-center overflow-hidden" x-show="expanded">
             @if(auth()->user()->tenant && auth()->user()->tenant->logo_path)
                 <img src="{{ Storage::url(auth()->user()->tenant->logo_path) }}" alt="Logo" class="h-10 w-auto object-contain">
@@ -168,12 +220,11 @@
                 </h1>
             @endif
         </div>
-        <div class="flex items-center" :class="expanded ? 'gap-2' : ''">
+        <div class="flex items-center" :class="expanded ? 'gap-2' : 'w-full justify-center'">
             <button @click="toggle()" 
-                    class="flex items-center justify-center p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all duration-200"
-                    :class="expanded ? '' : 'mx-auto'">
+                    class="flex items-center justify-center w-10 h-10 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all duration-200">
                 <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                    <svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
+                    <svg class="w-5 h-5 transition-transform duration-300 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
                          :class="expanded ? '' : 'rotate-180'">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
                     </svg>
@@ -187,6 +238,7 @@
         
         <div class="text-nowrap">
             <a href="{{ route('dashboard') }}" 
+               data-no-ajax
                class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->routeIs('dashboard') || request()->is('/')) ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
                :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
                title="Tela Inicial">
@@ -254,6 +306,7 @@
             
             <div class="mt-2 text-nowrap">
                 <a href="{{ route('sales.index') }}"
+                   data-no-ajax
                    class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->is('vendas*') || request()->routeIs('sales.*')) ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
                    :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
                    title="Vendas">
@@ -497,7 +550,7 @@
          
          <!-- Theme Toggle Pill -->
          <div class="mb-4 px-1" x-show="expanded">
-             <div class="theme-toggle-track-custom" @click="isDark = !isDark; localStorage.setItem('dark', isDark); isDark ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark')">
+             <div class="theme-toggle-track-custom" @click="toggleTheme()">
                 <div class="theme-toggle-pill-custom" :class="{ 'dark': isDark }"></div>
                 
                 <div class="theme-toggle-btn-custom" :class="!isDark ? 'active' : ''" title="Modo Claro">
@@ -511,7 +564,7 @@
          </div>
 
          <!-- Mini Toggle (Collapsed Sidebar) -->
-         <button x-show="!expanded" @click="isDark = !isDark; localStorage.setItem('dark', isDark); isDark ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark')"
+         <button x-show="!expanded" @click="toggleTheme()"
                  class="w-11 h-11 flex items-center justify-center mx-auto mb-4 rounded-xl transition-all group text-primary bg-primary/10 hover:bg-primary/20"
                  title="Mudar Tema">
              <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">

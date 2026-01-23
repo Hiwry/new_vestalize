@@ -210,6 +210,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
         Route::post('{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('read');
         Route::post('read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('read-all');
+        Route::delete('clear-all', [\App\Http\Controllers\NotificationController::class, 'clearAll'])->name('clear-all');
         Route::delete('{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
     });
 

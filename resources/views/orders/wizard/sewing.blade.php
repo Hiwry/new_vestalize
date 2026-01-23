@@ -221,11 +221,11 @@
                                      onclick="closeSewingWizard()"></div>
 
                                 <!-- Modal Panel -->
-                                <div class="absolute inset-0 flex items-start justify-center p-4 pt-10 sm:pt-14 overflow-y-auto">
-                                    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col transform transition-all animate-fade-in-up border border-gray-200 dark:border-slate-700">
+                                <div class="absolute inset-0 flex items-start justify-center p-4 sm:p-6 overflow-y-auto">
+                                    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] flex flex-col overflow-hidden transform transition-all animate-fade-in-up border border-gray-200 dark:border-slate-700">
                                         
                                         <!-- Header -->
-                                        <div class="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
+                                        <div class="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between shrink-0">
                                             <div>
                                                 <h3 class="text-lg font-black text-gray-900 dark:text-white">Configurar Modelo</h3>
                                                 <p class="text-xs text-gray-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5" id="wizard-step-title">Etapa 1 de 5</p>
@@ -236,12 +236,12 @@
                                         </div>
 
                                         <!-- Progress Bar -->
-                                        <div class="w-full bg-gray-100 dark:bg-slate-800 h-1">
+                                        <div class="w-full bg-gray-100 dark:bg-slate-800 h-1 shrink-0">
                                             <div id="wizard-progress" class="bg-[#7c3aed] h-full transition-all duration-300" style="width: 20%"></div>
                                         </div>
 
                                         <!-- Steps Content -->
-                                        <div class="flex-1 overflow-y-auto p-6" id="wizard-content">
+                                        <div class="flex-1 min-h-0 overflow-y-auto p-6" id="wizard-content">
                                             
                                             <!-- Step 1: Personalização -->
                                             <div id="step-1" class="wizard-step">
@@ -444,7 +444,7 @@
                                                         </div>
                                                     </div>
 
-                                                    <button type="button" onclick="submitSewingWizard()" class="w-full py-4 mt-6 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all transform hover:scale-[1.02]">
+                                                    <button type="button" id="wizard-confirm-btn" onclick="submitSewingWizard()" class="w-full py-4 mt-6 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all transform hover:scale-[1.02]">
                                                         Confirmar e Adicionar Item
                                                     </button>
                                                 </div>
@@ -453,7 +453,7 @@
                                         </div>
 
                                         <!-- Footer -->
-                                        <div class="px-6 py-4 border-t border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/50 rounded-b-2xl">
+                                        <div class="px-6 py-4 border-t border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/50 rounded-b-2xl shrink-0">
                                             <button type="button" id="wizard-prev-btn" onclick="wizardPrevStep()" class="px-4 py-2 text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed">
                                                 ← Voltar
                                             </button>
@@ -1739,6 +1739,7 @@
         
         const formAction = document.getElementById('form-action');
         if (formAction) formAction.value = isDuplicate ? 'add_item' : 'update_item';
+        syncWizardConfirmLabel();
         
         const formTitle = document.getElementById('form-title');
         if (formTitle) formTitle.textContent = isDuplicate ? 'Duplicar Item' : 'Editar Item';
@@ -1889,6 +1890,17 @@
         openSewingWizard();
     }
     window.populateWizardFromItem = populateWizardFromItem;
+
+    function syncWizardConfirmLabel() {
+        const action = document.getElementById('form-action')?.value;
+        const confirmBtn = document.getElementById('wizard-confirm-btn');
+        if (!confirmBtn) return;
+        confirmBtn.textContent = action === 'update_item'
+            ? 'Confirmar e Atualizar Item'
+            : 'Confirmar e Adicionar Item';
+    }
+    window.syncWizardConfirmLabel = syncWizardConfirmLabel;
+
         
     function previewCoverImage(input) {
         const previewContainer = document.getElementById('cover-image-preview-container');
@@ -1924,6 +1936,7 @@
         if (formAction) formAction.value = 'add_item';
         if (formTitle) formTitle.textContent = 'Adicionar Novo Item';
         if (submitButton) submitButton.innerHTML = 'Adicionar Item';
+        syncWizardConfirmLabel();
         if (sewingForm) sewingForm.reset();
         
         if (coverPreviewContainer) coverPreviewContainer.classList.add('hidden');

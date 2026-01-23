@@ -86,8 +86,8 @@
             <!-- Resumo do Pedido -->
                 <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 mb-6 shadow-sm">
                     <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-5 h-5 bg-purple-100 dark:bg-purple-900/30 rounded-md flex items-center justify-center">
-                            <svg class="w-3 h-3 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-7 h-7 bg-gray-100 dark:bg-slate-800/60 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                             </svg>
                         </div>
@@ -105,7 +105,7 @@
                             <span class="font-medium text-gray-900 dark:text-white" id="total-pieces">{{ $order->items->sum('quantity') }}</span>
                         </div>
                         
-                        <div class="border-t border-purple-200 dark:border-purple-800 pt-2 mt-2">
+                        <div class="border-t border-gray-200 dark:border-slate-700 pt-2 mt-2">
                             <div class="flex justify-between">
                                 <span class="text-gray-700 dark:text-slate-300">Subtotal (Etapa 2 + 3):</span>
                                 <span class="font-medium text-gray-900 dark:text-white" id="subtotal">R$ {{ number_format($order->subtotal, 2, ',', '.') }}</span>
@@ -117,7 +117,7 @@
                         </div>
                         
                         <!-- Acréscimo Especial (personalizável) -->
-                        <div class="flex items-center justify-between mt-2 pt-2 border-t border-purple-100 dark:border-purple-800/50">
+                        <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-200 dark:border-slate-700/50">
                             <div class="flex items-center space-x-2">
                                 <span class="text-gray-700 dark:text-slate-300 text-sm">Acréscimo Especial:</span>
                                 <span class="text-xs text-gray-500 dark:text-slate-400">(digitar valor)</span>
@@ -140,7 +140,7 @@
                             <span class="font-medium text-green-600 dark:text-green-400" id="discount-display">-R$ 0,00</span>
                         </div>
                         
-                        <div class="border-t border-purple-200 dark:border-purple-800 pt-2 mt-2">
+                        <div class="border-t border-gray-200 dark:border-slate-700 pt-2 mt-2">
                             <div class="flex justify-between text-base font-bold">
                                 <span class="text-gray-900 dark:text-white">Total Final:</span>
                                 <span id="total-final" class="text-[#7c3aed] dark:text-purple-400">R$ {{ number_format($order->subtotal, 2, ',', '.') }}</span>
@@ -162,8 +162,8 @@
                     <!-- Data de Entrada -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-5 h-5 bg-purple-100 dark:bg-purple-900/30 rounded-md flex items-center justify-center">
-                                <svg class="w-3 h-3 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-7 h-7 bg-gray-100 dark:bg-slate-800/60 rounded-md flex items-center justify-center">
+                                <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
                             </div>
@@ -179,9 +179,10 @@
                     <!-- Taxa de Entrega -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-5 h-5 bg-purple-100 dark:bg-purple-900/30 rounded-md flex items-center justify-center">
-                                <svg class="w-3 h-3 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5-2a9 9 0 11-18 0 9 9 0 0118 0z M9 16h6"></path>
+                            <div class="w-7 h-7 bg-gray-100 dark:bg-slate-800/60 rounded-md flex items-center justify-center">
+                                <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zm10 0a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H3a1 1 0 00-1 1v10h1a2 2 0 114 0h6a2 2 0 114 0h1V9a1 1 0 00-.293-.707L16 6h-3z"></path>
                                 </svg>
                             </div>
                             <h3 class="text-sm font-medium text-gray-900 dark:text-white">Taxa de Entrega</h3>
@@ -198,8 +199,8 @@
                     <!-- Desconto -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-5 h-5 bg-purple-100 dark:bg-purple-900/30 rounded-md flex items-center justify-center">
-                                <svg class="w-3 h-3 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-7 h-7 bg-gray-100 dark:bg-slate-800/60 rounded-md flex items-center justify-center">
+                                <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                                 </svg>
                             </div>
@@ -241,8 +242,8 @@
                     <!-- Formas de Pagamento -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-5 h-5 bg-purple-100 dark:bg-purple-900/30 rounded-md flex items-center justify-center">
-                                <svg class="w-3 h-3 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-7 h-7 bg-gray-100 dark:bg-slate-800/60 rounded-md flex items-center justify-center">
+                                <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                                 </svg>
                             </div>
@@ -273,11 +274,11 @@
                                 </div>
                                 
                                 <!-- Valor Sugerido -->
-                                <div class="bg-gradient-to-r from-purple-50 to-purple-50 dark:from-purple-900/20 dark:to-purple-900/20 rounded-lg p-4 mb-4 border border-purple-200 dark:border-purple-800">
+                                <div class="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-4 mb-4 border border-gray-200 dark:border-slate-700">
                                     <div class="flex items-center justify-between mb-2">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center">
-                                                <svg class="w-4 h-4 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div class="w-10 h-10 bg-gray-100 dark:bg-slate-800/60 rounded-lg flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                                                 </svg>
                                             </div>
@@ -306,7 +307,7 @@
                         </div>
 
                             <!-- Resumo de Pagamentos -->
-                            <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-md border border-purple-200 dark:border-purple-800">
+                            <div class="p-3 bg-gray-50 dark:bg-slate-800/50 rounded-md border border-gray-200 dark:border-slate-700">
                                 <div class="flex justify-between text-sm mb-1">
                                     <span class="text-gray-700 dark:text-slate-300">Total Pago:</span>
                                     <span class="font-semibold text-gray-900 dark:text-white" id="total-paid">R$ 0,00</span>
@@ -529,7 +530,7 @@
             <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-md border border-gray-200 dark:border-slate-700 transition-colors">
                 <div class="flex items-center space-x-3">
                     <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center">
-                        <svg class="w-4 h-4 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     </div>
                     <div>
                         <p class="text-sm font-medium text-gray-900 dark:text-white capitalize">${pm.method}</p>

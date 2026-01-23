@@ -651,6 +651,67 @@
             document.head.appendChild(fallbackScript);
         })();
     </script>
+    <script>
+        window.ensureChartJsLoaded = function(callback) {
+            if (typeof callback !== 'function') return;
+            if (typeof Chart !== 'undefined') {
+                callback();
+                return;
+            }
+
+            if (window.__chartJsLoadingQueue) {
+                window.__chartJsLoadingQueue.push(callback);
+                return;
+            }
+
+            window.__chartJsLoadingQueue = [callback];
+
+            const flushQueue = () => {
+                const queue = window.__chartJsLoadingQueue || [];
+                window.__chartJsLoadingQueue = null;
+                queue.forEach(fn => {
+                    try {
+                        fn();
+                    } catch (e) {
+                        console.error('Chart init error:', e);
+                    }
+                });
+            };
+
+            const loadScript = (src, onSuccess, onError) => {
+                if (document.querySelector(`script[src="${src}"]`)) {
+                    if (typeof Chart !== 'undefined') {
+                        onSuccess();
+                    } else {
+                        onError();
+                    }
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = onSuccess;
+                script.onerror = onError;
+                document.head.appendChild(script);
+            };
+
+            const localSrc = '/js/chart.umd.min.js';
+            loadScript(localSrc, () => {
+                if (typeof Chart !== 'undefined') {
+                    flushQueue();
+                } else {
+                    loadScript('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js', flushQueue, () => {
+                        window.__chartJsLoadingQueue = null;
+                        console.error('Chart.js fallback failed');
+                    });
+                }
+            }, () => {
+                loadScript('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js', flushQueue, () => {
+                    window.__chartJsLoadingQueue = null;
+                    console.error('Chart.js fallback failed');
+                });
+            });
+        };
+    </script>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -682,7 +743,7 @@
         @include('components.app-sidebar')
 
         <!-- Page Content -->
-        <div id="main-content" class="h-screen overflow-y-auto bg-gray-50 dark:bg-gray-900 transition-all duration-300 ease-in-out">
+        <div id="main-content" class="h-screen overflow-y-auto bg-background transition-all duration-300 ease-in-out">
             <main class="min-h-full pb-24 md:pb-10 pt-20 px-4 md:pt-6 md:px-6 w-full">
                 {{-- Flash Messages --}}
                 @if(session('success'))
@@ -747,6 +808,26 @@
 
     {{-- Global Toast Notification System --}}
     <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
+    <style>
+        #toast-container .toast-notification {
+            color: #ffffff !important;
+            backdrop-filter: blur(6px);
+        }
+        #toast-container .toast-notification.toast-success { background-color: #22c55e !important; }
+        #toast-container .toast-notification.toast-error { background-color: #ef4444 !important; }
+        #toast-container .toast-notification.toast-warning { background-color: #f59e0b !important; }
+        #toast-container .toast-notification.toast-info { background-color: #6366f1 !important; }
+        #toast-container .toast-notification * {
+            color: #ffffff !important;
+        }
+        html:not(.dark) #toast-container .toast-notification {
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12) !important;
+        }
+        html.dark #toast-container .toast-notification {
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55) !important;
+        }
+    </style>
     
     <script>
         // ============================================
@@ -759,13 +840,6 @@
             const duration = options.duration || 5000;
             const action = options.action || null; // { label: 'Desfazer', callback: () => {} }
             
-            const colors = {
-                success: 'bg-emerald-600',
-                error: 'bg-red-600',
-                warning: 'bg-amber-500',
-                info: 'bg-indigo-600'
-            };
-            
             const icons = {
                 success: 'fa-check-circle',
                 error: 'fa-times-circle',
@@ -774,7 +848,8 @@
             };
             
             const toast = document.createElement('div');
-            toast.className = `${colors[type] || colors.info} text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px] max-w-sm pointer-events-auto transform transition-all duration-500 translate-y-4 opacity-0 border border-white/10`;
+            const toastType = ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info';
+            toast.className = `toast-notification toast-${toastType} text-white stay-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px] max-w-sm pointer-events-auto transform transition-all duration-500 translate-y-4 opacity-0 border border-white/10`;
             
             let actionHtml = '';
             if (action) {
@@ -789,7 +864,7 @@
                 <div class="p-2 bg-white/20 rounded-xl">
                     <i class="fa-solid ${icons[type] || icons.info} text-lg"></i>
                 </div>
-                <span class="text-sm font-medium flex-1">${message}</span>
+                <span class="text-sm font-medium flex-1 stay-white">${message}</span>
                 ${actionHtml}
                 <button onclick="this.parentElement.remove()" class="p-1 hover:bg-white/10 rounded-lg transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>

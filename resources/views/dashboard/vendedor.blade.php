@@ -415,6 +415,7 @@
 @endsection
 
 @push('page-scripts')
+<script src="{{ asset('js/chart.umd.min.js') }}" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';"></script>
 <script>
 (function() {
     'use strict';
@@ -454,29 +455,109 @@
         vendasMensaisData: @json($vendasMensaisData),
         pdvVsOnlineData: @json($pdvVsOnlineData)
     };
+
+    function loadChartJs(callback) {
+        if (typeof callback !== 'function') return;
+        if (typeof Chart !== 'undefined') {
+            callback();
+            return;
+        }
+
+        if (window.__chartJsVendedorQueue) {
+            window.__chartJsVendedorQueue.push(callback);
+            return;
+        }
+
+        window.__chartJsVendedorQueue = [callback];
+
+        const flushQueue = () => {
+            const queue = window.__chartJsVendedorQueue || [];
+            window.__chartJsVendedorQueue = null;
+            queue.forEach(fn => {
+                try { fn(); } catch (e) { console.error('Chart init error:', e); }
+            });
+        };
+
+        const loadScript = (src, onSuccess, onError) => {
+            if (document.querySelector(`script[src="${src}"]`)) {
+                if (typeof Chart !== 'undefined') {
+                    onSuccess();
+                } else {
+                    onError();
+                }
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = onSuccess;
+            script.onerror = onError;
+            document.head.appendChild(script);
+        };
+
+        loadScript('/js/chart.umd.min.js', () => {
+            if (typeof Chart !== 'undefined') {
+                flushQueue();
+            } else {
+                loadScript('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js', flushQueue, () => {
+                    window.__chartJsVendedorQueue = null;
+                    console.error('Chart.js não carregou');
+                });
+            }
+        }, () => {
+            loadScript('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js', flushQueue, () => {
+                window.__chartJsVendedorQueue = null;
+                console.error('Chart.js não carregou');
+            });
+        });
+    }
     
+    function getChartStore() {
+        if (!window.__vendedorCharts) {
+            window.__vendedorCharts = {};
+        }
+        return window.__vendedorCharts;
+    }
+
+
     function initCharts() {
         if (typeof Chart === 'undefined') {
             console.warn('Chart.js não está disponível');
             return false;
         }
-        
+
+        const normalizeArray = (value) => {
+            if (Array.isArray(value)) return value;
+            if (value && typeof value === 'object') return Object.values(value);
+            return [];
+        };
+
+        const normalizedData = {
+            statusData: normalizeArray(dashboardData.statusData),
+            faturamentoData: normalizeArray(dashboardData.faturamentoData),
+            vendasMensaisData: normalizeArray(dashboardData.vendasMensaisData),
+            pdvVsOnlineData: normalizeArray(dashboardData.pdvVsOnlineData)
+        };
+
         const isDark = document.documentElement.classList.contains('dark');
         const textColor = isDark ? '#e5e7eb' : '#374151';
         const gridColor = isDark ? 'rgba(75, 85, 99, 0.3)' : 'rgba(0, 0, 0, 0.1)';
         const borderColor = isDark ? '#1f2937' : '#ffffff';
-        const emptyColor = isDark ? '#374151' : '#e5e7eb';
+        const emptyColor = isDark ? '#374151' : '#cbd5e1';
         
         // Destruir gráficos existentes
-        if (window.statusChart) window.statusChart.destroy();
-        if (window.faturamentoChart) window.faturamentoChart.destroy();
-        if (window.vendasMensaisChart) window.vendasMensaisChart.destroy();
-        if (window.pdvVsOnlineChart) window.pdvVsOnlineChart.destroy();
-        
+        const chartStore = getChartStore();
+        Object.keys(chartStore).forEach((key) => {
+            const chart = chartStore[key];
+            if (chart && typeof chart.destroy === 'function') {
+                chart.destroy();
+            }
+            chartStore[key] = null;
+        });
+
         // Gráfico de Status
         const statusCanvas = document.getElementById('statusChart');
         if (statusCanvas) {
-            const statusData = dashboardData.statusData || [];
+            const statusData = normalizedData.statusData;
             const statusTotals = statusData.map(item => parseFloat(item.total || 0));
             const statusSum = statusTotals.reduce((sum, value) => sum + value, 0);
             const hasStatusData = statusTotals.length > 0 && statusSum > 0;
@@ -484,7 +565,7 @@
             const statusValues = hasStatusData ? statusTotals : [1];
             const statusColors = hasStatusData ? statusData.map(item => item.color) : [emptyColor];
             
-            window.statusChart = new Chart(statusCanvas.getContext('2d'), {
+            chartStore.status = new Chart(statusCanvas.getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: statusLabels,
@@ -518,7 +599,7 @@
         // Gráfico de Vendas Mensais
         const vendasMensaisCanvas = document.getElementById('vendasMensaisChart');
         if (vendasMensaisCanvas) {
-            const vendasMensaisData = dashboardData.vendasMensaisData || [];
+            const vendasMensaisData = normalizedData.vendasMensaisData;
             const vendasMensaisLabels = vendasMensaisData.map(item => {
                 if (!item.mes) return '';
                 try {
@@ -537,12 +618,12 @@
             const vendasMensaisLabelsFinal = vendasMensaisLabels.length > 0 ? vendasMensaisLabels : ['Sem dados'];
             const vendasMensaisValuesFinal = hasVendasMensaisData ? vendasMensaisValues : [0];
             const vendasMensaisColor = hasVendasMensaisData ? 'rgb(99, 102, 241)' : emptyColor;
-            const vendasMensaisFill = hasVendasMensaisData;
+            const vendasMensaisFill = hasVendasMensaisData ? true : true;
             const vendasMensaisBg = hasVendasMensaisData
                 ? (isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.1)')
                 : (isDark ? 'rgba(71, 85, 105, 0.2)' : 'rgba(226, 232, 240, 0.6)');
             
-            window.vendasMensaisChart = new Chart(vendasMensaisCanvas.getContext('2d'), {
+            chartStore.vendasMensais = new Chart(vendasMensaisCanvas.getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: vendasMensaisLabelsFinal,
@@ -556,8 +637,8 @@
                         pointBackgroundColor: vendasMensaisColor,
                         pointBorderColor: borderColor,
                         pointBorderWidth: 2,
-                        pointRadius: hasVendasMensaisData ? 4 : 0,
-                        pointHoverRadius: hasVendasMensaisData ? 6 : 0
+                        pointRadius: hasVendasMensaisData ? 4 : 3,
+                        pointHoverRadius: hasVendasMensaisData ? 6 : 4
                     }]
                 },
                 options: {
@@ -601,7 +682,7 @@
         // Gráfico de Faturamento Diário
         const faturamentoCanvas = document.getElementById('faturamentoChart');
         if (faturamentoCanvas) {
-            const faturamentoData = dashboardData.faturamentoData || [];
+            const faturamentoData = normalizedData.faturamentoData;
             const faturamentoLabels = faturamentoData.map(item => {
                 if (!item.dia) return '';
                 try {
@@ -620,12 +701,12 @@
             const faturamentoLabelsFinal = faturamentoLabels.length > 0 ? faturamentoLabels : ['Sem dados'];
             const faturamentoValuesFinal = hasFaturamentoData ? faturamentoValues : [0];
             const faturamentoColor = hasFaturamentoData ? 'rgb(99, 102, 241)' : emptyColor;
-            const faturamentoFill = hasFaturamentoData;
+            const faturamentoFill = hasFaturamentoData ? true : true;
             const faturamentoBg = hasFaturamentoData
                 ? (isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.1)')
                 : (isDark ? 'rgba(71, 85, 105, 0.2)' : 'rgba(226, 232, 240, 0.6)');
             
-            window.faturamentoChart = new Chart(faturamentoCanvas.getContext('2d'), {
+            chartStore.faturamento = new Chart(faturamentoCanvas.getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: faturamentoLabelsFinal,
@@ -639,8 +720,8 @@
                         pointBackgroundColor: faturamentoColor,
                         pointBorderColor: borderColor,
                         pointBorderWidth: 2,
-                        pointRadius: hasFaturamentoData ? 4 : 0,
-                        pointHoverRadius: hasFaturamentoData ? 6 : 0
+                        pointRadius: hasFaturamentoData ? 4 : 3,
+                        pointHoverRadius: hasFaturamentoData ? 6 : 4
                     }]
                 },
                 options: {
@@ -683,8 +764,8 @@
         
         // Gráfico PDV vs Online
         const pdvVsOnlineCanvas = document.getElementById('pdvVsOnlineChart');
-        if (pdvVsOnlineCanvas && dashboardData.pdvVsOnlineData) {
-            const pdvVsOnlineData = dashboardData.pdvVsOnlineData || [];
+        if (pdvVsOnlineCanvas) {
+            const pdvVsOnlineData = normalizedData.pdvVsOnlineData;
             const pdvVsOnlineLabels = pdvVsOnlineData.map(item => item.label);
             const pdvVsOnlineValues = pdvVsOnlineData.map(item => parseFloat(item.value || 0));
             const pdvVsOnlineTotal = pdvVsOnlineValues.reduce((sum, value) => sum + value, 0);
@@ -695,7 +776,7 @@
                 ? ['rgba(34, 197, 94, 0.8)', 'rgba(59, 130, 246, 0.8)']
                 : [emptyColor];
             
-            window.pdvVsOnlineChart = new Chart(pdvVsOnlineCanvas.getContext('2d'), {
+            chartStore.pdvVsOnline = new Chart(pdvVsOnlineCanvas.getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: pdvVsOnlineLabelsFinal,
@@ -748,36 +829,75 @@
         );
     }
 
-    function waitAndInit() {
+    const MAX_CHART_INIT_ATTEMPTS = 20;
+
+    function chartsHaveSize() {
+        const canvases = [
+            document.getElementById('statusChart'),
+            document.getElementById('vendasMensaisChart'),
+            document.getElementById('faturamentoChart'),
+            document.getElementById('pdvVsOnlineChart')
+        ].filter(Boolean);
+
+        if (canvases.length === 0) return false;
+        return canvases.every(canvas => canvas.offsetWidth > 0 && canvas.offsetHeight > 0);
+    }
+
+    function tryInitCharts(attempt = 0) {
         if (!hasDashboardCharts()) {
             return;
         }
 
-        if (typeof Chart !== 'undefined' && document.readyState !== 'loading') {
-            setTimeout(function() {
-                initCharts();
-            }, 50);
-        } else {
-            setTimeout(waitAndInit, 80);
+        if (document.readyState === 'loading') {
+            setTimeout(() => tryInitCharts(attempt), 80);
+            return;
         }
+
+        if (typeof Chart === 'undefined') {
+            if (typeof window.ensureChartJsLoaded === 'function') {
+                window.ensureChartJsLoaded(() => tryInitCharts(attempt));
+                return;
+            }
+            loadChartJs(() => tryInitCharts(attempt));
+            return;
+        }
+
+        if (!chartsHaveSize()) {
+            if (attempt < MAX_CHART_INIT_ATTEMPTS) {
+                setTimeout(() => tryInitCharts(attempt + 1), 150);
+            }
+            return;
+        }
+
+        initCharts();
+
+        requestAnimationFrame(() => {
+            const chartStore = getChartStore();
+            if (chartStore.status) chartStore.status.resize();
+            if (chartStore.faturamento) chartStore.faturamento.resize();
+            if (chartStore.vendasMensais) chartStore.vendasMensais.resize();
+            if (chartStore.pdvVsOnline) chartStore.pdvVsOnline.resize();
+        });
     }
     
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', waitAndInit);
+        document.addEventListener('DOMContentLoaded', () => tryInitCharts(0));
     } else {
-        waitAndInit();
+        tryInitCharts(0);
     }
 
     if (!window.__vendedorChartsBound) {
         window.__vendedorChartsBound = true;
-        document.addEventListener('content-loaded', waitAndInit);
-        document.addEventListener('ajax-content-loaded', waitAndInit);
+        document.addEventListener('content-loaded', () => tryInitCharts(0));
+        document.addEventListener('ajax-content-loaded', () => tryInitCharts(0));
+        window.addEventListener('pageshow', () => tryInitCharts(0));
     }
     
     window.addEventListener('load', function() {
         setTimeout(function() {
-            if (hasDashboardCharts() && !window.statusChart) {
-                initCharts();
+            const chartStore = getChartStore();
+            if (hasDashboardCharts() && !chartStore.status) {
+                tryInitCharts(0);
             }
         }, 500);
     });

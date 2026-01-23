@@ -241,6 +241,14 @@ class DashboardController extends Controller
                   ->where('remaining_amount', 0);
             })
             ->sum('total');
+        if (($vendasPDVValor + $pedidosOnlineValor) <= 0) {
+            $vendasPDVValor = (clone $baseQuery)
+                ->where('is_pdv', true)
+                ->sum('total');
+            $pedidosOnlineValor = (clone $baseQuery)
+                ->where('is_pdv', false)
+                ->sum('total');
+        }
         
         // Aplicar filtro de loja em clientes
         $clientQuery = Client::query();
@@ -263,7 +271,7 @@ class DashboardController extends Controller
         $solicitacoesPendentesCount = $stockRequestQuery->count();
         
         // Cache Key baseada nos filtros
-        $cacheKey = "dashboard_stats_" . Auth::user()->id . "_" . ($selectedStoreId ?? 'all') . "_" . $period;
+        $cacheKey = "dashboard_stats_v2_" . Auth::user()->id . "_" . ($selectedStoreId ?? 'all') . "_" . $period;
         $cacheTime = 600; // 10 minutos
         
         // Pedidos por status (otimizado com join - agrupa por nome para evitar duplicatas de tenants)
@@ -293,13 +301,28 @@ class DashboardController extends Controller
             }
             
             $faturamentoDiarioQuery = Order::where('orders.is_draft', false)
-                ->whereBetween('orders.created_at', [$faturamentoDiarioStart, $endDate])
+                ->whereBetween('orders.created_at', [$faturamentoDiarioStart, $endDate]);
+            $this->applyFilters($faturamentoDiarioQuery, $selectedStoreId);
+
+            $paidQuery = (clone $faturamentoDiarioQuery)
                 ->whereHas('payment', function($q) {
                     $q->where('cash_approved', true)
                       ->where('remaining_amount', 0);
-                });
-            $this->applyFilters($faturamentoDiarioQuery, $selectedStoreId);
-            return $faturamentoDiarioQuery
+                })
+                ->select(
+                    DB::raw('DATE(orders.created_at) as dia'),
+                    DB::raw('SUM(orders.total) as total'),
+                    DB::raw('COUNT(*) as quantidade')
+                )
+                ->groupBy(DB::raw('DATE(orders.created_at)'))
+                ->orderBy('dia', 'asc')
+                ->get();
+
+            if ($paidQuery->sum('total') > 0) {
+                return $paidQuery;
+            }
+
+            return (clone $faturamentoDiarioQuery)
                 ->select(
                     DB::raw('DATE(orders.created_at) as dia'),
                     DB::raw('SUM(orders.total) as total'),
@@ -407,8 +430,11 @@ class DashboardController extends Controller
             ->sum('remaining_amount');
 
         // Pedidos por mês (últimos 12 meses) - faturamento apenas de aprovados pelo caixa
-        $pedidosPorMes = Order::where('is_draft', false)
-            ->where('created_at', '>=', Carbon::now()->subMonths(12))
+        $pedidosPorMesBase = Order::where('is_draft', false)
+            ->where('created_at', '>=', Carbon::now()->subMonths(12));
+        $this->applyFilters($pedidosPorMesBase, $selectedStoreId);
+
+        $pedidosPorMesPaid = (clone $pedidosPorMesBase)
             ->whereHas('payment', function($q) {
                 $q->where('cash_approved', true)
                   ->where('remaining_amount', 0);
@@ -417,12 +443,24 @@ class DashboardController extends Controller
                 DB::raw('DATE_FORMAT(created_at, "%Y-%m") as mes'),
                 DB::raw('COUNT(*) as total'),
                 DB::raw('SUM(total) as faturamento')
-            );
-        $this->applyFilters($pedidosPorMes, $selectedStoreId);
-        $pedidosPorMes = $pedidosPorMes
+            )
             ->groupBy(DB::raw('DATE_FORMAT(created_at, "%Y-%m")'))
             ->orderBy('mes', 'asc')
             ->get();
+
+        if ($pedidosPorMesPaid->sum('faturamento') > 0) {
+            $pedidosPorMes = $pedidosPorMesPaid;
+        } else {
+            $pedidosPorMes = (clone $pedidosPorMesBase)
+                ->select(
+                    DB::raw('DATE_FORMAT(created_at, "%Y-%m") as mes'),
+                    DB::raw('COUNT(*) as total'),
+                    DB::raw('SUM(total) as faturamento')
+                )
+                ->groupBy(DB::raw('DATE_FORMAT(created_at, "%Y-%m")'))
+                ->orderBy('mes', 'asc')
+                ->get();
+        }
         
         // Faturamento por loja (apenas para admin geral) - apenas aprovados pelo caixa
         $faturamentoPorLoja = collect();

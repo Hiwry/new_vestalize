@@ -1,5 +1,41 @@
 ﻿@extends('layouts.admin')
 
+@push('styles')
+<style>
+    .budget-personalization-option {
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+    .budget-personalization-option:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 32px -22px rgba(124, 58, 237, 0.45);
+    }
+    .budget-personalization-option.is-active {
+        border-color: #7c3aed !important;
+        background: rgba(124, 58, 237, 0.08) !important;
+    }
+    .dark .budget-personalization-option {
+        background: rgba(15, 23, 42, 0.55);
+        border-color: rgba(148, 163, 184, 0.28);
+    }
+    .dark .budget-personalization-option.is-active {
+        background: rgba(124, 58, 237, 0.18) !important;
+    }
+    .budget-icon-bubble {
+        border: 1px solid rgba(124, 58, 237, 0.12);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 12px 24px -16px rgba(124, 58, 237, 0.6);
+    }
+    .dark .budget-icon-bubble {
+        border-color: rgba(124, 58, 237, 0.35);
+        box-shadow: 0 12px 26px -16px rgba(124, 58, 237, 0.75);
+    }
+    .budget-check-indicator {
+        box-shadow: 0 10px 18px -10px rgba(124, 58, 237, 0.6);
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="max-w-4xl mx-auto">
     <!-- Progress Bar (Wizard Main) -->
@@ -448,20 +484,110 @@
             });
     }
 
+    function normalizePersName(name) {
+        if (!name) return '';
+        return name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    }
+
+    function getPersonalizationMeta(name) {
+        const key = normalizePersName(name);
+        const metaMap = {
+            SUBLOCAL: {
+                icon: 'fa-fire',
+                bubble: 'bg-purple-100 dark:bg-purple-900/30',
+                iconClass: 'text-[#7c3aed] dark:text-[#a78bfa]',
+                desc: 'Sublimacao localizada'
+            },
+            SUBTOTAL: {
+                icon: 'fa-image',
+                bubble: 'bg-gradient-to-br from-cyan-100 to-purple-100 dark:from-cyan-900/30 dark:to-purple-900/30',
+                iconClass: 'text-[#7c3aed] dark:text-[#a78bfa]',
+                desc: 'Sublimacao total'
+            },
+            SERIGRAFIA: {
+                icon: 'fa-fill-drip',
+                bubble: 'bg-purple-100 dark:bg-purple-900/30',
+                iconClass: 'text-purple-600 dark:text-purple-400',
+                desc: 'Serigrafia'
+            },
+            DTF: {
+                icon: 'fa-print',
+                bubble: 'bg-orange-100 dark:bg-orange-900/30',
+                iconClass: 'text-orange-600 dark:text-orange-400',
+                desc: 'DTF'
+            },
+            BORDADO: {
+                icon: 'fa-pen-nib',
+                bubble: 'bg-pink-100 dark:bg-pink-900/30',
+                iconClass: 'text-pink-600 dark:text-pink-400',
+                desc: 'Bordado'
+            },
+            EMBORRACHADO: {
+                icon: 'fa-cube',
+                bubble: 'bg-green-100 dark:bg-green-900/30',
+                iconClass: 'text-green-600 dark:text-green-400',
+                desc: 'Emborrachado'
+            },
+            LISAS: {
+                icon: 'fa-star',
+                bubble: 'bg-gray-100 dark:bg-gray-700',
+                iconClass: 'text-gray-600 dark:text-gray-400',
+                desc: 'Sem personalizacao'
+            }
+        };
+
+        if (key.includes('SUB') && key.includes('LOCAL')) return metaMap.SUBLOCAL;
+        if (key.includes('SUB') && key.includes('TOTAL')) return metaMap.SUBTOTAL;
+        if (key.includes('SERIG')) return metaMap.SERIGRAFIA;
+        if (key.includes('BORD')) return metaMap.BORDADO;
+        if (key.includes('EMBORR')) return metaMap.EMBORRACHADO;
+        if (key.includes('DTF')) return metaMap.DTF;
+        if (key.includes('LISA')) return metaMap.LISAS;
+
+        return {
+            icon: 'fa-wand-magic-sparkles',
+            bubble: 'bg-indigo-100 dark:bg-indigo-900/30',
+            iconClass: 'text-indigo-600 dark:text-indigo-400',
+            desc: 'Personalizacao'
+        };
+    }
+
     function renderPersonalizacao() {
-        // ... (Logic from previous step, preserving checkbox rendering)
         const container = document.getElementById('personalizacao-options');
         const items = optionsWithParents.personalizacao || options.personalizacao || [];
-        
-        container.innerHTML = items.map(item => `
-            <label class="flex items-center p-4 border rounded-xl cursor-pointer hover:border-indigo-400 transition-all ${selectedPersonalizacoes.includes(item.id) ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200'}">
-                <input type="checkbox" name="personalizacao[]" value="${item.id}" 
-                       onchange="togglePersonalizacao(${item.id})"
-                       class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mr-3" 
-                       ${selectedPersonalizacoes.includes(item.id) ? 'checked' : ''}>
-                <span class="text-sm font-medium text-gray-900 dark:text-gray-100">${item.name}</span>
-            </label>
-        `).join('');
+
+        if (!items.length) {
+            container.innerHTML = '<div class="col-span-full text-center py-6 text-sm text-gray-500 dark:text-gray-400">Nenhuma personalizacao disponivel.</div>';
+            return;
+        }
+
+        container.innerHTML = items.map(item => {
+            const meta = getPersonalizationMeta(item.name || '');
+            const isActive = selectedPersonalizacoes.includes(item.id);
+            const activeClasses = isActive
+                ? 'is-active border-[#7c3aed] ring-2 ring-[#7c3aed]/20 bg-purple-50/60 dark:bg-purple-900/10'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900/40';
+            const indicatorClass = isActive ? 'flex' : 'hidden';
+
+            return `
+                <label class="budget-personalization-option group flex items-center gap-3 p-4 rounded-2xl border cursor-pointer hover:border-[#7c3aed] transition-all ${activeClasses}">
+                    <input type="checkbox" name="personalizacao[]" value="${item.id}"
+                           onchange="togglePersonalizacao(${item.id})"
+                           class="sr-only"
+                           ${isActive ? 'checked' : ''}>
+                    <span class="budget-check-indicator ${indicatorClass} absolute top-3 right-3 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </span>
+                    <div class="budget-icon-bubble ${meta.bubble} w-11 h-11 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid ${meta.icon} ${meta.iconClass} text-lg"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">${item.name}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 truncate">${meta.desc}</div>
+                    </div>
+                </label>
+            `;
+        }).join('');
     }
 
     function togglePersonalizacao(id) {
