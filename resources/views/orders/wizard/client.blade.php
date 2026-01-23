@@ -17,7 +17,7 @@
                     <div class="text-2xl font-bold text-[#7c3aed] dark:text-[#a78bfa]">20%</div>
                 </div>
             </div>
-            <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-2.5 shadow-inner">
+            <div class="w-full bg-white dark:bg-slate-800/80 rounded-full h-2.5 shadow-inner border border-gray-200 dark:border-slate-700">
                 <div class="bg-[#7c3aed] h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 20%"></div>
             </div>
         </div>
@@ -25,7 +25,7 @@
         <!-- Main Card -->
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-slate-800 overflow-hidden">
             <!-- Header -->
-            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-gray-50 to-white dark:from-slate-800/50 dark:to-slate-900/50">
+            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-gradient-to-r dark:from-slate-800/50 dark:to-slate-900/50">
                 <div class="flex items-center space-x-3">
                     <div class="flex items-center">
                         <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">

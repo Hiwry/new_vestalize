@@ -18,7 +18,7 @@
         <!-- Badge de Contagem -->
         <span x-show="unreadCount > 0" 
               x-text="unreadCount > 99 ? '99+' : unreadCount"
-              class="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+              class="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white stay-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
         </span>
 
         <!-- Pulse Animation -->

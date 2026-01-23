@@ -105,7 +105,7 @@
                 </div>
             </div>
         </div>
-        <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-1.5 sm:h-2 shadow-inner overflow-hidden">
+        <div class="w-full bg-white dark:bg-slate-800/80 rounded-full h-1.5 sm:h-2 shadow-inner overflow-hidden border border-gray-200 dark:border-slate-700">
             <div class="bg-[#7c3aed] h-full rounded-full transition-all duration-500 ease-out shadow-lg shadow-purple-500/40" style="width: 40%"></div>
         </div>
     </div>
