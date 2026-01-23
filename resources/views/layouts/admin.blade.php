@@ -626,11 +626,30 @@
     <!-- Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
-        // Garantir que Chart.js está disponível
-        window.chartJsLoaded = typeof Chart !== 'undefined';
-        if (!window.chartJsLoaded) {
-            console.error('Chart.js não foi carregado corretamente');
-        }
+        (function() {
+            if (typeof Chart !== 'undefined') {
+                window.chartJsLoaded = true;
+                return;
+            }
+
+            window.chartJsLoaded = false;
+
+            if (window.__chartJsFallbackRequested) {
+                return;
+            }
+
+            window.__chartJsFallbackRequested = true;
+
+            var fallbackScript = document.createElement('script');
+            fallbackScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
+            fallbackScript.onload = function() {
+                window.chartJsLoaded = typeof Chart !== 'undefined';
+            };
+            fallbackScript.onerror = function() {
+                console.error('Chart.js não foi carregado corretamente');
+            };
+            document.head.appendChild(fallbackScript);
+        })();
     </script>
     
     <!-- Font Awesome -->
@@ -844,4 +863,3 @@
     @stack('scripts')
 </body>
 </html>
-

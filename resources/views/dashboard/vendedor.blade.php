@@ -30,7 +30,7 @@
         <!-- Ações Rápidas -->
         <div class="flex gap-2">
             <a href="{{ route('pdv.index') }}" 
-               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
+               class="px-4 py-2 bg-indigo-600 dark:bg-green-600 text-white rounded-lg hover:opacity-90 dark:hover:bg-green-700 transition-colors text-sm font-medium">
                 Abrir PDV
             </a>
             <a href="{{ route('orders.wizard.start') }}" 
@@ -465,6 +465,7 @@
         const textColor = isDark ? '#e5e7eb' : '#374151';
         const gridColor = isDark ? 'rgba(75, 85, 99, 0.3)' : 'rgba(0, 0, 0, 0.1)';
         const borderColor = isDark ? '#1f2937' : '#ffffff';
+        const emptyColor = isDark ? '#374151' : '#e5e7eb';
         
         // Destruir gráficos existentes
         if (window.statusChart) window.statusChart.destroy();
@@ -476,9 +477,12 @@
         const statusCanvas = document.getElementById('statusChart');
         if (statusCanvas) {
             const statusData = dashboardData.statusData || [];
-            const statusLabels = statusData.length > 0 ? statusData.map(item => item.status) : ['Sem dados'];
-            const statusValues = statusData.length > 0 ? statusData.map(item => item.total) : [1];
-            const statusColors = statusData.length > 0 ? statusData.map(item => item.color) : ['#9ca3af'];
+            const statusTotals = statusData.map(item => parseFloat(item.total || 0));
+            const statusSum = statusTotals.reduce((sum, value) => sum + value, 0);
+            const hasStatusData = statusTotals.length > 0 && statusSum > 0;
+            const statusLabels = hasStatusData ? statusData.map(item => item.status) : ['Sem dados'];
+            const statusValues = hasStatusData ? statusTotals : [1];
+            const statusColors = hasStatusData ? statusData.map(item => item.color) : [emptyColor];
             
             window.statusChart = new Chart(statusCanvas.getContext('2d'), {
                 type: 'doughnut',
@@ -529,23 +533,31 @@
                 }
             }).filter(label => label !== '');
             const vendasMensaisValues = vendasMensaisData.map(item => parseFloat(item.total || 0));
+            const hasVendasMensaisData = vendasMensaisValues.length > 0;
+            const vendasMensaisLabelsFinal = vendasMensaisLabels.length > 0 ? vendasMensaisLabels : ['Sem dados'];
+            const vendasMensaisValuesFinal = hasVendasMensaisData ? vendasMensaisValues : [0];
+            const vendasMensaisColor = hasVendasMensaisData ? 'rgb(99, 102, 241)' : emptyColor;
+            const vendasMensaisFill = hasVendasMensaisData;
+            const vendasMensaisBg = hasVendasMensaisData
+                ? (isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.1)')
+                : (isDark ? 'rgba(71, 85, 105, 0.2)' : 'rgba(226, 232, 240, 0.6)');
             
             window.vendasMensaisChart = new Chart(vendasMensaisCanvas.getContext('2d'), {
                 type: 'line',
                 data: {
-                    labels: vendasMensaisLabels.length > 0 ? vendasMensaisLabels : ['Sem dados'],
+                    labels: vendasMensaisLabelsFinal,
                     datasets: [{
                         label: 'Faturamento (R$)',
-                        data: vendasMensaisValues.length > 0 ? vendasMensaisValues : [0],
-                        borderColor: 'rgb(99, 102, 241)',
-                        backgroundColor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.1)',
+                        data: vendasMensaisValuesFinal,
+                        borderColor: vendasMensaisColor,
+                        backgroundColor: vendasMensaisBg,
                         tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: 'rgb(99, 102, 241)',
+                        fill: vendasMensaisFill,
+                        pointBackgroundColor: vendasMensaisColor,
                         pointBorderColor: borderColor,
                         pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
+                        pointRadius: hasVendasMensaisData ? 4 : 0,
+                        pointHoverRadius: hasVendasMensaisData ? 6 : 0
                     }]
                 },
                 options: {
@@ -604,23 +616,31 @@
                 }
             }).filter(label => label !== '');
             const faturamentoValues = faturamentoData.map(item => parseFloat(item.total || 0));
+            const hasFaturamentoData = faturamentoValues.length > 0;
+            const faturamentoLabelsFinal = faturamentoLabels.length > 0 ? faturamentoLabels : ['Sem dados'];
+            const faturamentoValuesFinal = hasFaturamentoData ? faturamentoValues : [0];
+            const faturamentoColor = hasFaturamentoData ? 'rgb(99, 102, 241)' : emptyColor;
+            const faturamentoFill = hasFaturamentoData;
+            const faturamentoBg = hasFaturamentoData
+                ? (isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.1)')
+                : (isDark ? 'rgba(71, 85, 105, 0.2)' : 'rgba(226, 232, 240, 0.6)');
             
             window.faturamentoChart = new Chart(faturamentoCanvas.getContext('2d'), {
                 type: 'line',
                 data: {
-                    labels: faturamentoLabels.length > 0 ? faturamentoLabels : ['Sem dados'],
+                    labels: faturamentoLabelsFinal,
                     datasets: [{
                         label: 'Faturamento (R$)',
-                        data: faturamentoValues.length > 0 ? faturamentoValues : [0],
-                        borderColor: 'rgb(99, 102, 241)',
-                        backgroundColor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.1)',
+                        data: faturamentoValuesFinal,
+                        borderColor: faturamentoColor,
+                        backgroundColor: faturamentoBg,
                         tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: 'rgb(99, 102, 241)',
+                        fill: faturamentoFill,
+                        pointBackgroundColor: faturamentoColor,
                         pointBorderColor: borderColor,
                         pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
+                        pointRadius: hasFaturamentoData ? 4 : 0,
+                        pointHoverRadius: hasFaturamentoData ? 6 : 0
                     }]
                 },
                 options: {
@@ -664,16 +684,24 @@
         // Gráfico PDV vs Online
         const pdvVsOnlineCanvas = document.getElementById('pdvVsOnlineChart');
         if (pdvVsOnlineCanvas && dashboardData.pdvVsOnlineData) {
-            const pdvVsOnlineLabels = dashboardData.pdvVsOnlineData.map(item => item.label);
-            const pdvVsOnlineValues = dashboardData.pdvVsOnlineData.map(item => parseFloat(item.value || 0));
+            const pdvVsOnlineData = dashboardData.pdvVsOnlineData || [];
+            const pdvVsOnlineLabels = pdvVsOnlineData.map(item => item.label);
+            const pdvVsOnlineValues = pdvVsOnlineData.map(item => parseFloat(item.value || 0));
+            const pdvVsOnlineTotal = pdvVsOnlineValues.reduce((sum, value) => sum + value, 0);
+            const hasPdvVsOnlineData = pdvVsOnlineValues.length > 0 && pdvVsOnlineTotal > 0;
+            const pdvVsOnlineLabelsFinal = hasPdvVsOnlineData ? pdvVsOnlineLabels : ['Sem dados'];
+            const pdvVsOnlineValuesFinal = hasPdvVsOnlineData ? pdvVsOnlineValues : [1];
+            const pdvVsOnlineColors = hasPdvVsOnlineData
+                ? ['rgba(34, 197, 94, 0.8)', 'rgba(59, 130, 246, 0.8)']
+                : [emptyColor];
             
             window.pdvVsOnlineChart = new Chart(pdvVsOnlineCanvas.getContext('2d'), {
                 type: 'doughnut',
                 data: {
-                    labels: pdvVsOnlineLabels,
+                    labels: pdvVsOnlineLabelsFinal,
                     datasets: [{
-                        data: pdvVsOnlineValues,
-                        backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(59, 130, 246, 0.8)'],
+                        data: pdvVsOnlineValuesFinal,
+                        backgroundColor: pdvVsOnlineColors,
                         borderWidth: 2,
                         borderColor: borderColor
                     }]
@@ -694,6 +722,9 @@
                             borderWidth: 1,
                             callbacks: {
                                 label: function(context) {
+                                    if (!hasPdvVsOnlineData) {
+                                        return 'Sem dados';
+                                    }
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
                                     return context.label + ': R$ ' + context.parsed.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (' + percentage + '%)';
@@ -708,13 +739,26 @@
         return true;
     }
     
+    function hasDashboardCharts() {
+        return !!(
+            document.getElementById('statusChart') ||
+            document.getElementById('vendasMensaisChart') ||
+            document.getElementById('faturamentoChart') ||
+            document.getElementById('pdvVsOnlineChart')
+        );
+    }
+
     function waitAndInit() {
-        if (typeof Chart !== 'undefined' && document.readyState === 'complete') {
+        if (!hasDashboardCharts()) {
+            return;
+        }
+
+        if (typeof Chart !== 'undefined' && document.readyState !== 'loading') {
             setTimeout(function() {
                 initCharts();
-            }, 100);
+            }, 50);
         } else {
-            setTimeout(waitAndInit, 50);
+            setTimeout(waitAndInit, 80);
         }
     }
     
@@ -723,10 +767,16 @@
     } else {
         waitAndInit();
     }
+
+    if (!window.__vendedorChartsBound) {
+        window.__vendedorChartsBound = true;
+        document.addEventListener('content-loaded', waitAndInit);
+        document.addEventListener('ajax-content-loaded', waitAndInit);
+    }
     
     window.addEventListener('load', function() {
         setTimeout(function() {
-            if (!window.statusChart) {
+            if (hasDashboardCharts() && !window.statusChart) {
                 initCharts();
             }
         }, 500);
@@ -734,4 +784,3 @@
 })();
 </script>
 @endpush
-
