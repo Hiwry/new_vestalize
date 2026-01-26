@@ -47,11 +47,13 @@
             ],
             [
                 'title' => 'Link de Orçamento',
-                'desc' => 'Gere links públicos profissionais para aprovação direta do cliente.',
-                'route' => route('admin.quote-settings.index'),
-                'accent' => '#06b6d4', // Cyan
+                'desc' => 'Lançamento em breve.',
+                'route' => '#',
+                'accent' => '#94a3b8', // Slate 400 (Gray)
                 'icon' => 'fa-paper-plane',
-                'delay' => 'delay-300'
+                'delay' => 'delay-300',
+                'disabled' => true,
+                'badge' => 'Em Breve'
             ],
             [
                 'title' => 'PDV',
@@ -60,6 +62,14 @@
                 'accent' => '#f97316', // Orange
                 'icon' => 'fa-cash-register',
                 'delay' => 'delay-400'
+            ],
+            [
+                'title' => 'Personalizados',
+                'desc' => 'Gestão de vendas de produtos personalizados e sob medida.',
+                'route' => route('personalized.index'),
+                'accent' => '#ec4899', // Pink
+                'icon' => 'fa-pen-ruler',
+                'delay' => 'delay-500'
             ],
             [
                 'title' => 'Clientes',
@@ -83,26 +93,35 @@
     <!-- Grid Layout -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         @foreach($cards as $card)
-            <a href="{{ $card['route'] }}" 
-               class="group relative h-64 rounded-3xl bg-card-bg border border-border p-8 transition-all duration-300 hover:border-primary/50 hover:bg-card-hover hover-lift shadow-2xl overflow-hidden {{ $card['delay'] }}">
+            <a href="{{ $card['disabled'] ?? false ? '#' : $card['route'] }}" 
+               class="group relative h-64 rounded-3xl bg-card-bg border border-border p-8 transition-all duration-300 
+                      {{ $card['disabled'] ?? false ? 'opacity-75 cursor-not-allowed grayscale' : 'hover:border-primary/50 hover:bg-card-hover hover-lift shadow-2xl' }} 
+                      overflow-hidden {{ $card['delay'] }}">
                 
                 <!-- Decoration -->
                 <div class="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors"></div>
-                <div class="absolute top-0 left-0 w-1.5 h-full opacity-0 group-hover:opacity-100 transition-opacity" style="background: {{ $card['accent'] }}"></div>
+                <div class="absolute top-0 left-0 w-1.5 h-full opacity-0 {{ $card['disabled'] ?? false ? '' : 'group-hover:opacity-100' }} transition-opacity" style="background: {{ $card['accent'] }}"></div>
 
                 <div class="relative h-full flex flex-col justify-between">
                     <div class="flex items-start justify-between">
-                        <div class="w-14 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/10 group-hover:border-primary/20" style="color: {{ $card['accent'] }}">
+                        <div class="w-14 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center transition-all duration-300 {{ $card['disabled'] ?? false ? '' : 'group-hover:scale-110 group-hover:bg-primary/10 group-hover:border-primary/20' }}" style="color: {{ $card['accent'] }}">
                             <i class="fa-solid {{ $card['icon'] }} text-2xl"></i>
                         </div>
-                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
-                            <span class="text-[10px] uppercase tracking-tighter font-black text-primary">Acessar</span>
-                            <i class="fa-solid fa-arrow-right text-[10px] text-primary"></i>
-                        </div>
+                        
+                        @if($card['badge'] ?? false)
+                            <span class="px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-[10px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300">
+                                {{ $card['badge'] }}
+                            </span>
+                        @else
+                            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
+                                <span class="text-[10px] uppercase tracking-tighter font-black text-primary">Acessar</span>
+                                <i class="fa-solid fa-arrow-right text-[10px] text-primary"></i>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="space-y-2 mt-4">
-                        <h3 class="text-2xl font-bold text-white tracking-tight group-hover:text-primary transition-colors">
+                        <h3 class="text-2xl font-bold text-white tracking-tight {{ $card['disabled'] ?? false ? '' : 'group-hover:text-primary' }} transition-colors">
                             {{ $card['title'] }}
                         </h3>
                         <p class="text-muted text-sm leading-relaxed line-clamp-2">
@@ -111,10 +130,14 @@
                     </div>
 
                     <div class="pt-4 border-t border-white/5 flex items-center justify-between">
-                        <span class="text-xs font-bold text-muted transition-colors group-hover:text-white">Ir agora</span>
+                        <span class="text-xs font-bold text-muted transition-colors {{ $card['disabled'] ?? false ? '' : 'group-hover:text-white' }}">
+                            {{ $card['disabled'] ?? false ? 'Indisponível' : 'Ir agora' }}
+                        </span>
+                        @if(!($card['disabled'] ?? false))
                         <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-all duration-300 group-hover:bg-primary group-hover:text-white">
                             <i class="fa-solid fa-chevron-right text-[10px]"></i>
                         </div>
+                        @endif
                     </div>
                 </div>
             </a>

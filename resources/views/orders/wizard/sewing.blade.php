@@ -367,7 +367,7 @@
                                                         </div>
                                                         <div id="wizard-image-preview-container" class="hidden relative inline-block group">
                                                              <img id="wizard-image-preview" class="h-32 object-contain rounded-lg shadow-sm border border-gray-200">
-                                                             <button onclick="event.stopPropagation(); clearWizardImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md hover:bg-red-600"><i class="fa-solid fa-times"></i></button>
+                                                             <button onclick="event.stopPropagation(); clearWizardImage()" class="absolute -top-3 -right-3 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs shadow-md hover:bg-red-600 transition-transform hover:scale-110 z-10"><i class="fa-solid fa-times"></i></button>
                                                         </div>
                                                     </div>
 
@@ -493,6 +493,7 @@
 @push('page-scripts')
 <script>
 (function() {
+    const storageUrl = "{{ asset('storage') }}/";
     // Options for Wizard
     let options = {
         tecido: @json($fabrics ?? []),

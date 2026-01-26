@@ -19,11 +19,11 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 <div class="flex-1">
-                    <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-300">Aguardando Confirmação do Cliente</h3>
-                    <p class="text-xs text-yellow-700 dark:text-yellow-400 mt-1">
+                    <h3 class="text-sm font-medium text-yellow-900 dark:text-yellow-300">Aguardando Confirmação do Cliente</h3>
+                    <p class="text-xs text-yellow-800 dark:text-yellow-400 mt-1">
                         Este pedido está pendente até que o cliente confirme através do link de compartilhamento.
                         @if($order->client_token)
-                            <a href="{{ route('client.order.show', $order->client_token) }}" target="_blank" class="underline font-medium">
+                            <a href="{{ route('client.order.show', $order->client_token) }}" target="_blank" class="underline font-bold text-yellow-900 dark:text-yellow-300">
                                 Visualizar link do cliente
                             </a>
                         @else
@@ -186,7 +186,7 @@
                         <div x-data>
                             <button type="button" 
                                     x-on:click="$dispatch('open-modal', 'confirm-invoice-emit')"
-                                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors shadow-sm">
+                                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors shadow-sm" style="color: white !important;">
                                 Emitir NF-e
                             </button>
 
@@ -464,7 +464,7 @@
                             Pagamentos
                         </h2>
                         <button onclick="togglePaymentForm()" 
-                                class="px-3 py-1 text-sm bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-500 dark:to-indigo-600 text-white rounded-md hover:from-indigo-700 hover:to-indigo-600 dark:hover:from-indigo-600 dark:hover:to-indigo-700 transition-all shadow-lg shadow-indigo-500/20 dark:shadow-indigo-600/20">
+                                class="px-3 py-1 text-sm bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-500 dark:to-indigo-600 text-white rounded-md hover:from-indigo-700 hover:to-indigo-600 dark:hover:from-indigo-600 dark:hover:to-indigo-700 transition-all shadow-lg shadow-indigo-500/20 dark:shadow-indigo-600/20" style="color: white !important;">
                             Adicionar Pagamento
                         </button>
                     </div>
@@ -543,12 +543,12 @@
                                             <div class="flex space-x-1">
                                                 @if(isset($method['id']))
                                                 <button onclick="editPayment({{ $payment->id }}, '{{ $method['id'] }}')" 
-                                                        class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700">
+                                                        class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700" style="color: white !important;">
                                                     Editar
                                                 </button>
                                                 <button type="button" 
                                                         onclick="openDeletePaymentModal({{ $payment->id }}, '{{ $method['id'] }}')"
-                                                        class="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
+                                                        class="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700" style="color: white !important;">
                                                     Remover
                                                 </button>
                                                 @endif
@@ -576,12 +576,12 @@
                                         </div>
                                         <div class="flex space-x-1">
                                             <button onclick="editPayment({{ $payment->id }})" 
-                                                    class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700">
+                                                    class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700" style="color: white !important;">
                                                 Editar
                                             </button>
                                             <button type="button"
                                                     onclick="openDeletePaymentModal({{ $payment->id }}, null)"
-                                                    class="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
+                                                    class="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700" style="color: white !important;">
                                                 Remover
                                             </button>
                                         </div>
@@ -713,7 +713,7 @@
                                 <div class="flex-1">
                                     <div class="flex items-center space-x-2">
                                         <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $transaction->description }}</span>
-                                        <span class="px-2 py-1 text-xs rounded-full {{ $transaction->status === 'confirmado' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300' }}">
+                                        <span class="px-2 py-1 text-xs rounded-full {{ $transaction->status === 'confirmado' ? 'bg-green-600 text-white' : 'bg-yellow-500 text-white' }}">
                                             {{ ucfirst($transaction->status) }}
                                         </span>
                                     </div>
@@ -816,11 +816,11 @@
                         <!-- Nota do Cliente / Nota de Venda -->
                         <a href="{{ $order->is_pdv ? route('pdv.sale-receipt', $order->id) : route('orders.client-receipt', $order->id) }}" 
                            target="_blank"
-                           class="block w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-500 dark:to-blue-600 text-white text-center rounded-md hover:from-blue-700 hover:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-sm flex items-center justify-center space-x-2 transition-all shadow-lg shadow-blue-500/20 dark:shadow-blue-600/20">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           class="block w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-500 dark:to-blue-600 text-white text-center rounded-md hover:from-blue-700 hover:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-sm flex items-center justify-center space-x-2 transition-all shadow-lg shadow-blue-500/20 dark:shadow-blue-600/20" style="color: white !important;">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white !important;">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
-                            <span>{{ $order->is_pdv ? 'Nota de Venda (PDF)' : 'Nota do Cliente (PDF)' }}</span>
+                            <span style="color: white !important;">{{ $order->is_pdv ? 'Nota de Venda (PDF)' : 'Nota do Cliente (PDF)' }}</span>
                         </a>
                         
                         <div class="border-t border-gray-200 dark:border-gray-700 my-3"></div>
@@ -828,18 +828,18 @@
                         <!-- Downloads Internos -->
                         <a href="{{ url('/kanban/download-costura/' . $order->id) }}" 
                            target="_blank"
-                           class="block w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-500 dark:from-purple-500 dark:to-purple-600 text-white text-center rounded-md hover:from-purple-700 hover:to-purple-600 dark:hover:from-purple-600 dark:hover:to-purple-700 text-sm transition-all shadow-lg shadow-purple-500/20 dark:shadow-purple-600/20">
+                           class="block w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-500 dark:from-purple-500 dark:to-purple-600 text-white text-center rounded-md hover:from-purple-700 hover:to-purple-600 dark:hover:from-purple-600 dark:hover:to-purple-700 text-sm transition-all shadow-lg shadow-purple-500/20 dark:shadow-purple-600/20" style="color: white !important;">
                             Folha Costura (A4)
                         </a>
                         <a href="{{ url('/kanban/download-personalizacao/' . $order->id) }}" 
                            target="_blank"
-                           class="block w-full px-4 py-2 bg-gradient-to-r from-pink-600 to-pink-500 dark:from-pink-500 dark:to-pink-600 text-white text-center rounded-md hover:from-pink-700 hover:to-pink-600 dark:hover:from-pink-600 dark:hover:to-pink-700 text-sm transition-all shadow-lg shadow-pink-500/20 dark:shadow-pink-600/20">
+                           class="block w-full px-4 py-2 bg-gradient-to-r from-pink-600 to-pink-500 dark:from-pink-500 dark:to-pink-600 text-white text-center rounded-md hover:from-pink-700 hover:to-pink-600 dark:hover:from-pink-600 dark:hover:to-pink-700 text-sm transition-all shadow-lg shadow-pink-500/20 dark:shadow-pink-600/20" style="color: white !important;">
                             Folha Personalização (A4)
                         </a>
                         @if($order->items->first() && $order->items->first()->files->count() > 0)
                         <a href="{{ url('/kanban/download-files/' . $order->id) }}" 
                            target="_blank"
-                           class="block w-full px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 dark:from-green-500 dark:to-green-600 text-white text-center rounded-md hover:from-green-700 hover:to-green-600 dark:hover:from-green-600 dark:hover:to-green-700 text-sm transition-all shadow-lg shadow-green-500/20 dark:shadow-green-600/20">
+                           class="block w-full px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 dark:from-green-500 dark:to-green-600 text-white text-center rounded-md hover:from-green-700 hover:to-green-600 dark:hover:from-green-600 dark:hover:to-green-700 text-sm transition-all shadow-lg shadow-green-500/20 dark:shadow-green-600/20" style="color: white !important;">
                             Arquivos da Arte
                         </a>
                         @endif

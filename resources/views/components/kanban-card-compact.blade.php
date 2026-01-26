@@ -55,7 +55,8 @@
     }
 }"
      @click.outside="closeActions()"
-     class="relative overflow-hidden rounded-lg mb-2 shadow-sm">
+     class="kanban-card-compact custom-card-shadow relative overflow-hidden rounded-lg mb-2"
+     style="box-shadow: var(--kanban-card-shadow) !important;">
     
     {{-- Swipe Actions (aparecem ao deslizar) --}}
     <div class="absolute inset-y-0 right-0 flex items-stretch" style="width: 120px;">
@@ -107,7 +108,7 @@
                     </span>
                     
                     @if($order->is_event)
-                        <span class="text-[10px] px-1.5 py-0.5 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded font-medium">
+                        <span class="text-[10px] px-1.5 py-0.5 bg-purple-600 text-white dark:bg-purple-600 dark:text-white rounded font-medium">
                             EVENTO
                         </span>
                     @endif

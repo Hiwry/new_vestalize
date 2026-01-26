@@ -31,6 +31,9 @@ class SublimationProduct extends Model
         'conjunto' => 'Conjunto Esportivo',
         'bandeira' => 'Bandeira',
         'winderbanner' => 'Winderbanner',
+        'caneca' => 'Caneca',
+        'almofada' => 'Almofada',
+        'tirante' => 'Tirante',
         'custom' => 'Personalizado',
     ];
 

@@ -21,7 +21,8 @@ class ClientController extends Controller
         $user = Auth::user();
         
         // Super Admin (tenant_id === null) não deve ver clientes de outros tenants sem selecionar contexto
-        if ($this->isSuperAdmin() && !$this->hasSelectedTenant()) {
+        // Super Admin (tenant_id === null) não deve ver clientes de outros tenants sem selecionar contexto
+        /* if ($this->isSuperAdmin() && !$this->hasSelectedTenant()) {
             return $this->emptySuperAdminResponse('clients.index', [
                 'clients' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
                 'stores' => collect([]),
@@ -30,7 +31,7 @@ class ClientController extends Controller
                 'categories' => collect([]), // Added to match original view data
                 'category' => null, // Added to match original view data
             ]);
-        }
+        } */
 
         $search = $request->get('search');
         $category = $request->get('category');
