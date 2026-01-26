@@ -133,18 +133,30 @@
                     </div>
                 </div>
 
+                <!-- Capa do Pedido -->
+                <div class="mb-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                        Capa do Pedido (Opcional)
+                    </label>
+                    <input type="file" 
+                           name="cover_image"
+                           accept="image/*"
+                           class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400">
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Selecione uma imagem para ser a capa deste pedido.</p>
+                </div>
+
                 <!-- Opções Adicionais: Evento e Desconto -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Checkbox Evento -->
-                    <div class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                        <label class="flex items-center cursor-pointer">
+                    <div class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800 flex flex-col items-center justify-center text-center h-full">
+                        <label class="flex flex-col items-center cursor-pointer p-2">
                             <input type="checkbox" 
                                    name="is_event" 
                                    value="1"
-                                   class="w-5 h-5 text-amber-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-amber-500 dark:focus:ring-amber-400 focus:ring-2">
-                            <div class="ml-3">
-                                <span class="font-medium text-gray-900 dark:text-white">🎉 Pedido para Evento</span>
-                                <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">Marque se este pedido é para um evento específico</p>
+                                   class="w-6 h-6 text-amber-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-amber-500 dark:focus:ring-amber-400 focus:ring-2 mb-2">
+                            <div class="flex flex-col items-center">
+                                <span class="font-medium text-gray-900 dark:text-white text-base">Pedido para Evento</span>
+                                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Marque se este pedido é para um evento específico</p>
                             </div>
                         </label>
                     </div>
@@ -152,7 +164,7 @@
                     <!-- Campo de Desconto -->
                     <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                         <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                            💰 Desconto
+                            Desconto
                         </label>
                         <div class="flex items-center gap-3">
                             <div class="relative flex-1">
@@ -186,7 +198,7 @@
                 <div class="flex items-start justify-between">
                     <div>
                         <div class="flex items-center">
-                            <div class="w-8 h-8 bg-indigo-600 dark:bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">
+                            <div class="w-8 h-8 bg-indigo-600 dark:bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3" style="color: white !important;">
                                 {{ $index + 1 }}
                             </div>
                             <h3 class="text-base font-semibold text-gray-900 dark:text-white">
@@ -268,7 +280,7 @@
                            data-paste-extensions="jpg,jpeg,png,gif,cdr,ai,pdf,svg">
                     <button type="button" 
                             onclick="window.pasteModal.open(document.getElementById('file-input-{{ $index }}'))"
-                            class="w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg">
+                            class="w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg" style="color: white !important;">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
@@ -324,7 +336,7 @@
                                        data-paste-extensions="jpg,jpeg,png,gif">
                                 <button type="button" 
                                         onclick="window.pasteModal.open(document.getElementById('custom-image-{{ $index }}-{{ $customIndex }}'))"
-                                        class="w-full inline-flex items-center justify-center px-3 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow-md">
+                                        class="w-full inline-flex items-center justify-center px-3 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow-md" style="color: white !important;">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                                     </svg>
@@ -381,53 +393,101 @@
                 </div>
             </div>
             <div class="p-6 space-y-4 bg-white dark:bg-gray-800">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                            Forma de Pagamento <span class="text-red-500">*</span>
-                        </label>
-                        <select name="payment_method" 
-                                required
-                                class="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400 transition-all">
-                            <option value="" class="dark:bg-gray-700">Selecione...</option>
-                            @foreach($paymentMethods as $key => $label)
-                            <option value="{{ $key }}" class="dark:bg-gray-700">{{ $label }}</option>
-                            @endforeach
-                        </select>
-                        @error('payment_method')
-                            <p class="text-xs text-red-600 dark:text-red-400 mt-2 flex items-center">
-                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                <div x-data="{
+                    payments: [
+                        { method: '', amount: '{{ $budget->total }}' }
+                    ],
+                    totalBudget: {{ $budget->total }},
+                    
+                    addPayment() {
+                        this.payments.push({ method: '', amount: 0 });
+                        this.calculateRemaining();
+                    },
+                    removePayment(index) {
+                        if (this.payments.length > 1) {
+                            this.payments.splice(index, 1);
+                        }
+                    },
+                    get totalPaid() {
+                        return this.payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+                    },
+                    get remaining() {
+                        return Math.max(0, this.totalBudget - this.totalPaid);
+                    },
+                    calculateRemaining() {
+                        // Opcional: Auto-ajustar valor do último pagamento novo
+                        // const used = this.totalPaid;
+                        // const last = this.payments[this.payments.length - 1];
+                        // if (last.amount == 0) last.amount = (this.totalBudget - used).toFixed(2);
+                    }
+                }">
+                    <div class="space-y-4">
+                        <template x-for="(payment, index) in payments" :key="index">
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end bg-gray-50 dark:bg-gray-700/30 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="md:col-span-5">
+                                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" x-show="index === 0">
+                                        Forma de Pagamento <span class="text-red-500">*</span>
+                                    </label>
+                                    <select :name="'payments['+index+'][method]'" 
+                                            x-model="payment.method"
+                                            required
+                                            class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 transition-all">
+                                        <option value="">Selecione...</option>
+                                        @foreach($paymentMethods as $key => $label)
+                                        <option value="{{ $key }}">{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="md:col-span-5">
+                                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" x-show="index === 0">
+                                        Valor <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium text-xs">R$</span>
+                                        <input type="number" 
+                                               :name="'payments['+index+'][amount]'" 
+                                               x-model="payment.amount"
+                                               step="0.01" 
+                                               min="0"
+                                               required
+                                               class="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 transition-all">
+                                    </div>
+                                </div>
+                                <div class="md:col-span-2 flex justify-end pb-1">
+                                    <button type="button" 
+                                            @click="removePayment(index)"
+                                            class="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                                            :disabled="payments.length === 1"
+                                            :class="{'opacity-50 cursor-not-allowed': payments.length === 1}">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div class="flex justify-between items-center pt-2">
+                            <button type="button" 
+                                    @click="addPayment()"
+                                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 rounded-lg transition-colors border border-indigo-200 dark:border-indigo-800">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
-                                {{ $message }}
-                            </p>
-                        @enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                            Valor do Pagamento <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">R$</span>
-                            <input type="number" 
-                                   name="payment_amount" 
-                                   step="0.01" 
-                                   min="0"
-                                   value="{{ $budget->total }}"
-                                   required
-                                   class="w-full pl-12 pr-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400 transition-all">
+                                Adicionar Pagamento
+                            </button>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Total Pago</p>
+                                <p class="font-bold text-lg" :class="totalPaid == totalBudget ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'">
+                                    R$ <span x-text="totalPaid.toFixed(2)"></span>
+                                    <span class="text-xs font-normal text-gray-400">/ <span x-text="totalBudget.toFixed(2)"></span></span>
+                                </p>
+                            </div>
                         </div>
-                        @error('payment_amount')
-                            <p class="text-xs text-red-600 dark:text-red-400 mt-2 flex items-center">
-                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                </svg>
-                                {{ $message }}
-                            </p>
-                        @enderror
                     </div>
                 </div>
-                <div>
+
+                <div class="pt-4 border-t border-gray-100 dark:border-gray-700">
                     <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
                         Observações do Pagamento
                     </label>
@@ -457,7 +517,7 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span id="submit-text">Converter em Pedido</span>
+                <span id="submit-text" style="color: white !important;">Converter em Pedido</span>
             </button>
         </div>
     </form>
@@ -547,12 +607,12 @@
     function getFileIconEmoji(filename) {
         const ext = filename.split('.').pop().toLowerCase();
         const icons = {
-            pdf: '📄',
-            cdr: '🎨',
-            ai: '🎨',
-            svg: '🖼️',
+            pdf: '',
+            cdr: '',
+            ai: '',
+            svg: '',
         };
-        return icons[ext] || '📎';
+        return icons[ext] || '';
     }
 
     // Atualizar total de tamanhos

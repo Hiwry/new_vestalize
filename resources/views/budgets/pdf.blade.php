@@ -321,16 +321,17 @@
                         $personalizationTypes = json_decode($item->personalization_types, true) ?? [];
                         
                         // Price Calculations
-                        $itemBaseTotal = $item->item_total;
-                        $customizationsTotal = $item->customizations->sum('total_price');
-                        
-                        // Decide Unit Price Display based on 'modo'
-                        // If 'unificado', unit price = (Base + Customizations) / Qty
-                        // Else, show breakdown in description?? No, sticking to Unified Column as requested.
-                        
-                        // Let's implement UNIFIED VIEW logic primarily for clean look
-                        $finalItemTotal = $itemBaseTotal + $customizationsTotal;
+                        $sewingTotal = $item->item_total;
+                        $sewingUnit = $item->quantity > 0 ? $sewingTotal / $item->quantity : 0;
+
+                        $persTotal = $item->customizations->sum('total_price');
+                        $persUnit = $item->quantity > 0 ? $persTotal / $item->quantity : 0;
+
+                        $finalItemTotal = $sewingTotal + $persTotal;
                         $finalUnitPrice = $item->quantity > 0 ? ($finalItemTotal / $item->quantity) : 0;
+                        
+                        // Mode check (controller usually passes $modo, fallback to request)
+                        $isDetailed = ($modo ?? request('modo') ?? 'detalhado') !== 'unificado';
                     @endphp
                     <tr>
                         <td style="text-align: center; color: #6b7280;">{{ $loop->iteration }}</td>
@@ -357,14 +358,35 @@
                             @endif
                         </td>
                         <td style="text-align: center;">{{ $item->quantity }}</td>
-                        <td style="text-align: right;">
-                            R$ {{ number_format($finalUnitPrice, 2, ',', '.') }}
-                            @if(($modo ?? 'detalhado') !== 'unificado' && $customizationsTotal > 0)
-                                <div style="font-size: 8px; color: #6b7280;">(Costura + Pers.)</div>
+                        
+                        <!-- Unit Price -->
+                        <td style="text-align: right; vertical-align: top;">
+                            @if($isDetailed && $persTotal > 0)
+                                <div style="font-size: 9px; color: #6b7280;">Costura: R$ {{ number_format($sewingUnit, 2, ',', '.') }}</div>
+                                <div style="font-size: 9px; color: #6b7280;">Pers.: R$ {{ number_format($persUnit, 2, ',', '.') }}</div>
+                                <div style="border-top: 1px solid #e5e7eb; margin-top: 2px; padding-top: 2px; font-weight: bold; color: #111827;">
+                                    R$ {{ number_format($finalUnitPrice, 2, ',', '.') }}
+                                </div>
+                            @else
+                                <span style="font-weight: bold; color: #111827;">
+                                    R$ {{ number_format($finalUnitPrice, 2, ',', '.') }}
+                                </span>
                             @endif
                         </td>
-                        <td style="text-align: right; font-weight: bold; color: #111827;">
-                            R$ {{ number_format($finalItemTotal, 2, ',', '.') }}
+
+                        <!-- Total Price -->
+                        <td style="text-align: right; vertical-align: top;">
+                            @if($isDetailed && $persTotal > 0)
+                                <div style="font-size: 9px; color: #6b7280;">R$ {{ number_format($sewingTotal, 2, ',', '.') }}</div>
+                                <div style="font-size: 9px; color: #6b7280;">R$ {{ number_format($persTotal, 2, ',', '.') }}</div>
+                                <div style="border-top: 1px solid #e5e7eb; margin-top: 2px; padding-top: 2px; font-weight: bold; color: #111827;">
+                                    R$ {{ number_format($finalItemTotal, 2, ',', '.') }}
+                                </div>
+                            @else
+                                <span style="font-weight: bold; color: #111827;">
+                                    R$ {{ number_format($finalItemTotal, 2, ',', '.') }}
+                                </span>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

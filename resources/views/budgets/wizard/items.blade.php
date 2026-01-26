@@ -22,6 +22,18 @@
         </div>
     </div>
 
+    <!-- Messages -->
+    @if(session('success'))
+    <div class="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+        </div>
+    </div>
+    @endif
+
     <!-- Main Content List -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
         <div class="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
@@ -29,11 +41,11 @@
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Itens do Orçamento</h2>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Adicione os itens que compõem este orçamento</p>
             </div>
-            <button type="button" onclick="openItemModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition text-sm font-medium flex items-center gap-2" style="color: white !important;">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white !important;">
+            <button type="button" onclick="openItemModal()" style="color: white !important;" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition text-sm font-medium flex items-center gap-2">
+                <svg class="w-4 h-4 text-white" style="color: white !important;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
-                Adicionar Item
+                <span style="color: white !important;">Adicionar Item</span>
             </button>
         </div>
 
@@ -88,9 +100,6 @@
                                 R$ {{ number_format(($item['unit_price'] ?? 0) * ($item['quantity'] ?? 0), 2, ',', '.') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button type="button" onclick="editItem({{ $index }})" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 mr-3">
-                                    Editar
-                                </button>
                                 <button type="button" onclick="removeItem({{ $index }})" class="text-red-600 dark:text-red-400 hover:text-red-900">
                                     Remover
                                 </button>
@@ -123,9 +132,9 @@
         <form method="POST" action="{{ route('budget.items') }}">
             @csrf
             <input type="hidden" name="action" value="continue">
-            <button type="submit" class="px-8 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 shadow-lg hover:shadow-xl transition text-sm font-medium flex items-center gap-2" style="color: white !important;">
+            <button type="submit" style="color: white !important;" class="px-8 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 shadow-lg hover:shadow-xl transition text-sm font-medium flex items-center gap-2">
                 Continuar
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" style="color: white !important;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                 </svg>
             </button>
@@ -160,12 +169,14 @@
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700/50">
                     <div class="flex items-center justify-between w-full max-w-sm mx-auto">
                         <div class="flex flex-col items-center step-indicator" data-step="1">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-indigo-600 text-white font-bold text-sm ring-4 ring-indigo-100 dark:ring-indigo-900/30" style="color: white !important; -webkit-text-fill-color: white !important;">1</div>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-indigo-600 text-white font-bold text-sm ring-4 ring-indigo-100 dark:ring-indigo-900/30"
+                                     style="color: white !important;">1</div>
                             <span class="text-xs font-medium mt-2 text-indigo-600 dark:text-indigo-400">Tipo</span>
                         </div>
                         <div class="flex-1 h-0.5 bg-gray-200 dark:bg-gray-700 mx-2 step-line" data-to="2"></div>
                         <div class="flex flex-col items-center step-indicator" data-step="2">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-500 font-bold text-sm">2</div>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-indigo-600 text-white font-bold text-sm ring-4 ring-indigo-100 dark:ring-indigo-900/30"
+                                     style="color: white !important;">2</div>
                             <span class="text-xs font-medium mt-2 text-gray-500">Tecido</span>
                         </div>
                         <div class="flex-1 h-0.5 bg-gray-200 dark:bg-gray-700 mx-2 step-line" data-to="3"></div>
@@ -294,11 +305,11 @@
                             Cancelar
                         </button>
 
-                        <button type="button" id="btn-next" onclick="changeStep(1)" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition" style="color: white !important;">
+                        <button type="button" id="btn-next" onclick="changeStep(1)" style="color: white !important;" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition">
                             Próximo
                         </button>
 
-                        <button type="submit" id="btn-save" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium shadow-sm transition hidden" style="color: white !important;">
+                        <button type="submit" id="btn-save" style="color: white !important;" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium shadow-sm transition hidden">
                             Salvar Item
                         </button>
                     </div>
@@ -320,14 +331,6 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         loadOptions();
-        
-        // Debug: Log form data before submit
-        document.getElementById('item-form').addEventListener('submit', function(e) {
-            const actionValue = this.querySelector('input[name="action"]').value;
-            const editingId = document.getElementById('editing_item_id');
-            console.log('Form submitting with action:', actionValue, 'editing_item_id:', editingId ? editingId.value : 'null');
-            alert('Action: ' + actionValue + ', EditingID: ' + (editingId ? editingId.value : 'null'));
-        });
     });
 
     function openItemModal() {
@@ -342,14 +345,7 @@
     function resetWizard() {
         currentStep = 1;
         updateWizardUI();
-        // Reset form to add mode
-        const actionInput = document.querySelector('input[name="action"]');
-        if (actionInput) actionInput.value = 'add_item';
-        const editingInput = document.getElementById('editing_item_id');
-        if (editingInput) editingInput.remove();
-        selectedPersonalizacoes = [];
-        // Reset checkboxes
-        document.querySelectorAll('input[name="personalizacao[]"]').forEach(cb => cb.checked = false);
+        // optionally reset form inputs here
     }
 
     function changeStep(direction) {
@@ -378,19 +374,21 @@
 
             if (step === currentStep) {
                 // Active
-                circle.className = "w-8 h-8 rounded-full flex items-center justify-center bg-indigo-600 text-white font-bold text-sm ring-4 ring-indigo-100";
-                circle.setAttribute('style', 'color: white !important; -webkit-text-fill-color: white !important;');
-                label.className = "text-xs font-medium mt-2 text-indigo-600";
+                circle.className = "w-8 h-8 rounded-full flex items-center justify-center bg-indigo-600 text-white font-bold text-sm ring-4 ring-indigo-100 dark:ring-indigo-900/30";
+                circle.style.setProperty('color', 'white', 'important');
+                label.className = "text-xs font-medium mt-2 text-indigo-600 dark:text-indigo-400";
             } else if (step < currentStep) {
                 // Completed
                 circle.className = "w-8 h-8 rounded-full flex items-center justify-center bg-green-500 text-white font-bold text-sm";
-                circle.setAttribute('style', 'color: white !important; -webkit-text-fill-color: white !important;');
                 circle.innerHTML = "✓";
+                circle.style.setProperty('color', 'white', 'important');
                 label.className = "text-xs font-medium mt-2 text-green-600";
             } else {
                 // Pending
                 circle.className = "w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-500 font-bold text-sm";
                 circle.innerHTML = step;
+                circle.style.color = ""; // Reset style
+                circle.style.cssText = ""; // Clear inline styles
                 label.className = "text-xs font-medium mt-2 text-gray-500";
             }
         });
@@ -440,36 +438,87 @@
         return isValid;
     }
 
-    // --- Data Loading & Rendering Logic (Same as before, adapted) ---
+    // --- Data Loading & Rendering Logic ---
+
     function loadOptions() {
         fetch('/api/product-options')
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.json();
+            })
             .then(data => {
                 options = data;
                 return fetch('/api/product-options-with-parents');
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.json();
+            })
             .then(data => {
                 optionsWithParents = data;
                 renderPersonalizacao();
-                renderAllDropdowns(); // init empty
+                renderAllDropdowns(); 
+            })
+            .catch(error => {
+                console.error('Error loading options:', error);
+                document.getElementById('personalizacao-options').innerHTML = 
+                    '<div class="col-span-full text-center text-red-500 py-4">Erro ao carregar opções. Recarregue a página.</div>';
             });
     }
 
+    function getIconStyle(name) {
+        const n = name.toLowerCase().trim();
+        if(n.includes('local')) return { icon: 'fa-fire', color: 'text-[#7c3aed]', bg: 'bg-purple-100 dark:bg-purple-900/30' };
+        if(n.includes('serigrafia')) return { icon: 'fa-fill-drip', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-100 dark:bg-purple-900/30' };
+        if(n.includes('dtf')) return { icon: 'fa-print', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-100 dark:bg-orange-900/30' };
+        if(n.includes('bordado')) return { icon: 'fa-pen-nib', color: 'text-pink-600 dark:text-pink-400', bg: 'bg-pink-100 dark:bg-pink-900/30' };
+        if(n.includes('emborrachado')) return { icon: 'fa-cube', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-100 dark:bg-green-900/30' };
+        if(n.includes('lisa')) return { icon: 'fa-star', color: 'text-gray-600 dark:text-gray-400', bg: 'bg-gray-100 dark:bg-gray-700' };
+        if(n.includes('total')) return { icon: 'fa-image', color: 'text-white', bg: 'bg-gradient-to-br from-indigo-500 to-purple-600 shadow-md' };
+        return { icon: 'fa-layer-group', color: 'text-gray-600', bg: 'bg-gray-100' };
+    }
+
+
     function renderPersonalizacao() {
-        // ... (Logic from previous step, preserving checkbox rendering)
         const container = document.getElementById('personalizacao-options');
         const items = optionsWithParents.personalizacao || options.personalizacao || [];
+        const form = document.getElementById('item-form');
         
-        container.innerHTML = items.map(item => `
-            <label class="flex items-center p-4 border rounded-xl cursor-pointer hover:border-indigo-400 transition-all ${selectedPersonalizacoes.includes(item.id) ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200'}">
-                <input type="checkbox" name="personalizacao[]" value="${item.id}" 
-                       onchange="togglePersonalizacao(${item.id})"
-                       class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mr-3" 
-                       ${selectedPersonalizacoes.includes(item.id) ? 'checked' : ''}>
-                <span class="text-sm font-medium text-gray-900 dark:text-gray-100">${item.name}</span>
-            </label>
-        `).join('');
+        // Remove existing hidden inputs for personalizacao
+        const existingInputs = form.querySelectorAll('input[name="personalizacao[]"]');
+        existingInputs.forEach(input => input.remove());
+
+        // Add hidden inputs for selected items
+        selectedPersonalizacoes.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'personalizacao[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+        
+        container.innerHTML = items.map(item => {
+            const style = getIconStyle(item.name);
+            const isSelected = selectedPersonalizacoes.includes(item.id);
+            const borderClass = isSelected ? 'border-[#7c3aed] ring-2 ring-[#7c3aed]/20' : 'border-gray-200 dark:border-gray-700';
+            
+            return `
+            <div onclick="togglePersonalizacao(${item.id})" 
+                 class="relative flex flex-col items-center p-4 border rounded-xl cursor-pointer hover:border-[#7c3aed] transition-all group hover:shadow-lg ${borderClass} bg-white dark:bg-gray-800">
+                
+                ${isSelected ? `
+                <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#7c3aed] text-white flex items-center justify-center">
+                    <i class="fa-solid fa-check text-[10px]"></i>
+                </div>` : ''}
+
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform ${style.bg}">
+                    <i class="fa-solid ${style.icon} text-xl ${style.color}"></i>
+                </div>
+                
+                <span class="text-xs font-bold text-center text-gray-900 dark:text-gray-100 uppercase tracking-wide">${item.name}</span>
+            </div>
+            `;
+        }).join('');
     }
 
     function togglePersonalizacao(id) {
@@ -557,64 +606,6 @@
         form.innerHTML = `@csrf <input type="hidden" name="action" value="remove_item"><input type="hidden" name="item_index" value="${index}">`;
         document.body.appendChild(form);
         form.submit();
-    }
-    
-    // Edit item - opens modal with pre-filled data
-    window.editItem = function(index) {
-        // Get the item data from the session via a data attribute
-        const items = @json($items ?? []);
-        const item = items[index];
-        
-        if (!item) {
-            alert('Item não encontrado');
-            return;
-        }
-        
-        // Open modal WITHOUT resetting (don't call openItemModal which resets)
-        document.getElementById('item-modal').classList.remove('hidden');
-        
-        // Set editing mode BEFORE any wizard updates
-        document.querySelector('input[name="action"]').value = 'update_item';
-        
-        // Add editing flag
-        let editingInput = document.getElementById('editing_item_id');
-        if (!editingInput) {
-            editingInput = document.createElement('input');
-            editingInput.type = 'hidden';
-            editingInput.name = 'editing_item_id';
-            editingInput.id = 'editing_item_id';
-            document.getElementById('item-form').appendChild(editingInput);
-        }
-        editingInput.value = index;
-        
-        // Pre-select personalizations
-        setTimeout(() => {
-            if (item.personalizacao) {
-                selectedPersonalizacoes = Array.isArray(item.personalizacao) ? item.personalizacao : [item.personalizacao];
-                document.querySelectorAll('input[name="personalizacao[]"]').forEach(cb => {
-                    cb.checked = selectedPersonalizacoes.includes(cb.value);
-                });
-            }
-            
-            // Go to step 1 and let user navigate through
-            currentStep = 1;
-            updateWizardUI();
-            
-            // Pre-fill other fields after a short delay for dropdowns to load
-            setTimeout(() => {
-                if (item.tecido) document.getElementById('tecido').value = item.tecido;
-                if (item.cor) document.getElementById('cor').value = item.cor;
-                if (item.tipo_corte) document.getElementById('tipo_corte').value = item.tipo_corte;
-                if (item.gola) document.getElementById('gola').value = item.gola;
-                if (item.detalhe) document.getElementById('detalhe').value = item.detalhe;
-                if (item.quantity) document.getElementById('quantity').value = item.quantity;
-                if (item.unit_price) document.getElementById('unit_price').value = item.unit_price;
-                if (item.notes) document.getElementById('notes').value = item.notes;
-                
-                // Update displayed price
-                updatePrice();
-            }, 500);
-        }, 100);
     }
 </script>
 @endpush

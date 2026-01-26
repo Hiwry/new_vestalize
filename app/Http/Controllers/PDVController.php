@@ -38,43 +38,16 @@ class PDVController extends Controller
         $search = $request->get('search');
         $type = $request->get('type', 'products');
         
-        // Super Admin (tenant_id === null) não deve ver dados de outros tenants sem selecionar contexto
-        if ($user->tenant_id === null) {
-            $paginatedItems = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 8);
-            
-            // Handle AJAX requests for Super Admin (e.g. tab switching)
-            if ($request->ajax()) {
-                $html = view('pdv.partials.grid', [
-                    'paginatedItems' => $paginatedItems,
-                    'type' => $type,
-                    'search' => $search,
-                ])->render();
-
-                return response()->json([
-                    'html' => $html,
-                    'jsItems' => collect([])
-                ]);
-            }
-
-            return view('pdv.index', [
-                'items' => collect([]),
-                'paginatedItems' => $paginatedItems,
-                'categories' => collect([]),
-                'clients' => collect([]),
-                'payments' => collect([]),
-                'currentStoreId' => null,
-                'stores' => collect([]),
-                'type' => $type,
-                'search' => $search,
-                'isSuperAdmin' => true,
-                'jsItems' => collect([]),
-                'cart' => [],
-                'locations' => collect([]),
-                'fabrics' => collect([]),
-                'colors' => collect([]),
-                'subLocalPersonalizationId' => null,
-                'productOptionsWithSublocal' => collect([]),
-            ]);
+        $type = $request->get('type', 'products');
+        
+        // Super Admin (tenant_id === null) fallback logic matches Kanban
+        $activeTenantId = $user->tenant_id;
+        if ($activeTenantId === null) {
+            $activeTenantId = session('selected_tenant_id');
+        }
+        if ($activeTenantId === null) {
+            $firstStore = Store::first();
+            $activeTenantId = $firstStore ? $firstStore->tenant_id : 1;
         }
 
         $type = $request->get('type', 'products'); // products, fabric_pieces, machines, supplies, uniforms

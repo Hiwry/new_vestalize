@@ -157,8 +157,8 @@
        class="fixed top-0 left-0 z-[60] h-screen bg-card-bg border-r border-border overflow-hidden transition-all duration-300 ease-in-out transform md:translate-x-0 shadow-2xl">
     
     <!-- Header do Sidebar com Botão Toggle -->
-    <div class="flex items-center justify-between h-20 px-4 border-b border-border bg-card-bg transition-all duration-300 relative"
-         :class="expanded ? '' : 'justify-center !px-0'">
+    <div class="flex items-center h-20 border-b border-border bg-card-bg transition-all duration-300 relative"
+         :class="expanded ? 'justify-between px-4' : 'justify-center'">
         <div class="flex items-center overflow-hidden" x-show="expanded">
             @if(auth()->user()->tenant && auth()->user()->tenant->logo_path)
                 <img src="{{ Storage::url(auth()->user()->tenant->logo_path) }}" alt="Logo" class="h-10 w-auto object-contain">

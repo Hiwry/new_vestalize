@@ -596,8 +596,58 @@ class KanbanController extends Controller
             }
             $companySettings = \App\Models\CompanySetting::getSettings($storeId);
             
+            // Processar imagem de capa do pedido (Order Cover Image)
+            $orderCoverImage = [
+                'hasCoverImage' => false,
+                'coverImageUrl' => null,
+            ];
+            
+            if ($order->cover_image) {
+                // Lógica similar à de itens para resolver imagem do pedido
+                $normalizedPath = \App\Helpers\ImageHelper::normalizePath($order->cover_image);
+                $publicImagesPath = public_path('images/' . $normalizedPath);
+                $actualPath = null;
+
+                if (file_exists($publicImagesPath)) {
+                    $actualPath = $publicImagesPath;
+                } else {
+                    $relativePath = \App\Helpers\ImageHelper::resolveRelativePath($order->cover_image, ['orders/covers', 'orders']);
+                    if ($relativePath) {
+                        $storagePath = \Illuminate\Support\Facades\Storage::disk('public')->path($relativePath);
+                        if (file_exists($storagePath)) {
+                            $actualPath = $storagePath;
+                        }
+                    }
+                }
+
+                if ($actualPath && file_exists($actualPath)) {
+                     // Tentar otimizar se for muito grande
+                     $fileSize = filesize($actualPath);
+                     if ($fileSize > 2 * 1024 * 1024) {
+                         $optimizedPath = $this->optimizeImageForPDF($actualPath);
+                         if ($optimizedPath && file_exists($optimizedPath)) {
+                             $actualPath = $optimizedPath;
+                         }
+                     }
+                     
+                     // Converter para Base64
+                     try {
+                        $imageData = file_get_contents($actualPath);
+                        if ($imageData) {
+                            $imageBase64 = base64_encode($imageData);
+                            $mimeType = mime_content_type($actualPath) ?: 'image/jpeg';
+                            $orderCoverImage['coverImageUrl'] = 'data:' . $mimeType . ';base64,' . $imageBase64;
+                            $orderCoverImage['hasCoverImage'] = true;
+                            \Log::info('Imagem de capa do pedido processada com sucesso');
+                        }
+                     } catch (\Exception $e) {
+                         \Log::error('Erro ao processar imagem de capa do pedido: ' . $e->getMessage());
+                     }
+                }
+            }
+
             \Log::info('Iniciando renderização da view');
-            $html = view('kanban.pdf.costura', compact('order', 'itemImages', 'companySettings'))->render();
+            $html = view('kanban.pdf.costura', compact('order', 'itemImages', 'companySettings', 'orderCoverImage'))->render();
             \Log::info('View renderizada com sucesso', ['html_length' => strlen($html)]);
             
             // Verificar se a imagem está no HTML
@@ -668,7 +718,7 @@ class KanbanController extends Controller
             
             $pdf = new Dompdf($options);
             $pdf->loadHtml($html);
-            $pdf->setPaper('A4', 'landscape');
+            $pdf->setPaper('A4', 'portrait');
             $pdf->render();
             
             \Log::info('Iniciando download do PDF');
@@ -890,9 +940,51 @@ class KanbanController extends Controller
                 $storeId = $mainStore ? $mainStore->id : null;
             }
             $companySettings = \App\Models\CompanySetting::getSettings($storeId);
+
+            // Processar imagem de capa do pedido (Order Cover Image)
+            $orderCoverImage = [
+                'hasCoverImage' => false,
+                'coverImageUrl' => null,
+            ];
+            
+            if ($order->cover_image) {
+               try {
+                   $normalizedPath = \App\Helpers\ImageHelper::normalizePath($order->cover_image);
+                   $publicImagesPath = public_path('images/' . $normalizedPath);
+                   $actualPath = null;
+                   
+                   if (file_exists($publicImagesPath)) {
+                       $actualPath = $publicImagesPath;
+                   } else {
+                       $relativePath = \App\Helpers\ImageHelper::resolveRelativePath($order->cover_image, ['orders/covers', 'orders']);
+                       if ($relativePath) {
+                           $storagePath = \Illuminate\Support\Facades\Storage::disk('public')->path($relativePath);
+                           if (file_exists($storagePath)) { $actualPath = $storagePath; }
+                       }
+                   }
+
+                   if ($actualPath && file_exists($actualPath)) {
+                        $fileSize = filesize($actualPath);
+                        if ($fileSize > 2 * 1024 * 1024) {
+                            $optimizedPath = $this->optimizeImageForPDF($actualPath);
+                            if ($optimizedPath && file_exists($optimizedPath)) { $actualPath = $optimizedPath; }
+                        }
+                        
+                        $imageData = file_get_contents($actualPath);
+                        if ($imageData) {
+                            $imageBase64 = base64_encode($imageData);
+                            $mimeType = mime_content_type($actualPath) ?: 'image/jpeg';
+                            $orderCoverImage['coverImageUrl'] = 'data:' . $mimeType . ';base64,' . $imageBase64;
+                            $orderCoverImage['hasCoverImage'] = true;
+                        }
+                   }
+               } catch (\Exception $e) {
+                   \Log::error('Erro ao processar imagem de capa do pedido: ' . $e->getMessage());
+               }
+            }
             
             \Log::info('Iniciando renderização da view de personalização');
-            $html = view('kanban.pdf.personalizacao', compact('order', 'itemImages', 'companySettings'))->render();
+            $html = view('kanban.pdf.personalizacao', compact('order', 'itemImages', 'companySettings', 'orderCoverImage'))->render();
             \Log::info('View de personalização renderizada com sucesso', ['html_length' => strlen($html)]);
             
             // Verificar se a imagem está no HTML

@@ -25,7 +25,7 @@
         <!-- Main Card -->
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-slate-800 overflow-hidden">
             <!-- Header -->
-            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-gray-50 to-white dark:from-slate-800/50 dark:to-slate-900/50">
+            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/50">
                 <div class="flex items-center space-x-3">
                     <div class="flex items-center">
                         <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -297,7 +297,7 @@
 
 @push('page-scripts')
 <script>
-<script>
+
 (function() {
     console.log('Client Wizard Script Loaded');
     const clientSearchUrl = "{{ url('/api/clients/search') }}";

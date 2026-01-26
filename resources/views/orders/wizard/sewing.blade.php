@@ -111,27 +111,7 @@
     </div>
 
     <!-- Messages Premium -->
-    @if(session('success'))
-    <div class="mb-4 sm:mb-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg animate-fade-in-up">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white stay-white shrink-0 shadow-lg shadow-green-500/30">
-                <i class="fa-solid fa-check text-xs sm:text-sm"></i>
-            </div>
-            <p class="text-xs sm:text-sm font-bold text-green-800 dark:text-green-300">{{ session('success') }}</p>
-        </div>
-    </div>
-    @endif
 
-    @if(session('error'))
-    <div class="mb-4 sm:mb-6 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 border border-red-200 dark:border-red-800/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg animate-fade-in-up">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center text-white stay-white shrink-0 shadow-lg shadow-red-500/30">
-                <i class="fa-solid fa-xmark text-xs sm:text-sm"></i>
-            </div>
-            <p class="text-xs sm:text-sm font-bold text-red-800 dark:text-red-300">{{ session('error') }}</p>
-        </div>
-    </div>
-    @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         <!-- Formulário de Adicionar Item -->
@@ -221,11 +201,11 @@
                                      onclick="closeSewingWizard()"></div>
 
                                 <!-- Modal Panel -->
-                                <div class="absolute inset-0 flex items-start justify-center p-4 pt-10 sm:pt-14 overflow-y-auto">
-                                    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col transform transition-all animate-fade-in-up border border-gray-200 dark:border-slate-700">
+                                <div class="absolute inset-0 flex items-center justify-center p-4">
+                                    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden transform transition-all animate-fade-in-up border border-gray-200 dark:border-slate-700">
                                         
                                         <!-- Header -->
-                                        <div class="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
+                                        <div class="px-6 py-4 flex-none border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-gray-50/50 dark:bg-slate-800/50">
                                             <div>
                                                 <h3 class="text-lg font-black text-gray-900 dark:text-white">Configurar Modelo</h3>
                                                 <p class="text-xs text-gray-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5" id="wizard-step-title">Etapa 1 de 5</p>
@@ -236,12 +216,12 @@
                                         </div>
 
                                         <!-- Progress Bar -->
-                                        <div class="w-full bg-gray-100 dark:bg-slate-800 h-1">
+                                        <div class="w-full bg-gray-100 dark:bg-slate-800 h-1 flex-none">
                                             <div id="wizard-progress" class="bg-[#7c3aed] h-full transition-all duration-300" style="width: 20%"></div>
                                         </div>
 
                                         <!-- Steps Content -->
-                                        <div class="flex-1 overflow-y-auto p-6" id="wizard-content">
+                                        <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6 custom-scrollbar" id="wizard-content">
                                             
                                             <!-- Step 1: Personalização -->
                                             <div id="step-1" class="wizard-step">
@@ -339,12 +319,12 @@
                                             <!-- Step 9: Tamanhos -->
                                             <div id="step-9" class="wizard-step hidden">
                                                 <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Defina os Tamanhos e Quantidades</h4>
-                                                <div class="grid grid-cols-4 gap-3 mb-4" id="wizard-sizes-grid">
+                                                <div class="grid grid-cols-5 gap-2 mb-4" id="wizard-sizes-grid">
                                                     <!-- Standard Sizes -->
                                                     @foreach(['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3', 'Especial'] as $size)
                                                     <div>
-                                                        <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1 font-bold text-center">{{ $size }}</label>
-                                                        <input type="number" data-size="{{ $size }}" min="0" value="0" class="wizard-size-input w-full px-2 py-2 border border-gray-200 dark:border-slate-700 rounded-lg text-center font-bold bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] transition-all">
+                                                        <label class="block text-[10px] text-gray-500 dark:text-slate-400 mb-1 font-bold text-center uppercase">{{ $size }}</label>
+                                                        <input type="number" data-size="{{ $size }}" min="0" value="0" class="wizard-size-input w-full px-1 py-1.5 border border-gray-200 dark:border-slate-700 rounded-lg text-center font-bold bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] transition-all text-sm">
                                                     </div>
                                                     @endforeach
                                                 </div>
@@ -453,7 +433,7 @@
                                         </div>
 
                                         <!-- Footer -->
-                                        <div class="px-6 py-4 border-t border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/50 rounded-b-2xl">
+                                        <div class="px-6 py-4 flex-none border-t border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/50 rounded-b-2xl">
                                             <button type="button" id="wizard-prev-btn" onclick="wizardPrevStep()" class="px-4 py-2 text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed">
                                                 ← Voltar
                                             </button>
