@@ -519,18 +519,8 @@
 
     // Lidar com navegação do navegador (voltar/avançar)
     window.addEventListener('popstate', (e) => {
-        if (e.state && e.state.url) {
-            // Se a URL for do catálogo público ou orçamento, forçar carregamento completo da página
-            if (isCatalogPublicUrl(e.state.url) || (typeof e.state.url === 'string' && e.state.url.includes('/orcamento'))) {
-                window.location.href = e.state.url;
-                return;
-            }
-
-            loadPage(e.state.url);
-        } else {
-            // Fallback para quando o estado é perdido
-            loadPage(window.location.href);
-        }
+        console.log('[AjaxNav] Popstate event detected, forcing reload to ensure correct state');
+        window.location.reload();
     });
 
     // Inicializar quando o DOM estiver pronto
@@ -542,6 +532,11 @@
 
     // Atualizar links ativos na inicialização
     updateActiveLink(window.location.href);
+
+    // Inicializar estado da história se não existir para garantir que o reload funcione corretamente
+    if (!history.state) {
+        window.history.replaceState({ url: window.location.href }, document.title, window.location.href);
+    }
 
     // Expor função global para uso externo (caso necessário forçar reload)
     window.ajaxNavigation = {

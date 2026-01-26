@@ -2,17 +2,7 @@
 
 @section('content')
 <div class="max-w-5xl mx-auto px-4 py-6">
-        @if(session('success'))
-        <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-600/30 text-green-700 dark:text-green-300 px-4 py-3 rounded-md">
-            {{ session('success') }}
-        </div>
-        @endif
 
-        @if(session('error'))
-        <div class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-600/30 text-red-700 dark:text-red-300 px-4 py-3 rounded-md">
-            {{ session('error') }}
-        </div>
-        @endif
 
         <!-- Header -->
         <div class="mb-6 flex items-center justify-between">
@@ -20,7 +10,7 @@
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     Orçamento #{{ $budget->budget_number }}
                     @if($budget->is_quick)
-                    <span class="ml-2 px-2 py-1 text-sm bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-lg">⚡ Rápido</span>
+                    <span class="ml-2 px-2 py-1 text-sm bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-lg">Rápido</span>
                     @endif
                     @if($budget->order_number)
                     <span class="text-lg text-indigo-600 dark:text-indigo-400">→ Pedido #{{ $budget->order_number }}</span>
@@ -45,7 +35,7 @@
                 <!-- Dropdown de PDF -->
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" 
-                            class="px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 text-sm font-medium inline-flex items-center gap-2">
+                            class="px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 text-sm font-medium inline-flex items-center gap-2" style="color: white !important;">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                         </svg>
@@ -152,7 +142,7 @@
                 <!-- Detalhes do Orçamento Rápido -->
                 <div class="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-lg shadow-sm border border-emerald-200 dark:border-emerald-700 p-6">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                        <span class="text-xl mr-2">⚡</span> Detalhes do Orçamento Rápido
+                        Detalhes do Orçamento Rápido
                     </h2>
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div class="bg-white dark:bg-gray-800/50 rounded-lg p-3">
@@ -369,7 +359,6 @@
                 <!-- Observações do Vendedor -->
                 <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg shadow-sm border border-yellow-200 dark:border-yellow-800 p-6">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-                        <span class="text-xl mr-2">📌</span>
                         Observações do Vendedor
                     </h2>
                     <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">{{ $budget->admin_notes }}</div>
@@ -449,7 +438,7 @@
                         <form action="{{ route('budget.approve', $budget->id) }}" method="POST">
                             @csrf
                             <button type="submit"
-                                    class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-green-600 dark:bg-green-600 text-white text-center rounded-md hover:bg-green-700 dark:hover:bg-green-700 text-sm font-medium transition-colors">
+                                    class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-green-600 dark:bg-green-600 text-white text-center rounded-md hover:bg-green-700 dark:hover:bg-green-700 text-sm font-medium transition-colors" style="color: white !important;">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
@@ -461,7 +450,7 @@
                             @csrf
                             <button type="submit"
                                     onclick="return confirm('Tem certeza que deseja rejeitar este orçamento?')"
-                                    class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-red-600 dark:bg-red-600 text-white text-center rounded-md hover:bg-red-700 dark:hover:bg-red-700 text-sm font-medium transition-colors">
+                                    class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-red-600 dark:bg-red-600 text-white text-center rounded-md hover:bg-red-700 dark:hover:bg-red-700 text-sm font-medium transition-colors" style="color: white !important;">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -476,14 +465,14 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                             </svg>
-                            Converter em Pedido
+                            <span style="color: white !important;">Converter em Pedido</span>
                         </a>
                         @endif
                         
                         <!-- WhatsApp Button -->
                         <div class="flex gap-2">
                             <a href="{{ route('budget.whatsapp', $budget->id) }}" target="_blank"
-                               class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 dark:bg-green-600 text-white text-center rounded-md hover:bg-green-600 dark:hover:bg-green-700 text-sm font-medium transition-colors">
+                               class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 dark:bg-green-600 text-white text-center rounded-md hover:bg-green-600 dark:hover:bg-green-700 text-sm font-medium transition-colors" style="color: white !important;">
                                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                                 </svg>

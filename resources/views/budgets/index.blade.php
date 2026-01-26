@@ -31,6 +31,88 @@
     </div>
     @endif
 
+    <!-- Follow-up Notification -->
+    @if($followUpCount > 0)
+    <div class="bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-500 p-4 mb-6 shadow-sm rounded-r-md">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-indigo-800 dark:text-indigo-200">Rechamada Necessária</h3>
+                <div class="mt-1 text-sm text-indigo-700 dark:text-indigo-300">
+                    Você tem <span class="font-bold">{{ $followUpCount }}</span> orçamentos pendentes criados há mais de uma semana. Entre em contato com o cliente novamente!
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Dashboard Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" x-data>
+        <!-- Pendentes -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-b-4 border-yellow-400">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Pendentes</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $pendingCount }}</p>
+                </div>
+                <div class="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center text-yellow-600 dark:text-yellow-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Valor em Aberto -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-b-4 border-blue-400">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Valor em Aberto</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">R$ {{ number_format($openValue, 2, ',', '.') }}</p>
+                </div>
+                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vencendo em Breve -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-b-4 border-red-400">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Vencendo em 3 dias</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $expiringSoonCount }}</p>
+                </div>
+                <div class="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 dark:text-red-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Distribution -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-b-4 border-purple-400">
+             <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-2">Proporção</p>
+             @php
+                 $totalStats = array_sum($statusStats);
+                 $approvedPct = $totalStats > 0 ? (($statusStats['approved'] ?? 0) / $totalStats) * 100 : 0;
+                 $pendingPct = $totalStats > 0 ? (($statusStats['pending'] ?? 0) / $totalStats) * 100 : 0;
+                 $rejectedPct = $totalStats > 0 ? (($statusStats['rejected'] ?? 0) / $totalStats) * 100 : 0;
+             @endphp
+             <div class="w-full h-4 bg-gray-200 rounded-full overflow-hidden flex">
+                 <div class="h-full bg-green-500" style="width: {{ $approvedPct }}%" title="Aprovados: {{ $statusStats['approved'] ?? 0 }}"></div>
+                 <div class="h-full bg-yellow-400" style="width: {{ $pendingPct }}%" title="Pendentes: {{ $statusStats['pending'] ?? 0 }}"></div>
+                 <div class="h-full bg-red-500" style="width: {{ $rejectedPct }}%" title="Rejeitados: {{ $statusStats['rejected'] ?? 0 }}"></div>
+             </div>
+             <div class="flex justify-between text-xs mt-2 text-gray-600 dark:text-gray-400">
+                 <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500"></span> Apr</span>
+                 <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-400"></span> Pend</span>
+                 <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span> Rej</span>
+             </div>
+        </div>
+    </div>
+
     <!-- Filtros -->
     <div class="w-full bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 mb-2 md:p-6" x-data="{ filtersOpen: window.innerWidth >= 768 }">
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center md:hidden" @click="filtersOpen = !filtersOpen">
@@ -70,9 +152,9 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-gray-200 dark:border-gray-700 pt-4">
                     <div class="md:col-span-2 flex flex-col md:flex-row gap-2">
                         <button type="submit" 
-                                class="w-full md:w-auto px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
-                                style="color: white !important;">
-                            Filtrar
+                                style="color: white !important;"
+                                class="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-md hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg transition-all shadow font-bold tracking-wide">
+                            <span style="color: white !important;">Filtrar</span>
                         </button>
                         <a href="{{ route('budget.index') }}" 
                            class="w-full md:w-auto px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 text-center transition">

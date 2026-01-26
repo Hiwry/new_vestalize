@@ -71,19 +71,24 @@
     }
 
     // Função para carregar página via AJAX
-    async function loadPage(url) {
+    async function loadPage(url, isPopstate = false) {
+        console.log('[AjaxNav] loadPage called:', { url, isPopstate, currentUrl: window.location.href });
+        
         // Nunca usar AJAX para o catálogo público (/catalogo) ou orçamento (/orcamento)
         if (isCatalogPublicUrl(url) || (typeof url === 'string' && url.includes('/orcamento'))) {
+            console.log('[AjaxNav] Redirecting to public/budget url');
             window.location.href = url;
             return;
         }
 
         if (isNavigating) {
+            console.log('[AjaxNav] Already navigating, ignoring');
             return;
         }
 
-        // Se a URL for a mesma que a atual, não fazer nada
-        if (url === currentUrl || url === window.location.href) {
+        // Se a URL for a mesma que a atual, não fazer nada (exceto se for popstate)
+        if (!isPopstate && (url === currentUrl || url === window.location.href)) {
+            console.log('[AjaxNav] Same URL, ignoring');
             return;
         }
 
@@ -125,20 +130,44 @@
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'text/html,application/xhtml+xml',
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
                 },
-                credentials: 'same-origin'
+                credentials: 'same-origin',
+                cache: 'no-store'
+            });
+
+            console.log('[AjaxNav] Response received:', {
+                status: response.status,
+                url: response.url,
+                redirected: response.redirected
             });
 
             if (!response.ok) {
                 // Se for redirecionamento ou erro, recarregar página normalmente
                 if (response.status >= 300 && response.status < 400) {
+                    console.log('[AjaxNav] Response returned redirect status, reloading via window.location');
                     window.location.href = url;
                     return;
                 }
                 throw new Error(`Erro ao carregar página: ${response.status}`);
             }
 
+            // Se houve redirecionamento (fetch segue automaticamente)
+            if (response.redirected) {
+                console.log('[AjaxNav] Fetch followed redirect to:', response.url);
+                // Atualizar URL do navegador para refletir o redirecionamento
+                const newUrl = response.url;
+                if (!isPopstate) {
+                     window.history.replaceState({ url: newUrl }, document.title, newUrl);
+                     currentUrl = newUrl;
+                     updateActiveLink(newUrl);
+                }
+            }
+
             const html = await response.text();
+            console.log('[AjaxNav] HTML received, length:', html.length);
 
             // Verificar se a resposta é HTML válido
             if (!html || html.trim().length === 0) {
@@ -248,12 +277,16 @@
 
             // Atualizar título
             const newTitle = extractTitle(html);
+            console.log('[AjaxNav] Extracted title:', newTitle);
+            
             if (newTitle && newTitle !== document.title) {
                 document.title = newTitle;
             }
 
-            // Atualizar URL sem recarregar
-            window.history.pushState({ url: url }, newTitle || document.title, url);
+            // Atualizar URL sem recarregar (apenas se não for popstate)
+            if (!isPopstate) {
+                window.history.pushState({ url: url }, newTitle || document.title, url);
+            }
             currentUrl = url;
 
             // Atualizar links ativos na sidebar
@@ -438,17 +471,8 @@
 
     // Lidar com navegação do navegador (voltar/avançar)
     window.addEventListener('popstate', (e) => {
-        if (e.state && e.state.url) {
-            // Se a URL for do catálogo público ou orçamento, forçar carregamento completo da página
-            if (isCatalogPublicUrl(e.state.url) || (typeof e.state.url === 'string' && e.state.url.includes('/orcamento'))) {
-                window.location.href = e.state.url;
-                return;
-            }
-
-            loadPage(e.state.url);
-        } else {
-            window.location.reload();
-        }
+        console.log('[AjaxNav] Popstate event detected, forcing reload to ensure correct state');
+        window.location.reload();
     });
 
     // Inicializar quando o DOM estiver pronto
@@ -460,6 +484,14 @@
 
     // Atualizar links ativos na inicialização
     updateActiveLink(window.location.href);
+
+    // Inicializar estado da história se não existir
+    if (!history.state) {
+        console.log('[AjaxNav] Initializing history state');
+        window.history.replaceState({ url: window.location.href }, document.title, window.location.href);
+    } else {
+        console.log('[AjaxNav] History state already exists:', history.state);
+    }
 
     // Expor função global para uso externo (caso necessário forçar reload)
     window.ajaxNavigation = {

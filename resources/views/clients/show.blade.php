@@ -4,7 +4,7 @@
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $client->name }}</h1>
             <div class="flex space-x-2">
-                <a href="{{ route('clients.edit', $client->id) }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors shadow-sm">
+                <a href="{{ route('clients.edit', $client->id) }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors shadow-sm" style="color: white !important;">
                     Editar Cliente
                 </a>
                 <a href="{{ route('clients.index') }}" class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-slate-300 font-bold py-2 px-4 rounded border border-gray-300 dark:border-gray-700 transition-colors">
@@ -292,7 +292,7 @@
                             <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">Nenhum pedido encontrado</h3>
                             <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">Este cliente ainda não possui pedidos.</p>
                             <div class="mt-6">
-                                <a href="{{ route('orders.wizard.start') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                                <a href="{{ route('orders.wizard.start') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors" style="color: white !important;">
                                     + Novo Pedido
                                 </a>
                             </div>

@@ -19,7 +19,7 @@
 
         <div class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-2xl font-semibold dark:text-gray-100">Gerenciar Colunas do Kanban</h1>
+                <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Gerenciar Colunas do Kanban</h1>
                 <p class="text-gray-600 dark:text-gray-400 mt-1">Configure as colunas e sua ordem no Kanban de produção</p>
             </div>
             <div class="flex gap-3">
@@ -28,7 +28,7 @@
                     ← Voltar ao Kanban
                 </a>
                 <a href="{{ route('kanban.columns.create') }}" 
-                   class="px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition">
+                   class="px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition" style="color: white !important;">
                     + Nova Coluna
                 </a>
             </div>
@@ -37,7 +37,7 @@
         <!-- Lista de Colunas -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-medium dark:text-gray-100">Colunas do Kanban</h2>
+                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Colunas do Kanban</h2>
                 <p class="text-sm text-gray-600 dark:text-gray-400">Arraste para reordenar as colunas</p>
             </div>
 
@@ -81,7 +81,7 @@
                             
                             @if($status->orders_count > 0)
                             <button onclick="openMoveModal({{ $status->id }}, '{{ $status->name }}', {{ $status->orders_count }})"
-                                    class="px-3 py-1 text-sm bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-md hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition">
+                                    class="px-3 py-1 text-sm bg-yellow-500 dark:bg-yellow-600 text-white rounded-md hover:bg-yellow-600 dark:hover:bg-yellow-700 transition" style="color: white !important;">
                                 Mover Pedidos
                             </button>
                             @endif
@@ -121,7 +121,7 @@
         @if($statuses->count() > 1)
         <div class="mt-6 text-center">
             <button onclick="saveOrder()" 
-                    class="px-6 py-2 bg-green-600 dark:bg-green-600 text-white rounded-md hover:bg-green-700 dark:hover:bg-green-700 transition">
+                    class="px-6 py-2 bg-green-600 dark:bg-green-600 text-white rounded-md hover:bg-green-700 dark:hover:bg-green-700 transition" style="color: white !important;">
                 Salvar Ordem das Colunas
             </button>
         </div>

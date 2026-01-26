@@ -217,8 +217,7 @@
                class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                 Cancelar
             </a>
-            <button type="submit" 
-                    class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+            <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300 font-bold shadow-lg shadow-indigo-200 dark:shadow-none mb-20" style="color: #ffffff !important;">
                 Cadastrar Estoque
             </button>
         </div>

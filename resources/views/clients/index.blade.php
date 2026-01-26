@@ -3,7 +3,7 @@
 @section('content')
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Clientes</h1>
-    <a href="{{ route('clients.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition">
+    <a href="{{ route('clients.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition" style="color: white !important;">
         + Novo Cliente
     </a>
 </div>
@@ -49,7 +49,7 @@
 
                 <!-- Botões -->
                 <div class="flex items-end space-x-2">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition" style="color: white !important;">
                         Filtrar
                     </button>
                     <a href="{{ route('clients.index') }}" class="bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold py-2 px-4 rounded transition">
@@ -185,7 +185,7 @@
                 <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">Nenhum cliente encontrado</h3>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Comece criando um novo cliente.</p>
                 <div class="mt-6">
-                    <a href="{{ route('clients.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition">
+                    <a href="{{ route('clients.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition" style="color: white !important;">
                         + Novo Cliente
                     </a>
                 </div>

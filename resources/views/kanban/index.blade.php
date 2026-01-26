@@ -4,38 +4,13 @@
 <style>
     [x-cloak] { display: none !important; }
     
-    /* Permanent and visible horizontal scrollbar for Kanban board */
-    .kanban-scroll {
-        overflow-x: auto !important;
-        scrollbar-width: thin !important;
-        scrollbar-color: #7c3aed rgba(31, 41, 55, 0.8) !important;
-        padding-bottom: 30px !important;
-        -webkit-overflow-scrolling: touch;
+    /* Hide scrollbar for horizontal scroll on mobile */
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
     }
-
-    .kanban-scroll::-webkit-scrollbar {
-        height: 14px !important;
-        display: block !important;
-    }
-    .kanban-scroll::-webkit-scrollbar-track {
-        background: rgba(31, 41, 55, 0.9) !important;
-        border-radius: 10px !important;
-        margin: 0 5px !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    }
-    .kanban-scroll::-webkit-scrollbar-thumb {
-        background: linear-gradient(90deg, #7c3aed, #8b5cf6, #d946ef, #7c3aed) !important;
-        background-size: 200% 100% !important;
-        border-radius: 10px !important;
-        border: 3px solid rgba(31, 41, 55, 1) !important;
-        box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5), 0 0 15px rgba(124, 58, 237, 0.4) !important;
-    }
-    .kanban-scroll::-webkit-scrollbar-thumb:hover {
-        background-position: 100% 0 !important;
-        background: linear-gradient(90deg, #8b5cf6, #d946ef, #7c3aed, #8b5cf6) !important;
-    }
-    .kanban-scroll::-webkit-scrollbar-button {
-        display: none !important;
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
     }
     
     /* Custom Scrollbar for Calendar Events */
@@ -235,6 +210,60 @@
 </div>
 @endif
 
+
+
+<style>
+    /* Force custom scrollbar */
+    .kanban-board::-webkit-scrollbar {
+        height: 14px;
+    }
+    .kanban-board::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 8px;
+    }
+    .kanban-board::-webkit-scrollbar-thumb {
+        background-color: #94a3b8;
+        border-radius: 8px;
+        border: 3px solid #f1f5f9;
+    }
+    .kanban-board::-webkit-scrollbar-thumb:hover {
+        background-color: #64748b;
+    }
+    .dark .kanban-board::-webkit-scrollbar-track {
+        background: #0f172a;
+    }
+    .dark .kanban-board::-webkit-scrollbar-thumb {
+        background-color: #334155;
+        border: 3px solid #0f172a;
+    }
+    
+    /* Ultimate Shadow Override */
+    :root {
+        --kanban-card-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    }
+    html.dark {
+        --kanban-card-shadow: none;
+    }
+
+    .custom-card-shadow {
+        /* Fallback */
+        box-shadow: var(--kanban-card-shadow);
+    }
+    
+    html.dark .custom-card-shadow,
+    html.dark .custom-card-shadow:hover,
+    html.dark .kanban-card,
+    html.dark .kanban-card:hover,
+    html.dark .kanban-card-compact,
+    html.dark .kanban-card-compact:hover {
+        /* Ensure classes also don't interfere */
+        box-shadow: none !important;
+        -webkit-box-shadow: none !important;
+        border-color: #262626 !important;
+        background-image: none !important;
+    }
+</style>
+
 <div class="max-w-[1800px] mx-auto">
         <!-- Calendar Data Preparation -->
         @php
@@ -292,14 +321,11 @@
                     </button>
                 </div>
 
-                @if(Auth::user()->isAdmin() || Auth::user()->isProducao())
+                @if(Auth::user()->isAdmin())
                 <a href="{{ route('kanban.columns.index') }}" 
-                   class="px-4 py-2 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] text-white stay-white dark:text-white rounded-full hover:from-[#8b5cf6] hover:to-[#7c3aed] flex items-center space-x-2 shadow-md">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    <span class="text-white stay-white">Gerenciar Colunas</span>
+                   class="px-4 py-2 bg-[#7c3aed] text-white dark:text-white rounded-full hover:bg-[#6d28d9] flex items-center space-x-2 shadow-md transition-colors" style="color: white !important;">
+                    <i class="fa-solid fa-gear text-white text-sm" style="color: white !important;"></i>
+                    <span class="text-white font-bold text-sm" style="color: white !important;">Gerenciar Colunas</span>
                 </a>
                 @endif
             </div>
@@ -324,7 +350,7 @@
                                class="w-full pl-12 pr-4 h-[52px] rounded-full border border-gray-200 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition-all text-sm md:text-base dark:border-[#1f2533] dark:bg-[#0a0d15] dark:text-gray-100">
                     </div>
                     <button type="submit" 
-                            class="px-6 md:px-10 py-3 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] text-white stay-white dark:text-white rounded-full hover:from-[#8b5cf6] hover:to-[#7c3aed] whitespace-nowrap font-bold transition-all shadow-lg shadow-purple-700/30 flex items-center justify-center gap-2 text-sm md:text-base">
+                            class="px-6 md:px-10 py-3 bg-[#7c3aed] text-white stay-white dark:text-white rounded-full hover:bg-[#6d28d9] whitespace-nowrap font-bold transition-all shadow-lg shadow-purple-700/30 flex items-center justify-center gap-2 text-sm md:text-base">
                         <span class="text-white stay-white">Buscar Pedido</span>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
@@ -486,7 +512,7 @@
         </div>
         @endif
 
-        <div x-show="view === 'kanban'" class="kanban-board flex gap-4 md:gap-6 overflow-x-auto pb-6 snap-x snap-mandatory kanban-scroll">
+        <div x-show="view === 'kanban'" class="kanban-board flex flex-nowrap gap-4 md:gap-6 overflow-x-scroll pb-6 mb-6 w-full snap-x snap-mandatory touch-pan-x">
             @foreach($statuses as $status)
                 @php
                     // Gerar um gradiente baseado na cor do status
@@ -544,8 +570,9 @@
                                     }
                                 }
                             @endphp
-                            <div class="kanban-card group/card bg-white border border-gray-200 text-gray-900 rounded-xl overflow-hidden {{ (Auth::user()->isAdmin() || Auth::user()->isProducao()) ? 'cursor-move' : 'cursor-pointer' }} hover:bg-gray-50 transition-all duration-200 shadow-sm dark:bg-[#22272e] dark:border-[#373e47] dark:text-gray-100 dark:hover:bg-[#2d333b]" 
-                                 draggable="{{ (Auth::user()->isAdmin() || Auth::user()->isProducao()) ? 'true' : 'false' }}" 
+                            <div class="kanban-card custom-card-shadow group/card bg-white border border-gray-200 text-gray-900 rounded-xl overflow-hidden {{ Auth::user()->isAdmin() ? 'cursor-move' : 'cursor-pointer' }} hover:bg-gray-50 transition-all duration-200 dark:bg-[#22272e] dark:border-[#373e47] dark:text-gray-100 dark:hover:bg-[#2d333b]" 
+                                 style="box-shadow: var(--kanban-card-shadow) !important;"
+                                 draggable="{{ Auth::user()->isAdmin() ? 'true' : 'false' }}" 
                                  data-order-id="{{ $order->id }}"
                                  onclick="event.stopPropagation(); if(typeof openOrderModal === 'function') { openOrderModal({{ $order->id }}); }">
                                 
@@ -569,9 +596,7 @@
                                                 #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
                                             </span>
                                             @if($order->edit_status === 'requested')
-                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-orange-500/20 text-orange-200 border border-orange-400/40">Sol. Edição</span>
-                                            @elseif($order->is_modified)
-                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-500/20 dark:text-blue-200 dark:border-blue-400/40">Editado</span>
+                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-orange-500/20 text-orange-200 border border-orange-400/40">Editado</span>
                                             @endif
                                             @if($order->stock_status === 'none')
                                                 <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-red-100 text-red-700 border border-red-200 dark:bg-red-500/20 dark:text-red-200 dark:border-red-400/40">Sem estoque</span>
@@ -581,7 +606,7 @@
                                                 <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-green-100 text-green-700 border border-green-200 dark:bg-green-500/15 dark:text-green-200 dark:border-green-400/30">Estoque ok</span>
                                             @endif
                                             @if($order->is_event)
-                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-purple-100 text-purple-700 border border-purple-200 dark:bg-purple-500/20 dark:text-purple-200 dark:border-purple-400/40">Evento</span>
+                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-purple-600 text-white border border-purple-600 dark:bg-purple-600 dark:text-white dark:border-purple-600">Evento</span>
                                             @endif
                                         </div>
                                         <div class="flex items-center gap-1 text-gray-600 text-[11px] dark:text-gray-400">
@@ -672,7 +697,8 @@
                     </div>
                 </div>
             @endforeach
-        </div>
+            </div>
+
 
         <!-- Calendar View -->
         <div x-show="view === 'calendar'" 
@@ -1220,12 +1246,12 @@
                 }
             };
 
-            // Drag and Drop functionality (para administradores e produção)
+            // Drag and Drop functionality (apenas para administradores)
             let draggedElement = null;
             let isDragging = false;
-            const canMove = {{ (Auth::user()->isAdmin() || Auth::user()->isProducao()) ? 'true' : 'false' }};
+            const isAdmin = {{ Auth::user()->isAdmin() ? 'true' : 'false' }};
 
-            if (canMove) {
+            if (isAdmin) {
             document.querySelectorAll('.kanban-card').forEach(card => {
                 card.addEventListener('dragstart', function(e) {
                     isDragging = true;
@@ -1408,7 +1434,7 @@
                                         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
                                         </svg>
-                                        <span class="btn-text">Arquivos da Arte (1)</span>
+                                        <span class="btn-text text-white">Arquivos da Arte (1)</span>
                                     </button>
                                 `;
                                 downloadsList.insertAdjacentHTML('beforeend', btnHtml);
@@ -1472,7 +1498,7 @@
                             </svg>
                             Editar Pedido
                         </button>
-                        @if(Auth::user()->isAdmin() || Auth::user()->isProducao())
+                        @if(Auth::user()->isAdmin())
                         <div class="flex gap-2 flex-1">
                             <select id="move-status-select" 
                                     class="flex-1 px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-blue-300 dark:border-blue-600/30 rounded-md text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all">
@@ -1526,7 +1552,7 @@
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
                             </svg>
-                            <span class="btn-text">Arquivos da Arte (${totalFiles})</span>
+                            <span class="btn-text text-white">Arquivos da Arte (${totalFiles})</span>
                         </button>
                         ` : ''}
                     </div>

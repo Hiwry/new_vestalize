@@ -492,7 +492,7 @@ class StockController extends Controller
             return redirect()->back()->with('error', 'Nenhuma quantidade foi informada. Informe pelo menos uma quantidade maior que 0.');
         }
 
-        return redirect()->route('stocks.index')->with('success', $message);
+        return redirect()->route('stocks.index', ['view' => 'table'])->with('success', $message);
     }
 
     /**

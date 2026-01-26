@@ -17,7 +17,7 @@
                     <div class="text-2xl font-bold text-[#7c3aed] dark:text-[#a78bfa]">20%</div>
                 </div>
             </div>
-            <div class="w-full bg-white dark:bg-slate-800/80 rounded-full h-2.5 shadow-inner border border-gray-200 dark:border-slate-700">
+            <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-2.5 shadow-inner">
                 <div class="bg-[#7c3aed] h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 20%"></div>
             </div>
         </div>
@@ -25,7 +25,7 @@
         <!-- Main Card -->
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-slate-800 overflow-hidden">
             <!-- Header -->
-            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-gradient-to-r dark:from-slate-800/50 dark:to-slate-900/50">
+            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/50">
                 <div class="flex items-center space-x-3">
                     <div class="flex items-center">
                         <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -45,7 +45,7 @@
 
             <!-- Buscar Cliente Existente -->
             <div class="mb-6" x-data="{ showSearch: false }" @click.away="">
-                <div class="bg-white dark:bg-gradient-to-br dark:from-purple-900/20 dark:to-purple-900/10 rounded-xl border border-gray-200 dark:border-purple-800/30 p-5 shadow-sm transition-all">
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-900/20 dark:to-purple-900/10 rounded-xl border-2 border-purple-200 dark:border-purple-800/30 p-5 shadow-sm transition-all">
                     <div class="flex items-center justify-between mb-3">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center shadow-md border border-purple-100 dark:border-purple-900/30">
@@ -297,7 +297,7 @@
 
 @push('page-scripts')
 <script>
-<script>
+
 (function() {
     console.log('Client Wizard Script Loaded');
     const clientSearchUrl = "{{ url('/api/clients/search') }}";

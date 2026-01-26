@@ -105,33 +105,13 @@
                 </div>
             </div>
         </div>
-        <div class="w-full bg-white dark:bg-slate-800/80 rounded-full h-1.5 sm:h-2 shadow-inner overflow-hidden border border-gray-200 dark:border-slate-700">
+        <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-1.5 sm:h-2 shadow-inner overflow-hidden">
             <div class="bg-[#7c3aed] h-full rounded-full transition-all duration-500 ease-out shadow-lg shadow-purple-500/40" style="width: 40%"></div>
         </div>
     </div>
 
     <!-- Messages Premium -->
-    @if(session('success'))
-    <div class="mb-4 sm:mb-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg animate-fade-in-up">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white stay-white shrink-0 shadow-lg shadow-green-500/30">
-                <i class="fa-solid fa-check text-xs sm:text-sm"></i>
-            </div>
-            <p class="text-xs sm:text-sm font-bold text-green-800 dark:text-green-300">{{ session('success') }}</p>
-        </div>
-    </div>
-    @endif
 
-    @if(session('error'))
-    <div class="mb-4 sm:mb-6 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 border border-red-200 dark:border-red-800/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg animate-fade-in-up">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center text-white stay-white shrink-0 shadow-lg shadow-red-500/30">
-                <i class="fa-solid fa-xmark text-xs sm:text-sm"></i>
-            </div>
-            <p class="text-xs sm:text-sm font-bold text-red-800 dark:text-red-300">{{ session('error') }}</p>
-        </div>
-    </div>
-    @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         <!-- Formulário de Adicionar Item -->
@@ -221,11 +201,11 @@
                                      onclick="closeSewingWizard()"></div>
 
                                 <!-- Modal Panel -->
-                                <div class="absolute inset-0 flex items-start justify-center p-4 sm:p-6 overflow-y-auto">
-                                    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] flex flex-col overflow-hidden transform transition-all animate-fade-in-up border border-gray-200 dark:border-slate-700">
+                                <div class="absolute inset-0 flex items-center justify-center p-4">
+                                    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden transform transition-all animate-fade-in-up border border-gray-200 dark:border-slate-700">
                                         
                                         <!-- Header -->
-                                        <div class="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+                                        <div class="px-6 py-4 flex-none border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-gray-50/50 dark:bg-slate-800/50">
                                             <div>
                                                 <h3 class="text-lg font-black text-gray-900 dark:text-white">Configurar Modelo</h3>
                                                 <p class="text-xs text-gray-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5" id="wizard-step-title">Etapa 1 de 5</p>
@@ -236,12 +216,12 @@
                                         </div>
 
                                         <!-- Progress Bar -->
-                                        <div class="w-full bg-gray-100 dark:bg-slate-800 h-1 shrink-0">
+                                        <div class="w-full bg-gray-100 dark:bg-slate-800 h-1 flex-none">
                                             <div id="wizard-progress" class="bg-[#7c3aed] h-full transition-all duration-300" style="width: 20%"></div>
                                         </div>
 
                                         <!-- Steps Content -->
-                                        <div class="flex-1 min-h-0 overflow-y-auto p-6" id="wizard-content">
+                                        <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6 custom-scrollbar" id="wizard-content">
                                             
                                             <!-- Step 1: Personalização -->
                                             <div id="step-1" class="wizard-step">
@@ -339,12 +319,12 @@
                                             <!-- Step 9: Tamanhos -->
                                             <div id="step-9" class="wizard-step hidden">
                                                 <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Defina os Tamanhos e Quantidades</h4>
-                                                <div class="grid grid-cols-4 gap-3 mb-4" id="wizard-sizes-grid">
+                                                <div class="grid grid-cols-5 gap-2 mb-4" id="wizard-sizes-grid">
                                                     <!-- Standard Sizes -->
                                                     @foreach(['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3', 'Especial'] as $size)
                                                     <div>
-                                                        <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1 font-bold text-center">{{ $size }}</label>
-                                                        <input type="number" data-size="{{ $size }}" min="0" value="0" class="wizard-size-input w-full px-2 py-2 border border-gray-200 dark:border-slate-700 rounded-lg text-center font-bold bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] transition-all">
+                                                        <label class="block text-[10px] text-gray-500 dark:text-slate-400 mb-1 font-bold text-center uppercase">{{ $size }}</label>
+                                                        <input type="number" data-size="{{ $size }}" min="0" value="0" class="wizard-size-input w-full px-1 py-1.5 border border-gray-200 dark:border-slate-700 rounded-lg text-center font-bold bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] transition-all text-sm">
                                                     </div>
                                                     @endforeach
                                                 </div>
@@ -387,7 +367,7 @@
                                                         </div>
                                                         <div id="wizard-image-preview-container" class="hidden relative inline-block group">
                                                              <img id="wizard-image-preview" class="h-32 object-contain rounded-lg shadow-sm border border-gray-200">
-                                                             <button onclick="event.stopPropagation(); clearWizardImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md hover:bg-red-600"><i class="fa-solid fa-times"></i></button>
+                                                             <button onclick="event.stopPropagation(); clearWizardImage()" class="absolute -top-3 -right-3 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs shadow-md hover:bg-red-600 transition-transform hover:scale-110 z-10"><i class="fa-solid fa-times"></i></button>
                                                         </div>
                                                     </div>
 
@@ -444,7 +424,7 @@
                                                         </div>
                                                     </div>
 
-                                                    <button type="button" id="wizard-confirm-btn" onclick="submitSewingWizard()" class="w-full py-4 mt-6 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all transform hover:scale-[1.02]">
+                                                    <button type="button" onclick="submitSewingWizard()" class="w-full py-4 mt-6 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all transform hover:scale-[1.02]">
                                                         Confirmar e Adicionar Item
                                                     </button>
                                                 </div>
@@ -453,7 +433,7 @@
                                         </div>
 
                                         <!-- Footer -->
-                                        <div class="px-6 py-4 border-t border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/50 rounded-b-2xl shrink-0">
+                                        <div class="px-6 py-4 flex-none border-t border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/50 rounded-b-2xl">
                                             <button type="button" id="wizard-prev-btn" onclick="wizardPrevStep()" class="px-4 py-2 text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed">
                                                 ← Voltar
                                             </button>
@@ -513,6 +493,7 @@
 @push('page-scripts')
 <script>
 (function() {
+    const storageUrl = "{{ asset('storage') }}/";
     // Options for Wizard
     let options = {
         tecido: @json($fabrics ?? []),
@@ -1160,69 +1141,7 @@
     window.renderOptionCards = renderOptionCards;
 
     function renderWizardCorteOptions() {
-        const container = document.getElementById('wizard-options-corte');
-        if (!container) return;
-
-        // CRITICAL: Use optionsWithParents which contains parent_ids data
-        let items = optionsWithParents.tipo_corte || options.tipo_corte || [];
-        
-        console.log('=== renderWizardCorteOptions DEBUG ===');
-        console.log('wizardData.tecido:', wizardData.tecido);
-        console.log('wizardData.tipo_tecido:', wizardData.tipo_tecido);
-        console.log('Items before filter:', items.length, items.map(i => ({name: i.name, parent_ids: i.parent_ids})));
-        
-        // Get the selected fabric type ID (tipo_tecido) or fallback to fabric ID (tecido)
-        const tipoTecidoId = wizardData.tipo_tecido ? parseInt(wizardData.tipo_tecido.id) : null;
-        const tecidoId = wizardData.tecido ? parseInt(wizardData.tecido.id) : null;
-        const fabricConstraintId = tipoTecidoId || tecidoId;
-
-        // Prepare list of all Fabric AND Fabric Type IDs
-        const allFabricIds = [
-            ...((options.tecido || []).map(t => parseInt(t.id))),
-            ...((options.tipo_tecido || []).map(t => parseInt(t.id)))
-        ];
-
-        // Advanced filtering: Category-aware filtering
-        if (fabricConstraintId) {
-            items = items.filter(item => {
-                // If item has no parents, hide it (strict mode)
-                if (!item.parent_ids || item.parent_ids.length === 0) return false;
-                
-                // Check if item has fabric/fabric type parents
-                const itemFabricParents = item.parent_ids.filter(pid => allFabricIds.includes(parseInt(pid)));
-                
-                // If item is linked to fabrics/types, ensure at least one matches our selected fabric type
-                if (itemFabricParents.length > 0) {
-                    return itemFabricParents.some(pid => parseInt(pid) === fabricConstraintId);
-                }
-                
-                // If item has no fabric parents but has other parents, allow it (might be linked to personalization only)
-                return true;
-            });
-        }
-
-        console.log('fabricConstraintId:', fabricConstraintId);
-        console.log('allFabricIds:', allFabricIds);
-        console.log('Items after filter:', items.length, items.map(i => i.name));
-
-        if (!items || items.length === 0) {
-            container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Nenhuma opção disponível para o tecido selecionado.</div>';
-            return;
-        }
-
-        container.innerHTML = items.map(item => {
-            const isActive = wizardData.tipo_corte && wizardData.tipo_corte.id == item.id;
-            const price = parseFloat(item.price || 0);
-            return `
-                <div class="wizard-option-card p-4 rounded-xl border ${isActive ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : 'border-gray-200 dark:border-slate-700'} hover:border-[#7c3aed] dark:hover:border-[#7c3aed] cursor-pointer transition-all"
-                    onclick="selectWizardOption('tipo_corte', '${item.id}', '${item.name.replace(/'/g, '')}', ${price}, true)">
-                    <div class="flex items-center justify-between">
-                        <span class="font-semibold text-gray-800 dark:text-gray-100">${item.name}</span>
-                        ${price > 0 ? `<span class="text-xs font-bold text-[#7c3aed]">R$ ${price.toFixed(2).replace('.', ',')}</span>` : ''}
-                    </div>
-                </div>
-            `;
-        }).join('');
+        renderOptionCards('wizard-options-corte', 'tipo_corte', ['tipo_corte', 'corte', 'cut_types']);
     }
     window.renderWizardCorteOptions = renderWizardCorteOptions;
 
@@ -1739,7 +1658,6 @@
         
         const formAction = document.getElementById('form-action');
         if (formAction) formAction.value = isDuplicate ? 'add_item' : 'update_item';
-        syncWizardConfirmLabel();
         
         const formTitle = document.getElementById('form-title');
         if (formTitle) formTitle.textContent = isDuplicate ? 'Duplicar Item' : 'Editar Item';
@@ -1890,17 +1808,6 @@
         openSewingWizard();
     }
     window.populateWizardFromItem = populateWizardFromItem;
-
-    function syncWizardConfirmLabel() {
-        const action = document.getElementById('form-action')?.value;
-        const confirmBtn = document.getElementById('wizard-confirm-btn');
-        if (!confirmBtn) return;
-        confirmBtn.textContent = action === 'update_item'
-            ? 'Confirmar e Atualizar Item'
-            : 'Confirmar e Adicionar Item';
-    }
-    window.syncWizardConfirmLabel = syncWizardConfirmLabel;
-
         
     function previewCoverImage(input) {
         const previewContainer = document.getElementById('cover-image-preview-container');
@@ -1936,7 +1843,6 @@
         if (formAction) formAction.value = 'add_item';
         if (formTitle) formTitle.textContent = 'Adicionar Novo Item';
         if (submitButton) submitButton.innerHTML = 'Adicionar Item';
-        syncWizardConfirmLabel();
         if (sewingForm) sewingForm.reset();
         
         if (coverPreviewContainer) coverPreviewContainer.classList.add('hidden');

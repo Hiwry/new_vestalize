@@ -395,6 +395,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/sale-receipt/{id}', [\App\Http\Controllers\PDVController::class, 'downloadSaleReceipt'])->name('sale-receipt');
     });
 
+    // Módulo Personalizados
+    Route::prefix('personalizados')->name('personalized.')->middleware('auth')->group(function () {
+        Route::get('/', [\App\Http\Controllers\PersonalizedController::class, 'index'])->name('index');
+        Route::post('/cart/add', [\App\Http\Controllers\PersonalizedController::class, 'addToCart'])->name('cart.add');
+        Route::post('/cart/remove', [\App\Http\Controllers\PersonalizedController::class, 'removeFromCart'])->name('cart.remove');
+        Route::post('/cart/clear', [\App\Http\Controllers\PersonalizedController::class, 'clearCart'])->name('cart.clear');
+        Route::post('/checkout', [\App\Http\Controllers\PersonalizedController::class, 'checkout'])->name('checkout');
+    });
+
     // Visualização de Estoque para Vendedores (somente leitura)
     // Esta rota permite que vendedores vejam o estoque sem precisar do plano de estoque completo
     Route::get('/stocks-view', [\App\Http\Controllers\StockController::class, 'indexReadOnly'])->name('stocks.view');

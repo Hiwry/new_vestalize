@@ -1,41 +1,5 @@
 ﻿@extends('layouts.admin')
 
-@push('styles')
-<style>
-    .budget-personalization-option {
-        position: relative;
-        overflow: hidden;
-        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-    }
-    .budget-personalization-option:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 16px 32px -22px rgba(124, 58, 237, 0.45);
-    }
-    .budget-personalization-option.is-active {
-        border-color: #7c3aed !important;
-        background: rgba(124, 58, 237, 0.08) !important;
-    }
-    .dark .budget-personalization-option {
-        background: rgba(15, 23, 42, 0.55);
-        border-color: rgba(148, 163, 184, 0.28);
-    }
-    .dark .budget-personalization-option.is-active {
-        background: rgba(124, 58, 237, 0.18) !important;
-    }
-    .budget-icon-bubble {
-        border: 1px solid rgba(124, 58, 237, 0.12);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 12px 24px -16px rgba(124, 58, 237, 0.6);
-    }
-    .dark .budget-icon-bubble {
-        border-color: rgba(124, 58, 237, 0.35);
-        box-shadow: 0 12px 26px -16px rgba(124, 58, 237, 0.75);
-    }
-    .budget-check-indicator {
-        box-shadow: 0 10px 18px -10px rgba(124, 58, 237, 0.6);
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="max-w-4xl mx-auto">
     <!-- Progress Bar (Wizard Main) -->
@@ -58,6 +22,18 @@
         </div>
     </div>
 
+    <!-- Messages -->
+    @if(session('success'))
+    <div class="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+        </div>
+    </div>
+    @endif
+
     <!-- Main Content List -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
         <div class="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
@@ -65,11 +41,11 @@
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Itens do Orçamento</h2>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Adicione os itens que compõem este orçamento</p>
             </div>
-            <button type="button" onclick="openItemModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition text-sm font-medium flex items-center gap-2" style="color: white !important;">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white !important;">
+            <button type="button" onclick="openItemModal()" style="color: white !important;" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition text-sm font-medium flex items-center gap-2">
+                <svg class="w-4 h-4 text-white" style="color: white !important;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
-                Adicionar Item
+                <span style="color: white !important;">Adicionar Item</span>
             </button>
         </div>
 
@@ -124,9 +100,6 @@
                                 R$ {{ number_format(($item['unit_price'] ?? 0) * ($item['quantity'] ?? 0), 2, ',', '.') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button type="button" onclick="editItem({{ $index }})" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 mr-3">
-                                    Editar
-                                </button>
                                 <button type="button" onclick="removeItem({{ $index }})" class="text-red-600 dark:text-red-400 hover:text-red-900">
                                     Remover
                                 </button>
@@ -159,9 +132,9 @@
         <form method="POST" action="{{ route('budget.items') }}">
             @csrf
             <input type="hidden" name="action" value="continue">
-            <button type="submit" class="px-8 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 shadow-lg hover:shadow-xl transition text-sm font-medium flex items-center gap-2" style="color: white !important;">
+            <button type="submit" style="color: white !important;" class="px-8 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 shadow-lg hover:shadow-xl transition text-sm font-medium flex items-center gap-2">
                 Continuar
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" style="color: white !important;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                 </svg>
             </button>
@@ -196,12 +169,14 @@
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700/50">
                     <div class="flex items-center justify-between w-full max-w-sm mx-auto">
                         <div class="flex flex-col items-center step-indicator" data-step="1">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-indigo-600 text-white font-bold text-sm ring-4 ring-indigo-100 dark:ring-indigo-900/30" style="color: white !important; -webkit-text-fill-color: white !important;">1</div>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-indigo-600 text-white font-bold text-sm ring-4 ring-indigo-100 dark:ring-indigo-900/30"
+                                     style="color: white !important;">1</div>
                             <span class="text-xs font-medium mt-2 text-indigo-600 dark:text-indigo-400">Tipo</span>
                         </div>
                         <div class="flex-1 h-0.5 bg-gray-200 dark:bg-gray-700 mx-2 step-line" data-to="2"></div>
                         <div class="flex flex-col items-center step-indicator" data-step="2">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-500 font-bold text-sm">2</div>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-indigo-600 text-white font-bold text-sm ring-4 ring-indigo-100 dark:ring-indigo-900/30"
+                                     style="color: white !important;">2</div>
                             <span class="text-xs font-medium mt-2 text-gray-500">Tecido</span>
                         </div>
                         <div class="flex-1 h-0.5 bg-gray-200 dark:bg-gray-700 mx-2 step-line" data-to="3"></div>
@@ -330,11 +305,11 @@
                             Cancelar
                         </button>
 
-                        <button type="button" id="btn-next" onclick="changeStep(1)" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition" style="color: white !important;">
+                        <button type="button" id="btn-next" onclick="changeStep(1)" style="color: white !important;" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition">
                             Próximo
                         </button>
 
-                        <button type="submit" id="btn-save" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium shadow-sm transition hidden" style="color: white !important;">
+                        <button type="submit" id="btn-save" style="color: white !important;" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium shadow-sm transition hidden">
                             Salvar Item
                         </button>
                     </div>
@@ -370,14 +345,7 @@
     function resetWizard() {
         currentStep = 1;
         updateWizardUI();
-        // Reset form to add mode
-        const actionInput = document.querySelector('input[name="action"]');
-        if (actionInput) actionInput.value = 'add_item';
-        const editingInput = document.getElementById('editing_item_id');
-        if (editingInput) editingInput.remove();
-        selectedPersonalizacoes = [];
-        // Reset checkboxes
-        document.querySelectorAll('input[name="personalizacao[]"]').forEach(cb => cb.checked = false);
+        // optionally reset form inputs here
     }
 
     function changeStep(direction) {
@@ -406,19 +374,21 @@
 
             if (step === currentStep) {
                 // Active
-                circle.className = "w-8 h-8 rounded-full flex items-center justify-center bg-indigo-600 text-white font-bold text-sm ring-4 ring-indigo-100";
-                circle.setAttribute('style', 'color: white !important; -webkit-text-fill-color: white !important;');
-                label.className = "text-xs font-medium mt-2 text-indigo-600";
+                circle.className = "w-8 h-8 rounded-full flex items-center justify-center bg-indigo-600 text-white font-bold text-sm ring-4 ring-indigo-100 dark:ring-indigo-900/30";
+                circle.style.setProperty('color', 'white', 'important');
+                label.className = "text-xs font-medium mt-2 text-indigo-600 dark:text-indigo-400";
             } else if (step < currentStep) {
                 // Completed
                 circle.className = "w-8 h-8 rounded-full flex items-center justify-center bg-green-500 text-white font-bold text-sm";
-                circle.setAttribute('style', 'color: white !important; -webkit-text-fill-color: white !important;');
                 circle.innerHTML = "✓";
+                circle.style.setProperty('color', 'white', 'important');
                 label.className = "text-xs font-medium mt-2 text-green-600";
             } else {
                 // Pending
                 circle.className = "w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-500 font-bold text-sm";
                 circle.innerHTML = step;
+                circle.style.color = ""; // Reset style
+                circle.style.cssText = ""; // Clear inline styles
                 label.className = "text-xs font-medium mt-2 text-gray-500";
             }
         });
@@ -468,124 +438,85 @@
         return isValid;
     }
 
-    // --- Data Loading & Rendering Logic (Same as before, adapted) ---
+    // --- Data Loading & Rendering Logic ---
+
     function loadOptions() {
         fetch('/api/product-options')
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.json();
+            })
             .then(data => {
                 options = data;
                 return fetch('/api/product-options-with-parents');
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.json();
+            })
             .then(data => {
                 optionsWithParents = data;
                 renderPersonalizacao();
-                renderAllDropdowns(); // init empty
+                renderAllDropdowns(); 
+            })
+            .catch(error => {
+                console.error('Error loading options:', error);
+                document.getElementById('personalizacao-options').innerHTML = 
+                    '<div class="col-span-full text-center text-red-500 py-4">Erro ao carregar opções. Recarregue a página.</div>';
             });
     }
 
-    function normalizePersName(name) {
-        if (!name) return '';
-        return name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    function getIconStyle(name) {
+        const n = name.toLowerCase().trim();
+        if(n.includes('local')) return { icon: 'fa-fire', color: 'text-[#7c3aed]', bg: 'bg-purple-100 dark:bg-purple-900/30' };
+        if(n.includes('serigrafia')) return { icon: 'fa-fill-drip', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-100 dark:bg-purple-900/30' };
+        if(n.includes('dtf')) return { icon: 'fa-print', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-100 dark:bg-orange-900/30' };
+        if(n.includes('bordado')) return { icon: 'fa-pen-nib', color: 'text-pink-600 dark:text-pink-400', bg: 'bg-pink-100 dark:bg-pink-900/30' };
+        if(n.includes('emborrachado')) return { icon: 'fa-cube', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-100 dark:bg-green-900/30' };
+        if(n.includes('lisa')) return { icon: 'fa-star', color: 'text-gray-600 dark:text-gray-400', bg: 'bg-gray-100 dark:bg-gray-700' };
+        if(n.includes('total')) return { icon: 'fa-image', color: 'text-white', bg: 'bg-gradient-to-br from-indigo-500 to-purple-600 shadow-md' };
+        return { icon: 'fa-layer-group', color: 'text-gray-600', bg: 'bg-gray-100' };
     }
 
-    function getPersonalizationMeta(name) {
-        const key = normalizePersName(name);
-        const metaMap = {
-            SUBLOCAL: {
-                icon: 'fa-fire',
-                bubble: 'bg-purple-100 dark:bg-purple-900/30',
-                iconClass: 'text-[#7c3aed] dark:text-[#a78bfa]',
-                desc: 'Sublimacao localizada'
-            },
-            SUBTOTAL: {
-                icon: 'fa-image',
-                bubble: 'bg-gradient-to-br from-cyan-100 to-purple-100 dark:from-cyan-900/30 dark:to-purple-900/30',
-                iconClass: 'text-[#7c3aed] dark:text-[#a78bfa]',
-                desc: 'Sublimacao total'
-            },
-            SERIGRAFIA: {
-                icon: 'fa-fill-drip',
-                bubble: 'bg-purple-100 dark:bg-purple-900/30',
-                iconClass: 'text-purple-600 dark:text-purple-400',
-                desc: 'Serigrafia'
-            },
-            DTF: {
-                icon: 'fa-print',
-                bubble: 'bg-orange-100 dark:bg-orange-900/30',
-                iconClass: 'text-orange-600 dark:text-orange-400',
-                desc: 'DTF'
-            },
-            BORDADO: {
-                icon: 'fa-pen-nib',
-                bubble: 'bg-pink-100 dark:bg-pink-900/30',
-                iconClass: 'text-pink-600 dark:text-pink-400',
-                desc: 'Bordado'
-            },
-            EMBORRACHADO: {
-                icon: 'fa-cube',
-                bubble: 'bg-green-100 dark:bg-green-900/30',
-                iconClass: 'text-green-600 dark:text-green-400',
-                desc: 'Emborrachado'
-            },
-            LISAS: {
-                icon: 'fa-star',
-                bubble: 'bg-gray-100 dark:bg-gray-700',
-                iconClass: 'text-gray-600 dark:text-gray-400',
-                desc: 'Sem personalizacao'
-            }
-        };
-
-        if (key.includes('SUB') && key.includes('LOCAL')) return metaMap.SUBLOCAL;
-        if (key.includes('SUB') && key.includes('TOTAL')) return metaMap.SUBTOTAL;
-        if (key.includes('SERIG')) return metaMap.SERIGRAFIA;
-        if (key.includes('BORD')) return metaMap.BORDADO;
-        if (key.includes('EMBORR')) return metaMap.EMBORRACHADO;
-        if (key.includes('DTF')) return metaMap.DTF;
-        if (key.includes('LISA')) return metaMap.LISAS;
-
-        return {
-            icon: 'fa-wand-magic-sparkles',
-            bubble: 'bg-indigo-100 dark:bg-indigo-900/30',
-            iconClass: 'text-indigo-600 dark:text-indigo-400',
-            desc: 'Personalizacao'
-        };
-    }
 
     function renderPersonalizacao() {
         const container = document.getElementById('personalizacao-options');
         const items = optionsWithParents.personalizacao || options.personalizacao || [];
+        const form = document.getElementById('item-form');
+        
+        // Remove existing hidden inputs for personalizacao
+        const existingInputs = form.querySelectorAll('input[name="personalizacao[]"]');
+        existingInputs.forEach(input => input.remove());
 
-        if (!items.length) {
-            container.innerHTML = '<div class="col-span-full text-center py-6 text-sm text-gray-500 dark:text-gray-400">Nenhuma personalizacao disponivel.</div>';
-            return;
-        }
-
+        // Add hidden inputs for selected items
+        selectedPersonalizacoes.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'personalizacao[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+        
         container.innerHTML = items.map(item => {
-            const meta = getPersonalizationMeta(item.name || '');
-            const isActive = selectedPersonalizacoes.includes(item.id);
-            const activeClasses = isActive
-                ? 'is-active border-[#7c3aed] ring-2 ring-[#7c3aed]/20 bg-purple-50/60 dark:bg-purple-900/10'
-                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900/40';
-            const indicatorClass = isActive ? 'flex' : 'hidden';
-
+            const style = getIconStyle(item.name);
+            const isSelected = selectedPersonalizacoes.includes(item.id);
+            const borderClass = isSelected ? 'border-[#7c3aed] ring-2 ring-[#7c3aed]/20' : 'border-gray-200 dark:border-gray-700';
+            
             return `
-                <label class="budget-personalization-option group flex items-center gap-3 p-4 rounded-2xl border cursor-pointer hover:border-[#7c3aed] transition-all ${activeClasses}">
-                    <input type="checkbox" name="personalizacao[]" value="${item.id}"
-                           onchange="togglePersonalizacao(${item.id})"
-                           class="sr-only"
-                           ${isActive ? 'checked' : ''}>
-                    <span class="budget-check-indicator ${indicatorClass} absolute top-3 right-3 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center">
-                        <i class="fa-solid fa-check text-xs"></i>
-                    </span>
-                    <div class="budget-icon-bubble ${meta.bubble} w-11 h-11 rounded-2xl flex items-center justify-center">
-                        <i class="fa-solid ${meta.icon} ${meta.iconClass} text-lg"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">${item.name}</div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400 truncate">${meta.desc}</div>
-                    </div>
-                </label>
+            <div onclick="togglePersonalizacao(${item.id})" 
+                 class="relative flex flex-col items-center p-4 border rounded-xl cursor-pointer hover:border-[#7c3aed] transition-all group hover:shadow-lg ${borderClass} bg-white dark:bg-gray-800">
+                
+                ${isSelected ? `
+                <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#7c3aed] text-white flex items-center justify-center">
+                    <i class="fa-solid fa-check text-[10px]"></i>
+                </div>` : ''}
+
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform ${style.bg}">
+                    <i class="fa-solid ${style.icon} text-xl ${style.color}"></i>
+                </div>
+                
+                <span class="text-xs font-bold text-center text-gray-900 dark:text-gray-100 uppercase tracking-wide">${item.name}</span>
+            </div>
             `;
         }).join('');
     }
@@ -625,12 +556,7 @@
         }
 
         renderSelect('cor', optionsWithParents.cor || [], null, activeParentIds);
-        
-        // Strict Mode + Category Constraints for Tipo de Corte
-        // Use Tipo de Tecido ID (fabric subtype) as the constraint, since cut types are children of fabric types.
-        // If no Tipo de Tecido is selected, fall back to the main Tecido ID.
-        const fabricConstraintId = tipoTecidoId || tecidoId;
-        renderSelect('tipo_corte', optionsWithParents.tipo_corte || [], null, activeParentIds, true, fabricConstraintId);
+        renderSelect('tipo_corte', optionsWithParents.tipo_corte || [], null, activeParentIds);
         
         const corteParentIds = tipoCorteId ? [tipoCorteId] : [];
         renderSelect('gola', optionsWithParents.gola || [], null, corteParentIds);
@@ -639,40 +565,14 @@
         updatePrice();
     }
 
-    /**
-     * @param strictMode If true, hides items with NO parents.
-     * @param requiredParentId If set (e.g. Fabric Type ID), enforces that IF the item has parents from that category, it must match this ID.
-     */
-    function renderSelect(id, items, selectedValue, parentIdsToCheck, strictMode = false, requiredParentId = null) {
+    function renderSelect(id, items, selectedValue, parentIdsToCheck) {
         const select = document.getElementById(id);
         if(!select) return;
         
-        // Prepare list of all Fabric AND Fabric Type IDs to identify fabric-related parents
-        const allFabricIds = [
-            ...(optionsWithParents.tecido || []).map(t => t.id),
-            ...(optionsWithParents.tipo_tecido || (options.tipo_tecido || [])).map(t => t.id)
-        ];
-
         let filtered = items;
         if (parentIdsToCheck && parentIdsToCheck.length > 0) {
              filtered = items.filter(item => {
-                // 1. Strict Mode check
-                if ((!item.parent_ids || item.parent_ids.length === 0)) return !strictMode;
-                
-                // 2. Category Constraint Logic (e.g. Fabric consistency)
-                // If we have a requiredParentId (the selected Fabric), check if this item is linked to ANY OTHER fabric.
-                // If item.parent_ids contains a Fabric ID that is NOT the requiredParentId, it's a mismatch (exclusive).
-                if (requiredParentId && allFabricIds.length > 0) {
-                    const itemFabricParents = item.parent_ids.filter(pid => allFabricIds.includes(pid));
-                    // If the item is linked to fabrics, and NONE of them is the selected fabric, exclude it.
-                    if (itemFabricParents.length > 0 && !itemFabricParents.includes(requiredParentId)) {
-                        return false;
-                    }
-                }
-
-                // 3. Standard Intersection check (OR logic across active parents)
-                // Ensure at least one active parent is present.
-                // Note: If strict mode is true, we already checked length.
+                if (!item.parent_ids || item.parent_ids.length === 0) return true;
                 return item.parent_ids.some(pid => parentIdsToCheck.includes(pid));
             });
         }
@@ -680,11 +580,9 @@
         const current = selectedValue || select.value;
         const defaultTxt = select.options[0] ? select.options[0].text : "Selecione...";
         
-        // Reverted debug display: showing clean names again
         select.innerHTML = `<option value="">${defaultTxt}</option>` + 
             filtered.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name} ${i.price > 0 ? '(+R$'+i.price+')' : ''}</option>`).join('');
             
-        // Use loose comparison for string/number match
         if(current && filtered.find(x => x.id == current)) select.value = current;
     }
 
@@ -708,64 +606,6 @@
         form.innerHTML = `@csrf <input type="hidden" name="action" value="remove_item"><input type="hidden" name="item_index" value="${index}">`;
         document.body.appendChild(form);
         form.submit();
-    }
-    
-    // Edit item - opens modal with pre-filled data
-    window.editItem = function(index) {
-        // Get the item data from the session via a data attribute
-        const items = @json($items ?? []);
-        const item = items[index];
-        
-        if (!item) {
-            alert('Item não encontrado');
-            return;
-        }
-        
-        // Open modal WITHOUT resetting (don't call openItemModal which resets)
-        document.getElementById('item-modal').classList.remove('hidden');
-        
-        // Set editing mode BEFORE any wizard updates
-        document.querySelector('input[name="action"]').value = 'update_item';
-        
-        // Add editing flag
-        let editingInput = document.getElementById('editing_item_id');
-        if (!editingInput) {
-            editingInput = document.createElement('input');
-            editingInput.type = 'hidden';
-            editingInput.name = 'editing_item_id';
-            editingInput.id = 'editing_item_id';
-            document.getElementById('item-form').appendChild(editingInput);
-        }
-        editingInput.value = index;
-        
-        // Pre-select personalizations
-        setTimeout(() => {
-            if (item.personalizacao) {
-                selectedPersonalizacoes = Array.isArray(item.personalizacao) ? item.personalizacao : [item.personalizacao];
-                document.querySelectorAll('input[name="personalizacao[]"]').forEach(cb => {
-                    cb.checked = selectedPersonalizacoes.includes(cb.value);
-                });
-            }
-            
-            // Go to step 1 and let user navigate through
-            currentStep = 1;
-            updateWizardUI();
-            
-            // Pre-fill other fields after a short delay for dropdowns to load
-            setTimeout(() => {
-                if (item.tecido) document.getElementById('tecido').value = item.tecido;
-                if (item.cor) document.getElementById('cor').value = item.cor;
-                if (item.tipo_corte) document.getElementById('tipo_corte').value = item.tipo_corte;
-                if (item.gola) document.getElementById('gola').value = item.gola;
-                if (item.detalhe) document.getElementById('detalhe').value = item.detalhe;
-                if (item.quantity) document.getElementById('quantity').value = item.quantity;
-                if (item.unit_price) document.getElementById('unit_price').value = item.unit_price;
-                if (item.notes) document.getElementById('notes').value = item.notes;
-                
-                // Update displayed price
-                updatePrice();
-            }, 500);
-        }, 100);
     }
 </script>
 @endpush

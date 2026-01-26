@@ -23,23 +23,28 @@
             
             <div class="flex items-center gap-2 bg-white dark:bg-gray-800 p-1 rounded-xl border border-gray-200 dark:border-gray-700 overflow-x-auto">
                 <a href="{{ route('pdv.index', ['type' => 'products']) }}" data-type="products"
-                   class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'products' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+                   class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'products' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}"
+                   style="{{ $type == 'products' ? 'color: white !important;' : '' }}">
                     Produtos
                 </a>
                 <a href="{{ route('pdv.index', ['type' => 'fabric_pieces']) }}" data-type="fabric_pieces"
-                   class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'fabric_pieces' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+                   class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'fabric_pieces' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}"
+                   style="{{ $type == 'fabric_pieces' ? 'color: white !important;' : '' }}">
                     Tecidos
                 </a>
                 <a href="{{ route('pdv.index', ['type' => 'machines']) }}" data-type="machines"
-                   class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'machines' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+                   class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'machines' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}"
+                   style="{{ $type == 'machines' ? 'color: white !important;' : '' }}">
                     Máquinas
                 </a>
                 <a href="{{ route('pdv.index', ['type' => 'supplies']) }}" data-type="supplies"
-                   class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'supplies' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+                   class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'supplies' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}"
+                   style="{{ $type == 'supplies' ? 'color: white !important;' : '' }}">
                     Suprimentos
                 </a>
                 <a href="{{ route('pdv.index', ['type' => 'uniforms']) }}" data-type="uniforms"
-                   class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'uniforms' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+                   class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'uniforms' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}"
+                   style="{{ $type == 'uniforms' ? 'color: white !important;' : '' }}">
                     Uniformes
                 </a>
             </div>
@@ -103,7 +108,7 @@
                                 <div class="relative">
                                     <input type="text" id="search-client" placeholder="Buscar cliente (opcional)..." 
                                            onkeydown="if(event.key === 'Enter') window.searchClient()"
-                                           class="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-shadow">
+                                           class="w-full pl-16 pr-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-shadow" style="padding-left: 3.5rem !important;">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center cursor-pointer" onclick="window.searchClient()">
                                         <svg class="w-5 h-5 text-gray-400 hover:text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -151,13 +156,13 @@
                                                        step="{{ isset($item['sale_type']) && $item['sale_type'] != 'unidade' ? '0.01' : '1' }}"
                                                        min="{{ isset($item['sale_type']) && $item['sale_type'] != 'unidade' ? '0.01' : '1' }}"
                                                        onchange="updateCartItem('{{ $item['id'] }}', this.value, null)"
-                                                       class="w-12 p-0 text-center text-xs bg-transparent border-none text-gray-900 dark:text-gray-100 focus:ring-0">
+                                                       class="w-20 p-0 text-center text-xs bg-transparent border-none text-gray-900 dark:text-gray-100 focus:ring-0">
                                                 <span class="text-xs text-gray-400 px-1">×</span>
                                                 <input type="number" 
                                                        value="{{ number_format($item['unit_price'], 2, '.', '') }}" 
                                                        step="0.01" min="0"
                                                        onchange="updateCartItem('{{ $item['id'] }}', null, this.value)"
-                                                       class="w-16 p-0 text-right text-xs bg-transparent border-none text-gray-900 dark:text-gray-100 font-medium focus:ring-0">
+                                                       class="w-24 p-0 text-right text-xs bg-transparent border-none text-gray-900 dark:text-gray-100 font-medium focus:ring-0">
                                             </div>
                                             <p class="font-bold text-gray-900 dark:text-white text-sm">
                                                 R$ {{ number_format($item['total_price'], 2, ',', '.') }}
@@ -170,34 +175,47 @@
                         </div>
 
                         <!-- 3. Footer (Totals & Actions) -->
-                        <div class="bg-white dark:bg-gray-800 p-5 border-t border-gray-100 dark:border-gray-700 space-y-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
-                            <!-- Discount & Delivery (Collapsible or Compact) -->
-                            <div class="grid grid-cols-2 gap-3 text-sm">
-                                <div>
-                                    <label class="text-xs text-gray-500 mb-1 block">Desconto</label>
-                                    <div class="flex">
-                                        <select id="discount-type" class="px-1.5 py-1.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-l-lg text-xs focus:ring-1 focus:ring-indigo-500 border-r-0">
-                                            <option value="fixed">R$</option>
-                                            <option value="percent">%</option>
-                                        </select>
-                                        <input type="number" id="discount-input" placeholder="0,00" step="0.01" min="0" class="flex-1 w-full px-2 py-1.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-r-lg text-sm text-right focus:ring-1 focus:ring-indigo-500">
+                        <div class="bg-white dark:bg-gray-800 p-5 border-t border-gray-100 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
+                            
+                            <!-- Payment Details (Combined Section) -->
+                            <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-3 mb-4 space-y-3 border border-gray-100 dark:border-gray-700">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <!-- Discount -->
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1 block pl-1">Desconto</label>
+                                        <div class="flex shadow-sm rounded-lg">
+                                            <select id="discount-type" class="px-2 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-l-lg text-xs focus:ring-1 focus:ring-gray-900 border-r-0 text-gray-700 dark:text-gray-200">
+                                                <option value="fixed">R$</option>
+                                                <option value="percent">%</option>
+                                            </select>
+                                            <input type="number" id="discount-input" placeholder="0,00" step="0.01" min="0" class="flex-1 w-full px-2 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-r-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-white placeholder-gray-400">
+                                        </div>
+                                    </div>
+                                    <!-- Delivery -->
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1 block pl-1">Entrega</label>
+                                        <div class="relative shadow-sm rounded-lg">
+                                            <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                                <span class="text-gray-400 text-xs">R$</span>
+                                            </div>
+                                            <input type="number" id="delivery-fee-input" placeholder="0,00" class="w-full pl-6 pr-2 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-white placeholder-gray-400">
+                                        </div>
                                     </div>
                                 </div>
+                                
+                                <!-- Notes -->
                                 <div>
-                                    <label class="text-xs text-gray-500 mb-1 block">Entrega (R$)</label>
-                                    <input type="number" id="delivery-fee-input" placeholder="0,00" class="w-full px-2 py-1.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-right focus:ring-1 focus:ring-indigo-500">
+                                    <input type="text" id="notes-input" placeholder="Adicionar observações..." class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-xs focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-white placeholder-gray-400 transition-colors hover:border-gray-300">
                                 </div>
                             </div>
-                            
-                             <!-- Notes -->
-                            <div>
-                                <input type="text" id="notes-input" placeholder="Observações do pedido (opcional)" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border-none rounded-lg text-xs focus:ring-1 focus:ring-indigo-500">
-                            </div>
 
-                            <!-- Total -->
-                            <div class="flex justify-between items-end pt-2">
-                                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total a Pagar</span>
-                                <span class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight" id="cart-total">
+                            <!-- Total Display -->
+                            <div class="flex justify-between items-center mb-5 pb-4 border-b border-dashed border-gray-200 dark:border-gray-700">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total a Pagar</span>
+                                    <span id="cart-total-items-badge" class="text-[10px] text-gray-400 mt-0.5 hidden">0 itens</span>
+                                </div>
+                                <span class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight" id="cart-total">
                                     @php
                                         $subtotal = !empty($cart) ? array_sum(array_column($cart, 'total_price')) : 0;
                                     @endphp
@@ -205,18 +223,23 @@
                                 </span>
                             </div>
 
-                            <!-- Actions -->
-                            <div class="grid grid-cols-1 gap-2">
-                                <button onclick="window.checkout()" id="checkout-btn" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-sm transition-transform active:scale-[0.98] flex justify-center items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                                    <span>Finalizar Venda</span>
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                            <!-- Action Buttons -->
+                            <div class="space-y-3">
+                                <button onclick="window.checkout()" id="checkout-btn" class="group w-full py-4 bg-gray-900 hover:bg-black text-white rounded-xl font-bold shadow-lg shadow-gray-200 dark:shadow-none transition-all active:scale-[0.99] flex justify-center items-center gap-3 text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none" disabled style="color: white !important;">
+                                    <span style="color: white !important;">FINALIZAR VENDA</span>
+                                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: white !important;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                                 </button>
-                                <button onclick="window.checkoutWithoutClient()" id="checkout-without-client-btn" class="w-full py-2.5 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-xl font-medium text-xs transition-colors">
-                                    Finalizar sem Cliente
-                                </button>
-                                <button onclick="window.clearCart()" class="text-xs text-red-500 hover:text-red-700 hover:underline text-center w-full mt-1">
-                                    Limpar Carrinho
-                                </button>
+                                
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button onclick="window.checkoutWithoutClient()" id="checkout-without-client-btn" class="w-full py-2.5 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-lg font-semibold text-xs transition-all flex items-center justify-center gap-1.5">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                        Sem Cliente
+                                    </button>
+                                    <button onclick="window.clearCart()" class="w-full py-2.5 text-xs font-semibold text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-transparent hover:border-red-100 flex items-center justify-center gap-1.5">
+                                        <svg class="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        Limpar
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -333,7 +356,6 @@ function toggleMobileCart() {
 <div id="add-product-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all">
         <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
-        <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100" id="modal-title-dynamic">Adicionar Produto</h3>
             <button onclick="closeAddProductModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -496,7 +518,7 @@ function toggleMobileCart() {
                        placeholder="Valor"
                        class="w-32 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                 <button type="button" onclick="addPaymentMethod()" 
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" style="color: white !important;">
                     Adicionar
                 </button>
             </div>
@@ -524,9 +546,10 @@ function toggleMobileCart() {
             </button>
             <button onclick="confirmPayment()" 
                     id="confirm-payment-btn"
-                    class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    disabled>
-                Finalizar Venda
+                    class="flex-1 px-4 py-2 bg-gray-900 hover:bg-black text-white rounded-lg transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    disabled
+                    style="color: white !important;">
+                <span style="color: white !important;">Finalizar Venda</span>
             </button>
         </div>
     </div>
@@ -786,7 +809,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
             <div class="mb-4 border-t border-gray-200 dark:border-gray-700 pt-4">
                 <div class="flex justify-between items-center mb-3">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Personalizações SUB.LOCAL:</label>
-                    <button type="button" onclick="openSublocalModal()" class="px-3 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                    <button type="button" onclick="openSublocalModal()" class="px-3 py-1 text-xs bg-gray-900 text-white rounded hover:bg-black transition-colors">
                         + Adicionar
                     </button>
                 </div>
@@ -812,7 +835,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                     ${isFabricPiece ? `
                         <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Valor da Peça</span>
                         <div class="flex items-center gap-2">
-                            <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                            <span class="text-2xl font-bold text-gray-900 dark:text-gray-100">
                                 R$ ${parseFloat(product.sale_price || product.price || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </span>
                         </div>
@@ -821,13 +844,13 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                             | Peso: <span class="font-semibold text-gray-700 dark:text-gray-300">${parseFloat(product.weight_kg || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kg</span>
                         </span>
                         <div class="mt-2 text-[10px] space-y-0.5 border-t border-gray-100 dark:border-gray-700 pt-1">
-                            <span class="block text-indigo-600 dark:text-indigo-400 font-bold uppercase">${product.fabric_type_name || 'Tecido'}</span>
+                            <span class="block text-gray-900 dark:text-gray-100 font-bold uppercase">${product.fabric_type_name || 'Tecido'}</span>
                             ${product.supplier_name ? `<span class="block text-gray-500 font-medium">Fornecedor: ${product.supplier_name}</span>` : ''}
                         </div>
                     ` : `
                         <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Preço Unitário</span>
                         <div class="flex items-center gap-2">
-                             <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                             <span class="text-2xl font-bold text-gray-900 dark:text-gray-100">
                                 R$ ${parseFloat(product.price || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </span>
                             ${isProduct && product.sale_type !== 'unidade' ? `<span class="text-xs font-medium text-gray-400">/ ${product.sale_type === 'kg' ? 'Kg' : 'Mt'}</span>` : ''}
@@ -887,35 +910,43 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
             </div>
             
             <div class="mb-5">
-                <div class="flex items-center justify-between mb-2">
-                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tamanhos</label>
-                    <div class="flex items-center gap-3 text-[10px]">
-                        <div class="text-gray-400">Qtd: <span id="total-quantity-display" class="font-bold text-gray-700 dark:text-gray-300">0</span></div>
-                        <div class="text-gray-400">Total: <span id="total-surcharges-modal" class="font-bold text-gray-700 dark:text-gray-300">R$ 0,00</span></div>
+                <div class="flex items-center justify-between mb-3 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg border border-gray-100 dark:border-gray-700">
+                    <label class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide ml-2">Tamanhos</label>
+                    <div class="flex items-center gap-4 text-xs pr-2">
+                        <div class="text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 px-2 py-1 rounded border border-gray-200 dark:border-gray-600 shadow-sm">
+                            Qtd: <span id="total-quantity-display" class="font-bold text-gray-900 dark:text-gray-100 text-sm ml-1">0</span>
+                        </div>
+                        <div class="text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 px-2 py-1 rounded border border-gray-200 dark:border-gray-600 shadow-sm">
+                            Total: <span id="total-surcharges-modal" class="font-bold text-gray-900 dark:text-gray-100 text-sm ml-1">R$ 0,00</span>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-5 gap-2 gap-y-8 mb-4">
+                <div class="grid grid-cols-5 gap-2 gap-y-6 mb-4">
                     ${['PP','P','M','G','GG'].map(s => `
                     <div class="relative group">
-                        <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-400 mb-0.5 text-center uppercase">${s}</label>
-                        <input type="number" id="modal-size-${s.toLowerCase()}" min="0" value="" placeholder="0"
-                               onchange="checkStockForSizes(); ${s === 'GG' ? 'calculateSizeSurcharges();' : ''} updateTotalQuantity();" 
-                               class="w-full px-1 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-center text-sm font-medium bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-400 dark:placeholder-gray-500 relative z-0">
-                         <span id="stock-badge-${s.toLowerCase()}" class="pointer-events-none"></span>
-                         ${s === 'GG' ? `<p class="hidden text-[9px] font-medium text-green-600 text-center absolute w-full -bottom-8" id="surcharge-gg"></p>` : ''}
-                        <div id="stock-${s.toLowerCase()}" class="hidden absolute z-50 top-full left-0 w-32 bg-white shadow-lg rounded p-2 text-xs"></div>
+                        <div class="flex flex-col items-center">
+                            <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">${s}</label>
+                            <input type="number" id="modal-size-${s.toLowerCase()}" min="0" value="" placeholder="0"
+                                   onchange="checkStockForSizes(); ${s === 'GG' ? 'calculateSizeSurcharges();' : ''} updateTotalQuantity();" 
+                                   class="w-full h-10 border border-gray-200 dark:border-gray-600 rounded-lg text-center text-base font-bold bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 focus:border-gray-900 placeholder-gray-300 dark:placeholder-gray-600 transition-all hover:border-gray-400 relative z-0">
+                             <span id="stock-badge-${s.toLowerCase()}" class="pointer-events-none"></span>
+                             ${s === 'GG' ? `<p class="hidden text-[9px] font-bold text-orange-500 text-center absolute w-full -bottom-5" id="surcharge-gg"></p>` : ''}
+                            <div id="stock-${s.toLowerCase()}" class="hidden absolute z-50 top-full left-0 w-32 bg-white shadow-xl rounded-lg p-3 text-xs border border-gray-100"></div>
+                        </div>
                     </div>`).join('')}
                 </div>
-                <div class="grid grid-cols-5 gap-2 gap-y-8">
+                <div class="grid grid-cols-5 gap-2 gap-y-6">
                      ${['EXG','G1','G2','G3','Especial'].map(s => `
                     <div class="relative group">
-                        <label class="block text-[10px] font-bold text-gray-700 dark:text-gray-400 mb-0.5 text-center uppercase">${s}</label>
-                        <input type="number" id="modal-size-${s.toLowerCase()}" min="0" value="" placeholder="0"
-                               onchange="checkStockForSizes(); calculateSizeSurcharges(); updateTotalQuantity();" 
-                               class="w-full px-1 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-center text-sm font-medium bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-400 dark:placeholder-gray-500 relative z-0">
-                         <span id="stock-badge-${s.toLowerCase()}" class="pointer-events-none"></span>
-                        <p class="hidden text-[9px] font-medium text-green-600 text-center absolute w-full -bottom-8" id="surcharge-${s.toLowerCase()}"></p>
+                        <div class="flex flex-col items-center">
+                            <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">${s}</label>
+                            <input type="number" id="modal-size-${s.toLowerCase()}" min="0" value="" placeholder="0"
+                                   onchange="checkStockForSizes(); calculateSizeSurcharges(); updateTotalQuantity();" 
+                                   class="w-full h-10 border border-gray-200 dark:border-gray-600 rounded-lg text-center text-base font-bold bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 focus:border-gray-900 placeholder-gray-300 dark:placeholder-gray-600 transition-all hover:border-gray-400 relative z-0">
+                             <span id="stock-badge-${s.toLowerCase()}" class="pointer-events-none"></span>
+                            <p class="hidden text-[9px] font-bold text-orange-500 text-center absolute w-full -bottom-5" id="surcharge-${s.toLowerCase()}"></p>
+                        </div>
                     </div>`).join('')}
                 </div>
             </div>
@@ -924,12 +955,12 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
             ${sublocalHtml}
             
             <div class="pt-4 mt-2 grid grid-cols-2 gap-3">
-                <button onclick="closeAddProductModal()" class="w-full py-3.5 text-sm font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors">
+                <button onclick="closeAddProductModal()" class="w-full py-3.5 text-sm font-bold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors">
                     Cancelar
                 </button>
-                <button onclick="confirmAddProduct()" class="w-full py-3.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition-transform active:scale-[0.98] flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                    Adicionar
+                <button onclick="confirmAddProduct()" class="w-full py-3.5 text-sm font-bold text-white bg-gray-900 hover:bg-black rounded-xl shadow-lg shadow-gray-200 dark:shadow-none transition-all active:scale-[0.98] flex items-center justify-center gap-2" style="color: white !important;">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: white !important;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                    <span style="color: white !important;">Adicionar</span>
                 </button>
             </div>
         </div>
@@ -1591,7 +1622,7 @@ window.closeAddProductModal = function closeAddProductModal() {
         const display = document.getElementById(`surcharge-${size}`);
         if (display) {
             display.textContent = '+ R$ 0,00';
-            display.className = 'text-xs font-semibold text-indigo-600 dark:text-indigo-400 mt-1 text-center';
+            display.className = 'text-xs font-semibold text-gray-900 dark:text-gray-300 mt-1 text-center';
         }
     });
     const totalSurchargesElement = document.getElementById('total-surcharges-modal');
@@ -2119,14 +2150,14 @@ function updateCartDisplay(cart, cartTotal) {
                                step="${item.sale_type && item.sale_type !== 'unidade' ? '0.01' : '1'}"
                                min="${item.sale_type && item.sale_type !== 'unidade' ? '0.01' : '1'}"
                                onchange="updateCartItem('${item.id}', this.value, null)"
-                               class="w-12 p-0 text-center text-xs bg-transparent border-none text-gray-900 dark:text-gray-100 focus:ring-0">
+                               class="w-20 p-0 text-center text-xs bg-transparent border-none text-gray-900 dark:text-gray-100 focus:ring-0">
                         <span class="text-xs text-gray-400 px-1">×</span>
                         <input type="number" 
                                step="0.01"
                                value="${parseFloat(item.unit_price).toFixed(2)}" 
                                min="0"
                                onchange="updateCartItem('${item.id}', null, this.value)"
-                               class="w-16 p-0 text-right text-xs bg-transparent border-none text-gray-900 dark:text-gray-100 font-medium focus:ring-0">
+                               class="w-24 p-0 text-right text-xs bg-transparent border-none text-gray-900 dark:text-gray-100 font-medium focus:ring-0">
                     </div>
                     <p class="font-bold text-gray-900 dark:text-white text-sm">
                         R$ ${parseFloat(item.total_price - (item.item_discount || 0)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -2691,9 +2722,9 @@ function showNotification(message, type = 'info') {
     // Criar elemento de notificação
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
-        type === 'success' ? 'bg-green-500 text-white' :
-        type === 'error' ? 'bg-red-500 text-white' :
-        'bg-blue-500 text-white'
+        type === 'success' ? 'bg-gray-900 text-white border-l-4 border-green-500' :
+        type === 'error' ? 'bg-gray-900 text-white border-l-4 border-red-500' :
+        'bg-gray-900 text-white border-l-4 border-indigo-500'
     }`;
     notification.textContent = message;
 

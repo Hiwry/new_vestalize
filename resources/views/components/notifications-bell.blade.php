@@ -18,7 +18,7 @@
         <!-- Badge de Contagem -->
         <span x-show="unreadCount > 0" 
               x-text="unreadCount > 99 ? '99+' : unreadCount"
-              class="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white stay-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+              class="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse" style="color: white !important;">
         </span>
 
         <!-- Pulse Animation -->
@@ -121,42 +121,10 @@
         <!-- Footer -->
         <div x-show="notifications.length > 0" 
              class="px-4 py-2 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-600 text-center">
-            <a href="{{ route('notifications.index') }}" 
-               class="mr-3 text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium transition-colors">
-                Ver todas
-            </a>
             <button @click="clearAll()" 
                     class="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 font-medium transition-colors">
-                Limpar todas as notifica&ccedil;&otilde;es
+                Limpar todas as notificações
             </button>
-        </div>
-    </div>
-
-    <!-- Modal Confirmar Limpeza -->
-    <div x-show="showClearModal" x-cloak class="fixed inset-0 z-[80] flex items-center justify-center px-4">
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showClearModal = false"></div>
-        <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-800 p-6">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Limpar notifica&ccedil;&otilde;es?</h3>
-                    <p class="text-sm text-gray-500 dark:text-slate-400">Essa a&ccedil;&atilde;o remove todo o hist&oacute;rico.</p>
-                </div>
-            </div>
-            <div class="mt-6 flex justify-end gap-2">
-                <button type="button" @click="showClearModal = false"
-                        class="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white">
-                    Cancelar
-                </button>
-                <button type="button" @click="confirmClearAll()" :disabled="clearing"
-                        class="px-4 py-2 text-sm font-semibold text-white stay-white bg-red-600 hover:bg-red-700 rounded-lg disabled:opacity-60">
-                    Limpar tudo
-                </button>
-            </div>
         </div>
     </div>
 </div>
@@ -171,8 +139,6 @@ function notificationBell() {
         loading: false,
         hasNew: false,
         lastNotificationId: null,
-        showClearModal: false,
-        clearing: false,
 
         init() {
             this.fetchNotifications();
@@ -182,12 +148,7 @@ function notificationBell() {
 
         async fetchNotifications() {
             try {
-                const response = await fetch('/notifications', {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                    }
-                });
+                const response = await fetch('/notifications');
                 const data = await response.json();
                 
                 // Verificar se há novas notificações
@@ -294,29 +255,17 @@ function notificationBell() {
                 console.error('Erro ao deletar notificação:', error);
             }
         },
-        clearAll() {
-            this.showClearModal = true;
-        },
 
-        async confirmClearAll() {
-            if (this.clearing) return;
-            this.clearing = true;
+        async clearAll() {
+            if (!confirm('Tem certeza que deseja limpar todas as notificações?')) {
+                return;
+            }
+            
             try {
-                await fetch('/notifications/clear-all', {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                    }
-                });
-                this.notifications = [];
-                this.unreadCount = 0;
-                this.showClearModal = false;
+                const promises = this.notifications.map(n => this.deleteNotification(n.id));
+                await Promise.all(promises);
             } catch (error) {
-                console.error('Erro ao limpar notificacoes:', error);
-            } finally {
-                this.clearing = false;
+                console.error('Erro ao limpar notificações:', error);
             }
         },
 

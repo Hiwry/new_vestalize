@@ -97,8 +97,54 @@ class BudgetController extends Controller
             ->paginate(20)
             ->appends($request->only(['status', 'search']));
 
+        // --- DASHBOARD METRICS ---
+        // Clone query for metrics to respect current user scope (Vendedor/AdminLoja)
+        // We use a fresh query builder dependent on user role logic again to ensure correct scope for totals
+        
+        $metricsQuery = Budget::query();
+        if ($user->isVendedor()) {
+            $metricsQuery->where('user_id', $user->id);
+        } elseif ($user->isAdminLoja()) {
+            $storeIds = $user->getStoreIds();
+            if (!empty($storeIds)) $metricsQuery->whereIn('store_id', $storeIds);
+            else $metricsQuery->whereRaw('1 = 0');
+        }
+        
+        // 1. Pending Count & Open Value
+        $pendingQuery = clone $metricsQuery;
+        $pendingStats = $pendingQuery->where('status', 'pending')
+            ->selectRaw('count(*) as count, sum(total) as total_value')
+            ->first();
+            
+        $pendingCount = $pendingStats->count ?? 0;
+        $openValue = $pendingStats->total_value ?? 0;
+        
+        // 2. Status Stats (Proportion)
+        $statusQuery = clone $metricsQuery;
+        $statusStats = $statusQuery->select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+            
+        // 3. Expiring Soon (Next 3 days)
+        $expiringQuery = clone $metricsQuery;
+        $expiringSoonCount = $expiringQuery->where('status', 'pending')
+            ->whereBetween('valid_until', [now(), now()->addDays(3)])
+            ->count();
+            
+        // 4. Follow-up Needed (Created > 7 days ago & Pending)
+        $followUpQuery = clone $metricsQuery;
+        $followUpCount = $followUpQuery->where('status', 'pending')
+            ->where('created_at', '<=', now()->subDays(7))
+            ->count();
+        
         return view('budgets.index', [
             'budgets' => $budgets,
+            'pendingCount' => $pendingCount,
+            'openValue' => $openValue,
+            'statusStats' => $statusStats,
+            'expiringSoonCount' => $expiringSoonCount,
+            'followUpCount' => $followUpCount,
         ]);
     }
 
@@ -918,18 +964,20 @@ class BudgetController extends Controller
                 'sizes' => 'nullable|array',
                 'sizes.*' => 'nullable|array',
                 'sizes.*.*' => 'nullable|integer|min:0',
-                'payment_method' => 'required|string',
-                'payment_amount' => 'required|numeric|min:0',
+                'payments' => 'required|array|min:1',
+                'payments.*.method' => 'required|string',
+                'payments.*.amount' => 'required|numeric|min:0',
                 'payment_notes' => 'nullable|string',
                 'delivery_date' => 'nullable|date',
                 'is_event' => 'nullable|boolean',
                 'discount_amount' => 'nullable|numeric|min:0',
                 'client_id' => $budget->client_id ? 'nullable|exists:clients,id' : 'required|exists:clients,id',
+                'cover_image' => 'nullable|image|max:5120', // Max 5MB
             ], [
-                'payment_method.required' => 'Selecione a forma de pagamento',
-                'payment_amount.required' => 'Informe o valor do pagamento',
-                'payment_amount.numeric' => 'O valor do pagamento deve ser um número',
-                'payment_amount.min' => 'O valor do pagamento deve ser maior que zero',
+                'payments.required' => 'Informe pelo menos um pagamento',
+                'payments.*.method.required' => 'Selecione a forma de pagamento',
+                'payments.*.amount.required' => 'Informe o valor do pagamento',
+                'payments.*.amount.min' => 'O valor do pagamento deve ser maior que zero',
                 'delivery_date.required' => 'Informe a data de entrega prevista',
                 'delivery_date.date' => 'Data de entrega inválida',
             ]);
@@ -992,14 +1040,6 @@ class BudgetController extends Controller
         }
         
         try {
-            // Criar pedido
-            $status = \App\Models\Status::orderBy('position')->first();
-            
-            // Calcular data de entrega: usar a data do formulário ou calcular 15 dias úteis
-            $deliveryDate = !empty($validated['delivery_date']) 
-                ? $validated['delivery_date'] 
-                : \App\Helpers\DateHelper::calculateDeliveryDate(\Carbon\Carbon::now(), 15)->format('Y-m-d');
-            
             // Obter store_id do orçamento ou do usuário
             $storeId = $budget->store_id;
             if (!$storeId) {
@@ -1020,6 +1060,18 @@ class BudgetController extends Controller
                     $storeId = $mainStore ? $mainStore->id : null;
                 }
             }
+
+            // Criar pedido
+            // Garantir que o status pertence ao tenant da loja
+            $store = \App\Models\Store::find($storeId);
+            $tenantId = $store ? $store->tenant_id : Auth::user()->tenant_id;
+            
+            $status = \App\Models\Status::where('tenant_id', $tenantId)->orderBy('position')->first();
+            
+            // Calcular data de entrega: usar a data do formulário ou calcular 15 dias úteis
+            $deliveryDate = !empty($validated['delivery_date']) 
+                ? $validated['delivery_date'] 
+                : \App\Helpers\DateHelper::calculateDeliveryDate(\Carbon\Carbon::now(), 15)->format('Y-m-d');
             
             \Log::info('Criando pedido a partir do orçamento', [
                 'budget_id' => $budget->id,
@@ -1053,6 +1105,24 @@ class BudgetController extends Controller
                 $budget->update(['client_id' => $clientId]);
             }
 
+            // Upload of order cover image if exists
+            $coverImagePath = null;
+            if ($request->hasFile('cover_image')) {
+                try {
+                    $file = $request->file('cover_image');
+                    // Ensure directory exists
+                    if (!\Illuminate\Support\Facades\Storage::disk('public')->exists('orders/covers')) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->makeDirectory('orders/covers');
+                    }
+                    
+                    $filename = 'order_cover_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $coverImagePath = $file->storeAs('orders/covers', $filename, 'public');
+                    \Log::info('📸 Capa do pedido salva: ' . $coverImagePath);
+                } catch (\Exception $e) {
+                    \Log::error('Erro ao salvar capa do pedido: ' . $e->getMessage());
+                }
+            }
+
             $order = \App\Models\Order::create([
                 'client_id' => $clientId,
                 'user_id' => Auth::id(),
@@ -1068,6 +1138,7 @@ class BudgetController extends Controller
                 'notes' => $budget->observations,
                 'terms_accepted' => true,
                 'terms_accepted_at' => now(),
+                'cover_image' => $coverImagePath,
             ]);
             
             // Copiar itens do orçamento para o pedido
@@ -1239,20 +1310,29 @@ class BudgetController extends Controller
                 'total' => $total,
             ]);
             
+            // Processar múltiplos pagamentos
+            $paymentsList = [];
+            $totalPaid = 0;
+            
+            foreach ($validated['payments'] as $payment) {
+                $amount = (float) $payment['amount'];
+                if ($amount > 0) {
+                    $paymentsList[] = [
+                        'id' => uniqid(),
+                        'method' => $payment['method'],
+                        'amount' => $amount,
+                    ];
+                    $totalPaid += $amount;
+                }
+            }
+            
             // Criar pagamento usando o formato correto (payment_methods como array)
             \App\Models\Payment::create([
                 'order_id' => $order->id,
-                'method' => $validated['payment_method'],
-                'payment_methods' => [
-                    [
-                        'id' => uniqid(),
-                        'method' => $validated['payment_method'],
-                        'amount' => $validated['payment_amount'],
-                    ]
-                ],
-                // Valor total registrado para compatibilidade com schemas antigos
-                'amount' => $validated['payment_amount'],
-                'entry_amount' => $validated['payment_amount'],
+                'method' => count($paymentsList) > 1 ? 'multiple' : ($paymentsList[0]['method'] ?? 'money'),
+                'payment_methods' => $paymentsList,
+                'amount' => $totalPaid,
+                'entry_amount' => $totalPaid,
                 'payment_date' => now()->toDateString(),
                 'entry_date' => now()->toDateString(),
                 'status' => 'paid',
@@ -1294,13 +1374,13 @@ class BudgetController extends Controller
                 $order->update(['stock_status' => 'pending']);
             }
             
-            // Bridge: Set this as the current wizard order and redirect to sewing step
-            session(['current_order_id' => $order->id]);
+            // NÃO redirecionar para web wizard, mas sim para a visualização do pedido
+            // session(['current_order_id' => $order->id]);
             
-            \Log::info('✅ Pedido criado e redirecionando para o wizard', ['order_id' => $order->id]);
+            \Log::info('✅ Pedido criado e redirecionando para detalhes', ['order_id' => $order->id]);
 
-            return redirect()->route('orders.wizard.sewing')
-                ->with('success', 'Orçamento #' . $budget->budget_number . ' convertido em pedido com sucesso! Agora você está no wizard de produção.');
+            return redirect()->route('orders.show', $order->id)
+                ->with('success', 'Orçamento #' . $budget->budget_number . ' convertido em pedido com sucesso!');
                 
         } catch (\Exception $e) {
             \Log::error('Erro ao converter orçamento em pedido:', [
