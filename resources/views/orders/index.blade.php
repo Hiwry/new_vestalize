@@ -79,9 +79,9 @@
                 </div>
 
                 <div class="flex gap-2">
-                    <button type="submit" style="color: white !important;" class="flex-1 px-6 py-3 bg-[#7c3aed] text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
-                        Filtrar
+                    <button type="submit" style="color: white !important;" class="flex-1 px-6 py-3 bg-gradient-to-br from-[#7c3aed] to-[#6d28d9] text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4 text-white" style="color: white !important;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+                        <span style="color: white !important;">Filtrar</span>
                     </button>
                     <a href="{{ route('orders.index') }}" class="p-3 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition-colors" title="Limpar Filtros">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
@@ -274,12 +274,11 @@
                                     $pendingEditRequest = $order->editRequests->where('status', 'pending')->first();
                                 @endphp
                                 
-                                <div class="relative">
                                     @if(Auth::user()->isAdmin() || $approvedEditRequest)
                                         <a href="{{ route('orders.edit.start', $order->id) }}" 
-                                           class="p-2 {{ $approvedEditRequest ? 'text-green-500 hover:bg-green-50' : 'text-blue-500 hover:bg-blue-50' }} dark:hover:bg-white/5 rounded-lg transition-colors"
+                                           class="p-2 {{ $approvedEditRequest ? 'bg-gradient-to-br from-green-500 to-green-600 shadow-green-200/50 hover:shadow-green-300/50' : 'bg-gradient-to-br from-[#7c3aed] to-[#6d28d9] shadow-purple-200/50 hover:shadow-purple-300/50' }} text-white rounded-xl transition-all shadow-md hover:-translate-y-0.5 hover:shadow-lg flex items-center justify-center"
                                            title="Editar Pedido">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                            <svg class="w-5 h-5 text-white" style="color: #ffffff !important;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                         </a>
                                     @elseif($pendingEditRequest)
                                         <div class="p-2 text-yellow-500 opacity-50 cursor-wait" title="Edição Pendente">
@@ -292,7 +291,6 @@
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
                                         </button>
                                     @endif
-                                </div>
                             @endif
                         </div>
                     </td>
