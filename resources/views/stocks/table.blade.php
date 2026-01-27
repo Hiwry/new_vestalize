@@ -3,23 +3,7 @@
 @section('content')
 <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
     
-    @if(session('success'))
-    <div class="bg-emerald-500 text-white p-4 rounded-xl shadow-lg flex items-center justify-between animate-fade-in-down">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                <i class="fa-solid fa-check text-white"></i>
-            </div>
-            <p class="font-bold">{{ session('success') }}</p>
-        </div>
-        @if(session('movement_id'))
-        <a href="{{ route('stocks.movements.print', session('movement_id')) }}" target="_blank" 
-           class="px-4 py-2 bg-white text-emerald-600 rounded-lg font-bold text-sm hover:bg-emerald-50 transition-colors flex items-center gap-2">
-            <i class="fa-solid fa-print"></i>
-            Imprimir Nota
-        </a>
-        @endif
-    </div>
-    @endif
+    {{-- Success message is now shown only in the layout admin.blade.php --}}
 
     <!-- Header Section -->
     <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
@@ -46,12 +30,12 @@
                     <i class="fa-solid fa-clock-rotate-left text-gray-500"></i>
                     Histórico
                 </a>
-                <a href="{{ route('stock-requests.index') }}" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl shadow-lg shadow-amber-200 dark:shadow-none transition-all duration-300 font-bold text-sm flex items-center gap-2 active:scale-95" style="color: #ffffff !important;">
-                    <i class="fa-solid fa-file-invoice text-white" style="color: #ffffff !important;"></i>
+                <a href="{{ route('stock-requests.index') }}" class="px-5 py-2.5 bg-white text-amber-500 border border-amber-200 hover:bg-amber-50 rounded-xl shadow-lg shadow-amber-200 dark:shadow-none transition-all duration-300 font-bold text-sm flex items-center gap-2 active:scale-95" style="background-color: #ffffff !important; color: #f59e0b !important; border: 1px solid #fde68a !important;">
+                    <i class="fa-solid fa-file-invoice text-amber-500" style="color: #f59e0b !important;"></i>
                     Solicitações
                 </a>
-                <a href="{{ route('stocks.create') }}" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-lg shadow-emerald-200 dark:shadow-none transition-all duration-300 font-bold text-sm flex items-center gap-2 active:scale-95" style="color: #ffffff !important;">
-                    <i class="fa-solid fa-plus text-white" style="color: #ffffff !important;"></i>
+                <a href="{{ route('stocks.create') }}" class="px-5 py-2.5 bg-white text-emerald-600 border border-emerald-200 hover:bg-emerald-50 rounded-xl shadow-lg shadow-emerald-200 dark:shadow-none transition-all duration-300 font-bold text-sm flex items-center gap-2 active:scale-95" style="background-color: #ffffff !important; color: #059669 !important; border: 1px solid #a7f3d0 !important;">
+                    <i class="fa-solid fa-plus text-emerald-600" style="color: #059669 !important;"></i>
                     Novo Item
                 </a>
             </div>
@@ -68,8 +52,8 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fa-solid fa-magnifying-glass text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
                     </div>
-                    <input type="text" name="search_id" value="{{ request('search_id') }}" placeholder="Buscar por ID..." 
-                           class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all dark:text-white text-sm font-medium">
+                    <input type="text" name="search_id" value="{{ request('search_id') }}" placeholder="Buscar por ID..." style="padding-left: 3.5rem !important;"
+                           class="w-full pl-14 pr-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all dark:text-white text-sm font-medium">
                 </div>
 
                 <select name="store_id" class="w-full py-2.5 px-4 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all dark:text-white text-sm font-medium appearance-none cursor-pointer">
@@ -121,8 +105,8 @@
                     <a href="{{ route('stocks.index', ['view' => 'table']) }}" class="px-6 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 font-bold text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                         Limpar
                     </a>
-                    <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition-all duration-300 font-bold text-sm flex items-center gap-2 active:scale-95" style="color: #ffffff !important;">
-                        <i class="fa-solid fa-filter text-white" style="color: #ffffff !important;"></i>
+                    <button type="submit" class="px-6 py-2.5 bg-white text-indigo-600 border border-indigo-200 hover:bg-indigo-50 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition-all duration-300 font-bold text-sm flex items-center gap-2 active:scale-95" style="background-color: #ffffff !important; color: #4f46e5 !important; border: 1px solid #c7d2fe !important;">
+                        <i class="fa-solid fa-filter text-indigo-600" style="color: #4f46e5 !important;"></i>
                         Filtrar Resultados
                     </button>
                 </div>
@@ -209,23 +193,24 @@
                                 @if(isset($group['sizes'][$size]))
                                     @php
                                         $sizeData = $group['sizes'][$size];
-                                        $qty = $sizeData['available_quantity'];
-                                        $reserved = $sizeData['reserved_quantity'];
-                                        $minStock = $sizeData['min_stock'] ?? 5;
+                                        $qty = (int)$sizeData['available_quantity'];
+                                        $reserved = (int)$sizeData['reserved_quantity'];
+                                        $minStock = (int)($sizeData['min_stock'] ?? 10);
                                         
-                                        $bgClass = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
-                                        if ($qty == 0) $bgClass = 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500';
-                                        elseif ($qty < $minStock) $bgClass = 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
-                                        elseif ($qty < $minStock * 2) $bgClass = 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+                                        // Cores mais vibrantes e visíveis no dark mode
+                                        $bgClass = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-800 dark:text-emerald-200';
+                                        if ($qty == 0) $bgClass = 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300';
+                                        elseif ($qty < $minStock) $bgClass = 'bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-200';
+                                        elseif ($qty < $minStock * 2) $bgClass = 'bg-amber-100 text-amber-700 dark:bg-amber-800 dark:text-amber-200';
                                     @endphp
                                     <div class="flex flex-col items-center justify-center">
                                         <span class="px-2.5 py-1 rounded-lg font-bold text-xs {{ $bgClass }}">
                                             {{ $qty }}
                                         </span>
                                         @if($reserved > 0)
-                                            <span class="text-[10px] font-bold text-orange-500 mt-1" title="Reservado">R: {{ $reserved }}</span>
+                                            <span class="text-[10px] font-bold text-orange-400 dark:text-orange-300 mt-1" title="Reservado">R: {{ $reserved }}</span>
                                         @endif
-                                        <span class="text-[9px] text-gray-300 dark:text-gray-600 mt-0.5">#{{ $sizeData['id'] }}</span>
+                                        <span class="text-[9px] text-gray-300 dark:text-gray-500 mt-0.5">#{{ $sizeData['id'] }}</span>
                                     </div>
                                 @else
                                     <span class="text-gray-200 dark:text-gray-700">-</span>

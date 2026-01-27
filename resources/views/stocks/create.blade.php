@@ -225,77 +225,174 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const cutTypeSelect = document.getElementById('cut_type_id');
-    const fabricSelect = document.getElementById('fabric_id');
-    const fabricTypeSelect = document.getElementById('fabric_type_id');
-    const fabricTypeContainer = document.getElementById('fabric_type_container');
+// Função principal de inicialização
+function initStockCreatePage() {
+    // Escopo inicial: tentar pegar o container principal deste conteúdo para evitar conflitos com elementos fantasmas
+    // O container principal é a div com classe bg-white que envolve o form
+    // Mas para garantir, vamos buscar os elementos diretos, e revalidá-los nos eventos.
     
-    // Salvar opções originais de tecido
-    const originalFabricOptions = Array.from(fabricSelect.options).map(opt => ({
-        value: opt.value,
-        text: opt.text,
-        selected: opt.selected
-    }));
+    // Vamos usar seletores mais específicos se possível, mas IDs deveriam ser únicos.
+    // Se ajax-navigation estiver duplicando IDs, vamos tentar pegar o último (geralmente o novo) ou o visível.
     
+    function getVisibleElement(id) {
+        const elements = document.querySelectorAll('#' + id);
+        if (elements.length > 1) {
+            console.warn(`Encontrados ${elements.length} elementos com ID ${id}. Usando o último/visível.`);
+            // Tenta encontrar o visível
+            for (let el of elements) {
+                if (el.offsetParent !== null) return el;
+            }
+            // Se nenhum visível (pode estar em carregamento), retorna o último
+            return elements[elements.length - 1];
+        }
+        return document.getElementById(id);
+    }
+
+    const cutTypeSelect = getVisibleElement('cut_type_id');
+    const fabricSelect = getVisibleElement('fabric_id');
+    const fabricTypeSelect = getVisibleElement('fabric_type_id');
+    const fabricTypeContainer = getVisibleElement('fabric_type_container');
+    
+    // Debug
+    console.log('Script cadastrar estoque carregado v4 (AJAX compatible)');
+    if (cutTypeSelect) console.log('CutType select encontrado:', cutTypeSelect.offsetParent !== null ? 'Visível' : 'Oculto');
+    if (fabricSelect) console.log('Fabric select encontrado:', fabricSelect.offsetParent !== null ? 'Visível' : 'Oculto');
+    
+    if (!cutTypeSelect || !fabricSelect) {
+        console.warn('Elementos necessários não encontrados, abortando inicialização');
+        return;
+    }
+
     // Verificar se há um tipo de corte selecionado via old() ou URL
     const urlParams = new URLSearchParams(window.location.search);
     const cutTypeFromUrl = urlParams.get('cut_type_id');
     
+    // Inicialização
     if (cutTypeFromUrl) {
         cutTypeSelect.value = cutTypeFromUrl;
-        
-        // Se já tiver tecido na URL, não precisa buscar via API
         const fabricFromUrl = urlParams.get('fabric_id');
         if (!fabricFromUrl) {
-            updateFabricByCutType(cutTypeFromUrl);
+            updateFabricByCutType(cutTypeFromUrl, fabricSelect);
         }
     } else if (cutTypeSelect.value) {
-        // Se não tiver na URL mas tiver selecionado (ex: via old()), verifica se precisa buscar
-        // Só busca se não tiver tecido selecionado
-        if (!fabricSelect.value) {
-            updateFabricByCutType(cutTypeSelect.value);
+        // Autocomplete ou Old Input
+        if (!fabricSelect.value || fabricSelect.value == "") {
+            updateFabricByCutType(cutTypeSelect.value, fabricSelect);
         }
     }
     
-    // Listener para mudanças no tipo de corte
-    cutTypeSelect.addEventListener('change', function() {
-        const cutTypeId = this.value;
+    // Event Listeners - usar named functions para poder remover
+    function handleCutTypeChange(e) {
+        // Garantir que estamos mexendo nos elementos relacionados ao input que disparou o evento
+        // Isso resolve problemas se houver múltiplos forms ou fantasmas
+        const currentCutTypeSelect = e.target;
+        const form = currentCutTypeSelect.closest('form');
+        const currentFabricSelect = form ? form.querySelector('[name="fabric_id"]') : fabricSelect;
+        
+        const cutTypeId = currentCutTypeSelect.value;
+        console.log('Cut type changed to:', cutTypeId);
+        
         if (cutTypeId) {
-            updateFabricByCutType(cutTypeId);
-        } else {
-            // Se não houver tipo de corte selecionado, restaurar opções originais
-            restoreFabricOptions();
+            updateFabricByCutType(cutTypeId, currentFabricSelect);
         }
-    });
-    
-    // Listener para mudanças no tecido
-    fabricSelect.addEventListener('change', function() {
-        const fabricId = this.value;
-        updateFabricTypes(fabricId);
-    });
+    }
 
-    // Se já tiver um tecido selecionado ao carregar (ex: old() ou default), buscar tipos
+    function handleFabricChange(e) {
+        const currentFabricSelect = e.target;
+        const form = currentFabricSelect.closest('form');
+        const currentFabricTypeSelect = form ? form.querySelector('[name="fabric_type_id"]') : fabricTypeSelect;
+        const currentFabricTypeContainer = document.getElementById('fabric_type_container');
+        
+        const fabricId = currentFabricSelect.value;
+        console.log('Fabric changed to:', fabricId, '- calling updateFabricTypes without selectedTypeId');
+        updateFabricTypes(fabricId, currentFabricTypeSelect, currentFabricTypeContainer);
+    }
+
+    // Remover listeners antigos se existirem (para evitar duplicação em AJAX navigation)
+    cutTypeSelect.removeEventListener('change', handleCutTypeChange);
+    fabricSelect.removeEventListener('change', handleFabricChange);
+    
+    // Adicionar listeners
+    cutTypeSelect.addEventListener('change', handleCutTypeChange);
+    fabricSelect.addEventListener('change', handleFabricChange);
+
+    // Se já tiver um tecido selecionado ao carregar
     if (fabricSelect.value) {
-        updateFabricTypes(fabricSelect.value, '{{ old('fabric_type_id') ?? request('fabric_type_id') }}');
+        updateFabricTypes(fabricSelect.value, fabricTypeSelect, fabricTypeContainer, '{{ old('fabric_type_id') ?? request('fabric_type_id') }}');
+    }
+
+    // Função principal para buscar tecido
+    function updateFabricByCutType(cutTypeId, targetFabricSelect) {
+        if (!cutTypeId || !targetFabricSelect) return;
+        
+        console.log('Buscando tecido para corte:', cutTypeId, 'Target element:', targetFabricSelect);
+
+        // Apenas desabilitar, NÃO limpar as opções
+        targetFabricSelect.disabled = true;
+        
+        fetch(`/api/stocks/fabric-by-cut-type?cut_type_id=${cutTypeId}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Dados recebidos:', data);
+                
+                if (data.success && data.fabric_id) {
+                    // Tentar selecionar o tecido
+                    targetFabricSelect.value = data.fabric_id;
+                    
+                    // Forçar atualização visual do select
+                    // Isso garante que o navegador atualize o elemento visualmente
+                    targetFabricSelect.blur();
+                    targetFabricSelect.focus();
+                    targetFabricSelect.blur();
+                    
+                    // Verificar se o valor mudou
+                    if (targetFabricSelect.value == data.fabric_id) {
+                        console.log('Tecido selecionado com sucesso:', data.fabric_name);
+                        
+                        // Buscar o container de tipos relativo a este select
+                        const form = targetFabricSelect.closest('form');
+                        const targetTypeSelect = form ? form.querySelector('[name="fabric_type_id"]') : fabricTypeSelect;
+                        const targetTypeContainer = document.getElementById('fabric_type_container');
+                        
+                        // Buscar tipos de tecido para este novo tecido com o selectedTypeId
+                        updateFabricTypes(data.fabric_id, targetTypeSelect, targetTypeContainer, data.fabric_type_id);
+                        
+                        // NÃO disparar evento change manualmente para evitar loops e race conditions
+                    } else {
+                        console.warn('Tecido retornado pela API não disponível na lista:', data.fabric_id);
+                    }
+                }
+                
+                targetFabricSelect.disabled = false;
+            })
+            .catch(error => {
+                console.error('Erro ao buscar tecido:', error);
+                targetFabricSelect.disabled = false;
+            });
     }
     
-    function updateFabricTypes(fabricId, selectedTypeId = null) {
+    function updateFabricTypes(fabricId, targetSelect, targetContainer, selectedTypeId = null) {
+        if (!targetSelect || !targetContainer) return;
+
+        console.log('updateFabricTypes chamado:', { fabricId, selectedTypeId, targetSelect });
+
         if (!fabricId) {
-            fabricTypeContainer.classList.add('hidden');
-            fabricTypeSelect.innerHTML = '<option value="">Selecione...</option>';
+            targetContainer.classList.add('hidden');
+            targetSelect.innerHTML = '<option value="">Selecione...</option>';
             return;
         }
 
         // Mostrar loading
-        fabricTypeContainer.classList.remove('hidden');
-        fabricTypeSelect.disabled = true;
-        fabricTypeSelect.innerHTML = '<option value="">Carregando...</option>';
+        targetContainer.classList.remove('hidden');
+        targetSelect.disabled = true;
+        targetSelect.innerHTML = '<option value="">Carregando...</option>';
 
         fetch(`/api/stocks/fabric-types?fabric_id=${fabricId}`)
             .then(response => response.json())
             .then(data => {
-                fabricTypeSelect.innerHTML = '<option value="">Selecione...</option>';
+                console.log('Tipos de tecido recebidos:', data);
+                
+                targetSelect.innerHTML = '<option value="">Selecione...</option>';
                 
                 if (data.success && data.fabric_types && data.fabric_types.length > 0) {
                     data.fabric_types.forEach(type => {
@@ -304,77 +401,59 @@ document.addEventListener('DOMContentLoaded', function() {
                         option.textContent = type.name;
                         if (selectedTypeId && selectedTypeId == type.id) {
                             option.selected = true;
+                            console.log('Tipo de tecido marcado como selecionado:', type.name, 'ID:', type.id);
                         }
-                        fabricTypeSelect.appendChild(option);
+                        targetSelect.appendChild(option);
                     });
-                    fabricTypeContainer.classList.remove('hidden');
+                    targetContainer.classList.remove('hidden');
+                    
+                    // Se temos um selectedTypeId, forçar a seleção após popular
+                    if (selectedTypeId) {
+                        targetSelect.value = selectedTypeId;
+                        
+                        // Forçar refresh visual
+                        targetSelect.blur();
+                        targetSelect.focus();
+                        targetSelect.blur();
+                        
+                        // Verificar se foi selecionado
+                        if (targetSelect.value == selectedTypeId) {
+                            console.log('✅ Tipo de tecido selecionado com sucesso:', targetSelect.options[targetSelect.selectedIndex]?.text);
+                        } else {
+                            console.warn('❌ Falha ao selecionar tipo de tecido:', selectedTypeId);
+                        }
+                    }
                 } else {
-                    // Se não tiver sub-tipos, esconder container
-                    fabricTypeContainer.classList.add('hidden');
+                    console.log('Nenhum tipo de tecido encontrado ou tecido sem tipos específicos');
+                    targetContainer.classList.add('hidden');
                 }
                 
-                fabricTypeSelect.disabled = false;
+                targetSelect.disabled = false;
             })
             .catch(error => {
                 console.error('Erro ao buscar tipos de tecido:', error);
-                fabricTypeSelect.innerHTML = '<option value="">Erro ao carregar</option>';
-                fabricTypeSelect.disabled = false;
+                targetSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+                targetSelect.disabled = false;
             });
     }
-    
-    function restoreFabricOptions() {
-        fabricSelect.innerHTML = '';
-        originalFabricOptions.forEach(opt => {
-            const option = document.createElement('option');
-            option.value = opt.value;
-            option.textContent = opt.text;
-            option.selected = opt.selected;
-            fabricSelect.appendChild(option);
-        });
-    }
-    
-    function updateFabricByCutType(cutTypeId) {
-        if (!cutTypeId) {
-            restoreFabricOptions();
-            return;
-        }
-        
-        // Mostrar loading
-        const originalFabricValue = fabricSelect.value;
-        fabricSelect.disabled = true;
-        fabricSelect.innerHTML = '<option value="">Carregando...</option>';
-        
-        fetch(`/api/stocks/fabric-by-cut-type?cut_type_id=${cutTypeId}`)
-            .then(response => response.json())
-            .then(data => {
-                // Restaurar opções originais
-                restoreFabricOptions();
-                
-                if (data.success && data.fabric_id) {
-                    // Selecionar o tecido encontrado
-                    fabricSelect.value = data.fabric_id;
-                    
-                    // Buscar tipos de tecido para este novo tecido
-                    updateFabricTypes(data.fabric_id, data.fabric_type_id);
-                    
-                    // Se o tecido foi encontrado automaticamente, mostrar mensagem
-                    if (data.fabric_name) {
-                        console.log(`Tecido "${data.fabric_name}" selecionado automaticamente.`);
-                    }
-                }
-                
-                fabricSelect.disabled = false;
-            })
-            .catch(error => {
-                console.error('Erro ao buscar tecido:', error);
-                // Restaurar opções em caso de erro
-                restoreFabricOptions();
-                if (originalFabricValue) {
-                    fabricSelect.value = originalFabricValue;
-                }
-                fabricSelect.disabled = false;
-            });
-    }
+}
+
+// Inicializar quando o DOM estiver pronto (page load normal)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initStockCreatePage);
+} else {
+    initStockCreatePage();
+}
+
+// Reinicializar quando o conteúdo for carregado via AJAX
+document.addEventListener('content-loaded', function() {
+    console.log('AJAX content-loaded event detected, reinitializing stock create page');
+    initStockCreatePage();
+});
+
+document.addEventListener('ajax-content-loaded', function() {
+    console.log('AJAX ajax-content-loaded event detected, reinitializing stock create page');
+    initStockCreatePage();
 });
 </script>
 @endsection

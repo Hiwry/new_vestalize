@@ -63,22 +63,42 @@
         </div>
 
         <!-- Main Content -->
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-slate-800">
-            <!-- Header -->
-            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-gray-50 to-white dark:from-slate-800/50 dark:to-slate-900/50">
-                <div class="flex items-center space-x-3">
-                    <div class="flex items-center">
-                        <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                             <div class="w-8 h-8 bg-[#7c3aed] rounded-lg flex items-center justify-center shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">
-                                <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                </svg>
-                            </div>
-                            Configuração de Pagamento
-                        </h1>
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-lg dark:shadow-black/20 border border-gray-200 dark:border-slate-800">
+            <!-- Clean Minimalist Header -->
+            <div class="px-6 py-6 border-b border-gray-200 dark:border-slate-800">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <!-- Simple Icon -->
+                        <div class="w-12 h-12 bg-purple-600 dark:bg-purple-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                        
+                        <!-- Title -->
+                        <div>
+                            <h1 class="text-xl font-bold text-gray-900 dark:text-white">
+                                Configuração de Pagamento
+                            </h1>
+                            <p class="text-sm text-gray-500 dark:text-slate-400 mt-0.5">
+                                Defina valores, formas de pagamento e datas
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Badge -->
+                    <div class="hidden sm:block text-right">
+                        <div class="text-xs text-gray-500 dark:text-slate-400">Etapa 4 de 5</div>
+                        <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">80%</div>
                     </div>
                 </div>
-                <p class="text-sm text-gray-500 dark:text-slate-400 mt-1 pl-10">Defina valores, formas de pagamento e datas</p>
+                
+                <!-- Simple Progress Bar -->
+                <div class="mt-4">
+                    <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-1.5">
+                        <div class="bg-purple-600 dark:bg-purple-500 h-full rounded-full transition-all" style="width: 80%"></div>
+                    </div>
+                </div>
             </div>
 
             <!-- Content -->

@@ -41,22 +41,22 @@ class StockController extends Controller
         $user = Auth::user();
         
         // Super Admin (tenant_id === null) não deve ver dados de outros tenants sem selecionar contexto
-        if ($this->isSuperAdmin() && !$this->hasSelectedTenant()) {
-            return $this->emptySuperAdminResponse('stocks.index', [
-                'groupedStocks' => [],
-                'stores' => collect([]),
-                'fabricTypes' => collect([]),
-                'colors' => collect([]),
-                'cutTypes' => collect([]),
-                'sizes' => ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3'],
-                'storeId' => null,
-                'fabricId' => null,
-                'colorId' => null,
-                'cutTypeId' => null,
-                'size' => null,
-                'lowStock' => false,
-            ]);
-        }
+        // if ($this->isSuperAdmin() && !$this->hasSelectedTenant()) {
+        //     return $this->emptySuperAdminResponse('stocks.index', [
+        //         'groupedStocks' => [],
+        //         'stores' => collect([]),
+        //         'fabricTypes' => collect([]),
+        //         'colors' => collect([]),
+        //         'cutTypes' => collect([]),
+        //         'sizes' => ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3'],
+        //         'storeId' => null,
+        //         'fabricId' => null,
+        //         'colorId' => null,
+        //         'cutTypeId' => null,
+        //         'size' => null,
+        //         'lowStock' => false,
+        //     ]);
+        // }
 
         $storeId = $request->get('store_id');
         $fabricId = $request->get('fabric_id');
@@ -427,6 +427,8 @@ class StockController extends Controller
                 );
 
                 $stock = null;
+                $oldQuantity = $existing ? $existing->quantity : 0; // Guardar quantidade antiga ANTES de atualizar
+                
                 if ($existing) {
                     $existing->update($stockData);
                     $stock = $existing->fresh();
@@ -440,42 +442,49 @@ class StockController extends Controller
                 if ($stock) {
                     $this->checkLowStock($stock);
                     
-                    // Registrar histórico de criação/edição inicial
-                    // Se foi update, o log de diferença seria mais complexo aqui pois estamos no loop
-                    // Mas como é "store" (novo ou atualização via planilha/form de massa), 
-                    // vamos registrar "ajuste" ou "entrada" dependendo do caso.
-                    // Para simplificar, vamos registrar "entrada" da quantidade informada se for novo,
-                    // ou "ajuste" se for atualização.
-                    
-                    $actionType = $existing ? 'ajuste' : 'entrada';
-                    $quantityChange = $quantity; // No caso de update aqui, estamos redefinindo ou somando? 
-                    // O código original fazia $existing->update($stockData), substituindo o valor 'quantity'.
-                    // Se substituir, precisamos saber a diferença.
-                    
-                    // OBS: O código original faz update($stockData). $stockData['quantity'] = $quantity.
-                    // Então está SOBRESCREVENDO a quantidade, não somando.
-                    // Recalcular diferença:
-                    $diff = 0;
-                    if ($existing) {
-                        // Precisamos da quantidade *antiga* que não temos mais fácil aqui pois já atualizou
-                        // Mas podemos assumir que se era update, a intenção era definir para este valor.
-                        // Vamos registrar como 'edicao' o valor final.
-                        // Melhor: Vamos registrar a mudança.
-                        // Para fazer direito, teríamos que ter pego o valor antes. 
-                        // Como já passou, vamos registrar como 'edicao' com o valor ATUAL.
-                 try {
-                    StockHistory::recordMovement(
-                        'ajuste', // Usar 'ajuste' pois 'edicao' não existe no enum
-                        $stock,
-                        $diff,
-                        Auth::id(),
-                        null,
-                        null,
-                        "Atualização manual via cadastro: {$quantity} peças (total)"
-                    );
-                        } catch (\Exception $e) {
-                            \Log::warning('Erro ao registrar histórico: ' . $e->getMessage());
+                    // Registrar histórico com a quantidade CORRETA
+                    try {
+                        \Log::info('=== INICIANDO REGISTRO DE HISTÓRICO ===', [
+                            'stock_id' => $stock->id,
+                            'size' => $size,
+                            'quantity' => $quantity,
+                            'oldQuantity' => $oldQuantity,
+                            'existing' => $existing ? 'sim' : 'não'
+                        ]);
+                        
+                        if ($existing) {
+                            // Para edições, registrar a DIFERENÇA
+                            $diff = $quantity - $oldQuantity;
+                            $actionType = 'edicao';
+                            $notes = "Atualização manual: {$oldQuantity} → {$quantity} peças";
+                        } else {
+                            // Para novas entradas, registrar a QUANTIDADE TOTAL
+                            $diff = $quantity;
+                            $actionType = 'entrada';
+                            $notes = "Cadastro inicial: {$quantity} peças";
                         }
+                        
+                        \Log::info('Preparando para chamar recordMovement', [
+                            'actionType' => $actionType,
+                            'diff' => $diff,
+                            'notes' => $notes
+                        ]);
+                        
+                        StockHistory::recordMovement(
+                            $actionType,
+                            $stock,
+                            $diff,
+                            Auth::id(),
+                            null,
+                            null,
+                            $notes
+                        );
+                        
+                        \Log::info('recordMovement executado com sucesso!');
+                    } catch (\Exception $e) {
+                        \Log::error('ERRO ao registrar histórico: ' . $e->getMessage(), [
+                            'trace' => $e->getTraceAsString()
+                        ]);
                     }
                 }
             }

@@ -598,6 +598,9 @@
                                             @if($order->edit_status === 'requested')
                                                 <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-orange-500/20 text-orange-200 border border-orange-400/40">Editado</span>
                                             @endif
+                                            @if($order->stock_separation_status === 'in_separation')
+                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-blue-500/20 text-blue-200 border border-blue-400/40 dark:bg-blue-600/20 dark:text-blue-100 dark:border-blue-500/40">Em Separação</span>
+                                            @endif
                                             @if($order->stock_status === 'none')
                                                 <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-red-100 text-red-700 border border-red-200 dark:bg-red-500/20 dark:text-red-200 dark:border-red-400/40">Sem estoque</span>
                                             @elseif($order->stock_status === 'partial')

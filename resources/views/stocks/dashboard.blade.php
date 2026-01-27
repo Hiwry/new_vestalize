@@ -329,14 +329,37 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    // Variáveis globais para rastrear instâncias dos gráficos
+    let movementsChartInstance = null;
+    let storeChartInstance = null;
+
+    function initializeCharts() {
+        // Destruir instâncias antigas se existirem
+        if (movementsChartInstance) {
+            movementsChartInstance.destroy();
+            movementsChartInstance = null;
+        }
+        if (storeChartInstance) {
+            storeChartInstance.destroy();
+            storeChartInstance = null;
+        }
+
+        // Verificar se os elementos existem na página
+        const movementsEl = document.getElementById('movementsChart');
+        const storeEl = document.getElementById('storeChart');
+        
+        if (!movementsEl || !storeEl) {
+            console.log('Dashboard: Elementos de gráfico não encontrados');
+            return;
+        }
+
         // Chart.js Global Config
         Chart.defaults.font.family = "'Inter', sans-serif";
         Chart.defaults.color = document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#64748B';
         
         // Setup Charts
-        const ctxMovements = document.getElementById('movementsChart').getContext('2d');
-        new Chart(ctxMovements, {
+        const ctxMovements = movementsEl.getContext('2d');
+        movementsChartInstance = new Chart(ctxMovements, {
             type: 'bar',
             data: {
                 labels: {!! json_encode($movementsData['labels']) !!},
@@ -378,11 +401,11 @@
             }
         });
 
-        const ctxStore = document.getElementById('storeChart').getContext('2d');
+        const ctxStore = storeEl.getContext('2d');
         const storeData = {!! json_encode($stockByStore) !!};
         const hasData = Object.keys(storeData).length > 0;
 
-        new Chart(ctxStore, {
+        storeChartInstance = new Chart(ctxStore, {
             type: 'doughnut',
             data: {
                 labels: hasData ? Object.keys(storeData) : ['Sem dados'],
@@ -402,7 +425,11 @@
                 }
             }
         });
-    });
+    }
+
+    // Inicializar quando a página carregar (primeira vez OU navegação AJAX)
+    document.addEventListener('DOMContentLoaded', initializeCharts);
+    document.addEventListener('content:loaded', initializeCharts);
 </script>
 @endpush
 @endsection

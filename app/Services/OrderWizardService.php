@@ -818,17 +818,17 @@ class OrderWizardService
                 }
             }
             
-            // Status Pendente
-            // Buscar status "Pendente" do tenant correto
+            // Status: Quando não assina
+            // Buscar status "Quando não assina" do tenant correto (case-insensitive)
             $orderTenantId = $order->tenant_id;
-            $pendenteStatus = Status::withoutGlobalScopes()
+            $quandoNaoAssinaStatus = Status::withoutGlobalScopes()
                 ->where('tenant_id', $orderTenantId)
-                ->where('name', 'Pendente')
+                ->whereRaw('LOWER(name) = LOWER(?)', ['Quando não assina'])
                 ->first();
             
-            // Fallback: primeiro status do tenant se não encontrar "Pendente"
-            if (!$pendenteStatus) {
-                $pendenteStatus = Status::withoutGlobalScopes()
+            // Fallback: primeiro status do tenant se não encontrar "Quando não assina"
+            if (!$quandoNaoAssinaStatus) {
+                $quandoNaoAssinaStatus = Status::withoutGlobalScopes()
                     ->where('tenant_id', $orderTenantId)
                     ->orderBy('position')
                     ->first();
@@ -845,7 +845,7 @@ class OrderWizardService
             // Dados de Atualização
             $updateData = [
                 'is_draft' => false,
-                'status_id' => $pendenteStatus ? $pendenteStatus->id : $order->status_id,
+                'status_id' => $quandoNaoAssinaStatus ? $quandoNaoAssinaStatus->id : $order->status_id,
                 'delivery_date' => $deliveryDate,
                 'terms_accepted' => true,
                 'terms_accepted_at' => now(),

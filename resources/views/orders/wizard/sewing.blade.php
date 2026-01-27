@@ -494,6 +494,8 @@
 <script>
 (function() {
     const storageUrl = "{{ asset('storage') }}/";
+    window.storageUrl = storageUrl;
+    
     // Options for Wizard
     let options = {
         tecido: @json($fabrics ?? []),
@@ -501,9 +503,6 @@
         personalizacao: @json($personalizationOptions ?? [])
     };
     window.options = options;
-    
-    const storageUrl = "{{ asset('storage') }}/";
-    window.storageUrl = storageUrl;
 
     // Ícones e cores específicos por tipo de personalização
     const personalizationIconMap = {

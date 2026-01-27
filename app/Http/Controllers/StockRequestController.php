@@ -213,6 +213,22 @@ class StockRequestController extends Controller
             }
         }
         
+        // Atualizar status de separação do pedido, se houver
+        if ($stockRequest->order_id) {
+            $order = Order::find($stockRequest->order_id);
+            if ($order && $order->stock_separation_status !== 'in_separation') {
+                $order->update(['stock_separation_status' => 'in_separation']);
+                
+                OrderLog::create([
+                    'order_id' => $order->id,
+                    'user_id' => Auth::id(),
+                    'user_name' => Auth::user()->name ?? 'Sistema',
+                    'action' => 'ESTOQUE_SEPARACAO',
+                    'description' => 'Estoque entrou em separação',
+                ]);
+            }
+        }
+        
         // Notificar lojas
         if ($stockRequest->target_store_id) {
             Notification::createStockRequestCreated($stockRequest->target_store_id, $stockRequest);

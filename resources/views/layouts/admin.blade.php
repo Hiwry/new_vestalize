@@ -605,7 +605,7 @@
                 {{-- Flash Messages --}}
                 @if(session('success'))
                     <div class="mb-4 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative dark:bg-green-900/50 dark:border-green-600 dark:text-green-300" role="alert">
+                        <div class="bg-green-100 border border-green-400 text-white px-4 py-3 rounded relative dark:bg-green-900/50 dark:border-green-600 dark:text-white font-bold" role="alert">
                             <span class="block sm:inline">{{ session('success') }}</span>
                         </div>
                     </div>
