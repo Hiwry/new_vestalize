@@ -16,7 +16,7 @@ class SettingsController extends Controller
      */
     public function index(Request $request): View
     {
-        $category = $request->get('category', 'admin'); // admin, estoque, caixa, vendedor, producao
+        $category = $request->get('category', 'geral'); // geral, vendas, administracao, etc.
 
         return view('settings.index', compact('category'));
     }

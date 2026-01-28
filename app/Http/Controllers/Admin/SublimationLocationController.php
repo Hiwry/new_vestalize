@@ -23,14 +23,14 @@ class SublimationLocationController extends Controller
             'active' => true,
         ]);
 
-        return redirect()->back()->with('success', 'LocalizaÇõÇœo adicionada com sucesso.');
+        return redirect()->back()->with('success', 'Localização adicionada com sucesso.');
     }
 
     public function destroy(SublimationLocation $location): RedirectResponse
     {
         $location->delete();
 
-        return redirect()->back()->with('success', 'LocalizaÇõÇœo removida com sucesso.');
+        return redirect()->back()->with('success', 'Localização removida com sucesso.');
     }
 
     public function toggle(Request $request, SublimationLocation $location): RedirectResponse

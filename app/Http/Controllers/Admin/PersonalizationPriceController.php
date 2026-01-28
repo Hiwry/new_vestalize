@@ -14,6 +14,10 @@ class PersonalizationPriceController extends Controller
     public function index(): View
     {
         $types = PersonalizationPrice::getPersonalizationTypes();
+        // Remover LISAS pois não há configuração de preços para este tipo
+        if (isset($types['LISAS'])) {
+            unset($types['LISAS']);
+        }
         $pricesByType = [];
         $locations = SublimationLocation::orderBy('order')->get();
         

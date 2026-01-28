@@ -14,7 +14,19 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                // Trocar Figtree por Inter - fonte mais leve
+                sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            },
+            fontWeight: {
+                thin: '200',
+                extralight: '300',
+                light: '300',
+                normal: '400',
+                medium: '400', // Reduzido de 500 para 400
+                semibold: '500', // Reduzido de 600 para 500
+                bold: '500', // Reduzido de 600 para 500
+                extrabold: '600', // Reduzido de 700 para 600
+                black: '600', // Reduzido de 800 para 600
             },
             colors: {
                 hubspot: {
@@ -30,3 +42,4 @@ export default {
 
     plugins: [forms],
 };
+

@@ -20,6 +20,7 @@ class ProductOption extends Model
         'active',
         'is_pinned',
         'order',
+        'color_hex',
     ];
 
     protected $casts = [

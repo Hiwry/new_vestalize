@@ -98,6 +98,7 @@ class ProductOptionController extends Controller
             'active' => 'boolean',
             'is_pinned' => 'boolean',
             'order' => 'nullable|integer',
+            'color_hex' => 'nullable|string|regex:/^#[a-fA-F0-9]{6}$/',
         ]);
 
         $validated['price'] = $validated['price'] ?? 0;
@@ -119,16 +120,30 @@ class ProductOptionController extends Controller
         $parentIds = $validated['parent_ids'] ?? [];
         unset($validated['parent_ids']);
 
-        $option = ProductOption::create($validated);
+        // Bulk Create Logic
+        // Suporta vírgula e quebra de linha como separador
+        $names = preg_split('/[,\r\n]+/', $validated['name']);
+        $createdCount = 0;
 
-        // Sincronizar múltiplos pais
-        if (!empty($parentIds)) {
-            $option->parents()->sync($parentIds);
+        foreach ($names as $name) {
+            $name = trim($name);
+            if (empty($name)) continue;
+
+            $data = $validated;
+            $data['name'] = $name;
+
+            $option = ProductOption::create($data);
+
+            // Sincronizar múltiplos pais
+            if (!empty($parentIds)) {
+                $option->parents()->sync($parentIds);
+            }
+            $createdCount++;
         }
 
         return redirect()
             ->route('admin.product-options.index', ['type' => $validated['type']])
-            ->with('success', 'Opção criada com sucesso!');
+            ->with('success', $createdCount > 1 ? "$createdCount opções criadas com sucesso!" : 'Opção criada com sucesso!');
     }
 
     public function edit(string $id): View
@@ -195,6 +210,7 @@ class ProductOptionController extends Controller
             'active' => 'boolean',
             'is_pinned' => 'boolean',
             'order' => 'nullable|integer',
+            'color_hex' => 'nullable|string|regex:/^#[a-fA-F0-9]{6}$/',
         ]);
 
         $validated['price'] = $validated['price'] ?? 0;
@@ -235,5 +251,27 @@ class ProductOptionController extends Controller
         return redirect()
             ->route('admin.product-options.index', ['type' => $type])
             ->with('success', 'Opção removida com sucesso!');
+    }
+    public function reorder(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:product_options,id',
+        ]);
+
+        foreach ($request->ids as $index => $id) {
+            ProductOption::where('id', $id)->update(['order' => $index]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function toggleStatus($id)
+    {
+        $option = ProductOption::findOrFail($id);
+        $option->active = !$option->active;
+        $option->save();
+
+        return response()->json(['success' => true, 'active' => $option->active]);
     }
 }

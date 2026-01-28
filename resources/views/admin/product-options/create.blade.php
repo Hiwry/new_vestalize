@@ -39,38 +39,50 @@
 
                 <div>
                     <label for="name" class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">Nome *</label>
-                    <input type="text" id="name" name="name" required
+                    <textarea id="name" name="name" required rows="3"
                            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all @error('name') border-red-500 dark:border-red-500 @enderror"
-                           value="{{ old('name') }}"
-                           placeholder="Digite o nome da opção">
+                           placeholder="Digite o nome da opção. 
+Para criar vários, separe por vírgula ou pule linhas (cole sua lista aqui).">{{ old('name') }}</textarea>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Dica: Você pode criar múltiplas opções de uma vez separando os nomes por vírgula.</p>
                     @error('name')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
 
+                @if($type === 'cor')
                 <div>
-                    <label for="price" class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">Preço Adicional (R$)</label>
-                    <input type="number" id="price" name="price" step="0.01" min="0"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all @error('price') border-red-500 dark:border-red-500 @enderror"
-                           value="{{ old('price', '0.00') }}"
-                           placeholder="0.00">
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Deixe 0 se não houver custo adicional</p>
-                    @error('price')
+                    <label for="color_hex" class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">Cor da Opção</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="color" id="color_hex" name="color_hex" 
+                               class="h-10 w-20 border border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer p-1 bg-white dark:bg-slate-800"
+                               value="{{ old('color_hex', '#ffffff') }}">
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Selecione a cor representativa</span>
+                    </div>
+                    @error('color_hex')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
+                @endif
 
-                <div>
-                    <label for="cost" class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">Custo (R$)</label>
-                    <input type="number" id="cost" name="cost" step="0.01" min="0"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all @error('cost') border-red-500 dark:border-red-500 @enderror"
-                           value="{{ old('cost', '0.00') }}"
-                           placeholder="0.00">
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Custo base desta opção (usado para cálculo de lucro)</p>
-                    @error('cost')
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+                @if(in_array($type, ['tipo_corte', 'detalhe', 'gola']))
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="price" class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">Preço (R$)</label>
+                        <input type="number" id="price" name="price" step="0.01" min="0"
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+                               value="{{ old('price', '0.00') }}">
+                    </div>
+                    <div>
+                        <label for="cost" class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">Custo (R$)</label>
+                        <input type="number" id="cost" name="cost" step="0.01" min="0"
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+                               value="{{ old('cost', '0.00') }}">
+                    </div>
                 </div>
+                @else
+                <input type="hidden" name="price" value="0">
+                <input type="hidden" name="cost" value="0">
+                @endif
 
 
                 @if(count($parents) > 0)
@@ -98,45 +110,10 @@
                     </div>
                 @endif
 
-                <div>
-                    <label for="order" class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">Ordem de Exibição</label>
-                    <input type="number" id="order" name="order" min="0"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all @error('order') border-red-500 dark:border-red-500 @enderror"
-                           value="{{ old('order', '0') }}"
-                           placeholder="0">
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Menor número aparece primeiro</p>
-                    @error('order')
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div class="flex flex-col space-y-3">
-                    <div class="flex items-start">
-                        <div class="flex items-center h-5">
-                            <input type="checkbox" id="active" name="active" value="1" checked
-                                   class="h-4 w-4 text-indigo-600 dark:text-indigo-500 focus:ring-indigo-500 dark:focus:ring-indigo-500 border-gray-300 dark:border-gray-500 rounded">
-                        </div>
-                        <div class="ml-3 text-sm">
-                            <label for="active" class="font-medium text-gray-700 dark:text-gray-300">
-                                Ativo
-                            </label>
-                            <p class="text-gray-500 dark:text-gray-400">Esta opção estará disponível para seleção</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-start">
-                        <div class="flex items-center h-5">
-                            <input type="checkbox" id="is_pinned" name="is_pinned" value="1" {{ old('is_pinned') ? 'checked' : '' }}
-                                   class="h-4 w-4 text-yellow-500 focus:ring-yellow-500 border-gray-300 dark:border-gray-500 rounded">
-                        </div>
-                        <div class="ml-3 text-sm">
-                            <label for="is_pinned" class="font-medium text-gray-700 dark:text-gray-300">
-                                Fixar no Topo
-                            </label>
-                            <p class="text-gray-500 dark:text-gray-400">Esta opção aparecerá no início da lista</p>
-                        </div>
-                    </div>
-                </div>
+                <!-- Campos Ocultos Order/Status -->
+                <input type="hidden" name="order" value="0">
+                <input type="hidden" name="active" value="1">
+                <input type="hidden" name="is_pinned" value="0">
 
                 <div class="flex flex-col sm:flex-row justify-between gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
                     <a href="{{ route('admin.product-options.index', ['type' => $type]) }}"
@@ -147,6 +124,7 @@
                         Voltar
                     </a>
                     <button type="submit"
+                            style="color: white !important;"
                             class="inline-flex items-center justify-center px-6 py-2 text-sm font-medium bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>

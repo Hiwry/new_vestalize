@@ -8,67 +8,153 @@
 <!-- Tabs de Categorias -->
 <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 mb-6">
     <div class="border-b border-gray-200 dark:border-gray-700">
-        <nav class="flex -mb-px space-x-8 px-6" aria-label="Tabs">
+        <nav class="flex -mb-px space-x-8 px-6 overflow-x-auto" aria-label="Tabs">
+            <!-- GERAL -->
+            <a href="{{ route('settings.index', ['category' => 'geral']) }}" 
+               class="py-4 px-1 border-b-2 font-medium text-sm transition {{ $category == 'geral' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300' }}">
+                Geral
+            </a>
+
+            <!-- VENDAS -->
+            @if(Auth::user()->isAdmin() || Auth::user()->isVendedor())
+            <a href="{{ route('settings.index', ['category' => 'vendas']) }}" 
+               class="py-4 px-1 border-b-2 font-medium text-sm transition {{ $category == 'vendas' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300' }}">
+                Vendas
+            </a>
+            @endif
+
+            <!-- ADMINISTRAÇÃO -->
             @if(Auth::user()->isAdmin())
-            <a href="{{ route('settings.index', ['category' => 'admin']) }}" 
-               class="py-4 px-1 border-b-2 font-medium text-sm transition {{ $category == 'admin' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300' }}">
+            <a href="{{ route('settings.index', ['category' => 'administracao']) }}" 
+               class="py-4 px-1 border-b-2 font-medium text-sm transition {{ $category == 'administracao' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300' }}">
                 Administração
             </a>
             @endif
 
+            <!-- LEGACY TABS -->
             @if(Auth::user()->isAdmin() || Auth::user()->isProducao())
-            @if(Auth::user()->tenant_id === null || Auth::user()->tenant->canAccess('kanban'))
-            <a href="{{ route('settings.index', ['category' => 'producao']) }}" 
-               class="py-4 px-1 border-b-2 font-medium text-sm transition {{ $category == 'producao' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300' }}">
-                Produção
-            </a>
-            @endif
+                @if(Auth::user()->tenant_id === null || Auth::user()->tenant->canAccess('kanban'))
+                <a href="{{ route('settings.index', ['category' => 'producao']) }}" 
+                   class="py-4 px-1 border-b-2 font-medium text-sm transition {{ $category == 'producao' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300' }}">
+                    Produção
+                </a>
+                @endif
             @endif
 
             @if(Auth::user()->isAdmin() || Auth::user()->isEstoque())
-            @if(Auth::user()->tenant_id === null || Auth::user()->tenant->canAccess('stock'))
-            <a href="{{ route('settings.index', ['category' => 'estoque']) }}" 
-               class="py-4 px-1 border-b-2 font-medium text-sm transition {{ $category == 'estoque' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300' }}">
-                Estoque
-            </a>
-            @endif
+                @if(Auth::user()->tenant_id === null || Auth::user()->tenant->canAccess('stock'))
+                <a href="{{ route('settings.index', ['category' => 'estoque']) }}" 
+                   class="py-4 px-1 border-b-2 font-medium text-sm transition {{ $category == 'estoque' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300' }}">
+                    Estoque
+                </a>
+                @endif
             @endif
 
             @if(Auth::user()->isAdmin())
-            @if(Auth::user()->tenant_id === null || Auth::user()->tenant->canAccess('financial'))
-            <a href="{{ route('settings.index', ['category' => 'caixa']) }}" 
-               class="py-4 px-1 border-b-2 font-medium text-sm transition {{ $category == 'caixa' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300' }}">
-                Caixa
-            </a>
-            @endif
-            @endif
-
-            @if(Auth::user()->isVendedor() || Auth::user()->isAdmin())
-            <a href="{{ route('settings.index', ['category' => 'vendedor']) }}" 
-               class="py-4 px-1 border-b-2 font-medium text-sm transition {{ $category == 'vendedor' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300' }}">
-                Vendas
-            </a>
+                @if(Auth::user()->tenant_id === null || Auth::user()->tenant->canAccess('financial'))
+                <a href="{{ route('settings.index', ['category' => 'caixa']) }}" 
+                   class="py-4 px-1 border-b-2 font-medium text-sm transition {{ $category == 'caixa' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300' }}">
+                    Caixa
+                </a>
+                @endif
             @endif
         </nav>
     </div>
 
     <!-- Conteúdo por Categoria -->
     <div class="p-6">
-        @if($category == 'admin')
-            <!-- Categoria: Administração -->
+        
+        <!-- CATEGORIA: GERAL -->
+        @if($category == 'geral')
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <a href="{{ Auth::user()->tenant_id ? route('dashboard') : route('admin.dashboard') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                <a href="{{ Auth::user()->tenant_id ? route('dashboard') : route('admin.dashboard') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition border border-gray-200 dark:border-gray-600">
                     <div class="flex items-center space-x-3">
                         <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                         <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Dashboard Principal</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Visão geral do sistema</p>
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Visão Geral</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Ir para o Dashboard</p>
                         </div>
                     </div>
                 </a>
 
+                <a href="{{ route('links.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Todos os Links</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Mapa do site e atalhos</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+        <!-- CATEGORIA: VENDAS -->
+        @elseif($category == 'vendas')
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Tabela de Preços Gerais -->
+                <a href="{{ route('admin.personalization-prices.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Preços de Personalização</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Preços base de personalização</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Opções de Produtos -->
+                <a href="{{ route('admin.product-options.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Opções de Produtos</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Cores, Tecidos e Variações</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Personalizados -->
+                <a href="{{ route('settings.customized-products') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Personalizados</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Vestuários e Brindes</p>
+                        </div>
+                    </div>
+                </a>
+                
+                @if(Auth::user()->tenant_id === null || Auth::user()->tenant->canAccess('external_quote'))
+                <a href="{{ route('admin.quote-settings.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Config. de Vendas</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Página de orçamento externa</p>
+                        </div>
+                    </div>
+                </a>
+                @endif
+            </div>
+
+        <!-- CATEGORIA: ADMINISTRAÇÃO -->
+        @elseif($category == 'administracao' || $category == 'admin')
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                @if(Auth::user()->isAdmin())
                 <a href="{{ route('admin.users.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
                     <div class="flex items-center space-x-3">
                         <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -76,10 +162,11 @@
                         </svg>
                         <div>
                             <h3 class="font-semibold text-gray-900 dark:text-gray-100">Usuários</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Gerenciar usuários</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Gerenciar equipe</p>
                         </div>
                     </div>
                 </a>
+                @endif
 
                 <a href="{{ route('profile.edit') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
                     <div class="flex items-center space-x-3">
@@ -88,7 +175,33 @@
                         </svg>
                         <div>
                             <h3 class="font-semibold text-gray-900 dark:text-gray-100">Meu Perfil</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Senha, e-mail e dados da conta</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Dados da conta</p>
+                        </div>
+                    </div>
+                </a>
+
+                @if(Auth::user()->tenant_id !== null && auth()->user()->tenant?->canAccess('subscription_module'))
+                <a href="{{ route('subscription.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Assinatura</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Plano e pagamentos</p>
+                        </div>
+                    </div>
+                </a>
+                @endif
+
+                <a href="{{ route('settings.company') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Dados da Empresa</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">CNPJ, Marca e Termos</p>
                         </div>
                     </div>
                 </a>
@@ -104,112 +217,10 @@
                         </div>
                     </div>
                 </a>
-
-                <a href="{{ route('settings.company') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                        <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Dados da Empresa</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Marca, Termos, CNPJ e mais</p>
-                        </div>
-                    </div>
-                </a>
-
-                @php
-                    $storesLimit = Auth::user()->tenant?->currentPlan?->limits['stores'] ?? 1;
-                @endphp
-                @if($storesLimit > 1 || Auth::user()->tenant_id === null)
-                <a href="{{ route('admin.stores.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                        <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Lojas</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Gerenciar lojas adicionais</p>
-                        </div>
-                    </div>
-                </a>
-                @endif
-
-                <a href="{{ route('settings.personalizations') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Personalizações</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Preços, produtos e opções</p>
-                        </div>
-                    </div>
-                </a>
-
-                <a href="{{ route('admin.catalog-categories.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                        </svg>
-                        <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Categorias Catálogo</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Gerenciar categorias</p>
-                        </div>
-                    </div>
-                </a>
-
-                <a href="{{ route('admin.catalog-items.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                        <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Itens do Catálogo</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Gerenciar itens</p>
-                        </div>
-                    </div>
-                </a>
-
-
-
-                @if(Auth::user()->tenant_id === null || Auth::user()->tenant->canAccess('pdf_quotes'))
-                <a href="{{ route('admin.terms-conditions.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Termos e Condições</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Contratos e cláusulas</p>
-                        </div>
-                    </div>
-                </a>
-                @endif
-
-                @if(Auth::user()->tenant)
-                <a href="{{ route('subscription.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                        </svg>
-                        <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Minha Assinatura</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">
-                                {{ Auth::user()->tenant->currentPlan->name ?? 'Ver plano' }} - 
-                                @if(Auth::user()->tenant->subscription_ends_at)
-                                    Válida até {{ Auth::user()->tenant->subscription_ends_at->format('d/m/Y') }}
-                                @else
-                                    Ativar agora
-                                @endif
-                            </p>
-                        </div>
-                    </div>
-                </a>
-                @endif
             </div>
 
+        <!-- CATEGORIA: PRODUÇÃO -->
         @elseif($category == 'producao')
-            <!-- Categoria: Produção -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <a href="{{ route('production.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
                     <div class="flex items-center space-x-3">
@@ -236,7 +247,7 @@
                 </a>
 
                 <a href="{{ route('kanban.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-                    <div class="flex items-center space-x-3">
+                     <div class="flex items-center space-x-3">
                         <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                         </svg>
@@ -248,9 +259,9 @@
                 </a>
             </div>
 
+        <!-- CATEGORIA: ESTOQUE -->
         @elseif($category == 'estoque')
-            <!-- Categoria: Estoque -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <a href="{{ route('stocks.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
                     <div class="flex items-center space-x-3">
                         <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -288,12 +299,12 @@
                 </a>
             </div>
 
+        <!-- CATEGORIA: CAIXA -->
         @elseif($category == 'caixa')
-            <!-- Categoria: Caixa -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <a href="{{ route('cash.approvals.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
                     <div class="flex items-center space-x-3">
-                        <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <div>
@@ -311,76 +322,6 @@
                         <div>
                             <h3 class="font-semibold text-gray-900 dark:text-gray-100">Caixa</h3>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Gerenciar caixa</p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-        @elseif($category == 'vendedor')
-            <!-- Categoria: Vendas -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                @if(Auth::user()->tenant_id === null || Auth::user()->tenant->canAccess('pdv'))
-                <a href="{{ route('pdv.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
-                        <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">PDV</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Ponto de venda</p>
-                        </div>
-                    </div>
-                </a>
-
-                @if(Auth::user()->tenant_id === null || Auth::user()->tenant->canAccess('pdv'))
-                <a href="{{ route('pdv.sales') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                        <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Vendas</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Lista de vendas</p>
-                        </div>
-                    </div>
-                </a>
-
-                <a href="{{ route('sales-history.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Histórico de Vendas</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Consultar histórico</p>
-                        </div>
-                    </div>
-                </a>
-                @endif
-                @endif
-
-                @if(Auth::user()->tenant_id === null || Auth::user()->tenant->canAccess('pdf_quotes'))
-                <a href="{{ route('budget.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Orçamentos</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Gerenciar orçamentos</p>
-                        </div>
-                    </div>
-                </a>
-                @endif
-
-                <a href="{{ route('catalog.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                        </svg>
-                        <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Catálogo</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Visualizar catálogo</p>
                         </div>
                     </div>
                 </a>

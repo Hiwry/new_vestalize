@@ -3,20 +3,27 @@
 @section('content')
 <div class="mb-8">
     <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Novo Produto - Sub. Local</h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">Cadastre um novo produto de sublimação local</p>
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                <i class="fa-solid fa-plus-circle text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Novo Produto Personalizado</h1>
+                <p class="text-gray-600 dark:text-gray-400">Cadastre um novo item para o wizard de vendas</p>
+            </div>
         </div>
         <a href="{{ route('admin.sub-local-products.index') }}" 
-           class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-            ← Voltar
+           class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-sm">
+            <i class="fa-solid fa-arrow-left mr-2"></i>
+            Voltar para Lista
         </a>
     </div>
 </div>
 
 @if($errors->any())
-<div class="mb-6 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
-    <ul class="list-disc list-inside">
+<div class="mb-6 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl flex items-start gap-3">
+    <i class="fa-solid fa-circle-exclamation mt-1"></i>
+    <ul class="list-disc list-inside text-sm">
         @foreach($errors->all() as $error)
         <li>{{ $error }}</li>
         @endforeach
@@ -24,282 +31,260 @@
 </div>
 @endif
 
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6">
+<div class="max-w-5xl">
     <form action="{{ route('admin.sub-local-products.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
-        <div class="space-y-6">
-            <!-- Informações do Produto -->
-            <div>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Informações do Produto</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Nome -->
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Nome do Produto <span class="text-red-500">*</span>
-                        </label>
-                        <input 
-                            type="text" 
-                            name="name" 
-                            id="name" 
-                            value="{{ old('name') }}"
-                            placeholder="Ex: Caneca Porcelana"
-                            required
-                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        >
-                    </div>
-
-                    <!-- Categoria -->
-                    <div>
-                        <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Categoria <span class="text-red-500">*</span>
-                        </label>
-                        <select 
-                            id="category" 
-                            name="category" 
-                            required
-                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        >
-                            <option value="vestuario" {{ old('category') == 'vestuario' ? 'selected' : '' }}>Vestuário</option>
-                            <option value="canecas" {{ old('category') == 'canecas' ? 'selected' : '' }}>Canecas</option>
-                            <option value="acessorios" {{ old('category') == 'acessorios' ? 'selected' : '' }}>Acessórios</option>
-                            <option value="diversos" {{ old('category', 'diversos') == 'diversos' ? 'selected' : '' }}>Diversos</option>
-                        </select>
-                    </div>
-
-                    <!-- Preço -->
-                    <div>
-                        <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Preço de Venda (R$) <span class="text-red-500">*</span>
-                        </label>
-                        <input 
-                            type="number" 
-                            name="price" 
-                            id="price" 
-                            step="0.01"
-                            value="{{ old('price') }}"
-                            placeholder="0,00"
-                            required
-                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        >
-                    </div>
-
-                    <!-- Custo -->
-                    <div>
-                        <label for="cost" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Custo (R$)
-                        </label>
-                        <input 
-                            type="number" 
-                            name="cost" 
-                            id="cost" 
-                            step="0.01"
-                            min="0"
-                            value="{{ old('cost', 0) }}"
-                            placeholder="0,00"
-                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        >
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Valor de custo para cálculo de margem</p>
-                    </div>
-
-                    <!-- Ordem de Exibição -->
-                    <div>
-                        <label for="sort_order" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Ordem de Exibição
-                        </label>
-                        <input 
-                            type="number" 
-                            name="sort_order" 
-                            id="sort_order" 
-                            value="{{ old('sort_order', 0) }}"
-                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        >
-                    </div>
-
-                    <!-- Imagem -->
-                    <div class="md:col-span-2">
-                        <label for="image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Imagem do Produto
-                        </label>
-                        <input 
-                            id="image" 
-                            name="image" 
-                            type="file" 
-                            accept="image/*"
-                            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 dark:file:bg-indigo-900/30 file:text-indigo-700 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900/50"
-                        >
-                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Tamanho recomendado: 500x500px. Máximo 2MB.</p>
-                    </div>
-
-                    <!-- Descrição -->
-                    <div class="md:col-span-2">
-                        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Descrição (Opcional)
-                        </label>
-                        <textarea 
-                            id="description" 
-                            name="description" 
-                            rows="3"
-                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        >{{ old('description') }}</textarea>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Opções do Produto -->
-            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Opções do Produto</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="p-6 md:p-8 space-y-10">
                 
-                <div class="space-y-4">
-                    <label class="flex items-center">
-                        <input type="checkbox" name="is_active" value="1" checked class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                        <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Produto Ativo (Disponível no Wizard)</span>
-                    </label>
-
-                    <label class="flex items-center">
-                        <input type="checkbox" name="requires_customization" value="1" checked class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                        <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Requer Personalização (Passar pela etapa de arte)</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Seção de Tamanhos -->
-            <div class="border-t border-gray-200 dark:border-gray-700 pt-6" x-data="{ requiresSize: false }">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Tamanhos Disponíveis</h3>
-                    <label class="flex items-center cursor-pointer">
-                        <span class="mr-3 text-sm text-gray-700 dark:text-gray-300">Produto com Tamanhos</span>
-                        <input type="checkbox" name="requires_size" value="1" x-model="requiresSize" class="sr-only peer">
-                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
-                    </label>
-                </div>
-
-                <div x-show="requiresSize" x-collapse x-cloak class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i>
-                        Selecione os tamanhos disponíveis para este produto (camisa, calça, casaco, etc):
-                    </p>
-                    <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
-                        @php
-                            $defaultSizes = ['PP', 'P', 'M', 'G', 'GG', 'XGG', 'EG', 'EGG', 'PLUS', '2', '4', '6', '8', '10', '12', '14', '16'];
-                        @endphp
-                        @foreach($defaultSizes as $size)
-                            <label class="flex items-center justify-center px-3 py-2.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:border-indigo-400 transition-all has-[:checked]:bg-indigo-50 dark:has-[:checked]:bg-indigo-900/30 has-[:checked]:border-indigo-500 has-[:checked]:shadow-sm">
-                                <input type="checkbox" name="available_sizes[]" value="{{ $size }}" class="sr-only peer">
-                                <span class="text-sm font-semibold text-gray-600 dark:text-gray-400 peer-checked:text-indigo-600 dark:peer-checked:text-indigo-400">{{ $size }}</span>
-                            </label>
-                        @endforeach
+                <!-- Informações Básicas -->
+                <section>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600 dark:text-blue-400">
+                            <i class="fa-solid fa-tag"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">Informações Básicas</h3>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-4">
-                        <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i>
-                        Dica: Os tamanhos selecionados aparecerão como opções durante o pedido no wizard.
-                    </p>
-                </div>
-            </div>
 
-            <!-- Seção de Preços por Quantidade -->
-            <div class="border-t border-gray-200 dark:border-gray-700 pt-6" 
-                 x-data="quantityPricing([], false)">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                        <i class="fa-solid fa-layer-group text-indigo-500 mr-2"></i>
-                        Preços por Quantidade
-                    </h3>
-                    <label class="flex items-center cursor-pointer">
-                        <span class="mr-3 text-sm text-gray-700 dark:text-gray-300">Habilitar Tabela de Preços</span>
-                        <input type="checkbox" name="has_quantity_pricing" value="1" x-model="enabled" class="sr-only peer">
-                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
-                    </label>
-                </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-1">
+                            <label for="name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Nome do Produto <span class="text-red-500">*</span></label>
+                            <input type="text" name="name" id="name" value="{{ old('name') }}" required
+                                   class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all"
+                                   placeholder="Ex: Caneca Porcelana 325ml">
+                        </div>
 
-                <div x-show="enabled" x-collapse x-cloak class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-700/50 dark:to-gray-700/30 rounded-lg p-4">
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i>
-                        Configure faixas de quantidade com preços diferenciados (descontos por volume):
-                    </p>
-                    
-                    <!-- Tabela de Preços -->
-                    <div class="space-y-3">
-                        <template x-for="(tier, index) in tiers" :key="index">
-                            <div class="flex items-center gap-3 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
-                                <div class="flex-1">
-                                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Qtd. Mínima</label>
-                                    <input type="number" 
-                                           x-model.number="tier.min_quantity" 
-                                           min="1"
-                                           class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
-                                </div>
-                                <div class="flex-1">
-                                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Qtd. Máxima</label>
-                                    <input type="number" 
-                                           x-model.number="tier.max_quantity" 
-                                           min="1"
-                                           class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
-                                </div>
-                                <div class="flex-1">
-                                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Preço (R$)</label>
-                                    <input type="number" 
-                                           x-model.number="tier.price" 
-                                           step="0.01"
-                                           min="0"
-                                           class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
-                                </div>
-                                <button type="button" 
-                                        @click="removeTier(index)"
-                                        class="mt-5 p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                        <div>
+                            <label for="category" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Categoria <span class="text-red-500">*</span></label>
+                            <select id="category" name="category" required
+                                    class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all">
+                                <option value="canecas" {{ old('category') == 'canecas' ? 'selected' : '' }}>Canecas & Copos</option>
+                                <option value="vestuario" {{ old('category') == 'vestuario' ? 'selected' : '' }}>Vestuário</option>
+                                <option value="acessorios" {{ old('category') == 'acessorios' ? 'selected' : '' }}>Acessórios</option>
+                                <option value="diversos" {{ old('category') == 'diversos' ? 'selected' : '' }}>Diversos</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label for="description" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Descrição Curta</label>
+                            <textarea id="description" name="description" rows="2"
+                                      class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all"
+                                      placeholder="Descreva brevemente o produto...">{{ old('description') }}</textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-gray-100 dark:border-gray-700">
+
+                <!-- Preços e Ordem -->
+                <section>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 dark:text-green-400">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">Precificação e Exibição</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div>
+                            <label for="price" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Preço de Venda <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-2.5 text-gray-500 dark:text-gray-400">R$</span>
+                                <input type="number" name="price" id="price" step="0.01" value="{{ old('price') }}" required
+                                       class="w-full pl-12 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all"
+                                       placeholder="0,00">
                             </div>
-                        </template>
+                        </div>
+
+                        <div>
+                            <label for="cost" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Preço de Custo</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-2.5 text-gray-500 dark:text-gray-400">R$</span>
+                                <input type="number" name="cost" id="cost" step="0.01" value="{{ old('cost', 0) }}"
+                                       class="w-full pl-12 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all"
+                                       placeholder="0,00">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="sort_order" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Ordem de Exibição</label>
+                            <input type="number" name="sort_order" id="sort_order" value="{{ old('sort_order', 0) }}"
+                                   class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all">
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-gray-100 dark:border-gray-700">
+
+                <!-- Mídia -->
+                <section>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center text-purple-600 dark:text-purple-400">
+                            <i class="fa-solid fa-image"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">Mídia do Produto</h3>
                     </div>
 
-                    <!-- Botão Adicionar Faixa -->
-                    <button type="button" 
-                            @click="addTier()"
-                            class="mt-4 w-full py-2 px-4 border-2 border-dashed border-indigo-300 dark:border-indigo-600 rounded-lg text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors text-sm font-medium">
-                        <i class="fa-solid fa-plus mr-2"></i>
-                        Adicionar Faixa de Preço
+                    <div class="bg-gray-50 dark:bg-gray-700/30 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center">
+                        <input type="file" name="image" id="image" accept="image/*" class="sr-only">
+                        <label for="image" class="cursor-pointer group">
+                            <div class="mx-auto w-16 h-16 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center text-gray-400 group-hover:text-indigo-500 group-hover:scale-110 transition-all border border-gray-200 dark:border-gray-600 mb-4 shadow-sm">
+                                <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+                            </div>
+                            <span class="text-indigo-600 dark:text-indigo-400 font-semibold text-lg">Clique para fazer upload</span>
+                            <p class="text-gray-500 dark:text-gray-400 mt-2 text-sm">PNG, JPG ou WEBP. Máximo 2MB.</p>
+                        </label>
+                    </div>
+                </section>
+
+                <hr class="border-gray-100 dark:border-gray-700">
+
+                <!-- Opções Avançadas -->
+                <section class="space-y-6">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center text-amber-600 dark:text-amber-400">
+                            <i class="fa-solid fa-sliders"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">Configurações do Wizard</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Switch Ativo -->
+                        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-gray-200 dark:border-gray-700">
+                            <div>
+                                <span class="font-semibold text-gray-900 dark:text-gray-100 block">Produto Ativo</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400 italic">Disponível no canal de vendas</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="is_active" value="1" checked class="sr-only peer">
+                                <div class="w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
+                            </label>
+                        </div>
+
+                        <!-- Switch Personalização -->
+                        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-gray-200 dark:border-gray-700">
+                            <div>
+                                <span class="font-semibold text-gray-900 dark:text-gray-100 block">Requer Personalização</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400 italic">Será enviado para etapa de arte</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="requires_customization" value="1" checked class="sr-only peer">
+                                <div class="w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
+                            </label>
+                        </div>
+
+                        <!-- Switch Preço Editável -->
+                        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-gray-200 dark:border-gray-700">
+                            <div>
+                                <span class="font-semibold text-gray-900 dark:text-gray-100 block">Preço Editável</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400 italic">Vendedor pode alterar valor</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="allow_price_edit" value="1" class="sr-only peer">
+                                <div class="w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-green-600 shadow-inner"></div>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-gray-100 dark:border-gray-700">
+
+                <!-- Tamanhos -->
+                <section x-data="{ requiresSize: false }">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                                <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">Grade de Tamanhos</h3>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="requires_size" value="1" x-model="requiresSize" class="sr-only peer">
+                            <div class="w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
+                        </label>
+                    </div>
+
+                    <div x-show="requiresSize" x-collapse x-cloak class="bg-gray-50 dark:bg-gray-700/50 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
+                        <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                            @php $defaultSizes = ['PP','P','M','G','GG','XGG','EG','EGG','PLUS','2','4','6','8','10','12','14','16']; @endphp
+                            @foreach($defaultSizes as $size)
+                                <label class="flex items-center justify-center px-3 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl cursor-pointer hover:border-indigo-400 transition-all has-[:checked]:bg-indigo-50 dark:has-[:checked]:bg-indigo-900/30 has-[:checked]:border-indigo-500 has-[:checked]:shadow-inner">
+                                    <input type="checkbox" name="available_sizes[]" value="{{ $size }}" class="sr-only peer">
+                                    <span class="text-sm font-bold text-gray-600 dark:text-gray-400 peer-checked:text-indigo-600 dark:peer-checked:text-indigo-400">{{ $size }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-gray-100 dark:border-gray-700">
+
+                <!-- Preços por Quantidade -->
+                <section x-data="quantityPricing([], false)">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">Desconto por Quantidade</h3>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="has_quantity_pricing" value="1" x-model="enabled" class="sr-only peer">
+                            <div class="w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
+                        </label>
+                    </div>
+
+                    <div x-show="enabled" x-collapse x-cloak class="bg-indigo-50/50 dark:bg-indigo-900/10 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-900/30">
+                        <div class="space-y-4">
+                            <template x-for="(tier, index) in tiers" :key="index">
+                                <div class="flex items-center gap-4 bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                                    <div class="flex-1">
+                                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Mínimo</label>
+                                        <input type="number" x-model.number="tier.min_quantity" min="1" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100">
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Máximo</label>
+                                        <input type="number" x-model.number="tier.max_quantity" min="1" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100">
+                                    </div>
+                                    <div class="flex-2">
+                                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Preço (R$)</label>
+                                        <input type="number" x-model.number="tier.price" step="0.01" min="0" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 font-bold text-indigo-600 dark:text-indigo-400">
+                                    </div>
+                                    <button type="button" @click="removeTier(index)" class="mt-5 p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </template>
+                            
+                            <button type="button" @click="addTier()" class="w-full py-4 border-2 border-dashed border-indigo-200 dark:border-indigo-800 rounded-xl text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all font-semibold flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-plus-circle"></i>
+                                Adicionar Faixa de Preço
+                            </button>
+                            
+                            <input type="hidden" name="quantity_pricing" :value="JSON.stringify(tiers)">
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Rodapé de Ações -->
+            <div class="bg-gray-50 dark:bg-gray-700/50 px-8 py-6 flex items-center justify-between border-t border-gray-200 dark:border-gray-700">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    <i class="fa-solid fa-circle-info mr-1 text-indigo-500"></i>
+                    Após salvar, você poderá gerenciar os itens adicionais do produto.
+                </p>
+                <div class="flex items-center gap-4">
+                    <a href="{{ route('admin.sub-local-products.index') }}" 
+                       class="px-6 py-2.5 text-gray-700 dark:text-gray-300 font-semibold hover:text-indigo-600 transition-colors">
+                        Cancelar
+                    </a>
+                    <button type="submit" 
+                            style="color: #ffffff !important;"
+                            class="px-10 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition-all font-bold text-lg active:scale-95">
+                        Criar Produto
                     </button>
-
-                    <!-- Input hidden para enviar os dados -->
-                    <input type="hidden" name="quantity_pricing" :value="JSON.stringify(tiers)">
-
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-4">
-                        <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i>
-                        Exemplo: 1-10 unidades = R$ 25,00 | 11-50 unidades = R$ 22,00 | 51+ unidades = R$ 18,00
-                    </p>
                 </div>
-            </div>
-
-            <!-- Opção de Edição de Preço no Pedido -->
-            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                            <i class="fa-solid fa-pen-to-square text-green-500 mr-2"></i>
-                            Preço Editável no Pedido
-                        </h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            Permite que o vendedor altere o preço deste produto durante a criação do pedido
-                        </p>
-                    </div>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" name="allow_price_edit" value="1" class="sr-only peer">
-                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Botões -->
-            <div class="flex items-center justify-end space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <a href="{{ route('admin.sub-local-products.index') }}" 
-                   class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    Cancelar
-                </a>
-                <button type="submit" 
-                        class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold">
-                    Salvar Produto
-                </button>
             </div>
         </div>
     </form>
@@ -331,4 +316,3 @@ function quantityPricing(initialTiers, initialEnabled) {
 </script>
 @endpush
 @endsection
-

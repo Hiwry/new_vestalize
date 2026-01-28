@@ -140,6 +140,7 @@
         <button 
             type="submit"
             class="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
+            style="color: white !important;"
         >
             Salvar Alterações
         </button>

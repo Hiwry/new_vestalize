@@ -28,6 +28,11 @@ class SubLocalProduct extends Model
         'requires_size',
     ];
 
+    public function addons()
+    {
+        return $this->hasMany(SubLocalProductAddon::class);
+    }
+
     protected $casts = [
         'price' => 'decimal:2',
         'cost' => 'decimal:2',

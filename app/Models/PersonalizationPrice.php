@@ -95,15 +95,7 @@ class PersonalizationPrice extends Model
             ->get();
         
         if ($productOptions->isEmpty()) {
-            // Fallback para tipos fixos se não houver nenhum cadastrado
-            return [
-                'DTF' => 'DTF',
-                'SERIGRAFIA' => 'Serigrafia',
-                'BORDADO' => 'Bordado',
-                'EMBORRACHADO' => 'Emborrachado',
-                'SUB. LOCAL' => 'Sublimação Local',
-                'SUB. TOTAL' => 'Sublimação Total',
-            ];
+            return [];
         }
         
         $types = [];

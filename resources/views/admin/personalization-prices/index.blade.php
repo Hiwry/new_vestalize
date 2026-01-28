@@ -11,6 +11,46 @@
     .dark .card-hover:hover {
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
     }
+    
+    /* Toggle Switch Glassmorphism */
+    .glass-toggle {
+        width: 3.5rem;
+        height: 1.75rem;
+        background-color: rgba(255, 255, 255, 0.1); 
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 9999px;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark .glass-toggle {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .glass-toggle::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 1.5rem;
+        height: 1.5rem;
+        background-color: white;
+        border-radius: 50%;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .glass-toggle-input:checked + .glass-toggle {
+        background-color: #7c3aed; /* --primary */
+        border-color: #7c3aed;
+    }
+
+    .glass-toggle-input:checked + .glass-toggle::after {
+        transform: translateX(1.75rem);
+    }
 </style>
 @endpush
 
@@ -30,31 +70,10 @@
             </div>
         </div>
 
-        @if(session('success'))
-        <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md p-4">
-            <div class="flex items-center">
-                <svg class="w-5 h-5 text-green-600 dark:text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <p class="text-sm font-medium text-green-800 dark:text-green-200">{{ session('success') }}</p>
-            </div>
-        </div>
-        @endif
 
-        @if(session('error'))
-        <div class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
-            <div class="flex items-center">
-                <svg class="w-5 h-5 text-red-600 dark:text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <p class="text-sm font-medium text-red-800 dark:text-red-200">{{ session('error') }}</p>
-            </div>
-        </div>
-        @endif
 
-        <!-- Cards Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-            <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <!-- Cards Grid (Preços) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
             @foreach($pricesByType as $typeKey => $typeData)
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/25 border border-gray-200 dark:border-gray-700 overflow-hidden card-hover">
                     <!-- Card Header -->
@@ -156,84 +175,149 @@
             @endforeach
             </div>
 
-            <!-- LocalizaçõÇæes de AplicaÇõÇœ -->
+            <!-- Localizações de Aplicação -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/25 border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <div class="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h2 class="text-base font-semibold text-gray-900 dark:text-gray-100">Localizações de Aplicação</h2>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Gerencie as opções mostradas na personalização</p>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Localizações de Aplicação</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Gerencie as opções de localização (Frente, Costas, etc.)</p>
                     </div>
-                    <form method="POST" action="{{ route('admin.personalization-prices.locations.store') }}" class="flex items-center gap-2">
+                    <form method="POST" action="{{ route('admin.personalization-prices.locations.store') }}" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mt-3 sm:mt-0">
                         @csrf
-                        <input type="text" name="name" placeholder="Ex: Frente, Costa, Manga Esquerda" required
-                               class="w-40 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
+                        <div class="relative flex-1 sm:flex-none">
+                            <input type="text" name="name" placeholder="Nova localização..." required
+                                   class="w-full sm:w-64 pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <span class="text-gray-400 text-xs hidden sm:block">↵</span>
+                            </div>
+                        </div>
                         <button type="submit"
-                                class="inline-flex items-center px-3 py-2 bg-green-600 dark:bg-green-600 text-white stay-white text-xs font-semibold rounded-lg hover:bg-green-700 dark:hover:bg-green-700 transition-colors">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 !text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
+                            <svg class="w-4 h-4 mr-1.5 !text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
                             Adicionar
                         </button>
                     </form>
                 </div>
-                <div class="p-5 space-y-2 max-h-[420px] overflow-y-auto">
-                    @forelse($locations as $location)
-                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-lg">
-                            <div>
-                                <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $location->name }}</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">Ordem: {{ $location->order ?? '-' }}</div>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <form method="POST" action="{{ route('admin.personalization-prices.locations.toggle-pdf', $location) }}">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit"
-                                            class="px-3 py-1.5 text-xs font-semibold rounded-lg border {{ $location->show_in_pdf ?? true ? 'border-blue-300 text-blue-700 bg-blue-50 dark:border-blue-700 dark:text-blue-200 dark:bg-blue-900/30' : 'border-gray-300 text-gray-600 bg-white dark:border-gray-600 dark:text-gray-200 dark:bg-gray-700' }}"
-                                            title="Mostrar no PDF">
-                                        📄 {{ $location->show_in_pdf ?? true ? 'PDF' : 'Sem PDF' }}
-                                    </button>
-                                </form>
-                                <form method="POST" action="{{ route('admin.personalization-prices.locations.toggle', $location) }}">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="active" value="{{ $location->active ? 0 : 1 }}">
-                                    <button type="submit"
-                                            class="px-3 py-1.5 text-xs font-semibold rounded-lg border {{ $location->active ? 'border-green-300 text-green-700 bg-green-50 dark:border-green-700 dark:text-green-200 dark:bg-green-900/30' : 'border-gray-300 text-gray-600 bg-white dark:border-gray-600 dark:text-gray-200 dark:bg-gray-700' }}">
-                                        {{ $location->active ? 'Ativa' : 'Inativa' }}
-                                    </button>
-                                </form>
-                                <form method="POST" action="{{ route('admin.personalization-prices.locations.destroy', $location) }}" id="delete-location-form-{{ $location->id }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button" onclick="openDeleteLocationModal('delete-location-form-{{ $location->id }}', '{{ addslashes($location->name) }}')" class="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Remover">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    @empty
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Nenhuma localizaÇõÇœ cadastrada.</p>
-                    @endforelse
+                
+                <div class="p-0">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700/50 dark:text-gray-400">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">Nome</th>
+                                    <th scope="col" class="px-6 py-3 text-center">Ordem</th>
+                                    <th scope="col" class="px-6 py-3 text-center">Opções</th>
+                                    <th scope="col" class="px-6 py-3 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                @forelse($locations as $location)
+                                <tr class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                                        {{ $location->name }}
+                                    </td>
+                                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                        {{ $location->order ?? '-' }}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center justify-center gap-6">
+                                            <!-- Toggle PDF -->
+                                            <div class="flex items-center gap-3">
+                                                <form method="POST" action="{{ route('admin.personalization-prices.locations.toggle-pdf', $location) }}">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <label class="cursor-pointer">
+                                                        <input type="checkbox" onchange="this.form.submit()" class="sr-only glass-toggle-input" {{ $location->show_in_pdf ? 'checked' : '' }}>
+                                                        <div class="glass-toggle"></div>
+                                                    </label>
+                                                </form>
+                                                <span class="text-xs font-medium text-gray-600 dark:text-gray-400">PDF</span>
+                                            </div>
+                                            
+                                            <!-- Toggle Ativa -->
+                                            <div class="flex items-center gap-3">
+                                                <form method="POST" action="{{ route('admin.personalization-prices.locations.toggle', $location) }}">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="active" value="{{ $location->active ? 0 : 1 }}">
+                                                    <label class="cursor-pointer">
+                                                        <input type="checkbox" onchange="this.form.submit()" class="sr-only glass-toggle-input" {{ $location->active ? 'checked' : '' }}>
+                                                        <div class="glass-toggle"></div>
+                                                    </label>
+                                                </form>
+                                                <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Ativa</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <form method="POST" action="{{ route('admin.personalization-prices.locations.destroy', $location) }}" id="delete-location-form-{{ $location->id }}" class="inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="button" onclick="openDeleteLocationModal('delete-location-form-{{ $location->id }}', '{{ addslashes($location->name) }}')" 
+                                                    class="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100" 
+                                                    title="Remover localização">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-gray-800/50">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <svg class="w-12 h-12 text-gray-300 dark:text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            </svg>
+                                            <p class="font-medium">Nenhuma localização cadastrada</p>
+                                            <p class="text-xs mt-1">Adicione novas localizações usando o formulário acima.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
     </div>
 
-    <!-- Modal de ConfirmaÇõÇœo de ExclusÇœo -->
-    <div id="delete-location-modal" class="hidden fixed inset-0 bg-black/60 dark:bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center px-4">
-        <div class="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-md w-full border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div class="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Remover localizaÇõÇœo?</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Esta aÇõÇœo nÇœo pode ser desfeita.</p>
-            </div>
-            <div class="px-6 py-4">
-                <p class="text-sm text-gray-800 dark:text-gray-200">Deseja remover a localizaÇõÇœ <span id="delete-location-name" class="font-semibold text-indigo-600 dark:text-indigo-400"></span>?</p>
-            </div>
-            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
-                <button type="button" onclick="closeDeleteLocationModal()" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">Cancelar</button>
-                <button type="button" onclick="confirmDeleteLocation()" class="px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">Remover</button>
+    <!-- Modal de Confirmação de Exclusão -->
+    <div id="delete-location-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity backdrop-blur-sm"></div>
+
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100 dark:border-gray-700">
+                <div class="bg-white dark:bg-gray-800 px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                            <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white" id="modal-title">Remover localização</h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    Tem certeza que deseja remover a localização <span id="delete-location-name" class="font-medium text-gray-900 dark:text-white"></span>? Esta ação não pode ser desfeita.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                    <button type="button" onclick="confirmDeleteLocation()" class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto transition-colors">
+                        Remover
+                    </button>
+                    <button type="button" onclick="closeDeleteLocationModal()" class="mt-3 inline-flex w-full justify-center rounded-md bg-white dark:bg-gray-800 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 sm:mt-0 sm:w-auto transition-colors">
+                        Cancelar
+                    </button>
+                </div>
             </div>
         </div>
     </div>

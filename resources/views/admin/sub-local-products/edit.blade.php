@@ -155,14 +155,16 @@
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Opções do Produto</h3>
                 
                 <div class="space-y-4">
-                    <label class="flex items-center">
-                        <input type="checkbox" name="is_active" value="1" {{ $subLocalProduct->is_active ? 'checked' : '' }} class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                        <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Produto Ativo (Disponível no Wizard)</span>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" name="is_active" value="1" {{ $subLocalProduct->is_active ? 'checked' : '' }} class="sr-only peer text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <div class="w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
+                        <span class="ml-3 text-sm text-gray-700 dark:text-gray-300 font-medium">Produto Ativo (Disponível no Wizard)</span>
                     </label>
 
-                    <label class="flex items-center">
-                        <input type="checkbox" name="requires_customization" value="1" {{ $subLocalProduct->requires_customization ? 'checked' : '' }} class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                        <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Requer Personalização (Passar pela etapa de arte)</span>
+                    <label class="flex items-center cursor-pointer mt-4">
+                        <input type="checkbox" name="requires_customization" value="1" {{ $subLocalProduct->requires_customization ? 'checked' : '' }} class="sr-only peer text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <div class="w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
+                        <span class="ml-3 text-sm text-gray-700 dark:text-gray-300 font-medium">Requer Personalização (Passar pela etapa de arte)</span>
                     </label>
                 </div>
             </div>
@@ -174,7 +176,7 @@
                     <label class="flex items-center cursor-pointer">
                         <span class="mr-3 text-sm text-gray-700 dark:text-gray-300">Produto com Tamanhos</span>
                         <input type="checkbox" name="requires_size" value="1" x-model="requiresSize" {{ $subLocalProduct->requires_size ? 'checked' : '' }} class="sr-only peer">
-                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                        <div class="w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
                     </label>
                 </div>
 
@@ -213,7 +215,7 @@
                     <label class="flex items-center cursor-pointer">
                         <span class="mr-3 text-sm text-gray-700 dark:text-gray-300">Habilitar Tabela de Preços</span>
                         <input type="checkbox" name="has_quantity_pricing" value="1" x-model="enabled" class="sr-only peer">
-                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                        <div class="w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
                     </label>
                 </div>
 
@@ -290,11 +292,80 @@
                     </div>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" name="allow_price_edit" value="1" {{ $subLocalProduct->allow_price_edit ? 'checked' : '' }} class="sr-only peer">
-                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
+                        <div class="w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-green-600 shadow-inner"></div>
                     </label>
                 </div>
             </div>
 
+
+            <!-- Seção de Adicionais -->
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        <i class="fa-solid fa-tag text-yellow-500 mr-2"></i>
+                        Adicionais do Produto
+                    </h3>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i>
+                        Cadastre itens extras que podem ser adicionados a este produto (ex: Embalagem de Presente, Gravação Extra):
+                    </p>
+
+                    <!-- Lista de Adicionais -->
+                    <div class="space-y-3 mb-6">
+                        @forelse($subLocalProduct->addons as $addon)
+                            <div class="flex items-center justify-between bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/30 rounded flex items-center justify-center">
+                                        <i class="fa-solid fa-plus text-yellow-600 dark:text-yellow-400 text-xs"></i>
+                                    </div>
+                                    <div>
+                                        <span class="block text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $addon->name }}</span>
+                                        <span class="block text-xs text-green-600 dark:text-green-400 font-medium">+ R$ {{ number_format($addon->price, 2, ',', '.') }}</span>
+                                    </div>
+                                </div>
+                                <form action="{{ route('admin.sub-local-products.addons.destroy', [$subLocalProduct->id, $addon->id]) }}" method="POST" onsubmit="return confirm('Excluir este adicional?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        @empty
+                            <div class="text-center py-4 bg-white dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Nenhum adicional cadastrado.</p>
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <!-- Formulário para Novo Adicional -->
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-indigo-100 dark:border-indigo-900/30 shadow-sm">
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Novo Adicional</h4>
+                        <form action="{{ route('admin.sub-local-products.addons.store', $subLocalProduct->id) }}" method="POST" class="flex flex-col sm:flex-row gap-3">
+                            @csrf
+                            <div class="flex-1">
+                                <input type="text" name="name" required placeholder="Nome do adicional" 
+                                       class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div class="w-full sm:w-32">
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 text-xs">R$</span>
+                                    <input type="number" name="price" required step="0.01" min="0" placeholder="0,00"
+                                           class="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                            </div>
+                            <button type="submit" 
+                                    style="color: #ffffff !important;"
+                                    class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors shrink-0">
+                                Adicionar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
             <!-- Botões -->
             <div class="flex items-center justify-end space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -303,7 +374,8 @@
                     Cancelar
                 </a>
                 <button type="submit" 
-                        class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold">
+                        style="color: #ffffff !important;"
+                        class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold active:scale-95">
                     Atualizar Produto
                 </button>
             </div>

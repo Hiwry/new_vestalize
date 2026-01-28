@@ -433,9 +433,10 @@
         [x-cloak] { display: none !important; }
     </style>
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <!-- Fonts - Using Inter for lighter weight -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
     <!-- Suprimir aviso do Tailwind CDN ANTES de carregar o script -->
     <script>
@@ -458,7 +459,19 @@
         tailwind.config = {
             darkMode: 'class',
             theme: {
-                extend: {}
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif']
+                    },
+                    fontWeight: {
+                        normal: '400',
+                        medium: '400',
+                        semibold: '500',
+                        bold: '500',
+                        extrabold: '600',
+                        black: '600'
+                    }
+                }
             }
         };
         
@@ -476,6 +489,26 @@
             html.classList.add('tailwind-loaded');
         })();
     </script>
+    <!-- Aggressive font-weight override BUT excluding icons -->
+    <style>
+        /* Aplicar fonte Inter globalmente, EXCETO em ícones */
+        *:not(.fa):not(.fas):not(.far):not(.fal):not(.fad):not(.fab):not([class*="fa-"]) {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+        }
+        
+        /* Reset de pesos mais equilibrado */
+        body, p, span, div, input, button { font-weight: 400; }
+        
+        /* Títulos e negritos */
+        h1, h2, h3, h4, h5, h6 { font-weight: 600 !important; }
+        strong, b, .font-bold, .font-semibold { font-weight: 600 !important; }
+        .font-medium { font-weight: 500 !important; }
+        .font-extrabold, .font-black { font-weight: 700 !important; }
+        
+        /* Ícones devem manter seu peso padrão */
+        .fa, .fas, .far, .fal, .fad, .fab { font-weight: 900 !important; }
+        .far, .fal { font-weight: 400 !important; }
+    </style>
     <style>
         .dark p:not([class*="text-"]) { color: rgb(226 232 240); }
         .dark p.text-gray-900,

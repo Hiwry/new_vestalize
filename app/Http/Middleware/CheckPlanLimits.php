@@ -31,8 +31,8 @@ class CheckPlanLimits
                 ->with('error', 'Sessão expirada. Por favor, faça login novamente.');
         }
 
-        // Se for Super Admin (Admin Master) sem tenant, ignora limites de plano
-        if ($user->isAdminGeral() && $user->tenant_id === null) {
+        // Se for Super Admin (Admin Master), ignora limites de plano
+        if ($user->isAdminGeral()) {
             return $next($request);
         }
 

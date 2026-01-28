@@ -61,6 +61,7 @@ Route::middleware('auth')->group(function () {
     
     // Configurações
     Route::get('/settings/personalizations', [\App\Http\Controllers\SettingsController::class, 'personalizations'])->name('settings.personalizations');
+    Route::view('/settings/customized-products', 'settings.customized-products')->name('settings.customized-products');
     Route::get('/settings/company', [\App\Http\Controllers\SettingsController::class, 'company'])->name('settings.company');
     Route::put('/settings/company', [\App\Http\Controllers\SettingsController::class, 'updateCompany'])->name('settings.company.update');
     Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
@@ -466,6 +467,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Dashboard principal
     Route::get('/', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])->name('dashboard');
     
+    // AJAX Routes for Product Options - MUST be before resource
+    Route::post('product-options/reorder', [\App\Http\Controllers\Admin\ProductOptionController::class, 'reorder'])->name('product-options.reorder');
+    Route::post('product-options/{option}/toggle-status', [\App\Http\Controllers\Admin\ProductOptionController::class, 'toggleStatus'])->name('product-options.toggle-status');
+    
     Route::resource('product-options', \App\Http\Controllers\Admin\ProductOptionController::class);
     Route::resource('catalog-items', \App\Http\Controllers\Admin\CatalogItemController::class)->names('catalog-items');
     Route::resource('catalog-categories', \App\Http\Controllers\Admin\CatalogCategoryController::class)->names('catalog-categories');
@@ -577,6 +582,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     // Produtos Sublimação Local
     Route::resource('sub-local-products', \App\Http\Controllers\Admin\SubLocalProductController::class);
+    Route::post('sub-local-products/{subLocalProduct}/addons', [\App\Http\Controllers\Admin\SubLocalProductController::class, 'storeAddon'])->name('sub-local-products.addons.store');
+    Route::delete('sub-local-products/{subLocalProduct}/addons/{addon}', [\App\Http\Controllers\Admin\SubLocalProductController::class, 'destroyAddon'])->name('sub-local-products.addons.destroy');
 });
 
 // Peças de Tecido (dentro do middleware auth)

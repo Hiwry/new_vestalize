@@ -2,9 +2,10 @@
 
 @section('content')
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-semibold dark:text-gray-100">Gerenciar Usuários</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gerenciar Usuários</h1>
             <a href="{{ route('admin.users.create') }}" 
-               class="px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition">
+               class="px-5 py-2.5 bg-indigo-600 dark:bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-700 transition shadow-sm"
+               style="color: white !important;">
                 + Novo Usuário
             </a>
         </div>
@@ -15,26 +16,26 @@
         </div>
         @endif
 
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-700">
+                <thead class="bg-gray-100 dark:bg-gray-700/50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                             Nome
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                             E-mail
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                             Loja
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                             Função
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                             Criado em
                         </th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th class="px-6 py-4 text-right text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                             Ações
                         </th>
                     </tr>
@@ -43,7 +44,7 @@
                     @forelse($users as $user)
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $user->name }}</div>
+                            <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $user->name }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-500 dark:text-gray-400">{{ $user->email }}</div>
@@ -51,15 +52,15 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             @php($storeCount = $user->stores->count())
                             @if($storeCount === 0)
-                                <div class="text-sm text-gray-500 dark:text-gray-400">-</div>
+                                <div class="text-sm text-gray-400 dark:text-gray-500">-</div>
                             @elseif($storeCount === 1)
                                 <div class="text-sm text-gray-700 dark:text-gray-300">{{ $user->stores->first()->name }}</div>
                             @else
-                                <div class="text-sm text-gray-700 dark:text-gray-300">{{ $user->stores->first()->name }} +{{ $storeCount - 1 }}</div>
+                                <div class="text-sm text-gray-700 dark:text-gray-300">{{ $user->stores->first()->name }} <span class="text-xs bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-gray-500">+{{ $storeCount - 1 }}</span></div>
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $user->role_color }}">
+                            <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full {{ $user->role_color ?? 'bg-gray-100 text-gray-800' }}">
                                 {{ $user->role_label }}
                             </span>
                         </td>
@@ -67,26 +68,33 @@
                             {{ $user->created_at->format('d/m/Y') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="{{ route('admin.users.edit', $user) }}" 
-                               class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 mr-3">
-                                Editar
-                            </a>
-                            <form action="{{ route('admin.users.destroy', $user) }}" 
-                                  method="POST" 
-                                  class="inline"
-                                  onsubmit="return confirm('Tem certeza que deseja excluir este usuário?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300">
-                                    Excluir
-                                </button>
-                            </form>
+                            <div class="flex items-center justify-end gap-3">
+                                <a href="{{ route('admin.users.edit', $user) }}" 
+                                   class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 font-semibold">
+                                    Editar
+                                </a>
+                                <form action="{{ route('admin.users.destroy', $user) }}" 
+                                      method="POST" 
+                                      class="inline-block"
+                                      onsubmit="return confirm('Tem certeza que deseja excluir este usuário?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" 
+                                            class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 font-semibold hover:underline cursor-pointer transition-colors !bg-transparent !border-0 !p-0 !shadow-none"
+                                            style="background-color: transparent !important; box-shadow: none !important; color: #dc2626 !important;">
+                                        Excluir
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                            Nenhum usuário encontrado.
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                            <div class="flex flex-col items-center justify-center">
+                                <i class="fa-regular fa-user text-3xl mb-3 opacity-20"></i>
+                                <span>Nenhum usuário encontrado.</span>
+                            </div>
                         </td>
                     </tr>
                     @endforelse

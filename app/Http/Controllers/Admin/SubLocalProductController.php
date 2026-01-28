@@ -139,4 +139,27 @@ class SubLocalProductController extends Controller
         return redirect()->route('admin.sub-local-products.index')
             ->with('success', 'Produto excluído com sucesso!');
     }
+
+    public function storeAddon(Request $request, SubLocalProduct $subLocalProduct)
+    {
+        // Converter vírgula
+        $request->merge([
+            'price' => str_replace(',', '.', $request->input('price', '0')),
+        ]);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+        ]);
+
+        $subLocalProduct->addons()->create($validated);
+
+        return back()->with('success', 'Adicional adicionado!');
+    }
+
+    public function destroyAddon(SubLocalProduct $subLocalProduct, \App\Models\SubLocalProductAddon $addon)
+    {
+        $addon->delete();
+        return back()->with('success', 'Adicional removido!');
+    }
 }
