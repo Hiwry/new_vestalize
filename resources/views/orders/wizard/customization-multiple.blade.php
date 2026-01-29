@@ -23,7 +23,7 @@
                     <div class="text-2xl font-bold text-[#7c3aed] dark:text-[#a78bfa]">60%</div>
                 </div>
             </div>
-            <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-2.5 shadow-inner">
+            <div class="w-full bg-white dark:bg-slate-800/80 rounded-full h-2.5 shadow-inner border border-gray-200 dark:border-slate-700">
                 <div class="bg-gradient-to-r from-[#7c3aed] to-[#7c3aed] dark:from-[#7c3aed] dark:to-[#7c3aed] h-2.5 rounded-full transition-all duration-500 ease-out shadow-lg shadow-[#7c3aed]/30 dark:shadow-[#7c3aed]/30" style="width: 60%"></div>
             </div>
         </div>
@@ -31,7 +31,7 @@
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-slate-800">
             
             <!-- Header -->
-            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-gray-50 to-white dark:from-slate-800/50 dark:to-slate-900/50">
+            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-gradient-to-r dark:from-slate-800/50 dark:to-slate-900/50">
                 <div class="flex items-center space-x-3">
                     <div class="flex items-center">
                         <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -428,10 +428,10 @@
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-slate-700/50 animate-slideUp">
             
             <!-- Modal Header com gradiente e ícone -->
-            <div class="px-6 py-5 border-b border-gray-200 dark:border-slate-700/50 flex items-center justify-between sticky top-0 bg-gradient-to-r from-purple-100 via-white to-white dark:from-purple-600/20 dark:via-slate-900 dark:to-slate-900 z-10 backdrop-blur-sm">
+            <div class="px-6 py-5 border-b border-gray-200 dark:border-slate-700/50 flex items-center justify-between sticky top-0 bg-white dark:bg-gradient-to-r dark:from-purple-600/20 dark:via-slate-900 dark:to-slate-900 z-10 backdrop-blur-sm">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-500/20 rounded-xl flex items-center justify-center ring-1 ring-purple-300 dark:ring-purple-500/30">
-                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-12 h-12 bg-white dark:bg-purple-500/20 rounded-xl flex items-center justify-center ring-1 ring-gray-200 dark:ring-purple-500/30">
+                        <svg class="w-6 h-6 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                         </svg>
                     </div>

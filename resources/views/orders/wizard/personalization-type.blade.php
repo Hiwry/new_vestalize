@@ -65,7 +65,7 @@
                     <div class="text-2xl font-bold text-[#7c3aed] dark:text-[#a78bfa]">33%</div>
                 </div>
             </div>
-            <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-2.5 shadow-inner">
+            <div class="w-full bg-white dark:bg-slate-800/80 rounded-full h-2.5 shadow-inner border border-gray-200 dark:border-slate-700">
                 <div class="bg-[#7c3aed] h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 33%"></div>
             </div>
         </div>

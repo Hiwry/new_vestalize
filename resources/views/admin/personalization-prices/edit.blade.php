@@ -191,7 +191,7 @@
     </div>
 </div>
 
-@push('scripts')
+{{-- Scripts moved to content for AJAX execution --}}
 <script>
     // Dados iniciais
     let availableSizes = []; // Começa vazio, será preenchido com dados do banco ou pelo usuário
@@ -481,5 +481,5 @@
     window.addNewQuantityRange = addNewQuantityRange;
     window.removePriceRow = removePriceRow;
 </script>
-@endpush
+{{-- endpush --}}
 @endsection

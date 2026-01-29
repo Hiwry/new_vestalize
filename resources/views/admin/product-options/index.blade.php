@@ -88,6 +88,10 @@
                                                         {{ $parent->name }}
                                                     </span>
                                                 @endforeach
+                                            @elseif($option->parent)
+<span class="inline-block px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded mr-1 mb-1">
+                                                    {{ $option->parent->name }}
+                                                </span>
                                             @else
                                                 <span class="text-gray-400 dark:text-gray-500">-</span>
                                             @endif

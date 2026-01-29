@@ -19,7 +19,7 @@
              onclick='window.fillClientData && window.fillClientData(${clientJson})'>
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 bg-gradient-to-br from-[#7c3aed] to-[#7c3aed] dark:from-[#7c3aed] dark:to-[#7c3aed] force-white rounded-lg flex items-center justify-center shadow-lg shadow-[#7c3aed]/20 dark:shadow-[#7c3aed]/20 group-hover:scale-110 transition-transform">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
                 </div>
@@ -67,13 +67,13 @@
                     '<div class="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-900/20 dark:to-emerald-900/10 border-2 border-emerald-200 dark:border-emerald-800/30 rounded-xl shadow-sm">' +
                     '<div class="flex items-center space-x-3">' +
                     '<div class="w-10 h-10 bg-emerald-600 dark:bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-600/20">' +
-                    '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                    '<svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
                     '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' +
                     '</svg>' +
                     '</div>' +
                     '<div class="flex-1">' +
                     '<p class="text-sm font-bold text-gray-900 dark:text-white">Cliente selecionado com sucesso!</p>' +
-                    '<p class="text-xs text-gray-600 dark:text-slate-400 mt-0.5">VocÇ¦ pode editar os dados se necessÇ­rio antes de continuar.</p>' +
+                    '<p class="text-xs text-gray-600 dark:text-slate-400 mt-0.5">Voc&ecirc; pode editar os dados se necess&aacute;rio antes de continuar.</p>' +
                     '</div>' +
                     '</div>' +
                     '</div>';

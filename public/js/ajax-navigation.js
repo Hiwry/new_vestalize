@@ -117,6 +117,18 @@
             return;
         }
 
+        // Evitar AJAX para dashboards e vendas (gr?ficos + tema)
+        if (typeof url === 'string') {
+            const parsed = new URL(url, window.location.origin);
+            const path = parsed.pathname || '';
+            if (path === '/dashboard' || path.startsWith('/dashboard') ||
+                path === '/vendas' || path.startsWith('/vendas') ||
+                path === '/sales' || path.startsWith('/sales')) {
+                window.location.href = url;
+                return;
+            }
+        }
+
         if (isNavigating) {
             return;
         }
@@ -143,6 +155,9 @@
         if (isDarkMode) {
             document.documentElement.classList.add('dark');
             document.documentElement.style.colorScheme = 'dark';
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.colorScheme = 'light';
         }
 
         // Mostrar indicador de progresso no topo (mais moderno e rápido que limpar a tela)
@@ -310,6 +325,9 @@
             if (isDarkMode) {
                 document.documentElement.classList.add('dark');
                 document.documentElement.style.colorScheme = 'dark';
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.style.colorScheme = 'light';
             }
 
             // Atualizar ícones do dark mode
@@ -324,6 +342,21 @@
                     sunIcon.classList.add('hidden');
                 }
             }
+
+            // Reaplicar tema (background/light) após navegação
+            if (typeof window.syncThemeState === 'function') {
+                window.syncThemeState();
+            }
+
+            // Fallback: garantir fundo correto no light/dark
+            const mainContentBg = document.getElementById('main-content');
+            if (mainContentBg) {
+                const bgColor = isDarkMode ? '#000000' : '#ffffff';
+                mainContentBg.style.backgroundColor = bgColor;
+                mainContentBg.style.background = bgColor;
+            }
+            document.body.style.backgroundColor = isDarkMode ? '#000000' : '#ffffff';
+            document.body.style.background = isDarkMode ? '#000000' : '#ffffff';
 
             // Reinicializar scripts se necessário
             reinitializeScripts();
@@ -458,6 +491,9 @@
             const path = url.pathname;
             if (isCatalogPublicUrl(url.href) ||
                 path.startsWith('/orcamento') ||
+                path === '/dashboard' || path.startsWith('/dashboard') ||
+                path === '/vendas' || path.startsWith('/vendas') ||
+                path === '/sales' || path.startsWith('/sales') ||
                 path.startsWith('/logout') ||
                 path.startsWith('/login') ||
                 path.startsWith('/register')) {

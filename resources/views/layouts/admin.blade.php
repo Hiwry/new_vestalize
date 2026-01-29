@@ -13,6 +13,24 @@
     <!-- Tema global + Avento Theme -->
     <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
     <link rel="stylesheet" href="{{ asset('css/avento-theme.css') }}">
+    
+    <!-- Google Fonts: Inter for better readability -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Apply Inter font globally, but exclude Font Awesome icons */
+        *:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not(.fad),
+        *:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not(.fad)::before,
+        *:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not(.fad)::after {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        /* Ensure Font Awesome icons use their own font */
+        [class*="fa-"], .fa, .fas, .far, .fal, .fab, .fad,
+        [class*="fa-"]::before, .fa::before, .fas::before, .far::before, .fal::before, .fab::before, .fad::before {
+            font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", "Font Awesome 5 Pro", FontAwesome !important;
+        }
+    </style>
 
     <!-- Meta Tags & Branding -->
     @php
@@ -41,30 +59,17 @@
     </script>
     
     @php
-        // Cores para tema claro
-        $pLight = auth()->user()->tenant->primary_color ?? '#7c3aed';
-        $sLight = auth()->user()->tenant->secondary_color ?? '#a855f7';
-        // Cores para tema escuro (com fallback para versões mais claras das cores light)
-        $pDark = auth()->user()->tenant->primary_color_dark ?? '#a78bfa';
-        $sDark = auth()->user()->tenant->secondary_color_dark ?? '#c084fc';
+        // Cores padrão fixas (não mais personalizáveis por tenant)
+        $pLight = '#7c3aed'; // Purple padrão
+        $sLight = '#a855f7'; // Purple secondary
+        $pDark = '#a78bfa';  // Purple dark mode
+        $sDark = '#c084fc';  // Purple secondary dark
         
         // Luminance check para tema claro
         $isLightBg = false;
-        if (str_starts_with($pLight, '#') && strlen($pLight) >= 7) {
-            $r = hexdec(substr($pLight, 1, 2));
-            $g = hexdec(substr($pLight, 3, 2));
-            $b = hexdec(substr($pLight, 5, 2));
-            if ((0.2126 * $r + 0.7152 * $g + 0.0722 * $b) > 200) $isLightBg = true;
-        }
         
         // Luminance check para tema escuro
         $isDarkBgLight = false;
-        if (str_starts_with($pDark, '#') && strlen($pDark) >= 7) {
-            $r = hexdec(substr($pDark, 1, 2));
-            $g = hexdec(substr($pDark, 3, 2));
-            $b = hexdec(substr($pDark, 5, 2));
-            if ((0.2126 * $r + 0.7152 * $g + 0.0722 * $b) > 200) $isDarkBgLight = true;
-        }
     @endphp
     <style>
         /* Alinha dashboard ao design system da landing */
@@ -235,6 +240,38 @@
         .text-blue-600 { color: var(--brand-primary-text) !important; }
         .bg-blue-600 { background-color: var(--brand-primary) !important; }
         .border-blue-600 { border-color: var(--brand-primary) !important; }
+
+        /* ========================================
+           LIGHT MODE FIXES - Alert Backgrounds & Button Text
+           ======================================== */
+        /* Preserve yellow/amber alert backgrounds in light mode */
+        .bg-yellow-50 { background-color: #fefce8 !important; }
+        .bg-amber-50 { background-color: #fffbeb !important; }
+        .bg-orange-50 { background-color: #fff7ed !important; }
+        .bg-green-50 { background-color: #f0fdf4 !important; }
+        .bg-red-50 { background-color: #fef2f2 !important; }
+        .bg-blue-50 { background-color: #eff6ff !important; }
+        
+        /* Preserve alert border colors */
+        .border-yellow-200 { border-color: #fef08a !important; }
+        .border-amber-200 { border-color: #fde68a !important; }
+        .border-green-200 { border-color: #bbf7d0 !important; }
+        .border-red-200 { border-color: #fecaca !important; }
+        .border-blue-200 { border-color: #bfdbfe !important; }
+        
+        /* Ensure white text on colored buttons */
+        .bg-indigo-600, .bg-purple-600, .bg-green-600, .bg-red-600,
+        [class*="bg-gradient-to-r"][class*="from-indigo"],
+        [class*="bg-gradient-to-r"][class*="from-purple"],
+        [class*="bg-gradient-to-r"][class*="from-blue"] {
+            color: #ffffff !important;
+        }
+        
+        /* Fix text-white class to always be white */
+        .text-white { color: #ffffff !important; }
+        
+        /* Gradient button text fix */
+        .bg-gradient-to-r { color: #ffffff !important; }
 
         /* Sidebar - Dinâmico */
         #sidebar {
@@ -581,6 +618,32 @@
         .dark .kanban-card .border-t {
             border-color: #4b5563 !important; /* gray-600 */
         }
+        
+        /* ========================================
+           CRITICAL: Button text must be white in light mode
+           These rules override Tailwind with high specificity
+           ======================================== */
+        :root:not(.dark) button.bg-indigo-600,
+        :root:not(.dark) button.bg-purple-600,
+        :root:not(.dark) button.bg-blue-600,
+        :root:not(.dark) button.bg-green-600,
+        :root:not(.dark) button.bg-red-600,
+        :root:not(.dark) button[class*="bg-gradient"],
+        :root:not(.dark) a.bg-indigo-600,
+        :root:not(.dark) a[class*="bg-gradient"],
+        :root:not(.dark) .bg-gradient-to-r,
+        :root:not(.dark) [class*="from-indigo-600"],
+        :root:not(.dark) [class*="from-purple-600"],
+        :root:not(.dark) [class*="from-blue-600"] {
+            color: #ffffff !important;
+        }
+        
+        /* Force white text on any element with text-white class */
+        .text-white,
+        button.text-white,
+        a.text-white {
+            color: #ffffff !important;
+        }
     </style>
     
     @stack('styles')
@@ -594,13 +657,93 @@
 
     
     <!-- Chart.js para gráficos -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="{{ asset('js/chart.umd.min.js') }}"></script>
     <script>
-        // Garantir que Chart.js está disponível
-        window.chartJsLoaded = typeof Chart !== 'undefined';
-        if (!window.chartJsLoaded) {
-            console.error('Chart.js não foi carregado corretamente');
-        }
+        (function() {
+            if (typeof Chart !== 'undefined') {
+                window.chartJsLoaded = true;
+                return;
+            }
+
+            window.chartJsLoaded = false;
+
+            if (window.__chartJsFallbackRequested) {
+                return;
+            }
+
+            window.__chartJsFallbackRequested = true;
+
+            var fallbackScript = document.createElement('script');
+            fallbackScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
+            fallbackScript.onload = function() {
+                window.chartJsLoaded = typeof Chart !== 'undefined';
+            };
+            fallbackScript.onerror = function() {
+                console.error('Chart.js não foi carregado corretamente');
+            };
+            document.head.appendChild(fallbackScript);
+        })();
+    </script>
+    <script>
+        window.ensureChartJsLoaded = function(callback) {
+            if (typeof callback !== 'function') return;
+            if (typeof Chart !== 'undefined') {
+                callback();
+                return;
+            }
+
+            if (window.__chartJsLoadingQueue) {
+                window.__chartJsLoadingQueue.push(callback);
+                return;
+            }
+
+            window.__chartJsLoadingQueue = [callback];
+
+            const flushQueue = () => {
+                const queue = window.__chartJsLoadingQueue || [];
+                window.__chartJsLoadingQueue = null;
+                queue.forEach(fn => {
+                    try {
+                        fn();
+                    } catch (e) {
+                        console.error('Chart init error:', e);
+                    }
+                });
+            };
+
+            const loadScript = (src, onSuccess, onError) => {
+                if (document.querySelector(`script[src="${src}"]`)) {
+                    if (typeof Chart !== 'undefined') {
+                        onSuccess();
+                    } else {
+                        onError();
+                    }
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = onSuccess;
+                script.onerror = onError;
+                document.head.appendChild(script);
+            };
+
+            const localSrc = '/js/chart.umd.min.js';
+            loadScript(localSrc, () => {
+                if (typeof Chart !== 'undefined') {
+                    flushQueue();
+                } else {
+                    loadScript('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js', flushQueue, () => {
+                        window.__chartJsLoadingQueue = null;
+                        console.error('Chart.js fallback failed');
+                    });
+                }
+            }, () => {
+                loadScript('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js', flushQueue, () => {
+                    window.__chartJsLoadingQueue = null;
+                    console.error('Chart.js fallback failed');
+                });
+            });
+        };
     </script>
     
     <!-- Font Awesome -->
@@ -633,7 +776,7 @@
         @include('components.app-sidebar')
 
         <!-- Page Content -->
-        <div id="main-content" class="h-screen overflow-y-auto bg-gray-50 dark:bg-gray-900 transition-all duration-300 ease-in-out">
+        <div id="main-content" class="h-screen overflow-y-auto bg-background transition-all duration-300 ease-in-out">
             <main class="min-h-full pb-24 md:pb-10 pt-20 px-4 md:pt-6 md:px-6 w-full">
                 {{-- Flash Messages --}}
                 @if(session('success'))
@@ -698,6 +841,26 @@
 
     {{-- Global Toast Notification System --}}
     <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
+    <style>
+        #toast-container .toast-notification {
+            color: #ffffff !important;
+            backdrop-filter: blur(6px);
+        }
+        #toast-container .toast-notification.toast-success { background-color: #22c55e !important; }
+        #toast-container .toast-notification.toast-error { background-color: #ef4444 !important; }
+        #toast-container .toast-notification.toast-warning { background-color: #f59e0b !important; }
+        #toast-container .toast-notification.toast-info { background-color: #6366f1 !important; }
+        #toast-container .toast-notification * {
+            color: #ffffff !important;
+        }
+        html:not(.dark) #toast-container .toast-notification {
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12) !important;
+        }
+        html.dark #toast-container .toast-notification {
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55) !important;
+        }
+    </style>
     
     <script>
         // ============================================
@@ -710,13 +873,6 @@
             const duration = options.duration || 5000;
             const action = options.action || null; // { label: 'Desfazer', callback: () => {} }
             
-            const colors = {
-                success: 'bg-emerald-600',
-                error: 'bg-red-600',
-                warning: 'bg-amber-500',
-                info: 'bg-indigo-600'
-            };
-            
             const icons = {
                 success: 'fa-check-circle',
                 error: 'fa-times-circle',
@@ -725,7 +881,8 @@
             };
             
             const toast = document.createElement('div');
-            toast.className = `${colors[type] || colors.info} text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px] max-w-sm pointer-events-auto transform transition-all duration-500 translate-y-4 opacity-0 border border-white/10`;
+            const toastType = ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info';
+            toast.className = `toast-notification toast-${toastType} text-white stay-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px] max-w-sm pointer-events-auto transform transition-all duration-500 translate-y-4 opacity-0 border border-white/10`;
             
             let actionHtml = '';
             if (action) {
@@ -740,7 +897,7 @@
                 <div class="p-2 bg-white/20 rounded-xl">
                     <i class="fa-solid ${icons[type] || icons.info} text-lg"></i>
                 </div>
-                <span class="text-sm font-medium flex-1">${message}</span>
+                <span class="text-sm font-medium flex-1 stay-white">${message}</span>
                 ${actionHtml}
                 <button onclick="this.parentElement.remove()" class="p-1 hover:bg-white/10 rounded-lg transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -814,4 +971,3 @@
     @stack('scripts')
 </body>
 </html>
-

@@ -97,10 +97,32 @@ class ProductionDashboardController extends Controller
         if ($request->has('filter_submitted')) {
             $selectedColumns = $request->get('columns', []);
         } else {
-            // Se não foi submetido (primeiro acesso), tenta pegar da sessão ou marca todos
+            // Se não foi submetido (primeiro acesso), tenta pegar da sessão ou usa os padrões
             $selectedColumns = session('production_dashboard_columns', []);
             if (empty($selectedColumns)) {
-                $selectedColumns = $allStatuses->pluck('id')->toArray();
+                // Colunas padrão específicas do fluxo de produção
+                $defaultStatusNames = [
+                    'Pendente',
+                    'Quando não assina',
+                    'Assinado',
+                    'Inicio',
+                    'Fila Corte',
+                    'Cortado',
+                    'Costura',
+                    'Costurar Novamente',
+                    'Personalização',
+                    'Limpeza',
+                    'Concluído'
+                ];
+                
+                $selectedColumns = $allStatuses->filter(function($status) use ($defaultStatusNames) {
+                    return in_array($status->name, $defaultStatusNames);
+                })->pluck('id')->toArray();
+                
+                // Se nenhum status padrão encontrado, usar todos
+                if (empty($selectedColumns)) {
+                    $selectedColumns = $allStatuses->pluck('id')->toArray();
+                }
             }
         }
         

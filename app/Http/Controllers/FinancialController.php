@@ -51,9 +51,22 @@ class FinancialController extends Controller
             // ->where('payments.remaining_amount', 0) // Apenas totalmente pagos
             ->whereBetween('orders.created_at', [$startDate, $endDate]);
 
-        // Apply store filter if applicable
+        // Apply store filter - users should only see their tenant's data
         if (!empty($storeIds)) {
             $baseQuery->whereIn('orders.store_id', $storeIds);
+        } else {
+            // If no specific storeIds, filter by user's tenant stores
+            $tenantId = $user->tenant_id ?? session('selected_tenant_id');
+            if ($tenantId) {
+                $tenantStoreIds = \App\Models\Store::where('tenant_id', $tenantId)->pluck('id')->toArray();
+                if (!empty($tenantStoreIds)) {
+                    $baseQuery->whereIn('orders.store_id', $tenantStoreIds);
+                } else {
+                    // No stores for this tenant, return nothing
+                    $baseQuery->whereRaw('1 = 0');
+                }
+            }
+            // Super admin without tenant sees all (no filter applied)
         }
 
         // Metrics

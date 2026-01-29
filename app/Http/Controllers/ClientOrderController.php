@@ -84,18 +84,43 @@ class ClientOrderController extends Controller
             'phone_primary' => $validated['client_phone'],
         ]);
 
-        // Buscar status "Fila de Impressão"
-        $filaImpressaoStatus = Status::where('name', 'Fila de Impressão')->first();
+        // Buscar status "Fila de Impressão" ou próximo status disponível
+        $tenantId = $order->tenant_id;
+        $filaImpressaoStatus = Status::where('tenant_id', $tenantId)
+            ->where(function($q) {
+                $q->where('name', 'Fila de Impressão')
+                  ->orWhere('name', 'Fila Impressão')
+                  ->orWhere('name', 'Impressão')
+                  ->orWhere('name', 'Confirmado');
+            })
+            ->where('name', '!=', 'Pendente')
+            ->orderByRaw("CASE 
+                WHEN name = 'Fila de Impressão' THEN 1
+                WHEN name = 'Impressão' THEN 2
+                WHEN name = 'Confirmado' THEN 3
+                ELSE 4 
+            END")
+            ->first();
+        
+        // Se não encontrar nenhum desses, buscar o primeiro status que NÃO seja Pendente ou Quando não assina
+        if (!$filaImpressaoStatus) {
+            $filaImpressaoStatus = Status::where('tenant_id', $tenantId)
+                ->whereNotIn('name', ['Pendente', 'Quando não assina'])
+                ->orderBy('position')
+                ->first();
+        }
+        
         $oldStatus = $order->status;
+        $newStatusId = $filaImpressaoStatus ? $filaImpressaoStatus->id : $order->status_id;
 
-        // Marcar pedido como confirmado pelo cliente e mover para "Fila de Impressão"
+        // Marcar pedido como confirmado pelo cliente e mover para o próximo status
         $order->update([
             'client_confirmed' => true,
             // Forçar o timezone para São Paulo ao salvar
             'client_confirmed_at' => now('America/Sao_Paulo'),
             'client_confirmation_notes' => $validated['confirmation_notes'],
             'is_draft' => false, // Se o cliente confirmou, o pedido sai do rascunho
-            'status_id' => $filaImpressaoStatus ? $filaImpressaoStatus->id : $order->status_id,
+            'status_id' => $newStatusId,
         ]);
 
         // Registrar log de confirmação

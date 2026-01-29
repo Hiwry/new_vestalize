@@ -46,6 +46,24 @@ class ClientController extends Controller
 
     public function getProductOptionsWithParents(): JsonResponse
     {
+        $mapOption = function($item) {
+            $parentIds = $item->parents->pluck('id')->toArray();
+            if ($item->parent_id) {
+                $parentIds[] = $item->parent_id;
+            }
+            // Remove duplicates and re-index
+            $parentIds = array_values(array_unique($parentIds));
+
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'price' => $item->price,
+                'cost' => $item->cost,
+                'parent_id' => $item->parent_id, // Keep for backward compatibility
+                'parent_ids' => $parentIds,
+            ];
+        };
+
         $options = [
             'personalizacao' => ProductOption::where('type', 'personalizacao')->where('active', true)->orderBy('order')->get()->map(function($item) {
                 return [
@@ -53,61 +71,12 @@ class ClientController extends Controller
                     'name' => $item->name,
                 ];
             }),
-            'tecido' => ProductOption::with('parents')->where('type', 'tecido')->where('active', true)->orderBy('order')->get()->map(function($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'price' => $item->price,
-                    'cost' => $item->cost,
-                    'parent_ids' => $item->parents->pluck('id')->toArray(),
-                ];
-            }),
-            'tipo_tecido' => ProductOption::with('parents')->where('type', 'tipo_tecido')->where('active', true)->orderBy('order')->get()->map(function($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'price' => $item->price,
-                    'cost' => $item->cost,
-                    'parent_id' => $item->parent_id,
-                    'parent_ids' => $item->parents->pluck('id')->toArray(),
-                ];
-            }),
-            'cor' => ProductOption::with('parents')->where('type', 'cor')->where('active', true)->orderBy('order')->get()->map(function($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'price' => $item->price,
-                    'cost' => $item->cost,
-                    'parent_ids' => $item->parents->pluck('id')->toArray(),
-                ];
-            }),
-            'tipo_corte' => ProductOption::with('parents')->where('type', 'tipo_corte')->where('active', true)->orderBy('order')->get()->map(function($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'price' => $item->price,
-                    'cost' => $item->cost,
-                    'parent_ids' => $item->parents->pluck('id')->toArray(),
-                ];
-            }),
-            'detalhe' => ProductOption::with('parents')->where('type', 'detalhe')->where('active', true)->orderBy('order')->get()->map(function($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'price' => $item->price,
-                    'cost' => $item->cost,
-                    'parent_ids' => $item->parents->pluck('id')->toArray(),
-                ];
-            }),
-            'gola' => ProductOption::with('parents')->where('type', 'gola')->where('active', true)->orderBy('order')->get()->map(function($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'price' => $item->price,
-                    'cost' => $item->cost,
-                    'parent_ids' => $item->parents->pluck('id')->toArray(),
-                ];
-            }),
+            'tecido' => ProductOption::with('parents')->where('type', 'tecido')->where('active', true)->orderBy('order')->get()->map($mapOption),
+            'tipo_tecido' => ProductOption::with('parents')->where('type', 'tipo_tecido')->where('active', true)->orderBy('order')->get()->map($mapOption),
+            'cor' => ProductOption::with('parents')->where('type', 'cor')->where('active', true)->orderBy('order')->get()->map($mapOption),
+            'tipo_corte' => ProductOption::with('parents')->where('type', 'tipo_corte')->where('active', true)->orderBy('order')->get()->map($mapOption),
+            'detalhe' => ProductOption::with('parents')->where('type', 'detalhe')->where('active', true)->orderBy('order')->get()->map($mapOption),
+            'gola' => ProductOption::with('parents')->where('type', 'gola')->where('active', true)->orderBy('order')->get()->map($mapOption),
         ];
 
         return response()->json($options);

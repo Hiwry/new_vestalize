@@ -1,6 +1,21 @@
 @extends('layouts.admin')
 
 @section('content')
+@php
+    // Fallback defaults for production dashboard variables
+    // These are set by ProductionDashboardController but this view may also be used by DashboardController
+    $statuses = $statuses ?? collect();
+    $statusStats = $statusStats ?? [];
+    $ordersByStatus = $ordersByStatus ?? [];
+    $allStatuses = $allStatuses ?? collect();
+    $selectedColumns = $selectedColumns ?? [];
+    $deliveryOrders = $deliveryOrders ?? collect();
+    $totalOrders = $totalOrders ?? 0;
+    $period = $period ?? 'month';
+    $deliveryFilter = $deliveryFilter ?? 'week';
+    $startDate = $startDate ?? now()->startOfMonth()->format('Y-m-d');
+    $endDate = $endDate ?? now()->endOfMonth()->format('Y-m-d');
+@endphp
 <style>
 /* Animações Premium */
 @keyframes fadeInUp {
@@ -174,7 +189,7 @@
         <div class="glass-card p-1.5 sm:p-2 rounded-2xl flex flex-wrap items-center gap-1.5 sm:gap-2 animate-slide-in-right">
             <form method="GET" action="{{ route('production.dashboard') }}" id="dashboard-filter-form" class="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 <input type="hidden" name="filter_submitted" value="1">
-                <input type="hidden" name="delivery_filter" value="{{ $deliveryFilter ?? 'today' }}">
+                <input type="hidden" name="delivery_filter" value="{{ $deliveryFilter ?? 'week' }}">
                 
                 <div class="relative group">
                     <i class="fa-solid fa-calendar-days absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[9px] sm:text-[10px] group-hover:text-indigo-500 transition-colors"></i>
@@ -300,15 +315,15 @@
 
                 <div class="flex items-center gap-1 bg-gray-50/80 dark:bg-slate-800/80 p-1 rounded-xl sm:rounded-2xl backdrop-blur-sm">
                     <button onclick="changeDeliveryFilter('today')" 
-                            class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all {{ $deliveryFilter == 'today' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-md' : 'text-gray-400 hover:text-gray-600 dark:hover:text-slate-300' }}">
+                            class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all {{ ($deliveryFilter ?? 'week') == 'today' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-md' : 'text-gray-400 hover:text-gray-600 dark:hover:text-slate-300' }}">
                         Hoje
                     </button>
                     <button onclick="changeDeliveryFilter('week')" 
-                            class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all {{ $deliveryFilter == 'week' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-md' : 'text-gray-400 hover:text-gray-600 dark:hover:text-slate-300' }}">
+                            class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all {{ ($deliveryFilter ?? 'week') == 'week' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-md' : 'text-gray-400 hover:text-gray-600 dark:hover:text-slate-300' }}">
                         Semana
                     </button>
                     <button onclick="changeDeliveryFilter('month')" 
-                            class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all {{ $deliveryFilter == 'month' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-md' : 'text-gray-400 hover:text-gray-600 dark:hover:text-slate-300' }}">
+                            class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all {{ ($deliveryFilter ?? 'week') == 'month' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-md' : 'text-gray-400 hover:text-gray-600 dark:hover:text-slate-300' }}">
                         Mês
                     </button>
                 </div>

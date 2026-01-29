@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Models\OrderSublimation;
+use App\Models\PersonalizationSetting;
 use Illuminate\Support\Collection;
 
 class PersonalizationDiscountHelper
@@ -25,35 +26,23 @@ class PersonalizationDiscountHelper
             return $customizations;
         }
 
-        // Separar por tipo
-        $serigraphy = [];
-        $sublimationLocal = [];
-
+        // Agrupar por tipo de personalização (usa configurações)
+        $grouped = [];
         foreach ($itemCustomizations as $index => $custom) {
-            $type = strtoupper($custom['personalization_name'] ?? '');
-            
-            // SERIGRAFIA ou EMBORRACHADO
-            if (in_array($type, ['SERIGRAFIA', 'EMBORRACHADO'])) {
-                $serigraphy[$index] = $custom;
+            $typeKey = strtoupper(trim($custom['personalization_name'] ?? ''));
+            if ($typeKey === '') {
+                continue;
             }
-            // SUBLIMAÇÃO LOCAL (tem location)
-            elseif (!empty($custom['location'])) {
-                $sublimationLocal[$index] = $custom;
-            }
+            $grouped[$typeKey][$index] = $custom;
         }
 
-        // Aplicar descontos em SERIGRAFIA/EMBORRACHADO
-        if (count($serigraphy) >= 3) {
-            $serigraphy = self::applySessionSerigraphyDiscounts($serigraphy);
-            foreach ($serigraphy as $index => $custom) {
-                $customizations[$index] = $custom;
+        foreach ($grouped as $typeKey => $items) {
+            $setting = PersonalizationSetting::findByType($typeKey);
+            if (!$setting) {
+                continue;
             }
-        }
-
-        // Aplicar descontos em SUBLIMAÇÃO LOCAL
-        if (count($sublimationLocal) >= 2) {
-            $sublimationLocal = self::applySessionSublimationDiscounts($sublimationLocal);
-            foreach ($sublimationLocal as $index => $custom) {
+            $items = self::applySessionTypeDiscounts($items, $setting);
+            foreach ($items as $index => $custom) {
                 $customizations[$index] = $custom;
             }
         }
@@ -62,72 +51,29 @@ class PersonalizationDiscountHelper
     }
 
     /**
-     * Aplicar descontos em SERIGRAFIA/EMBORRACHADO (sessão)
+     * Aplicar descontos por tipo (sessão), usando configurações
      */
-    private static function applySessionSerigraphyDiscounts(array $items): array
+    private static function applySessionTypeDiscounts(array $items, PersonalizationSetting $setting): array
     {
         // Ordenar por unit_price (maior para menor)
         uasort($items, function($a, $b) {
             return ($b['unit_price'] ?? 0) <=> ($a['unit_price'] ?? 0);
         });
 
-        $sorted = array_values($items);
-        $originalKeys = array_keys($items);
         $result = [];
 
-        foreach ($sorted as $i => $item) {
-            $originalIndex = $originalKeys[$i];
-            
-            if ($i < 2) {
-                // Manter as 2 primeiras sem desconto
-                $item['discount_applied'] = 0;
-                $result[$originalIndex] = $item;
-            } else {
-                // Aplicar 50% de desconto
-                $unitPrice = $item['unit_price'] ?? 0;
-                $quantity = $item['quantity'] ?? 1;
-                
-                $item['discount_applied'] = 50;
-                $item['final_price'] = ($unitPrice * $quantity) * 0.5;
-                
-                $result[$originalIndex] = $item;
-            }
-        }
+        $applicationNumber = 1;
+        foreach ($items as $originalIndex => $item) {
+            $unitPrice = $item['unit_price'] ?? 0;
+            $quantity = $item['quantity'] ?? 1;
+            $discountPercent = $setting->getDiscountForApplication($applicationNumber);
+            $discountPercent = max(0, min(100, (float) $discountPercent));
 
-        return $result;
-    }
+            $item['discount_applied'] = $discountPercent;
+            $item['final_price'] = ($unitPrice * $quantity) * (1 - ($discountPercent / 100));
+            $result[$originalIndex] = $item;
 
-    /**
-     * Aplicar descontos em SUBLIMAÇÃO LOCAL (sessão)
-     */
-    private static function applySessionSublimationDiscounts(array $items): array
-    {
-        // Ordenar por unit_price (maior para menor)
-        uasort($items, function($a, $b) {
-            return ($b['unit_price'] ?? 0) <=> ($a['unit_price'] ?? 0);
-        });
-
-        $sorted = array_values($items);
-        $originalKeys = array_keys($items);
-        $result = [];
-
-        foreach ($sorted as $i => $item) {
-            $originalIndex = $originalKeys[$i];
-            
-            if ($i === 0) {
-                // Manter a primeira sem desconto
-                $item['discount_applied'] = 0;
-                $result[$originalIndex] = $item;
-            } else {
-                // Aplicar 50% de desconto
-                $unitPrice = $item['unit_price'] ?? 0;
-                $quantity = $item['quantity'] ?? 1;
-                
-                $item['discount_applied'] = 50;
-                $item['final_price'] = ($unitPrice * $quantity) * 0.5;
-                
-                $result[$originalIndex] = $item;
-            }
+            $applicationNumber++;
         }
 
         return $result;
@@ -154,28 +100,20 @@ class PersonalizationDiscountHelper
             return;
         }
 
-        // Separar por tipo (usando application_type do novo schema)
-        $serigraphyTypes = ['SERIGRAFIA', 'EMBORRACHADO'];
-        
-        // Agrupar personalizações por tipo
-        $serigraphy = $personalizations->filter(function($p) use ($serigraphyTypes) {
-            $appType = strtoupper($p->application_type ?? '');
-            return in_array($appType, $serigraphyTypes);
+        // Agrupar por tipo de aplicação e aplicar descontos conforme configuração
+        $grouped = $personalizations->groupBy(function($p) {
+            return strtoupper(trim($p->application_type ?? ''));
         });
 
-        $sublimationLocal = $personalizations->filter(function($p) {
-            // Sublimação LOCAL é quando tem location_id (diferente de SUB. TOTAL que não tem)
-            return !empty($p->location_id) || !empty($p->location_name);
-        });
-
-        // Aplicar descontos em SERIGRAFIA/EMBORRACHADO
-        if ($serigraphy->count() >= 3) {
-            self::applySerigraphyDiscounts($serigraphy);
-        }
-
-        // Aplicar descontos em SUBLIMAÇÃO LOCAL
-        if ($sublimationLocal->count() >= 2) {
-            self::applySublimationLocalDiscounts($sublimationLocal);
+        foreach ($grouped as $typeKey => $group) {
+            if ($typeKey === '') {
+                continue;
+            }
+            $setting = PersonalizationSetting::findByType($typeKey);
+            if (!$setting) {
+                continue;
+            }
+            self::applyTypeDiscounts($group, $setting);
         }
 
         // Recalcular total do item
@@ -183,64 +121,26 @@ class PersonalizationDiscountHelper
     }
 
     /**
-     * Aplicar descontos em SERIGRAFIA/EMBORRACHADO
-     * Mantém 2 de maior valor, aplica 50% nas demais
+     * Aplicar descontos por tipo, usando configuração
      */
-    private static function applySerigraphyDiscounts(Collection $personalizations)
+    private static function applyTypeDiscounts(Collection $personalizations, PersonalizationSetting $setting)
     {
         $sorted = $personalizations->sortByDesc('unit_price')->values();
 
         foreach ($sorted as $index => $personalization) {
-            if ($index < 2) {
-                // Manter as 2 primeiras (maior valor) sem desconto
-                $personalization->update([
-                    'discount_percent' => 0,
-                    'final_price' => $personalization->unit_price * $personalization->quantity,
-                ]);
-            } else {
-                // Aplicar 50% de desconto nas demais
-                $priceWithDiscount = $personalization->unit_price * 0.5;
-                $personalization->update([
-                    'discount_percent' => 50,
-                    'final_price' => $priceWithDiscount * $personalization->quantity,
-                ]);
-            }
+            $applicationNumber = $index + 1;
+            $discountPercent = $setting->getDiscountForApplication($applicationNumber);
+            $discountPercent = max(0, min(100, (float) $discountPercent));
+            $priceWithDiscount = $personalization->unit_price * (1 - ($discountPercent / 100));
+            $personalization->update([
+                'discount_percent' => $discountPercent,
+                'final_price' => $priceWithDiscount * $personalization->quantity,
+            ]);
         }
 
-        \Log::info('✅ Descontos SERIGRAFIA/EMBORRACHADO aplicados', [
+        \Log::info('✅ Descontos aplicados por tipo', [
+            'type' => $setting->personalization_type,
             'total' => $personalizations->count(),
-            'com_desconto' => $personalizations->count() - 2,
-        ]);
-    }
-
-    /**
-     * Aplicar descontos em SUBLIMAÇÃO LOCAL
-     * Mantém 1 de maior valor, aplica 50% nas demais
-     */
-    private static function applySublimationLocalDiscounts(Collection $personalizations)
-    {
-        $sorted = $personalizations->sortByDesc('unit_price')->values();
-
-        foreach ($sorted as $index => $personalization) {
-            if ($index === 0) {
-                // Manter a primeira (maior valor) sem desconto
-                $personalization->update([
-                    'discount_percent' => 0,
-                    'final_price' => $personalization->unit_price * $personalization->quantity,
-                ]);
-            } else {
-                // Aplicar 50% de desconto nas demais
-                $priceWithDiscount = $personalization->unit_price * 0.5;
-                $personalization->update([
-                    'discount_percent' => 50,
-                    'final_price' => $priceWithDiscount * $personalization->quantity,
-                ]);
-            }
-        }
-
-        \Log::info('✅ Descontos SUBLIMAÇÃO LOCAL aplicados', [
-            'total' => $personalizations->count(),
-            'com_desconto' => $personalizations->count() - 1,
         ]);
     }
 
@@ -283,4 +183,3 @@ class PersonalizationDiscountHelper
         ]);
     }
 }
-

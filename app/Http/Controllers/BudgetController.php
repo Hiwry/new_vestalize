@@ -31,6 +31,27 @@ class BudgetController extends Controller
     {
         $user = Auth::user();
         
+        // AUTO-FIX: Check if quick budget columns are missing and add them
+        // This is a self-healing block to fix the DB without needing artisan
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('budgets', 'is_quick')) {
+                \Illuminate\Support\Facades\Schema::table('budgets', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->boolean('is_quick')->default(false)->after('status');
+                    $table->string('contact_name')->nullable()->after('is_quick');
+                    $table->string('contact_phone')->nullable()->after('contact_name');
+                    $table->integer('deadline_days')->default(15)->after('contact_phone');
+                    $table->string('product_internal')->nullable()->after('deadline_days');
+                    $table->string('technique')->nullable()->after('product_internal');
+                    $table->integer('quantity')->nullable()->after('technique');
+                    $table->decimal('unit_price', 10, 2)->nullable()->after('quantity');
+                    $table->foreignId('client_id')->nullable()->change();
+                });
+                \Illuminate\Support\Facades\Log::info('Budgets table auto-fixed: added is_quick and other fields.');
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to auto-fix budgets table: ' . $e->getMessage());
+        }
+
         $query = Budget::with(['client', 'user', 'items']);
         
         // Aplicar filtros baseados no role do usuário
@@ -269,7 +290,7 @@ class BudgetController extends Controller
     public function items(Request $request)
     {
         $action = $request->input('action');
-        \Log::info('🔍 BUDGET ITEMS ACTION:', ['action' => $action, 'editing_item_id' => $request->input('editing_item_id'), 'all' => $request->all()]);
+
         // Se for continuar para próxima etapa
         if ($action === 'continue') {
             $items = session('budget_items', []);

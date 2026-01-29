@@ -1245,6 +1245,17 @@ html:not(.dark) .avento-theme .border-white\/10 {
     border-color: rgba(124, 58, 237, 0.2) !important;
 }
 
+/* Force clean white background in light mode (avoid gray flash on SPA navigation) */
+html.avento-theme:not(.dark) {
+    --background: #ffffff !important;
+}
+html.avento-theme:not(.dark) body,
+html.avento-theme:not(.dark) #main-content,
+html.avento-theme:not(.dark) main {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+}
+
 .profile-avatar-custom {
     flex-shrink: 0;
     display: flex;

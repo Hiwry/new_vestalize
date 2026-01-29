@@ -101,7 +101,8 @@ class KanbanController extends Controller
             if (Auth::user()->isVendedor()) {
                 $query->byUser(Auth::id());
             }
-            // Aplicar filtro de loja
+
+            // Apply store filter (from main branch)
             StoreHelper::applyStoreFilter($query);
             
             // Aplicar filtro de personalização na contagem também
