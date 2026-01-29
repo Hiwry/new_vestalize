@@ -13,17 +13,26 @@ class StatusController extends Controller
 {
     public function index(): View
     {
+        if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
+            abort(403, 'Acesso negado.');
+        }
         $statuses = Status::withCount('orders')->orderBy('position')->get();
         return view('kanban.columns.index', compact('statuses'));
     }
 
     public function create(): View
     {
+        if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
+            abort(403, 'Acesso negado.');
+        }
         return view('kanban.columns.create');
     }
 
     public function store(Request $request): RedirectResponse
     {
+        if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
+            abort(403, 'Acesso negado.');
+        }
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:statuses,name',
             'color' => 'required|string|regex:/^#[0-9A-Fa-f]{6}$/',
@@ -41,11 +50,17 @@ class StatusController extends Controller
 
     public function edit(Status $status): View
     {
+        if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
+            abort(403, 'Acesso negado.');
+        }
         return view('kanban.columns.edit', compact('status'));
     }
 
     public function update(Request $request, Status $status): RedirectResponse
     {
+        if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
+            abort(403, 'Acesso negado.');
+        }
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:statuses,name,' . $status->id,
             'color' => 'required|string|regex:/^#[0-9A-Fa-f]{6}$/',
@@ -59,6 +74,9 @@ class StatusController extends Controller
 
     public function destroy(Status $status): RedirectResponse
     {
+        if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
+            abort(403, 'Acesso negado.');
+        }
         // Verificar se há pedidos nesta coluna
         $ordersCount = $status->orders()->count();
         
@@ -79,6 +97,9 @@ class StatusController extends Controller
 
     public function reorder(Request $request)
     {
+        if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
+            return response()->json(['success' => false, 'message' => 'Acesso negado.'], 403);
+        }
         try {
             $validated = $request->validate([
                 'statuses' => 'required|array',
@@ -142,6 +163,9 @@ class StatusController extends Controller
 
     public function moveOrders(Request $request, Status $status): RedirectResponse
     {
+        if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
+            abort(403, 'Acesso negado.');
+        }
         $validated = $request->validate([
             'target_status_id' => 'required|integer|exists:statuses,id',
         ]);

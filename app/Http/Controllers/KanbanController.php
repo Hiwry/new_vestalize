@@ -237,11 +237,11 @@ class KanbanController extends Controller
 
     public function updateStatus(Request $request): JsonResponse
     {
-        // Apenas administradores podem atualizar status
-        if (!Auth::user()->isAdmin()) {
+        // Apenas administradores e usuários de produção podem atualizar status
+        if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Acesso negado. Apenas administradores podem alterar status dos pedidos.'
+                'message' => 'Acesso negado. Apenas administradores e usuários de produção podem alterar status dos pedidos.'
             ], 403);
         }
 
