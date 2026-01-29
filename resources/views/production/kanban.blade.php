@@ -132,7 +132,7 @@
 @endpush
 
 @section('content')
-    <div class="max-w-[1800px] mx-auto">
+    <div class="max-w-[1800px] mx-auto pb-24">
 
 
         <!-- Preparar dados para o calendário -->
@@ -471,6 +471,7 @@
                         @endforeach
                     </div>
                 </div>
+            @endforeach
             <!-- End Kanban View -->
             </div>
             
@@ -1203,4 +1204,6 @@
             }
         });
     </script>
+    </div>
+    <x-kanban-bottom-nav active-type="production" />
 @endsection

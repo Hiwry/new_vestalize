@@ -21,38 +21,6 @@ class StockDashboardController extends Controller
     public function index(Request $request): View
     {
         $user = Auth::user();
-        
-        // Comentando verificação de Super Admin que estava retornando zeros
-        // O dashboard deve mostrar dados mesmo para Super Admins
-        /*
-        if ($user->tenant_id === null) {
-            return view('stocks.dashboard', [
-                'totalItems' => 0,
-                'lowStockCount' => 0,
-                'pendingRequests' => 0,
-                'totalSKUs' => 0,
-                'stockByStore' => [],
-                'movementsData' => [
-                    'labels' => [],
-                    'entries' => [],
-                    'exits' => [],
-                ],
-                'lowStockItems' => collect([]),
-                'recentActivity' => collect([]),
-                'recentActivity' => collect([]),
-                'isSuperAdmin' => true,
-                'vendedores' => collect([]),
-                'fabrics' => collect([]),
-                'colors' => collect([]),
-                'vendorId' => null,
-                'fabricId' => null,
-                'colorId' => null,
-                'period' => 'month',
-                'startDate' => now(),
-                'endDate' => now()
-            ]);
-        }
-        */
 
         if (!$user || (!$user->isAdminGeral() && !$user->isEstoque())) {
             abort(403, 'Acesso negado. Apenas admin geral ou estoque podem acessar o dashboard de estoque.');
@@ -60,165 +28,182 @@ class StockDashboardController extends Controller
 
         $userStoreIds = StoreHelper::getUserStoreIds();
         
-        // Filtros de Período
-        $period = $request->get('period', 'month');
-        $startDate = null;
-        $endDate = null;
-
-        switch ($period) {
-            case 'today':
-                $startDate = Carbon::today();
-                $endDate = Carbon::today()->endOfDay();
-                break;
-            case 'week':
-                $startDate = Carbon::now()->startOfWeek();
-                $endDate = Carbon::now()->endOfWeek();
-                break;
-            case 'year':
-                $startDate = Carbon::now()->startOfYear();
-                $endDate = Carbon::now()->endOfYear();
-                break;
-            case 'custom':
-                if ($request->filled('start_date') && $request->filled('end_date')) {
-                    $startDate = Carbon::parse($request->get('start_date'))->startOfDay();
-                    $endDate = Carbon::parse($request->get('end_date'))->endOfDay();
-                } else {
-                    $startDate = Carbon::now()->subDays(30)->startOfDay();
-                    $endDate = Carbon::now();
-                }
-                break;
-            default: // month
-                $startDate = Carbon::now()->startOfMonth();
-                $endDate = Carbon::now()->endOfMonth();
-                break;
-        }
-
-        // Outros Filtros
-        $vendorId = $request->get('vendor_id');
-        $fabricId = $request->get('fabric_id');
-        $colorId = $request->get('color_id');
-
-        // Base Query Scope
+        // Filtros Globais
+        $selectedStoreId = $request->get('store_id');
+        
+        // Queries Base
         $stockQuery = Stock::query();
-        $historyQuery = StockHistory::whereBetween('action_date', [$startDate, $endDate]);
         $requestQuery = StockRequest::query();
+        $historyQuery = StockHistory::query();
 
+        // Aplicar restrição de lojas do usuário
         if (!empty($userStoreIds)) {
             $stockQuery->whereIn('store_id', $userStoreIds);
-            $historyQuery->whereIn('store_id', $userStoreIds);
             $requestQuery->where(function($q) use ($userStoreIds) {
                 $q->whereIn('requesting_store_id', $userStoreIds)
                   ->orWhereIn('target_store_id', $userStoreIds);
             });
+            $historyQuery->whereIn('store_id', $userStoreIds);
         }
 
-        // Aplicar Filtros Avançados
-        if ($vendorId) {
-            $historyQuery->where('user_id', $vendorId);
-            $requestQuery->where('requested_by', $vendorId);
+        // Aplicar filtro de loja selecionada
+        if ($selectedStoreId) {
+            $stockQuery->where('store_id', $selectedStoreId);
+            $requestQuery->where(function($q) use ($selectedStoreId) {
+                $q->where('requesting_store_id', $selectedStoreId)
+                  ->orWhere('target_store_id', $selectedStoreId);
+            });
+            $historyQuery->where('store_id', $selectedStoreId);
         }
 
-        if ($fabricId) {
-            $stockQuery->where('fabric_id', $fabricId);
-            $historyQuery->whereHas('stock', function($q) use ($fabricId) { $q->where('fabric_id', $fabricId); });
-            $requestQuery->where('fabric_id', $fabricId);
+        // --- Cards Principais ---
+        
+        // Total de Itens (Quantidade bruta total de peças)
+        $totalQuantidade = (clone $stockQuery)->sum('quantity');
+        
+        // Total de Itens em Estoque (Quantidade de registros/SKUs)
+        $totalItensEstoque = (clone $stockQuery)->count();
+        
+        // Total Reservado
+        $totalReservado = (clone $stockQuery)->sum('reserved_quantity');
+        
+        // Total Disponível (Quantidade - Reservado)
+        // Como o cálculo é feito registro a registro, fazemos via PHP ou SUM(quantity - reserved_quantity)
+        $totalDisponivel = (clone $stockQuery)->selectRaw('SUM(quantity - reserved_quantity) as total')->value('total') ?? 0;
+        
+        // Estoque Baixo
+        $estoqueBaixo = (clone $stockQuery)->whereRaw('quantity <= min_stock')->count();
+        
+        // --- Solicitações ---
+        $solicitacoesPendentes = (clone $requestQuery)->where('status', 'pendente')->count();
+        $solicitacoesHoje = (clone $requestQuery)->whereDate('created_at', Carbon::today())->count();
+        $solicitacoesAprovadas = (clone $requestQuery)->where('status', 'aprovado')->count();
+        $solicitacoesEmTransferencia = (clone $requestQuery)->where('status', 'em_transferencia')->count();
+
+        // --- Listas e Tabelas ---
+
+        // Estoque por Loja
+        // Se usuário filtrou por uma loja específica, só mostra ela. Se não, mostra todas (respeitando permissões)
+        $storesQuery = Store::query();
+        if (!empty($userStoreIds)) {
+            $storesQuery->whereIn('id', $userStoreIds);
+        }
+        $stores = $storesQuery->get();
+        
+        $estoquePorLoja = $stores->map(function($store) use ($stockQuery) {
+            // Nota: Se houver filtro de loja global selecionado, a query $stockQuery já está filtrada.
+            // Aqui queremos mostrar status geral das lojas, então idealmente seria uma query fresca ou adaptada.
+            // Para "Ver todas as lojas" fazer sentido mesmo com filtro aplicado, talvez devêssemos usar uma query separada.
+            // Mas seguindo a lógica do filtro: se filtrou loja X, a tabela mostra apenas X ou dados filtrados.
+            // Vamos fazer uma query específica por loja para garantir dados corretos de cada linha.
+            
+            $storeStock = Stock::where('store_id', $store->id)->get();
+            
+            return (object) [
+                'name' => $store->name,
+                'total_itens' => $storeStock->count(),
+                'total_quantidade' => $storeStock->sum('quantity'),
+                'total_disponivel' => $storeStock->sum('available_quantity')
+            ];
+        });
+
+        // Se houver filtro de loja, filtramos a lista visual também (opcional, mas faz sentido na UI)
+        if ($selectedStoreId) {
+            $estoquePorLoja = $estoquePorLoja->filter(function($item) use ($selectedStoreId, $stores) {
+                $store = $stores->firstWhere('name', $item->name);
+                return $store && $store->id == $selectedStoreId;
+            });
         }
 
-        if ($colorId) {
-            $stockQuery->where('color_id', $colorId);
-            $historyQuery->whereHas('stock', function($q) use ($colorId) { $q->where('color_id', $colorId); });
-            $requestQuery->where('color_id', $colorId);
-        }
-
-        // 1. KPI Cards
-        $totalItems = (clone $stockQuery)->sum('quantity');
-        $lowStockCount = (clone $stockQuery)->whereRaw('quantity <= min_stock')->count();
-        $pendingRequests = (clone $requestQuery)->where('status', 'pendente')->count();
-        $totalSKUs = (clone $stockQuery)->count();
-
-        // 2. Charts Data
-        $stockByStore = (clone $stockQuery)
-            ->join('stores', 'stocks.store_id', '=', 'stores.id')
-            ->select('stores.name', DB::raw('SUM(stocks.quantity) as total'))
-            ->groupBy('stores.name')
-            ->pluck('total', 'name')
-            ->toArray();
-
-        $movementsData = $this->getMovementChartData($historyQuery, $startDate, $endDate);
-
-        // 3. Lists
-        $lowStockItems = (clone $stockQuery)
-            ->with(['store', 'fabric', 'cutType', 'color'])
-            ->whereRaw('quantity <= min_stock')
-            ->orderBy('quantity', 'asc')
+        // Produtos Mais Solicitados (últimos 30 dias)
+        $produtosMaisSolicitados = (clone $requestQuery)
+            ->with(['stock.fabric', 'stock.color', 'stock.cutType']) // Carregar relações através do estoque
+            ->select('stock_id', DB::raw('SUM(requested_quantity) as total_solicitado'))
+            ->where('created_at', '>=', Carbon::now()->subDays(30))
+            ->groupBy('stock_id')
+            ->orderByDesc('total_solicitado')
             ->limit(5)
+            ->get()
+            ->map(function($item) {
+                // Mapear para estrutura plana esperada pela view
+                $stock = $item->stock;
+                if (!$stock) return null;
+                
+                return (object) [
+                    'fabric' => $stock->fabric,
+                    'color' => $stock->color,
+                    'cutType' => $stock->cutType,
+                    'size' => $stock->size,
+                    'total_solicitado' => $item->total_solicitado
+                ];
+            })
+            ->filter(); // Remover nulos
+
+        // Solicitações Recentes
+        $solicitacoesRecentes = (clone $requestQuery)
+            ->with(['requestingStore', 'targetStore', 'fabric', 'color', 'cutType'])
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
             ->get();
 
-        $recentActivity = (clone $historyQuery)
-            ->with(['user', 'store', 'cutType'])
+        // Movimentações Recentes (últimas 24h ou últimas 10 gerais)
+        // A view diz "Movimentações Recentes (24h)" mas mostra lista. Vamos pegar as últimas gerais para garantir dados.
+        $movimentacoesRecentes = (clone $historyQuery)
+            ->with(['stock.fabric', 'stock.color', 'stock.cutType', 'user'])
             ->orderBy('action_date', 'desc')
             ->limit(10)
             ->get();
 
-        // Data for Filters
-        $vendedores = \App\Models\User::whereIn('role', ['vendedor', 'admin_loja', 'admin'])->get();
-        $fabrics = \App\Models\ProductOption::where('type', 'tecido')->get();
-        $colors = \App\Models\ProductOption::where('type', 'cor')->get();
+        // --- Gráficos ---
 
-        return view('stocks.dashboard', compact(
-            'totalItems',
-            'lowStockCount',
-            'pendingRequests',
-            'totalSKUs',
-            'stockByStore',
-            'movementsData',
-            'lowStockItems',
-            'recentActivity',
-            'period',
-            'startDate',
-            'endDate',
-            'vendedores',
-            'fabrics',
-            'colors',
-            'vendorId',
-            'fabricId',
-            'colorId'
-        ));
-    }
-
-    private function getMovementChartData($query, $startDate, $endDate)
-    {
-        $days = [];
-        $entries = [];
-        $exits = [];
-
-        // Determine how many days to show (up to 7 or the range)
-        $diffDays = $startDate->diffInDays($endDate);
-        if ($diffDays > 30) $diffDays = 30; // Cap at 30 days for chart readability
-
-        for ($i = $diffDays; $i >= 0; $i--) {
-            $currentDate = (clone $endDate)->subDays($i);
-            $dateStr = $currentDate->format('Y-m-d');
-            $label = $currentDate->format('d/m');
-            $days[] = $label;
-
-            $entries[] = (clone $query)
-                ->whereDate('action_date', $dateStr)
-                ->whereIn('action_type', ['entrada', 'devolucao', 'ajuste'])
-                ->where('quantity_change', '>', 0)
-                ->sum('quantity_change');
-
-            $exits[] = abs((clone $query)
-                ->whereDate('action_date', $dateStr)
-                ->whereIn('action_type', ['saida', 'perda', 'ajuste'])
-                ->where('quantity_change', '<', 0)
-                ->sum('quantity_change'));
+        // Solicitações por Status (Geral)
+        $solicitacoesPorStatusQuery = StockRequest::query();
+        if (!empty($userStoreIds)) {
+            $solicitacoesPorStatusQuery->where(function($q) use ($userStoreIds) {
+                $q->whereIn('requesting_store_id', $userStoreIds)
+                  ->orWhereIn('target_store_id', $userStoreIds);
+            });
         }
+        if ($selectedStoreId) {
+             $solicitacoesPorStatusQuery->where(function($q) use ($selectedStoreId) {
+                $q->where('requesting_store_id', $selectedStoreId)
+                  ->orWhere('target_store_id', $selectedStoreId);
+            });
+        }
+        
+        $solicitacoesPorStatus = $solicitacoesPorStatusQuery
+            ->select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
 
-        return [
-            'labels' => $days,
-            'entries' => $entries,
-            'exits' => $exits
-        ];
+        // Movimentações por Dia (Últimos 30 dias)
+        $movimentacoesPorDia = (clone $historyQuery)
+            ->select(DB::raw('DATE(action_date) as dia'), DB::raw('count(*) as total_movimentacoes'))
+            ->where('action_date', '>=', Carbon::now()->subDays(30))
+            ->groupBy('dia')
+            ->orderBy('dia')
+            ->get();
+
+        return view('dashboard.estoque', compact(
+            'stores',
+            'selectedStoreId',
+            'totalItemEstoque', // Corrigido nome variável na view se necessário? View usa $totalItensEstoque
+            'totalItensEstoque',
+            'totalQuantidade',
+            'totalReservado',
+            'totalDisponivel',
+            'estoqueBaixo',
+            'solicitacoesPendentes',
+            'solicitacoesHoje',
+            'solicitacoesAprovadas',
+            'solicitacoesEmTransferencia',
+            'estoquePorLoja',
+            'produtosMaisSolicitados',
+            'solicitacoesRecentes',
+            'movimentacoesRecentes',
+            'solicitacoesPorStatus',
+            'movimentacoesPorDia'
+        ));
     }
 }

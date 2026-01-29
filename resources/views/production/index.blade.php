@@ -14,9 +14,23 @@
         @endif
 
         <!-- Cabeçalho -->
-        <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Gerenciamento de Pedidos - Produção</h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-1">Visualize e gerencie pedidos por período e tipo de personalização</p>
+        <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 italic tracking-tighter">Lista de Pedidos</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Gerencie e acompanhe o pipeline de produção</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('orders.wizard.start') }}" 
+                   class="inline-flex items-center px-6 py-3 bg-[#7c3aed] text-white rounded-xl font-bold hover:bg-[#6d28d9] transition shadow-lg shadow-purple-500/20">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Novo Pedido
+                </a>
+                <a href="{{ route('kanban.index') }}" 
+                   class="inline-flex items-center px-6 py-3 bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-200 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-white/10 transition border border-gray-200 dark:border-white/10">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
+                    Ver em Kanban
+                </a>
+            </div>
         </div>
 
         <!-- Filtros -->

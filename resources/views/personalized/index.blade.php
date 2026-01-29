@@ -136,7 +136,53 @@
                 <p class="text-xs text-gray-500 mt-1">Deixe em branco para usar o preço da tabela.</p>
             </div>
             
+            <div id="modal-addons-wrapper" class="hidden">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Adicionais</label>
+                <div id="modal-addons-container" class="space-y-2 bg-gray-50 dark:bg-gray-700 p-3 rounded-lg max-h-40 overflow-y-auto">
+                    <!-- Checkboxes will be injected here -->
+                </div>
+            </div>
+
             <button onclick="confirmAddToCart()" class="w-full py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-xl font-bold">Adicionar ao Carrinho</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Finalizar Pedido -->
+<div id="checkout-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Finalizar Pedido</h3>
+            <button onclick="closeCheckoutModal()" class="text-gray-500 hover:text-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <div class="p-6 space-y-4">
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Forma de Pagamento</label>
+                <select id="checkout-payment-method" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm dark:text-white">
+                    <option value="pix">Pix</option>
+                    <option value="dinheiro">Dinheiro</option>
+                    <option value="cartao_credito">Cartão de Crédito</option>
+                    <option value="cartao_debito">Cartão de Débito</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Desconto (R$)</label>
+                <input type="number" id="checkout-discount" value="0" step="0.01" min="0" class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Observações do Pedido</label>
+                <textarea id="checkout-notes" rows="3" placeholder="Ex: Entregar amanhã..." class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+            </div>
+            
+            <button onclick="confirmCheckout()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold shadow-lg shadow-green-200 dark:shadow-none transition-all active:scale-[0.99]">
+                Confirmar Venda
+            </button>
         </div>
     </div>
 </div>
@@ -180,10 +226,41 @@
         });
     }
 
-    function openModal(id, name, price) {
+    function openModal(id, name, price, addons = []) {
         document.getElementById('modal-product-id').value = id;
         document.getElementById('modal-title').textContent = name;
         document.getElementById('modal-price').value = price; // Suggested price
+        
+        // Render Addons
+        const addonsWrapper = document.getElementById('modal-addons-wrapper');
+        const addonsContainer = document.getElementById('modal-addons-container');
+        addonsContainer.innerHTML = '';
+        
+        if (addons && addons.length > 0) {
+            addonsWrapper.classList.remove('hidden');
+            addons.forEach(addon => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded cursor-pointer';
+                div.onclick = (e) => {
+                    if(e.target.type !== 'checkbox') {
+                        const cb = div.querySelector('input');
+                        cb.checked = !cb.checked;
+                    }
+                };
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" value="${addon.id}" data-price="${addon.price}" data-name="${addon.name}" class="addon-checkbox w-4 h-4 text-pink-600 rounded border-gray-300 focus:ring-pink-500">
+                        <span class="text-sm text-gray-700 dark:text-gray-200">${addon.name}</span>
+                    </div>
+                    <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">+ R$ ${parseFloat(addon.price).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+                `;
+                addonsContainer.appendChild(div);
+            });
+        } else {
+            addonsWrapper.classList.add('hidden');
+        }
+
         document.getElementById('add-item-modal').classList.remove('hidden');
     }
 
@@ -195,8 +272,17 @@
         const productId = document.getElementById('modal-product-id').value;
         const quantity = document.getElementById('modal-quantity').value;
         const note = document.getElementById('modal-notes').value;
-        const clientName = document.getElementById('modal-client-name').value; // Nome na estampa
+        const clientName = document.getElementById('modal-client-name').value;
         const price = document.getElementById('modal-price').value;
+
+        const selectedAddons = [];
+        document.querySelectorAll('.addon-checkbox:checked').forEach(cb => {
+            selectedAddons.push({
+                id: cb.value,
+                name: cb.dataset.name,
+                price: cb.dataset.price
+            });
+        });
 
         fetch('{{ route("personalized.cart.add") }}', {
             method: 'POST',
@@ -209,13 +295,14 @@
                 quantity: quantity,
                 customization_note: note,
                 client_name: clientName,
-                price: price
+                price: price,
+                addons: selectedAddons
             })
         })
         .then(response => response.json())
         .then(data => {
             if(data.success) {
-                location.reload(); // Simple reload for now to update cart
+                location.reload(); 
             } else {
                 alert('Erro ao adicionar item');
             }
@@ -231,10 +318,29 @@
     }
 
     function checkout() {
+        const cartTotal = parseFloat(document.getElementById('cart-total').innerText.replace('R$', '').replace('.', '').replace(',', '.').trim());
+        if(cartTotal <= 0) {
+            alert('Carrinho vazio!');
+            return;
+        }
+        document.getElementById('checkout-modal').classList.remove('hidden');
+    }
+
+    function closeCheckoutModal() {
+        document.getElementById('checkout-modal').classList.add('hidden');
+    }
+
+    function confirmCheckout() {
         const clientId = document.getElementById('client-select').value;
-        // Simple prompt for now
-        const method = prompt("Forma de Pagamento (pix, dinheiro, cartao):", "pix");
-        if(!method) return;
+        const method = document.getElementById('checkout-payment-method').value;
+        const discount = document.getElementById('checkout-discount').value;
+        const notes = document.getElementById('checkout-notes').value;
+
+        // Show loading state
+        const btn = document.querySelector('#checkout-modal button');
+        const originalText = btn.innerText;
+        btn.innerText = 'Processando...';
+        btn.disabled = true;
 
         fetch('{{ route("personalized.checkout") }}', {
             method: 'POST',
@@ -244,7 +350,9 @@
             },
             body: JSON.stringify({
                 client_id: clientId,
-                payment_method: method
+                payment_method: method,
+                discount: discount,
+                notes: notes
             })
         })
         .then(response => response.json())
@@ -254,7 +362,15 @@
                 location.reload();
             } else {
                 alert('Erro: ' + data.message);
+                btn.innerText = originalText;
+                btn.disabled = false;
             }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Erro ao processar venda.');
+            btn.innerText = originalText;
+            btn.disabled = false;
         });
     }
 </script>

@@ -15,6 +15,7 @@ class Status extends Model
         'name',
         'color',
         'position',
+        'type',
     ];
 
     public function orders(): HasMany

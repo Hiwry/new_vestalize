@@ -60,6 +60,7 @@ class Order extends Model
         'last_updated_at',
         'is_event',
         'stock_status',
+        'origin',
     ];
 
     /**

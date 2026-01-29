@@ -19,6 +19,19 @@
                         @if(!empty($item['customization_note']))
                            <p><strong>Obs:</strong> {{ $item['customization_note'] }}</p>
                         @endif
+                        @if(!empty($item['addons']))
+                           <div class="mt-1 pt-1 border-t border-gray-200 dark:border-gray-600">
+                               <p class="font-semibold text-[10px] uppercase text-gray-400">Adicionais:</p>
+                               <ul class="space-y-0.5">
+                                   @foreach($item['addons'] as $addon)
+                                       <li class="flex justify-between">
+                                           <span>{{ $addon['name'] }}</span>
+                                           <span>+R$ {{ number_format($addon['price'], 2, ',', '.') }}</span>
+                                       </li>
+                                   @endforeach
+                               </ul>
+                           </div>
+                        @endif
                     </div>
                 @endif
             </div>

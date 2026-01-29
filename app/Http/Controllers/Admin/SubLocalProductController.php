@@ -144,15 +144,18 @@ class SubLocalProductController extends Controller
     {
         // Converter vírgula
         $request->merge([
-            'price' => str_replace(',', '.', $request->input('price', '0')),
+            'addon_price' => str_replace(',', '.', $request->input('addon_price', '0')),
         ]);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric',
+            'addon_name' => 'required|string|max:255',
+            'addon_price' => 'required|numeric',
         ]);
 
-        $subLocalProduct->addons()->create($validated);
+        $subLocalProduct->addons()->create([
+            'name' => $validated['addon_name'],
+            'price' => $validated['addon_price']
+        ]);
 
         return back()->with('success', 'Adicional adicionado!');
     }

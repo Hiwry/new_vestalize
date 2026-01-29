@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Carbon\Carbon;
 
 class KanbanController extends Controller
 {
@@ -30,23 +31,73 @@ class KanbanController extends Controller
         $search = $request->get('search');
         $personalizationType = $request->get('personalization_type');
         $deliveryDateFilter = $request->get('delivery_date');
+        $viewType = $request->get('type', 'production'); // 'production' or 'personalized'
+        if (!$viewType || !in_array($viewType, ['production', 'personalized'])) {
+            $viewType = 'production';
+        }
+        $period = $request->get('period', 'week'); // Default: semana
+
+        // Date Logic
+        if ($period === 'custom') {
+            $startDate = $request->get('start_date');
+            $endDate = $request->get('end_date');
+        } else {
+            $startDate = null;
+            $endDate = null;
+        }
+
+        if (!$startDate || !$endDate) {
+            $now = Carbon::now();
+            switch ($period) {
+                case 'day':
+                    $startDate = $now->format('Y-m-d');
+                    $endDate = $now->format('Y-m-d');
+                    break;
+                case 'week':
+                    $startDate = $now->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
+                    $endDate = $now->endOfWeek(Carbon::FRIDAY)->format('Y-m-d');
+                    break;
+                case 'month':
+                    $startDate = $now->startOfMonth()->format('Y-m-d');
+                    $endDate = $now->endOfMonth()->format('Y-m-d');
+                    break;
+                default: // 'all'
+                    $startDate = null; // Or some default far past date if needed for calendar init, but null handles 'all' usually
+                    // For calendar init in blade: x-data="kanbanBoardProd(..., '{{ $startDate }}')"
+                    // If start date is null, let's default to today for the calendar Initial view
+                    if (!$startDate) $startDate = $now->format('Y-m-d');
+                    $endDate = null;
+                    break;
+            }
+        }
         
         // Determinar o tenant a ser usado para status
-        // Se for Super Admin sem tenant selecionado, usar tenant da primeira loja
         $activeTenantId = $user->tenant_id;
         if ($activeTenantId === null) {
             $activeTenantId = session('selected_tenant_id');
         }
         if ($activeTenantId === null) {
-            // Fallback: usar tenant_id da primeira loja encontrada ou tenant_id = 1
             $firstStore = \App\Models\Store::first();
             $activeTenantId = $firstStore ? $firstStore->tenant_id : 1;
         }
         
+        // Filter statuses by type
         $statuses = Status::where('tenant_id', $activeTenantId)
-            ->withCount(['orders' => function($query) use ($personalizationType, $deliveryDateFilter) {
+            ->where('type', $viewType)
+            ->withCount(['orders' => function($query) use ($personalizationType, $deliveryDateFilter, $viewType) {
             $query->notDrafts()
                   ->where('is_cancelled', false);
+            
+            // Filter by origin based on view type
+            if ($viewType === 'personalized') {
+                $query->where('origin', 'personalized');
+            } else {
+                $query->where(function($q) {
+                    $q->where('origin', '!=', 'personalized')
+                      ->orWhereNull('origin');
+                });
+            }
+
             if (Auth::user()->isVendedor()) {
                 $query->byUser(Auth::id());
             }
@@ -55,10 +106,10 @@ class KanbanController extends Controller
             
             // Aplicar filtro de personalização na contagem também
             if ($personalizationType) {
-                $query->where(function($q) use ($personalizationType) {
+                // ... same logic ...
+                 $query->where(function($q) use ($personalizationType) {
                     $q->whereHas('items', function($itemQuery) use ($personalizationType) {
                         $itemQuery->where(function($subQuery) use ($personalizationType) {
-                            // Buscar por print_type (pode ser nome ou ID)
                             $subQuery->where('print_type', 'like', "%{$personalizationType}%")
                                     ->orWhereHas('sublimations', function($sublimationQuery) use ($personalizationType) {
                                         $sublimationQuery->where('application_type', 'like', "%{$personalizationType}%");
@@ -82,8 +133,18 @@ class KanbanController extends Controller
             'items.sublimations',
             'pendingCancellation', 
             'pendingEditRequest'
-        ])->notDrafts() // Usar scope
-          ->where('is_cancelled', false); // Excluir pedidos cancelados
+        ])->notDrafts() 
+          ->where('is_cancelled', false);
+
+        // Filter by origin based on view type
+        if ($viewType === 'personalized') {
+            $query->where('origin', 'personalized');
+        } else {
+            $query->where(function($q) {
+                $q->where('origin', '!=', 'personalized')
+                  ->orWhereNull('origin');
+            });
+        }
 
         // Aplicar filtro de loja
         StoreHelper::applyStoreFilter($query);
@@ -94,34 +155,33 @@ class KanbanController extends Controller
         }
         
         // Filtrar vendas do PDV: excluir vendas PDV que não têm sublimação local
-        $query->where(function($q) {
-            $q->where('is_pdv', false) // Pedidos normais sempre aparecem
-              ->orWhere(function($subQ) {
-                  // Vendas PDV só aparecem se tiverem sublimação local
-                  $subQ->where('is_pdv', true)
-                       ->whereHas('items', function($itemQuery) {
-                           $itemQuery->whereHas('sublimations', function($sublimationQuery) {
-                               // Sublimação local tem location_id ou location_name preenchido
-                               $sublimationQuery->where(function($locQuery) {
-                                   $locQuery->whereNotNull('location_id')
-                                           ->orWhereNotNull('location_name');
+        // ONLY APPLY THIS LOGIC FOR PRODUCTION VIEW? Or both?
+        // Let's assume personalized module items are always relevant if in personalized status.
+        // But for consistency:
+        if ($viewType === 'production') {
+             $query->where(function($q) {
+                $q->where('is_pdv', false) 
+                  ->orWhere(function($subQ) {
+                      $subQ->where('is_pdv', true)
+                           ->whereHas('items', function($itemQuery) {
+                               $itemQuery->whereHas('sublimations', function($sublimationQuery) {
+                                   $sublimationQuery->where(function($locQuery) {
+                                       $locQuery->whereNotNull('location_id')
+                                               ->orWhereNotNull('location_name');
+                                   });
                                });
                            });
-                       });
-              });
-        });
+                  });
+            });
+        }
         
         // Aplicar filtro de personalização
         if ($personalizationType) {
-            $query->where(function($q) use ($personalizationType) {
+             $query->where(function($q) use ($personalizationType) {
                 $q->whereHas('items', function($itemQuery) use ($personalizationType) {
                     $itemQuery->where(function($subQuery) use ($personalizationType) {
-                        // Buscar por print_type (pode ser nome ou ID)
-                        // Como print_type pode ser ID numérico ou nome, buscar ambos
                         $subQuery->where('print_type', 'like', "%{$personalizationType}%")
-                                // Também buscar por ID se for numérico
                                 ->orWhere(function($idQuery) use ($personalizationType) {
-                                    // Tentar buscar ProductOption com type='personalizacao' e nome correspondente
                                     $personalizationOption = \App\Models\ProductOption::where('type', 'personalizacao')
                                         ->where('name', 'like', "%{$personalizationType}%")
                                         ->pluck('id');
@@ -164,7 +224,6 @@ class KanbanController extends Controller
         if ($search && $orders->count() === 1) {
             $autoOpenOrderId = $orders->first()->id;
         } elseif ($search && $orders->count() > 1) {
-            // Se houver múltiplos resultados, abrir o primeiro
             $autoOpenOrderId = $orders->first()->id;
         }
 
@@ -172,7 +231,8 @@ class KanbanController extends Controller
         $personalizationTypes = \App\Models\PersonalizationPrice::getPersonalizationTypes();
         
         $ordersForCalendar = $orders;
-        return view('kanban.index', compact('statuses', 'ordersByStatus', 'search', 'autoOpenOrderId', 'personalizationType', 'personalizationTypes', 'deliveryDateFilter', 'ordersForCalendar'));
+        
+        return view('kanban.index', compact('statuses', 'ordersByStatus', 'search', 'autoOpenOrderId', 'personalizationType', 'personalizationTypes', 'deliveryDateFilter', 'ordersForCalendar', 'viewType', 'period', 'startDate', 'endDate'));
     }
 
     public function updateStatus(Request $request): JsonResponse

@@ -298,7 +298,7 @@
 
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Kanban de Produção</h1>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Kanban de {{ $viewType === 'personalized' ? 'Personalizados' : 'Produção' }}</h1>
                 <div class="text-sm text-gray-700 mt-1 dark:text-gray-500">
                     Total de Pedidos: <strong>{{ $ordersByStatus->flatten()->count() }}</strong>
                 </div>
@@ -334,6 +334,7 @@
         <!-- Barra de Busca e Filtros -->
         <div class="rounded-2xl p-5 md:p-6 mb-6 animate-fade-in-down border border-gray-200 bg-white shadow-[0_12px_40px_-24px_rgba(0,0,0,0.08)] dark:border-[#1d2331] dark:bg-[#0d111a] dark:shadow-[0_12px_40px_-24px_rgba(0,0,0,0.8)]">
             <form method="GET" action="{{ route('kanban.index') }}" class="space-y-4">
+                <input type="hidden" name="type" value="{{ $viewType }}">
                 <!-- Busca -->
                 <div class="flex flex-col md:flex-row gap-3">
                     <div class="flex-1 relative group">
@@ -378,8 +379,13 @@
                     </div>
                     
                     <div class="flex items-end gap-2">
+                        <a href="{{ route('production.pdf', request()->all()) }}" target="_blank" 
+                           class="px-6 py-2.5 bg-indigo-50 text-indigo-700 rounded-full hover:bg-indigo-100 transition font-semibold flex items-center justify-center gap-2 border border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800">
+                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                             PDF
+                        </a>
                         @if($search || request('personalization_type'))
-                        <a href="{{ route('kanban.index') }}" 
+                        <a href="{{ route('kanban.index', ['type' => $viewType]) }}" 
                            class="w-full px-6 py-2.5 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 whitespace-nowrap transition font-semibold flex items-center justify-center gap-2 border border-gray-200 dark:bg-[#111724] dark:text-gray-200 dark:hover:bg-[#131a29] dark:border-[#1f2533]">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -456,7 +462,7 @@
         <div x-show="view === 'kanban'" class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="text-lg font-semibold text-gray-900">Agenda por data de entrega</h3>
-                <a href="{{ route('kanban.index') }}" class="text-sm text-indigo-600 font-semibold hover:text-indigo-500">Voltar ao Kanban</a>
+                <a href="{{ route('kanban.index', ['type' => $viewType]) }}" class="text-sm text-indigo-600 font-semibold hover:text-indigo-500">Voltar ao Kanban</a>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 @forelse(($ordersForCalendar ?? collect())->groupBy(fn($o) => optional($o->delivery_date)->format('Y-m-d') ?? 'sem_data') as $dateKey => $group)
@@ -2826,4 +2832,7 @@
         window.previewCoverImage = previewCoverImage;
         })(); // Fim da IIFE
     </script>
+    <div class="mt-10">
+        <x-kanban-bottom-nav :active-type="$viewType" />
+    </div>
 @endsection

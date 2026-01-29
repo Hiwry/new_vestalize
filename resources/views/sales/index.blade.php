@@ -66,7 +66,7 @@
             [
                 'title' => 'Personalizados',
                 'desc' => 'Gestão de vendas de produtos personalizados e sob medida.',
-                'route' => route('personalized.index'),
+                'route' => route('production.index', ['type' => 'personalized']),
                 'accent' => '#ec4899', // Pink
                 'icon' => 'fa-pen-ruler',
                 'delay' => 'delay-500'

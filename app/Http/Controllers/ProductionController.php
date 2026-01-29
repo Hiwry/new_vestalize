@@ -47,6 +47,7 @@ class ProductionController extends Controller
         $personalizationType = $request->get('personalization_type');
         $storeId = $request->get('store_id');
         $period = $request->get('period', 'week'); // Default: semana (segunda a sexta)
+        $viewType = $request->get('type', 'production'); // 'production' or 'personalized'
         
         // Para períodos predefinidos, sempre recalcular as datas
         // Só usar start_date/end_date do request quando for "custom"
@@ -100,6 +101,16 @@ class ProductionController extends Controller
             ->where('is_pdv', false)
             ->where('is_cancelled', false);
 
+        // Filter by origin based on view type
+        if ($viewType === 'personalized') {
+            $query->where('origin', 'personalized');
+        } else {
+            $query->where(function($q) {
+                $q->where('origin', '!=', 'personalized')
+                  ->orWhereNull('origin');
+            });
+        }
+
         // Se for vendedor, mostrar apenas os pedidos que ele criou
         if (Auth::user()->isVendedor()) {
             $query->where('user_id', Auth::id());
@@ -152,8 +163,22 @@ class ProductionController extends Controller
             $query->where('store_id', $storeId);
         }
 
+        // Determination active Tenant for statuses
+        // Using user's tenant or selected tenant
+         $activeTenantId = $user->tenant_id;
+        if ($activeTenantId === null) {
+            $activeTenantId = session('selected_tenant_id');
+        }
+        if ($activeTenantId === null) {
+            $firstStore = \App\Models\Store::first();
+            $activeTenantId = $firstStore ? $firstStore->tenant_id : 1;
+        }
+
         $orders = $query->orderBy('created_at', 'desc')->paginate(20);
-        $statuses = Status::orderBy('position')->get();
+        $statuses = Status::where('tenant_id', $activeTenantId)
+            ->where('type', $viewType)
+            ->orderBy('position')->get();
+            
         $personalizationTypes = PersonalizationPrice::getPersonalizationTypes();
         $stores = Store::active()->orderBy('name')->get();
 
@@ -165,7 +190,9 @@ class ProductionController extends Controller
             return $order->items->first()->print_type ?? 'N/A';
         });
 
-        return view('production.index', compact(
+        $viewName = $viewType === 'personalized' ? 'production.list_personalized' : 'production.index';
+
+        return view($viewName, compact(
             'orders', 
             'statuses', 
             'personalizationTypes',
@@ -180,7 +207,8 @@ class ProductionController extends Controller
             'totalOrders',
             'totalValue',
             'ordersByStatus',
-            'ordersByPersonalization'
+            'ordersByPersonalization',
+            'viewType'
         ));
     }
 

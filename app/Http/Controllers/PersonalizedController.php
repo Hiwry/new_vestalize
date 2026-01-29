@@ -22,21 +22,27 @@ class PersonalizedController extends Controller
         $type = $request->get('type', 'all');
         $search = $request->get('search');
         
-        // Fetch SublimationProducts
-        // If type is 'all', we might want to group them or show categories
-        // For now, let's fetch based on type if provided, otherwise all active
-        
-        $query = SublimationProduct::active();
+        $query = \App\Models\SubLocalProduct::where('is_active', true);
         
         if ($type !== 'all') {
-            $query->where('type', $type);
+            // Map legacy types to new categories
+            $categoryMap = [
+                'caneca' => 'canecas',
+                'camisa' => 'vestuario',
+                'almofada' => 'diversos', // Fallback
+                'tirante' => 'acessorios',
+                'custom' => 'diversos'
+            ];
+            
+            $category = $categoryMap[$type] ?? $type;
+            $query->where('category', $category);
         }
         
         if ($search) {
             $query->where('name', 'like', "%{$search}%");
         }
         
-        $products = $query->orderBy('name')->get();
+        $products = $query->with('addons')->orderBy('name')->get();
         
         // If it's an AJAX request (filtering), return just the grid
         if ($request->ajax()) {
@@ -50,10 +56,9 @@ class PersonalizedController extends Controller
         $categories = [
             'all' => 'Todos',
             'caneca' => 'Canecas',
-            'camisa' => 'Camisas',
-            'almofada' => 'Almofadas',
-            'tirante' => 'Tirantes',
-            'custom' => 'Outros'
+            'camisa' => 'Camisas/Vestuário',
+            'tirante' => 'Acessórios',
+            'custom' => 'Diversos'
         ];
 
         return view('personalized.index', compact('products', 'clients', 'cart', 'categories', 'type'));
@@ -65,19 +70,41 @@ class PersonalizedController extends Controller
     public function addToCart(Request $request)
     {
         $validated = $request->validate([
-            'product_id' => 'required|exists:sublimation_products,id',
+            'product_id' => 'required|exists:sub_local_products,id',
             'quantity' => 'required|integer|min:1',
             'customization_note' => 'nullable|string',
             'client_name' => 'nullable|string', // If it's a specific name on the item
             'price' => 'nullable|numeric|min:0', // Allow override or default
+            'addons' => 'nullable|array',
+            'addons.*.id' => 'exists:sub_local_product_addons,id'
         ]);
 
-        $product = SublimationProduct::findOrFail($validated['product_id']);
+        $product = \App\Models\SubLocalProduct::with('addons')->findOrFail($validated['product_id']);
         
         // Determine price logic
         // If user submitted a specific price override, use it (if allowed)
         // Otherwise calculate based on quantity using existing logic
-        $unitPrice = $validated['price'] ?? $product->getPriceForQuantity($validated['quantity']);
+        $basePrice = $validated['price'] ?? $product->getPriceForQuantity($validated['quantity']);
+        
+        // Calculate Addons Price
+        $addonsTotal = 0;
+        $selectedAddons = [];
+        
+        if (!empty($validated['addons'])) {
+            foreach ($validated['addons'] as $addonInput) {
+                $addon = $product->addons->where('id', $addonInput['id'])->first();
+                if ($addon) {
+                    $addonsTotal += $addon->price;
+                    $selectedAddons[] = [
+                        'id' => $addon->id,
+                        'name' => $addon->name,
+                        'price' => $addon->price
+                    ];
+                }
+            }
+        }
+        
+        $unitPrice = $basePrice + $addonsTotal;
         
         $cart = Session::get('personalized_cart', []);
         
@@ -85,12 +112,14 @@ class PersonalizedController extends Controller
             'id' => uniqid(),
             'product_id' => $product->id,
             'name' => $product->name,
-            'type' => $product->type,
+            'type' => $product->category,
             'quantity' => $validated['quantity'],
             'unit_price' => $unitPrice,
             'total_price' => $unitPrice * $validated['quantity'],
             'customization_note' => $validated['customization_note'] ?? '',
             'client_name' => $validated['client_name'] ?? '', // Name to print on item
+            'addons' => $selectedAddons,
+            'base_price_unit' => $basePrice
         ];
         
         $cart[] = $cartItem;
@@ -165,12 +194,13 @@ class PersonalizedController extends Controller
             $order = Order::create([
                 'client_id' => $validated['client_id'],
                 'user_id' => Auth::id(), // Seller
-                'status' => 'pending', // Or completed depending on payment? Let's say pending until paid? Or confirmed.
+                'status_id' => 1, // Default status (Pending/Open)
+                // 'status' => 'pending', // Removing string status if using ID, or keeping if both used
                 'payment_status' => 'pending',
                 'total_amount' => $finalTotal,
                 'discount' => $discount,
                 'notes' => $validated['notes'] ?? 'Venda via Módulo Personalizados',
-                'origin' => 'personalized', // Need to make sure database supports this or use generic
+                'origin' => 'personalized',
                 'delivery_date' => now()->addDays(2), // Standard default? Or ask?
             ]);
 
