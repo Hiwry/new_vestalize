@@ -9,17 +9,27 @@
         html.classList.remove('dark');
     }
 
-    syncThemeState();
+    // Ensure syncThemeState is available early
+    window.syncThemeState = function() {
+        const isDark = document.documentElement.classList.contains('dark');
+        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+        
+        if (document.body) {
+            document.body.style.colorScheme = isDark ? 'dark' : 'light';
+        }
+        
+        applyAdminThemeOverrides(isDark);
+        applyThemeBackgrounds();
+        updateThemeUI();
+    };
 
-    // Update UI if DOM is already ready (rare for inline, but good practice)
+    // Update UI when ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
-            updateThemeUI();
-            syncThemeState();
+            window.syncThemeState();
         });
     } else {
-        updateThemeUI();
-        syncThemeState();
+        window.syncThemeState();
     }
 })();
 
@@ -28,6 +38,7 @@ function updateThemeUI() {
     const moonIcon = document.getElementById('moon-icon');
     const sunIcon = document.getElementById('sun-icon');
 
+    // Update icons if they exist (Top bar or Sidebar)
     if (moonIcon && sunIcon) {
         if (isDark) {
             moonIcon.classList.add('hidden');
@@ -37,6 +48,9 @@ function updateThemeUI() {
             sunIcon.classList.add('hidden');
         }
     }
+    
+    // Update Alpine.js components if they are listening to 'isDark'
+    // This is done via the 'dark-mode-toggled' event or by direct sync if needed
 }
 
 function getThemeBackground(isDark) {
@@ -78,58 +92,59 @@ function applyAdminThemeOverrides(isDark) {
         return;
     }
 
+    // Force variables for heavy overrides
     root.style.setProperty('--background', isDark ? '#000000' : '#ffffff');
     root.style.setProperty('--glow-opacity', isDark ? '0.12' : '0.05');
 }
-
-function syncThemeState() {
-    const isDark = document.documentElement.classList.contains('dark');
-    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-    if (document.body) {
-        document.body.style.colorScheme = isDark ? 'dark' : 'light';
-    }
-    applyAdminThemeOverrides(isDark);
-    applyThemeBackgrounds();
-}
-
-window.syncThemeState = syncThemeState;
 
 // Toggle function to be called from buttons
 function toggleDarkMode() {
     const html = document.documentElement;
     const isDark = html.classList.contains('dark');
+    const newState = !isDark;
 
-    if (isDark) {
-        html.classList.remove('dark');
-        localStorage.setItem('dark', 'false');
-    } else {
+    if (newState) {
         html.classList.add('dark');
         localStorage.setItem('dark', 'true');
+    } else {
+        html.classList.remove('dark');
+        localStorage.setItem('dark', 'false');
     }
 
-    updateThemeUI();
-    syncThemeState();
+    if (typeof window.syncThemeState === 'function') {
+        window.syncThemeState();
+    }
 
     // Dispatch event for other components (like Alpine)
     window.dispatchEvent(new CustomEvent('dark-mode-toggled', {
-        detail: { dark: !isDark }
+        detail: { dark: newState }
     }));
 }
 
+window.toggleDarkMode = toggleDarkMode;
+
 // Listen for custom event if triggered elsewhere
 window.addEventListener('dark-mode-toggled', function () {
-    updateThemeUI();
-    syncThemeState();
+    if (typeof window.syncThemeState === 'function') {
+        window.syncThemeState();
+    }
 });
 
+// Sync after content changes
 document.addEventListener('content-loaded', function () {
-    syncThemeState();
+    if (typeof window.syncThemeState === 'function') {
+        window.syncThemeState();
+    }
 });
 
 document.addEventListener('ajax-content-loaded', function () {
-    syncThemeState();
+    if (typeof window.syncThemeState === 'function') {
+        window.syncThemeState();
+    }
 });
 
 window.addEventListener('pageshow', function () {
-    syncThemeState();
+    if (typeof window.syncThemeState === 'function') {
+        window.syncThemeState();
+    }
 });

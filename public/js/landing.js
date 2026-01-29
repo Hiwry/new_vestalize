@@ -201,6 +201,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const sunIcon = document.getElementById('sun-icon');
     const moonIcon = document.getElementById('moon-icon');
 
+    // DO NOT override theme if we are in the admin dashboard (avento-theme)
+    // The admin area has its own dark-mode.js and state management
+    if (html.classList.contains('avento-theme')) {
+        console.log('Landing.js: Admin theme detected, skipping theme initialization');
+        return;
+    }
+
     function updateIcons(isLight) {
         if (!sunIcon || !moonIcon) return;
         if (isLight) {
@@ -212,12 +219,22 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('theme');
+    // Check for saved theme preference (Unified with admin key 'dark')
+    const savedTheme = localStorage.getItem('dark');
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const shouldBeDark = savedTheme ? savedTheme === 'dark' : prefersDark;
+    
+    // Legacy support for 'theme' key if 'dark' is missing
+    let initialDark = prefersDark;
+    if (savedTheme !== null) {
+        initialDark = savedTheme === 'true' || savedTheme === 'dark';
+    } else {
+        const legacyTheme = localStorage.getItem('theme');
+        if (legacyTheme !== null) {
+            initialDark = legacyTheme === 'dark';
+        }
+    }
 
-    if (shouldBeDark) {
+    if (initialDark) {
         html.classList.add('dark');
         body.classList.add('dark');
         updateIcons(false);
@@ -231,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function () {
         themeToggle.addEventListener('click', () => {
             const isNowDark = html.classList.toggle('dark');
             body.classList.toggle('dark', isNowDark);
-            localStorage.setItem('theme', isNowDark ? 'dark' : 'light');
+            localStorage.setItem('dark', isNowDark ? 'true' : 'false');
             updateIcons(!isNowDark);
         });
     }

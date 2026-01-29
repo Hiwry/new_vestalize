@@ -1507,7 +1507,7 @@
                             </svg>
                             Editar Pedido
                         </button>
-                        @if(Auth::user()->isAdmin())
+                        @if(Auth::user()->isAdmin() || Auth::user()->isProducao())
                         <div class="flex gap-2 flex-1">
                             <select id="move-status-select" 
                                     class="flex-1 px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-blue-300 dark:border-blue-600/30 rounded-md text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all">
@@ -2835,4 +2835,6 @@
     <div class="mt-10">
         <x-kanban-bottom-nav :active-type="$viewType" />
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="{{ asset('js/kanban-sortable.js') }}"></script>
 @endsection

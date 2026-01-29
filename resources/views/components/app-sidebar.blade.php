@@ -71,7 +71,8 @@
         }
     }"
     @keydown.escape.window="showProfileModal = false; mobileOpen = false"
-    @toggle-sidebar.window="toggle()">
+    @toggle-sidebar.window="toggle()"
+    @dark-mode-toggled.window="isDark = $event.detail.dark">
 
 
 <!-- Barra Mobile Superior com botão único -->
@@ -466,7 +467,7 @@
          
          <!-- Theme Toggle Pill -->
          <div class="mb-4 px-1" x-show="expanded">
-             <div class="theme-toggle-track-custom" @click="isDark = !isDark; localStorage.setItem('dark', isDark); isDark ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark')">
+             <div class="theme-toggle-track-custom" @click="window.toggleDarkMode(); isDark = document.documentElement.classList.contains('dark');">
                 <div class="theme-toggle-pill-custom" :class="{ 'dark': isDark }"></div>
                 
                 <div class="theme-toggle-btn-custom" :class="!isDark ? 'active' : ''" title="Modo Claro">
@@ -480,7 +481,7 @@
          </div>
 
          <!-- Mini Toggle (Collapsed Sidebar) -->
-         <button x-show="!expanded" @click="isDark = !isDark; localStorage.setItem('dark', isDark); isDark ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark')"
+         <button x-show="!expanded" @click="window.toggleDarkMode(); isDark = document.documentElement.classList.contains('dark');"
                  class="w-11 h-11 flex items-center justify-center mx-auto mb-4 rounded-xl transition-all group text-primary bg-primary/10 hover:bg-primary/20"
                  title="Mudar Tema">
              <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">

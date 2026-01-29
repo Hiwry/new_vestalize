@@ -122,6 +122,8 @@
         }));
     });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="{{ asset('js/kanban-sortable.js') }}"></script>
 @endpush
 
 @section('content')
@@ -444,8 +446,12 @@
             });
         }
         
-        // Init Drag and Drop
-        document.addEventListener('DOMContentLoaded', setupDragAndDrop);
+        // Init Drag and Drop (fallback if Sortable.js is not available)
+        window.addEventListener('load', () => {
+            if (typeof Sortable === 'undefined') {
+                setupDragAndDrop();
+            }
+        });
 
         function updateOrderStatus(orderId, statusId) {
             fetch(`/kanban/update-status`, { // Ensure route matches or create personalized specific one? No, existing one works if permissions allowed

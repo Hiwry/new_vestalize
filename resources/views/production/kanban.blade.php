@@ -129,6 +129,8 @@
         }));
     });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="{{ asset('js/kanban-sortable.js') }}"></script>
 @endpush
 
 @section('content')
@@ -602,57 +604,65 @@
     </div>
 
     <script>
-        // Drag and Drop functionality
+        // Drag and Drop fallback (HTML5) - only used if Sortable.js is not available
         let draggedElement = null;
         let isDragging = false;
 
-        document.querySelectorAll('.kanban-card').forEach(card => {
-            card.addEventListener('dragstart', function(e) {
-                isDragging = true;
-                draggedElement = this;
-                this.style.opacity = '0.5';
-                this.classList.add('scale-95');
+        function initNativeDragAndDrop() {
+            document.querySelectorAll('.kanban-card').forEach(card => {
+                card.addEventListener('dragstart', function(e) {
+                    isDragging = true;
+                    draggedElement = this;
+                    this.style.opacity = '0.5';
+                    this.classList.add('scale-95');
+                });
+
+                card.addEventListener('dragend', function(e) {
+                    setTimeout(() => { isDragging = false; }, 100);
+                    this.style.opacity = '1';
+                    this.classList.remove('scale-95');
+                });
+
+                // Prevenir click quando estiver arrastando
+                card.addEventListener('click', function(e) {
+                    if (isDragging) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
+                });
             });
 
-            card.addEventListener('dragend', function(e) {
-                setTimeout(() => { isDragging = false; }, 100);
-                this.style.opacity = '1';
-                this.classList.remove('scale-95');
-            });
-
-            // Prevenir click quando estiver arrastando
-            card.addEventListener('click', function(e) {
-                if (isDragging) {
-                    e.stopPropagation();
+            document.querySelectorAll('.kanban-column').forEach(column => {
+                column.addEventListener('dragover', function(e) {
                     e.preventDefault();
-                }
-            });
-        });
+                    this.classList.add('bg-blue-50', 'border-2', 'border-dashed', 'border-blue-400');
+                });
 
-        document.querySelectorAll('.kanban-column').forEach(column => {
-            column.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                this.classList.add('bg-blue-50', 'border-2', 'border-dashed', 'border-blue-400');
-            });
+                column.addEventListener('dragleave', function(e) {
+                    this.classList.remove('bg-blue-50', 'border-2', 'border-dashed', 'border-blue-400');
+                });
 
-            column.addEventListener('dragleave', function(e) {
-                this.classList.remove('bg-blue-50', 'border-2', 'border-dashed', 'border-blue-400');
-            });
-
-            column.addEventListener('drop', function(e) {
-                e.preventDefault();
-                this.classList.remove('bg-blue-50', 'border-2', 'border-dashed', 'border-blue-400');
-                
-                if (draggedElement) {
-                    this.appendChild(draggedElement);
+                column.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('bg-blue-50', 'border-2', 'border-dashed', 'border-blue-400');
                     
-                    const orderId = draggedElement.dataset.orderId;
-                    const newStatusId = this.dataset.statusId;
-                    
-                    // Atualizar status via AJAX
-                    updateOrderStatus(orderId, newStatusId);
-                }
+                    if (draggedElement) {
+                        this.appendChild(draggedElement);
+                        
+                        const orderId = draggedElement.dataset.orderId;
+                        const newStatusId = this.dataset.statusId;
+                        
+                        // Atualizar status via AJAX
+                        updateOrderStatus(orderId, newStatusId);
+                    }
+                });
             });
+        }
+
+        window.addEventListener('load', () => {
+            if (typeof Sortable === 'undefined') {
+                initNativeDragAndDrop();
+            }
         });
 
         function updateOrderStatus(orderId, statusId) {
