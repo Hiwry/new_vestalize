@@ -373,16 +373,21 @@
                             // Garantir que sizes seja um array
                             $sizes = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) && !empty($item->sizes) ? json_decode($item->sizes, true) : []);
                             $sizes = $sizes ?? [];
+                            $sizeOrder = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3'];
+                            $sortedSizes = collect($sizes)->filter(fn($qty) => $qty > 0)->sortBy(function($qty, $size) use ($sizeOrder) {
+                                $norm = strtoupper($size);
+                                $idx = array_search($norm, $sizeOrder, true);
+                                $rank = $idx === false ? 999 : $idx;
+                                return str_pad((string)$rank, 3, '0', STR_PAD_LEFT) . '_' . $norm;
+                            });
                         @endphp
                         @if(!empty($sizes))
                         <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
-                            @foreach($sizes as $size => $qty)
-                                @if($qty > 0)
+                            @foreach($sortedSizes as $size => $qty)
                                 <div class="bg-gray-100 dark:bg-gray-700/50 rounded px-2 py-1 text-center border border-gray-200 dark:border-gray-700">
                                     <span class="text-xs text-gray-600 dark:text-slate-400">{{ $size }}</span>
                                     <p class="font-bold text-sm text-gray-900 dark:text-white">{{ $qty }}</p>
                                 </div>
-                                @endif
                             @endforeach
                         </div>
                         @else

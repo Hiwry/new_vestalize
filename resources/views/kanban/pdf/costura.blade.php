@@ -159,12 +159,25 @@
                             <div style="text-align: center;">
                                 @php
                                     $itemSizes = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) ? json_decode($item->sizes, true) : []);
+                                    $sizeOrder = ['PP','P','M','G','GG','EXG','G1','G2','G3','ESPECIAL'];
+                                    $sortedSizes = [];
+                                    foreach ($sizeOrder as $sizeKey) {
+                                        if (isset($itemSizes[$sizeKey])) {
+                                            $sortedSizes[$sizeKey] = $itemSizes[$sizeKey];
+                                        }
+                                    }
+                                    foreach ($itemSizes as $sizeKey => $qty) {
+                                        $normalized = strtoupper(trim($sizeKey));
+                                        if (!array_key_exists($normalized, $sortedSizes)) {
+                                            $sortedSizes[$normalized] = $qty;
+                                        }
+                                    }
                                     $sizeColors = [
                                         'PP' => '#FF8C00', 'P' => '#FFD700', 'M' => '#4169E1', 'G' => '#DC143C',
                                         'GG' => '#32CD32', 'EXG' => '#8A2BE2', 'G1' => '#78909C', 'ESPECIAL' => '#E91E63'
                                     ];
                                 @endphp
-                                @foreach($itemSizes as $size => $qty)
+                                @foreach($sortedSizes as $size => $qty)
                                     @php $size = strtoupper(trim($size)); @endphp
                                     @if($qty > 0)
                                     <div class="size-badge" style="background: {{ $sizeColors[$size] ?? '#78909C' }}; color: {{ $size === 'P' ? '#333' : 'white' }};">

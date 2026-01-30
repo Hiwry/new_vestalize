@@ -1611,7 +1611,28 @@
                     
                     ${order.items.map((item, index) => {
                         // Verificar se tem tamanhos definidos (além de Único)
-                        const hasRealSizes = item.sizes && Object.entries(item.sizes).some(([s, q]) => Number(q) > 0 && s !== 'Único' && s !== 'UN');
+                        const sizeOrder = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3'];
+                        const normalizeSizeKey = (value) => {
+                            if (value === null || value === undefined) return '';
+                            return String(value)
+                                .trim()
+                                .toUpperCase()
+                                .normalize('NFD')
+                                .replace(/[\u0300-\u036f]/g, '');
+                        };
+                        const sortSizeEntries = (sizesObj) => {
+                            return Object.entries(sizesObj || {}).sort(([a], [b]) => {
+                                const aKey = normalizeSizeKey(a);
+                                const bKey = normalizeSizeKey(b);
+                                const aIndex = sizeOrder.indexOf(aKey);
+                                const bIndex = sizeOrder.indexOf(bKey);
+                                const aRank = aIndex === -1 ? 999 : aIndex;
+                                const bRank = bIndex === -1 ? 999 : bIndex;
+                                if (aRank !== bRank) return aRank - bRank;
+                                return aKey.localeCompare(bKey);
+                            });
+                        };
+                        const hasRealSizes = item.sizes && sortSizeEntries(item.sizes).some(([s, q]) => Number(q) > 0 && s !== 'Único' && s !== 'UN');
                         const isSimpleItem = !hasRealSizes;
 
                         return `
@@ -1719,7 +1740,7 @@
                                 ` : `
                                     <strong class="block mb-2 text-gray-900 dark:text-gray-300">Tamanhos:</strong>
                                     <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
-                                        ${Object.entries(item.sizes).map(([size, qty]) => 
+                                        ${sortSizeEntries(item.sizes).map(([size, qty]) => 
                                             Number(qty) > 0 ? `
                                             <div class="bg-gray-100 dark:bg-gray-700 rounded-md px-2 py-1 text-center border border-gray-200 dark:border-gray-600">
                                                 <span class="text-xs text-gray-600 dark:text-gray-400">${size}</span>

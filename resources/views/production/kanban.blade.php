@@ -843,14 +843,35 @@
                             <div class="mt-4">
                                 <strong class="block mb-2">Tamanhos:</strong>
                                 <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
-                                    ${Object.entries(item.sizes).map(([size, qty]) => 
-                                        qty > 0 ? `
-                                        <div class="bg-gray-100 rounded px-2 py-1 text-center">
-                                            <span class="text-xs text-gray-600">${size}</span>
-                                            <p class="font-bold text-sm">${qty}</p>
-                                        </div>
-                                        ` : ''
-                                    ).join('')}
+                                    ${(() => {
+                                        const sizeOrder = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3'];
+                                        const normalizeSizeKey = (value) => {
+                                            if (value === null || value === undefined) return '';
+                                            return String(value)
+                                                .trim()
+                                                .toUpperCase()
+                                                .normalize('NFD')
+                                                .replace(/[\u0300-\u036f]/g, '');
+                                        };
+                                        const sortedEntries = Object.entries(item.sizes || {}).sort(([a], [b]) => {
+                                            const aKey = normalizeSizeKey(a);
+                                            const bKey = normalizeSizeKey(b);
+                                            const aIndex = sizeOrder.indexOf(aKey);
+                                            const bIndex = sizeOrder.indexOf(bKey);
+                                            const aRank = aIndex === -1 ? 999 : aIndex;
+                                            const bRank = bIndex === -1 ? 999 : bIndex;
+                                            if (aRank !== bRank) return aRank - bRank;
+                                            return aKey.localeCompare(bKey);
+                                        });
+                                        return sortedEntries.map(([size, qty]) =>
+                                            qty > 0 ? `
+                                            <div class="bg-gray-100 rounded px-2 py-1 text-center">
+                                                <span class="text-xs text-gray-600">${size}</span>
+                                                <p class="font-bold text-sm">${qty}</p>
+                                            </div>
+                                            ` : ''
+                                        ).join('');
+                                    })()}
                                 </div>
                             </div>
                         </div>
