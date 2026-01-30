@@ -117,29 +117,46 @@ class StockDashboardController extends Controller
 
         // Produtos Mais Solicitados (últimos 30 dias)
         $produtosMaisSolicitados = (clone $requestQuery)
-            ->with(['stock.fabric', 'stock.color', 'stock.cutType']) // Carregar relações através do estoque
-            ->select('stock_id', DB::raw('SUM(requested_quantity) as total_solicitado'))
+            ->select(
+                'fabric_id',
+                'fabric_type_id',
+                'color_id',
+                'cut_type_id',
+                'size',
+                DB::raw('SUM(requested_quantity) as total_solicitado')
+            )
             ->where('created_at', '>=', Carbon::now()->subDays(30))
-            ->groupBy('stock_id')
+            ->groupBy('fabric_id', 'fabric_type_id', 'color_id', 'cut_type_id', 'size')
             ->orderByDesc('total_solicitado')
             ->limit(5)
-            ->get()
-            ->map(function($item) {
-                // Mapear para estrutura plana esperada pela view
-                $stock = $item->stock;
-                if (!$stock) return null;
-                
-                return (object) [
-                    'fabric' => $stock->fabric,
-                    'color' => $stock->color,
-                    'cutType' => $stock->cutType,
-                    'size' => $stock->size,
-                    'total_solicitado' => $item->total_solicitado
-                ];
-            })
-            ->filter(); // Remover nulos
+            ->get();
 
-        // Solicitações Recentes
+        $optionIds = $produtosMaisSolicitados
+            ->flatMap(fn($item) => [
+                $item->fabric_id,
+                $item->fabric_type_id,
+                $item->color_id,
+                $item->cut_type_id,
+            ])
+            ->filter()
+            ->unique()
+            ->values();
+
+        $optionsMap = \App\Models\ProductOption::whereIn('id', $optionIds)
+            ->get()
+            ->keyBy('id');
+
+        $produtosMaisSolicitados = $produtosMaisSolicitados->map(function ($item) use ($optionsMap) {
+            return (object) [
+                'fabric' => $optionsMap->get($item->fabric_id),
+                'fabricType' => $optionsMap->get($item->fabric_type_id),
+                'color' => $optionsMap->get($item->color_id),
+                'cutType' => $optionsMap->get($item->cut_type_id),
+                'size' => $item->size,
+                'total_solicitado' => $item->total_solicitado,
+            ];
+        });
+
         $solicitacoesRecentes = (clone $requestQuery)
             ->with(['requestingStore', 'targetStore', 'fabric', 'color', 'cutType'])
             ->orderBy('created_at', 'desc')
