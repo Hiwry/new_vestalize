@@ -871,6 +871,10 @@
                                     const sizeDimensions = sub.size ? sub.size.dimensions : '';
                                     const locationName = sub.location ? sub.location.name : sub.location_name;
                                     const appType = sub.application_type ? sub.application_type.toUpperCase() : 'APLICAÇÃO';
+                                    const colorDetails = sub.color_details ? String(sub.color_details).trim() : '';
+                                    const colorInfo = colorDetails
+                                        ? `Cores: ${colorDetails}${sub.has_neon ? ' + Neon' : ''}`
+                                        : (sub.color_count > 0 ? `${sub.color_count} ${sub.color_count == 1 ? 'Cor' : 'Cores'}${sub.has_neon ? ' + Neon' : ''}` : '');
                                     
                                     return `
                                     <div class="flex justify-between items-center bg-gray-50 rounded p-3 text-sm">
@@ -880,7 +884,7 @@
                                             </strong>
                                             ${locationName ? ` - ${locationName}` : ''}
                                             <span class="text-gray-600">x${sub.quantity}</span>
-                                            ${sub.color_count > 0 ? `<br><span class="text-xs text-gray-500">${sub.color_count} ${sub.color_count == 1 ? 'Cor' : 'Cores'}${sub.has_neon ? ' + Neon' : ''}</span>` : ''}
+                                            ${colorInfo ? `<br><span class="text-xs text-gray-500">${colorInfo}</span>` : ''}
                                         </div>
                                         <div class="text-right">
                                             <div class="text-gray-600">R$ ${parseFloat(sub.unit_price).toFixed(2).replace('.', ',')} × ${sub.quantity}</div>

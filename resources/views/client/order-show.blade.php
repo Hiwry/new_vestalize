@@ -320,8 +320,14 @@
                     <div class="text-gray-600 mobile-text-xs">
                         @if($locationName){{ $locationName }} | @endif
                         Qtd: {{ $sub->quantity }}
-                        @if($sub->color_count > 0) | {{ $sub->color_count }} cores @endif
-                        @if($sub->has_neon) | Neon @endif
+                        @if(!empty($sub->color_details))
+                            | Cores: {{ $sub->color_details }}
+                            @if($sub->has_neon) + Neon @endif
+                        @elseif($sub->color_count > 0)
+                            | {{ $sub->color_count }} cores @if($sub->has_neon) + Neon @endif
+                        @elseif($sub->has_neon)
+                            | Neon
+                        @endif
                     </div>
                     
                     <!-- Imagem da Aplicação -->
