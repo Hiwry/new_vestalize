@@ -2460,11 +2460,11 @@
                     // Verificar informações de debug
                     if (data.debug) {
                         console.log('Debug info:', data.debug);
-                        if (!data.debug.file_exists) {
+                        if (typeof data.debug.file_exists !== 'undefined' && !data.debug.file_exists) {
                             console.error('Arquivo não encontrado após upload!');
                             showNotification('Aviso: Arquivo pode não ter sido salvo corretamente', 'warning');
                         }
-                        if (!data.debug.symlink_exists) {
+                        if (typeof data.debug.symlink_exists !== 'undefined' && !data.debug.symlink_exists) {
                             console.error('Symlink do storage não encontrado!');
                             showNotification('Aviso: Symlink do storage pode não estar configurado', 'warning');
                         }
