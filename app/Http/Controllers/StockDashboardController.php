@@ -205,7 +205,6 @@ class StockDashboardController extends Controller
         return view('dashboard.estoque', compact(
             'stores',
             'selectedStoreId',
-            'totalItemEstoque', // Corrigido nome variável na view se necessário? View usa $totalItensEstoque
             'totalItensEstoque',
             'totalQuantidade',
             'totalReservado',
