@@ -105,6 +105,7 @@
 
     function fetchNotifications() {
         fetch('/notifications', {
+            credentials: 'same-origin',
             headers: {
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
@@ -114,9 +115,14 @@
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
+                const contentType = response.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    return null;
+                }
                 return response.json();
             })
             .then(data => {
+                if (!data) return;
                 updateNotificationBadge(data.unread_count);
                 renderNotifications(data.notifications);
             })

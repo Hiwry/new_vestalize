@@ -5,6 +5,10 @@
 
     RewriteEngine On
 
+    # Fallback para imagens de aplicação via rota Laravel
+    RewriteRule ^images/orders/applications/(.+)$ /imagens-aplicacao/$1 [L,NC]
+    RewriteRule ^images/orders/items/applications/(.+)$ /imagens-aplicacao/$1 [L,NC]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
