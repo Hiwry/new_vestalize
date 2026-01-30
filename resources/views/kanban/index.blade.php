@@ -2847,6 +2847,8 @@
         window.submitEditRequest = submitEditRequest;
         window.handleFileUpload = handleFileUpload;
         window.previewCoverImage = previewCoverImage;
+        window.openCoverImagePicker = openCoverImagePicker;
+        window.closeCoverImageModal = closeCoverImageModal;
         })(); // Fim da IIFE
     </script>
     <div class="mt-10">
