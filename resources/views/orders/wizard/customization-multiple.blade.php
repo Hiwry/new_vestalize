@@ -2251,10 +2251,28 @@
                 
                 if (pers.location_id) document.getElementById('location').value = pers.location_id;
                 if (pers.size_name) document.getElementById('size').value = pers.size_name;
-                if (pers.quantity) document.getElementById('quantity').value = pers.quantity;
-                if (pers.color_count) document.getElementById('color_count').value = pers.color_count;
+                if (pers.quantity !== null && pers.quantity !== undefined) document.getElementById('quantity').value = pers.quantity;
+                if (pers.color_count !== null && pers.color_count !== undefined) document.getElementById('color_count').value = pers.color_count;
                 if (pers.color_details) document.getElementById('color_details').value = pers.color_details;
                 if (pers.seller_notes) document.getElementById('seller_notes').value = pers.seller_notes;
+
+                const unitPriceVal = parseFloat(pers.unit_price ?? 0) || 0;
+                const totalPriceVal = parseFloat(pers.final_price ?? 0) || 0;
+                document.getElementById('unit_price').value = unitPriceVal;
+                document.getElementById('final_price').value = totalPriceVal;
+
+                const unitPriceEl = document.getElementById('unitPrice');
+                const totalPriceEl = document.getElementById('totalPrice');
+                const priceFormulaEl = document.getElementById('priceFormula');
+                if (unitPriceEl && totalPriceEl) {
+                    unitPriceEl.textContent = `R$ ${unitPriceVal.toFixed(2).replace('.', ',')}`;
+                    totalPriceEl.textContent = `R$ ${totalPriceVal.toFixed(2).replace('.', ',')}`;
+                    if (priceFormulaEl) {
+                        const qty = parseInt(pers.quantity ?? 1, 10) || 1;
+                        priceFormulaEl.textContent = `R$ ${unitPriceVal.toFixed(2).replace('.', ',')} × ${qty} ${qty === 1 ? 'peça' : 'peças'} (valor atual)`;
+                    }
+                    document.getElementById('priceDisplay').classList.remove('hidden');
+                }
                 
                 document.getElementById('modalTitle').textContent = `Editar ${persType}`;
                 document.getElementById('personalizationModal').classList.remove('hidden');
