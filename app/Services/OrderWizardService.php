@@ -204,8 +204,10 @@ class OrderWizardService
             $validated['tecido'],
             $validated['cor'],
             $validated['tipo_corte'],
-            $validated['gola']
         ]);
+        if (!empty($validated['gola'])) {
+            $allOptionIds->push($validated['gola']);
+        }
 
         if (!empty($validated['detalhe'])) $allOptionIds->push($validated['detalhe']);
         if (!empty($validated['tipo_tecido'])) $allOptionIds->push($validated['tipo_tecido']);
@@ -221,7 +223,7 @@ class OrderWizardService
         $tecido = $allOptions[$validated['tecido']];
         $cor = $allOptions[$validated['cor']];
         $tipoCorte = $allOptions[$validated['tipo_corte']];
-        $gola = $allOptions[$validated['gola']];
+        $gola = !empty($validated['gola']) ? ($allOptions[$validated['gola']] ?? null) : null;
         $detalhe = !empty($validated['detalhe']) ? $allOptions[$validated['detalhe']] : null;
         $tipoTecido = !empty($validated['tipo_tecido']) ? $allOptions[$validated['tipo_tecido']] : null;
 
@@ -233,7 +235,7 @@ class OrderWizardService
         $item->update([
             'fabric' => $tecido->name . ($tipoTecido ? ' - ' . $tipoTecido->name : ''),
             'color' => $cor->name,
-            'collar' => $gola->name,
+            'collar' => $gola ? $gola->name : '-',
             'model' => $tipoCorte->name,
             'detail' => $detalhe ? $detalhe->name : null,
             'print_type' => $personalizacaoNames,
@@ -257,7 +259,7 @@ class OrderWizardService
                     'tipo_corte' => $validated['tipo_corte'],
                     'detalhe' => $validated['detalhe'] ?? null,
                     'detail_color' => $validated['detail_color'] ?? null,
-                    'gola' => $validated['gola'],
+                    'gola' => $validated['gola'] ?? null,
                     'collar_color' => $validated['collar_color'] ?? null,
                     'personalizacao' => $validated['personalizacao'],
                 ],
@@ -638,8 +640,10 @@ class OrderWizardService
             $validated['tecido'],
             $validated['cor'],
             $validated['tipo_corte'],
-            $validated['gola']
         ]);
+        if (!empty($validated['gola'])) {
+            $allOptionIds->push($validated['gola']);
+        }
 
         if (!empty($validated['detalhe'])) {
             $allOptionIds->push($validated['detalhe']);
@@ -660,7 +664,7 @@ class OrderWizardService
         $tecido = $allOptions[$validated['tecido']];
         $cor = $allOptions[$validated['cor']];
         $tipoCorte = $allOptions[$validated['tipo_corte']];
-        $gola = $allOptions[$validated['gola']];
+        $gola = !empty($validated['gola']) ? ($allOptions[$validated['gola']] ?? null) : null;
         $detalhe = !empty($validated['detalhe']) ? $allOptions[$validated['detalhe']] : null;
         $tipoTecido = !empty($validated['tipo_tecido']) ? $allOptions[$validated['tipo_tecido']] : null;
 
@@ -670,7 +674,7 @@ class OrderWizardService
             'item_number' => $itemNumber,
             'fabric' => $tecido->name . ($tipoTecido ? ' - ' . $tipoTecido->name : ''),
             'color' => $cor->name,
-            'collar' => $gola->name,
+            'collar' => $gola ? $gola->name : '-',
             'model' => $tipoCorte->name,
             'detail' => $detalhe ? $detalhe->name : null,
             'print_type' => $personalizacaoNames,
@@ -694,7 +698,7 @@ class OrderWizardService
                     'tipo_corte' => $validated['tipo_corte'],
                     'detalhe' => $validated['detalhe'] ?? null,
                     'detail_color' => $validated['detail_color'] ?? null,
-                    'gola' => $validated['gola'],
+                    'gola' => $validated['gola'] ?? null,
                     'collar_color' => $validated['collar_color'] ?? null,
                     'personalizacao' => $validated['personalizacao'],
                 ],
