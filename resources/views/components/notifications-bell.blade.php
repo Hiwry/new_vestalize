@@ -148,7 +148,17 @@ function notificationBell() {
 
         async fetchNotifications() {
             try {
-                const response = await fetch('/notifications');
+                const response = await fetch('/notifications', {
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                });
+                const contentType = response.headers.get('content-type') || '';
+                if (!response.ok || !contentType.includes('application/json')) {
+                    return;
+                }
                 const data = await response.json();
                 
                 // Verificar se há novas notificações

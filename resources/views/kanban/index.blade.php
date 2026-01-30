@@ -2381,16 +2381,7 @@
               const coverInput = document.getElementById('cover-image-input');
               if (!coverInput) return;
 
-              if (window.pasteModal && typeof window.pasteModal.open === 'function') {
-                  window.pasteModal.open(coverInput);
-                  const modalInput = document.getElementById('paste-modal-file-input');
-                  if (modalInput) {
-                      modalInput.click();
-                      return;
-                  }
-              }
-
-              // Fallback: abrir o file picker direto
+              // Abrir o seletor de arquivos diretamente para garantir o upload
               coverInput.click();
           }
 

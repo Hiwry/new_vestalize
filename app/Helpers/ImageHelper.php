@@ -20,6 +20,32 @@ class ImageHelper
         }
         
         $normalizedPath = self::normalizePath($path);
+        $basename = $normalizedPath ? basename($normalizedPath) : basename($path);
+
+        // Imagens de aplicação podem estar bloqueadas em /images; prefira servir via storage/rota
+        if ($normalizedPath && Str::startsWith($normalizedPath, [
+            'orders/applications',
+            'orders/sublimations',
+            'orders/items/applications',
+            'orders/items/sublimations',
+        ])) {
+            $relativePath = self::resolveRelativePath($normalizedPath, [
+                'orders/applications',
+                'orders/sublimations',
+                'orders/items/applications',
+                'orders/items/sublimations',
+                'applications',
+                'sublimations',
+            ]);
+
+            if ($relativePath) {
+                return url('/storage/' . $relativePath);
+            }
+
+            if ($basename) {
+                return url('/imagens-aplicacao/' . rawurlencode($basename));
+            }
+        }
         
         // Primeiro, verificar se a imagem está em public/images (novo local, sem symlink)
         $publicImagesPath = public_path('images/' . $normalizedPath);
