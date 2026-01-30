@@ -1522,34 +1522,34 @@
             // Função auxiliar para formatar o valor do adicional
             const formatAddonPrice = (addon) => {
                 if (addon.charge_type === 'percentage' && addon.percentage > 0) {
-                    return `<span class="text-emerald-400 font-bold">+${addon.percentage}%</span>`;
+                    return `<span class="text-emerald-600 dark:text-emerald-400 font-bold">+${addon.percentage}%</span>`;
                 } else if (addon.price_adjustment > 0) {
                     return `<span class="text-[#7c3aed] font-bold">+R$ ${addon.price_adjustment.toFixed(2).replace('.', ',')}</span>`;
                 } else if (addon.price_adjustment < 0) {
-                    return `<span class="text-green-400 font-bold">-R$ ${Math.abs(addon.price_adjustment).toFixed(2).replace('.', ',')}</span>`;
+                    return `<span class="text-green-600 dark:text-green-400 font-bold">-R$ ${Math.abs(addon.price_adjustment).toFixed(2).replace('.', ',')}</span>`;
                 }
-                return '<span class="text-slate-400">Grátis</span>';
+                return '<span class="text-gray-500 dark:text-slate-400">Grátis</span>';
             };
 
             // Criar modal dinâmico com design moderno
             const modalHtml = `
-                <div id="addonModal" class="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
-                    <div class="relative w-full max-w-lg shadow-2xl rounded-2xl bg-slate-900 border border-slate-700/50 overflow-hidden animate-slideUp">
+                <div id="addonModal" class="fixed inset-0 bg-black/60 dark:bg-black/70 z-[60] flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+                    <div class="relative w-full max-w-lg shadow-2xl rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700/50 overflow-hidden animate-slideUp">
                         <!-- Header com gradiente -->
-                        <div class="px-6 py-5 bg-gradient-to-r from-emerald-600/20 via-slate-900 to-slate-900 border-b border-slate-700/50">
+                        <div class="px-6 py-5 bg-gradient-to-r from-emerald-500/10 via-white to-white dark:from-emerald-600/20 dark:via-slate-900 dark:to-slate-900 border-b border-gray-200 dark:border-slate-700/50">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="w-10 h-10 rounded-xl bg-emerald-500/15 dark:bg-emerald-500/20 flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                                         </svg>
                                     </div>
                                     <div>
-                                        <h3 class="text-lg font-bold text-white">Opções Especiais</h3>
-                                        <p class="text-xs text-slate-400">${filteredAddons.length} ${filteredAddons.length === 1 ? 'opção disponível' : 'opções disponíveis'}</p>
+                                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Opções Especiais</h3>
+                                        <p class="text-xs text-gray-500 dark:text-slate-400">${filteredAddons.length} ${filteredAddons.length === 1 ? 'opção disponível' : 'opções disponíveis'}</p>
                                     </div>
                                 </div>
-                                <button type="button" id="closeAddonModalX" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all">
+                                <button type="button" id="closeAddonModalX" class="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 rounded-lg transition-all">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
@@ -1561,26 +1561,26 @@
                         <div class="p-4 max-h-[50vh] overflow-y-auto">
                             ${filteredAddons.length === 0 
                                 ? `<div class="text-center py-12">
-                                    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-800 flex items-center justify-center">
-                                        <svg class="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 dark:bg-slate-800 flex items-center justify-center">
+                                        <svg class="w-8 h-8 text-gray-400 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
                                         </svg>
                                     </div>
-                                    <p class="text-slate-300 font-medium mb-1">Nenhuma opção cadastrada</p>
-                                    <p class="text-sm text-slate-500">Configure em Admin → Personalização → Opções Especiais</p>
+                                    <p class="text-gray-700 dark:text-slate-300 font-medium mb-1">Nenhuma opção cadastrada</p>
+                                    <p class="text-sm text-gray-500 dark:text-slate-500">Configure em Admin → Personalização → Opções Especiais</p>
                                 </div>`
                                 : `<div class="grid grid-cols-2 gap-3">
                                     ${filteredAddons.map(addon => `
-                                        <label class="addon-item relative flex flex-col p-4 bg-slate-800/50 hover:bg-slate-800 rounded-xl cursor-pointer border-2 border-transparent hover:border-emerald-500/50 transition-all group">
-                                            <input type="checkbox" class="addon-checkbox absolute top-3 right-3 w-5 h-5 text-emerald-500 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500 focus:ring-offset-0 focus:ring-offset-slate-900 cursor-pointer" 
+                                        <label class="addon-item relative flex flex-col p-4 bg-white hover:bg-emerald-50 dark:bg-slate-800/50 dark:hover:bg-slate-800 rounded-xl cursor-pointer border-2 border-gray-200 dark:border-transparent hover:border-emerald-400/60 transition-all group">
+                                            <input type="checkbox" class="addon-checkbox absolute top-3 right-3 w-5 h-5 text-emerald-600 bg-white border-gray-300 dark:text-emerald-500 dark:bg-slate-700 dark:border-slate-600 rounded focus:ring-emerald-500 focus:ring-offset-0 focus:ring-offset-white dark:focus:ring-offset-slate-900 cursor-pointer" 
                                                    value="${addon.id}" 
                                                    data-name="${addon.name}" 
                                                    data-price="${addon.price_adjustment}" 
                                                    data-percentage="${addon.percentage || 0}"
                                                    data-charge-type="${addon.charge_type}"
                                                    data-description="${addon.description}">
-                                            <span class="text-white font-semibold group-hover:text-emerald-300 transition-colors pr-6">${addon.name}</span>
-                                            ${addon.description && addon.description !== addon.name ? `<span class="text-xs text-slate-400 mt-1 line-clamp-2">${addon.description}</span>` : ''}
+                                            <span class="addon-title text-gray-900 dark:text-white font-semibold group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors pr-6">${addon.name}</span>
+                                            ${addon.description && addon.description !== addon.name ? `<span class="text-xs text-gray-500 dark:text-slate-400 mt-1 line-clamp-2">${addon.description}</span>` : ''}
                                             <div class="mt-2">${formatAddonPrice(addon)}</div>
                                         </label>
                                     `).join('')}
@@ -1589,10 +1589,10 @@
                         </div>
                         
                         <!-- Footer -->
-                        <div class="px-6 py-4 border-t border-slate-700/50 bg-slate-800/30 flex items-center justify-between">
-                            <span id="selectedCount" class="text-sm text-slate-400">Nenhum selecionado</span>
+                        <div class="px-6 py-4 border-t border-gray-200 dark:border-slate-700/50 bg-gray-50 dark:bg-slate-800/30 flex items-center justify-between">
+                            <span id="selectedCount" class="text-sm text-gray-500 dark:text-slate-400">Nenhum selecionado</span>
                             <div class="flex gap-3">
-                                <button type="button" id="cancelAddon" onclick="closeAddonModal()" class="px-4 py-2.5 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-all">
+                                <button type="button" id="cancelAddon" onclick="closeAddonModal()" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700 rounded-lg transition-all">
                                     Cancelar
                                 </button>
                                 <button type="button" id="confirmAddon" onclick="confirmAddAddon()" class="px-6 py-2.5 text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-all shadow-lg shadow-emerald-900/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-emerald-600" ${filteredAddons.length === 0 ? 'disabled' : ''}>
@@ -1610,8 +1610,10 @@
                     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
                     .animate-fadeIn { animation: fadeIn 0.2s ease-out; }
                     .animate-slideUp { animation: slideUp 0.3s ease-out; }
-                    .addon-item:has(.addon-checkbox:checked) { border-color: rgb(16 185 129); background-color: rgb(16 185 129 / 0.1); }
-                    .addon-item:has(.addon-checkbox:checked) .text-white { color: rgb(110 231 183); }
+                    .addon-item:has(.addon-checkbox:checked) { border-color: rgb(16 185 129); background-color: rgb(16 185 129 / 0.08); }
+                    .addon-item:has(.addon-checkbox:checked) .addon-title { color: rgb(16 185 129); }
+                    .dark .addon-item:has(.addon-checkbox:checked) { background-color: rgb(16 185 129 / 0.12); }
+                    .dark .addon-item:has(.addon-checkbox:checked) .addon-title { color: rgb(110 231 183); }
                 </style>
             `;
             
