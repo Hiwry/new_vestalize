@@ -643,27 +643,27 @@
                                         <div class="flex items-center gap-2">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
                                             <span class="text-gray-800 font-semibold dark:text-gray-200">Tecido:</span>
-                                            <span class="truncate">{{ $firstItem?->fabric ?? 'N/A' }}</span>
+                                            <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $firstItem?->fabric ?? 'N/A' }}</span>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422A12.083 12.083 0 0118 20.944a12.08 12.08 0 01-6 1.722 12.08 12.08 0 01-6-1.722A12.083 12.083 0 015.84 10.578L12 14z"></path></svg>
                                             <span class="text-gray-800 font-semibold dark:text-gray-200">Gola:</span>
-                                            <span class="truncate">{{ $firstItem?->collar ?? 'N/A' }}</span>
+                                            <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $firstItem?->collar ?? 'N/A' }}</span>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"></path></svg>
                                             <span class="text-gray-800 font-semibold dark:text-gray-200">Corte:</span>
-                                            <span class="truncate">{{ $firstItem?->model ?? 'N/A' }}</span>
+                                            <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $firstItem?->model ?? 'N/A' }}</span>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h8M8 11h8m-6 4h6"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                             <span class="text-gray-800 font-semibold dark:text-gray-200">Personalização:</span>
-                                            <span class="truncate">{{ $printType }}</span>
+                                            <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $printType }}</span>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2a3 3 0 00-.879-2.121M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2a3 3 0 01.879-2.121M12 12a4 4 0 100-8 4 4 0 000 8z"></path></svg>
                                             <span class="text-gray-800 font-semibold dark:text-gray-200">Vendedor:</span>
-                                            <span class="truncate">{{ $order->user?->name ?? 'Sem vendedor' }}{{ $order->store ? ' - ' . $order->store->name : '' }}</span>
+                                            <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $order->user?->name ?? 'Sem vendedor' }}{{ $order->store ? ' - ' . $order->store->name : '' }}</span>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9 4 9-4M4 10v6l8 4 8-4v-6"></path></svg>
