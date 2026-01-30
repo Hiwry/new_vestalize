@@ -2411,6 +2411,38 @@
                     previewCoverImage(this);
                 });
             }
+
+            document.addEventListener('paste', function(e) {
+                const modal = document.getElementById('cover-image-modal');
+                const input = document.getElementById('cover-image-input');
+                if (!modal || modal.classList.contains('hidden') || !input) return;
+
+                const items = e.clipboardData && e.clipboardData.items ? e.clipboardData.items : [];
+                let file = null;
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    if (item.kind === 'file' && item.type && item.type.startsWith('image/')) {
+                        file = item.getAsFile();
+                        break;
+                    }
+                }
+
+                if (!file) return;
+
+                e.preventDefault();
+
+                if (typeof DataTransfer !== 'undefined') {
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    input.files = dt.files;
+                }
+
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+
+                if (typeof showNotification === 'function') {
+                    showNotification('Arquivo colado com sucesso!', 'success');
+                }
+            });
             
             // Abrir modal automaticamente se houver pesquisa com resultado
             @if(isset($autoOpenOrderId) && $autoOpenOrderId)
