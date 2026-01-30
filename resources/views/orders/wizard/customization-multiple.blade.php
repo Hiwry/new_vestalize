@@ -620,6 +620,7 @@
                 </div>
                 <input type="hidden" id="unit_price" name="unit_price" value="0">
                 <input type="hidden" id="final_price" name="final_price" value="0">
+                <input type="hidden" id="base_size_price" value="0">
                 <input type="hidden" id="effects_applied" name="effects_applied" value="">
 
                 <!-- Upload de Imagem -->
@@ -1539,8 +1540,8 @@
                         <div class="px-6 py-5 bg-gradient-to-r from-emerald-500/10 via-white to-white dark:from-emerald-600/20 dark:via-slate-900 dark:to-slate-900 border-b border-gray-200 dark:border-slate-700/50">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-emerald-500/15 dark:bg-emerald-500/20 flex items-center justify-center">
-                                        <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-white stay-white" style="color:#fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                                         </svg>
                                     </div>
@@ -1595,7 +1596,7 @@
                                 <button type="button" id="cancelAddon" onclick="closeAddonModal()" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700 rounded-lg transition-all">
                                     Cancelar
                                 </button>
-                                <button type="button" id="confirmAddon" onclick="confirmAddAddon()" class="px-6 py-2.5 text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-all shadow-lg shadow-emerald-900/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-emerald-600" ${filteredAddons.length === 0 ? 'disabled' : ''}>
+                                <button type="button" id="confirmAddon" onclick="confirmAddAddon()" class="px-6 py-2.5 text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white stay-white rounded-lg transition-all shadow-lg shadow-emerald-900/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-emerald-600" style="color:#fff;" ${filteredAddons.length === 0 ? 'disabled' : ''}>
                                     <svg class="w-4 h-4 inline mr-1.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
@@ -1677,30 +1678,30 @@
                 // Formatar exibição do preço
                 let priceDisplay = '';
                 if (chargeType === 'percentage' && addonPercentage > 0) {
-                    priceDisplay = `<span class="text-emerald-400 font-semibold">+${addonPercentage}%</span>`;
+                    priceDisplay = `<span class="text-emerald-600 dark:text-emerald-400 font-semibold">+${addonPercentage}%</span>`;
                 } else if (addonPrice > 0) {
                     priceDisplay = `<span class="text-[#7c3aed] font-semibold">+R$ ${addonPrice.toFixed(2).replace('.', ',')}</span>`;
                 } else if (addonPrice < 0) {
-                    priceDisplay = `<span class="text-green-400 font-semibold">-R$ ${Math.abs(addonPrice).toFixed(2).replace('.', ',')}</span>`;
+                    priceDisplay = `<span class="text-green-600 dark:text-green-400 font-semibold">-R$ ${Math.abs(addonPrice).toFixed(2).replace('.', ',')}</span>`;
                 }
                 
                 // Criar elemento visual com estilo moderno
                 const addonElement = document.createElement('div');
-                addonElement.className = 'flex items-center justify-between p-3 bg-slate-800 hover:bg-slate-700/50 rounded-lg border border-slate-600/50 transition-all group';
+                addonElement.className = 'flex items-center justify-between p-3 bg-white hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-slate-700/50 rounded-lg border border-emerald-200/70 dark:border-slate-600/50 transition-all group';
                 addonElement.setAttribute('data-addon-id', addonId);
                 addonElement.innerHTML = `
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/15 dark:bg-emerald-500/20 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
                         </div>
                         <div>
-                            <span class="font-medium text-white">${addonName}</span>
+                            <span class="font-medium text-gray-900 dark:text-white">${addonName}</span>
                             <div class="text-sm">${priceDisplay}</div>
                         </div>
                     </div>
-                    <button type="button" class="remove-addon p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100" data-addon-id="${addonId}">
+                    <button type="button" class="remove-addon p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100" data-addon-id="${addonId}">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
@@ -1733,9 +1734,13 @@
             const selectedAddons = Array.from(document.getElementById('addons').selectedOptions);
             const pricesContainer = document.getElementById('addons-prices');
             
-            // Obter preço base atual para calcular percentuais
+            // Obter preço base do tamanho (sem cores e sem adicionais) para calcular percentuais
+            const baseSizeInput = document.getElementById('base_size_price');
             const unitPriceEl = document.getElementById('unitPrice');
-            const basePrice = unitPriceEl ? parseFloat(unitPriceEl.textContent.replace('R$', '').replace('.', '').replace(',', '.').trim()) || 0 : 0;
+            let basePrice = baseSizeInput ? parseFloat(baseSizeInput.value) || 0 : 0;
+            if (!basePrice && unitPriceEl) {
+                basePrice = parseFloat(unitPriceEl.textContent.replace('R$', '').replace('.', '').replace(',', '.').trim()) || 0;
+            }
             
             let totalAddonPrice = 0;
             let pricesHtml = '';
@@ -1842,6 +1847,8 @@
                 
                 if (data.success && data.price) {
                     const baseSizePrice = parseFloat(data.price); // Preço base do tamanho (sem adicionais)
+                    const baseSizeInput = document.getElementById('base_size_price');
+                    if (baseSizeInput) baseSizeInput.value = baseSizePrice;
                     let unitPrice = baseSizePrice;
                     const qty = parseInt(quantity);
                     const currentColorCount = parseInt(document.getElementById('color_count')?.value || 1);
@@ -1997,6 +2004,8 @@
                 unitPrice += (unitPrice * 0.5 * selectedEffects.length);
             }
             document.getElementById('effects_applied').value = selectedEffects.join(', ');
+            const baseSizeInput = document.getElementById('base_size_price');
+            if (baseSizeInput) baseSizeInput.value = unitPrice;
 
             if (normalizedType === 'SUB. TOTAL') {
                 const addonsSelect = document.getElementById('addons');
