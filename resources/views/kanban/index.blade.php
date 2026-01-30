@@ -1160,7 +1160,7 @@
     </div>
 
     <!-- Modal de Solicitação de Antecipação -->
-    <div id="delivery-request-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[70]">
+    <div id="delivery-request-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[1000]">
         <div class="relative top-20 mx-auto p-6 border border-gray-200 dark:border-gray-700 w-full max-w-lg shadow-xl dark:shadow-gray-900/25 rounded-lg bg-white dark:bg-gray-800">
             <!-- Header do Modal -->
             <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
