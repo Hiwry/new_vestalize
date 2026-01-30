@@ -1140,7 +1140,10 @@
     window.renderOptionCards = renderOptionCards;
 
     function renderWizardCorteOptions() {
-        renderOptionCards('wizard-options-corte', 'tipo_corte', ['tipo_corte', 'corte', 'cut_types']);
+        const parentId = (wizardData.tipo_tecido && wizardData.tipo_tecido.id)
+            ? wizardData.tipo_tecido.id
+            : (wizardData.tecido ? wizardData.tecido.id : null);
+        renderOptionCards('wizard-options-corte', 'tipo_corte', ['tipo_corte', 'corte', 'cut_types'], parentId);
     }
     window.renderWizardCorteOptions = renderWizardCorteOptions;
 
