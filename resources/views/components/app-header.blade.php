@@ -103,38 +103,32 @@
     
     let notificationsInterval;
 
-    function fetchNotifications() {
-        fetch('/notifications', {
-            credentials: 'same-origin',
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+    async function fetchNotifications() {
+        try {
+            const response = await fetch('/notifications', {
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
-                const contentType = response.headers.get('content-type') || '';
-                if (!contentType.includes('application/json')) {
-                    return null;
-                }
-                const text = await response.text();
-                try {
-                    return JSON.parse(text);
-                } catch (_) {
-                    return null;
-                }
-            })
-            .then(data => {
-                if (!data) return;
-                updateNotificationBadge(data.unread_count);
-                renderNotifications(data.notifications);
-            })
-            .catch(error => {
-                console.error('Erro ao buscar notificações:', error);
-                // Silenciosamente falha para não interromper a navegação
             });
+            const contentType = response.headers.get('content-type') || '';
+            if (!response.ok || !contentType.includes('application/json')) {
+                return;
+            }
+            const text = await response.text();
+            let data = null;
+            try {
+                data = JSON.parse(text);
+            } catch (_) {
+                return;
+            }
+            updateNotificationBadge(data.unread_count);
+            renderNotifications(data.notifications);
+        } catch (error) {
+            console.error('Erro ao buscar notifica??es:', error);
+            // Silenciosamente falha para n?o interromper a navega??o
+        }
     }
 
     function updateNotificationBadge(count) {

@@ -67,6 +67,8 @@ class PasteModal {
 
         document.body.insertAdjacentHTML('beforeend', modalHTML);
         this.modal = document.getElementById('paste-modal');
+        // Garantir que comece fechado para não interceptar Ctrl+V fora do modal
+        this.modal.classList.add('hidden');
         this.pasteZone = document.getElementById('paste-zone');
         this.preview = document.getElementById('paste-files-preview');
         this.fileCount = document.getElementById('paste-file-count');
@@ -84,9 +86,10 @@ class PasteModal {
         
         // Eventos de paste
         document.addEventListener('paste', (e) => {
-            if (!this.modal.classList.contains('hidden')) {
-                this.handlePaste(e);
-            }
+            if (this.modal.classList.contains('hidden')) return;
+            const coverModal = document.getElementById('cover-image-modal');
+            if (coverModal && !coverModal.classList.contains('hidden')) return;
+            this.handlePaste(e);
         });
         
         // Drag & drop

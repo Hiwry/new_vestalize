@@ -1001,8 +1001,9 @@
                            data-paste-max-size="10"
                            data-paste-extensions="jpg,jpeg,png,gif">
                       <button type="button" 
-                              onclick="openCoverImagePicker()"
-                              class="w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white !text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg">
+                              onclick="window.openCoverImagePicker ? window.openCoverImagePicker() : document.getElementById('cover-image-input')?.click()"
+                              class="w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white !text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
+                              style="color: #fff;">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
@@ -1028,7 +1029,8 @@
                         Cancelar
                     </button>
                       <button type="submit" 
-                              class="px-6 py-2.5 bg-indigo-600 dark:bg-indigo-600 text-white !text-white text-sm font-medium rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition flex items-center">
+                              class="px-6 py-2.5 bg-indigo-600 dark:bg-indigo-600 text-white !text-white text-sm font-medium rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition flex items-center"
+                              style="color: #fff;">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
@@ -2258,19 +2260,19 @@
         }
 
         // Fechar modal ao clicar fora
-        document.getElementById('order-modal').addEventListener('click', function(e) {
+        document.getElementById('order-modal')?.addEventListener('click', function(e) {
             if (e.target === this) {
                 closeOrderModal();
             }
         });
 
-        document.getElementById('cover-image-modal').addEventListener('click', function(e) {
+        document.getElementById('cover-image-modal')?.addEventListener('click', function(e) {
             if (e.target === this) {
                 closeCoverImageModal();
             }
         });
 
-        document.getElementById('payment-modal').addEventListener('click', function(e) {
+        document.getElementById('payment-modal')?.addEventListener('click', function(e) {
             if (e.target === this) {
                 closePaymentModal();
             }
@@ -2295,7 +2297,7 @@
             }
         });
         
-        document.getElementById('delivery-request-modal').addEventListener('click', function(e) {
+        document.getElementById('delivery-request-modal')?.addEventListener('click', function(e) {
             if (e.target === this) {
                 closeDeliveryRequestModal();
             }
