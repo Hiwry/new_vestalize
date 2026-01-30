@@ -739,6 +739,17 @@
         document.getElementById('calc-order-total').textContent = `R$ ${orderTotal.toFixed(2).replace('.', ',')}`;
     }
 
+    // Expor funçōes usadas em onclick para funcionar com AJAX navigation
+    window.addQuantityRow = addQuantityRow;
+    window.removeRow = removeRow;
+    window.addColorRow = addColorRow;
+    window.removeColorRow = removeColorRow;
+    window.addNewSize = addNewSize;
+    window.removeSize = removeSize;
+    window.updateSizeName = updateSizeName;
+    window.updateTableHeaders = updateTableHeaders;
+    window.updateCalculator = updateCalculator;
+
     function updateCalculatorOptions() {
         const calcSizeSelect = document.getElementById('calc-size');
         const currentValue = calcSizeSelect.value;
@@ -754,6 +765,7 @@
             calcSizeSelect.value = availableSizes[0];
         }
     }
+    window.updateCalculatorOptions = updateCalculatorOptions;
 </script>
 @endpush
 <!-- Modal Adicionar Tamanho -->

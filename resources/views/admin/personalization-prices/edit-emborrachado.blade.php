@@ -749,6 +749,18 @@
             calcSizeSelect.value = availableSizes[0];
         }
     }
+
+    // Expor funções usadas em onclick para funcionar com AJAX navigation
+    window.addQuantityRow = addQuantityRow;
+    window.removeRow = removeRow;
+    window.addColorRow = addColorRow;
+    window.removeColorRow = removeColorRow;
+    window.addNewSize = addNewSize;
+    window.removeSize = removeSize;
+    window.updateSizeName = updateSizeName;
+    window.updateTableHeaders = updateTableHeaders;
+    window.updateCalculator = updateCalculator;
+    window.updateCalculatorOptions = updateCalculatorOptions;
 </script>
 @endpush
 <!-- Modal Adicionar Tamanho -->
