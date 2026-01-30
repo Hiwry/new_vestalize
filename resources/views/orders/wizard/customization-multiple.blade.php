@@ -1944,9 +1944,9 @@
                             }
                         }
                         
-                        if (currentColorCount >= 3 && colorPrice > 0) {
+                        if (currentColorCount >= 3 && baseSizePrice > 0) {
                             const applicationsWithDiscount = currentColorCount - 2;
-                            const discountPerApplication = colorPrice * 0.5;
+                            const discountPerApplication = baseSizePrice * 0.5;
                             const totalDiscount = discountPerApplication * applicationsWithDiscount;
                             unitPrice -= totalDiscount;
                         }
@@ -1965,7 +1965,7 @@
                     
                     if ((apiType === 'SERIGRAFIA' || apiType === 'EMBORRACHADO') && colorCount >= 3) {
                         const applicationsWithDiscount = colorCount - 2;
-                        formulaText += ` (${applicationsWithDiscount} aplicações com 50% desconto)`;
+                        formulaText += ` (${applicationsWithDiscount} aplicações com 50% no tamanho)`;
                     }
                     
                     document.getElementById('unitPrice').textContent = `R$ ${unitPrice.toFixed(2).replace('.', ',')}`;
