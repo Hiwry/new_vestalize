@@ -616,7 +616,7 @@ class OrderWizardController extends Controller
             $validated = $request->validate([
                 'item_id' => 'required',
                 'personalization_type' => 'required|string',
-                'personalization_id' => 'required_without:editing_personalization_id|integer',
+                'personalization_id' => 'nullable',
                 'art_name' => 'nullable|string|max:255',
                 'location' => 'nullable',
                 'size' => 'nullable|string',
