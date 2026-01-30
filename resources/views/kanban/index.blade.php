@@ -1000,9 +1000,9 @@
                            data-paste-images-only="true"
                            data-paste-max-size="10"
                            data-paste-extensions="jpg,jpeg,png,gif">
-                    <button type="button" 
-                            onclick="window.pasteModal.open(document.getElementById('cover-image-input'))"
-                            class="w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg">
+                      <button type="button" 
+                              onclick="openCoverImagePicker()"
+                              class="w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white !text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
@@ -1027,8 +1027,8 @@
                             class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition">
                         Cancelar
                     </button>
-                    <button type="submit" 
-                            class="px-6 py-2.5 bg-indigo-600 dark:bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition flex items-center">
+                      <button type="submit" 
+                              class="px-6 py-2.5 bg-indigo-600 dark:bg-indigo-600 text-white !text-white text-sm font-medium rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition flex items-center">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
@@ -2371,11 +2371,28 @@
             document.getElementById('cover-image-modal').classList.remove('hidden');
         }
 
-        function closeCoverImageModal() {
-            document.getElementById('cover-image-modal').classList.add('hidden');
-            document.getElementById('cover-image-form').reset();
-            document.getElementById('cover-preview').classList.add('hidden');
-        }
+          function closeCoverImageModal() {
+              document.getElementById('cover-image-modal').classList.add('hidden');
+              document.getElementById('cover-image-form').reset();
+              document.getElementById('cover-preview').classList.add('hidden');
+          }
+
+          function openCoverImagePicker() {
+              const coverInput = document.getElementById('cover-image-input');
+              if (!coverInput) return;
+
+              if (window.pasteModal && typeof window.pasteModal.open === 'function') {
+                  window.pasteModal.open(coverInput);
+                  const modalInput = document.getElementById('paste-modal-file-input');
+                  if (modalInput) {
+                      modalInput.click();
+                      return;
+                  }
+              }
+
+              // Fallback: abrir o file picker direto
+              coverInput.click();
+          }
 
         function previewCoverImage(input) {
             const preview = document.getElementById('cover-preview');
