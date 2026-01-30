@@ -321,6 +321,10 @@
                 window.updateBottomNav();
             }
 
+            if (typeof window.dedupeFlashMessages === 'function') {
+                window.dedupeFlashMessages();
+            }
+
             // Garantir que o dark mode seja mantido após carregar novo conteúdo
             if (isDarkMode) {
                 document.documentElement.classList.add('dark');

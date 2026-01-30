@@ -781,14 +781,14 @@
                 {{-- Flash Messages --}}
                 @if(session('success'))
                     <div class="mb-4 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div class="bg-green-100 border border-green-400 text-white px-4 py-3 rounded relative dark:bg-green-900/50 dark:border-green-600 dark:text-white font-bold" role="alert">
+                        <div class="bg-green-100 border border-green-400 text-white px-4 py-3 rounded relative dark:bg-green-900/50 dark:border-green-600 dark:text-white font-bold" role="alert" data-flash-text="{{ session('success') }}" data-flash-type="success">
                             <span class="block sm:inline">{{ session('success') }}</span>
                         </div>
                     </div>
                 @endif
                 @if(session('error'))
                     <div class="mb-4 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative dark:bg-red-900/50 dark:border-red-600 dark:text-red-300" role="alert">
+                        <div class="bg-red-100 border border-red-400 text-white px-4 py-3 rounded relative dark:bg-red-900/50 dark:border-red-600 dark:text-white" role="alert" data-flash-text="{{ session('error') }}" data-flash-type="error">
                             <span class="block sm:inline">{{ session('error') }}</span>
                         </div>
                     </div>
@@ -867,6 +867,26 @@
         // GLOBAL NOTIFICATION SYSTEM
         // Use notify() para substituir alert()
         // ============================================
+
+        function dedupeFlashMessages() {
+            const flashes = Array.from(document.querySelectorAll('[data-flash-text]'));
+            if (flashes.length === 0) return;
+            const main = document.getElementById('main-content') || document;
+
+            flashes.forEach(flash => {
+                const text = (flash.dataset.flashText || '').trim().replace(/\s+/g, ' ');
+                if (!text) return;
+
+                const candidates = Array.from(main.querySelectorAll('*')).filter(el => {
+                    if (el === flash) return false;
+                    if (el.closest('[data-flash-text]')) return false;
+                    const content = (el.textContent || '').trim().replace(/\s+/g, ' ');
+                    return content === text;
+                });
+
+                candidates.forEach(el => el.remove());
+            });
+        }
         
         function notify(message, type = 'info', options = {}) {
             const container = document.getElementById('toast-container');
@@ -966,6 +986,14 @@
                 });
             });
         }
+
+        // Remover alertas duplicados apÃ³s carregar
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', dedupeFlashMessages);
+        } else {
+            dedupeFlashMessages();
+        }
+        window.dedupeFlashMessages = dedupeFlashMessages;
     </script>
 
     @stack('scripts')
