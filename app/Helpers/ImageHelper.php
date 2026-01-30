@@ -20,15 +20,26 @@ class ImageHelper
         }
         
         $normalizedPath = self::normalizePath($path);
+
+        // Remover prefixo "images/" caso venha no caminho salvo
+        if ($normalizedPath && Str::startsWith($normalizedPath, 'images/')) {
+            $normalizedPath = Str::after($normalizedPath, 'images/');
+        }
+
         $basename = $normalizedPath ? basename($normalizedPath) : basename($path);
 
         // Imagens de aplicação podem estar bloqueadas em /images; prefira servir via storage/rota
-        if ($normalizedPath && Str::startsWith($normalizedPath, [
+        if ($normalizedPath && (Str::startsWith($normalizedPath, [
             'orders/applications',
             'orders/sublimations',
             'orders/items/applications',
             'orders/items/sublimations',
-        ])) {
+        ]) || Str::contains($normalizedPath, [
+            'orders/applications',
+            'orders/sublimations',
+            'applications/',
+            'sublimations/',
+        ]))) {
             $relativePath = self::resolveRelativePath($normalizedPath, [
                 'orders/applications',
                 'orders/sublimations',

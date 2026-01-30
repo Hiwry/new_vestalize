@@ -159,7 +159,13 @@ function notificationBell() {
                 if (!response.ok || !contentType.includes('application/json')) {
                     return;
                 }
-                const data = await response.json();
+                const text = await response.text();
+                let data = null;
+                try {
+                    data = JSON.parse(text);
+                } catch (_) {
+                    return;
+                }
                 
                 // Verificar se há novas notificações
                 if (this.notifications.length > 0 && data.notifications.length > 0) {

@@ -119,7 +119,12 @@
                 if (!contentType.includes('application/json')) {
                     return null;
                 }
-                return response.json();
+                const text = await response.text();
+                try {
+                    return JSON.parse(text);
+                } catch (_) {
+                    return null;
+                }
             })
             .then(data => {
                 if (!data) return;
