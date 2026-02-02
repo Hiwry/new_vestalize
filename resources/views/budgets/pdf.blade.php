@@ -288,6 +288,22 @@
 
     <!-- Items Table (Unified) -->
     <div class="section-title" style="margin-bottom: 10px; padding-left: 5px;">Itens do Orçamento</div>
+    @php
+        $allCustomizations = $budget->items->flatMap->customizations;
+        $addonIds = $allCustomizations->flatMap(function ($custom) {
+            $addons = $custom->addons ?? [];
+            if (!is_array($addons)) {
+                $addons = json_decode($addons, true) ?? [];
+            }
+            return $addons;
+        })->filter(function ($addonId) {
+            return is_numeric($addonId);
+        })->unique()->values();
+        $addonsLookup = $addonIds->isNotEmpty()
+            ? \App\Models\SublimationAddon::whereIn('id', $addonIds)->pluck('name', 'id')->toArray()
+            : [];
+    @endphp
+
     <table class="items-table">
         <thead>
             <tr>
@@ -349,9 +365,24 @@
                             @if($item->customizations->count() > 0)
                                 <div style="margin-top: 6px;">
                                     @foreach($item->customizations as $cust)
+                                        @php
+                                            $addonNames = [];
+                                            $custAddons = $cust->addons ?? [];
+                                            if (!is_array($custAddons)) {
+                                                $custAddons = json_decode($custAddons, true) ?? [];
+                                            }
+                                            foreach ((array) $custAddons as $addonId) {
+                                                $addonNames[] = $addonsLookup[$addonId] ?? $addonId;
+                                            }
+                                            if (!empty($cust->regata_discount)) {
+                                                $addonNames[] = 'REGATA (desconto)';
+                                            }
+                                            $addonsLabel = !empty($addonNames) ? ' | Adicionais: ' . implode(', ', $addonNames) : '';
+                                        @endphp
                                         <span class="pers-tag">
                                             {{ $cust->personalization_type }}: {{ $cust->location }}
                                             @if($cust->color_count > 1) ({{ $cust->color_count }} cores) @endif
+                                            {!! $addonsLabel ? e($addonsLabel) : '' !!}
                                         </span>
                                     @endforeach
                                 </div>

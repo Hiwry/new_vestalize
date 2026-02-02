@@ -176,6 +176,18 @@
                     $allCustomizations = $budget->items->flatMap(function($item) {
                         return $item->customizations;
                     });
+                    $addonIds = $allCustomizations->flatMap(function ($custom) {
+                        $addons = $custom->addons ?? [];
+                        if (!is_array($addons)) {
+                            $addons = json_decode($addons, true) ?? [];
+                        }
+                        return $addons;
+                    })->filter(function ($addonId) {
+                        return is_numeric($addonId);
+                    })->unique()->values();
+                    $addonsLookup = $addonIds->isNotEmpty()
+                        ? \App\Models\SublimationAddon::whereIn('id', $addonIds)->pluck('name', 'id')->toArray()
+                        : [];
                 @endphp
                 @if($allCustomizations->count() > 0)
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/25 border border-gray-200 dark:border-gray-700 p-6">
@@ -208,10 +220,30 @@
                                             <p class="font-medium text-gray-900 dark:text-gray-100">{{ $custom->color_count ?? 1 }} {{ ($custom->color_count ?? 1) > 1 ? 'aplicações' : 'aplicação' }}</p>
                                         </div>
                                         @endif
-                                    </div>
-                                    
-                                    <!-- Breakdown de valores -->
-                                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded p-2 text-xs space-y-1">
+                                      </div>
+                                      
+                                      @php
+                                          $addonNames = [];
+                                          $customAddons = $custom->addons ?? [];
+                                          if (!is_array($customAddons)) {
+                                              $customAddons = json_decode($customAddons, true) ?? [];
+                                          }
+                                          foreach ((array) $customAddons as $addonId) {
+                                              $addonNames[] = $addonsLookup[$addonId] ?? $addonId;
+                                          }
+                                          if (!empty($custom->regata_discount)) {
+                                              $addonNames[] = 'REGATA (desconto)';
+                                          }
+                                      @endphp
+                                      @if(!empty($addonNames))
+                                          <div class="text-xs text-gray-600 dark:text-gray-400">
+                                              <span class="font-medium text-gray-700 dark:text-gray-300">Adicionais:</span>
+                                              {{ implode(', ', $addonNames) }}
+                                          </div>
+                                      @endif
+
+                                      <!-- Breakdown de valores -->
+                                      <div class="bg-gray-50 dark:bg-gray-700/50 rounded p-2 text-xs space-y-1">
                                         <div class="flex justify-between">
                                             <span class="text-gray-600 dark:text-gray-400">Valor unitário:</span>
                                             <span class="text-gray-900 dark:text-gray-100 font-medium">R$ {{ number_format($custom->unit_price, 2, ',', '.') }}</span>

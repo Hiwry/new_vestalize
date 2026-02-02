@@ -449,6 +449,18 @@ class BudgetController extends Controller
                     $artFiles[] = $file->store('budgets/arts', 'public');
                 }
             }
+
+            $addons = $data['addons'] ?? [];
+            if (!is_array($addons)) {
+                $addons = [$addons];
+            }
+            $addons = array_values(array_filter($addons, function ($addonId) {
+                return $addonId !== null && $addonId !== '';
+            }));
+            $addons = array_map(function ($addonId) {
+                return is_numeric($addonId) ? (int) $addonId : $addonId;
+            }, $addons);
+            $regataDiscount = !empty($data['regata_discount']);
             
             $customizations[] = [
                 'item_index' => $itemIndex,
@@ -464,6 +476,8 @@ class BudgetController extends Controller
                 'art_files' => $artFiles,
                 'color_details' => $data['color_details'] ?? '',
                 'notes' => $data['seller_notes'] ?? '',
+                'addons' => $addons,
+                'regata_discount' => $regataDiscount,
             ];
             
             // Aplicar descontos automáticos
@@ -690,6 +704,8 @@ class BudgetController extends Controller
                     'image' => $customData['image'] ?? null,
                     'art_files' => isset($customData['art_files']) ? json_encode($customData['art_files']) : null,
                     'notes' => $customData['notes'] ?? '',
+                    'addons' => !empty($customData['addons']) ? $customData['addons'] : null,
+                    'regata_discount' => !empty($customData['regata_discount']),
                 ]);
             }
 
@@ -1237,6 +1253,15 @@ class BudgetController extends Controller
                         $applicationImage = $this->copyImageFile($budgetCustomization->image, 'orders/sublimations/images');
                     }
                     
+                    $addons = $budgetCustomization->addons ?? [];
+                    if (!is_array($addons)) {
+                        $addons = json_decode($addons, true) ?? [];
+                    }
+                    $regataDiscount = (bool) ($budgetCustomization->regata_discount ?? false);
+                    if ($regataDiscount) {
+                        $addons[] = 'REGATA_DISCOUNT';
+                    }
+
                     $sublimation = \App\Models\OrderSublimation::create([
                         'order_item_id' => $orderItem->id,
                         'application_type' => $budgetCustomization->personalization_type,
@@ -1249,6 +1274,8 @@ class BudgetController extends Controller
                         'final_price' => $budgetCustomization->total_price,
                         'seller_notes' => $budgetCustomization->notes ?? '',
                         'application_image' => $applicationImage,
+                        'addons' => !empty($addons) ? $addons : null,
+                        'regata_discount' => $regataDiscount,
                     ]);
                     
                     // Copiar arquivos de arte (art_files) - incluindo arquivos Corel (.cdr)

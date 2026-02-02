@@ -1,6 +1,21 @@
 @extends('layouts.admin')
 
 @section('content')
+@php
+    $allCustomizations = $budget->items->flatMap->customizations;
+    $addonIds = $allCustomizations->flatMap(function ($custom) {
+        $addons = $custom->addons ?? [];
+        if (!is_array($addons)) {
+            $addons = json_decode($addons, true) ?? [];
+        }
+        return $addons;
+    })->filter(function ($addonId) {
+        return is_numeric($addonId);
+    })->unique()->values();
+    $addonsLookup = $addonIds->isNotEmpty()
+        ? \App\Models\SublimationAddon::whereIn('id', $addonIds)->pluck('name', 'id')->toArray()
+        : [];
+@endphp
 <div class="max-w-5xl mx-auto">
     <!-- Cabeçalho -->
     <div class="mb-6 flex items-center justify-between">
@@ -304,12 +319,30 @@
                             <div class="flex justify-between items-start mb-3">
                                 <div class="flex-1">
                                     <span class="font-semibold text-gray-900 dark:text-white block mb-1">{{ $custom->personalization_type }}</span>
-                                    <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-600 dark:text-gray-400">
-                                        <span><strong>Local:</strong> {{ $custom->location }}</span>
-                                        <span><strong>Tamanho:</strong> {{ $custom->size }}</span>
-                                        <span><strong>Qtd:</strong> {{ $custom->quantity }}</span>
-                                    </div>
-                                </div>
+                                      <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-600 dark:text-gray-400">
+                                          <span><strong>Local:</strong> {{ $custom->location }}</span>
+                                          <span><strong>Tamanho:</strong> {{ $custom->size }}</span>
+                                          <span><strong>Qtd:</strong> {{ $custom->quantity }}</span>
+                                      </div>
+                                      @php
+                                          $addonNames = [];
+                                          $customAddons = $custom->addons ?? [];
+                                          if (!is_array($customAddons)) {
+                                              $customAddons = json_decode($customAddons, true) ?? [];
+                                          }
+                                          foreach ((array) $customAddons as $addonId) {
+                                              $addonNames[] = $addonsLookup[$addonId] ?? $addonId;
+                                          }
+                                          if (!empty($custom->regata_discount)) {
+                                              $addonNames[] = 'REGATA (desconto)';
+                                          }
+                                      @endphp
+                                      @if(!empty($addonNames))
+                                          <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                              <strong>Adicionais:</strong> {{ implode(', ', $addonNames) }}
+                                          </div>
+                                      @endif
+                                  </div>
                                 <div class="text-right ml-4">
                                     <span class="font-bold text-sm text-indigo-600 dark:text-indigo-400 whitespace-nowrap">
                                         R$ {{ number_format($custom->total_price, 2, ',', '.') }}

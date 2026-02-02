@@ -180,6 +180,15 @@
                 <!-- Personalizações -->
                 @php
                     $customizations = session('budget_customizations', []);
+                    $addonIds = collect($customizations)->flatMap(function ($custom) {
+                        $addons = $custom['addons'] ?? [];
+                        return is_array($addons) ? $addons : [];
+                    })->filter(function ($addonId) {
+                        return is_numeric($addonId);
+                    })->unique()->values();
+                    $addonsLookup = $addonIds->isNotEmpty()
+                        ? \App\Models\SublimationAddon::whereIn('id', $addonIds)->pluck('name', 'id')->toArray()
+                        : [];
                 @endphp
                 @if(!empty($customizations))
                 <div class="bg-gray-50 dark:bg-gray-700/50 rounded-md p-4">
@@ -215,6 +224,25 @@
                                     <span class="text-gray-900 dark:text-gray-100">{{ $quantity }} peças</span>
                                 </div>
                             </div>
+
+                            @php
+                                $addonNames = [];
+                                $customAddons = $custom['addons'] ?? [];
+                                if (is_array($customAddons)) {
+                                    foreach ($customAddons as $addonId) {
+                                        $addonNames[] = $addonsLookup[$addonId] ?? $addonId;
+                                    }
+                                }
+                                if (!empty($custom['regata_discount'])) {
+                                    $addonNames[] = 'REGATA (desconto)';
+                                }
+                            @endphp
+                            @if(!empty($addonNames))
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Adicionais:</span>
+                                    {{ implode(', ', $addonNames) }}
+                                </div>
+                            @endif
                             
                             <!-- Breakdown de valores -->
                             <div class="border-t border-indigo-200 dark:border-indigo-700 pt-2 space-y-1">

@@ -21,11 +21,15 @@ class BudgetCustomization extends Model
         'image',
         'art_files',
         'notes',
+        'addons',
+        'regata_discount',
     ];
 
     protected $casts = [
         'unit_price' => 'decimal:2',
         'total_price' => 'decimal:2',
+        'addons' => 'array',
+        'regata_discount' => 'boolean',
     ];
 
     public function budgetItem(): BelongsTo
