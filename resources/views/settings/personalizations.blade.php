@@ -45,7 +45,7 @@
     </a>
 
     <!-- Sublimação Total -->
-    @if(Auth::user()->tenant_id === null || Auth::user()->tenant->canAccess('sublimation_total'))
+    @if(Auth::user()->tenant_id === null || Auth::user()->tenant->canAccess('sublimation_total') || Auth::user()->tenant->canAccess('catalog'))
     <a href="{{ route('admin.sublimation-products.index') }}" class="group block p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-purple-100 dark:border-purple-900/30 hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md transition-all duration-200">
         <div class="flex items-center space-x-4 mb-4">
             <div class="p-3 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg group-hover:scale-110 transition-transform">

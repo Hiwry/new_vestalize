@@ -157,7 +157,7 @@
         <div class="flex items-start justify-between">
             <div>
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Faturamento</p>
-                <h3 class="mt-2 text-sm font-bold text-gray-400 italic">Disponível no Plano Pro</h3>
+                <h3 class="mt-2 text-sm font-bold text-gray-400 italic">Disponível no Plano Pro Empresas</h3>
                 <p class="text-xs text-gray-500 mt-2">Atualize para ver faturamento.</p>
             </div>
             <div class="p-3 bg-gray-50 dark:bg-gray-700 text-gray-400 rounded-xl">
@@ -207,7 +207,7 @@
         <div class="absolute inset-0 bg-gray-100/50 dark:bg-gray-900/50 backdrop-blur-[1px] z-10 flex items-center justify-center">
             <div class="bg-white dark:bg-gray-800 px-3 py-1 rounded-full shadow-sm border border-gray-200 dark:border-gray-600 flex items-center gap-2">
                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                <span class="text-xs font-bold text-gray-600 dark:text-gray-300">Disponível no Plano Pro</span>
+                <span class="text-xs font-bold text-gray-600 dark:text-gray-300">Disponível no Plano Pro Empresas</span>
             </div>
         </div>
         <div class="flex items-start justify-between filter blur-[2px]">
@@ -311,7 +311,7 @@
             @if(Auth::user()->tenant && !Auth::user()->tenant->canAccess('financial'))
             <div class="absolute inset-0 flex flex-col items-center justify-center bg-white/60 dark:bg-gray-800/60 backdrop-blur-[2px] z-10 p-4 text-center">
                 <svg class="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                <p class="text-sm font-bold text-gray-700 dark:text-gray-300">Upgrade para Plano Pro</p>
+                <p class="text-sm font-bold text-gray-700 dark:text-gray-300">Upgrade para Plano Pro Empresas</p>
                 <p class="text-xs text-gray-500">Visualize métricas financeiras</p>
             </div>
             @endif

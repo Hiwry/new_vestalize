@@ -8,6 +8,7 @@ use App\Models\Plan;
 use App\Models\Store;
 use App\Models\Status;
 use App\Models\Affiliate;
+use App\Models\AffiliateClick;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -21,8 +22,25 @@ class PublicRegistrationController extends Controller
      */
     public function show(Request $request)
     {
-        $plans = Plan::all();
+        $plans = Plan::whereIn('slug', Plan::PUBLIC_SLUGS)->orderBy('price')->get();
         $ref = $request->query('ref');
+
+        if ($ref) {
+            $affiliate = Affiliate::active()->byCode($ref)->first();
+            if ($affiliate) {
+                $sessionKey = 'affiliate_click_' . $affiliate->code;
+                if (!$request->session()->has($sessionKey)) {
+                    AffiliateClick::create([
+                        'affiliate_id' => $affiliate->id,
+                        'ip_address' => $request->ip(),
+                        'user_agent' => (string) $request->userAgent(),
+                        'referer' => $request->headers->get('referer'),
+                        'landing_url' => $request->fullUrl(),
+                    ]);
+                    $request->session()->put($sessionKey, true);
+                }
+            }
+        }
         
         return view('auth.registro', compact('plans', 'ref'));
     }

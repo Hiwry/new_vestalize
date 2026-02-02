@@ -38,7 +38,7 @@
     {{-- Main Content --}}
     <main class="min-h-screen">
         {{-- Spacer para compensar o navbar fixo --}}
-        <div class="h-32 lg:h-48"></div>
+        <div class="h-8 lg:h-10"></div>
 
         {{-- Hero --}}
         @include('landing.partials.hero')

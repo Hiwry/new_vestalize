@@ -182,7 +182,7 @@
                 <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-muted">
                     <i class="fa-solid fa-lock text-xl"></i>
                 </div>
-                <p class="text-[10px] font-black uppercase text-muted tracking-widest leading-tight">Relatórios VIP<br><span class="text-purple-400">Plano Pro</span></p>
+                <p class="text-[10px] font-black uppercase text-muted tracking-widest leading-tight">Relatórios VIP<br><span class="text-purple-400">Plano Pro Empresas</span></p>
             </div>
             @endif
         </div>
@@ -311,7 +311,7 @@
                     <i class="fa-solid fa-crown text-xl text-amber-500"></i>
                 </div>
                 <p class="text-sm font-black text-white uppercase tracking-widest mb-1">Visão Financeira</p>
-                <p class="text-xs font-medium text-muted text-nowrap">Upgrade para Plano Pro necessário</p>
+                <p class="text-xs font-medium text-muted text-nowrap">Upgrade para Plano Pro Empresas necessário</p>
             </div>
             @endif
         </div>

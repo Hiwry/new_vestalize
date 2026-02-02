@@ -7,6 +7,9 @@
 @php
     $user = Auth::user();
     $canAccessKanban = $user?->isAdmin() || ($user?->tenant?->canAccess('kanban') ?? false);
+    $canAccessProduction = $user?->isAdmin() || ($user?->tenant?->canAccess('production') ?? false);
+    $canAccessPersonalized = $user?->isAdmin() || ($user?->tenant?->canAccess('personalized') ?? false);
+    $kanbanType = $canAccessProduction ? 'production' : ($canAccessPersonalized ? 'personalized' : 'production');
     $canCreateOrder = $user?->isAdmin() || $user?->isVendedor() || $user?->isAdminLoja();
 @endphp
 
@@ -44,7 +47,7 @@
         
         {{-- Kanban ou Clientes --}}
         @if($canAccessKanban)
-        <a href="{{ route('kanban.index') }}" 
+        <a href="{{ route('kanban.index', ['type' => $kanbanType]) }}" 
            data-nav-item="kanban"
            class="mobile-nav-link flex flex-col items-center justify-center w-16 h-full transition-all duration-300">
             <i class="fa-solid fa-layer-group text-lg mb-1"></i>

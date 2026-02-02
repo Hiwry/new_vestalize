@@ -229,18 +229,43 @@
                             </div>
                             
                             @if($plan->features)
+                                @php
+                                    $planFeatures = $plan->features ?? [];
+                                    $hasAll = in_array('*', $planFeatures);
+                                    $displayFeatures = collect(\App\Models\Plan::AVAILABLE_FEATURES)
+                                        ->except(['subscription_module'])
+                                        ->toArray();
+                                    $showLocked = $plan->slug === 'start';
+                                @endphp
                                 <ul class="space-y-3 mb-6">
-                                    @foreach($plan->features as $feature)
-                                        <li class="flex items-start text-sm text-gray-600 dark:text-gray-300">
-                                            @if($feature === '*')
-                                                 <i class="fa-solid fa-star text-indigo-500 mt-0.5 mr-2.5"></i>
-                                                 <span class="font-medium">Acesso Completo</span>
-                                            @else
-                                                <i class="fa-solid fa-check text-green-500 mt-0.5 mr-2.5"></i>
-                                                {{ \App\Models\Plan::AVAILABLE_FEATURES[$feature] ?? $feature }}
-                                            @endif
-                                        </li>
-                                    @endforeach
+                                    @if($showLocked)
+                                        @foreach($displayFeatures as $featureKey => $label)
+                                            @php $included = $hasAll || in_array($featureKey, $planFeatures); @endphp
+                                            <li class="flex items-start text-sm {{ $included ? 'text-gray-600 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500' }}">
+                                                @if($included)
+                                                    <i class="fa-solid fa-check text-green-500 mt-0.5 mr-2.5"></i>
+                                                @else
+                                                    <i class="fa-solid fa-lock text-gray-400 mt-0.5 mr-2.5"></i>
+                                                @endif
+                                                <span>{{ $label }}</span>
+                                                @if(!$included)
+                                                    <span class="ml-2 text-[10px] uppercase tracking-widest text-gray-400">Não incluso</span>
+                                                @endif
+                                            </li>
+                                        @endforeach
+                                    @else
+                                        @foreach($plan->features as $feature)
+                                            <li class="flex items-start text-sm text-gray-600 dark:text-gray-300">
+                                                @if($feature === '*')
+                                                     <i class="fa-solid fa-star text-indigo-500 mt-0.5 mr-2.5"></i>
+                                                     <span class="font-medium">Acesso Completo</span>
+                                                @else
+                                                    <i class="fa-solid fa-check text-green-500 mt-0.5 mr-2.5"></i>
+                                                    {{ \App\Models\Plan::AVAILABLE_FEATURES[$feature] ?? $feature }}
+                                                @endif
+                                            </li>
+                                        @endforeach
+                                    @endif
                                     
                                     {{-- Limites explícitos --}}
                                     @if($plan->limits)
@@ -323,7 +348,7 @@
                                         Pagar com Mercado Pago
                                     </button>
 
-                                    <button type="button" @click="generatePix('{{ $plan->id }}', coupon)" class="inline-flex w-full justify-center py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm">
+                                    <button type="button" @click="generatePix('{{ $plan->id }}', coupon, $event)" class="inline-flex w-full justify-center py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm">
                                         <i class="fa-solid fa-qrcode mr-2"></i> Pagar com PIX
                                     </button>
                                     
@@ -342,6 +367,44 @@
                         </div>
                     </div>
                 @endforeach
+            </div>
+        </div>
+
+        {{-- Add-ons --}}
+        <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg shadow-sm">
+            <div class="p-6 md:p-8">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Adicionais (mensais)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-start gap-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
+                        <i class="fa-solid fa-list-ul text-indigo-500 mt-0.5"></i>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Catálogo</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">R$ 50,00/mês</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
+                        <i class="fa-solid fa-file-invoice text-indigo-500 mt-0.5"></i>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Notas Fiscais (NF-e)</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">R$ 250,00/mês</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
+                        <i class="fa-solid fa-store text-indigo-500 mt-0.5"></i>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Loja extra</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">R$ 100,00/mês</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50">
+                        <i class="fa-solid fa-user-plus text-indigo-500 mt-0.5"></i>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Usuário extra</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">R$ 30,00/mês</p>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-4">Todos os valores são mensais.</p>
             </div>
         </div>
 
@@ -430,7 +493,7 @@
 
 @push('scripts')
 <script>
-    function copyContent(id) {
+    window.copyContent = function copyContent(id) {
         const text = document.getElementById(id).innerText;
         navigator.clipboard.writeText(text).then(() => {
             notify('Copiado para a área de transferência!', 'success', 2000);
@@ -439,12 +502,14 @@
         });
     }
 
-    async function generatePix(planId, coupon = '') {
-        const btn = event.currentTarget;
-        const originalHtml = btn.innerHTML;
+    window.generatePix = async function generatePix(planId, coupon = '', event = null) {
+        const btn = event && event.currentTarget ? event.currentTarget : null;
+        const originalHtml = btn ? btn.innerHTML : null;
         
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Gerando PIX...';
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Gerando PIX...';
+        }
 
         try {
             const response = await fetch(`/mercadopago/pix/${planId}`, {
@@ -489,8 +554,10 @@
             console.error('Error generating PIX:', error);
             showToast('Erro ao gerar PIX. Tente novamente mais tarde.', 'error');
         } finally {
-            btn.disabled = false;
-            btn.innerHTML = originalHtml;
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
         }
     }
     

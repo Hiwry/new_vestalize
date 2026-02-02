@@ -54,10 +54,35 @@
         }
     </style>
     <script>
-        // Pre-check theme to avoid flash
-        if (localStorage.getItem('theme') === 'light') {
-            document.documentElement.classList.add('light');
-        }
+        // Pre-check theme to avoid flash (sync with admin/landing "dark" key)
+        (function() {
+            const savedDark = localStorage.getItem('dark');
+            let isDark = false;
+
+            if (savedDark !== null) {
+                isDark = savedDark === 'true' || savedDark === 'dark';
+            } else {
+                const legacyTheme = localStorage.getItem('theme');
+                if (legacyTheme !== null) {
+                    isDark = legacyTheme === 'dark';
+                }
+            }
+
+            document.documentElement.classList.toggle('dark', isDark);
+            document.documentElement.classList.toggle('light', !isDark);
+
+            const syncBodyClasses = () => {
+                if (!document.body) return;
+                document.body.classList.toggle('dark', isDark);
+                document.body.classList.toggle('light', !isDark);
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', syncBodyClasses, { once: true });
+            } else {
+                syncBodyClasses();
+            }
+        })();
     </script>
 </head>
 <body class="landing-page antialiased">

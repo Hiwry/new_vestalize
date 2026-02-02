@@ -48,6 +48,16 @@ class ProductionController extends Controller
         $storeId = $request->get('store_id');
         $period = $request->get('period', 'week'); // Default: semana (segunda a sexta)
         $viewType = $request->get('type', 'production'); // 'production' or 'personalized'
+
+        $tenant = $user->tenant;
+        if ($tenant) {
+            if ($viewType === 'personalized' && !$tenant->canAccess('personalized')) {
+                abort(403, 'Seu plano não inclui o módulo de Personalizados.');
+            }
+            if ($viewType !== 'personalized' && !$tenant->canAccess('production')) {
+                abort(403, 'Seu plano não inclui o módulo de Produção.');
+            }
+        }
         
         // Para períodos predefinidos, sempre recalcular as datas
         // Só usar start_date/end_date do request quando for "custom"

@@ -106,12 +106,20 @@
     <div class="lg:w-1/3 space-y-6">
         <!-- Código do Afiliado -->
         <div class="bg-gradient-to-br from-purple-600 to-indigo-700 overflow-hidden shadow-lg sm:rounded-lg text-white p-6">
-            <h3 class="text-lg font-semibold mb-2">Código de Indicação</h3>
-            <p class="text-3xl font-mono font-bold tracking-wider">{{ $affiliate->code }}</p>
-            <p class="text-purple-200 text-sm mt-2">Compartilhe este código com novos clientes</p>
-            <button onclick="navigator.clipboard.writeText('{{ $affiliate->code }}')" class="mt-4 w-full bg-white/20 hover:bg-white/30 py-2 px-4 rounded transition text-sm font-medium">
-                📋 Copiar Código
+            <h3 class="text-lg font-semibold mb-2">Link de Indicação</h3>
+            <p class="text-purple-200 text-sm">Compartilhe este link para o cadastro</p>
+            <input
+                type="text"
+                readonly
+                value="{{ $referralLink }}"
+                class="mt-3 w-full px-3 py-2 rounded bg-white/15 border border-white/20 text-white text-sm"
+            >
+            <button
+                onclick="navigator.clipboard.writeText('{{ $referralLink }}')"
+                class="mt-3 w-full bg-white/20 hover:bg-white/30 py-2 px-4 rounded transition text-sm font-medium">
+                Copiar link
             </button>
+            <p class="text-xs text-purple-200 mt-2">Código: <span class="font-mono font-bold">{{ $affiliate->code }}</span></p>
         </div>
 
         <!-- Informações -->

@@ -82,6 +82,14 @@ class Affiliate extends Model
     }
 
     /**
+     * Cliques do link de indicação
+     */
+    public function clicks(): HasMany
+    {
+        return $this->hasMany(AffiliateClick::class);
+    }
+
+    /**
      * Calcula a comissão para um pagamento
      */
     public function calculateCommission(float $paymentAmount, ?float $customRate = null): float
@@ -138,10 +146,23 @@ class Affiliate extends Model
     }
 
     /**
+     * Quantidade de indicações com pagamento confirmado
+     */
+    public function paidReferralsCount(): int
+    {
+        return $this->tenants()
+            ->whereHas('subscriptionPayments', function ($query) {
+                $query->whereNotNull('paid_at')
+                    ->orWhereIn('status', ['succeeded', 'approved', 'paid']);
+            })
+            ->count();
+    }
+
+    /**
      * Quantidade de indicações ativas
      */
     public function getActiveReferralsCountAttribute(): int
     {
-        return $this->tenants()->where('status', 'active')->count();
+        return $this->paidReferralsCount();
     }
 }

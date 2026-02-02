@@ -23,7 +23,11 @@ class SubscriptionController extends Controller
         }
         
         $currentPlan = $tenant->currentPlan;
-        $allPlans = Plan::orderBy('price')->get();
+        $allPlansQuery = Plan::whereIn('slug', Plan::PUBLIC_SLUGS);
+        if ($currentPlan && !in_array($currentPlan->slug, Plan::PUBLIC_SLUGS, true)) {
+            $allPlansQuery->orWhere('id', $currentPlan->id);
+        }
+        $allPlans = $allPlansQuery->orderBy('price')->get();
         $subscriptionPayments = SubscriptionPayment::with('plan')
             ->where('tenant_id', $tenant->id)
             ->orderByDesc('paid_at')
@@ -123,7 +127,8 @@ Por favor, entre em contato com o cliente para formalizar o upgrade.
         $planId = $request->input('plan_id');
 
         // Lógica simples de cupom conforme pedido do usuário
-        if ($code === 'VESTASTART' && $planId == 3) { // 3 é o ID do Plano Start criado
+        $plan = Plan::find($planId);
+        if ($code === 'VESTASTART' && $plan && $plan->slug === 'start') {
             return response()->json([
                 'success' => true,
                 'discount_price' => 79.90,

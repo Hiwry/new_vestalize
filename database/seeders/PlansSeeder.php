@@ -28,6 +28,7 @@ class PlansSeeder extends Seeder
      * PRODUÇÃO:
      * - production       → Módulo de Produção (ordens de produção, dashboard produção)
      * - kanban           → Kanban de Produção (board visual, calendário de entregas)
+     * - personalized     → Módulo de Personalizados
      * 
      * VENDAS:
      * - pdv              → Frente de Caixa (PDV) (ponto de venda, vendas rápidas)
@@ -39,12 +40,14 @@ class PlansSeeder extends Seeder
      * 
      * CATÁLOGO:
      * - sublimation_total → Sublimação Total (produtos de sublimação total)
+     * - catalog          → Catálogo (acesso aos módulos de catálogo)
      * 
      * BRANDING:
      * - branding         → Personalização de Marca (logo, cores, white-label)
      * 
      * ADMINISTRATIVO:
      * - subscription_module → Módulo de Assinatura (visualização na sidebar)
+     * - invoices            → Notas Fiscais (NF-e)
      * 
      * ESPECIAL:
      * - *                → Acesso Ilimitado (todas as funcionalidades)
@@ -55,98 +58,71 @@ class PlansSeeder extends Seeder
     {
         $plans = [
             // ========================================
-            // PLANO START - R$ 100/mês
-            // Ideal para: MEI, autônomos, início de operação
+            // PLANO PERSONALIZE - R$ 99,90/mês
+            // Ideal para: operações focadas em personalizados
             // ========================================
             'start' => [
-                'name' => 'Start',
+                'name' => 'Personalize',
                 'slug' => 'start',
-                'price' => 100.00,
-                'description' => 'Plano essencial para quem está começando. Funcionalidades básicas para gestão de pedidos e clientes.',
+                'price' => 99.90,
+                'description' => 'Plano focado em personalizados, com financeiro e kanban específico.',
                 'limits' => [
                     'stores' => 1,
                     'users' => 1,
                 ],
                 'features' => [
-                    'orders',           // Gestão de Pedidos
-                    'crm',              // CRM / Clientes
+                    'personalized',     // Módulo de Personalizados
                     'financial',        // Gestão Financeira
-                    'branding',         // Personalização de Marca
+                    'kanban',           // Kanban de Produção (vista personalizados)
                     'subscription_module', // Visualizar assinatura
                 ],
             ],
 
             // ========================================
-            // PLANO BÁSICO - R$ 200/mês
-            // Ideal para: Pequenas empresas, 1-2 funcionários
+            // PLANO MÉDIO - R$ 299,90/mês
+            // Ideal para: Vendas completas + produção + catálogo
             // ========================================
             'basic' => [
-                'name' => 'Básico',
+                'name' => 'Plano Medio',
                 'slug' => 'basic',
-                'price' => 200.00,
-                'description' => 'Plano completo para pequenos negócios com relatórios e organização visual.',
+                'price' => 299.90,
+                'description' => 'Vendas completas, produção, catálogo e financeiro.',
                 'limits' => [
                     'stores' => 1,
-                    'users' => 3,
+                    'users' => 2,
                 ],
                 'features' => [
                     'orders',           // Gestão de Pedidos
                     'crm',              // CRM / Clientes
-                    'financial',        // Gestão Financeira
-                    'reports_simple',   // Relatórios Simples
-                    'kanban',           // Kanban de Produção
-                    'production',       // Módulo de Produção
-                    'pdf_quotes',       // Orçamentos em PDF
-                    'branding',         // Personalização de Marca
-                    'subscription_module', // Visualizar assinatura
-                ],
-            ],
-
-            // ========================================
-            // PLANO PRO - R$ 300/mês
-            // Ideal para: Empresas em crescimento, equipes médias
-            // ========================================
-            'pro' => [
-                'name' => 'Profissional',
-                'slug' => 'pro',
-                'price' => 300.00,
-                'description' => 'Plano ideal para negócios em crescimento com PDV, estoque e orçamentos online.',
-                'limits' => [
-                    'stores' => 1,
-                    'users' => 5,
-                ],
-                'features' => [
-                    'orders',           // Gestão de Pedidos
-                    'crm',              // CRM / Clientes
-                    'financial',        // Gestão Financeira
-                    'reports_simple',   // Relatórios Simples
-                    'reports_complete', // Relatórios Completos
-                    'kanban',           // Kanban de Produção
-                    'production',       // Módulo de Produção
                     'pdv',              // Frente de Caixa (PDV)
                     'pdf_quotes',       // Orçamentos em PDF
                     'external_quote',   // Orçamento Online
-                    'stock',            // Controle de Estoque
-                    'branding',         // Personalização de Marca
+                    'production',       // Módulo de Produção
+                    'financial',        // Gestão Financeira
+                    'kanban',           // Kanban de Produção
+                    'personalized',     // Módulo de Personalizados
+                    'catalog',          // Catálogo
                     'subscription_module', // Visualizar assinatura
                 ],
             ],
 
             // ========================================
-            // PLANO PREMIUM - R$ 500/mês
-            // Ideal para: Empresas consolidadas, multi-loja
+            // PLANO PRO EMPRESAS - R$ 499,90/mês
+            // Ideal para: Empresas com múltiplas lojas e equipe maior
             // ========================================
-            'premium' => [
-                'name' => 'Premium',
-                'slug' => 'premium',
-                'price' => 500.00,
-                'description' => 'Acesso total e ilimitado. Multi-loja, usuários ilimitados e todas as funcionalidades.',
+            'pro' => [
+                'name' => 'Pro Empresas',
+                'slug' => 'pro',
+                'price' => 499.90,
+                'description' => 'Acesso completo a todas as funcionalidades com limites ampliados.',
                 'limits' => [
-                    'stores' => 9999,
-                    'users' => 9999,
+                    'stores' => 4,
+                    'users' => 15,
                 ],
                 'features' => ['*'], // Acesso a TUDO
             ],
+
+            // Removido: plano premium (não faz mais parte da grade atual)
         ];
 
         foreach ($plans as $key => $data) {
@@ -157,6 +133,16 @@ class PlansSeeder extends Seeder
             
             // Update existing tenants with legacy 'plan' column
             \App\Models\Tenant::where('plan', $key)->update(['plan_id' => $plan->id]);
+        }
+
+        // Remover planos antigos que não fazem mais parte da grade (apenas se não estiverem em uso)
+        $allowedSlugs = collect($plans)->pluck('slug')->values()->toArray();
+        $unusedPlans = \App\Models\Plan::whereNotIn('slug', $allowedSlugs)->get();
+        foreach ($unusedPlans as $unusedPlan) {
+            $hasTenants = \App\Models\Tenant::where('plan_id', $unusedPlan->id)->exists();
+            if (!$hasTenants) {
+                $unusedPlan->delete();
+            }
         }
         
         $this->command->info('✅ Planos criados/atualizados com sucesso!');

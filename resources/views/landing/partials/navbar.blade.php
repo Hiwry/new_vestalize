@@ -4,7 +4,7 @@
 <header class="landing-navbar" x-data="{ mobileOpen: false }">
     <div class="landing-navbar-inner">
         {{-- Logo --}}
-        <a href="/" class="flex items-center gap-2 group">
+        <a href="/" class="flex items-center gap-2 group -ml-2">
             <img
                 src="{{ asset('logos/logo_branca_img.png') }}"
                 alt="Vestalize"

@@ -544,7 +544,12 @@
                                 $firstItem = $order->items->first();
                                 $coverImage = $order->cover_image_url ?: $firstItem?->cover_image_url;
                                 $artName = $firstItem?->art_name;
-                                $displayName = $artName ?? ($order->client?->name ?? 'Sem cliente');
+                                $productName = $firstItem?->print_type ?? $firstItem?->art_name ?? 'Personalizado';
+                                $customNote = $firstItem?->print_desc ?? $firstItem?->art_notes;
+                                $personalizationLabel = $customNote ?: (($firstItem?->art_name && $firstItem?->art_name !== $productName) ? $firstItem?->art_name : 'Sem personalização');
+                                $displayName = $viewType === 'personalized'
+                                    ? ($order->client?->name ?? $productName)
+                                    : ($artName ?? ($order->client?->name ?? 'Sem cliente'));
                                 $storeName = $order->store?->name ?? 'Loja Principal';
                                 $filesCount = $order->items->sum(fn($item) => $item->files->count());
                                 $printType = $firstItem?->print_type ?? 'Sem personalização';
@@ -640,6 +645,23 @@
                                     </div>
 
                                     <div class="grid grid-cols-1 gap-1 text-[11px] text-gray-600 dark:text-gray-300">
+                                        @if($viewType === 'personalized')
+                                            <div class="flex items-center gap-2">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                                                <span class="text-gray-800 font-semibold dark:text-gray-200">Produto:</span>
+                                                <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $productName }}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                <span class="text-gray-800 font-semibold dark:text-gray-200">Personalização:</span>
+                                                <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $personalizationLabel }}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16h6"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                <span class="text-gray-800 font-semibold dark:text-gray-200">Cliente:</span>
+                                                <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $order->client?->name ?? 'Sem cliente' }}</span>
+                                            </div>
+                                        @else
                                         <div class="flex items-center gap-2">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
                                             <span class="text-gray-800 font-semibold dark:text-gray-200">Tecido:</span>
@@ -660,6 +682,7 @@
                                             <span class="text-gray-800 font-semibold dark:text-gray-200">Personalização:</span>
                                             <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $printType }}</span>
                                         </div>
+                                        @endif
                                         <div class="flex items-center gap-2">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2a3 3 0 00-.879-2.121M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2a3 3 0 01.879-2.121M12 12a4 4 0 100-8 4 4 0 000 8z"></path></svg>
                                             <span class="text-gray-800 font-semibold dark:text-gray-200">Vendedor:</span>

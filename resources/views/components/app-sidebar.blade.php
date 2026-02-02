@@ -202,6 +202,22 @@
             </a>
         </div>
 
+        @if(auth()->user()->affiliate)
+        <div class="mt-2 text-nowrap">
+            <a href="{{ route('affiliate.dashboard') }}"
+               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('affiliate.*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+               :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+               title="Afiliado">
+                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <i class="fa-solid fa-user-group text-lg"></i>
+                </div>
+                <span class="ml-4 whitespace-nowrap overflow-hidden transition-all duration-300" x-show="expanded">
+                    Afiliado
+                </span>
+            </a>
+        </div>
+        @endif
+
         @if(Auth::user()->isEstoque() && !Auth::user()->isAdmin())
             <!-- Sidebar Simplificada para Estoque (Sem grupos) -->
             <!-- ... Itens estoque ... -->
@@ -281,6 +297,10 @@
             @endif
 
              @if(Auth::user()->isAdmin())
+            @php
+                $canCatalog = Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('catalog');
+            @endphp
+            @if($canCatalog)
             <div class="mt-1">
                 <button @click="toggleGroup('catalogo')"
                         class="flex items-center w-full text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
@@ -308,7 +328,7 @@
                     <a href="{{ route('admin.modelos.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.modelos.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Modelos
                     </a>
-                    @if(Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('sublimation_total'))
+                    @if(Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('sublimation_total') || Auth::user()->tenant?->canAccess('catalog'))
                     <a href="{{ route('admin.sublimation-products.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.sublimation-products.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Sublimação Total
                     </a>
@@ -319,9 +339,15 @@
                 </div>
             </div>
             @endif
+            @endif
 
             <!-- GRUPO: PRODUÃÃO -->
              @if(Auth::user()->isProducao() || Auth::user()->isAdmin())
+            @php
+                $canProduction = Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('production');
+                $canPersonalized = Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('personalized');
+            @endphp
+            @if($canProduction || $canPersonalized)
             <div class="mt-1">
                 <button @click="toggleGroup('producao')"
                         class="flex items-center w-full text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
@@ -337,17 +363,15 @@
                 </button>
                 
                 <div x-show="openGroups.producao && expanded" x-collapse x-cloak class="space-y-1 my-1 px-2">
+                    @if($canProduction)
                     <a href="{{ route('production.dashboard') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('production.dashboard') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Dashboard
                     </a>
                     <a href="{{ route('production.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('production.index') && request()->get('type') != 'personalized' ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Lista de Ordens
                     </a>
-                    <a href="{{ route('kanban.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('kanban.index') && request()->get('type') != 'personalized' ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('kanban.index', ['type' => 'production']) }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('kanban.index') && request()->get('type') != 'personalized' ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Kanban Produção
-                    </a>
-                    <a href="{{ route('production.index', ['type' => 'personalized']) }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('production.index') && request()->get('type') == 'personalized' ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Personalizados
                     </a>
                     <a href="{{ route('production.delivery-requests.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('production.delivery-requests.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Solicitações de Antecipação
@@ -355,8 +379,18 @@
                     <a href="{{ route('production.edit-requests.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('production.edit-requests.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Solicitações de Edição
                     </a>
+                    @endif
+                    @if($canPersonalized)
+                    <a href="{{ route('personalized.orders.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('personalized.orders.index') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                        Personalizados
+                    </a>
+                    <a href="{{ route('kanban.index', ['type' => 'personalized']) }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('kanban.index') && request()->get('type') == 'personalized' ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                        Kanban Personalizados
+                    </a>
+                    @endif
                 </div>
             </div>
+            @endif
             @endif
 
              @if((Auth::user()->isAdmin() || Auth::user()->isCaixa()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('financial')))
@@ -384,12 +418,14 @@
                     <a href="{{ route('cash.approvals.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('cash.approvals.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Aprovações PDV
                     </a>
+                    @if(Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('invoices'))
                     <a href="{{ route('admin.invoices.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.invoices.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Notas Fiscais
                     </a>
                     <a href="{{ route('admin.invoice-config.edit') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.invoice-config.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Configuração NF-e
                     </a>
+                    @endif
                 </div>
             </div>
             @endif
@@ -410,39 +446,18 @@
 
 
 
-            <!-- GRUPO: ASSINATURAS (Apenas Super Admin) -->
-            {{-- GRUPO: ASSINATURAS (Super Admin apenas - sem tenant_id) --}}
+            <!-- ASSINATURAS (Super Admin apenas - sem dropdown) -->
             @if(Auth::user()->isAdmin() && Auth::user()->tenant_id === null)
             <div class="mt-1">
-                <button @click="toggleGroup('assinaturas')"
-                        class="flex items-center w-full text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
-                        :class="expanded ? 'px-4 py-3.5 justify-between' : 'justify-center p-3.5 mx-auto'"
-                        title="Assinaturas">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                            <i class="fa-solid fa-users-gear text-lg group-hover:text-primary transition-colors"></i>
-                        </div>
-                        <span class="ml-4" x-show="expanded">Assinaturas</span>
+                <a href="{{ route('admin.tenants.index') }}"
+                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->routeIs('admin.tenants.*') || request()->routeIs('admin.plans.*') || request()->routeIs('admin.subscription-payments.*') || request()->routeIs('admin.affiliates.*') || request()->routeIs('admin.leads.*')) ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   title="Assinaturas">
+                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                        <i class="fa-solid fa-users-gear text-lg"></i>
                     </div>
-                    <i x-show="expanded" class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" :class="openGroups.assinaturas ? 'rotate-90 text-primary' : ''"></i>
-                </button>
-                <div x-show="openGroups.assinaturas && expanded" x-collapse x-cloak class="space-y-1 my-1 px-2">
-                    <a href="{{ route('admin.tenants.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.tenants.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Gerenciar Tenants
-                    </a>
-                    <a href="{{ route('admin.plans.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.plans.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Planos
-                    </a>
-                    <a href="{{ route('admin.subscription-payments.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.subscription-payments.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Pagamentos
-                    </a>
-                    <a href="{{ route('admin.affiliates.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.affiliates.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Afiliados
-                    </a>
-                    <a href="{{ route('admin.leads.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.leads.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Lista VIP 🚀
-                    </a>
-                </div>
+                    <span class="ml-4" x-show="expanded">Assinaturas</span>
+                </a>
             </div>
             @endif
 

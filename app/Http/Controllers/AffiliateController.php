@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Affiliate;
 use App\Models\AffiliateCommission;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -28,7 +29,8 @@ class AffiliateController extends Controller
      */
     public function create()
     {
-        return view('admin.affiliates.create');
+        $users = User::orderBy('name')->get();
+        return view('admin.affiliates.create', compact('users'));
     }
 
     /**
@@ -37,6 +39,7 @@ class AffiliateController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'user_id' => ['nullable', 'exists:users,id', Rule::unique('affiliates', 'user_id')],
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:affiliates,email',
             'phone' => 'nullable|string|max:20',
@@ -66,13 +69,15 @@ class AffiliateController extends Controller
 
         $stats = [
             'total_referrals' => $affiliate->tenants()->count(),
-            'active_referrals' => $affiliate->tenants()->where('status', 'active')->count(),
+            'active_referrals' => $affiliate->paidReferralsCount(),
             'total_earnings' => $affiliate->total_earnings,
             'pending_balance' => $affiliate->pending_balance,
             'withdrawn_balance' => $affiliate->withdrawn_balance,
         ];
 
-        return view('admin.affiliates.show', compact('affiliate', 'stats'));
+        $referralLink = route('register.public', ['ref' => $affiliate->code]);
+
+        return view('admin.affiliates.show', compact('affiliate', 'stats', 'referralLink'));
     }
 
     /**
@@ -80,7 +85,8 @@ class AffiliateController extends Controller
      */
     public function edit(Affiliate $affiliate)
     {
-        return view('admin.affiliates.edit', compact('affiliate'));
+        $users = User::orderBy('name')->get();
+        return view('admin.affiliates.edit', compact('affiliate', 'users'));
     }
 
     /**
@@ -89,6 +95,7 @@ class AffiliateController extends Controller
     public function update(Request $request, Affiliate $affiliate)
     {
         $validated = $request->validate([
+            'user_id' => ['nullable', 'exists:users,id', Rule::unique('affiliates', 'user_id')->ignore($affiliate->id)],
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('affiliates')->ignore($affiliate->id)],
             'phone' => 'nullable|string|max:20',
@@ -181,9 +188,9 @@ class AffiliateController extends Controller
     /**
      * Validar código de afiliado (API para cadastro)
      */
-    public function validateCode(Request $request)
+    public function validateCode(Request $request, ?string $code = null)
     {
-        $code = strtoupper($request->input('code', ''));
+        $code = strtoupper($code ?? $request->input('code', ''));
         
         $affiliate = Affiliate::active()->byCode($code)->first();
 

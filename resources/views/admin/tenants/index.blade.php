@@ -10,10 +10,15 @@
 <div class="py-12">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
         
-        <div class="flex justify-between items-center">
-            <a href="{{ route('admin.affiliates.index') }}" class="text-purple-600 dark:text-purple-400 hover:underline text-sm font-medium">
-                👥 Gerenciar Afiliados
-            </a>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-4 text-sm font-medium">
+                <a href="{{ route('admin.affiliates.index') }}" class="text-purple-600 dark:text-purple-400 hover:underline">
+                    Gerenciar Afiliados
+                </a>
+                <a href="{{ route('admin.plans.index') }}" class="text-purple-600 dark:text-purple-400 hover:underline">
+                    Gerenciar Planos
+                </a>
+            </div>
             <a href="{{ route('admin.tenants.create') }}" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                 Nova Assinatura
             </a>
@@ -23,7 +28,7 @@
         @if($affiliates->count() > 0)
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">📊 Indicações por Afiliado</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Indicações por Afiliado</h3>
             </div>
             <div class="p-4">
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -68,6 +73,7 @@
                                         @php
                                             $slug = $tenant->currentPlan ? $tenant->currentPlan->slug : 'basic';
                                             $planColors = [
+                                                'start' => 'bg-amber-100 text-amber-800',
                                                 'basic' => 'bg-gray-100 text-gray-800',
                                                 'pro' => 'bg-blue-100 text-blue-800',
                                                 'premium' => 'bg-purple-100 text-purple-800',
@@ -97,7 +103,7 @@
                                         
                                         @if($isAtrasado)
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-600 text-white animate-pulse">
-                                                🚨 Inadimplente
+                                                Inadimplente
                                             </span>
                                         @elseif($tenant->status === 'active')
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -122,7 +128,7 @@
                                         <form action="{{ route('admin.tenants.resend-access', $tenant) }}" method="POST" class="inline">
                                             @csrf
                                             <button type="submit" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300" onclick="return confirm('Reenviar email de acesso?')">
-                                                📧 Reenviar
+                                                Reenviar
                                             </button>
                                         </form>
                                     </td>

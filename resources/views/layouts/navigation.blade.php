@@ -1,3 +1,11 @@
+@php
+    $navUser = Auth::user();
+    $canAccessKanban = $navUser->tenant_id === null || $navUser->tenant?->canAccess('kanban');
+    $canAccessProduction = $navUser->tenant_id === null || $navUser->tenant?->canAccess('production');
+    $canAccessPersonalized = $navUser->tenant_id === null || $navUser->tenant?->canAccess('personalized');
+    $kanbanType = $canAccessProduction ? 'production' : ($canAccessPersonalized ? 'personalized' : 'production');
+@endphp
+
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,8 +26,8 @@
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link href="/" :active="request()->is('/')">Home</x-nav-link>
                     <x-nav-link :href="route('orders.wizard.start')" :active="request()->routeIs('orders.wizard.*')">Novo Pedido</x-nav-link>
-                    @if(Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('kanban'))
-                    <x-nav-link :href="route('kanban.index')" :active="request()->routeIs('kanban.index')">Kanban</x-nav-link>
+                    @if($canAccessKanban)
+                    <x-nav-link :href="route('kanban.index', ['type' => $kanbanType])" :active="request()->routeIs('kanban.index')">Kanban</x-nav-link>
                     @endif
                 </div>
             </div>
@@ -117,8 +125,8 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link href="/" :active="request()->is('/')">Home</x-responsive-nav-link>
             <x-responsive-nav-link :href="route('orders.wizard.start')" :active="request()->routeIs('orders.wizard.*')">Novo Pedido</x-responsive-nav-link>
-            @if(Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('kanban'))
-            <x-responsive-nav-link :href="route('kanban.index')" :active="request()->routeIs('kanban.index')">Kanban</x-responsive-nav-link>
+            @if($canAccessKanban)
+            <x-responsive-nav-link :href="route('kanban.index', ['type' => $kanbanType])" :active="request()->routeIs('kanban.index')">Kanban</x-responsive-nav-link>
             @endif
         </div>
 

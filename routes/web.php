@@ -14,6 +14,8 @@ Route::get('/imagens-aplicacao/{filename}', [\App\Http\Controllers\StorageContro
 // Rota Pública da Landing Page
 Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'index'])->name('welcome');
 Route::post('/save-lead', [\App\Http\Controllers\LeadController::class, 'store'])->name('leads.store');
+// Link público de indicação
+Route::get('/r/{code}', [\App\Http\Controllers\AffiliatePortalController::class, 'redirect'])->name('affiliate.ref');
 
 // Rota para servir arquivos do storage quando symlink não existe (deve vir antes das outras rotas)
 // IMPORTANTE: Esta rota deve ser pública e não requerer autenticação
@@ -399,6 +401,7 @@ Route::middleware('auth')->group(function () {
     // Módulo Personalizados
     Route::prefix('personalizados')->name('personalized.')->middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\PersonalizedController::class, 'index'])->name('index');
+        Route::get('/pedidos', [\App\Http\Controllers\OrderController::class, 'indexPersonalized'])->name('orders.index');
         Route::post('/cart/add', [\App\Http\Controllers\PersonalizedController::class, 'addToCart'])->name('cart.add');
         Route::post('/cart/remove', [\App\Http\Controllers\PersonalizedController::class, 'removeFromCart'])->name('cart.remove');
         Route::post('/cart/clear', [\App\Http\Controllers\PersonalizedController::class, 'clearCart'])->name('cart.clear');
@@ -513,6 +516,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/checkout/{plan}', [\App\Http\Controllers\PaymentController::class, 'checkout'])->name('checkout');
         Route::post('/create-intent/{plan}', [\App\Http\Controllers\PaymentController::class, 'createIntent'])->name('create-intent');
         Route::get('/return', [\App\Http\Controllers\PaymentController::class, 'handleReturn'])->name('return');
+    });
+
+    // Portal do Afiliado
+    Route::prefix('afiliado')->name('affiliate.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\AffiliatePortalController::class, 'dashboard'])->name('dashboard');
+        Route::get('/indicados', [\App\Http\Controllers\AffiliatePortalController::class, 'referrals'])->name('referrals');
     });
 });
 

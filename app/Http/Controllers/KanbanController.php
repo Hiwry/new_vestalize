@@ -37,6 +37,27 @@ class KanbanController extends Controller
         }
         $period = $request->get('period', 'week'); // Default: semana
 
+        $tenant = $user->tenant;
+        if ($tenant) {
+            $canProduction = $tenant->canAccess('production');
+            $canPersonalized = $tenant->canAccess('personalized');
+            if ($viewType === 'production' && !$canProduction && $canPersonalized) {
+                $viewType = 'personalized';
+            }
+            if ($viewType === 'personalized' && !$canPersonalized && $canProduction) {
+                $viewType = 'production';
+            }
+            if (!$tenant->canAccess('kanban')) {
+                abort(403, 'Seu plano não inclui o Kanban.');
+            }
+            if ($viewType === 'personalized' && !$tenant->canAccess('personalized')) {
+                abort(403, 'Seu plano não inclui o Kanban de Personalizados.');
+            }
+            if ($viewType === 'production' && !$tenant->canAccess('production')) {
+                abort(403, 'Seu plano não inclui o Kanban de Produção.');
+            }
+        }
+        
         // Date Logic
         if ($period === 'custom') {
             $startDate = $request->get('start_date');

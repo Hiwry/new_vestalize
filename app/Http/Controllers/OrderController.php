@@ -96,6 +96,86 @@ class OrderController extends Controller
         return view('orders.index', compact('orders', 'statuses', 'search', 'status', 'startDate', 'endDate', 'dateType'));
     }
 
+    public function indexPersonalized(Request $request)
+    {
+        $user = Auth::user();
+        if ($user->tenant_id !== null && $user->tenant && !$user->tenant->canAccess('personalized')) {
+            abort(403, 'Seu plano não inclui o módulo de Personalizados.');
+        }
+
+        // DEBUG: Log para rastrear problema de filtro por tenant
+        \Log::info('OrderController::indexPersonalized DEBUG', [
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'user_tenant_id' => $user->tenant_id,
+            'user_role' => $user->role,
+            'isAdminGeral' => $user->isAdminGeral(),
+            'isAdmin' => $user->isAdmin(),
+        ]);
+
+        $search = $request->get('search');
+        $status = $request->get('status');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $dateType = $request->get('date_type', 'created'); // padrão: data de criação
+
+        $query = Order::with([
+            'client',
+            'status',
+            'items.sublimations.location',
+            'items.sublimations',
+            'user',
+            'editRequests'
+        ])
+            ->notDrafts()
+            ->where('is_pdv', false)
+            ->where('origin', 'personalized');
+
+        // Aplicar filtro de loja
+        StoreHelper::applyStoreFilter($query);
+
+        // Se for vendedor, mostrar apenas os pedidos que ele criou
+        if (Auth::user()->isVendedor()) {
+            $query->byUser(Auth::id());
+        }
+
+        // Busca usando scope otimizado
+        if ($search) {
+            $query->search($search);
+        }
+
+        // Filtro por status usando scope
+        if ($status) {
+            $query->byStatus($status);
+        }
+
+        // Filtro por data - escolher entre data de criação ou entrega
+        if ($startDate && $endDate) {
+            if ($dateType === 'delivery') {
+                $query->whereBetween('delivery_date', [$startDate, $endDate]);
+            } else {
+                $query->dateRange($startDate, $endDate);
+            }
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')->paginate(20);
+
+        // DEBUG: Log para ver resultados da query
+        \Log::info('OrderController::indexPersonalized RESULTADOS', [
+            'total_orders' => $orders->total(),
+            'orders_tenant_ids' => $orders->pluck('tenant_id')->unique()->values()->toArray(),
+            'orders_store_ids' => $orders->pluck('store_id')->unique()->values()->toArray(),
+            'orders_ids' => $orders->pluck('id')->toArray(),
+        ]);
+
+        $statuses = Status::where('type', 'personalized')->orderBy('position')->get();
+        if ($statuses->isEmpty()) {
+            $statuses = Status::orderBy('position')->get();
+        }
+
+        return view('orders.personalized-index', compact('orders', 'statuses', 'search', 'status', 'startDate', 'endDate', 'dateType'));
+    }
+
     public function show($id)
     {
         $order = Order::with([

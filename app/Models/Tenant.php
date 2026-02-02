@@ -83,6 +83,14 @@ class Tenant extends Model
     }
 
     /**
+     * Pagamentos de assinatura do tenant
+     */
+    public function subscriptionPayments(): HasMany
+    {
+        return $this->hasMany(SubscriptionPayment::class);
+    }
+
+    /**
      * Gerar código único de loja
      */
     public static function generateStoreCode(): string

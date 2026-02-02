@@ -6,14 +6,28 @@ use Illuminate\Http\Request;
 use App\Models\SublimationProduct;
 use App\Models\Client;
 use App\Models\Order;
+use App\Models\Status;
+use App\Models\Store;
 use App\Models\Payment;
 use App\Services\PixService;
+use App\Services\OrderWizardService;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PersonalizedController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $user = Auth::user();
+            if ($user && $user->tenant_id !== null && $user->tenant && !$user->tenant->canAccess('personalized')) {
+                abort(403, 'Seu plano não inclui o módulo de Personalizados.');
+            }
+            return $next($request);
+        });
+    }
+
     /**
      * Display the main personalized sales page.
      */
@@ -185,40 +199,63 @@ class PersonalizedController extends Controller
 
         DB::beginTransaction();
         try {
-            $totalItems = array_sum(array_column($cart, 'total_price'));
+            $subtotal = $this->calculateCartTotal($cart);
             $discount = $validated['discount'] ?? 0;
-            $finalTotal = max(0, $totalItems - $discount);
+            $finalTotal = max(0, $subtotal - $discount);
+            $totalQuantity = array_sum(array_column($cart, 'quantity'));
+
+            $user = Auth::user();
+            $storeId = app(OrderWizardService::class)->resolveStoreId($user);
+            $tenantId = $user?->tenant_id ?? session('selected_tenant_id');
+            if ($tenantId === null && $storeId) {
+                $tenantId = Store::find($storeId)?->tenant_id;
+            }
+
+            $statusQuery = Status::withoutGlobalScopes();
+            if ($tenantId !== null) {
+                $statusQuery->where('tenant_id', $tenantId);
+            }
+            $status = (clone $statusQuery)->where('type', 'personalized')->orderBy('position')->first();
+            if (!$status) {
+                $status = (clone $statusQuery)->orderBy('position')->first();
+            }
             
             // Create Order
             // Assuming we use the standard Order model
             $order = Order::create([
                 'client_id' => $validated['client_id'],
                 'user_id' => Auth::id(), // Seller
-                'status_id' => 1, // Default status (Pending/Open)
-                // 'status' => 'pending', // Removing string status if using ID, or keeping if both used
-                'payment_status' => 'pending',
-                'total_amount' => $finalTotal,
+                'store_id' => $storeId,
+                'status_id' => $status?->id ?? 1, // Default status (Pending/Open)
+                'order_date' => now()->toDateString(),
+                'delivery_date' => now()->addDays(2)->toDateString(),
+                'is_draft' => false,
+                'is_pdv' => false,
+                'total_items' => $totalQuantity,
+                'subtotal' => $subtotal,
                 'discount' => $discount,
+                'total' => $finalTotal,
                 'notes' => $validated['notes'] ?? 'Venda via Módulo Personalizados',
                 'origin' => 'personalized',
-                'delivery_date' => now()->addDays(2), // Standard default? Or ask?
             ]);
 
             // Add Items
+            $itemNumber = 1;
             foreach ($cart as $item) {
+                $customizationNote = $item['customization_note'] ?? null;
+                $artName = $customizationNote ?: ($item['name'] ?? null);
                 // We might need to map to OrderItem model
                 // Assuming OrderItem structure. 
                 // Since this is custom, we might use the 'product_name' field if exact product_id structure differs from standard
                 $order->items()->create([
-                    'product_id' => null, // If it's a SublimationProduct, it might not link to standard 'products' table if they are separate. 
-                    // If SublimationProduct IS NOT Product, we can't link directly if FK exists.
-                    // Checking implementation_plan, I see SublimationProduct is a separate model.
-                    // I will store the name and details in JSON or description if possible. 
-                    'name' => $item['name'] . ($item['customization_note'] ? " ({$item['customization_note']})" : ""),
+                    'item_number' => $itemNumber++,
+                    'print_type' => $item['name'] ?? '',
+                    'print_desc' => $customizationNote,
+                    'art_name' => $artName,
+                    'art_notes' => $customizationNote,
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],
                     'total_price' => $item['total_price'],
-                    'type' => 'custom', // To distinguish
                 ]);
             }
 
@@ -226,9 +263,17 @@ class PersonalizedController extends Controller
             Payment::create([
                 'order_id' => $order->id,
                 'method' => $validated['payment_method'],
+                'payment_method' => $validated['payment_method'],
+                'payment_methods' => [[
+                    'method' => $validated['payment_method'],
+                    'amount' => $finalTotal,
+                    'date' => now()->toDateString(),
+                ]],
                 'amount' => $finalTotal,
+                'entry_amount' => $finalTotal,
+                'remaining_amount' => 0,
+                'payment_date' => now(),
                 'status' => 'completed', // Assuming immediate payment for POS logic? Or pending?
-                // If POS, usually completed.
             ]);
 
             Session::forget('personalized_cart');

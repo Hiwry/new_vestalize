@@ -1,5 +1,5 @@
 {{-- Hero Section --}}
-<section class="relative w-full flex flex-col items-center pt-80 lg:pt-96 pb-12 overflow-hidden">
+<section class="relative w-full flex flex-col items-center pt-20 lg:pt-24 pb-12 overflow-hidden">
     <div class="landing-wrapper relative z-10">
         <div class="flex flex-col items-center text-center">
             {{-- Badge --}}
