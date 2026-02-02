@@ -330,6 +330,7 @@
                                     }
                                 }
                                 $displayName = $artName ?? $order->client->name;
+                                $commentsCount = (int) ($order->comments_count ?? 0);
                             @endphp
                             <div class="kanban-card bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden cursor-move hover:shadow-xl transition-all duration-200 border border-gray-200 dark:border-gray-600" 
                                  draggable="true" 
@@ -379,9 +380,18 @@
                                                 </span>
                                                 @endif
                                             </div>
-                                            <span class="text-xs text-gray-500 dark:text-gray-400">
-                                                {{ $order->items->sum('quantity') }} pçs
-                                            </span>
+                                            <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                                <span>{{ $order->items->sum('quantity') }} pçs</span>
+                                                <span id="comment-badge-{{ $order->id }}"
+                                                      data-count="{{ $commentsCount }}"
+                                                      class="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-500/20 dark:text-amber-200 dark:border-amber-400/40 {{ $commentsCount > 0 ? '' : 'hidden' }}"
+                                                      title="{{ $commentsCount }} comentarios">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-2 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                                                    </svg>
+                                                    <span data-comment-count>{{ $commentsCount }}</span>
+                                                </span>
+                                            </div>
                                         </div>
                                         <h3 class="font-semibold text-gray-900 dark:text-white text-sm truncate" title="{{ $displayName }}">
                                             {{ $displayName }}
@@ -1118,6 +1128,16 @@
             .then(data => {
                 if (data.success) {
                     showNotification('Comentário adicionado com sucesso!', 'success');
+                    const badge = document.getElementById(`comment-badge-${orderId}`);
+                    if (badge) {
+                        const current = parseInt(badge.dataset.count || '0', 10);
+                        const next = current + 1;
+                        badge.dataset.count = String(next);
+                        const countEl = badge.querySelector('[data-comment-count]');
+                        if (countEl) countEl.textContent = String(next);
+                        badge.classList.remove('hidden');
+                        badge.setAttribute('title', `${next} comentarios`);
+                    }
                     // Recarregar detalhes do pedido
                     openOrderModal(orderId);
                 } else {

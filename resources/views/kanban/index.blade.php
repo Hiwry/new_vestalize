@@ -552,6 +552,7 @@
                                     : ($artName ?? ($order->client?->name ?? 'Sem cliente'));
                                 $storeName = $order->store?->name ?? 'Loja Principal';
                                 $filesCount = $order->items->sum(fn($item) => $item->files->count());
+                                $commentsCount = (int) ($order->comments_count ?? 0);
                                 $printType = $firstItem?->print_type ?? 'Sem personalização';
                                 $entryDate = $order->entry_date 
                                     ? \Carbon\Carbon::parse($order->entry_date) 
@@ -623,11 +624,22 @@
                                                 <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-purple-600 text-white border border-purple-600 dark:bg-purple-600 dark:text-white dark:border-purple-600">Evento</span>
                                             @endif
                                         </div>
-                                        <div class="flex items-center gap-1 text-gray-600 text-[11px] dark:text-gray-400">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-                                            </svg>
-                                            <span>{{ $filesCount }} arq.</span>
+                                        <div class="flex items-center gap-2 text-gray-600 text-[11px] dark:text-gray-400">
+                                            <div class="flex items-center gap-1">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                                                </svg>
+                                                <span>{{ $filesCount }} arq.</span>
+                                            </div>
+                                            <div id="comment-badge-{{ $order->id }}"
+                                                 data-count="{{ $commentsCount }}"
+                                                 class="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-500/20 dark:text-amber-200 dark:border-amber-400/40 {{ $commentsCount > 0 ? '' : 'hidden' }}"
+                                                 title="{{ $commentsCount }} comentarios">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-2 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                                                    </svg>
+                                                    <span data-comment-count>{{ $commentsCount }}</span>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -860,7 +872,7 @@
     </div> <!-- Close max-w -->
 
     <!-- Modal de Detalhes do Pedido -->
-    <div id="order-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[70]">
+    <div id="order-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[200]">
         <div class="relative top-5 mx-auto p-5 border border-gray-200 dark:border-gray-700 w-full max-w-7xl shadow-lg dark:shadow-gray-900/25 rounded-md bg-white dark:bg-gray-800 mb-5">
             <div class="flex justify-between items-start mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
                 <div id="modal-title" class="flex-1 mr-4">Detalhes do Pedido</div>
@@ -878,7 +890,7 @@
     </div>
 
     <!-- Modal de Pagamento Adicional -->
-    <div id="payment-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[70]">
+    <div id="payment-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[200]">
         <div class="relative top-20 mx-auto p-6 border border-gray-200 dark:border-gray-700 w-full max-w-lg shadow-xl dark:shadow-gray-900/25 rounded-lg bg-white dark:bg-gray-800">
             <!-- Header do Modal -->
             <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
@@ -972,7 +984,7 @@
     </div>
 
     <!-- Modal de Edição de Imagem de Capa -->
-    <div id="cover-image-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[70]">
+    <div id="cover-image-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[200]">
         <div class="relative top-20 mx-auto p-6 border border-gray-200 dark:border-gray-700 w-full max-w-lg shadow-xl dark:shadow-gray-900/25 rounded-lg bg-white dark:bg-gray-800">
             <!-- Header do Modal -->
             <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
@@ -1065,7 +1077,7 @@
     </div>
 
     <!-- Modal de Confirmação de Movimentação -->
-    <div id="move-confirm-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[70]">
+    <div id="move-confirm-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[200]">
         <div class="relative top-20 mx-auto p-6 border border-gray-200 dark:border-gray-700 w-full max-w-md shadow-xl dark:shadow-gray-900/25 rounded-lg bg-white dark:bg-gray-800">
             <!-- Header do Modal -->
             <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
@@ -1112,7 +1124,7 @@
     </div>
 
     <!-- Modal de Solicitação de Edição -->
-    <div id="editRequestModal" class="hidden fixed inset-0 bg-gray-600 dark:bg-gray-900 bg-opacity-50 dark:bg-opacity-75 overflow-y-auto h-full w-full z-[70]">
+    <div id="editRequestModal" class="hidden fixed inset-0 bg-gray-600 dark:bg-gray-900 bg-opacity-50 dark:bg-opacity-75 overflow-y-auto h-full w-full z-[200]">
         <div class="relative top-20 mx-auto p-5 border border-gray-300 dark:border-gray-700 w-full max-w-md shadow-lg rounded-md bg-white dark:bg-gray-800">
             <div class="mt-3">
                 <!-- Header -->
@@ -1426,7 +1438,7 @@
                     if (noFilesMsg) noFilesMsg.remove();
                     
                     const fileHtml = `
-                        <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-md p-2 text-sm border border-gray-200 dark:border-gray-600">
+                        <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-md p-2 text-sm border border-gray-200 dark:border-gray-600" data-file-row data-file-id="${data.file.id}" data-file-type="item">
                             <div class="flex items-center">
                                 <svg class="w-4 h-4 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
@@ -1440,6 +1452,11 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                     </svg>
                                 </a>
+                                <button type="button" onclick="event.stopPropagation(); deleteOrderFile(${itemId}, ${data.file.id}, 'item')" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300" title="Remover arquivo">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     `;
@@ -1488,6 +1505,66 @@
                 btn.innerHTML = originalContent;
                 btn.disabled = false;
                 input.value = ''; // Reset input
+            });
+        }
+
+        function deleteOrderFile(itemId, fileId, fileType) {
+            if (!confirm('Remover este arquivo?')) return;
+
+            fetch('/kanban/delete-file', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    file_id: fileId,
+                    file_type: fileType
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const list = document.getElementById(`files-list-${itemId}`);
+                    if (list) {
+                        const row = list.querySelector(`[data-file-id="${fileId}"][data-file-type="${fileType}"]`);
+                        if (row) row.remove();
+
+                        const remaining = list.querySelectorAll('[data-file-row]').length;
+                        if (remaining === 0) {
+                            if (!document.getElementById(`no-files-msg-${itemId}`)) {
+                                list.insertAdjacentHTML('beforeend',
+                                    `<p class="text-sm text-gray-500 dark:text-gray-400 text-center py-2" id="no-files-msg-${itemId}">Nenhum arquivo anexado.</p>`
+                                );
+                            }
+                        }
+                    }
+
+                    const orderModal = document.getElementById('order-modal');
+                    const orderId = orderModal ? orderModal.getAttribute('data-current-order-id') : null;
+                    if (orderId) {
+                        const btn = document.getElementById(`btn-download-files-${orderId}`);
+                        if (btn) {
+                            const current = parseInt(btn.getAttribute('data-count') || '0', 10);
+                            const next = Math.max(0, current - 1);
+                            if (next > 0) {
+                                btn.setAttribute('data-count', next);
+                                const span = btn.querySelector('.btn-text');
+                                if (span) span.textContent = `Arquivos da Arte (${next})`;
+                            } else {
+                                btn.remove();
+                            }
+                        }
+                    }
+
+                    showNotification('Arquivo removido com sucesso!', 'success');
+                } else {
+                    showNotification(data.message || 'Erro ao remover arquivo', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                showNotification('Erro ao remover arquivo', 'error');
             });
         }
 
@@ -1841,7 +1918,7 @@
                             
                             <div class="space-y-2" id="files-list-${item.id}">
                                 ${item.files && item.files.length > 0 ? item.files.map(file => `
-                                    <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-md p-2 text-sm border border-gray-200 dark:border-gray-600">
+                                    <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-md p-2 text-sm border border-gray-200 dark:border-gray-600" data-file-row data-file-id="${file.id}" data-file-type="item">
                                         <div class="flex items-center">
                                             <svg class="w-4 h-4 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
@@ -1855,12 +1932,17 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                                 </svg>
                                             </a>
+                                            <button type="button" onclick="event.stopPropagation(); deleteOrderFile(${item.id}, ${file.id}, 'item')" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300" title="Remover arquivo">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
                                         </div>
                                     </div>
                                 `).join('') : ''}
                                 ${item.sublimations ? item.sublimations.map(sub => 
                                     sub.files && sub.files.length > 0 ? sub.files.map(file => `
-                                        <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-md p-2 text-sm border border-gray-200 dark:border-gray-600">
+                                        <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-md p-2 text-sm border border-gray-200 dark:border-gray-600" data-file-row data-file-id="${file.id}" data-file-type="sublimation">
                                             <div class="flex items-center">
                                                 <svg class="w-4 h-4 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
@@ -1874,6 +1956,11 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                                     </svg>
                                                 </a>
+                                                <button type="button" onclick="event.stopPropagation(); deleteOrderFile(${item.id}, ${file.id}, 'sublimation')" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300" title="Remover arquivo">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                </button>
                                             </div>
                                         </div>
                                     `).join('') : ''
@@ -2228,6 +2315,16 @@
             .then(data => {
                 if (data.success) {
                     showNotification('Comentário adicionado com sucesso!', 'success');
+                    const badge = document.getElementById(`comment-badge-${orderId}`);
+                    if (badge) {
+                        const current = parseInt(badge.dataset.count || '0', 10);
+                        const next = current + 1;
+                        badge.dataset.count = String(next);
+                        const countEl = badge.querySelector('[data-comment-count]');
+                        if (countEl) countEl.textContent = String(next);
+                        badge.classList.remove('hidden');
+                        badge.setAttribute('title', `${next} comentarios`);
+                    }
                     // Recarregar detalhes do pedido
                     openOrderModal(orderId);
                 } else {
@@ -2919,6 +3016,7 @@
         window.closeEditRequestModal = closeEditRequestModal;
         window.submitEditRequest = submitEditRequest;
         window.handleFileUpload = handleFileUpload;
+        window.deleteOrderFile = deleteOrderFile;
         window.previewCoverImage = previewCoverImage;
         window.openCoverImagePicker = openCoverImagePicker;
         window.closeCoverImageModal = closeCoverImageModal;

@@ -126,8 +126,8 @@
                         <div class="box" style="margin-bottom: 5px;">
                             <div class="box-title">Especificações</div>
                             <table style="width: 100%; font-size: 12px;">
-                                <tr><td style="color: #64748b;">Tecido:</td><td style="font-weight: bold;">{{ \Illuminate\Support\Str::limit($item->fabric, 15) }}</td></tr>
-                                <tr><td style="color: #64748b;">Cor:</td><td style="font-weight: bold;">{{ \Illuminate\Support\Str::limit($item->color, 15) }}</td></tr>
+                                <tr><td style="color: #64748b;">Tecido:</td><td style="font-weight: bold; word-break: break-word;">{{ $item->fabric }}</td></tr>
+                                <tr><td style="color: #64748b;">Cor:</td><td style="font-weight: bold; word-break: break-word;">{{ $item->color }}</td></tr>
                                 <tr><td style="color: #64748b;">Gola:</td><td style="font-weight: bold;">{{ $item->collar }}</td></tr>
                                 <tr><td style="color: #64748b;">Modelo:</td><td style="font-weight: bold;">{{ $item->model }}</td></tr>
                             </table>

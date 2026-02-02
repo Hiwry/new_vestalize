@@ -278,6 +278,7 @@ class ProductionController extends Controller
         
         // Mostrar todos os pedidos em produção (não rascunhos e não cancelados)
         $query = Order::with(['client', 'items', 'items.files'])
+            ->withCount('comments')
             ->where('is_draft', false)
             ->where('is_pdv', false)
             ->where('is_cancelled', false);

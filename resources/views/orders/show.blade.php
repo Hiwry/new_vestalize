@@ -442,12 +442,20 @@
 
                     <!-- Arquivos -->
                     @if($item->files && $item->files->count() > 0)
-                    <div class="border-t border-gray-200 dark:border-slate-800 pt-4 mt-4">
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white mb-2">📎 Arquivos:</p>
-                        <div class="space-y-1">
+                    <div class="border-t border-gray-200 dark:border-slate-800 pt-4 mt-4" id="files-section-{{ $item->id }}">
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Arquivos:</p>
+                        <div class="space-y-1" id="files-list-{{ $item->id }}">
                             @foreach($item->files as $file)
-                            <div class="text-sm text-indigo-600 dark:text-indigo-400">
-                                • {{ $file->file_name }}
+                            <div class="flex items-center justify-between text-sm text-indigo-600 dark:text-indigo-400" data-file-id="{{ $file->id }}" data-item-id="{{ $item->id }}">
+                                <span>? {{ $file->file_name }}</span>
+                                <button type="button"
+                                        onclick="deleteOrderFile({{ $item->id }}, {{ $file->id }})"
+                                        class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                                        title="Remover arquivo">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
                             </div>
                             @endforeach
                         </div>
@@ -1018,6 +1026,41 @@
                 modal.classList.add('hidden');
                 document.body.style.overflow = 'auto';
             }
+        }
+
+        function deleteOrderFile(itemId, fileId) {
+            if (!confirm('Remover este arquivo?')) return;
+
+            fetch('/kanban/delete-file', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=\"csrf-token\"]').content
+                },
+                body: JSON.stringify({
+                    file_id: fileId,
+                    file_type: 'item'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const row = document.querySelector(`[data-file-id=\"${fileId}\"][data-item-id=\"${itemId}\"]`);
+                    if (row) row.remove();
+
+                    const list = document.getElementById(`files-list-${itemId}`);
+                    if (list && list.children.length === 0) {
+                        const section = document.getElementById(`files-section-${itemId}`);
+                        if (section) section.remove();
+                    }
+                } else {
+                    alert(data.message || 'Erro ao remover arquivo');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao remover arquivo');
+            });
         }
 
         // Mostrar link de compartilhamento se foi gerado

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderComment;
 use App\Models\OrderLog;
+use App\Models\OrderFile;
+use App\Models\OrderSublimationFile;
 use App\Models\Payment;
 use App\Models\Status;
 use App\Models\Notification;
@@ -155,7 +157,7 @@ class KanbanController extends Controller
             'items.sublimations',
             'pendingCancellation', 
             'pendingEditRequest'
-        ])->notDrafts() 
+        ])->withCount('comments')->notDrafts() 
           ->where('is_cancelled', false);
 
         // Filter by origin based on view type
@@ -469,6 +471,71 @@ class KanbanController extends Controller
                 'message' => 'Erro ao enviar arquivo: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function deleteFile(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'file_id' => 'required|integer',
+            'file_type' => 'required|in:item,sublimation',
+        ]);
+
+        $user = Auth::user();
+        $order = null;
+        $fileName = null;
+
+        if ($validated['file_type'] === 'item') {
+            $file = OrderFile::with('orderItem.order')->findOrFail($validated['file_id']);
+            $order = $file->orderItem?->order;
+        } else {
+            $file = OrderSublimationFile::with('sublimation.orderItem.order')->findOrFail($validated['file_id']);
+            $order = $file->sublimation?->orderItem?->order;
+        }
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pedido nÃ£o encontrado para este arquivo.'
+            ], 404);
+        }
+
+        if (!StoreHelper::canAccessStore($order->store_id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acesso negado.'
+            ], 403);
+        }
+
+        if ($user && $user->isVendedor() && $order->user_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acesso negado.'
+            ], 403);
+        }
+
+        $fileName = $file->file_name ?? null;
+        if ($file->file_path) {
+            Storage::disk('public')->delete($file->file_path);
+        }
+
+        $file->delete();
+
+        OrderLog::create([
+            'order_id' => $order->id,
+            'user_id' => $user->id ?? null,
+            'user_name' => $user->name ?? 'Sistema',
+            'action' => 'file_removed',
+            'description' => 'Arquivo removido',
+            'old_value' => [
+                'file' => $fileName,
+                'type' => $validated['file_type'],
+            ],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Arquivo removido com sucesso.'
+        ]);
     }
 
     public function downloadCostura($id)
