@@ -113,7 +113,7 @@
                         </td>
                         <td style="width: 15%; background: #f1f5f9;" class="header-cell">
                             <div style="font-size: 8px; color: #64748b;">ENTREGA</div>
-                            <strong>{{ $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('d/m') : 'N/A' }}</strong>
+                            <strong>{{ $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->subWeekdays(5)->format('d/m') : 'N/A' }}</strong>
                         </td>
                     </tr>
                 </table>
