@@ -33,6 +33,7 @@ class KanbanController extends Controller
         $search = $request->get('search');
         $personalizationType = $request->get('personalization_type');
         $deliveryDateFilter = $request->get('delivery_date');
+        $entryDateFilter = $request->get('entry_date');
         $viewType = $request->get('type', 'production'); // 'production' or 'personalized'
         if (!$viewType || !in_array($viewType, ['production', 'personalized'])) {
             $viewType = 'production';
@@ -107,7 +108,7 @@ class KanbanController extends Controller
         // Filter statuses by type
         $statuses = Status::where('tenant_id', $activeTenantId)
             ->where('type', $viewType)
-            ->withCount(['orders' => function($query) use ($personalizationType, $deliveryDateFilter, $viewType) {
+            ->withCount(['orders' => function($query) use ($personalizationType, $deliveryDateFilter, $entryDateFilter, $viewType) {
             $query->notDrafts()
                   ->where('is_cancelled', false);
             
@@ -145,6 +146,15 @@ class KanbanController extends Controller
 
             if ($deliveryDateFilter) {
                 $query->whereDate('delivery_date', $deliveryDateFilter);
+            }
+
+            if ($entryDateFilter) {
+                $query->where(function($q) use ($entryDateFilter) {
+                    $q->whereDate('entry_date', $entryDateFilter)
+                      ->orWhere(function($q2) use ($entryDateFilter) {
+                          $q2->whereNull('entry_date')->whereDate('created_at', $entryDateFilter);
+                      });
+                });
             }
         }])->orderBy('position')->get();
         
@@ -224,6 +234,15 @@ class KanbanController extends Controller
         if ($deliveryDateFilter) {
             $query->whereDate('delivery_date', $deliveryDateFilter);
         }
+
+        if ($entryDateFilter) {
+            $query->where(function($q) use ($entryDateFilter) {
+                $q->whereDate('entry_date', $entryDateFilter)
+                  ->orWhere(function($q2) use ($entryDateFilter) {
+                      $q2->whereNull('entry_date')->whereDate('created_at', $entryDateFilter);
+                  });
+            });
+        }
         
         // Aplicar busca usando scope otimizado
         if ($search) {
@@ -256,7 +275,7 @@ class KanbanController extends Controller
         
         $ordersForCalendar = $orders;
         
-        return view('kanban.index', compact('statuses', 'ordersByStatus', 'search', 'autoOpenOrderId', 'personalizationType', 'personalizationTypes', 'deliveryDateFilter', 'ordersForCalendar', 'viewType', 'period', 'startDate', 'endDate'));
+        return view('kanban.index', compact('statuses', 'ordersByStatus', 'search', 'autoOpenOrderId', 'personalizationType', 'personalizationTypes', 'deliveryDateFilter', 'entryDateFilter', 'ordersForCalendar', 'viewType', 'period', 'startDate', 'endDate'));
     }
 
     public function updateStatus(Request $request): JsonResponse
