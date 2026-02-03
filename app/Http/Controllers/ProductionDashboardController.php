@@ -57,7 +57,7 @@ class ProductionDashboardController extends Controller
             abort(403, 'Acesso negado. Apenas usuários de produção podem acessar.');
         }
 
-        $period = $request->get('period', 'month'); // week, month, quarter, year, custom
+        $period = $request->get('period', 'month'); // day, week, month, quarter, year, custom
         $startDateInput = $request->get('start_date');
         $endDateInput = $request->get('end_date');
 
@@ -67,6 +67,10 @@ class ProductionDashboardController extends Controller
             $end = Carbon::parse($endDateInput);
         } else {
             switch ($period) {
+                case 'day':
+                    $start = Carbon::now()->startOfDay();
+                    $end = Carbon::now()->endOfDay();
+                    break;
                 case 'week':
                     $start = Carbon::now()->startOfWeek();
                     $end = Carbon::now()->endOfWeek();

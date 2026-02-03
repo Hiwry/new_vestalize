@@ -6,6 +6,7 @@
     $totalStatuses = $allStatuses ? $allStatuses->count() : 0;
 
     $periodLabels = [
+        'day' => 'Dia',
         'week' => 'Semana',
         'month' => 'Mes',
         'quarter' => 'Trimestre',
@@ -115,6 +116,7 @@
                 <div class="lg:col-span-4">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Periodo</label>
                     <select name="period" class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-sm">
+                        <option value="day" {{ $period == 'day' ? 'selected' : '' }}>Hoje</option>
                         <option value="week" {{ $period == 'week' ? 'selected' : '' }}>Semana</option>
                         <option value="month" {{ $period == 'month' ? 'selected' : '' }}>Mes</option>
                         <option value="quarter" {{ $period == 'quarter' ? 'selected' : '' }}>Trimestre</option>
@@ -267,7 +269,7 @@
                         $storeName = $order->store?->name ?? 'Loja Principal';
                     @endphp
                     <div class="carousel-slide flex-shrink-0" style="min-width: 320px; max-width: 320px;">
-                        <div class="kanban-card bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow dark:shadow-gray-900/25 rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl dark:hover:shadow-gray-900/50 transition-all duration-200 border"
+                        <div class="kanban-card bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow dark:shadow-gray-900/25 rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl dark:hover:shadow-gray-900/50 transition-all duration-200 border {{ $order->is_event ? 'prod-event-card' : '' }}"
                              onclick="window.location.href='{{ route('orders.show', $order->id) }}'">
                             @if($coverImage)
                             <div class="h-44 bg-gray-200 dark:bg-gray-700 overflow-hidden">
@@ -528,6 +530,13 @@
     :root:not(.dark) .prod-dashboard .prod-column-chip.is-selected .prod-column-label,
     :root:not(.dark) .prod-dashboard .prod-column-chip.is-selected .prod-column-label * {
         color: #ffffff !important;
+    }
+    .prod-dashboard .prod-event-card {
+        border-color: #ff1a1a !important;
+        box-shadow: 0 0 0 2px rgba(255, 26, 26, 0.75), 0 0 16px rgba(255, 26, 26, 0.85) !important;
+    }
+    .prod-dashboard .prod-event-card:hover {
+        box-shadow: 0 0 0 2px rgba(255, 26, 26, 0.95), 0 0 24px rgba(255, 26, 26, 0.95) !important;
     }
 </style>
 
