@@ -112,6 +112,7 @@
     <div class="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700/60 p-6">
         <form method="GET" action="{{ route('production.dashboard') }}" id="dashboard-filter-form" class="space-y-6">
             <input type="hidden" name="filter_submitted" value="1">
+            <input type="hidden" name="delivery_filter" value="{{ $deliveryFilter ?? 'today' }}">
             <div class="grid gap-4 lg:grid-cols-12 items-end">
                 <div class="lg:col-span-4">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Periodo</label>
@@ -240,7 +241,7 @@
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Pedidos por data de entrega</h2>
                 <p class="text-xs text-gray-500 dark:text-gray-400">Priorize o que vence primeiro e evite atrasos.</p>
             </div>
-            <div class="flex gap-2">
+            <div class="flex flex-wrap items-center gap-2">
                 <button onclick="changeDeliveryFilter('today')"
                         class="px-4 py-2 rounded-xl text-xs font-semibold transition {{ $deliveryFilter == 'today' ? 'bg-indigo-600 text-white stay-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' }}">
                     Hoje
@@ -253,6 +254,15 @@
                         class="px-4 py-2 rounded-xl text-xs font-semibold transition {{ $deliveryFilter == 'month' ? 'bg-indigo-600 text-white stay-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' }}">
                     Este mes
                 </button>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-500 dark:text-gray-400">Entrega em</span>
+                    <input type="date"
+                           name="delivery_date"
+                           form="dashboard-filter-form"
+                           value="{{ $deliveryDateInput ?? '' }}"
+                           onchange="applyDeliveryDate(this.value)"
+                           class="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-xs focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                </div>
             </div>
         </div>
 
@@ -533,10 +543,12 @@
     }
     .prod-dashboard .prod-event-card {
         border-color: #ff1a1a !important;
-        box-shadow: 0 0 0 2px rgba(255, 26, 26, 0.75), 0 0 16px rgba(255, 26, 26, 0.85) !important;
+        outline: 2px solid #ff1a1a !important;
+        outline-offset: 0 !important;
+        box-shadow: inset 0 0 0 2px rgba(255, 26, 26, 0.9), 0 0 18px rgba(255, 26, 26, 0.95) !important;
     }
     .prod-dashboard .prod-event-card:hover {
-        box-shadow: 0 0 0 2px rgba(255, 26, 26, 0.95), 0 0 24px rgba(255, 26, 26, 0.95) !important;
+        box-shadow: inset 0 0 0 2px rgba(255, 26, 26, 1), 0 0 26px rgba(255, 26, 26, 1) !important;
     }
 </style>
 
@@ -667,6 +679,21 @@ window.changeDeliveryFilter = function(filter) {
     }
     filterInput.value = filter;
 
+    form.submit();
+};
+
+window.applyDeliveryDate = function(value) {
+    const form = document.getElementById('dashboard-filter-form');
+    if (!form) return;
+
+    let filterInput = form.querySelector('input[name="delivery_filter"]');
+    if (!filterInput) {
+        filterInput = document.createElement('input');
+        filterInput.type = 'hidden';
+        filterInput.name = 'delivery_filter';
+        form.appendChild(filterInput);
+    }
+    filterInput.value = value ? 'date' : 'today';
     form.submit();
 };
 

@@ -303,7 +303,11 @@ class ProductionDashboardController extends Controller
         $avgProductionTime = !empty($allTimes) ? (array_sum($allTimes) / count($allTimes)) : null;
 
         // Pedidos por data de entrega para o carrossel
-        $deliveryFilter = $request->get('delivery_filter', 'today'); // today, week, month
+        $deliveryFilter = $request->get('delivery_filter', 'today'); // today, week, month, date
+        $deliveryDateInput = $request->get('delivery_date');
+        if (!empty($deliveryDateInput)) {
+            $deliveryFilter = 'date';
+        }
         
         $now = Carbon::now();
         $deliveryOrders = collect();
@@ -342,6 +346,14 @@ class ProductionDashboardController extends Controller
                     $now->copy()->endOfMonth()->toDateString()
                 ]);
                 break;
+            case 'date':
+                if (!empty($deliveryDateInput)) {
+                    $selectedDate = Carbon::parse($deliveryDateInput)->toDateString();
+                    $ordersWithDate->whereDate('delivery_date', $selectedDate);
+                } else {
+                    $ordersWithDate->whereDate('delivery_date', Carbon::today()->toDateString());
+                }
+                break;
         }
         
         // Aplicar o filtro e buscar apenas os pedidos do período selecionado
@@ -370,7 +382,8 @@ class ProductionDashboardController extends Controller
             'start',
             'end',
             'deliveryOrders',
-            'deliveryFilter'
+            'deliveryFilter',
+            'deliveryDateInput'
         ));
     }
 
