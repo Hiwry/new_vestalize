@@ -27,7 +27,7 @@ class AddProductionStatusesSeeder extends Seeder
 
         foreach ($tenants as $tenant) {
             foreach ($newStatuses as $status) {
-                Status::firstOrCreate(
+                Status::updateOrCreate(
                     [
                         'name' => $status['name'],
                         'tenant_id' => $tenant->id,

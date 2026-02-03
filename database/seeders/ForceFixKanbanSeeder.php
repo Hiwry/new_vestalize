@@ -61,23 +61,23 @@ class ForceFixKanbanSeeder extends Seeder
             $this->command->info("Processing Tenant ID: {$tenantId}");
 
             foreach ($requiredStatuses as $name => $props) {
-                $status = Status::where('tenant_id', $tenantId)
-                    ->where('name', $name)
-                    ->where('type', 'production')
-                    ->first();
-
-                if (!$status) {
-                    $this->command->warn("  Status MISSING: {$name}. Creating...");
-                    Status::create([
+                $status = Status::updateOrCreate(
+                    [
+                        'tenant_id' => $tenantId,
+                        'name' => $name,
+                        'type' => 'production',
+                    ],
+                    [
                         'tenant_id' => $tenantId,
                         'name' => $name,
                         'color' => $props['color'],
                         'position' => $props['pos'],
                         'type' => 'production',
-                    ]);
-                } else {
-                    // Update position if it exists just to be safe
-                    // $status->update(['position' => $props['pos']]);
+                    ]
+                );
+
+                if ($status->wasRecentlyCreated) {
+                    $this->command->warn("  Status MISSING: {$name}. Creating...");
                 }
             }
         }
