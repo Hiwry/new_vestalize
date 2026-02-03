@@ -63,6 +63,7 @@ class ForceFixKanbanSeeder extends Seeder
             foreach ($requiredStatuses as $name => $props) {
                 $status = Status::where('tenant_id', $tenantId)
                     ->where('name', $name)
+                    ->where('type', 'production')
                     ->first();
 
                 if (!$status) {
@@ -72,10 +73,11 @@ class ForceFixKanbanSeeder extends Seeder
                         'name' => $name,
                         'color' => $props['color'],
                         'position' => $props['pos'],
+                        'type' => 'production',
                     ]);
                 } else {
                     // Update position if it exists just to be safe
-                    // $status->update(['position' => $props['pos']]); 
+                    // $status->update(['position' => $props['pos']]);
                 }
             }
         }

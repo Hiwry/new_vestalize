@@ -98,7 +98,17 @@ class PublicRegistrationController extends Controller
         ];
 
         foreach ($defaultStatuses as $statusData) {
-            Status::create(array_merge($statusData, ['tenant_id' => $tenant->id]));
+            Status::updateOrCreate(
+                [
+                    'name' => $statusData['name'],
+                    'tenant_id' => $tenant->id,
+                    'type' => 'production',
+                ],
+                array_merge($statusData, [
+                    'tenant_id' => $tenant->id,
+                    'type' => 'production',
+                ])
+            );
         }
 
         // 4. Criar o Usuário Administrador

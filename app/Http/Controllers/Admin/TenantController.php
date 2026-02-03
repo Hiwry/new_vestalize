@@ -103,7 +103,17 @@ class TenantController extends Controller
         ];
 
         foreach ($defaultStatuses as $ds) {
-            \App\Models\Status::create(array_merge($ds, ['tenant_id' => $tenant->id]));
+            \App\Models\Status::updateOrCreate(
+                [
+                    'name' => $ds['name'],
+                    'tenant_id' => $tenant->id,
+                    'type' => 'production',
+                ],
+                array_merge($ds, [
+                    'tenant_id' => $tenant->id,
+                    'type' => 'production',
+                ])
+            );
         }
 
         // Send Welcome Email
