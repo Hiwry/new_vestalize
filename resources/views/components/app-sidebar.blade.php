@@ -430,7 +430,7 @@
             </div>
             @endif
 
-            @if(Auth::user()->tenant_id !== null && auth()->user()->tenant?->canAccess('subscription_module'))
+            @if(Auth::user()->tenant_id !== null && Auth::user()->isAdminGeral() && auth()->user()->tenant?->canAccess('subscription_module'))
             <div class="mt-2 text-nowrap">
                 <a href="{{ route('subscription.index') }}"
                    class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->is('subscription*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"

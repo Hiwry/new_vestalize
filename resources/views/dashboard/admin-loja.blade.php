@@ -63,7 +63,7 @@
 </div>
 
 <!-- Card de Assinatura -->
-@if(Auth::user()->tenant)
+@if(Auth::user()->tenant && Auth::user()->isAdminGeral())
 <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 sm:p-5 mb-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="flex items-center gap-4">

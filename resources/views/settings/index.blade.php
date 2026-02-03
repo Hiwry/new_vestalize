@@ -180,7 +180,7 @@
                     </div>
                 </a>
 
-                @if(Auth::user()->tenant_id !== null && auth()->user()->tenant?->canAccess('subscription_module'))
+                @if(Auth::user()->tenant_id !== null && Auth::user()->isAdminGeral() && auth()->user()->tenant?->canAccess('subscription_module'))
                 <a href="{{ route('subscription.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
                     <div class="flex items-center space-x-3">
                         <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

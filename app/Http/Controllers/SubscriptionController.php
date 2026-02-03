@@ -16,6 +16,9 @@ class SubscriptionController extends Controller
     public function index()
     {
         $user = Auth::user();
+        if (!$user->isAdminGeral()) {
+            return redirect()->route('dashboard')->with('error', 'Acesso negado.');
+        }
         $tenant = $user->tenant;
         
         if (!$tenant) {
@@ -44,6 +47,9 @@ class SubscriptionController extends Controller
     public function requestUpgrade(Plan $plan)
     {
         $user = Auth::user();
+        if (!$user->isAdminGeral()) {
+            return redirect()->back()->with('error', 'Acesso negado.');
+        }
         $tenant = $user->tenant;
         
         if (!$tenant) {
@@ -82,6 +88,9 @@ Por favor, entre em contato com o cliente para formalizar o upgrade.
     public function requestTrial(Plan $plan)
     {
         $user = Auth::user();
+        if (!$user->isAdminGeral()) {
+            return redirect()->back()->with('error', 'Acesso negado.');
+        }
         $tenant = $user->tenant;
         
         if (!$tenant) {
