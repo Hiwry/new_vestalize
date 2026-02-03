@@ -1615,6 +1615,8 @@
 
             fetch('/kanban/delete-file', {
                 method: 'POST',
+                credentials: 'same-origin',
+                cache: 'no-store',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
@@ -1628,13 +1630,19 @@
             })
             .then(async response => {
                 let data = {};
+                const contentType = response.headers.get('content-type') || '';
                 try {
-                    data = await response.json();
+                    if (contentType.includes('application/json')) {
+                        data = await response.json();
+                    } else {
+                        const text = await response.text();
+                        data = { message: text };
+                    }
                 } catch (error) {
                     data = {};
                 }
                 if (!response.ok || !data.success) {
-                    const message = data.message || 'Erro ao remover arquivo';
+                    const message = data.message || `Erro ao remover arquivo (status ${response.status})`;
                     throw new Error(message);
                 }
                 return data;
@@ -1673,6 +1681,16 @@
                 }
 
                 showNotification('Arquivo removido com sucesso!', 'success');
+                if (orderId) {
+                    fetch(`/kanban/order/${orderId}`)
+                        .then(response => response.json())
+                        .then(orderData => {
+                            displayOrderDetails(orderData);
+                        })
+                        .catch(error => {
+                            console.error('Erro ao recarregar detalhes do pedido:', error);
+                        });
+                }
                 closeDeleteFileModal();
             })
             .catch(error => {
