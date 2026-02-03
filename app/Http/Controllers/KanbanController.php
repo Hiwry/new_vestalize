@@ -518,18 +518,27 @@ class KanbanController extends Controller
             ], 404);
         }
 
-        if (!StoreHelper::canAccessStore($order->store_id)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Acesso negado.'
-            ], 403);
-        }
-
-        if ($user && $user->isVendedor() && $order->user_id !== $user->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Acesso negado.'
-            ], 403);
+        if ($user && $user->isVendedor()) {
+            if ($order->user_id !== $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Acesso negado.'
+                ], 403);
+            }
+        } else {
+            if ($order->store_id) {
+                if (!StoreHelper::canAccessStore($order->store_id)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Acesso negado.'
+                    ], 403);
+                }
+            } elseif ($user && $user->tenant_id !== null && $order->tenant_id !== null && $user->tenant_id !== $order->tenant_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Acesso negado.'
+                ], 403);
+            }
         }
 
         $fileName = $file->file_name ?? null;

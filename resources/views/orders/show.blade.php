@@ -446,7 +446,7 @@
                         <p class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Arquivos:</p>
                         <div class="space-y-1" id="files-list-{{ $item->id }}">
                             @foreach($item->files as $file)
-                            <div class="flex items-center justify-between text-sm text-indigo-600 dark:text-indigo-400" data-file-id="{{ $file->id }}" data-item-id="{{ $item->id }}">
+                            <div class="flex items-center justify-between text-sm text-indigo-600 dark:text-indigo-400" data-file-id="{{ $file->id }}" data-item-id="{{ $item->id }}" data-file-name="{{ $file->file_name }}">
                                 <span>? {{ $file->file_name }}</span>
                                 <button type="button"
                                         onclick="deleteOrderFile({{ $item->id }}, {{ $file->id }})"
@@ -813,6 +813,42 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Modal de Confirmacao para Remover Arquivo -->
+                    <div id="deleteFileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
+                        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl dark:shadow-2xl dark:shadow-black/20 max-w-md w-full mx-4 border border-gray-200 dark:border-slate-800">
+                            <div class="p-6">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
+                                        <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </div>
+                                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        Remover arquivo
+                                    </h2>
+                                </div>
+
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                                    Tem certeza que deseja remover <span id="delete-file-name" class="font-semibold text-gray-900 dark:text-white"></span>? Esta acao nao pode ser desfeita.
+                                </p>
+
+                                <div class="flex justify-end gap-3">
+                                    <button type="button"
+                                            onclick="closeDeleteFileModal()"
+                                            class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                                        Cancelar
+                                    </button>
+                                    <button type="button"
+                                            id="confirmDeleteFileBtn"
+                                            onclick="confirmDeleteFile()"
+                                            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors shadow-lg shadow-red-500/20">
+                                        Confirmar remocao
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 
@@ -1028,38 +1064,95 @@
             }
         }
 
-        function deleteOrderFile(itemId, fileId) {
-            if (!confirm('Remover este arquivo?')) return;
+        const deleteFileUrl = @json(route('orders.file.delete'));
+        let pendingDeleteFile = null;
 
-            fetch('/kanban/delete-file', {
+        function deleteOrderFile(itemId, fileId) {
+            const row = document.querySelector(`[data-file-id="${fileId}"][data-item-id="${itemId}"]`);
+            const fileName = row ? row.getAttribute('data-file-name') : null;
+            openDeleteFileModal(itemId, fileId, fileName);
+        }
+
+        function openDeleteFileModal(itemId, fileId, fileName) {
+            const modal = document.getElementById('deleteFileModal');
+            const nameEl = document.getElementById('delete-file-name');
+            if (!modal) return;
+
+            pendingDeleteFile = { itemId, fileId };
+            if (nameEl) {
+                nameEl.textContent = fileName ? `"${fileName}"` : 'este arquivo';
+            }
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteFileModal() {
+            const modal = document.getElementById('deleteFileModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+            pendingDeleteFile = null;
+        }
+
+        function confirmDeleteFile() {
+            if (!pendingDeleteFile) return;
+            const { itemId, fileId } = pendingDeleteFile;
+            const confirmBtn = document.getElementById('confirmDeleteFileBtn');
+            const originalText = confirmBtn ? confirmBtn.textContent : null;
+
+            if (confirmBtn) {
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = 'Removendo...';
+            }
+
+            fetch(deleteFileUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=\"csrf-token\"]').content
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 },
                 body: JSON.stringify({
                     file_id: fileId,
                     file_type: 'item'
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const row = document.querySelector(`[data-file-id=\"${fileId}\"][data-item-id=\"${itemId}\"]`);
-                    if (row) row.remove();
-
-                    const list = document.getElementById(`files-list-${itemId}`);
-                    if (list && list.children.length === 0) {
-                        const section = document.getElementById(`files-section-${itemId}`);
-                        if (section) section.remove();
-                    }
-                } else {
-                    alert(data.message || 'Erro ao remover arquivo');
+            .then(async response => {
+                let data = {};
+                try {
+                    data = await response.json();
+                } catch (error) {
+                    data = {};
                 }
+                if (!response.ok || !data.success) {
+                    const message = data.message || 'Erro ao remover arquivo';
+                    throw new Error(message);
+                }
+                return data;
+            })
+            .then(() => {
+                const row = document.querySelector(`[data-file-id="${fileId}"][data-item-id="${itemId}"]`);
+                if (row) row.remove();
+
+                const list = document.getElementById(`files-list-${itemId}`);
+                if (list && list.children.length === 0) {
+                    const section = document.getElementById(`files-section-${itemId}`);
+                    if (section) section.remove();
+                }
+                closeDeleteFileModal();
             })
             .catch(error => {
                 console.error('Erro:', error);
-                alert('Erro ao remover arquivo');
+                closeDeleteFileModal();
+                showErrorModal(error.message || 'Erro ao remover arquivo');
+            })
+            .finally(() => {
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = originalText || 'Confirmar remocao';
+                }
             });
         }
 

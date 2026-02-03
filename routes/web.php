@@ -93,6 +93,7 @@ Route::middleware('auth')->group(function () {
     // Lista de Pedidos
     Route::get('/pedidos', [\App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
     Route::get('/pedidos/{id}/detalhes', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
+    Route::post('/pedidos/arquivo/remover', [\App\Http\Controllers\OrderController::class, 'deleteFile'])->name('orders.file.delete');
     
     // Gerenciamento de Pagamentos
     Route::post('/pedidos/{id}/pagamento/adicionar', [\App\Http\Controllers\OrderController::class, 'addPayment'])->name('orders.payment.add');

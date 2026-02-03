@@ -7,10 +7,15 @@ use App\Models\Status;
 use App\Models\Client;
 use App\Models\Payment;
 use App\Models\CashTransaction;
+use App\Models\OrderFile;
+use App\Models\OrderLog;
+use App\Models\OrderSublimationFile;
 use App\Helpers\StoreHelper;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
@@ -204,6 +209,80 @@ class OrderController extends Controller
         $cashTransactions = $order->cashTransactions;
 
         return view('orders.show', compact('order', 'payment', 'cashTransactions'));
+    }
+
+    public function deleteFile(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'file_id' => 'required|integer',
+            'file_type' => 'required|in:item,sublimation',
+        ]);
+
+        $user = Auth::user();
+        $order = null;
+        $fileName = null;
+
+        if ($validated['file_type'] === 'item') {
+            $file = OrderFile::with('orderItem.order')->findOrFail($validated['file_id']);
+            $order = $file->orderItem?->order;
+        } else {
+            $file = OrderSublimationFile::with('sublimation.orderItem.order')->findOrFail($validated['file_id']);
+            $order = $file->sublimation?->orderItem?->order;
+        }
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pedido nao encontrado para este arquivo.'
+            ], 404);
+        }
+
+        if ($user && $user->isVendedor()) {
+            if ($order->user_id !== $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Acesso negado.'
+                ], 403);
+            }
+        } else {
+            if ($order->store_id) {
+                if (!StoreHelper::canAccessStore($order->store_id)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Acesso negado.'
+                    ], 403);
+                }
+            } elseif ($user && $user->tenant_id !== null && $order->tenant_id !== null && $user->tenant_id !== $order->tenant_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Acesso negado.'
+                ], 403);
+            }
+        }
+
+        $fileName = $file->file_name ?? null;
+        if ($file->file_path) {
+            Storage::disk('public')->delete($file->file_path);
+        }
+
+        $file->delete();
+
+        OrderLog::create([
+            'order_id' => $order->id,
+            'user_id' => $user->id ?? null,
+            'user_name' => $user->name ?? 'Sistema',
+            'action' => 'file_removed',
+            'description' => 'Arquivo removido',
+            'old_value' => [
+                'file' => $fileName,
+                'type' => $validated['file_type'],
+            ],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Arquivo removido com sucesso.'
+        ]);
     }
 
     public function addPayment(Request $request, $id): RedirectResponse
