@@ -9,6 +9,7 @@ use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -51,6 +52,7 @@ class ProductionController extends Controller
         $period = $request->get('period', 'week'); // Default: semana (segunda a sexta)
         $rangeStart = $request->get('start_date');
         $rangeEnd = $request->get('end_date');
+        $hasEntryDateColumn = Schema::hasColumn('orders', 'entry_date');
         if ($rangeStart && !$rangeEnd) {
             $rangeEnd = $rangeStart;
         }
@@ -466,19 +468,27 @@ class ProductionController extends Controller
         }
 
         if ($rangeStart && $rangeEnd) {
-            $query->where(function($q) use ($rangeStart, $rangeEnd) {
-                $q->whereBetween('entry_date', [$rangeStart, $rangeEnd])
-                  ->orWhere(function($q2) use ($rangeStart, $rangeEnd) {
-                      $q2->whereNull('entry_date')->whereBetween('created_at', [$rangeStart, $rangeEnd]);
-                  });
-            });
+            if ($hasEntryDateColumn) {
+                $query->where(function($q) use ($rangeStart, $rangeEnd) {
+                    $q->whereBetween('entry_date', [$rangeStart, $rangeEnd])
+                      ->orWhere(function($q2) use ($rangeStart, $rangeEnd) {
+                          $q2->whereNull('entry_date')->whereBetween('created_at', [$rangeStart, $rangeEnd]);
+                      });
+                });
+            } else {
+                $query->whereBetween('created_at', [$rangeStart, $rangeEnd]);
+            }
         } elseif ($entryDate) {
-            $query->where(function($q) use ($entryDate) {
-                $q->whereDate('entry_date', $entryDate)
-                  ->orWhere(function($q2) use ($entryDate) {
-                      $q2->whereNull('entry_date')->whereDate('created_at', $entryDate);
-                  });
-            });
+            if ($hasEntryDateColumn) {
+                $query->where(function($q) use ($entryDate) {
+                    $q->whereDate('entry_date', $entryDate)
+                      ->orWhere(function($q2) use ($entryDate) {
+                          $q2->whereNull('entry_date')->whereDate('created_at', $entryDate);
+                      });
+                });
+            } else {
+                $query->whereDate('created_at', $entryDate);
+            }
         }
 
         if ($search) {

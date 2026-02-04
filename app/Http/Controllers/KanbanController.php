@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 use ZipArchive;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -35,6 +36,7 @@ class KanbanController extends Controller
         $entryDateFilter = $request->get('entry_date');
         $rangeStart = $request->get('start_date');
         $rangeEnd = $request->get('end_date');
+        $hasEntryDateColumn = Schema::hasColumn('orders', 'entry_date');
         if ($rangeStart && !$rangeEnd) {
             $rangeEnd = $rangeStart;
         }
@@ -115,7 +117,7 @@ class KanbanController extends Controller
         // Filter statuses by type
         $statuses = Status::where('tenant_id', $activeTenantId)
             ->where('type', $viewType)
-            ->withCount(['orders' => function($query) use ($personalizationType, $entryDateFilter, $viewType, $rangeStart, $rangeEnd) {
+            ->withCount(['orders' => function($query) use ($personalizationType, $entryDateFilter, $viewType, $rangeStart, $rangeEnd, $hasEntryDateColumn) {
             $query->notDrafts()
                   ->where('is_cancelled', false);
             
@@ -152,19 +154,27 @@ class KanbanController extends Controller
             }
 
             if ($rangeStart && $rangeEnd) {
-                $query->where(function($q) use ($rangeStart, $rangeEnd) {
-                    $q->whereBetween('entry_date', [$rangeStart, $rangeEnd])
-                      ->orWhere(function($q2) use ($rangeStart, $rangeEnd) {
-                          $q2->whereNull('entry_date')->whereBetween('created_at', [$rangeStart, $rangeEnd]);
-                      });
-                });
+                if ($hasEntryDateColumn) {
+                    $query->where(function($q) use ($rangeStart, $rangeEnd) {
+                        $q->whereBetween('entry_date', [$rangeStart, $rangeEnd])
+                          ->orWhere(function($q2) use ($rangeStart, $rangeEnd) {
+                              $q2->whereNull('entry_date')->whereBetween('created_at', [$rangeStart, $rangeEnd]);
+                          });
+                    });
+                } else {
+                    $query->whereBetween('created_at', [$rangeStart, $rangeEnd]);
+                }
             } elseif ($entryDateFilter) {
-                $query->where(function($q) use ($entryDateFilter) {
-                    $q->whereDate('entry_date', $entryDateFilter)
-                      ->orWhere(function($q2) use ($entryDateFilter) {
-                          $q2->whereNull('entry_date')->whereDate('created_at', $entryDateFilter);
-                      });
-                });
+                if ($hasEntryDateColumn) {
+                    $query->where(function($q) use ($entryDateFilter) {
+                        $q->whereDate('entry_date', $entryDateFilter)
+                          ->orWhere(function($q2) use ($entryDateFilter) {
+                              $q2->whereNull('entry_date')->whereDate('created_at', $entryDateFilter);
+                          });
+                    });
+                } else {
+                    $query->whereDate('created_at', $entryDateFilter);
+                }
             }
         }])->orderBy('position')->get();
         
@@ -242,19 +252,27 @@ class KanbanController extends Controller
         }
 
         if ($rangeStart && $rangeEnd) {
-            $query->where(function($q) use ($rangeStart, $rangeEnd) {
-                $q->whereBetween('entry_date', [$rangeStart, $rangeEnd])
-                  ->orWhere(function($q2) use ($rangeStart, $rangeEnd) {
-                      $q2->whereNull('entry_date')->whereBetween('created_at', [$rangeStart, $rangeEnd]);
-                  });
-            });
+            if ($hasEntryDateColumn) {
+                $query->where(function($q) use ($rangeStart, $rangeEnd) {
+                    $q->whereBetween('entry_date', [$rangeStart, $rangeEnd])
+                      ->orWhere(function($q2) use ($rangeStart, $rangeEnd) {
+                          $q2->whereNull('entry_date')->whereBetween('created_at', [$rangeStart, $rangeEnd]);
+                      });
+                });
+            } else {
+                $query->whereBetween('created_at', [$rangeStart, $rangeEnd]);
+            }
         } elseif ($entryDateFilter) {
-            $query->where(function($q) use ($entryDateFilter) {
-                $q->whereDate('entry_date', $entryDateFilter)
-                  ->orWhere(function($q2) use ($entryDateFilter) {
-                      $q2->whereNull('entry_date')->whereDate('created_at', $entryDateFilter);
-                  });
-            });
+            if ($hasEntryDateColumn) {
+                $query->where(function($q) use ($entryDateFilter) {
+                    $q->whereDate('entry_date', $entryDateFilter)
+                      ->orWhere(function($q2) use ($entryDateFilter) {
+                          $q2->whereNull('entry_date')->whereDate('created_at', $entryDateFilter);
+                      });
+                });
+            } else {
+                $query->whereDate('created_at', $entryDateFilter);
+            }
         }
         
         // Aplicar busca usando scope otimizado
