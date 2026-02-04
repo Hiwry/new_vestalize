@@ -293,6 +293,14 @@
         $addonsLookup = $addonIds->isNotEmpty()
             ? \App\Models\SublimationAddon::whereIn('id', $addonIds)->pluck('name', 'id')->toArray()
             : [];
+        $locationIds = $allCustomizations->pluck('location')
+            ->filter(fn ($loc) => is_numeric($loc))
+            ->map(fn ($loc) => (int) $loc)
+            ->unique()
+            ->values();
+        $locationLookup = $locationIds->isNotEmpty()
+            ? \App\Models\SublimationLocation::whereIn('id', $locationIds)->pluck('name', 'id')->toArray()
+            : [];
     @endphp
 
     <table class="items-table">
@@ -369,9 +377,23 @@
                                                 $addonNames[] = 'REGATA (desconto)';
                                             }
                                             $addonsLabel = !empty($addonNames) ? ' | Adicionais: ' . implode(', ', $addonNames) : '';
+                                            $locRaw = $cust->location ?? '';
+                                            $locName = $locRaw;
+                                            if (is_numeric($locRaw)) {
+                                                $locName = $locationLookup[(int) $locRaw] ?? $locRaw;
+                                            }
+                                            $sizeLabel = trim((string) ($cust->size ?? ''));
+                                            $detailParts = [];
+                                            if (!empty($locName)) {
+                                                $detailParts[] = $locName;
+                                            }
+                                            if (!empty($sizeLabel) && strtoupper($sizeLabel) !== 'PADRÃO') {
+                                                $detailParts[] = $sizeLabel;
+                                            }
+                                            $detailLabel = !empty($detailParts) ? implode(' - ', $detailParts) : '-';
                                         @endphp
                                         <span class="pers-tag">
-                                            {{ $cust->personalization_type }}: {{ $cust->location }}
+                                            {{ $cust->personalization_type }}: {{ $detailLabel }}
                                             @if($cust->color_count > 1) ({{ $cust->color_count }} cores) @endif
                                             {!! $addonsLabel ? e($addonsLabel) : '' !!}
                                         </span>

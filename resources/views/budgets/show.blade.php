@@ -188,6 +188,14 @@
                     $addonsLookup = $addonIds->isNotEmpty()
                         ? \App\Models\SublimationAddon::whereIn('id', $addonIds)->pluck('name', 'id')->toArray()
                         : [];
+                    $locationIds = $allCustomizations->pluck('location')
+                        ->filter(fn ($loc) => is_numeric($loc))
+                        ->map(fn ($loc) => (int) $loc)
+                        ->unique()
+                        ->values();
+                    $locationLookup = $locationIds->isNotEmpty()
+                        ? \App\Models\SublimationLocation::whereIn('id', $locationIds)->pluck('name', 'id')->toArray()
+                        : [];
                 @endphp
                 @if($allCustomizations->count() > 0)
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/25 border border-gray-200 dark:border-gray-700 p-6">
@@ -204,7 +212,14 @@
                                         </div>
                                         <div>
                                             <span class="text-gray-600 dark:text-gray-400 text-xs">Localização:</span>
-                                            <p class="font-medium text-gray-900 dark:text-gray-100">{{ $custom->location }}</p>
+                                            @php
+                                                $locRaw = $custom->location ?? '';
+                                                $locName = $locRaw;
+                                                if (is_numeric($locRaw)) {
+                                                    $locName = $locationLookup[(int) $locRaw] ?? $locRaw;
+                                                }
+                                            @endphp
+                                            <p class="font-medium text-gray-900 dark:text-gray-100">{{ $locName ?: '-' }}</p>
                                         </div>
                                         <div>
                                             <span class="text-gray-600 dark:text-gray-400 text-xs">Tamanho:</span>

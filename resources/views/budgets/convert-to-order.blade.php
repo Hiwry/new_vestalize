@@ -15,6 +15,14 @@
     $addonsLookup = $addonIds->isNotEmpty()
         ? \App\Models\SublimationAddon::whereIn('id', $addonIds)->pluck('name', 'id')->toArray()
         : [];
+    $locationIds = $allCustomizations->pluck('location')
+        ->filter(fn ($loc) => is_numeric($loc))
+        ->map(fn ($loc) => (int) $loc)
+        ->unique()
+        ->values();
+    $locationLookup = $locationIds->isNotEmpty()
+        ? \App\Models\SublimationLocation::whereIn('id', $locationIds)->pluck('name', 'id')->toArray()
+        : [];
 @endphp
 <div class="max-w-5xl mx-auto">
     <!-- Cabeçalho -->
@@ -320,7 +328,14 @@
                                 <div class="flex-1">
                                     <span class="font-semibold text-gray-900 dark:text-white block mb-1">{{ $custom->personalization_type }}</span>
                                       <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-600 dark:text-gray-400">
-                                          <span><strong>Local:</strong> {{ $custom->location }}</span>
+                                          @php
+                                              $locRaw = $custom->location ?? '';
+                                              $locName = $locRaw;
+                                              if (is_numeric($locRaw)) {
+                                                  $locName = $locationLookup[(int) $locRaw] ?? $locRaw;
+                                              }
+                                          @endphp
+                                          <span><strong>Local:</strong> {{ $locName ?: '-' }}</span>
                                           <span><strong>Tamanho:</strong> {{ $custom->size }}</span>
                                           <span><strong>Qtd:</strong> {{ $custom->quantity }}</span>
                                       </div>
