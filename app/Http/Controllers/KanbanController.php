@@ -34,6 +34,14 @@ class KanbanController extends Controller
         $personalizationType = $request->get('personalization_type');
         $deliveryDateFilter = $request->get('delivery_date');
         $entryDateFilter = $request->get('entry_date');
+        $rangeStart = $request->get('start_date');
+        $rangeEnd = $request->get('end_date');
+        if ($rangeStart && !$rangeEnd) {
+            $rangeEnd = $rangeStart;
+        }
+        if ($rangeEnd && !$rangeStart) {
+            $rangeStart = $rangeEnd;
+        }
         $viewType = $request->get('type', 'production'); // 'production' or 'personalized'
         if (!$viewType || !in_array($viewType, ['production', 'personalized'])) {
             $viewType = 'production';
@@ -144,7 +152,10 @@ class KanbanController extends Controller
                 });
             }
 
-            if ($deliveryDateFilter) {
+            if ($rangeStart && $rangeEnd) {
+                $query->whereNotNull('delivery_date')
+                      ->whereBetween('delivery_date', [$rangeStart, $rangeEnd]);
+            } elseif ($deliveryDateFilter) {
                 $query->whereDate('delivery_date', $deliveryDateFilter);
             }
 
@@ -231,7 +242,10 @@ class KanbanController extends Controller
             });
         }
 
-        if ($deliveryDateFilter) {
+        if ($rangeStart && $rangeEnd) {
+            $query->whereNotNull('delivery_date')
+                  ->whereBetween('delivery_date', [$rangeStart, $rangeEnd]);
+        } elseif ($deliveryDateFilter) {
             $query->whereDate('delivery_date', $deliveryDateFilter);
         }
 

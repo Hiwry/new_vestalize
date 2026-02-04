@@ -46,7 +46,19 @@ class ProductionController extends Controller
         $status = $request->get('status');
         $personalizationType = $request->get('personalization_type');
         $storeId = $request->get('store_id');
+        $deliveryDate = $request->get('delivery_date');
+        $entryDate = $request->get('entry_date');
         $period = $request->get('period', 'week'); // Default: semana (segunda a sexta)
+        $rangeStart = $request->get('start_date');
+        $rangeEnd = $request->get('end_date');
+
+        if ($rangeStart && !$rangeEnd) {
+            $rangeEnd = $rangeStart;
+        }
+        if ($rangeEnd && !$rangeStart) {
+            $rangeStart = $rangeEnd;
+        }
+        $hasRange = !empty($rangeStart) && !empty($rangeEnd);
         $viewType = $request->get('type', 'production'); // 'production' or 'personalized'
 
         $tenant = $user->tenant;
@@ -61,7 +73,11 @@ class ProductionController extends Controller
         
         // Para períodos predefinidos, sempre recalcular as datas
         // Só usar start_date/end_date do request quando for "custom"
-        if ($period === 'custom') {
+        if ($hasRange) {
+            $period = 'custom';
+            $startDate = $rangeStart;
+            $endDate = $rangeEnd;
+        } elseif ($period === 'custom') {
             $startDate = $request->get('start_date');
             $endDate = $request->get('end_date');
         } else {
@@ -349,11 +365,27 @@ class ProductionController extends Controller
         $status = $request->get('status');
         $personalizationType = $request->get('personalization_type');
         $storeId = $request->get('store_id');
+        $deliveryDate = $request->get('delivery_date');
+        $entryDate = $request->get('entry_date');
         $period = $request->get('period', 'week'); // Default: semana (segunda a sexta)
+        $rangeStart = $request->get('start_date');
+        $rangeEnd = $request->get('end_date');
+
+        if ($rangeStart && !$rangeEnd) {
+            $rangeEnd = $rangeStart;
+        }
+        if ($rangeEnd && !$rangeStart) {
+            $rangeStart = $rangeEnd;
+        }
+        $hasRange = !empty($rangeStart) && !empty($rangeEnd);
         
         // Para períodos predefinidos, sempre recalcular as datas
         // Só usar start_date/end_date do request quando for "custom"
-        if ($period === 'custom') {
+        if ($hasRange) {
+            $period = 'custom';
+            $startDate = $rangeStart;
+            $endDate = $rangeEnd;
+        } elseif ($period === 'custom') {
             $startDate = $request->get('start_date');
             $endDate = $request->get('end_date');
         } else {
@@ -410,9 +442,20 @@ class ProductionController extends Controller
         // Aplicar filtros de período por DATA DE ENTREGA
         if ($period === 'all') {
             // Todo o período: não aplica filtro de data
-        } elseif (in_array($period, ['week', 'month', 'custom'])) {
+        } elseif (!empty($startDate) && !empty($endDate)) {
             $query->whereNotNull('delivery_date')
                   ->whereBetween('delivery_date', [$startDate, $endDate]);
+        } elseif ($deliveryDate) {
+            $query->whereDate('delivery_date', $deliveryDate);
+        }
+
+        if ($entryDate) {
+            $query->where(function($q) use ($entryDate) {
+                $q->whereDate('entry_date', $entryDate)
+                  ->orWhere(function($q2) use ($entryDate) {
+                      $q2->whereNull('entry_date')->whereDate('created_at', $entryDate);
+                  });
+            });
         }
 
         if ($search) {
