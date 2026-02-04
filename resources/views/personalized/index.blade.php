@@ -143,7 +143,9 @@
                 </div>
             </div>
 
-            <button onclick="confirmAddToCart()" class="w-full py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-xl font-bold">Adicionar ao Carrinho</button>
+            <button onclick="confirmAddToCart()" class="w-full py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-xl font-bold" style="color: #ffffff !important;">
+                <span class="text-white" style="color: #ffffff !important;">Adicionar ao Carrinho</span>
+            </button>
         </div>
     </div>
 </div>
@@ -180,8 +182,8 @@
                 <textarea id="checkout-notes" rows="3" placeholder="Ex: Entregar amanhã..." class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
             </div>
             
-            <button onclick="confirmCheckout()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold shadow-lg shadow-green-200 dark:shadow-none transition-all active:scale-[0.99]">
-                Confirmar Venda
+            <button onclick="confirmCheckout()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold shadow-lg shadow-green-200 dark:shadow-none transition-all active:scale-[0.99]" style="color: #ffffff !important;">
+                <span class="text-white" style="color: #ffffff !important;">Confirmar Venda</span>
             </button>
         </div>
     </div>

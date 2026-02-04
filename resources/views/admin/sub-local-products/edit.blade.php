@@ -182,13 +182,13 @@
                     <div class="space-y-4 bg-gray-50 dark:bg-gray-700/30 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
                         <label class="flex items-center cursor-pointer p-2 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-colors">
                             <input type="checkbox" name="is_active" value="1" {{ $subLocalProduct->is_active ? 'checked' : '' }} class="sr-only peer text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                            <div class="w-14 h-7 bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-emerald-500 shadow-inner"></div>
+                            <div class="relative w-14 h-7 bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-1/2 after:left-1 after:-translate-y-1/2 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-emerald-500 shadow-inner"></div>
                             <span class="ml-3 text-sm text-gray-700 dark:text-gray-300 font-bold">Produto Ativo (Disponível no Wizard)</span>
                         </label>
 
                         <label class="flex items-center cursor-pointer p-2 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-colors">
                             <input type="checkbox" name="requires_customization" value="1" {{ $subLocalProduct->requires_customization ? 'checked' : '' }} class="sr-only peer text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                            <div class="w-14 h-7 bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
+                            <div class="relative w-14 h-7 bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-1/2 after:left-1 after:-translate-y-1/2 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
                             <span class="ml-3 text-sm text-gray-700 dark:text-gray-300 font-bold">Requer Personalização (Passar pela etapa de arte)</span>
                         </label>
                     </div>
@@ -204,7 +204,7 @@
                         <label class="flex items-center cursor-pointer">
                             <span class="mr-3 text-sm text-gray-700 dark:text-gray-300 font-bold">Habilitar Tamanhos</span>
                             <input type="checkbox" name="requires_size" value="1" x-model="requiresSize" {{ $subLocalProduct->requires_size ? 'checked' : '' }} class="sr-only peer">
-                            <div class="w-14 h-7 bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
+                            <div class="relative w-14 h-7 bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-1/2 after:left-1 after:-translate-y-1/2 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
                         </label>
                     </div>
 
@@ -247,7 +247,7 @@
                         <label class="flex items-center cursor-pointer">
                             <span class="mr-3 text-sm text-gray-700 dark:text-gray-300 font-bold">Habilitar Tabela</span>
                             <input type="checkbox" name="has_quantity_pricing" value="1" x-model="enabled" class="sr-only peer">
-                            <div class="w-14 h-7 bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-purple-600 shadow-inner"></div>
+                            <div class="relative w-14 h-7 bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-1/2 after:left-1 after:-translate-y-1/2 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-purple-600 shadow-inner"></div>
                         </label>
                     </div>
 
@@ -318,7 +318,7 @@
                         </div>
                         <label class="flex items-center cursor-pointer">
                             <input type="checkbox" name="allow_price_edit" value="1" {{ $subLocalProduct->allow_price_edit ? 'checked' : '' }} class="sr-only peer">
-                            <div class="w-14 h-7 bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-green-600 shadow-inner"></div>
+                            <div class="relative w-14 h-7 bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-1/2 after:left-1 after:-translate-y-1/2 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-green-600 shadow-inner"></div>
                         </label>
                     </div>
                 </div>

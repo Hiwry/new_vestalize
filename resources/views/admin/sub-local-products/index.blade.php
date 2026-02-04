@@ -61,8 +61,18 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="relative w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm transition-transform group-hover:scale-105">
                                     @if($product->image)
+                                        @php
+                                            $imagePath = $product->image;
+                                            if (\Illuminate\Support\Str::startsWith($imagePath, ['http://', 'https://'])) {
+                                                $imageUrl = $imagePath;
+                                            } elseif (\Illuminate\Support\Str::startsWith($imagePath, 'storage/')) {
+                                                $imageUrl = asset($imagePath);
+                                            } else {
+                                                $imageUrl = \Illuminate\Support\Facades\Storage::url($imagePath);
+                                            }
+                                        @endphp
                                         <img 
-                                            src="{{ asset('storage/' . $product->image) }}" 
+                                            src="{{ $imageUrl }}" 
                                             alt="{{ $product->name }}" 
                                             class="w-full h-full object-cover"
                                             onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%239ca3af%22 stroke-width=%221%22><rect x=%223%22 y=%223%22 width=%2218%22 height=%2218%22 rx=%224%22/><path d=%22M21 15l-5-5L5 21%22/><circle cx=%228.5%22 cy=%228.5%22 r=%221.5%22/></svg>'; this.classList.add('p-3');"

@@ -90,9 +90,9 @@
                         <div>
                             <label for="price" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Preço de Venda <span class="text-red-500">*</span></label>
                             <div class="relative">
-                                <span class="absolute left-4 top-2.5 text-gray-500 dark:text-gray-400">R$</span>
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">R$</span>
                                 <input type="number" name="price" id="price" step="0.01" value="{{ old('price') }}" required
-                                       class="w-full pl-12 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all"
+                                       class="w-full pl-14 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all"
                                        placeholder="0,00">
                             </div>
                         </div>
@@ -100,9 +100,9 @@
                         <div>
                             <label for="cost" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Preço de Custo</label>
                             <div class="relative">
-                                <span class="absolute left-4 top-2.5 text-gray-500 dark:text-gray-400">R$</span>
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">R$</span>
                                 <input type="number" name="cost" id="cost" step="0.01" value="{{ old('cost', 0) }}"
-                                       class="w-full pl-12 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all"
+                                       class="w-full pl-14 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all"
                                        placeholder="0,00">
                             </div>
                         </div>
@@ -158,7 +158,7 @@
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" name="is_active" value="1" checked class="sr-only peer">
-                                <div class="w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
+                                <div class="relative w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-1/2 after:left-1 after:-translate-y-1/2 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
                             </label>
                         </div>
 
@@ -170,7 +170,7 @@
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" name="requires_customization" value="1" checked class="sr-only peer">
-                                <div class="w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
+                                <div class="relative w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-1/2 after:left-1 after:-translate-y-1/2 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
                             </label>
                         </div>
 
@@ -182,7 +182,7 @@
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" name="allow_price_edit" value="1" class="sr-only peer">
-                                <div class="w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-green-600 shadow-inner"></div>
+                                <div class="relative w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-1/2 after:left-1 after:-translate-y-1/2 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-green-600 shadow-inner"></div>
                             </label>
                         </div>
                     </div>
@@ -201,7 +201,7 @@
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" name="requires_size" value="1" x-model="requiresSize" class="sr-only peer">
-                            <div class="w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
+                            <div class="relative w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-1/2 after:left-1 after:-translate-y-1/2 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
                         </label>
                     </div>
 
@@ -231,7 +231,7 @@
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" name="has_quantity_pricing" value="1" x-model="enabled" class="sr-only peer">
-                            <div class="w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
+                            <div class="relative w-14 h-7 bg-gray-200 dark:bg-white/30 border border-gray-300 dark:border-white/50 rounded-full peer peer-checked:after:translate-x-7 peer-checked:after:border-white after:content-[''] after:absolute after:top-1/2 after:left-1 after:-translate-y-1/2 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all duration-300 peer-checked:bg-indigo-600 shadow-inner"></div>
                         </label>
                     </div>
 

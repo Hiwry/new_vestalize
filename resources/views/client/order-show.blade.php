@@ -203,21 +203,24 @@
         </div>
 
         <!-- Dados do Cliente -->
+        @php
+            $client = $order->client;
+        @endphp
         <div class="bg-white dark:bg-slate-900 rounded border border-gray-200 dark:border-slate-800 dark:shadow-2xl dark:shadow-black/20 p-4 mb-4">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-3">Seus Dados</h2>
             <div class="space-y-2 mobile-text-sm">
                 <div>
                     <p class="text-gray-500 dark:text-slate-400 mobile-text-xs">Nome</p>
-                    <p class="font-semibold text-gray-900 dark:text-white">{{ $order->client->name }}</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">{{ $client?->name ?? 'Cliente nÃ£o informado' }}</p>
                 </div>
                 <div>
                     <p class="text-gray-500 dark:text-slate-400 mobile-text-xs">Telefone</p>
-                    <p class="font-semibold text-gray-900 dark:text-white">{{ $order->client->phone_primary }}</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">{{ $client?->phone_primary ?? '-' }}</p>
                 </div>
-                @if($order->client->email)
+                @if($client?->email)
                 <div>
                     <p class="text-gray-500 dark:text-slate-400 mobile-text-xs">Email</p>
-                    <p class="font-semibold text-gray-900 dark:text-white">{{ $order->client->email }}</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">{{ $client->email }}</p>
                 </div>
                 @endif
             </div>
@@ -537,7 +540,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
                         <input type="text" 
                                name="client_name" 
-                               value="{{ $order->client->name }}"
+                               value="{{ $client?->name ?? '' }}"
                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 dark:focus:border-indigo-400 mobile-text-sm"
                                required>
                     </div>
@@ -546,7 +549,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
                         <input type="tel" 
                                name="client_phone" 
-                               value="{{ $order->client->phone_primary }}"
+                               value="{{ $client?->phone_primary ?? '' }}"
                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 dark:focus:border-indigo-400 mobile-text-sm"
                                required>
                     </div>
