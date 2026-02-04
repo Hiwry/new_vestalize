@@ -387,6 +387,10 @@ class ProductionController extends Controller
         if ($rangeEnd && !$rangeStart) {
             $rangeStart = $rangeEnd;
         }
+        $useEntryDate = !empty($entryDate) || (!empty($rangeStart) && !empty($rangeEnd));
+        if (!$useEntryDate && !$request->has('period')) {
+            $period = 'all';
+        }
         $hasRange = !empty($rangeStart) && !empty($rangeEnd);
         
         // Para períodos predefinidos, sempre recalcular as datas
