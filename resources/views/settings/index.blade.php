@@ -134,6 +134,20 @@
                         </div>
                     </div>
                 </a>
+
+                @if(Auth::user()->isAdmin())
+                <a href="{{ route('admin.budget-settings.edit') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Observações do Orçamento</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Sugestões do orçamento rápido</p>
+                        </div>
+                    </div>
+                </a>
+                @endif
                 
                 @if(Auth::user()->tenant_id === null || Auth::user()->tenant->canAccess('external_quote'))
                 <a href="{{ route('admin.quote-settings.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">

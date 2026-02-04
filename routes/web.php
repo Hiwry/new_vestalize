@@ -575,6 +575,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('company-settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('company.settings');
     Route::put('company-settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('company.settings.update');
     Route::delete('company-settings/logo', [\App\Http\Controllers\Admin\SettingsController::class, 'deleteLogo'])->name('company.settings.deleteLogo');
+
+    // Configurações de Observações do Orçamento
+    Route::get('budget-settings', [\App\Http\Controllers\Admin\BudgetSettingsController::class, 'edit'])->name('budget-settings.edit');
+    Route::put('budget-settings', [\App\Http\Controllers\Admin\BudgetSettingsController::class, 'update'])->name('budget-settings.update');
     
     // Deletar logo de uma loja específica
     Route::delete('/stores/{store}/logo', [\App\Http\Controllers\Admin\StoreController::class, 'deleteLogo'])->name('stores.deleteLogo');

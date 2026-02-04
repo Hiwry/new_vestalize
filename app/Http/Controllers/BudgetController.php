@@ -10,6 +10,7 @@ use App\Models\Store;
 use App\Models\User;
 use App\Models\Notification;
 use App\Helpers\StoreHelper;
+use App\Helpers\BudgetObservationHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -635,11 +636,10 @@ class BudgetController extends Controller
             }
             
             // Criar orçamento
-            $budget = Budget::create([
+            $budget = Budget::createWithUniqueNumber([
                 'client_id' => $budgetData['client_id'],
                 'user_id' => Auth::id(),
                 'store_id' => $storeId,
-                'budget_number' => Budget::generateBudgetNumber(),
                 'valid_until' => now()->addDays(15), // 15 dias de validade
                 'subtotal' => $subtotal,
                 'discount' => 0,
@@ -1628,7 +1628,8 @@ class BudgetController extends Controller
      */
     public function quickCreate()
     {
-        return view('budgets.quick-create');
+        $observationOptions = BudgetObservationHelper::getOptions();
+        return view('budgets.quick-create', compact('observationOptions'));
     }
 
     /**
@@ -1669,12 +1670,11 @@ class BudgetController extends Controller
             $total = $quantity * $unitPrice;
             $deadlineDays = $validated['deadline_days'] ?? 15;
 
-            $budget = Budget::create([
+            $budget = Budget::createWithUniqueNumber([
                 'client_id' => null, // Quick budgets don't require a client
                 'user_id' => Auth::id(),
                 'tenant_id' => $tenantId,
                 'store_id' => $storeId,
-                'budget_number' => Budget::generateBudgetNumber(),
                 'valid_until' => now()->addDays($deadlineDays),
                 'subtotal' => $total,
                 'discount' => 0,

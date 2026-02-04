@@ -266,12 +266,7 @@ function quickBudgetForm() {
         techniques: ['Silk 1 cor', 'Silk 2 cores', 'Bordado', 'Sublimação', 'Sublimação Local', 'DTF'],
         loading: false,
         savedBudget: null,
-        observationOptions: [
-            'Acréscimo de R$ 2,00 para GG e R$ 35,00 para EXG',
-            'Arte cobrada à parte',
-            'Pagamento: 50% entrada + 50% retirada',
-            'Prazo sujeito à confirmação',
-        ],
+        observationOptions: @json($observationOptions),
 
         get total() {
             return (this.form.quantity || 0) * (this.form.unit_price || 0);

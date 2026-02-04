@@ -160,22 +160,10 @@
     <!-- Header do Sidebar com Botão Toggle -->
     <div class="flex items-center h-20 border-b border-border bg-card-bg transition-all duration-300 relative"
          :class="expanded ? 'justify-between px-4' : 'justify-center'">
-        <div class="flex items-center overflow-hidden" x-show="expanded" x-data="{ logoError: false }">
-            @if(auth()->user()->tenant && auth()->user()->tenant->logo_path)
-                <img src="{{ Storage::url(auth()->user()->tenant->logo_path) }}"
-                     alt="Logo"
-                     class="h-10 w-auto object-contain"
-                     x-show="!logoError"
-                     x-on:error="logoError = true">
-                <h1 x-show="logoError"
-                    class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400 whitespace-nowrap tracking-tighter italic">
-                    {{ auth()->user()->tenant->name ?? 'VESTALIZE' }}
-                </h1>
-            @else
-                <h1 class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400 whitespace-nowrap tracking-tighter italic">
-                    {{ auth()->user()->tenant->name ?? 'VESTALIZE' }}
-                </h1>
-            @endif
+        <div class="flex items-center overflow-hidden" x-show="expanded">
+            <img src="{{ asset('logos/logo_branca_img.png') }}"
+                 alt="Vestalize"
+                 class="h-10 w-auto object-contain">
         </div>
         <div class="flex items-center" :class="expanded ? 'gap-2' : ''">
             <button @click="toggle()" 
