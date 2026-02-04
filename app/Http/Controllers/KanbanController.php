@@ -116,7 +116,7 @@ class KanbanController extends Controller
         // Filter statuses by type
         $statuses = Status::where('tenant_id', $activeTenantId)
             ->where('type', $viewType)
-            ->withCount(['orders' => function($query) use ($personalizationType, $deliveryDateFilter, $entryDateFilter, $viewType) {
+            ->withCount(['orders' => function($query) use ($personalizationType, $deliveryDateFilter, $entryDateFilter, $viewType, $rangeStart, $rangeEnd) {
             $query->notDrafts()
                   ->where('is_cancelled', false);
             
