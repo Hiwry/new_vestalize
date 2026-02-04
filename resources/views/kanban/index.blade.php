@@ -1894,7 +1894,7 @@
                                     ? item.cover_image
                                     : (item.cover_image.startsWith('/storage/') || item.cover_image.startsWith('storage/')
                                         ? item.cover_image
-                                        : `/storage/${item.cover_image.replace(/^\\/+/, '')}`))
+                                        : `/storage/${item.cover_image.replace(/^\/+/, '')}`))
                                 : null);
 
                         return `
