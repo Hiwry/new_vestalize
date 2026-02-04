@@ -767,6 +767,9 @@
                 optionsWithParents = data;
                 window.optionsWithParents = optionsWithParents;
                 console.log('Options loaded.');
+                if (typeof window.loadWizardOptionsForStep === 'function' && typeof window.wizardCurrentStep !== 'undefined') {
+                    loadWizardOptionsForStep(window.wizardCurrentStep);
+                }
             })
             .catch(error => {
                 console.error('Erro ao carregar opções:', error);
@@ -1084,11 +1087,11 @@
 
     function getOptionList(possibleKeys) {
         for (const key of possibleKeys) {
-            if (options && options[key] && Array.isArray(options[key]) && options[key].length) {
-                return options[key];
-            }
             if (optionsWithParents && optionsWithParents[key] && Array.isArray(optionsWithParents[key]) && optionsWithParents[key].length) {
                 return optionsWithParents[key];
+            }
+            if (options && options[key] && Array.isArray(options[key]) && options[key].length) {
+                return options[key];
             }
         }
         return [];
@@ -1291,7 +1294,7 @@
         if(!select) return;
         
         if (select.options.length <= 1) {
-            let items = options.tecido || [];
+            let items = getOptionList(['tecido']);
             
             if (selectedPersonalizacoes && selectedPersonalizacoes.length > 0) {
                 items = items.filter(tecido => {
@@ -1330,7 +1333,7 @@
               wizardData.tecido = { id: fabricId, name: fabricName, price: 0 };
           }
           
-          const subItems = (options.tipo_tecido || []).filter(t => t.parent_id == fabricId);
+          const subItems = filterByParent(getOptionList(['tipo_tecido']), fabricId);
           if(subItems.length > 0) {
               typeContainer.classList.remove('hidden');
               typeSelect.innerHTML = '<option value="">Selecione o tipo</option>' + 
@@ -1369,7 +1372,7 @@
          const select = document.getElementById('wizard_cor'); 
          if(!container) return;
          
-         let items = options.cor || [];
+         let items = getOptionList(['cor']);
          const tecidoId = wizardData.tecido ? wizardData.tecido.id : null;
          
          if (selectedPersonalizacoes.length > 0 || tecidoId) {
