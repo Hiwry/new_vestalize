@@ -80,12 +80,25 @@
                     <div class="flex flex-wrap gap-2 mb-3">
                         <template x-for="tech in techniques" :key="tech">
                             <button type="button" 
-                                    @click="form.technique = tech"
-                                    :class="form.technique === tech 
+                                    @click="setTechnique(tech)"
+                                    :class="form.technique_type === tech 
                                         ? 'bg-indigo-600 text-white border-indigo-600' 
                                         : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-indigo-400'"
                                     class="px-4 py-2 rounded-lg border text-sm font-medium transition-all">
                                 <span x-text="tech"></span>
+                            </button>
+                        </template>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Tamanho da aplicação</p>
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        <template x-for="size in applicationSizes" :key="size">
+                            <button type="button" 
+                                    @click="setSize(size)"
+                                    :class="form.application_size === size 
+                                        ? 'bg-indigo-600 text-white border-indigo-600' 
+                                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-indigo-400'"
+                                    class="px-4 py-2 rounded-lg border text-sm font-medium transition-all">
+                                <span x-text="size"></span>
                             </button>
                         </template>
                     </div>
@@ -258,12 +271,15 @@ function quickBudgetForm() {
             contact_phone: '',
             product_internal: '',
             technique: '',
+            technique_type: '',
+            application_size: '',
             quantity: null,
             unit_price: null,
             deadline_days: 15,
             observations: ''
         },
-        techniques: ['Silk 1 cor', 'Silk 2 cores', 'Bordado', 'Sublimação', 'Sublimação Local', 'DTF'],
+        techniques: ['Serigrafia', 'Bordado', 'Sublimação', 'Sublimação Local', 'Sublimação Total', 'DTF'],
+        applicationSizes: ['ESCUDO', 'A5', 'A4', 'A3', 'A2'],
         loading: false,
         savedBudget: null,
         observationOptions: @json($observationOptions),
@@ -292,6 +308,25 @@ function quickBudgetForm() {
             } else {
                 // Add the option
                 this.form.observations = current ? current + '\n' + opt : opt;
+            }
+        },
+
+        setTechnique(tech) {
+            this.form.technique_type = tech;
+            this.updateTechnique();
+        },
+
+        setSize(size) {
+            this.form.application_size = size;
+            this.updateTechnique();
+        },
+
+        updateTechnique() {
+            const parts = [];
+            if (this.form.technique_type) parts.push(this.form.technique_type);
+            if (this.form.application_size) parts.push(this.form.application_size);
+            if (parts.length) {
+                this.form.technique = parts.join(' - ');
             }
         },
 
