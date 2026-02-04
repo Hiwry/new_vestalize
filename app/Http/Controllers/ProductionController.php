@@ -382,6 +382,7 @@ class ProductionController extends Controller
         $period = $request->get('period', 'week'); // Default: semana (segunda a sexta)
         $rangeStart = $request->get('start_date');
         $rangeEnd = $request->get('end_date');
+        $hasEntryDateColumn = Schema::hasColumn('orders', 'entry_date');
 
         if ($rangeStart && !$rangeEnd) {
             $rangeEnd = $rangeStart;
