@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Plan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -17,6 +18,11 @@ class WelcomeController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return view('landing.index');
+        $plans = Plan::query()
+            ->whereIn('slug', Plan::PUBLIC_SLUGS)
+            ->orderBy('price')
+            ->get();
+
+        return view('landing.index', compact('plans'));
     }
 }

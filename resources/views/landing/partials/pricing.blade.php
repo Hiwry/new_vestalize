@@ -38,79 +38,79 @@
             </div>
         </div>
 
-        {{-- Pricing Cards --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-12">
-            {{-- Starter Plan --}}
-            <div class="pricing-card scroll-animate delay-400">
-                <div class="text-sm text-muted font-medium mb-2">Starter</div>
-                <div class="flex items-baseline gap-1 mb-4">
-                    <span class="price-monthly text-4xl font-bold text-white">R$ 97</span>
-                    <span class="price-yearly text-4xl font-bold text-white hidden">R$ 77</span>
-                    <span class="text-muted">/mês</span>
-                </div>
-                <p class="text-sm text-muted mb-6">
-                    Perfeito para confecções que estão começando a organizar seus processos
-                </p>
-                
-                <ul class="space-y-3 mb-8">
-                    @foreach ([
-                        'Até 3 usuários',
-                        '100 pedidos/mês',
-                        'Kanban de produção',
-                        'Orçamentos em PDF',
-                        'Controle de estoque básico',
-                        'Suporte por email'
-                    ] as $feature)
-                        <li class="flex items-center gap-3 text-sm text-white/80">
-                            <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            {{ $feature }}
-                        </li>
-                    @endforeach
-                </ul>
-                
-                <a href="{{ route('register.public') }}" class="btn-outline w-full text-center">
-                    Começar Teste Grátis
-                </a>
-            </div>
+        @php
+            $featureLabels = \App\Models\Plan::AVAILABLE_FEATURES;
+            $plans = $plans ?? collect();
+        @endphp
 
-            {{-- Pro Plan --}}
-            <div class="pricing-card popular scroll-animate delay-500">
-                <div class="text-sm text-purple-400 font-medium mb-2">Pro</div>
-                <div class="flex items-baseline gap-1 mb-4">
-                    <span class="price-monthly text-4xl font-bold text-white">R$ 197</span>
-                    <span class="price-yearly text-4xl font-bold text-white hidden">R$ 157</span>
-                    <span class="text-muted">/mês</span>
+        {{-- Pricing Cards --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 max-w-5xl mx-auto mt-12">
+            @forelse ($plans as $index => $plan)
+                @php
+                    $features = $plan->features ?? [];
+                    $limits = $plan->limits ?? [];
+                    $users = $limits['users'] ?? null;
+                    $stores = $limits['stores'] ?? null;
+                    $isPopular = $plan->slug === 'pro';
+                    $monthly = number_format((float) $plan->price, 2, ',', '.');
+                    $yearly = number_format((float) $plan->price * 0.8, 2, ',', '.');
+                    $featureList = [];
+
+                    if (is_array($features) && in_array('*', $features, true)) {
+                        $featureList[] = 'Todas as funcionalidades';
+                    } else {
+                        foreach ($features as $featureKey) {
+                            if (isset($featureLabels[$featureKey])) {
+                                $featureList[] = $featureLabels[$featureKey];
+                            }
+                        }
+                    }
+
+                    if ($users !== null) {
+                        $featureList[] = $users >= 9999 ? 'Usuários ilimitados' : "Até {$users} usuários";
+                    }
+                    if ($stores !== null) {
+                        $featureList[] = $stores >= 9999 ? 'Lojas ilimitadas' : "Até {$stores} lojas";
+                    }
+                @endphp
+
+                <div class="pricing-card {{ $isPopular ? 'popular' : '' }} scroll-animate delay-{{ 400 + ($index * 100) }}">
+                    <div class="text-sm {{ $isPopular ? 'text-purple-400' : 'text-muted' }} font-medium mb-2">
+                        {{ $plan->name }}
+                    </div>
+                    <div class="flex items-baseline gap-1 mb-4">
+                        <span class="price-monthly text-4xl font-bold text-white">R$ {{ $monthly }}</span>
+                        <span class="price-yearly text-4xl font-bold text-white hidden">R$ {{ $yearly }}</span>
+                        <span class="text-muted">/mês</span>
+                    </div>
+                    @if(!empty($plan->description))
+                        <p class="text-sm text-muted mb-6">
+                            {{ $plan->description }}
+                        </p>
+                    @endif
+
+                    <ul class="space-y-3 mb-8">
+                        @forelse ($featureList as $feature)
+                            <li class="flex items-center gap-3 text-sm text-white/80">
+                                <svg class="w-5 h-5 {{ $isPopular ? 'text-purple-400' : 'text-green-400' }} flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                {{ $feature }}
+                            </li>
+                        @empty
+                            <li class="text-sm text-muted">Consulte os recursos do plano.</li>
+                        @endforelse
+                    </ul>
+
+                    <a href="{{ route('register.public') }}" class="{{ $isPopular ? 'btn-primary' : 'btn-outline' }} w-full text-center">
+                        Começar Teste Grátis
+                    </a>
                 </div>
-                <p class="text-sm text-muted mb-6">
-                    Para confecções que querem escalar e ter controle total do negócio
-                </p>
-                
-                <ul class="space-y-3 mb-8">
-                    @foreach ([
-                        'Usuários ilimitados',
-                        'Pedidos ilimitados',
-                        'Tudo do Starter +',
-                        'Dashboard completo',
-                        'Relatórios avançados',
-                        'PDV integrado',
-                        'Multi-lojas',
-                        'Suporte prioritário 24/7'
-                    ] as $feature)
-                        <li class="flex items-center gap-3 text-sm text-white/80">
-                            <svg class="w-5 h-5 text-purple-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            {{ $feature }}
-                        </li>
-                    @endforeach
-                </ul>
-                
-                <a href="{{ route('register.public') }}" class="btn-primary w-full text-center">
-                    Começar Teste Grátis
-                </a>
-            </div>
+            @empty
+                <div class="text-center text-muted col-span-full">
+                    Nenhum plano disponível no momento.
+                </div>
+            @endforelse
         </div>
     </div>
 </section>
