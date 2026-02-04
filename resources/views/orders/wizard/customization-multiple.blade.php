@@ -96,7 +96,7 @@
                                 </div>
                                 Aplicar no Item
                             </label>
-                            <select id="order_art_item" name="item_id" 
+                            <select id="order_art_item" name="item_id"
                                     class="w-full h-11 px-4 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] focus:border-transparent transition-all">
                                 @foreach($order->items as $item)
                                     <option value="{{ $item->id }}" {{ $loop->first ? 'selected' : '' }}>
@@ -104,6 +104,10 @@
                                     </option>
                                 @endforeach
                             </select>
+                            <label class="mt-2 flex items-center gap-2 text-xs text-gray-600 dark:text-slate-400">
+                                <input type="checkbox" name="apply_all_items" value="1" class="rounded border-gray-300 text-[#7c3aed] focus:ring-[#7c3aed]">
+                                Aplicar a todos os itens do pedido
+                            </label>
                         </div>
                         
                         <!-- Botão -->

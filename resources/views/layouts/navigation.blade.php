@@ -14,8 +14,12 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        @if(Auth::user()->tenant && Auth::user()->tenant->logo_path)
-                            <img src="{{ Storage::url(Auth::user()->tenant->logo_path) }}" alt="Logo" class="block h-9 w-auto">
+                        @php
+                            $navTenantLogo = Auth::user()->tenant->logo_path ?? null;
+                            $navTenantLogoExists = $navTenantLogo && is_readable(storage_path('app/public/' . $navTenantLogo));
+                        @endphp
+                        @if($navTenantLogoExists)
+                            <img src="{{ Storage::url($navTenantLogo) }}" alt="Logo" class="block h-9 w-auto">
                         @else
                             <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
                         @endif

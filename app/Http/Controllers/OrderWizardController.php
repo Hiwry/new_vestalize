@@ -604,12 +604,29 @@ class OrderWizardController extends Controller
                 'order_art_name' => 'nullable|string|max:255',
                 'order_art_files' => 'nullable|array',
                 'order_art_files.*' => 'nullable|file|max:51200',
+                'apply_all_items' => 'nullable|boolean',
             ]);
 
-            $item = OrderItem::where('order_id', $orderId)->findOrFail($validated['item_id']);
-            $this->orderWizardService->processSaveOrderArt($item, $validated, $request->file('order_art_files', []));
+            $files = $request->file('order_art_files', []);
+            $applyAll = $request->boolean('apply_all_items');
 
-            return redirect()->back()->with('success', 'Arte do item atualizada com sucesso!');
+            if ($applyAll) {
+                $order = Order::with('items')->findOrFail($orderId);
+                $shouldUpdateName = filled($validated['order_art_name'] ?? null);
+
+                foreach ($order->items as $orderItem) {
+                    $payload = $validated;
+                    if (!$shouldUpdateName) {
+                        $payload['order_art_name'] = $orderItem->art_name;
+                    }
+                    $this->orderWizardService->processSaveOrderArt($orderItem, $payload, $files);
+                }
+            } else {
+                $item = OrderItem::where('order_id', $orderId)->findOrFail($validated['item_id']);
+                $this->orderWizardService->processSaveOrderArt($item, $validated, $files);
+            }
+
+            return redirect()->back()->with('success', $applyAll ? 'Arte aplicada em todos os itens com sucesso!' : 'Arte do item atualizada com sucesso!');
         }
 
         try {

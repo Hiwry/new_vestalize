@@ -35,14 +35,15 @@
     <!-- Meta Tags & Branding -->
     @php
         $tenantLogo = auth()->user()->tenant->logo_path ?? null;
-        $faviconUrl = $tenantLogo ? Storage::url($tenantLogo) : asset('favicon.ico');
+        $tenantLogoExists = $tenantLogo && is_readable(storage_path('app/public/' . $tenantLogo));
+        $faviconUrl = $tenantLogoExists ? Storage::url($tenantLogo) : asset('favicon.ico');
         $companyName = auth()->user()->tenant->name ?? config('app.name');
     @endphp
     
     <link rel="icon" type="image/x-icon" href="{{ $faviconUrl }}">
     <meta property="og:title" content="{{ $companyName }} - Painel Administrativo">
     <meta property="og:type" content="website">
-    @if($tenantLogo)
+    @if($tenantLogoExists)
         <meta property="og:image" content="{{ asset('storage/' . $tenantLogo) }}">
     @endif
 
@@ -975,6 +976,33 @@
             }
             notify(message, type);
         };
+
+        // Fallback global para modal de auditoria (AJAX navigation pode remover scripts da página)
+        if (typeof window.viewLogDetails !== 'function') {
+            window.viewLogDetails = function(id) {
+                const modal = document.getElementById('logDetailModal');
+                const content = document.getElementById('modalContent');
+                if (!modal || !content) return;
+                modal.classList.remove('hidden');
+                content.innerHTML = '<div class="flex justify-center py-12"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>';
+
+                fetch(`{{ url('admin/audit') }}/${id}/details`)
+                    .then(response => response.text())
+                    .then(html => {
+                        content.innerHTML = html;
+                    })
+                    .catch(() => {
+                        content.innerHTML = '<div class="text-red-500 p-4">Erro ao carregar detalhes.</div>';
+                    });
+            };
+        }
+
+        if (typeof window.closeLogModal !== 'function') {
+            window.closeLogModal = function() {
+                const modal = document.getElementById('logDetailModal');
+                if (modal) modal.classList.add('hidden');
+            };
+        }
 
         // --- PWA Service Worker Registration ---
         if ('serviceWorker' in navigator) {
