@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(\App\Http\Middleware\SecurityHeadersMiddleware::class);
         
         $middleware->validateCsrfTokens(except: [
+            'logout',
             'stripe/*',
         ]);
 
