@@ -1295,11 +1295,22 @@
         
         if (select.options.length <= 1) {
             let items = getOptionList(['tecido']);
+            const tipoTecidoItems = getOptionList(['tipo_tecido']);
+            const selectedIds = (selectedPersonalizacoes || []).map(id => id.toString());
             
-            if (selectedPersonalizacoes && selectedPersonalizacoes.length > 0) {
+            if (selectedIds.length > 0) {
                 items = items.filter(tecido => {
-                    if (!tecido.parent_ids || tecido.parent_ids.length === 0) return true;
-                    return tecido.parent_ids.some(parentId => selectedPersonalizacoes.includes(parentId) || selectedPersonalizacoes.includes(parentId.toString()));
+                    const parentIds = Array.isArray(tecido.parent_ids) ? tecido.parent_ids.map(id => id.toString()) : [];
+                    if (parentIds.length === 0) return true;
+                    if (parentIds.some(pid => selectedIds.includes(pid))) return true;
+                    // Se não houver no tecido, checar nos tipos de tecido vinculados
+                    const hasTypeMatch = tipoTecidoItems.some(tipo => {
+                        const tipoParentId = (tipo.parent_id || '').toString();
+                        if (tipoParentId !== tecido.id.toString()) return false;
+                        const tipoParentIds = Array.isArray(tipo.parent_ids) ? tipo.parent_ids.map(id => id.toString()) : [];
+                        return tipoParentIds.some(pid => selectedIds.includes(pid));
+                    });
+                    return hasTypeMatch;
                 });
             }
 
