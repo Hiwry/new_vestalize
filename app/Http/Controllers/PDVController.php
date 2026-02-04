@@ -463,8 +463,26 @@ class PDVController extends Controller
             $baseTotal = $unitPrice * $validated['quantity'];
             
             // Surcharges + Sublocal (logica mantida da original)
-            $sizeSurcharges = []; $totalSurcharges = 0;
-            // ... (logica de surcharges igual produto acima) ...
+            $sizeSurcharges = [];
+            $totalSurcharges = 0;
+            $sizeQuantities = $validated['size_quantities'] ?? [];
+            if (!empty($sizeQuantities) && Schema::hasTable('size_surcharges')) {
+                foreach (['GG', 'EXG', 'G1', 'G2', 'G3', 'Especial', 'ESPECIAL'] as $size) {
+                    $qty = $sizeQuantities[$size] ?? 0;
+                    if ($qty > 0 && $unitPrice > 0) {
+                        $surchargeData = SizeSurcharge::getSurchargeForSize($size, $unitPrice);
+                        if ($surchargeData) {
+                            $total = $surchargeData->surcharge * $qty;
+                            $sizeSurcharges[$size] = [
+                                'quantity' => $qty,
+                                'surcharge_per_unit' => $surchargeData->surcharge,
+                                'total' => $total
+                            ];
+                            $totalSurcharges += $total;
+                        }
+                    }
+                }
+            }
             
             // Sublocal logic
             $sublocalPersonalizations = []; $sublocalTotal = 0;
