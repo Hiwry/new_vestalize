@@ -21,7 +21,21 @@ class PersonalizedController extends Controller
     {
         $this->middleware(function ($request, $next) {
             $user = Auth::user();
-            if ($user && $user->tenant_id !== null && $user->tenant && !$user->tenant->canAccess('personalized')) {
+            if ($user) {
+                $user->loadMissing('tenant.currentPlan');
+            }
+
+            $tenant = $user?->tenant;
+            if ($user && $user->tenant_id !== null && $tenant && !$tenant->canAccess('personalized')) {
+                \Log::warning('Personalized access denied', [
+                    'user_id' => $user->id,
+                    'tenant_id' => $user->tenant_id,
+                    'plan_id' => $tenant->plan_id,
+                    'plan_slug' => $tenant->currentPlan?->slug,
+                    'features' => $tenant->currentPlan?->features,
+                    'db' => config('database.connections.mysql.database'),
+                    'path' => $request->path(),
+                ]);
                 abort(403, 'Seu plano não inclui o módulo de Personalizados.');
             }
             return $next($request);
