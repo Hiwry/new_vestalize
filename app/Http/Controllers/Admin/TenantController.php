@@ -103,7 +103,7 @@ class TenantController extends Controller
         ];
 
         foreach ($defaultStatuses as $ds) {
-            \App\Models\Status::updateOrCreate(
+            \App\Models\Status::withoutGlobalScopes()->updateOrCreate(
                 [
                     'name' => $ds['name'],
                     'tenant_id' => $tenant->id,

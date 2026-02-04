@@ -98,7 +98,7 @@ class PublicRegistrationController extends Controller
         ];
 
         foreach ($defaultStatuses as $statusData) {
-            Status::updateOrCreate(
+            Status::withoutGlobalScopes()->updateOrCreate(
                 [
                     'name' => $statusData['name'],
                     'tenant_id' => $tenant->id,
