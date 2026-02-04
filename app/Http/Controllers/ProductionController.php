@@ -48,10 +48,10 @@ class ProductionController extends Controller
         $personalizationType = $request->get('personalization_type');
         $storeId = $request->get('store_id');
         $deliveryDate = $request->get('delivery_date');
-        $entryDate = $request->get('entry_date');
         $period = $request->get('period', 'week'); // Default: semana (segunda a sexta)
         $rangeStart = $request->get('start_date');
         $rangeEnd = $request->get('end_date');
+        $entryDate = $request->get('entry_date');
         $hasEntryDateColumn = Schema::hasColumn('orders', 'entry_date');
         if ($rangeStart && !$rangeEnd) {
             $rangeEnd = $rangeStart;
@@ -59,8 +59,7 @@ class ProductionController extends Controller
         if ($rangeEnd && !$rangeStart) {
             $rangeStart = $rangeEnd;
         }
-        $useEntryDate = !empty($entryDate) || (!empty($rangeStart) && !empty($rangeEnd));
-        if (!$useEntryDate && !$request->has('period')) {
+        if (!$request->has('period') && empty($rangeStart) && empty($rangeEnd)) {
             $period = 'all';
         }
 
@@ -456,40 +455,14 @@ class ProductionController extends Controller
             $query->where('user_id', Auth::id());
         }
         
-        // Aplicar filtros de período por DATA DE ENTREGA (se não estiver filtrando por data do pedido)
-        if (!$useEntryDate) {
-            if ($period === 'all') {
-                // Todo o período: não aplica filtro de data
-            } elseif (!empty($startDate) && !empty($endDate)) {
-                $query->whereNotNull('delivery_date')
-                      ->whereBetween('delivery_date', [$startDate, $endDate]);
-            } elseif ($deliveryDate) {
-                $query->whereDate('delivery_date', $deliveryDate);
-            }
-        }
-
-        if ($rangeStart && $rangeEnd) {
-            if ($hasEntryDateColumn) {
-                $query->where(function($q) use ($rangeStart, $rangeEnd) {
-                    $q->whereBetween('entry_date', [$rangeStart, $rangeEnd])
-                      ->orWhere(function($q2) use ($rangeStart, $rangeEnd) {
-                          $q2->whereNull('entry_date')->whereBetween('created_at', [$rangeStart, $rangeEnd]);
-                      });
-                });
-            } else {
-                $query->whereBetween('created_at', [$rangeStart, $rangeEnd]);
-            }
-        } elseif ($entryDate) {
-            if ($hasEntryDateColumn) {
-                $query->where(function($q) use ($entryDate) {
-                    $q->whereDate('entry_date', $entryDate)
-                      ->orWhere(function($q2) use ($entryDate) {
-                          $q2->whereNull('entry_date')->whereDate('created_at', $entryDate);
-                      });
-                });
-            } else {
-                $query->whereDate('created_at', $entryDate);
-            }
+        // Aplicar filtros de período por DATA DE ENTREGA (PDF sempre por data de entrega)
+        if ($period === 'all') {
+            // Todo o período: não aplica filtro de data
+        } elseif (!empty($startDate) && !empty($endDate)) {
+            $query->whereNotNull('delivery_date')
+                  ->whereBetween('delivery_date', [$startDate, $endDate]);
+        } elseif ($deliveryDate) {
+            $query->whereDate('delivery_date', $deliveryDate);
         }
 
         if ($search) {
