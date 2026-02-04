@@ -1225,41 +1225,63 @@
             const style = personalizationIconMap[key] || personalizationIconMap.default;
             
             return `
-            <div class="wizard-option-card group cursor-pointer p-4 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center gap-2 ${activeClass}"
-                 data-id="${item.id}"
-                 onclick="toggleWizardPersonalizacao(this)">
+            <label class="wizard-option-card group cursor-pointer p-4 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center gap-2 ${activeClass}"
+                   data-id="${item.id ?? ''}">
+                <input type="checkbox" class="personalizacao-checkbox hidden" value="${item.id ?? ''}" ${isSelected ? 'checked' : ''} onchange="syncWizardPersonalizacaoUI()">
                 <div class="w-10 h-10 rounded-full ${style.bubble} flex items-center justify-center ${style.color}">
                      <i class="fa-solid ${style.icon}"></i>
                 </div>
                 <span class="text-xs font-bold text-center text-gray-700 dark:text-slate-300 group-hover:text-[#7c3aed]">${item.name}</span>
-            </div>
+            </label>
             `;
         }).join('');
+
+        syncWizardPersonalizacaoUI();
     }
     window.renderWizardPersonalizacao = renderWizardPersonalizacao;
 
-    function toggleWizardPersonalizacao(element) {
-        if (!element || !element.dataset.id) return;
-        const id = element.dataset.id.toString();
-        const index = wizardData.personalizacao.indexOf(id);
-        
-        if (index > -1) {
-            wizardData.personalizacao.splice(index, 1);
-            element.classList.remove('ring-2', 'ring-[#7c3aed]', 'bg-purple-50', 'dark:bg-purple-900/20', 'shadow-sm');
-        } else {
-            wizardData.personalizacao.push(id);
-            element.classList.add('ring-2', 'ring-[#7c3aed]', 'bg-purple-50', 'dark:bg-purple-900/20', 'shadow-sm');
-        }
-        
+    function syncWizardPersonalizacaoUI() {
+        const container = document.getElementById('wizard-options-personalizacao');
+        if (!container) return;
+
+        const cards = container.querySelectorAll('.wizard-option-card');
+        const selectedIds = [];
+
+        cards.forEach(card => {
+            const checkbox = card.querySelector('.personalizacao-checkbox');
+            if (!checkbox) return;
+
+            const isChecked = checkbox.checked;
+            card.classList.toggle('ring-2', isChecked);
+            card.classList.toggle('ring-[#7c3aed]', isChecked);
+            card.classList.toggle('bg-purple-50', isChecked);
+            card.classList.toggle('dark:bg-purple-900/20', isChecked);
+            card.classList.toggle('shadow-sm', isChecked);
+
+            if (isChecked && checkbox.value !== '') {
+                selectedIds.push(checkbox.value.toString());
+            }
+        });
+
+        wizardData.personalizacao = selectedIds;
         selectedPersonalizacoes = [...wizardData.personalizacao];
         window.selectedPersonalizacoes = selectedPersonalizacoes;
-        
-         const hiddenContainer = document.getElementById('hidden-personalizacao-container');
-         if(hiddenContainer) {
-             hiddenContainer.innerHTML = wizardData.personalizacao.map(pid => 
-                 `<input type="hidden" name="personalizacao[]" value="${pid}">`
-             ).join('');
-         }
+
+        const hiddenContainer = document.getElementById('hidden-personalizacao-container');
+        if (hiddenContainer) {
+            hiddenContainer.innerHTML = selectedIds
+                .map(pid => `<input type="hidden" name="personalizacao[]" value="${pid}">`)
+                .join('');
+        }
+    }
+    window.syncWizardPersonalizacaoUI = syncWizardPersonalizacaoUI;
+
+    function toggleWizardPersonalizacao(element) {
+        if (!element) return;
+        const checkbox = element.querySelector('.personalizacao-checkbox');
+        if (!checkbox) return;
+        checkbox.checked = !checkbox.checked;
+        syncWizardPersonalizacaoUI();
     }
     window.toggleWizardPersonalizacao = toggleWizardPersonalizacao;
 
