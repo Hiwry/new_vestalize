@@ -32,16 +32,7 @@ class KanbanController extends Controller
         // Super Admin visibility is now handled by StoreHelper filtering
         $search = $request->get('search');
         $personalizationType = $request->get('personalization_type');
-        $deliveryDateFilter = $request->get('delivery_date');
         $entryDateFilter = $request->get('entry_date');
-        $rangeStart = $request->get('start_date');
-        $rangeEnd = $request->get('end_date');
-        if ($rangeStart && !$rangeEnd) {
-            $rangeEnd = $rangeStart;
-        }
-        if ($rangeEnd && !$rangeStart) {
-            $rangeStart = $rangeEnd;
-        }
         $viewType = $request->get('type', 'production'); // 'production' or 'personalized'
         if (!$viewType || !in_array($viewType, ['production', 'personalized'])) {
             $viewType = 'production';
@@ -116,7 +107,7 @@ class KanbanController extends Controller
         // Filter statuses by type
         $statuses = Status::where('tenant_id', $activeTenantId)
             ->where('type', $viewType)
-            ->withCount(['orders' => function($query) use ($personalizationType, $deliveryDateFilter, $entryDateFilter, $viewType, $rangeStart, $rangeEnd) {
+            ->withCount(['orders' => function($query) use ($personalizationType, $entryDateFilter, $viewType) {
             $query->notDrafts()
                   ->where('is_cancelled', false);
             
@@ -150,13 +141,6 @@ class KanbanController extends Controller
                         });
                     });
                 });
-            }
-
-            if ($rangeStart && $rangeEnd) {
-                $query->whereNotNull('delivery_date')
-                      ->whereBetween('delivery_date', [$rangeStart, $rangeEnd]);
-            } elseif ($deliveryDateFilter) {
-                $query->whereDate('delivery_date', $deliveryDateFilter);
             }
 
             if ($entryDateFilter) {
@@ -242,13 +226,6 @@ class KanbanController extends Controller
             });
         }
 
-        if ($rangeStart && $rangeEnd) {
-            $query->whereNotNull('delivery_date')
-                  ->whereBetween('delivery_date', [$rangeStart, $rangeEnd]);
-        } elseif ($deliveryDateFilter) {
-            $query->whereDate('delivery_date', $deliveryDateFilter);
-        }
-
         if ($entryDateFilter) {
             $query->where(function($q) use ($entryDateFilter) {
                 $q->whereDate('entry_date', $entryDateFilter)
@@ -289,7 +266,7 @@ class KanbanController extends Controller
         
         $ordersForCalendar = $orders;
         
-        return view('kanban.index', compact('statuses', 'ordersByStatus', 'search', 'autoOpenOrderId', 'personalizationType', 'personalizationTypes', 'deliveryDateFilter', 'entryDateFilter', 'ordersForCalendar', 'viewType', 'period', 'startDate', 'endDate'));
+        return view('kanban.index', compact('statuses', 'ordersByStatus', 'search', 'autoOpenOrderId', 'personalizationType', 'personalizationTypes', 'entryDateFilter', 'ordersForCalendar', 'viewType', 'period', 'startDate', 'endDate'));
     }
 
     public function updateStatus(Request $request): JsonResponse

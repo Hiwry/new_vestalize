@@ -51,6 +51,10 @@ class ProductionController extends Controller
         $period = $request->get('period', 'week'); // Default: semana (segunda a sexta)
         $rangeStart = $request->get('start_date');
         $rangeEnd = $request->get('end_date');
+        $useEntryDate = !empty($entryDate);
+        if (!$useEntryDate && !$request->has('period')) {
+            $period = 'all';
+        }
 
         if ($rangeStart && !$rangeEnd) {
             $rangeEnd = $rangeStart;
@@ -439,14 +443,16 @@ class ProductionController extends Controller
             $query->where('user_id', Auth::id());
         }
         
-        // Aplicar filtros de período por DATA DE ENTREGA
-        if ($period === 'all') {
-            // Todo o período: não aplica filtro de data
-        } elseif (!empty($startDate) && !empty($endDate)) {
-            $query->whereNotNull('delivery_date')
-                  ->whereBetween('delivery_date', [$startDate, $endDate]);
-        } elseif ($deliveryDate) {
-            $query->whereDate('delivery_date', $deliveryDate);
+        // Aplicar filtros de período por DATA DE ENTREGA (se não estiver filtrando por data do pedido)
+        if (!$useEntryDate) {
+            if ($period === 'all') {
+                // Todo o período: não aplica filtro de data
+            } elseif (!empty($startDate) && !empty($endDate)) {
+                $query->whereNotNull('delivery_date')
+                      ->whereBetween('delivery_date', [$startDate, $endDate]);
+            } elseif ($deliveryDate) {
+                $query->whereDate('delivery_date', $deliveryDate);
+            }
         }
 
         if ($entryDate) {

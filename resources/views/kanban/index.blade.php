@@ -291,7 +291,7 @@
             })->values();
 
             // Default start date from filter or today
-            $startDate = $entryDateFilter ?? request('entry_date') ?? $deliveryDateFilter ?? request('delivery_date') ?? null;
+            $startDate = $entryDateFilter ?? request('entry_date') ?? null;
         @endphp
 
         <div x-data="kanbanBoardIndex({{ Js::from($calendarData) }}, '{{ $startDate }}')" x-cloak>
@@ -360,7 +360,7 @@
                 </div>
                 
                 <!-- Filtros -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-2 flex items-center gap-2 uppercase tracking-wide dark:text-gray-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -393,62 +393,25 @@
                         </div>
                     </div>
                     
-                    <div class="flex flex-col gap-3">
-                        <label class="block text-xs font-semibold text-gray-600 flex items-center gap-2 uppercase tracking-wide dark:text-gray-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <div class="flex items-end gap-2">
+                        <button type="submit" formaction="{{ route('production.pdf') }}" formtarget="_blank"
+                                class="px-6 py-2.5 bg-indigo-50 text-indigo-700 rounded-full hover:bg-indigo-100 transition font-semibold flex items-center justify-center gap-2 border border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            PDF
+                        </button>
+                        @if($search || request('personalization_type') || ($entryDateFilter ?? request('entry_date')))
+                        <a href="{{ route('kanban.index', ['type' => $viewType]) }}" 
+                           class="w-full px-6 py-2.5 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 whitespace-nowrap transition font-semibold flex items-center justify-center gap-2 border border-gray-200 dark:bg-[#111724] dark:text-gray-200 dark:hover:bg-[#131a29] dark:border-[#1f2533]">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
-                            Período do PDF
-                        </label>
-                        <div class="grid grid-cols-1 gap-2">
-                            <div class="relative">
-                                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <input type="date" name="start_date" value="{{ request('start_date') }}" class="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-gray-900 focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition placeholder-gray-500 dark:border-[#1f2533] dark:bg-[#0a0d15] dark:text-gray-100">
-                            </div>
-                            <div class="relative">
-                                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <input type="date" name="end_date" value="{{ request('end_date') }}" class="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-gray-900 focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition placeholder-gray-500 dark:border-[#1f2533] dark:bg-[#0a0d15] dark:text-gray-100">
-                            </div>
-                        </div>
-                        <div class="flex items-end gap-2">
-                            <button type="submit" formaction="{{ route('production.pdf') }}" formtarget="_blank"
-                                    class="px-6 py-2.5 bg-indigo-50 text-indigo-700 rounded-full hover:bg-indigo-100 transition font-semibold flex items-center justify-center gap-2 border border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                PDF
-                            </button>
-                            @if($search || request('personalization_type') || ($deliveryDateFilter ?? request('delivery_date')) || ($entryDateFilter ?? request('entry_date')) || request('start_date') || request('end_date'))
-                            <a href="{{ route('kanban.index', ['type' => $viewType]) }}" 
-                               class="w-full px-6 py-2.5 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 whitespace-nowrap transition font-semibold flex items-center justify-center gap-2 border border-gray-200 dark:bg-[#111724] dark:text-gray-200 dark:hover:bg-[#131a29] dark:border-[#1f2533]">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                                Limpar Filtros
-                            </a>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-2 flex items-center gap-2 uppercase tracking-wide dark:text-gray-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            Data de entrega
-                        </label>
-                        <div class="relative">
-                            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <input type="date" name="delivery_date" value="{{ $deliveryDateFilter ?? request('delivery_date') }}" class="w-full pl-12 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-gray-900 focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition placeholder-gray-500 dark:border-[#1f2533] dark:bg-[#0a0d15] dark:text-gray-100">
-                        </div>
+                            Limpar Filtros
+                        </a>
+                        @endif
                     </div>
                 </div>
                 
-                @if($search || request('personalization_type') || ($deliveryDateFilter ?? request('delivery_date')) || ($entryDateFilter ?? request('entry_date')) || request('start_date') || request('end_date'))
+                @if($search || request('personalization_type') || ($entryDateFilter ?? request('entry_date')))
                 <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                     <div class="flex flex-wrap gap-2 items-center">
                         <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Filtros ativos:</span>
@@ -477,30 +440,8 @@
                         @if($entryDateFilter ?? request('entry_date'))
                         <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium flex items-center gap-2">
                             Pedido: {{ \Carbon\Carbon::parse($entryDateFilter ?? request('entry_date'))->format('d/m/Y') }}
-                            <a href="{{ route('kanban.index', array_merge(request()->except('entry_date'), ['search' => request('search'), 'personalization_type' => request('personalization_type'), 'delivery_date' => request('delivery_date')])) }}" 
+                            <a href="{{ route('kanban.index', array_merge(request()->except('entry_date'), ['search' => request('search'), 'personalization_type' => request('personalization_type')])) }}" 
                                class="hover:text-blue-600 dark:hover:text-blue-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </a>
-                        </span>
-                        @endif
-                        @if($deliveryDateFilter ?? request('delivery_date'))
-                        <span class="px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 rounded-full text-sm font-medium flex items-center gap-2">
-                            Entrega: {{ \Carbon\Carbon::parse($deliveryDateFilter ?? request('delivery_date'))->format('d/m/Y') }}
-                            <a href="{{ route('kanban.index', array_merge(request()->except('delivery_date'), ['search' => request('search'), 'personalization_type' => request('personalization_type')])) }}" 
-                               class="hover:text-amber-600 dark:hover:text-amber-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </a>
-                        </span>
-                        @endif
-                        @if(request('start_date') || request('end_date'))
-                        <span class="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 rounded-full text-sm font-medium flex items-center gap-2">
-                            Período: {{ request('start_date') ? \Carbon\Carbon::parse(request('start_date'))->format('d/m/Y') : '-' }} a {{ request('end_date') ? \Carbon\Carbon::parse(request('end_date'))->format('d/m/Y') : '-' }}
-                            <a href="{{ route('kanban.index', array_merge(request()->except(['start_date', 'end_date']), ['search' => request('search'), 'personalization_type' => request('personalization_type'), 'delivery_date' => request('delivery_date'), 'entry_date' => request('entry_date')])) }}" 
-                               class="hover:text-emerald-600 dark:hover:text-emerald-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
@@ -514,7 +455,7 @@
         </div>
 
         @php
-            $hasFilters = ($deliveryDateFilter ?? request('delivery_date')) || ($entryDateFilter ?? request('entry_date')) || ($personalizationType ?? request('personalization_type')) || ($search ?? request('search')) || request('start_date') || request('end_date');
+            $hasFilters = ($entryDateFilter ?? request('entry_date')) || ($personalizationType ?? request('personalization_type')) || ($search ?? request('search'));
         @endphp
 
         @if($hasFilters)
