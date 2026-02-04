@@ -782,10 +782,10 @@
                         Cliente
                     </h4>
                     <div class="grid grid-cols-2 gap-3 text-sm">
-                        <div><strong>Nome:</strong> ${order.client.name}</div>
-                        <div><strong>Telefone:</strong> ${order.client.phone_primary || '-'}</div>
-                        ${order.client.email ? `<div><strong>Email:</strong> ${order.client.email}</div>` : ''}
-                        ${order.client.cpf_cnpj ? `<div><strong>CPF/CNPJ:</strong> ${order.client.cpf_cnpj}</div>` : ''}
+                        <div><strong>Nome:</strong> ${order.client?.name || 'Sem cliente'}</div>
+                        <div><strong>Telefone:</strong> ${order.client?.phone_primary || '-'}</div>
+                        ${order.client?.email ? `<div><strong>Email:</strong> ${order.client.email}</div>` : ''}
+                        ${order.client?.cpf_cnpj ? `<div><strong>CPF/CNPJ:</strong> ${order.client.cpf_cnpj}</div>` : ''}
                     </div>
                 </div>
 

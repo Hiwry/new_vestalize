@@ -1821,10 +1821,10 @@
                         Cliente
                     </h4>
                     <div class="grid grid-cols-2 gap-3 text-sm text-gray-700 dark:text-gray-300">
-                        <div><strong class="text-gray-900 dark:text-gray-100">Nome:</strong> <span class="text-gray-700 dark:text-gray-300">${order.client.name}</span></div>
-                        <div><strong class="text-gray-900 dark:text-gray-100">Telefone:</strong> <span class="text-gray-700 dark:text-gray-300">${order.client.phone_primary || '-'}</span></div>
-                        ${order.client.email ? `<div><strong class="text-gray-900 dark:text-gray-100">Email:</strong> <span class="text-gray-700 dark:text-gray-300">${order.client.email}</span></div>` : ''}
-                        ${order.client.cpf_cnpj ? `<div><strong class="text-gray-900 dark:text-gray-100">CPF/CNPJ:</strong> <span class="text-gray-700 dark:text-gray-300">${order.client.cpf_cnpj}</span></div>` : ''}
+                        <div><strong class="text-gray-900 dark:text-gray-100">Nome:</strong> <span class="text-gray-700 dark:text-gray-300">${order.client?.name || 'Sem cliente'}</span></div>
+                        <div><strong class="text-gray-900 dark:text-gray-100">Telefone:</strong> <span class="text-gray-700 dark:text-gray-300">${order.client?.phone_primary || '-'}</span></div>
+                        ${order.client?.email ? `<div><strong class="text-gray-900 dark:text-gray-100">Email:</strong> <span class="text-gray-700 dark:text-gray-300">${order.client.email}</span></div>` : ''}
+                        ${order.client?.cpf_cnpj ? `<div><strong class="text-gray-900 dark:text-gray-100">CPF/CNPJ:</strong> <span class="text-gray-700 dark:text-gray-300">${order.client.cpf_cnpj}</span></div>` : ''}
                     </div>
                 </div>
 
