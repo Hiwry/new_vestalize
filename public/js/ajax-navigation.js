@@ -117,17 +117,7 @@
             return;
         }
 
-        // Evitar AJAX para dashboards e vendas (gr?ficos + tema)
-        if (typeof url === 'string') {
-            const parsed = new URL(url, window.location.origin);
-            const path = parsed.pathname || '';
-            if (path === '/dashboard' || path.startsWith('/dashboard') ||
-                path === '/vendas' || path.startsWith('/vendas') ||
-                path === '/sales' || path.startsWith('/sales')) {
-                window.location.href = url;
-                return;
-            }
-        }
+        // Permitir AJAX para rotas internas do painel (inclui dashboard e vendas)
 
         if (isNavigating) {
             return;
@@ -495,9 +485,6 @@
             const path = url.pathname;
             if (isCatalogPublicUrl(url.href) ||
                 path.startsWith('/orcamento') ||
-                path === '/dashboard' || path.startsWith('/dashboard') ||
-                path === '/vendas' || path.startsWith('/vendas') ||
-                path === '/sales' || path.startsWith('/sales') ||
                 path.startsWith('/logout') ||
                 path.startsWith('/login') ||
                 path.startsWith('/register')) {
