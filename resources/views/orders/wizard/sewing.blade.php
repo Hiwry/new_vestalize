@@ -1374,13 +1374,17 @@
          
          let items = getOptionList(['cor']);
          const tecidoId = wizardData.tecido ? wizardData.tecido.id : null;
+         const tipoTecidoId = wizardData.tipo_tecido ? wizardData.tipo_tecido.id : null;
+         const allowedParentIds = [
+             ...(selectedPersonalizacoes || []),
+             ...(tecidoId ? [tecidoId] : []),
+             ...(tipoTecidoId ? [tipoTecidoId] : [])
+         ].map(id => id.toString());
          
-         if (selectedPersonalizacoes.length > 0 || tecidoId) {
+         if (allowedParentIds.length > 0) {
             items = items.filter(cor => {
                 if (!cor.parent_ids || cor.parent_ids.length === 0) return true;
-                const matchesP = selectedPersonalizacoes.length > 0 && cor.parent_ids.some(pid => selectedPersonalizacoes.includes(pid.toString()));
-                const matchesT = tecidoId && cor.parent_ids.includes(parseInt(tecidoId));
-                return matchesP || matchesT;
+                return cor.parent_ids.some(pid => allowedParentIds.includes(pid.toString()));
             });
          }
          
