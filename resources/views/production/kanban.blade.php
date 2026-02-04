@@ -332,8 +332,7 @@
                                 $displayName = $artName ?? $order->client->name;
                                 $commentsCount = (int) ($order->comments_count ?? 0);
                             @endphp
-                            <div class="kanban-card bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden cursor-move hover:shadow-xl transition-all duration-200 border border-gray-200 dark:border-gray-600" 
-                                 draggable="true" 
+                            <div class="kanban-card bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-200 border border-gray-200 dark:border-gray-600" 
                                  data-order-id="{{ $order->id }}"
                                  onclick="event.stopPropagation(); openOrderModal({{ $order->id }})">
                                 
@@ -390,6 +389,16 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-2 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
                                                     </svg>
                                                     <span data-comment-count>{{ $commentsCount }}</span>
+                                                </span>
+                                                <span class="kanban-drag-handle flex items-center justify-center w-6 h-6 rounded-md border border-transparent text-gray-400 hover:text-purple-400 hover:border-purple-400/40 cursor-grab active:cursor-grabbing" title="Arrastar" onclick="event.stopPropagation();">
+                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                        <circle cx="8" cy="6" r="1.5"></circle>
+                                                        <circle cx="16" cy="6" r="1.5"></circle>
+                                                        <circle cx="8" cy="12" r="1.5"></circle>
+                                                        <circle cx="16" cy="12" r="1.5"></circle>
+                                                        <circle cx="8" cy="18" r="1.5"></circle>
+                                                        <circle cx="16" cy="18" r="1.5"></circle>
+                                                    </svg>
                                                 </span>
                                             </div>
                                         </div>

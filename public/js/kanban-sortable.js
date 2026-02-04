@@ -39,7 +39,7 @@
                 animation: 200,
                 ghostClass: 'opacity-30',
                 dragClass: 'shadow-2xl',
-                handle: '.kanban-card',
+                handle: '.kanban-drag-handle',
                 draggable: '.kanban-card',
                 
                 onEnd: function(evt) {

@@ -608,9 +608,8 @@
                                     }
                                 }
                             @endphp
-                            <div class="kanban-card custom-card-shadow group/card bg-white border border-gray-200 text-gray-900 rounded-xl overflow-hidden {{ Auth::user()->isAdmin() || Auth::user()->isProducao() ? 'cursor-move' : 'cursor-pointer' }} hover:bg-gray-50 transition-all duration-200 dark:bg-[#22272e] dark:border-[#373e47] dark:text-gray-100 dark:hover:bg-[#2d333b]" 
+                            <div class="kanban-card custom-card-shadow group/card bg-white border border-gray-200 text-gray-900 rounded-xl overflow-hidden cursor-pointer hover:bg-gray-50 transition-all duration-200 dark:bg-[#22272e] dark:border-[#373e47] dark:text-gray-100 dark:hover:bg-[#2d333b]" 
                                  style="box-shadow: var(--kanban-card-shadow) !important;"
-                                 draggable="{{ Auth::user()->isAdmin() || Auth::user()->isProducao() ? 'true' : 'false' }}" 
                                  data-order-id="{{ $order->id }}"
                                  onclick="event.stopPropagation(); if(typeof openOrderModal === 'function') { openOrderModal({{ $order->id }}); }">
                                 
@@ -666,6 +665,18 @@
                                                     </svg>
                                                     <span data-comment-count>{{ $commentsCount }}</span>
                                             </div>
+                                            @if(Auth::user()->isAdmin() || Auth::user()->isProducao())
+                                                <span class="kanban-drag-handle flex items-center justify-center w-6 h-6 rounded-md border border-transparent text-gray-400 hover:text-purple-400 hover:border-purple-400/40 cursor-grab active:cursor-grabbing" title="Arrastar" onclick="event.stopPropagation();">
+                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                        <circle cx="8" cy="6" r="1.5"></circle>
+                                                        <circle cx="16" cy="6" r="1.5"></circle>
+                                                        <circle cx="8" cy="12" r="1.5"></circle>
+                                                        <circle cx="16" cy="12" r="1.5"></circle>
+                                                        <circle cx="8" cy="18" r="1.5"></circle>
+                                                        <circle cx="16" cy="18" r="1.5"></circle>
+                                                    </svg>
+                                                </span>
+                                            @endif
                                         </div>
                                     </div>
 

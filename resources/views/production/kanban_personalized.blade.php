@@ -1,5 +1,4 @@
 @extends('layouts.admin')
-
 @push('styles')
 <style>
     /* Dark mode styles para o Kanban */
@@ -246,8 +245,7 @@
                                 $coverImage = $order->cover_image_url ?: $firstItem?->cover_image_url;
                                 $displayName = $firstItem ? $firstItem->name : $order->client->name;
                             @endphp
-                            <div class="kanban-card bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden cursor-move hover:shadow-xl transition-all duration-200 border border-gray-200 dark:border-gray-600" 
-                                 draggable="true" 
+                            <div class="kanban-card bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-200 border border-gray-200 dark:border-gray-600" 
                                  data-order-id="{{ $order->id }}"
                                  onclick="event.stopPropagation(); openOrderModal({{ $order->id }})">
                                 
@@ -263,9 +261,21 @@
                                             <span class="text-xs font-bold text-pink-600 bg-pink-50 px-2 py-1 rounded">
                                                 #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
                                             </span>
-                                            <span class="text-xs text-gray-500 dark:text-gray-400">
-                                                {{ $order->items->sum('quantity') }} pçs
-                                            </span>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-xs text-gray-500 dark:text-gray-400">
+                                                    {{ $order->items->sum('quantity') }} pçs
+                                                </span>
+                                                <span class="kanban-drag-handle flex items-center justify-center w-6 h-6 rounded-md border border-transparent text-gray-400 hover:text-purple-400 hover:border-purple-400/40 cursor-grab active:cursor-grabbing" title="Arrastar" onclick="event.stopPropagation();">
+                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                        <circle cx="8" cy="6" r="1.5"></circle>
+                                                        <circle cx="16" cy="6" r="1.5"></circle>
+                                                        <circle cx="8" cy="12" r="1.5"></circle>
+                                                        <circle cx="16" cy="12" r="1.5"></circle>
+                                                        <circle cx="8" cy="18" r="1.5"></circle>
+                                                        <circle cx="16" cy="18" r="1.5"></circle>
+                                                    </svg>
+                                                </span>
+                                            </div>
                                         </div>
                                         <h3 class="font-semibold text-gray-900 dark:text-white text-sm" title="{{ $displayName }}">
                                             {{ $displayName }}
