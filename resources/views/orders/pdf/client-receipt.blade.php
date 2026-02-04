@@ -186,19 +186,7 @@
         <div style="display: table; width: 100%;">
             <div style="display: table-row;">
                 @php
-                    $tenantLogo = $order->tenant->logo_path ?? null;
-                    $settingsLogo = $companySettings->logo_path ?? null;
-                    $finalLogo = null;
-                    
-                    if ($tenantLogo && file_exists(public_path('storage/' . $tenantLogo))) {
-                        $finalLogo = public_path('storage/' . $tenantLogo);
-                    } elseif ($settingsLogo && file_exists(public_path($settingsLogo))) {
-                        $finalLogo = public_path($settingsLogo);
-                        // Se não encontrar o arquivo diretamente, tenta via storage/
-                        if (!file_exists($finalLogo) && file_exists(public_path('storage/' . $settingsLogo))) {
-                            $finalLogo = public_path('storage/' . $settingsLogo);
-                        }
-                    }
+                    $finalLogo = public_path('vestalize.svg');
                 @endphp
 
                 @if($finalLogo && file_exists($finalLogo))

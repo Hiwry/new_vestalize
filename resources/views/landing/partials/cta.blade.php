@@ -16,11 +16,8 @@
                 {{-- Logo --}}
                 <div class="relative cursor-pointer group">
                     <div class="absolute inset-0 bg-purple-600/40 rounded-2xl blur-2xl animate-pulse-glow"></div>
-                    <div class="relative flex items-center gap-2">
-                        <div class="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center text-white stay-white font-bold text-xl group-hover:scale-110 transition-transform">
-                            V
-                        </div>
-                        <span class="font-semibold text-xl text-white">Vestalize</span>
+                    <div class="relative flex items-center">
+                        <img src="{{ asset('vestalize.svg') }}" alt="Vestalize" class="h-10 w-auto">
                     </div>
                 </div>
 

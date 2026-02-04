@@ -149,11 +149,7 @@
 </head>
 <body>
     <div class="header">
-        @if(isset($companySettings) && $companySettings->logo_path && file_exists(public_path($companySettings->logo_path)))
-            <img src="{{ public_path($companySettings->logo_path) }}" alt="Logo" style="max-height: 80px; margin-bottom: 10px;">
-        @else
-            <h1>NOTA DE VENDA</h1>
-        @endif
+        <img src="{{ public_path('vestalize.svg') }}" alt="Vestalize" style="max-height: 80px; margin-bottom: 10px;">
         
         <div class="company-details" style="font-size: 11px; margin-bottom: 10px;">
             <div style="font-weight: bold; font-size: 14px; margin-bottom: 2px;">{{ $companySettings->company_name ?? 'Nóbrega Confecções' }}</div>

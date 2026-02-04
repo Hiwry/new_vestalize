@@ -6,7 +6,7 @@
             <div class="col-span-2 md:col-span-1 space-y-4">
                 <a href="/" class="flex items-center gap-2">
                     <img
-                        src="{{ asset('logos/logo_branca_img.png') }}"
+                        src="{{ asset('vestalize.svg') }}"
                         alt="Vestalize"
                         class="h-8 w-auto"
                     >

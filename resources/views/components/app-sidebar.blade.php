@@ -161,7 +161,7 @@
     <div class="flex items-center h-20 border-b border-border bg-card-bg transition-all duration-300 relative"
          :class="expanded ? 'justify-between px-4' : 'justify-center'">
         <div class="flex items-center overflow-hidden" x-show="expanded">
-            <img src="{{ asset('logos/logo_branca_img.png') }}"
+            <img src="{{ asset('vestalize.svg') }}"
                  alt="Vestalize"
                  class="h-10 w-auto object-contain">
         </div>

@@ -57,7 +57,7 @@
                 <div class="w-12 h-12 rounded-xl bg-purple-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-purple-500/30">
                     V
                 </div>
-                <span class="font-bold text-2xl text-foreground tracking-tight">Vestalize</span>
+                <img src="{{ asset('vestalize.svg') }}" alt="Vestalize" class="h-10 w-auto">
             </a>
         </div>
 

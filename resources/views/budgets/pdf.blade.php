@@ -198,16 +198,7 @@
     @php
         $tenant = auth()->user()->tenant;
         $logoPath = null;
-        // Prioritize Tenant Logo, fallback to Settings
-        if ($tenant && $tenant->logo_path && file_exists(public_path('storage/' . $tenant->logo_path))) {
-            $logoPath = public_path('storage/' . $tenant->logo_path);
-        } elseif ($settings && $settings->logo_path) {
-             if (file_exists(public_path($settings->logo_path))) {
-                 $logoPath = public_path($settings->logo_path);
-             } elseif (file_exists(public_path('storage/' . $settings->logo_path))) {
-                 $logoPath = public_path('storage/' . $settings->logo_path);
-             }
-        }
+        $logoPath = public_path('vestalize.svg');
     @endphp
 
     <!-- Company Header -->

@@ -8,17 +8,7 @@
     
     <!-- Dynamic Favicon -->
     @php
-        $tenantLogo = $order->tenant->logo_path ?? null;
-        $settingsLogo = $companySettings->logo_path ?? null;
-        $finalLogoUrl = null;
-        
-        if ($tenantLogo && file_exists(public_path('storage/' . $tenantLogo))) {
-            $finalLogoUrl = asset('storage/' . $tenantLogo);
-        } elseif ($settingsLogo && file_exists(public_path($settingsLogo))) {
-            $finalLogoUrl = asset($settingsLogo);
-        } elseif ($settingsLogo && file_exists(public_path('storage/' . $settingsLogo))) {
-            $finalLogoUrl = asset('storage/' . $settingsLogo);
-        }
+        $finalLogoUrl = asset('vestalize.svg');
     @endphp
     
     @if($finalLogoUrl)
@@ -144,9 +134,7 @@
     <!-- Header -->
     <div class="bg-primary text-white py-6 px-4 mobile-padding shadow-sm dark:shadow-lg dark:shadow-indigo-900/30">
         <div class="max-w-md mx-auto flex flex-col items-center">
-            @if($order->tenant->logo_path)
-                <img src="{{ asset('storage/' . $order->tenant->logo_path) }}" alt="Logo" class="h-12 w-auto mb-3 object-contain">
-            @endif
+            <img src="{{ asset('vestalize.svg') }}" alt="Vestalize" class="h-12 w-auto mb-3 object-contain">
             <h1 class="text-xl font-semibold text-center">Meu Pedido</h1>
             <p class="text-center text-gray-300 dark:text-indigo-200 mobile-text-sm">#{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</p>
         </div>

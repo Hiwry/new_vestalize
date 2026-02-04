@@ -81,9 +81,8 @@
     <!-- Header -->
     <header class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">V</div>
-                <span class="font-bold text-xl text-gray-900 tracking-tight">Vestalize</span>
+            <div class="flex items-center">
+                <img src="{{ asset('vestalize.svg') }}" alt="Vestalize" class="h-10 w-auto">
             </div>
             
             <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
@@ -683,9 +682,8 @@
         <div class="max-w-7xl mx-auto px-6">
             <div class="grid md:grid-cols-4 gap-12 mb-12">
                 <div class="md:col-span-2">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center text-white font-bold text-xl">V</div>
-                        <span class="font-bold text-xl text-gray-900">Vestalize</span>
+                    <div class="flex items-center mb-4">
+                        <img src="{{ asset('vestalize.svg') }}" alt="Vestalize" class="h-10 w-auto">
                     </div>
                     <p class="text-gray-600 mb-6 max-w-sm">
                         O sistema de gestão completo para confecções e malharias. Organize sua produção e aumente seus lucros.

@@ -92,11 +92,8 @@
 
         {{-- Logo --}}
         <div class="mb-8 animate-fade-in-blur">
-            <a href="/" class="flex items-center gap-3 group">
-                <div class="w-12 h-12 rounded-xl bg-purple-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-purple-500/30">
-                    V
-                </div>
-                <span class="font-bold text-2xl text-foreground tracking-tight">Vestalize</span>
+            <a href="/" class="flex items-center">
+                <img src="{{ asset('vestalize.svg') }}" alt="Vestalize" class="h-12 w-auto">
             </a>
         </div>
 

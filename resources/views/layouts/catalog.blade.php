@@ -170,15 +170,9 @@
             <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
                 <div class="flex justify-center items-center py-3 sm:py-4">
                     <a href="{{ route('catalog.index') }}" class="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
-                        @if($companySettings->logo_path && file_exists(public_path($companySettings->logo_path)))
-                            <img src="{{ asset($companySettings->logo_path) }}" 
-                                 alt="{{ $companySettings->company_name ?? 'Logo' }}"
-                                 class="h-12 sm:h-16 lg:h-20 w-auto object-contain max-w-[180px] sm:max-w-[240px] lg:max-w-[300px]">
-                        @else
-                            <h1 class="text-xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100">
-                                {{ $companySettings->company_name ?? config('app.name', 'Catálogo') }}
-                            </h1>
-                        @endif
+                        <img src="{{ asset('vestalize.svg') }}"
+                             alt="Vestalize"
+                             class="h-12 sm:h-16 lg:h-20 w-auto object-contain max-w-[180px] sm:max-w-[240px] lg:max-w-[300px]">
                     </a>
                 </div>
             </div>

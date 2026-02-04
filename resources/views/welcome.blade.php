@@ -45,7 +45,7 @@
             <!-- Logo -->
             <a href="#" class="flex items-center gap-2 group">
                 <div class="w-9 h-9 rounded bg-hubspot-purple flex items-center justify-center text-white font-bold text-xl shadow-sm group-hover:scale-110 transition-transform duration-300">V</div>
-                <span class="font-bold text-2xl text-hubspot-dark tracking-tight">Vestalize</span>
+                <img src="{{ asset('vestalize.svg') }}" alt="Vestalize" class="h-10 w-auto">
             </a>
             
             <!-- Desktop Nav -->

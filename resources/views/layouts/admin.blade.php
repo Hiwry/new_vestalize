@@ -34,18 +34,15 @@
 
     <!-- Meta Tags & Branding -->
     @php
-        $tenantLogo = auth()->user()->tenant->logo_path ?? null;
-        $tenantLogoExists = $tenantLogo && is_readable(storage_path('app/public/' . $tenantLogo));
-        $faviconUrl = $tenantLogoExists ? Storage::url($tenantLogo) : asset('favicon.ico');
-        $companyName = auth()->user()->tenant->name ?? config('app.name');
+        $brandLogoUrl = asset('vestalize.svg');
+        $faviconUrl = $brandLogoUrl;
+        $companyName = config('app.name');
     @endphp
     
     <link rel="icon" type="image/x-icon" href="{{ $faviconUrl }}">
     <meta property="og:title" content="{{ $companyName }} - Painel Administrativo">
     <meta property="og:type" content="website">
-    @if($tenantLogoExists)
-        <meta property="og:image" content="{{ asset('storage/' . $tenantLogo) }}">
-    @endif
+    <meta property="og:image" content="{{ $brandLogoUrl }}">
 
     <!-- Tema Sync -->
     <script>

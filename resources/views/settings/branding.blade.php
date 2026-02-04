@@ -23,13 +23,7 @@
                         
                         <div class="mt-4 flex items-center space-x-6">
                             <div class="shrink-0 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg flex items-center justify-center w-32 h-32">
-                                @if($tenant->logo_path)
-                                    <img class="h-24 w-auto object-contain" src="{{ Storage::url($tenant->logo_path) }}" alt="Logo atual">
-                                @else
-                                    <svg class="h-20 w-20 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h14a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                @endif
+                                <img class="h-24 w-auto object-contain" src="{{ asset('vestalize.svg') }}" alt="Vestalize">
                             </div>
                             <label class="block">
                                 <span class="sr-only">Escolher logo</span>

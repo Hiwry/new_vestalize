@@ -6,7 +6,7 @@
         {{-- Logo --}}
         <a href="/" class="flex items-center gap-2 group -ml-2">
             <img
-                src="{{ asset('logos/logo_branca_img.png') }}"
+                src="{{ asset('vestalize.svg') }}"
                 alt="Vestalize"
                 class="h-8 w-auto transition-transform group-hover:scale-105"
             >
