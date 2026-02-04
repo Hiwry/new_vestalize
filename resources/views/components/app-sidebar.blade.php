@@ -166,7 +166,7 @@
                      alt="Logo"
                      class="h-10 w-auto object-contain"
                      x-show="!logoError"
-                     @error="logoError = true">
+                     x-on:error="logoError = true">
                 <h1 x-show="logoError"
                     class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400 whitespace-nowrap tracking-tighter italic">
                     {{ auth()->user()->tenant->name ?? 'VESTALIZE' }}
