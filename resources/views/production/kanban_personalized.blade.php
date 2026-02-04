@@ -247,7 +247,7 @@
                             @endphp
                             <div class="kanban-card bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-200 border border-gray-200 dark:border-gray-600" 
                                  data-order-id="{{ $order->id }}"
-                                 onclick="event.stopPropagation(); openOrderModal({{ $order->id }})">
+                                 onclick="if (typeof window.openOrderModal === 'function') { window.openOrderModal({{ $order->id }}); }">
                                 
                                 @if($coverImage)
                                 <div class="h-32 bg-gray-200 overflow-hidden">

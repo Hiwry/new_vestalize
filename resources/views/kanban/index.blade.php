@@ -611,7 +611,7 @@
                             <div class="kanban-card custom-card-shadow group/card bg-white border border-gray-200 text-gray-900 rounded-xl overflow-hidden cursor-pointer hover:bg-gray-50 transition-all duration-200 dark:bg-[#22272e] dark:border-[#373e47] dark:text-gray-100 dark:hover:bg-[#2d333b]" 
                                  style="box-shadow: var(--kanban-card-shadow) !important;"
                                  data-order-id="{{ $order->id }}"
-                                 onclick="event.stopPropagation(); if(typeof openOrderModal === 'function') { openOrderModal({{ $order->id }}); }">
+                                 onclick="if (typeof window.openOrderModal === 'function') { window.openOrderModal({{ $order->id }}); }">
                                 
                                 {{-- Imagem de Capa --}}
                                 @if($coverImage)
