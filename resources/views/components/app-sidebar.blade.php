@@ -282,7 +282,13 @@
             </div>
 
             <!-- GRUPO: ESTOQUE -->
-             @if((Auth::user()->isAdmin() || Auth::user()->isEstoque() || Auth::user()->isVendedor()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('stock')))
+             @if(
+                Auth::user()->isAdminGeral()
+                || (
+                    (Auth::user()->isAdmin() || Auth::user()->isEstoque() || Auth::user()->isVendedor())
+                    && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('stock'))
+                )
+             )
              <div class="mt-1">
                 <a href="{{ Auth::user()->isVendedor() ? route('stocks.view') : route('stocks.index') }}"
                    class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->routeIs('stocks.*') || request()->routeIs('fabric-pieces.*') || request()->routeIs('sewing-machines.*') || request()->routeIs('production-supplies.*') || request()->routeIs('uniforms.*') || request()->routeIs('stock-requests.*')) ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
