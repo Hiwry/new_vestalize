@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\Status;
 use App\Models\PersonalizationPrice;
 use App\Models\Store;
+use App\Models\SublimationLocation;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -133,7 +134,7 @@ class ProductionController extends Controller
         }
 
         // Mostrar todos os pedidos em produção (não rascunhos e não cancelados)
-        $query = Order::with(['client', 'status', 'items', 'store'])
+        $query = Order::with(['client', 'status', 'items.sublimations.location', 'store'])
             ->where('is_draft', false)
             ->where('is_pdv', false)
             ->where('is_cancelled', false);
@@ -508,12 +509,17 @@ class ProductionController extends Controller
         
         $dompdf = new Dompdf($options);
         
+        $openLocationIds = SublimationLocation::visibleInPdf()->pluck('id')->toArray();
+        $openLocationNames = SublimationLocation::visibleInPdf()->pluck('name')->map(fn($name) => mb_strtolower(trim($name)))->toArray();
+
         $html = view('production.pdf', [
             'orders' => $orders,
             'startDate' => $startDate,
             'endDate' => $endDate,
             'period' => $period,
-            'selectedStore' => $selectedStore
+            'selectedStore' => $selectedStore,
+            'openLocationIds' => $openLocationIds,
+            'openLocationNames' => $openLocationNames
         ])->render();
         
         $dompdf->loadHtml($html);

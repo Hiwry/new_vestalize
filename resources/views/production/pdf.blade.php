@@ -83,6 +83,17 @@
             font-size: 8px;
             display: inline-block;
         }
+
+        .open-badge {
+            display: inline-block;
+            margin-top: 2px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 8px;
+            font-weight: bold;
+            background-color: #111827;
+            color: #ffffff;
+        }
         
         .atrasado {
             background-color: #ff9999;
@@ -142,6 +153,33 @@
                     $artName = $firstItem?->art_name ?? ($order->client ? $order->client->name : 'Cliente não encontrado');
                     $deliveryDate = $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date) : null;
                     $isDelayed = $deliveryDate && $deliveryDate->lt($hoje);
+                    $requiresOpen = false;
+                    if (!empty($openLocationIds) || !empty($openLocationNames)) {
+                        foreach ($order->items as $item) {
+                            foreach ($item->sublimations as $sub) {
+                                if ($sub->location && in_array($sub->location->id, $openLocationIds)) {
+                                    $requiresOpen = true;
+                                    break 2;
+                                }
+                                if ($sub->location_id && in_array($sub->location_id, $openLocationIds)) {
+                                    $requiresOpen = true;
+                                    break 2;
+                                }
+                                $locRaw = $sub->location_name ?? '';
+                                if (is_numeric($locRaw) && in_array((int) $locRaw, $openLocationIds)) {
+                                    $requiresOpen = true;
+                                    break 2;
+                                }
+                                if (is_string($locRaw) && $locRaw !== '') {
+                                    $locName = mb_strtolower(trim($locRaw));
+                                    if (in_array($locName, $openLocationNames)) {
+                                        $requiresOpen = true;
+                                        break 2;
+                                    }
+                                }
+                            }
+                        }
+                    }
                     
                     // Definir cor da linha baseado no status ou atraso
                     $rowClass = '';
@@ -166,6 +204,10 @@
                                     / {{ $firstItem->color }}
                                 @endif
                             </small>
+                            @if($requiresOpen)
+                                <br>
+                                <span class="open-badge">ABERTO P/ PERSONALIZAÇÃO</span>
+                            @endif
                         @endif
                     </td>
                     <td class="text-center">{{ str_pad($order->id, 5, '0', STR_PAD_LEFT) }}</td>
