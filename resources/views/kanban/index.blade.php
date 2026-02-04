@@ -1713,6 +1713,7 @@
 
         function displayOrderDetails(order) {
             const payment = order.payment;
+            const isPersonalized = order.origin === 'personalized';
             // Contar arquivos das personalizações E dos itens
             const totalFiles = order.items.reduce((sum, item) => {
                 let itemFilesCount = 0;
@@ -1737,9 +1738,9 @@
                     <!-- COLUNA ESQUERDA -->
                     <div class="space-y-6">
                         <!-- Ações do Pedido -->
-                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-4 border-2 border-blue-200 dark:border-blue-600/30">
-                    <h4 class="font-semibold mb-3 text-blue-900 dark:text-blue-300 flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-gradient-to-r from-violet-50 to-fuchsia-50 dark:from-violet-900/20 dark:to-fuchsia-900/20 rounded-lg p-4 border-2 border-violet-200 dark:border-violet-600/30">
+                    <h4 class="font-semibold mb-3 text-violet-900 dark:text-violet-200 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-violet-700 dark:text-violet-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
                         </svg>
                         Ações
@@ -1747,7 +1748,7 @@
                     <div class="flex flex-wrap gap-2">
                         <button onclick="openEditRequestModal(${order.id})" 
                                 class="px-3 py-1.5 text-sm bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-medium rounded-md transition-all flex items-center shadow">
-                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 mr-1.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                             </svg>
                             Editar Pedido
@@ -1755,7 +1756,7 @@
                         @if(Auth::user()->isAdmin() || Auth::user()->isProducao())
                         <div class="flex gap-2 flex-1">
                             <select id="move-status-select" 
-                                    class="flex-1 px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-blue-300 dark:border-blue-600/30 rounded-md text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all">
+                                    class="flex-1 px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-violet-300 dark:border-violet-600/30 rounded-md text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 transition-all">
                                 <option value="">Selecione a coluna...</option>
                                 @foreach($statuses as $status)
                                 <option value="{{ $status->id }}" data-status-id="{{ $status->id }}">
@@ -1764,8 +1765,8 @@
                                 @endforeach
                             </select>
                             <button onclick="moveCardToColumn(${order.id})" 
-                                    class="px-4 py-1.5 text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-md transition-all flex items-center shadow">
-                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    class="px-4 py-1.5 text-sm bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-medium rounded-md transition-all flex items-center shadow">
+                                <svg class="w-4 h-4 mr-1.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 Mover
@@ -1776,9 +1777,9 @@
                 </div>
 
                     <!-- Botões de Download -->
-                <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4 border border-indigo-200 dark:border-indigo-600/30">
-                    <h4 class="font-semibold mb-3 text-indigo-900 dark:text-indigo-300 flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4 border border-violet-200 dark:border-violet-600/30">
+                    <h4 class="font-semibold mb-3 text-violet-900 dark:text-violet-200 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-violet-700 dark:text-violet-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
                         </svg>
                         Downloads
@@ -1786,14 +1787,14 @@
                     <div class="flex flex-wrap gap-2" id="downloads-list-${order.id}">
                         <a href="/kanban/download-costura/${order.id}" target="_blank"
                            class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition shadow-sm">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
                             </svg>
-                            Folha Costura (A4)
+                            ${isPersonalized ? 'Folha Personalizado (A4)' : 'Folha Costura (A4)'}
                         </a>
                         <a href="/kanban/download-personalizacao/${order.id}" target="_blank"
                            class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition shadow-sm">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
                             </svg>
                             Folha Personalização (A4)
@@ -1803,7 +1804,7 @@
                                 id="btn-download-files-${order.id}"
                                 data-count="${totalFiles}"
                                 class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium bg-green-600 hover:bg-green-700 text-white rounded-lg transition shadow-sm">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
                             </svg>
                             <span class="btn-text text-white">Arquivos da Arte (${totalFiles})</span>
@@ -1877,6 +1878,14 @@
                         };
                         const hasRealSizes = item.sizes && sortSizeEntries(item.sizes).some(([s, q]) => Number(q) > 0 && s !== 'Único' && s !== 'UN');
                         const isSimpleItem = !hasRealSizes;
+                        const coverImageUrl = item.cover_image_url
+                            || (item.cover_image
+                                ? (item.cover_image.startsWith('http')
+                                    ? item.cover_image
+                                    : (item.cover_image.startsWith('/storage/') || item.cover_image.startsWith('storage/')
+                                        ? item.cover_image
+                                        : `/storage/${item.cover_image.replace(/^\\/+/, '')}`))
+                                : null);
 
                         return `
                     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border-2 border-indigo-200 dark:border-indigo-600/30 p-6">
@@ -1897,7 +1906,7 @@
                                 <button onclick="saveArtName(${item.id})" 
                                         id="save-art-name-btn-${item.id}"
                                         class="px-3 py-1 bg-purple-600 text-white text-xs rounded-md hover:bg-purple-700 transition-colors flex items-center">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4 mr-1 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
                                     </svg>
                                     Salvar
@@ -1937,8 +1946,8 @@
                                 </svg>
                                 <span class="text-xs text-blue-700 dark:text-blue-400"><strong>Tamanho recomendado:</strong> 794 x 1123 pixels (A4 em 96 DPI)</span>
                             </div>
-                            ${item.cover_image_url ? `
-                                <img src="${item.cover_image_url}" alt="Capa" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 shadow-md bg-gray-50 dark:bg-gray-900/20" style="max-height: 600px; object-fit: contain;" onerror="this.parentElement.innerHTML='<div class=\'text-center text-gray-500 dark:text-gray-400 py-8 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/20\'><svg class=\'w-16 h-16 mx-auto mb-3 text-gray-400 dark:text-gray-500\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg><p class=\'text-sm font-medium mb-1 text-gray-700 dark:text-gray-300\'>Imagem não encontrada</p><p class=\'text-xs text-gray-500 dark:text-gray-400\'>O arquivo de imagem não foi encontrado no servidor</p></div>'">
+                            ${coverImageUrl ? `
+                                <img src="${coverImageUrl}" alt="Capa" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 shadow-md bg-gray-50 dark:bg-gray-900/20" style="max-height: 600px; object-fit: contain;" onerror="this.parentElement.innerHTML='<div class=\'text-center text-gray-500 dark:text-gray-400 py-8 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/20\'><svg class=\'w-16 h-16 mx-auto mb-3 text-gray-400 dark:text-gray-500\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg><p class=\'text-sm font-medium mb-1 text-gray-700 dark:text-gray-300\'>Imagem não encontrada</p><p class=\'text-xs text-gray-500 dark:text-gray-400\'>O arquivo de imagem não foi encontrado no servidor</p></div>'">
                             ` : `
                                 <div class="text-center text-gray-500 dark:text-gray-400 py-8 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/20">
                                     <svg class="w-16 h-16 mx-auto mb-3 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1956,7 +1965,7 @@
                                 <svg class="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                Costura
+                                ${isPersonalized ? 'Personalizado' : 'Costura'}
                             </h6>
                             <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-700 dark:text-gray-300">
                                 ${order.store ? `<div><strong class="text-gray-900 dark:text-gray-100">Loja:</strong> <span class="text-gray-700 dark:text-gray-300">${order.store.name}</span></div>` : ''}
@@ -2154,7 +2163,7 @@
                                 class="delivery-request-btn px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition text-sm font-medium flex items-center"
                                 data-order-id="${order.id}"
                                 data-delivery-date="${order.delivery_date || ''}">
-                            <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3.5 h-3.5 mr-1.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                             </svg>
                             Solicitar Antecipação
@@ -3171,3 +3180,4 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="{{ asset('js/kanban-sortable.js') }}"></script>
 @endsection
+

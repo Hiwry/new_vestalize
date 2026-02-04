@@ -65,8 +65,10 @@
                                             $imagePath = $product->image;
                                             if (\Illuminate\Support\Str::startsWith($imagePath, ['http://', 'https://'])) {
                                                 $imageUrl = $imagePath;
-                                            } elseif (\Illuminate\Support\Str::startsWith($imagePath, 'storage/')) {
-                                                $imageUrl = asset($imagePath);
+                                            } elseif (\Illuminate\Support\Str::startsWith($imagePath, ['/storage/', 'storage/'])) {
+                                                $imageUrl = asset(ltrim($imagePath, '/'));
+                                            } elseif (\Illuminate\Support\Str::startsWith($imagePath, 'public/')) {
+                                                $imageUrl = \Illuminate\Support\Facades\Storage::url($imagePath);
                                             } else {
                                                 $imageUrl = \Illuminate\Support\Facades\Storage::url($imagePath);
                                             }

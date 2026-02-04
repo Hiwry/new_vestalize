@@ -381,7 +381,7 @@
             </div>
             <div class="flex justify-end gap-2">
                 <button type="button" onclick="closeSellPartialModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg">Cancelar</button>
-                <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg">Confirmar Venda</button>
+                <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg" style="color: #ffffff !important;">Confirmar Venda</button>
             </div>
         </form>
     </div>
