@@ -15,6 +15,9 @@
     document.addEventListener('ajax-content-loaded', initKanbanDragDrop);
     
     function initKanbanDragDrop() {
+        // Always bind card clicks, even if Sortable isn't available
+        bindKanbanCardClick();
+
         if (typeof Sortable === 'undefined') {
             console.error('Sortable.js library not loaded!');
             return;
@@ -86,7 +89,25 @@
                 }
             });
         });
-        
+
         console.log('Kanban drag-drop initialized!');
+    }
+
+    function bindKanbanCardClick() {
+        const cards = document.querySelectorAll('.kanban-card');
+        cards.forEach(card => {
+            if (card.dataset.modalBound === '1') return;
+            card.dataset.modalBound = '1';
+            card.addEventListener('click', (e) => {
+                if (e.defaultPrevented) return;
+                if (e.target.closest('.kanban-drag-handle')) return;
+                if (e.target.closest('a, button, input, select, textarea, label')) return;
+                const orderId = card.getAttribute('data-order-id');
+                if (!orderId) return;
+                if (typeof window.openOrderModal === 'function') {
+                    window.openOrderModal(parseInt(orderId, 10));
+                }
+            });
+        });
     }
 })();

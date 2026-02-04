@@ -333,8 +333,7 @@
                                 $commentsCount = (int) ($order->comments_count ?? 0);
                             @endphp
                             <div class="kanban-card bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-200 border border-gray-200 dark:border-gray-600" 
-                                 data-order-id="{{ $order->id }}"
-                                 onclick="if (typeof window.openOrderModal === 'function') { window.openOrderModal({{ $order->id }}); }">
+                                 data-order-id="{{ $order->id }}">
                                 
                                 <!-- Imagem de Capa -->
                                 @if($coverImage)

@@ -246,8 +246,7 @@
                                 $displayName = $firstItem ? $firstItem->name : $order->client->name;
                             @endphp
                             <div class="kanban-card bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-200 border border-gray-200 dark:border-gray-600" 
-                                 data-order-id="{{ $order->id }}"
-                                 onclick="if (typeof window.openOrderModal === 'function') { window.openOrderModal({{ $order->id }}); }">
+                                 data-order-id="{{ $order->id }}">
                                 
                                 @if($coverImage)
                                 <div class="h-32 bg-gray-200 overflow-hidden">
@@ -517,17 +516,20 @@
 
         function displayPersonalizedOrderDetails(order) {
             const payment = order.payment;
+            const clientName = order.client?.name || 'Sem cliente';
+            const clientPhone = order.client?.phone_primary || '-';
+            const clientEmail = order.client?.email || '-';
             
             let html = `
                 <!-- Info Cliente -->
                 <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-6 border border-gray-100 dark:border-gray-600">
                     <h4 class="font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                        ${order.client.name}
+                        ${clientName}
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-300">
-                        <div><span class="font-semibold">Telefone:</span> ${order.client.phone_primary || '-'}</div>
-                        <div><span class="font-semibold">Email:</span> ${order.client.email || '-'}</div>
+                        <div><span class="font-semibold">Telefone:</span> ${clientPhone}</div>
+                        <div><span class="font-semibold">Email:</span> ${clientEmail}</div>
                         ${order.notes ? `<div class="col-span-2 mt-2 bg-yellow-50 dark:bg-yellow-900/30 p-2 rounded border border-yellow-100 dark:border-yellow-900"><span class="font-semibold text-yellow-800 dark:text-yellow-400">Observações do Pedido:</span> <p class="text-gray-800 dark:text-gray-200">${order.notes}</p></div>` : ''}
                     </div>
                 </div>
