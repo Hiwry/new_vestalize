@@ -823,7 +823,7 @@ class BudgetController extends Controller
      */
     public function approve($id)
     {
-        $budget = Budget::findOrFail($id);
+        $budget = Budget::with(['items.customizations'])->findOrFail($id);
         
         // Verificar permissão de acesso
         $user = Auth::user();
@@ -1765,6 +1765,21 @@ class BudgetController extends Controller
             $message .= "Valor unitário (CARTÃO/BOLETO*) R$ " . number_format($budget->unit_price, 2, ',', '.') . "\n";
             $message .= "Valor Unitário(PIX/DINHEIRO) R$ " . number_format($pixPrice, 2, ',', '.') . "\n\n";
         } else {
+            $locationNames = [];
+            $locationIds = $budget->items
+                ->flatMap->customizations
+                ->pluck('location')
+                ->filter(fn ($loc) => is_numeric($loc))
+                ->map(fn ($loc) => (int) $loc)
+                ->unique()
+                ->values();
+
+            if ($locationIds->isNotEmpty()) {
+                $locationNames = \App\Models\SublimationLocation::whereIn('id', $locationIds)
+                    ->pluck('name', 'id')
+                    ->toArray();
+            }
+
             foreach ($budget->items as $index => $item) {
                 // Determine item details
                 $personalizationTypes = json_decode($item->personalization_types, true) ?? [];
@@ -1786,10 +1801,24 @@ class BudgetController extends Controller
                 // Collect services
                 $services = [];
                 if ($item->customizations->count() > 0) {
-                     $locationMap = [1 => 'Frente', 2 => 'Costas', 3 => 'Manga Esq', 4 => 'Manga Dir', 5 => 'Lat Esq', 6 => 'Lat Dir', 7 => 'Capuz', 8 => 'Bolso'];
-                     foreach($item->customizations as $cust) {
-                         $locName = $locationMap[$cust->location] ?? $cust->location;
-                         $services[] = "{$cust->personalization_type} ({$locName})";
+                     foreach ($item->customizations as $cust) {
+                         $locRaw = $cust->location ?? '';
+                         $locName = $locRaw;
+                         if (is_numeric($locRaw)) {
+                             $locName = $locationNames[(int) $locRaw] ?? $locRaw;
+                         }
+
+                         $sizeLabel = trim((string) ($cust->size ?? ''));
+                         $detailParts = [];
+                         if (!empty($locName)) {
+                             $detailParts[] = $locName;
+                         }
+                         if (!empty($sizeLabel) && strtoupper($sizeLabel) !== 'PADRÃO') {
+                             $detailParts[] = $sizeLabel;
+                         }
+                         $detail = !empty($detailParts) ? ' (' . implode(' - ', $detailParts) . ')' : '';
+
+                         $services[] = "{$cust->personalization_type}{$detail}";
                      }
                 } else {
                      $services[] = $printType;
