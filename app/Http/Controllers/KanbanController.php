@@ -33,6 +33,14 @@ class KanbanController extends Controller
         $search = $request->get('search');
         $personalizationType = $request->get('personalization_type');
         $entryDateFilter = $request->get('entry_date');
+        $rangeStart = $request->get('start_date');
+        $rangeEnd = $request->get('end_date');
+        if ($rangeStart && !$rangeEnd) {
+            $rangeEnd = $rangeStart;
+        }
+        if ($rangeEnd && !$rangeStart) {
+            $rangeStart = $rangeEnd;
+        }
         $viewType = $request->get('type', 'production'); // 'production' or 'personalized'
         if (!$viewType || !in_array($viewType, ['production', 'personalized'])) {
             $viewType = 'production';
@@ -107,7 +115,7 @@ class KanbanController extends Controller
         // Filter statuses by type
         $statuses = Status::where('tenant_id', $activeTenantId)
             ->where('type', $viewType)
-            ->withCount(['orders' => function($query) use ($personalizationType, $entryDateFilter, $viewType) {
+            ->withCount(['orders' => function($query) use ($personalizationType, $entryDateFilter, $viewType, $rangeStart, $rangeEnd) {
             $query->notDrafts()
                   ->where('is_cancelled', false);
             
@@ -143,7 +151,14 @@ class KanbanController extends Controller
                 });
             }
 
-            if ($entryDateFilter) {
+            if ($rangeStart && $rangeEnd) {
+                $query->where(function($q) use ($rangeStart, $rangeEnd) {
+                    $q->whereBetween('entry_date', [$rangeStart, $rangeEnd])
+                      ->orWhere(function($q2) use ($rangeStart, $rangeEnd) {
+                          $q2->whereNull('entry_date')->whereBetween('created_at', [$rangeStart, $rangeEnd]);
+                      });
+                });
+            } elseif ($entryDateFilter) {
                 $query->where(function($q) use ($entryDateFilter) {
                     $q->whereDate('entry_date', $entryDateFilter)
                       ->orWhere(function($q2) use ($entryDateFilter) {
@@ -226,7 +241,14 @@ class KanbanController extends Controller
             });
         }
 
-        if ($entryDateFilter) {
+        if ($rangeStart && $rangeEnd) {
+            $query->where(function($q) use ($rangeStart, $rangeEnd) {
+                $q->whereBetween('entry_date', [$rangeStart, $rangeEnd])
+                  ->orWhere(function($q2) use ($rangeStart, $rangeEnd) {
+                      $q2->whereNull('entry_date')->whereBetween('created_at', [$rangeStart, $rangeEnd]);
+                  });
+            });
+        } elseif ($entryDateFilter) {
             $query->where(function($q) use ($entryDateFilter) {
                 $q->whereDate('entry_date', $entryDateFilter)
                   ->orWhere(function($q2) use ($entryDateFilter) {
@@ -266,7 +288,7 @@ class KanbanController extends Controller
         
         $ordersForCalendar = $orders;
         
-        return view('kanban.index', compact('statuses', 'ordersByStatus', 'search', 'autoOpenOrderId', 'personalizationType', 'personalizationTypes', 'entryDateFilter', 'ordersForCalendar', 'viewType', 'period', 'startDate', 'endDate'));
+        return view('kanban.index', compact('statuses', 'ordersByStatus', 'search', 'autoOpenOrderId', 'personalizationType', 'personalizationTypes', 'ordersForCalendar', 'viewType', 'period', 'startDate', 'endDate'));
     }
 
     public function updateStatus(Request $request): JsonResponse

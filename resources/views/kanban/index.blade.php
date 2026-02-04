@@ -291,7 +291,7 @@
             })->values();
 
             // Default start date from filter or today
-            $startDate = $entryDateFilter ?? request('entry_date') ?? null;
+            $startDate = request('start_date') ?? null;
         @endphp
 
         <div x-data="kanbanBoardIndex({{ Js::from($calendarData) }}, '{{ $startDate }}')" x-cloak>
@@ -383,13 +383,21 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            Data do pedido
+                            Data do pedido (início / fim)
                         </label>
-                        <div class="relative">
-                            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <input type="date" name="entry_date" value="{{ $entryDateFilter ?? request('entry_date') }}" class="w-full pl-12 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-gray-900 focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition placeholder-gray-500 dark:border-[#1f2533] dark:bg-[#0a0d15] dark:text-gray-100">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div class="relative">
+                                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <input type="date" name="start_date" value="{{ request('start_date') }}" class="w-full pl-12 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-gray-900 focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition placeholder-gray-500 dark:border-[#1f2533] dark:bg-[#0a0d15] dark:text-gray-100">
+                            </div>
+                            <div class="relative">
+                                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <input type="date" name="end_date" value="{{ request('end_date') }}" class="w-full pl-12 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-gray-900 focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition placeholder-gray-500 dark:border-[#1f2533] dark:bg-[#0a0d15] dark:text-gray-100">
+                            </div>
                         </div>
                     </div>
                     
@@ -399,7 +407,7 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             PDF
                         </button>
-                        @if($search || request('personalization_type') || ($entryDateFilter ?? request('entry_date')))
+                        @if($search || request('personalization_type') || request('start_date') || request('end_date'))
                         <a href="{{ route('kanban.index', ['type' => $viewType]) }}" 
                            class="w-full px-6 py-2.5 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 whitespace-nowrap transition font-semibold flex items-center justify-center gap-2 border border-gray-200 dark:bg-[#111724] dark:text-gray-200 dark:hover:bg-[#131a29] dark:border-[#1f2533]">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -411,7 +419,7 @@
                     </div>
                 </div>
                 
-                @if($search || request('personalization_type') || ($entryDateFilter ?? request('entry_date')))
+                @if($search || request('personalization_type') || request('start_date') || request('end_date'))
                 <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                     <div class="flex flex-wrap gap-2 items-center">
                         <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Filtros ativos:</span>
@@ -437,10 +445,10 @@
                             </a>
                         </span>
                         @endif
-                        @if($entryDateFilter ?? request('entry_date'))
+                        @if(request('start_date') || request('end_date'))
                         <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium flex items-center gap-2">
-                            Pedido: {{ \Carbon\Carbon::parse($entryDateFilter ?? request('entry_date'))->format('d/m/Y') }}
-                            <a href="{{ route('kanban.index', array_merge(request()->except('entry_date'), ['search' => request('search'), 'personalization_type' => request('personalization_type')])) }}" 
+                            Pedido: {{ request('start_date') ? \Carbon\Carbon::parse(request('start_date'))->format('d/m/Y') : '-' }} a {{ request('end_date') ? \Carbon\Carbon::parse(request('end_date'))->format('d/m/Y') : '-' }}
+                            <a href="{{ route('kanban.index', array_merge(request()->except(['start_date', 'end_date']), ['search' => request('search'), 'personalization_type' => request('personalization_type')])) }}" 
                                class="hover:text-blue-600 dark:hover:text-blue-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -455,7 +463,7 @@
         </div>
 
         @php
-            $hasFilters = ($entryDateFilter ?? request('entry_date')) || ($personalizationType ?? request('personalization_type')) || ($search ?? request('search'));
+            $hasFilters = request('start_date') || request('end_date') || ($personalizationType ?? request('personalization_type')) || ($search ?? request('search'));
         @endphp
 
         @if($hasFilters)

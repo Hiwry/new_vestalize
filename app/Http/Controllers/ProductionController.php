@@ -51,7 +51,13 @@ class ProductionController extends Controller
         $period = $request->get('period', 'week'); // Default: semana (segunda a sexta)
         $rangeStart = $request->get('start_date');
         $rangeEnd = $request->get('end_date');
-        $useEntryDate = !empty($entryDate);
+        if ($rangeStart && !$rangeEnd) {
+            $rangeEnd = $rangeStart;
+        }
+        if ($rangeEnd && !$rangeStart) {
+            $rangeStart = $rangeEnd;
+        }
+        $useEntryDate = !empty($entryDate) || (!empty($rangeStart) && !empty($rangeEnd));
         if (!$useEntryDate && !$request->has('period')) {
             $period = 'all';
         }
@@ -455,7 +461,14 @@ class ProductionController extends Controller
             }
         }
 
-        if ($entryDate) {
+        if ($rangeStart && $rangeEnd) {
+            $query->where(function($q) use ($rangeStart, $rangeEnd) {
+                $q->whereBetween('entry_date', [$rangeStart, $rangeEnd])
+                  ->orWhere(function($q2) use ($rangeStart, $rangeEnd) {
+                      $q2->whereNull('entry_date')->whereBetween('created_at', [$rangeStart, $rangeEnd]);
+                  });
+            });
+        } elseif ($entryDate) {
             $query->where(function($q) use ($entryDate) {
                 $q->whereDate('entry_date', $entryDate)
                   ->orWhere(function($q2) use ($entryDate) {
