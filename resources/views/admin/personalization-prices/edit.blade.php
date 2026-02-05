@@ -199,11 +199,28 @@
     let priceRowIndex = 0;
 
     // Inicializar página
-    document.addEventListener('DOMContentLoaded', function() {
+    function initPricesPage() {
+        const form = document.getElementById('prices-form');
+        if (!form || form.dataset.initialized === 'true') return;
+        form.dataset.initialized = 'true';
+
+        // Resetar dados para evitar duplicidade em navegacao AJAX
+        availableSizes = [];
+        quantityRanges = [];
+        priceRowIndex = 0;
+
         loadExistingData();
         renderSizes();
         renderTable();
-    });
+        bindPricePageEvents();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPricesPage);
+    } else {
+        initPricesPage();
+    }
+    document.addEventListener('ajax-content-loaded', initPricesPage);
 
     function loadExistingData() {
         console.log('=== CARREGANDO DADOS EXISTENTES ===');
@@ -457,21 +474,28 @@
             updateQuantityRangesCount();
         }
     }
-
-    // Permitir adicionar com Enter no modal
-    document.getElementById('newSizeName').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            confirmAddSize();
+    function bindPricePageEvents() {
+        const sizeInput = document.getElementById('newSizeName');
+        if (sizeInput && !sizeInput.dataset.listenerAttached) {
+            sizeInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    confirmAddSize();
+                }
+            });
+            sizeInput.dataset.listenerAttached = 'true';
         }
-    });
 
-    // Fechar modal com ESC
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeAddSizeModal();
+        if (!document.body.dataset.priceModalEscAttached) {
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeAddSizeModal();
+                }
+            });
+            document.body.dataset.priceModalEscAttached = 'true';
         }
-    });
+    }
+
 
     // Expor funções para navegação AJAX
     window.openAddSizeModal = openAddSizeModal;
