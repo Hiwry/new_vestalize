@@ -745,6 +745,10 @@
         scheduleInit();
     });
 
+    window.addEventListener('dark-mode-toggled', function() {
+        scheduleInit();
+    });
+
     window.addEventListener('load', function() {
         setTimeout(function() {
             if (!window.statusChart) {

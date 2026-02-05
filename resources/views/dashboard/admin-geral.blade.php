@@ -771,21 +771,38 @@
         }
     }
     
-    function waitAndInit() {
-        if (typeof Chart === 'undefined') {
-            setTimeout(waitAndInit, 250);
+    function ensureChartReady(callback) {
+        if (typeof callback !== 'function') return;
+        if (typeof window.ensureChartJsLoaded === 'function') {
+            window.ensureChartJsLoaded(callback);
             return;
         }
-        initCharts();
+        if (typeof Chart !== 'undefined') {
+            callback();
+            return;
+        }
+        setTimeout(function() {
+            ensureChartReady(callback);
+        }, 50);
+    }
+
+    function scheduleInit() {
+        ensureChartReady(function() {
+            setTimeout(function() {
+                initCharts();
+            }, 100);
+        });
     }
     
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', waitAndInit);
+        document.addEventListener('DOMContentLoaded', scheduleInit);
     } else {
-        waitAndInit();
+        scheduleInit();
     }
     
-    document.addEventListener('ajax-content-loaded', () => setTimeout(initCharts, 250));
+    document.addEventListener('ajax-content-loaded', () => scheduleInit());
+
+    window.addEventListener('dark-mode-toggled', () => scheduleInit());
 })();
 </script>
 @endpush
