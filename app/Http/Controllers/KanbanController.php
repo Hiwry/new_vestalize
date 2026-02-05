@@ -1479,15 +1479,27 @@ class KanbanController extends Controller
         }
 
         $zip = new \ZipArchive;
-        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
-            foreach ($allFiles as $file) {
-                $filePath = storage_path('app/public/' . $file->file_path);
-                
-                if (file_exists($filePath)) {
-                    $zip->addFile($filePath, $file->file_name);
-                }
+        $zipOpened = $zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        if ($zipOpened !== true) {
+            return back()->with('error', 'Nao foi possivel gerar o arquivo ZIP.');
+        }
+
+        $addedFiles = 0;
+        foreach ($allFiles as $file) {
+            $filePath = storage_path('app/public/' . $file->file_path);
+            
+            if (file_exists($filePath)) {
+                $zip->addFile($filePath, $file->file_name);
+                $addedFiles++;
             }
-            $zip->close();
+        }
+        $zip->close();
+
+        if ($addedFiles === 0 || !file_exists($zipPath)) {
+            if (file_exists($zipPath)) {
+                @unlink($zipPath);
+            }
+            return back()->with('error', 'Nenhum arquivo encontrado para este pedido.');
         }
 
         return response()->download($zipPath)->deleteFileAfterSend(true);
