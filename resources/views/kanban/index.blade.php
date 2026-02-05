@@ -561,7 +561,18 @@
                                 $storeName = $order->store?->name ?? 'Loja Principal';
                                 $filesCount = $order->items->sum(fn($item) => $item->files->count());
                                 $commentsCount = (int) ($order->comments_count ?? 0);
-                                $printType = $firstItem?->print_type ?? 'Sem personalização';
+                                $printType = $order->items
+                                    ->pluck('print_type')
+                                    ->filter()
+                                    ->flatMap(function ($value) {
+                                        return collect(explode(',', $value))
+                                            ->map(fn($part) => trim($part))
+                                            ->filter();
+                                    })
+                                    ->unique()
+                                    ->values()
+                                    ->join(', ');
+                                $printType = $printType !== '' ? $printType : 'Sem personalização';
                                 $entryDate = $order->entry_date 
                                     ? \Carbon\Carbon::parse($order->entry_date) 
                                     : ($order->created_at ? \Carbon\Carbon::parse($order->created_at) : null);
