@@ -63,7 +63,7 @@
         </div>
 
         <!-- Main Content -->
-<<<<<<< HEAD
+
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-lg dark:shadow-black/20 border border-gray-200 dark:border-slate-800">
             <!-- Clean Minimalist Header -->
             <div class="px-6 py-6 border-b border-gray-200 dark:border-slate-800">
@@ -98,21 +98,7 @@
                 <div class="mt-4">
                     <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-1.5">
                         <div class="bg-purple-600 dark:bg-purple-500 h-full rounded-full transition-all" style="width: 80%"></div>
-=======
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-slate-800">
-            <!-- Header -->
-            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-gradient-to-r dark:from-slate-800/50 dark:to-slate-900/50">
-                <div class="flex items-center space-x-3">
-                    <div class="flex items-center">
-                        <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                             <div class="w-8 h-8 bg-[#7c3aed] rounded-lg flex items-center justify-center shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">
-                                <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                </svg>
-                            </div>
-                            Configuração de Pagamento
-                        </h1>
->>>>>>> origin/main
+
                     </div>
                 </div>
             </div>

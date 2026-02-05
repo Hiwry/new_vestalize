@@ -1140,12 +1140,15 @@
                 `;
                 summary.classList.remove('hidden');
                 
-                // Desabilitar campo de quantidade quando itens estão vinculados
+                // Desabilitar campo de quantidade quando itens est??o vinculados
                 if (quantityInput) {
                     quantityInput.disabled = true;
                     quantityInput.classList.add('opacity-50', 'cursor-not-allowed');
-                    quantityInput.value = totalQty;
-                    quantityInput.title = 'Quantidade será calculada automaticamente para cada item';
+                    // Manter quantidade do item atual para c??lculo de pre??o por item
+                    const mainQty = itemQuantitiesMap[mainLinkedItemId] || 1;
+                    quantityInput.value = mainQty;
+                    quantityInput.title = 'Quantidade do item atual (pre??o calculado por item)';
+                    quantityInput.dispatchEvent(new Event('change'));
                 }
             } else {
                 summary.classList.add('hidden');
