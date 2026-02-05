@@ -372,7 +372,7 @@
                                    value="${price}" step="0.01" min="0"
                                    placeholder="Preço"
                                    title="Preço de Venda"
-                                   class="w-full pl-9 pr-3 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all placeholder-gray-400">
+                                   class="w-full pl-11 pr-3 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all placeholder-gray-400">
                         </div>
                         <div class="relative group">
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-red-500 dark:text-red-400 text-xs">R$</span>
@@ -380,7 +380,7 @@
                                    value="${cost}" step="0.01" min="0"
                                    placeholder="Custo"
                                    title="Preço de Custo"
-                                   class="w-full pl-9 pr-3 py-1.5 border border-red-200 dark:border-red-900/30 rounded-lg text-sm bg-red-50 dark:bg-red-900/10 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 transition-all placeholder-gray-400">
+                                   class="w-full pl-11 pr-3 py-1.5 border border-red-200 dark:border-red-900/30 rounded-lg text-sm bg-red-50 dark:bg-red-900/10 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 transition-all placeholder-gray-400">
                         </div>
                     </div>
                 </td>
