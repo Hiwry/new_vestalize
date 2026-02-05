@@ -1639,7 +1639,7 @@ class BudgetController extends Controller
     {
         $validated = $request->validate([
             'contact_name' => 'required|string|max:255',
-            'contact_phone' => 'required|string|max:50',
+            'contact_phone' => 'required|string|max:255',
             'technique' => 'required|string|max:100',
             'quantity' => 'required|integer|min:1',
             'unit_price' => 'required|numeric|min:0.01',
