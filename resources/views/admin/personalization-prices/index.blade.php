@@ -108,19 +108,31 @@
                         <!-- Config Badges -->
                         <div class="flex flex-wrap gap-1.5 mb-4">
                             @if($typeData['charge_by_color'] ?? false)
-                            <span class="inline-flex items-center px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-xs rounded border border-yellow-200 dark:border-yellow-800">
-                                🎨 Cor
-                            </span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 text-xs font-semibold rounded-md border border-amber-200 dark:border-amber-800">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M12 3l7 7a6 6 0 11-12 0l5-7z" />
+                                        <circle cx="9" cy="12" r="1" />
+                                    </svg>
+                                    Cor
+                                </span>
                             @endif
                             @if(($typeData['discount_2nd'] ?? 0) > 0)
-                            <span class="inline-flex items-center px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs rounded border border-green-200 dark:border-green-800">
-                                🏷️ {{ number_format($typeData['discount_2nd'], 0) }}%
-                            </span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200 text-xs font-semibold rounded-md border border-emerald-200 dark:border-emerald-800">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M5 19L19 5" />
+                                        <circle cx="7" cy="7" r="2" />
+                                        <circle cx="17" cy="17" r="2" />
+                                    </svg>
+                                    {{ number_format($typeData['discount_2nd'], 0) }}%
+                                </span>
                             @endif
                             @if(($typeData['special_options_count'] ?? 0) > 0)
-                            <span class="inline-flex items-center px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs rounded border border-purple-200 dark:border-purple-800">
-                                ✨ {{ $typeData['special_options_count'] }}
-                            </span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-violet-100 dark:bg-violet-900/30 text-violet-800 dark:text-violet-200 text-xs font-semibold rounded-md border border-violet-200 dark:border-violet-800">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M9.813 15.904L9 18l-.813-2.096a4.5 4.5 0 00-2.091-2.091L4 13l2.096-.813a4.5 4.5 0 002.091-2.091L9 8l.813 2.096a4.5 4.5 0 002.091 2.091L14 13l-2.096.813a4.5 4.5 0 00-2.091 2.091zM18 7l1.064 2.75L22 11l-2.936 1.25L18 15l-1.064-2.75L14 11l2.936-1.25L18 7z" />
+                                    </svg>
+                                    {{ $typeData['special_options_count'] }}
+                                </span>
                             @endif
                         </div>
 
