@@ -603,7 +603,30 @@
         faturamentoLojaData: @json($faturamentoLojaData ?? []),
         pagamentoData: @json($pagamentoData ?? [])
     };
-    
+    const statusPalette = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#a855f7', '#84cc16', '#0ea5e9', '#f97316', '#14b8a6'];
+    const resolveStatusColors = (items) => {
+        const used = new Set();
+        const pickFallback = (index) => {
+            for (const color of statusPalette) {
+                const key = color.toLowerCase();
+                if (!used.has(key)) {
+                    return color;
+                }
+            }
+            return statusPalette[index % statusPalette.length];
+        };
+        
+        return items.map((item, index) => {
+            let color = String(item.color || '').trim();
+            const key = color.toLowerCase();
+            if (!color || used.has(key)) {
+                color = pickFallback(index);
+            }
+            used.add(color.toLowerCase());
+            return color;
+        });
+    };
+
     function initCharts() {
         if (typeof Chart === 'undefined') return;
         
@@ -647,6 +670,7 @@
         const statusCanvas = document.getElementById('statusChart');
         if (statusCanvas) {
             const validData = dashboardData.statusData.filter(i => i.total > 0);
+            const statusColors = resolveStatusColors(validData);
             if (validData.length > 0) {
                 window.statusChart = new Chart(statusCanvas, {
                     type: 'doughnut',
@@ -654,8 +678,8 @@
                         labels: validData.map(i => i.status),
                         datasets: [{
                             data: validData.map(i => i.total),
-                            backgroundColor: validData.map(i => i.color),
-                            hoverBackgroundColor: validData.map(i => i.color),
+                            backgroundColor: statusColors,
+                            hoverBackgroundColor: statusColors,
                             borderWidth: 0,
                             hoverOffset: 0,
                             spacing: 0

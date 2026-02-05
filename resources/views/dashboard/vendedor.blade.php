@@ -454,7 +454,30 @@
         vendasMensaisData: @json($vendasMensaisData),
         pdvVsOnlineData: @json($pdvVsOnlineData)
     };
-    
+    const statusPalette = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#a855f7', '#84cc16', '#0ea5e9', '#f97316', '#14b8a6'];
+    const resolveStatusColors = (items) => {
+        const used = new Set();
+        const pickFallback = (index) => {
+            for (const color of statusPalette) {
+                const key = color.toLowerCase();
+                if (!used.has(key)) {
+                    return color;
+                }
+            }
+            return statusPalette[index % statusPalette.length];
+        };
+        
+        return items.map((item, index) => {
+            let color = String(item.color || '').trim();
+            const key = color.toLowerCase();
+            if (!color || used.has(key)) {
+                color = pickFallback(index);
+            }
+            used.add(color.toLowerCase());
+            return color;
+        });
+    };
+
     function initCharts() {
         if (typeof Chart === 'undefined') {
             console.warn('Chart.js não está disponível');
@@ -483,7 +506,7 @@
             const statusData = dashboardData.statusData || [];
             const statusLabels = statusData.length > 0 ? statusData.map(item => item.status) : ['Sem dados'];
             const statusValues = statusData.length > 0 ? statusData.map(item => item.total) : [1];
-            const statusColors = statusData.length > 0 ? statusData.map(item => item.color) : ['#9ca3af'];
+            const statusColors = statusData.length > 0 ? resolveStatusColors(statusData) : ['#9ca3af'];
             
             window.statusChart = new Chart(statusCanvas.getContext('2d'), {
                 type: 'doughnut',
