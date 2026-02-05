@@ -466,11 +466,16 @@
         const gridColor = isDark ? 'rgba(75, 85, 99, 0.3)' : 'rgba(0, 0, 0, 0.1)';
         const borderColor = isDark ? '#1f2937' : '#ffffff';
         
-        // Destruir gráficos existentes
-        if (window.statusChart) window.statusChart.destroy();
-        if (window.faturamentoChart) window.faturamentoChart.destroy();
-        if (window.vendasMensaisChart) window.vendasMensaisChart.destroy();
-        if (window.pdvVsOnlineChart) window.pdvVsOnlineChart.destroy();
+        // Destruir gráficos existentes (evitar conflito com IDs globais do DOM)
+        const safeDestroy = (chart) => {
+            if (chart && typeof chart.destroy === 'function') {
+                chart.destroy();
+            }
+        };
+        safeDestroy(window.statusChart);
+        safeDestroy(window.faturamentoChart);
+        safeDestroy(window.vendasMensaisChart);
+        safeDestroy(window.pdvVsOnlineChart);
         
         // Gráfico de Status
         const statusCanvas = document.getElementById('statusChart');

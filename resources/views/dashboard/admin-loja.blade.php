@@ -635,11 +635,16 @@
         const borderColor = isDark ? '#1f2937' : '#ffffff';
         
         // Destruir gráficos existentes
-        if (window.statusChart) window.statusChart.destroy();
-        if (window.faturamentoChart) window.faturamentoChart.destroy();
-        if (window.vendedorChart) window.vendedorChart.destroy();
-        if (window.pdvVsOnlineChart) window.pdvVsOnlineChart.destroy();
-        if (window.pagamentoChart) window.pagamentoChart.destroy();
+        const safeDestroy = (chart) => {
+            if (chart && typeof chart.destroy === 'function') {
+                chart.destroy();
+            }
+        };
+        safeDestroy(window.statusChart);
+        safeDestroy(window.faturamentoChart);
+        safeDestroy(window.vendedorChart);
+        safeDestroy(window.pdvVsOnlineChart);
+        safeDestroy(window.pagamentoChart);
         
         // Gráfico de Status
         const statusCanvas = document.getElementById('statusChart');
