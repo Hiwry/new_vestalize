@@ -707,27 +707,43 @@
         
         return true;
     }
-    
-    function waitAndInit() {
-        if (typeof Chart !== 'undefined' && document.readyState === 'complete') {
+    function ensureChartReady(callback) {
+        if (typeof callback !== 'function') return;
+        if (typeof window.ensureChartJsLoaded === 'function') {
+            window.ensureChartJsLoaded(callback);
+            return;
+        }
+        if (typeof Chart !== 'undefined') {
+            callback();
+            return;
+        }
+        setTimeout(function() {
+            ensureChartReady(callback);
+        }, 50);
+    }
+
+    function scheduleInit() {
+        ensureChartReady(function() {
             setTimeout(function() {
                 initCharts();
             }, 100);
-        } else {
-            setTimeout(waitAndInit, 50);
-        }
+        });
     }
-    
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', waitAndInit);
+        document.addEventListener('DOMContentLoaded', scheduleInit);
     } else {
-        waitAndInit();
+        scheduleInit();
     }
-    
+
+    document.addEventListener('ajax-content-loaded', function() {
+        scheduleInit();
+    });
+
     window.addEventListener('load', function() {
         setTimeout(function() {
             if (!window.statusChart) {
-                initCharts();
+                scheduleInit();
             }
         }, 500);
     });
