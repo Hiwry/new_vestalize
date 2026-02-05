@@ -17,13 +17,10 @@ class TenantInvoiceConfigController extends Controller
     {
         $user = Auth::user();
         
-        // Super Admin (tenant_id === null) não deve ver dados de outros tenants
+        // Super Admin (tenant_id === null) nao deve ver dados de outros tenants
         if ($user->tenant_id === null) {
-            return view('admin.invoice-config.edit', [
-                'config' => null,
-                'tenant' => null,
-                'isSuperAdmin' => true
-            ]);
+            $tenants = \App\Models\Tenant::orderBy('name')->get();
+            return view('admin.invoice-config.select-tenant', compact('tenants'));
         }
 
         $tenant = $user->tenant;
