@@ -116,7 +116,7 @@
                     </div>
                     @if(isset($variacaoPedidos))
                     <span class="px-2 py-1 rounded-lg text-[10px] font-black {{ $variacaoPedidos >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400' }}">
-                        {{ $variacaoPedidos >= 0 ? '↑' : '↓' }} {{ abs(number_format($variacaoPedidos, 1)) }}%
+                        {{ $variacaoPedidos >= 0 ? '↑' : '↓' }} {{ number_format(abs((float)$variacaoPedidos), 1) }}%
                     </span>
                     @endif
                 </div>
@@ -138,7 +138,7 @@
                     </div>
                     @if(isset($variacaoFaturamento))
                     <span class="px-2 py-1 rounded-lg text-[10px] font-black {{ $variacaoFaturamento >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400' }}">
-                         {{ $variacaoFaturamento >= 0 ? '↑' : '↓' }} {{ abs(number_format($variacaoFaturamento, 1)) }}%
+                         {{ $variacaoFaturamento >= 0 ? '↑' : '↓' }} {{ number_format(abs((float)$variacaoFaturamento), 1) }}%
                     </span>
                     @endif
                 </div>
@@ -168,7 +168,7 @@
                     </div>
                     @if(isset($variacaoTicketMedio))
                     <span class="px-2 py-1 rounded-lg text-[10px] font-black {{ $variacaoTicketMedio >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400' }}">
-                         {{ $variacaoTicketMedio >= 0 ? '↑' : '↓' }} {{ abs(number_format($variacaoTicketMedio, 1)) }}%
+                         {{ $variacaoTicketMedio >= 0 ? '↑' : '↓' }} {{ number_format(abs((float)$variacaoTicketMedio), 1) }}%
                     </span>
                     @endif
                 </div>
