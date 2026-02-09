@@ -11,13 +11,14 @@ Route::get('/imagens-aplicacao/{filename}', [\App\Http\Controllers\StorageContro
     ->name('application.image')
     ->middleware([]);
 
-// Rota Pública da Landing Page
-Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'index'])->name('welcome');
-
-// Landing Page para Personalizados (subdomain em produção, rota fallback para dev)
+// Landing Page para Personalizados (subdomain em produção - DEVE VIR ANTES da rota principal)
 Route::domain('personalizados.vestalize.com')->group(function () {
     Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'personalizados'])->name('welcome.personalizados');
 });
+
+// Rota Pública da Landing Page (principal)
+Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'index'])->name('welcome');
+
 // Fallback route for local development
 Route::get('/lp-personalizados', [\App\Http\Controllers\WelcomeController::class, 'personalizados'])->name('welcome.personalizados.dev');
 Route::post('/save-lead', [\App\Http\Controllers\LeadController::class, 'store'])->name('leads.store');
