@@ -391,7 +391,7 @@
                                                     <!-- Nome da Arte -->
                                                     <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
                                                         <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Nome da Arte *</label>
-                                                        <input type="text" id="sub_wizard_art_name" required placeholder="Ex: Logo Empresa ABC" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500">
+                                                        <input type="text" id="sub_wizard_art_name" placeholder="Ex: Logo Empresa ABC" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500">
                                                     </div>
 
                                                     <!-- Tamanhos e Quantidades -->
