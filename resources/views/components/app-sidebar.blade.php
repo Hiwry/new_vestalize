@@ -278,13 +278,10 @@
             </div>
 
             <!-- GRUPO: ESTOQUE -->
-             @if(
-                Auth::user()->isAdminGeral()
-                || (
-                    (Auth::user()->isAdmin() || Auth::user()->isEstoque() || Auth::user()->isVendedor())
-                    && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('stock'))
-                )
-             )
+             @php
+                $canStock = Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('stock');
+            @endphp
+            @if($canStock && (Auth::user()->isAdminGeral() || Auth::user()->isAdmin() || Auth::user()->isEstoque() || Auth::user()->isVendedor()))
              <div class="mt-1">
                 <a href="{{ Auth::user()->isVendedor() ? route('stocks.view') : route('stocks.index') }}"
                    class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->routeIs('stocks.*') || request()->routeIs('fabric-pieces.*') || request()->routeIs('sewing-machines.*') || request()->routeIs('production-supplies.*') || request()->routeIs('uniforms.*') || request()->routeIs('stock-requests.*')) ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
@@ -343,13 +340,27 @@
             @endif
             @endif
 
-            <!-- GRUPO: PRODUÃÃO -->
-             @if(Auth::user()->isProducao() || Auth::user()->isAdmin())
+            <!-- LINK DIRETO: PERSONALIZADOS (para planos que só têm personalized, sem production) -->
             @php
                 $canProduction = Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('production');
                 $canPersonalized = Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('personalized');
             @endphp
-            @if($canProduction || $canPersonalized)
+            @if($canPersonalized && !$canProduction && (Auth::user()->isProducao() || Auth::user()->isAdmin()))
+            <div class="mt-1">
+                <a href="{{ route('personalized.orders.index') }}"
+                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('personalized.orders.*') || (request()->routeIs('kanban.index') && request()->get('type') == 'personalized') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   title="Personalizados">
+                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                        <i class="fa-solid fa-palette text-lg"></i>
+                    </div>
+                    <span class="ml-4" x-show="expanded">Personalizados</span>
+                </a>
+            </div>
+            @endif
+
+            <!-- GRUPO: PRODUÇÃO (só aparece se tiver acesso a production) -->
+            @if($canProduction && (Auth::user()->isProducao() || Auth::user()->isAdmin()))
             <div class="mt-1">
                 <button @click="toggleGroup('producao')"
                         class="flex items-center w-full text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
@@ -365,7 +376,6 @@
                 </button>
                 
                 <div x-show="openGroups.producao && expanded" x-collapse x-cloak class="space-y-1 my-1 px-2">
-                    @if($canProduction)
                     <a href="{{ route('production.dashboard') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('production.dashboard') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Dashboard
                     </a>
@@ -381,7 +391,6 @@
                     <a href="{{ route('production.edit-requests.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('production.edit-requests.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Solicitações de Edição
                     </a>
-                    @endif
                     @if($canPersonalized)
                     <a href="{{ route('personalized.orders.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('personalized.orders.index') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Personalizados
@@ -392,7 +401,6 @@
                     @endif
                 </div>
             </div>
-            @endif
             @endif
 
              @if((Auth::user()->isAdmin() || Auth::user()->isCaixa()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('financial')))

@@ -25,4 +25,18 @@ class WelcomeController extends Controller
 
         return view('landing.index', compact('plans'));
     }
+
+    /**
+     * Exibe a landing page para personalizados.
+     * Não redireciona para dashboard mesmo se logado - landing page deve ser sempre acessível.
+     */
+    public function personalizados(): View
+    {
+        $plans = Plan::query()
+            ->whereIn('slug', Plan::PUBLIC_SLUGS)
+            ->orderBy('price')
+            ->get();
+
+        return view('landing-personalizados.index', compact('plans'));
+    }
 }
