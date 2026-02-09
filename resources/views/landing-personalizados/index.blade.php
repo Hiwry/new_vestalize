@@ -15,8 +15,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    {{-- Vite CSS --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    {{-- CSS - Direct links for production compatibility --}}
+    <link rel="stylesheet" href="{{ asset('build/assets/app-PVde_q8D.css') }}">
     
     {{-- Landing Page CSS --}}
     <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
