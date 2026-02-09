@@ -48,10 +48,10 @@
 
             {{-- CTAs --}}
             <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto justify-center mt-6 lg:mt-8 animate-fade-in-up delay-500 px-4">
-                <a href="{{ route('register.public') }}" class="btn-primary text-sm sm:text-base py-3 px-6 w-full sm:w-auto text-center">
+                <a href="{{ route('register.public') }}" class="btn-primary text-sm sm:text-base py-3 px-8 w-full sm:w-auto text-center rounded-full shadow-lg shadow-purple-500/20">
                     Testar Grátis por 14 Dias
                 </a>
-                <a href="#workflow" class="btn-outline text-sm sm:text-base py-3 px-6 w-full sm:w-auto text-center">
+                <a href="#workflow" class="btn-outline text-sm sm:text-base py-3 px-8 w-full sm:w-auto text-center rounded-full border-purple-500/30 hover:bg-purple-500/5 transition-all">
                     Ver Como Funciona
                 </a>
             </div>
@@ -94,25 +94,25 @@
 
             {{-- Floating Badges (desktop only) --}}
             <div class="hidden lg:block">
-                <div class="floating-badge flex items-center gap-2" style="top: 10%; left: 3%; animation-delay: 0s;">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    Sublimação
+                <div class="floating-badge flex items-center gap-2 rounded-full !py-2 !px-4 bg-black/80 backdrop-blur-md border border-white/20 text-white shadow-2xl" style="top: 10%; left: 3%; animation-delay: 0s;">
+                    <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span class="font-semibold tracking-wide">Sublimação</span>
                 </div>
-                <div class="floating-badge flex items-center gap-2" style="top: 20%; right: 5%; animation-delay: 0.5s;">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-                    Camisetas
+                <div class="floating-badge flex items-center gap-2 rounded-full !py-2 !px-4 bg-black/80 backdrop-blur-md border border-white/20 text-white shadow-2xl" style="top: 20%; right: 5%; animation-delay: 0.5s;">
+                    <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                    <span class="font-semibold tracking-wide">Camisetas</span>
                 </div>
-                <div class="floating-badge flex items-center gap-2" style="top: 45%; left: 8%; animation-delay: 1s;">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-                    Canecas
+                <div class="floating-badge flex items-center gap-2 rounded-full !py-2 !px-4 bg-black/80 backdrop-blur-md border border-white/20 text-white shadow-2xl" style="top: 45%; left: 8%; animation-delay: 1s;">
+                    <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                    <span class="font-semibold tracking-wide">Canecas</span>
                 </div>
-                <div class="floating-badge flex items-center gap-2" style="top: 35%; right: 10%; animation-delay: 1.5s;">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
-                    Brindes
+                <div class="floating-badge flex items-center gap-2 rounded-full !py-2 !px-4 bg-black/80 backdrop-blur-md border border-white/20 text-white shadow-2xl" style="top: 35%; right: 10%; animation-delay: 1.5s;">
+                    <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+                    <span class="font-semibold tracking-wide">Brindes</span>
                 </div>
-                <div class="floating-badge flex items-center gap-2" style="top: 60%; right: 3%; animation-delay: 2s;">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
-                    DTF / Silk
+                <div class="floating-badge flex items-center gap-2 rounded-full !py-2 !px-4 bg-black/80 backdrop-blur-md border border-white/20 text-white shadow-2xl" style="top: 60%; right: 3%; animation-delay: 2s;">
+                    <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+                    <span class="font-semibold tracking-wide">DTF / Silk</span>
                 </div>
             </div>
         </div>
