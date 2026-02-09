@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use App\Models\CompanySetting;
@@ -143,15 +144,172 @@ class StockRequestController extends Controller
         $colors = ProductOption::where('type', 'cor')->where('active', true)->orderBy('name')->get();
         $cutTypes = ProductOption::where('type', 'tipo_corte')->where('active', true)->orderBy('name')->get();
         $sizes = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3'];
+
+        $normalizeOptionValue = static function (?string $value): ?string {
+            if ($value === null) {
+                return null;
+            }
+
+            $normalized = trim((string) $value);
+            if ($normalized === '') {
+                return null;
+            }
+
+            $normalized = Str::ascii($normalized);
+            $normalized = preg_replace('/[^A-Za-z0-9]+/', ' ', $normalized) ?? '';
+            $normalized = strtolower(trim($normalized));
+
+            return $normalized !== '' ? $normalized : null;
+        };
+
+        $buildOptionRecords = static function ($options) use ($normalizeOptionValue): array {
+            return $options
+                ->map(function ($option) use ($normalizeOptionValue) {
+                    return [
+                        'id' => (int) $option->id,
+                        'normalized_name' => $normalizeOptionValue((string) $option->name),
+                    ];
+                })
+                ->values()
+                ->all();
+        };
+
+        $fabricRecords = $buildOptionRecords($fabrics);
+        $colorRecords = $buildOptionRecords($colors);
+        $cutTypeRecords = $buildOptionRecords($cutTypes);
+
+        $resolveOptionId = static function (?string $rawValue, array $optionRecords) use ($normalizeOptionValue): ?int {
+            if ($rawValue === null) {
+                return null;
+            }
+
+            $value = trim((string) $rawValue);
+            if ($value === '') {
+                return null;
+            }
+
+            $candidates = [$value];
+            if (str_contains($value, '-')) {
+                $parts = array_values(array_filter(array_map('trim', explode('-', $value)), static fn ($part) => $part !== ''));
+                $candidates = array_merge($candidates, $parts);
+
+                if (count($parts) > 1) {
+                    $candidates[] = implode(' ', array_slice($parts, 1));
+                }
+            }
+
+            $candidates = array_values(array_unique($candidates));
+
+            foreach ($candidates as $candidate) {
+                if (!preg_match('/^\d+$/', $candidate)) {
+                    continue;
+                }
+
+                $candidateId = (int) $candidate;
+                foreach ($optionRecords as $optionRecord) {
+                    if ($optionRecord['id'] === $candidateId) {
+                        return $candidateId;
+                    }
+                }
+            }
+
+            $normalizedCandidates = array_values(array_filter(array_unique(array_map($normalizeOptionValue, $candidates))));
+            if (empty($normalizedCandidates)) {
+                return null;
+            }
+
+            foreach ($normalizedCandidates as $candidateNormalized) {
+                foreach ($optionRecords as $optionRecord) {
+                    if ($optionRecord['normalized_name'] === $candidateNormalized) {
+                        return $optionRecord['id'];
+                    }
+                }
+            }
+
+            $bestScore = -1;
+            $bestId = null;
+
+            foreach ($normalizedCandidates as $candidateNormalized) {
+                foreach ($optionRecords as $optionRecord) {
+                    $optionNormalized = $optionRecord['normalized_name'];
+                    if (!$optionNormalized) {
+                        continue;
+                    }
+
+                    $score = -1;
+                    if (str_contains($optionNormalized, $candidateNormalized)) {
+                        $score = strlen($candidateNormalized) + 100;
+                    } elseif (
+                        strlen($optionNormalized) >= 3
+                        && str_contains($candidateNormalized, $optionNormalized)
+                    ) {
+                        $score = strlen($optionNormalized) + 40;
+                    }
+
+                    if ($score > $bestScore) {
+                        $bestScore = $score;
+                        $bestId = $optionRecord['id'];
+                    }
+                }
+            }
+
+            return $bestScore >= 0 ? $bestId : null;
+        };
         
         // Pedidos recentes para solicitações vinculadas a pedidos (excluir vendas PDV)
         $recentOrders = Order::where(function($query) {
                 $query->where('is_pdv', false)
                       ->orWhereNull('is_pdv');
             })
+            ->with(['items' => function ($query) {
+                $query->select(['id', 'order_id', 'fabric', 'color', 'model'])
+                    ->orderBy('id');
+            }])
             ->orderBy('created_at', 'desc')
             ->limit(50)
-            ->get(['id', 'client_id', 'created_at']);
+            ->get(['id', 'client_id', 'created_at', 'store_id']);
+
+        $recentOrders->transform(function ($order) use ($resolveOptionId, $fabricRecords, $colorRecords, $cutTypeRecords) {
+            $preferredItem = $order->items->first(function ($item) {
+                $fabric = trim((string) $item->getRawOriginal('fabric'));
+                $color = trim((string) $item->getRawOriginal('color'));
+                $model = trim((string) $item->getRawOriginal('model'));
+
+                return $fabric !== '' || $color !== '' || $model !== '';
+            }) ?? $order->items->first();
+
+            $normalize = function (?string $value): ?string {
+                if ($value === null) {
+                    return null;
+                }
+
+                $trimmed = trim($value);
+                if ($trimmed === '') {
+                    return null;
+                }
+
+                return $trimmed;
+            };
+
+            $rawFabric = $preferredItem ? $normalize((string) $preferredItem->getRawOriginal('fabric')) : null;
+            $rawColor = $preferredItem ? $normalize((string) $preferredItem->getRawOriginal('color')) : null;
+            $rawCutType = $preferredItem ? $normalize((string) $preferredItem->getRawOriginal('model')) : null;
+
+            $order->default_store_id = $order->store_id;
+            $order->default_fabric_id = $resolveOptionId($rawFabric, $fabricRecords);
+            $order->default_color_id = $resolveOptionId($rawColor, $colorRecords);
+            $order->default_cut_type_id = $resolveOptionId($rawCutType, $cutTypeRecords);
+
+            // Mantem fallback textual para casos em que o cadastro nao tenha correspondencia.
+            $order->default_fabric = $rawFabric;
+            $order->default_color = $rawColor;
+            $order->default_cut_type = $rawCutType;
+
+            // Remover relação para reduzir payload no view
+            $order->unsetRelation('items');
+
+            return $order;
+        });
 
         return view('stock-requests.index', compact('requests', 'stores', 'statuses', 'status', 'storeId', 'fabrics', 'colors', 'cutTypes', 'sizes', 'recentOrders'));
     }
@@ -175,6 +333,13 @@ class StockRequestController extends Controller
 
         // Verificar permissão
         if (!StoreHelper::canAccessStore($validated['requesting_store_id'])) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não tem permissão para acessar esta loja.'
+                ], 403);
+            }
+
             return redirect()->back()->with('error', 'Você não tem permissão para acessar esta loja.');
         }
 
@@ -217,8 +382,6 @@ class StockRequestController extends Controller
         if ($stockRequest->order_id) {
             $order = Order::find($stockRequest->order_id);
             if ($order && $order->stock_separation_status !== 'in_separation') {
-                $order->update(['stock_separation_status' => 'in_separation']);
-                
                 OrderLog::create([
                     'order_id' => $order->id,
                     'user_id' => Auth::id(),
@@ -227,6 +390,8 @@ class StockRequestController extends Controller
                     'description' => 'Estoque entrou em separação',
                 ]);
             }
+
+            $this->refreshOrderStockSeparationStatus($stockRequest->order_id);
         }
         
         // Notificar lojas
@@ -397,6 +562,7 @@ class StockRequestController extends Controller
                     $order->update([
                         'stock_status' => $pendingCount > 0 ? 'partial' : 'total',
                     ]);
+                    $this->refreshOrderStockSeparationStatus($order->id);
 
                     OrderLog::create([
                         'order_id' => $order->id,
@@ -499,7 +665,9 @@ class StockRequestController extends Controller
             if ($stock && $stock->reserved_quantity > 0) {
                 $stock->release($stockRequest->requested_quantity, Auth::id(), $stockRequest->order_id, $stockRequest->id, 'Solicitação rejeitada - Liberação de reserva');
             }
-            
+
+            $this->refreshOrderStockSeparationStatus($stockRequest->order_id);
+             
             if ($request->wantsJson()) {
                 return response()->json(['success' => true, 'message' => 'Solicitação rejeitada com sucesso.']);
             }
@@ -527,7 +695,9 @@ class StockRequestController extends Controller
                 'status' => 'concluido',
                 'updated_at' => now()
             ]);
-            
+
+            $this->refreshOrderStockSeparationStatus($stockRequest->order_id);
+             
             if ($request->wantsJson()) {
                 return response()->json(['success' => true, 'message' => 'Solicitação concluída.']);
             }
@@ -538,6 +708,44 @@ class StockRequestController extends Controller
                 return response()->json(['success' => false, 'message' => 'Erro ao concluir: ' . $e->getMessage()], 500);
             }
             return redirect()->back()->with('error', 'Erro ao concluir.' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Recalcula o status de separação do pedido com base nas solicitações de estoque.
+     */
+    private function refreshOrderStockSeparationStatus(?int $orderId): void
+    {
+        if (!$orderId) {
+            return;
+        }
+
+        $order = Order::find($orderId);
+        if (!$order) {
+            return;
+        }
+
+        $requestsQuery = StockRequest::where('order_id', $orderId);
+
+        $hasRequests = (clone $requestsQuery)->exists();
+        $pendingCount = (clone $requestsQuery)->where('status', 'pendente')->count();
+        $hasSeparatedItems = (clone $requestsQuery)
+            ->whereIn('status', ['aprovado', 'em_transferencia', 'concluido'])
+            ->exists();
+
+        if ($pendingCount > 0) {
+            $newStatus = 'in_separation';
+        } elseif ($hasSeparatedItems) {
+            $newStatus = 'completed';
+        } elseif ($hasRequests) {
+            $newStatus = 'not_required';
+        } else {
+            $newStatus = 'pending';
+        }
+
+        if ($order->stock_separation_status !== $newStatus) {
+            $order->stock_separation_status = $newStatus;
+            $order->save();
         }
     }
 
