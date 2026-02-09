@@ -35,7 +35,7 @@ class OrderObserver
      */
     private function releaseReservedStock(Order $order): void
     {
-        Log::info('🔓 OrderObserver: Liberando estoque reservado para pedido cancelado/excluído', [
+        Log::info(' OrderObserver: Liberando estoque reservado para pedido cancelado/excluído', [
             'order_id' => $order->id,
         ]);
 
@@ -76,7 +76,7 @@ class OrderObserver
 
                     $releasedCount++;
 
-                    Log::info('✅ Estoque liberado', [
+                    Log::info(' Estoque liberado', [
                         'stock_id' => $stock->id,
                         'stock_request_id' => $stockRequest->id,
                         'quantity_released' => $quantityToRelease,
@@ -102,7 +102,7 @@ class OrderObserver
             }
         }
 
-        Log::info('🔓 OrderObserver: Liberação de estoque concluída', [
+        Log::info(' OrderObserver: Liberação de estoque concluída', [
             'order_id' => $order->id,
             'total_requests' => $stockRequests->count(),
             'released' => $releasedCount,

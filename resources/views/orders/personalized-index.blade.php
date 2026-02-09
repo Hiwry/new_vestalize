@@ -225,8 +225,11 @@
                                 {{ $order->status->name ?? 'Indefinido' }}
                             </span>
                             @if($order->has_pending_cancellation)
-                            <span class="text-[9px] font-bold text-yellow-600 dark:text-yellow-500 uppercase px-1 tracking-tighter animate-pulse">
-                                ⏳ Aguardando Cancelamento
+                            <span class="text-[9px] font-bold text-yellow-600 dark:text-yellow-500 uppercase px-1 tracking-tighter animate-pulse inline-flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 2h8m-8 20h8M9 2v6l3 3 3-3V2M9 22v-6l3-3 3 3v6"></path>
+                                </svg>
+                                Aguardando Cancelamento
                             </span>
                             @endif
                         </div>

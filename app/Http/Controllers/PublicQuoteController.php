@@ -84,7 +84,7 @@ class PublicQuoteController extends Controller
                    "• Empresa: " . ($data['contact']['company'] ?? 'N/A') . "\n" .
                    "• WhatsApp: {$data['contact']['phone']}\n" .
                    "• Logo: " . ($data['has_logo'] ? 'Anexado' : 'Não possui') . "\n\n" .
-                   "📄 *Baixe o PDF do Orçamento aqui:* " . $pdfUrl . "\n\n" .
+                   " *Baixe o PDF do Orçamento aqui:* " . $pdfUrl . "\n\n" .
                    "Gostaria de receber um orçamento detalhado para este pedido. Obrigado!";
         
         $whatsappUrl = "https://wa.me/{$phone}?text=" . urlencode($message);

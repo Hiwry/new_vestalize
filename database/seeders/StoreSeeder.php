@@ -22,9 +22,9 @@ class StoreSeeder extends Seeder
                 'active' => true,
             ]);
             
-            $this->command->info('✅ Loja principal criada com sucesso!');
+            $this->command->info(' Loja principal criada com sucesso!');
         } else {
-            $this->command->info('ℹ️  Loja principal já existe.');
+            $this->command->info('[INFO] Loja principal já existe.');
         }
     }
 }

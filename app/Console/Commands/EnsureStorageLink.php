@@ -43,10 +43,10 @@ class EnsureStorageLink extends Command
                 $normalizedTarget = $this->normalizePath($target);
                 
                 if ($normalizedLinkTarget === $normalizedTarget) {
-                    $this->info('✓ Symlink já existe e está correto.');
+                    $this->info(' Symlink já existe e está correto.');
                     return Command::SUCCESS;
                 } else {
-                    $this->warn('⚠ Symlink existe mas aponta para local incorreto.');
+                    $this->warn(' Symlink existe mas aponta para local incorreto.');
                     $this->line("  Atual: {$linkTarget}");
                     $this->line("  Esperado: {$target}");
                     
@@ -55,7 +55,7 @@ class EnsureStorageLink extends Command
                     }
                 }
             } else {
-                $this->warn('⚠ public/storage existe mas não é um symlink (pode ser um diretório).');
+                $this->warn(' public/storage existe mas não é um symlink (pode ser um diretório).');
                 
                 if (!$this->confirm('Deseja remover e criar um symlink?', true)) {
                     return Command::FAILURE;
@@ -67,7 +67,7 @@ class EnsureStorageLink extends Command
         if (!File::exists($target)) {
             $this->info('Criando diretório storage/app/public...');
             File::makeDirectory($target, 0755, true);
-            $this->info('✓ Diretório criado.');
+            $this->info(' Diretório criado.');
         }
 
         // Remover link/diretório existente se necessário
@@ -76,11 +76,11 @@ class EnsureStorageLink extends Command
                 $this->info('Removendo symlink existente...');
                 @unlink($link);
             } elseif (is_dir($link)) {
-                $this->warn('⚠ public/storage é um diretório. Removendo...');
+                $this->warn(' public/storage é um diretório. Removendo...');
                 try {
                     File::deleteDirectory($link);
                 } catch (\Exception $e) {
-                    $this->error("✗ Erro ao remover diretório: {$e->getMessage()}");
+                    $this->error(" Erro ao remover diretório: {$e->getMessage()}");
                     $this->warn('  Você pode precisar remover manualmente o diretório public/storage');
                     return Command::FAILURE;
                 }
@@ -99,10 +99,10 @@ class EnsureStorageLink extends Command
                 if (function_exists('symlink')) {
                     $result = symlink($target, $link);
                     if ($result) {
-                        $this->info('✓ Symlink criado com sucesso!');
+                        $this->info(' Symlink criado com sucesso!');
                         return Command::SUCCESS;
                     } else {
-                        $this->error('✗ Falha ao criar symlink. Verifique as permissões.');
+                        $this->error(' Falha ao criar symlink. Verifique as permissões.');
                         $this->warn('  No Windows, você pode precisar executar como administrador.');
                         $this->warn('  Ou usar: mklink /J "' . str_replace('/', '\\', $link) . '" "' . str_replace('/', '\\', $target) . '"');
                         return Command::FAILURE;
@@ -118,10 +118,10 @@ class EnsureStorageLink extends Command
                     exec("mklink /J \"$linkWin\" \"$targetWin\"", $output, $return);
                     
                     if ($return === 0) {
-                        $this->info('✓ Junction criada com sucesso!');
+                        $this->info(' Junction criada com sucesso!');
                         return Command::SUCCESS;
                     } else {
-                        $this->error('✗ Falha ao criar junction.');
+                        $this->error(' Falha ao criar junction.');
                         $this->warn('  Execute o PowerShell como administrador e execute:');
                         $this->line("  mklink /J \"$linkWin\" \"$targetWin\"");
                         return Command::FAILURE;
@@ -131,15 +131,15 @@ class EnsureStorageLink extends Command
                 // Linux/Unix: criar symlink normal
                 $result = symlink($target, $link);
                 if ($result) {
-                    $this->info('✓ Symlink criado com sucesso!');
+                    $this->info(' Symlink criado com sucesso!');
                     return Command::SUCCESS;
                 } else {
-                    $this->error('✗ Falha ao criar symlink. Verifique as permissões.');
+                    $this->error(' Falha ao criar symlink. Verifique as permissões.');
                     return Command::FAILURE;
                 }
             }
         } catch (\Exception $e) {
-            $this->error("✗ Erro ao criar symlink: {$e->getMessage()}");
+            $this->error(" Erro ao criar symlink: {$e->getMessage()}");
             Log::error('Erro ao criar symlink de storage', [
                 'link' => $link,
                 'target' => $target,

@@ -130,7 +130,7 @@
         <!-- Faturamento -->
         <div class="group relative rounded-3xl bg-card-bg border border-border p-8 transition-all duration-300 {{ Auth::user()->tenant && !Auth::user()->tenant->canAccess('financial') ? 'opacity-75 grayscale' : 'hover:border-emerald-500/50 hover-lift shadow-2xl' }} overflow-hidden">
             <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors"></div>
-            @if(Auth::user()->tenant && Auth::user()->tenant->canAccess('financial'))
+            @if(!Auth::user()->tenant || Auth::user()->tenant->canAccess('financial'))
             <div class="flex flex-col h-full justify-between gap-6">
                 <div class="flex items-start justify-between">
                     <div class="w-14 h-14 rounded-2xl bg-emerald-600 flex items-center justify-center text-white text-2xl group-hover:scale-110 transition-transform shadow-inner">
@@ -212,7 +212,7 @@
 
 <!-- Sales Channels Grid -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-    @if(Auth::user()->tenant && Auth::user()->tenant->canAccess('pdv'))
+    @if(!Auth::user()->tenant || Auth::user()->tenant->canAccess('pdv'))
     <div class="rounded-3xl bg-card-bg border border-border p-6 hover-lift transition-all">
         <div class="flex items-center justify-between mb-4">
             <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white">
@@ -250,7 +250,7 @@
         </div>
     </div>
 
-    @if(Auth::user()->tenant && Auth::user()->tenant->canAccess('financial'))
+    @if(!Auth::user()->tenant || Auth::user()->tenant->canAccess('financial'))
     <div class="rounded-3xl bg-card-bg border border-border p-6 hover-lift transition-all">
         <div class="flex items-center justify-between mb-4">
             <div class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white">
@@ -326,7 +326,7 @@
              @if(isset($faturamentoPorLoja) && $faturamentoPorLoja->count() > 1) Performance por Unidade @else Evolução Mensal @endif
         </h2>
         <div style="height: 320px; position: relative;">
-            @if(Auth::user()->tenant && Auth::user()->tenant->canAccess('financial'))
+            @if(!Auth::user()->tenant || Auth::user()->tenant->canAccess('financial'))
                 <canvas id="{{ (isset($faturamentoPorLoja) && $faturamentoPorLoja->count() > 1) ? 'faturamentoLojaChart' : 'faturamentoMensalChart' }}"></canvas>
             @else
                 <div class="flex flex-col items-center justify-center h-full text-center space-y-4">
@@ -429,7 +429,7 @@
             </div>
         </div>
         @endif
-    @elseif(Auth::user()->tenant && Auth::user()->tenant->canAccess('financial'))
+    @elseif(!Auth::user()->tenant || Auth::user()->tenant->canAccess('financial'))
     <div class="rounded-3xl bg-card-bg border border-border overflow-hidden shadow-2xl transition-all hover:border-red-500/30">
         <div class="px-8 py-6 border-b border-border bg-primary/5 flex items-center justify-between">
             <h2 class="text-lg font-black text-adaptive italic tracking-tight">Contas a Receber</h2>

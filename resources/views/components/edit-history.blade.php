@@ -280,7 +280,7 @@ if (!function_exists('getFieldLabel')) {
                                                         <div class="bg-white dark:bg-gray-700 rounded-md p-3 border border-orange-200">
                                                             @if($itemChange['type'] === 'modified' && isset($itemChange['changes']))
                                                                 <div class="flex items-center space-x-2 mb-2">
-                                                                    <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">✏️ Modificado</span>
+                                                                    <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded"> Modificado</span>
                                                                     <span class="text-xs text-gray-500">Item #{{ $itemId }}</span>
                                                                 </div>
                                                                 <div class="space-y-2">
@@ -298,12 +298,12 @@ if (!function_exists('getFieldLabel')) {
                                                                 </div>
                                                             @elseif($itemChange['type'] === 'added' && isset($itemChange['data']))
                                                                 <div class="flex items-center space-x-2">
-                                                                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">✨ Adicionado</span>
+                                                                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded"> Adicionado</span>
                                                                     <span class="text-xs text-gray-700">{{ $itemChange['data']['quantity'] ?? 0 }} un - {{ $itemChange['data']['print_type'] ?? 'N/A' }}</span>
                                                                 </div>
                                                             @elseif($itemChange['type'] === 'removed' && isset($itemChange['data']))
                                                                 <div class="flex items-center space-x-2">
-                                                                    <span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded">🗑️ Removido</span>
+                                                                    <span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded"> Removido</span>
                                                                     <span class="text-xs text-gray-700">{{ $itemChange['data']['quantity'] ?? 0 }} un - {{ $itemChange['data']['print_type'] ?? 'N/A' }}</span>
                                                 </div>
                                                             @endif
@@ -313,7 +313,7 @@ if (!function_exists('getFieldLabel')) {
                                                         @if(is_array($itemChange))
                                                             <div class="bg-white dark:bg-gray-700 rounded-md p-3 border border-orange-200">
                                                                 <div class="flex items-center space-x-2 mb-2">
-                                                                    <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded">📦 Item</span>
+                                                                    <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded"> Item</span>
                                                                     <span class="text-xs text-gray-500">#{{ $itemId }}</span>
                                                                 </div>
                                                                 <div class="grid grid-cols-2 gap-2 text-xs">
@@ -390,7 +390,7 @@ if (!function_exists('getFieldLabel')) {
                                                                 @endif
                                                                 @if(isset($itemChange['art_name']))
                                                                     <div class="mt-2 bg-purple-50 p-2 rounded text-xs">
-                                                                        <span class="text-purple-700 font-medium">🎨 Arte: </span>
+                                                                        <span class="text-purple-700 font-medium"> Arte: </span>
                                                                         <span class="text-purple-900">{{ $itemChange['art_name'] }}</span>
                                                                     </div>
                                                                 @endif
@@ -402,7 +402,7 @@ if (!function_exists('getFieldLabel')) {
                                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
                                                                             </svg>
                                                                             <span class="text-xs font-semibold text-indigo-900">
-                                                                                🎨 Personalização: {{ $itemChange['print_type'] }}
+                                                                                 Personalização: {{ $itemChange['print_type'] }}
                                                                                 @php
                                                                                     $subCount = 0;
                                                                                     if(isset($itemChange['sublimations'])) {
@@ -482,7 +482,7 @@ if (!function_exists('getFieldLabel')) {
                                                                                     </div>
                                                                                     @if(isset($sublimation['files']) && is_array($sublimation['files']) && !empty($sublimation['files']))
                                                                                         <div class="mt-2 bg-white p-2 rounded">
-                                                                                            <span class="text-xs text-gray-600">📎 Arquivos: </span>
+                                                                                            <span class="text-xs text-gray-600"> Arquivos: </span>
                                                                                             <span class="text-xs text-gray-900 font-medium">{{ count($sublimation['files']) }} arquivo(s)</span>
                                                                                         </div>
                                                                                     @endif

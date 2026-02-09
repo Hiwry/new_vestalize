@@ -75,7 +75,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <a href="{{ route('admin.sublimation-prices.edit', $size) }}" 
                                    class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                    ✏️ Editar Preços
+                                     Editar Preços
                                 </a>
                             </td>
                         </tr>

@@ -20,7 +20,7 @@
     @endphp
     <title>Catálogo{{ $companySettings->company_name ? ' - ' . $companySettings->company_name : '' }}</title>
 
-    <!-- ⚡ CRITICAL: Prevenir flash aplicando tema ANTES de qualquer renderização -->
+    <!--  CRITICAL: Prevenir flash aplicando tema ANTES de qualquer renderização -->
     <script>
         (function() {
             try {
@@ -187,7 +187,7 @@
         <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-8 sm:mt-12">
             <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6">
                 <p class="text-center text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
-                    © {{ date('Y') }} {{ $companySettings->company_name ?? config('app.name', 'Laravel') }}. Todos os direitos reservados.
+                    Copyright {{ date('Y') }} {{ $companySettings->company_name ?? config('app.name', 'Laravel') }}. Todos os direitos reservados.
                 </p>
             </div>
         </footer>

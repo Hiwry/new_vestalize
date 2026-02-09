@@ -113,7 +113,7 @@ const Footer = () => {
 
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-12 pt-8 border-t border-border">
                     <p className="text-sm text-muted-foreground">
-                        © {new Date().getFullYear()} Avento. All rights reserved.
+                        Copyright {new Date().getFullYear()} Avento. All rights reserved.
                     </p>
 
                     <div className="flex items-center gap-4">

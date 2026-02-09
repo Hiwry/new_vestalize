@@ -67,7 +67,7 @@
                     :class="copied ? 'bg-green-500 text-white' : 'bg-green-600 hover:bg-green-700 text-white'"
                 >
                     <span x-show="!copied">Copiar</span>
-                    <span x-show="copied">✓ Copiado!</span>
+                    <span x-show="copied"> Copiado!</span>
                 </button>
             </div>
         </div>

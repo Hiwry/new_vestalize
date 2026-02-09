@@ -65,12 +65,20 @@
 
         try {
             // Fetch the PaymentIntent client secret
+            const params = new URLSearchParams(window.location.search);
+            const method = params.get('method');
+            const coupon = params.get('coupon');
+
             const response = await fetch("{{ route('subscription.create-intent', $plan) }}", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": "{{ csrf_token() }}"
                 },
+                body: JSON.stringify({
+                    method: method || null,
+                    coupon_code: coupon || null
+                }),
             });
 
             if (!response.ok) {

@@ -18,7 +18,7 @@ class RecalculateOrderSurcharges extends Command
         $dryRun = $this->option('dry-run');
         
         if ($dryRun) {
-            $this->info('🔍 DRY RUN MODE - No changes will be made');
+            $this->info(' DRY RUN MODE - No changes will be made');
         }
 
         $orders = Order::with('items', 'payments')
@@ -53,13 +53,13 @@ class RecalculateOrderSurcharges extends Command
         $this->newLine(2);
 
         if ($dryRun) {
-            $this->info("📊 Summary (DRY RUN):");
+            $this->info(" Summary (DRY RUN):");
             $this->info("   Orders that would be updated: {$updatedCount}");
             $this->info("   Total difference: R$ " . number_format($totalDifference, 2, ',', '.'));
             $this->newLine();
             $this->warn("Run without --dry-run to apply changes.");
         } else {
-            $this->info("✅ Recalculation complete!");
+            $this->info(" Recalculation complete!");
             $this->info("   Orders updated: {$updatedCount}");
             $this->info("   Total difference: R$ " . number_format($totalDifference, 2, ',', '.'));
         }

@@ -590,19 +590,19 @@ class BudgetController extends Controller
      */
     public function finalize(Request $request)
     {
-        \Log::info('🚀 FINALIZE BUDGET - Iniciando');
+        \Log::info(' FINALIZE BUDGET - Iniciando');
         
         $budgetData = Session::get('budget_data', []);
         $items = Session::get('budget_items', []);
         
-        \Log::info('📊 Dados da sessão:', [
+        \Log::info(' Dados da sessão:', [
             'budget_data' => $budgetData,
             'items_count' => count($items),
             'customizations_count' => count(Session::get('budget_customizations', []))
         ]);
         
         if (empty($budgetData) || empty($items)) {
-            \Log::warning('❌ Dados de orçamento ou itens vazios');
+            \Log::warning(' Dados de orçamento ou itens vazios');
             return redirect()->route('budget.start')->with('error', 'Nenhum dado de orçamento encontrado.');
         }
 
@@ -713,13 +713,13 @@ class BudgetController extends Controller
             Session::forget('budget_items');
             Session::forget('budget_customizations');
 
-            \Log::info('✅ Orçamento criado com sucesso!', ['budget_id' => $budget->id]);
+            \Log::info(' Orçamento criado com sucesso!', ['budget_id' => $budget->id]);
 
             return redirect()->route('budget.index')
                 ->with('success', 'Orçamento #' . $budget->budget_number . ' criado com sucesso!');
 
         } catch (\Exception $e) {
-            \Log::error('❌ Erro ao criar orçamento:', [
+            \Log::error(' Erro ao criar orçamento:', [
                 'error' => $e->getMessage(),
                 'line' => $e->getLine(),
                 'file' => $e->getFile(),
@@ -950,7 +950,7 @@ class BudgetController extends Controller
             abort(403, 'Você não tem permissão para converter orçamentos em pedidos.');
         }
 
-        \Log::info('🔄 Iniciando conversão de orçamento em pedido', [
+        \Log::info(' Iniciando conversão de orçamento em pedido', [
             'budget_id' => $id,
             'request_data' => $request->except(['_token', 'item_files', 'customization_images']),
             'has_files' => $request->hasFile('item_files'),
@@ -959,7 +959,7 @@ class BudgetController extends Controller
         
         // Verificar se o orçamento foi aprovado (para orçamentos normais)
         if (!$budget->is_quick && $budget->status !== 'approved') {
-            \Log::warning('❌ Tentativa de converter orçamento não aprovado', ['budget_id' => $id, 'status' => $budget->status]);
+            \Log::warning(' Tentativa de converter orçamento não aprovado', ['budget_id' => $id, 'status' => $budget->status]);
             return redirect()->route('budget.index')
                 ->with('error', 'Apenas orçamentos aprovados podem ser convertidos em pedidos.');
         }    
@@ -972,7 +972,7 @@ class BudgetController extends Controller
      */
     private function processConversion($budget, $request)
     {
-        \Log::info('📝 Validando dados do formulário');
+        \Log::info(' Validando dados do formulário');
         
         try {
             // Validação básica primeiro
@@ -998,7 +998,7 @@ class BudgetController extends Controller
                 'delivery_date.date' => 'Data de entrega inválida',
             ]);
             
-            \Log::info('📋 Dados de tamanhos recebidos', [
+            \Log::info(' Dados de tamanhos recebidos', [
                 'sizes' => $validated['sizes'] ?? [],
             ]);
             
@@ -1047,9 +1047,9 @@ class BudgetController extends Controller
                 }
             }
             
-            \Log::info('✅ Validação passou com sucesso');
+            \Log::info(' Validação passou com sucesso');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('❌ Erro de validação', [
+            \Log::error(' Erro de validação', [
                 'errors' => $e->errors()
             ]);
             throw $e;
@@ -1110,7 +1110,7 @@ class BudgetController extends Controller
                     ]);
                     $clientId = $newClient->id;
                     
-                    \Log::info('🆕 Novo cliente criado durante conversão', ['client_id' => $clientId, 'name' => $newClient->name]);
+                    \Log::info(' Novo cliente criado durante conversão', ['client_id' => $clientId, 'name' => $newClient->name]);
                 } else {
                     $clientId = $request->input('client_id');
                 }
@@ -1133,7 +1133,7 @@ class BudgetController extends Controller
                     
                     $filename = 'order_cover_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                     $coverImagePath = $file->storeAs('orders/covers', $filename, 'public');
-                    \Log::info('📸 Capa do pedido salva: ' . $coverImagePath);
+                    \Log::info(' Capa do pedido salva: ' . $coverImagePath);
                 } catch (\Exception $e) {
                     \Log::error('Erro ao salvar capa do pedido: ' . $e->getMessage());
                 }
@@ -1173,7 +1173,7 @@ class BudgetController extends Controller
                     }
                 }
                 
-                \Log::info('📏 Processando tamanhos do item', [
+                \Log::info(' Processando tamanhos do item', [
                     'item_index' => $index,
                     'raw_sizes' => $itemSizesRaw,
                     'processed_sizes' => $itemSizes,
@@ -1330,7 +1330,7 @@ class BudgetController extends Controller
                 'total' => $total,
             ]);
             
-            \Log::info('✅ Totais do pedido atualizados', [
+            \Log::info(' Totais do pedido atualizados', [
                 'order_id' => $order->id,
                 'subtotal' => $subtotal,
                 'discount' => $discount,
@@ -1404,7 +1404,7 @@ class BudgetController extends Controller
             // NÃO redirecionar para web wizard, mas sim para a visualização do pedido
             // session(['current_order_id' => $order->id]);
             
-            \Log::info('✅ Pedido criado e redirecionando para detalhes', ['order_id' => $order->id]);
+            \Log::info(' Pedido criado e redirecionando para detalhes', ['order_id' => $order->id]);
 
             return redirect()->route('orders.show', $order->id)
                 ->with('success', 'Orçamento #' . $budget->budget_number . ' convertido em pedido com sucesso!');
@@ -1758,7 +1758,7 @@ class BudgetController extends Controller
             $message .= "Modelo: " . ($budget->product_internal ?? 'Personalizado') . "\n";
             $message .= "Cor: -\n";
             $message .= "Tecido/ Malha: -\n";
-            $message .= "Serviço 🎨: {$budget->technique}\n";
+            $message .= "Serviço : {$budget->technique}\n";
             $message .= "Tabela de quantidade: {$budget->quantity} unidades\n";
             
             $pixPrice = $budget->unit_price * 0.95;
@@ -1825,7 +1825,7 @@ class BudgetController extends Controller
                 }
                 $servicesStr = implode(', ', array_unique($services));
                 
-                $message .= "Serviço 🎨: {$servicesStr}\n";
+                $message .= "Serviço : {$servicesStr}\n";
                 $message .= "Tabela de quantidade: {$item->quantity} unidades\n";
                 
                 $pixPrice = $finalUnitPrice * 0.95;
@@ -1834,23 +1834,23 @@ class BudgetController extends Controller
             }
         }
         
-        $message .= "🎨 Valor de redesenhar ou criar a arte: A combinar se for preciso.\n\n";
+        $message .= " Valor de redesenhar ou criar a arte: A combinar se for preciso.\n\n";
         
-        $message .= "📐 Valores referente aos tamanhos PP, P, M, G das básicas/regatas; e todos os tamanhos infantis/babylook.\n\n";
+        $message .= " Valores referente aos tamanhos PP, P, M, G das básicas/regatas; e todos os tamanhos infantis/babylook.\n\n";
         
         $message .= "Acréscimo de tamanho: GG aumenta R$2,00 e EXG aumenta R$4,00. Especial: A combinar.\n\n";
         
-        $message .= "Prazo de entrega padrão é de até 15 a 20 dias úteis. Converse conosco sobre seu prazo que vamos fazer o possível para ajudar você. 🗓\n\n";
+        $message .= "Prazo de entrega padrão é de até 15 a 20 dias úteis. Converse conosco sobre seu prazo que vamos fazer o possível para ajudar você. \n\n";
         
-        $message .= "💲Forma de pagamento:\n";
-        $message .= "💸 50% de entrada e 50% na entrega, se for em dinheiro ou pix.\n";
-        $message .= "💳 Pague por cartão de crédito de forma presencial ou virtual através de link. O valor pode ser parcelado e precisa ser pago integralmente na entrada do pedido.\n";
+        $message .= "Forma de pagamento:\n";
+        $message .= " 50% de entrada e 50% na entrega, se for em dinheiro ou pix.\n";
+        $message .= " Pague por cartão de crédito de forma presencial ou virtual através de link. O valor pode ser parcelado e precisa ser pago integralmente na entrada do pedido.\n";
         $message .= "* Para CNPJ aprovado emitimos boletos\n";
         $message .= "**Valor promocional para compras realizadas fisicamente com pagamento a dinheiro espécie.\n\n";
         
-        $message .= "📢 Esse é apenas o orçamento, no fechamento do pedido pode não ter o tecido e a cor correspondente, verificar a disponibilidade antes de fechar!\n\n";
+        $message .= " Esse é apenas o orçamento, no fechamento do pedido pode não ter o tecido e a cor correspondente, verificar a disponibilidade antes de fechar!\n\n";
         
-        $message .= "Estamos à disposição para maiores informações! 💟💰";
+        $message .= "Estamos à disposição para maiores informações! ";
 
         // Clean phone number (remove non-digits)
         $phone = preg_replace('/\D/', '', $contactPhone);

@@ -418,9 +418,9 @@ function initStockCreatePage() {
                         
                         // Verificar se foi selecionado
                         if (targetSelect.value == selectedTypeId) {
-                            console.log('✅ Tipo de tecido selecionado com sucesso:', targetSelect.options[targetSelect.selectedIndex]?.text);
+                            console.log(' Tipo de tecido selecionado com sucesso:', targetSelect.options[targetSelect.selectedIndex]?.text);
                         } else {
-                            console.warn('❌ Falha ao selecionar tipo de tecido:', selectedTypeId);
+                            console.warn(' Falha ao selecionar tipo de tecido:', selectedTypeId);
                         }
                     }
                 } else {

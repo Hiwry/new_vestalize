@@ -24,7 +24,7 @@ class StockService
      */
     public static function checkAndReserveForOrder(Order $order): array
     {
-        Log::info('🔍 StockService: Verificando estoque para pedido', ['order_id' => $order->id]);
+        Log::info(' StockService: Verificando estoque para pedido', ['order_id' => $order->id]);
         
         $resolveOptionId = function ($value, string $type, array $fallbackCandidates = []): ?int {
             if ($value === null || $value === '') {
@@ -142,7 +142,7 @@ class StockService
             $hasCompleteStock = $bestStoreId !== null;
             $targetStoreId = $bestStoreId ?? $storeId;
             
-            Log::info('📦 StockService: Resultado da busca de loja', [
+            Log::info(' StockService: Resultado da busca de loja', [
                 'order_id' => $order->id,
                 'item_id' => $item->id,
                 'preferred_store' => $storeId,
@@ -269,7 +269,7 @@ class StockService
                                         ]);
                                     }
                                     
-                                    Log::info('📨 Notificação de transferência enviada', [
+                                    Log::info(' Notificação de transferência enviada', [
                                         'target_store_id' => $targetStoreId,
                                         'users_notified' => $targetStoreUsers->count(),
                                     ]);
@@ -290,7 +290,7 @@ class StockService
                                 }
                             }
                             
-                            Log::info('✅ StockRequest criado com reserva automática (pendente)', [
+                            Log::info(' StockRequest criado com reserva automática (pendente)', [
                                 'stock_request_id' => $stockRequest->id,
                                 'order_id' => $order->id,
                                 'size' => $size,
@@ -427,7 +427,7 @@ class StockService
                         );
                     }
                     
-                    Log::info('📧 Email de transferência enviado', [
+                    Log::info(' Email de transferência enviado', [
                         'order_id' => $order->id,
                         'source_store' => $sourceStore->name,
                         'destination_store' => $destinationStore->name,
@@ -462,7 +462,7 @@ class StockService
             }
         }
         
-        Log::info('✅ StockService: Verificação concluída', [
+        Log::info(' StockService: Verificação concluída', [
             'order_id' => $order->id,
             'status' => $status,
             'requests_created' => $requestsCreated,
@@ -492,31 +492,31 @@ class StockService
             'total' => [
                 'label' => 'ESTOQUE TOTAL',
                 'color' => 'green',
-                'icon' => '✓',
+                'icon' => '',
                 'bg_class' => 'bg-green-100 text-green-800',
             ],
             'partial' => [
                 'label' => 'ESTOQUE PARCIAL',
                 'color' => 'yellow',
-                'icon' => '⚠',
+                'icon' => '',
                 'bg_class' => 'bg-yellow-100 text-yellow-800',
             ],
             'none' => [
                 'label' => 'SEM ESTOQUE',
                 'color' => 'red',
-                'icon' => '✗',
+                'icon' => '',
                 'bg_class' => 'bg-red-100 text-red-800',
             ],
             'reserved' => [
                 'label' => 'RESERVADO',
                 'color' => 'blue',
-                'icon' => '🔒',
+                'icon' => '',
                 'bg_class' => 'bg-blue-100 text-blue-800',
             ],
             'pending' => [
                 'label' => 'VERIFICANDO',
                 'color' => 'gray',
-                'icon' => '⏳',
+                'icon' => 'hourglass',
                 'bg_class' => 'bg-gray-100 text-gray-800',
             ],
             default => [
@@ -574,7 +574,7 @@ class StockService
                 ]);
             }
             
-            Log::info('📬 Notificações de solicitação de estoque enviadas', [
+            Log::info(' Notificações de solicitação de estoque enviadas', [
                 'stock_request_id' => $stockRequest->id,
                 'order_id' => $order->id,
                 'users_notified' => $stockUsers->count(),

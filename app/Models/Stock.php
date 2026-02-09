@@ -439,7 +439,7 @@ class Stock extends Model
             );
             
             if ($hasComplete) {
-                \Log::info('🏪 Stock::findBestStoreWithCompleteStock encontrou loja alternativa', [
+                \Log::info(' Stock::findBestStoreWithCompleteStock encontrou loja alternativa', [
                     'store_id' => $storeId,
                     'sizes' => $sizes,
                 ]);

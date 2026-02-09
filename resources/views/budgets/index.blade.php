@@ -191,7 +191,7 @@
                         <h3 class="font-semibold text-gray-900 dark:text-gray-100">
                             @if($budget->is_quick)
                                 {{ $budget->contact_name ?? 'Cliente' }}
-                                <span class="ml-1 px-1.5 py-0.5 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded">⚡ Rápido</span>
+                                <span class="ml-1 px-1.5 py-0.5 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded"> Rápido</span>
                             @else
                                 {{ $budget->client->name ?? 'Cliente' }}
                             @endif
@@ -293,7 +293,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                             @if($budget->is_quick)
                                 {{ $budget->contact_name ?? 'Contato' }}
-                                <span class="ml-1 px-1.5 py-0.5 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded">⚡</span>
+                                <span class="ml-1 px-1.5 py-0.5 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded"></span>
                             @else
                                 {{ $budget->client->name ?? 'Cliente' }}
                             @endif

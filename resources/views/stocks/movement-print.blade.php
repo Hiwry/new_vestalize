@@ -163,7 +163,7 @@
     </style>
 </head>
 <body>
-    <button class="print-button no-print" onclick="window.print()">🖨️ Imprimir</button>
+    <button class="print-button no-print" onclick="window.print()"> Imprimir</button>
 
     <div class="header">
         <h1>NOTA DE MOVIMENTAÇÃO DE ESTOQUE</h1>

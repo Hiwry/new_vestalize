@@ -399,7 +399,7 @@
                     <!-- Personalizações -->
                     @if($item->sublimations && $item->sublimations->count() > 0)
                     <div class="border-t border-gray-200 dark:border-slate-800 pt-4">
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white mb-2">🎨 Personalização:</p>
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white mb-2"> Personalização:</p>
                         @if($item->art_name)
                             <p class="text-sm text-gray-900 dark:text-white mb-2"><strong class="text-gray-900 dark:text-white">Nome da Arte:</strong> {{ $item->art_name }}</p>
                         @endif
@@ -898,7 +898,7 @@
                 <!-- Solicitações de Antecipação -->
                 @if($order->deliveryRequests && $order->deliveryRequests->count() > 0)
                 <div class="bg-white dark:bg-slate-900 rounded-lg shadow dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-slate-800 p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">📅 Solicitações</h2>
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4"> Solicitações</h2>
                     @foreach($order->deliveryRequests as $request)
                     <div class="mb-3 p-3 rounded {{ $request->status === 'pendente' ? 'bg-yellow-50 dark:bg-yellow-900/20' : ($request->status === 'aprovado' ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20') }} border {{ $request->status === 'pendente' ? 'border-yellow-200 dark:border-yellow-800/30' : ($request->status === 'aprovado' ? 'border-green-200 dark:border-green-800/30' : 'border-red-200 dark:border-red-800/30') }}">
                         <div class="flex justify-between items-start mb-2">

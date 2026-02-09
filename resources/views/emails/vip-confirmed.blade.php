@@ -5,7 +5,7 @@
 </head>
 <body style="font-family: sans-serif; background-color: #f4f4f9; padding: 20px;">
     <div style="max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-        <h1 style="color: #0f172a;">Você está na Lista VIP! 🚀</h1>
+        <h1 style="color: #0f172a;">Você está na Lista VIP! </h1>
         <p>Olá, {{ $lead->name }}!</p>
         <p>Confirmamos que você garantiu seu lugar na lista de espera para o lançamento do <strong>Vestalize</strong>.</p>
         <p>Como membro VIP, você terá acesso a:</p>

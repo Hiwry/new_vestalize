@@ -53,7 +53,7 @@ class UpdateSizeSurcharges extends Command
                 $surcharge
             );
             
-            $this->line("✓ {$surcharge['size']} - R$ {$surcharge['price_from']} a " . 
+            $this->line(" {$surcharge['size']} - R$ {$surcharge['price_from']} a " . 
                        ($surcharge['price_to'] ?? '∞') . ": R$ {$surcharge['surcharge']}");
         }
 

@@ -15,22 +15,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('🌱 Iniciando seeds do sistema...');
+        $this->command->info(' Iniciando seeds do sistema...');
 
         // Loja Principal (deve ser criada primeiro)
-        $this->command->info('🏪 Criando loja principal...');
+        $this->command->info(' Criando loja principal...');
         $this->call(StoreSeeder::class);
 
         // Usuários
-        $this->command->info('📝 Criando usuários...');
+        $this->command->info(' Criando usuários...');
         $this->call(UserSeeder::class);
 
         // Status padrão para o Kanban
-        $this->command->info('📊 Criando status...');
+        $this->command->info(' Criando status...');
         $this->call(StatusSeeder::class);
 
         // Parâmetros iniciais de preços
-        $this->command->info('⚙️  Configurando parâmetros...');
+        $this->command->info('  Configurando parâmetros...');
         $settings = [
             ['key' => 'price.serigrafia.a4', 'value' => '59.40', 'type' => 'decimal'],
             ['key' => 'price.dtf.a4', 'value' => '59.40', 'type' => 'decimal'],
@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // Opções de produtos e preços
-        $this->command->info('🏷️  Criando opções de produtos e preços...');
+        $this->command->info('  Criando opções de produtos e preços...');
         $this->call([
             ProductOptionSeeder::class,
             PersonalizationPriceSeeder::class,
@@ -57,6 +57,6 @@ class DatabaseSeeder extends Seeder
             LisasSeeder::class,
         ]);
 
-        $this->command->info('✅ Seeds concluídos com sucesso!');
+        $this->command->info(' Seeds concluídos com sucesso!');
     }
 }

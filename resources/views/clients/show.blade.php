@@ -234,8 +234,11 @@
                                                     </span>
                                                     @if($order->has_pending_cancellation)
                                                     <div>
-                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
-                                                            ⏳ Pendente
+                                                        <span class="px-2 inline-flex items-center gap-1 text-xs leading-5 font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
+                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 2h8m-8 20h8M9 2v6l3 3 3-3V2M9 22v-6l3-3 3 3v6"></path>
+                                                            </svg>
+                                                            Pendente
                                                         </span>
                                                     </div>
                                                     @endif

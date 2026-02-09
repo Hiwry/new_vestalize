@@ -176,11 +176,11 @@
         .text-adaptive-muted { color: var(--muted); }
 
         /* Texto */
-        .dark .text-gray-900, .dark .text-slate-900, .dark .text-zinc-900, .dark .text-white { color: var(--foreground) !important; }
+        .dark .text-gray-900, .dark .text-slate-900, .dark .text-zinc-900, .dark .text-white { color: var(--foreground); }
         .text-gray-800, .text-gray-700, .text-gray-600, .text-gray-500, .text-gray-400,
         .text-slate-800, .text-slate-700, .text-slate-600, .text-slate-500, .text-slate-400,
         .dark .text-gray-300, .dark .text-gray-400, .dark .text-zinc-400, .dark .text-slate-400 {
-            color: var(--muted) !important;
+            color: var(--muted);
         }
         /* Cards e sombras */
         .shadow, .shadow-sm, .shadow-md, .shadow-lg { box-shadow: var(--shadow) !important; }
@@ -188,7 +188,7 @@
         /* Inputs */
         input, select, textarea {
             background-color: var(--input-bg) !important;
-            color: var(--foreground) !important;
+            color: var(--foreground);
             border-color: var(--border) !important;
         }
 
@@ -221,7 +221,7 @@
         
         /* Sobrescrever algumas classes do Tailwind para usar a cor da marca */
         .text-indigo-600 { color: var(--brand-primary-text) !important; }
-        .bg-indigo-600 { background-color: var(--brand-primary) !important; color: var(--brand-primary-content) !important; }
+        .bg-indigo-600 { background-color: var(--brand-primary) !important; color: #ffffff !important; }
         .focus\:ring-indigo-500:focus { --tw-ring-color: var(--brand-primary) !important; }
         .border-indigo-500 { border-color: var(--brand-primary) !important; }
         /* Gradient uses primary BG color */
@@ -230,13 +230,13 @@
 
         /* Secondary Color Mappings (Purple -> Secondary) */
         .text-purple-600 { color: var(--brand-secondary) !important; }
-        .bg-purple-600 { background-color: var(--brand-secondary) !important; }
+        .bg-purple-600 { background-color: var(--brand-secondary) !important; color: #ffffff !important; }
         .border-purple-600 { border-color: var(--brand-secondary) !important; }
         .focus\:ring-purple-500:focus { --tw-ring-color: var(--brand-secondary) !important; }
 
         /* Blue Mappings (Blue -> Primary) - Harmonize Dashboard/Sidebar */
         .text-blue-600 { color: var(--brand-primary-text) !important; }
-        .bg-blue-600 { background-color: var(--brand-primary) !important; }
+        .bg-blue-600 { background-color: var(--brand-primary) !important; color: #ffffff !important; }
         .border-blue-600 { border-color: var(--brand-primary) !important; }
 
         /* ========================================
@@ -639,8 +639,10 @@
         /* Force white text on any element with text-white class */
         .text-white,
         button.text-white,
-        a.text-white {
+        a.text-white,
+        .stay-white {
             color: #ffffff !important;
+            fill: #ffffff !important;
         }
     </style>
     

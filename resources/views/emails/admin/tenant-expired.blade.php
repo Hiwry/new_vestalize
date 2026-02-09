@@ -1,5 +1,5 @@
 <x-mail::message>
-# ⚠️ Atenção, Admin!
+#  Atenção, Admin!
 
 O período de **{{ $type }}** da empresa **{{ $tenant->name }}** venceu hoje (ou está vencendo).
 

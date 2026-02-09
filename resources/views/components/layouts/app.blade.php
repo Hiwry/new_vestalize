@@ -7,7 +7,7 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- ⚡ Dark Mode Script INLINE - Executar ANTES de qualquer renderização -->
+        <!--  Dark Mode Script INLINE - Executar ANTES de qualquer renderização -->
         <script>
             (function() {
                 const isDarkMode = localStorage.getItem('dark') === 'true';

@@ -307,16 +307,16 @@
                                                             <div class="flex-1">
                                                                 <div class="flex items-center space-x-4 text-sm">
                                                                     @if($pers->location_name)
-                                                                        <span class="text-gray-600 dark:text-slate-400">📍 {{ $pers->location_name }}</span>
+                                                                        <span class="text-gray-600 dark:text-slate-400"> {{ $pers->location_name }}</span>
                                                                     @endif
                                                                     @if($pers->size_name)
-                                                                        <span class="text-gray-600 dark:text-slate-400">📏 {{ $pers->size_name }}</span>
+                                                                        <span class="text-gray-600 dark:text-slate-400"> {{ $pers->size_name }}</span>
                                                                     @endif
                                                                     @if($pers->quantity)
-                                                                        <span class="text-gray-600 dark:text-slate-400">🔢 {{ $pers->quantity }} peças</span>
+                                                                        <span class="text-gray-600 dark:text-slate-400"> {{ $pers->quantity }} peças</span>
                                                                     @endif
                                                                     @if($pers->final_price)
-                                                                        <span class="text-indigo-600 dark:text-indigo-400 font-semibold">💰 R$ {{ number_format($pers->final_price, 2, ',', '.') }}</span>
+                                                                        <span class="text-indigo-600 dark:text-indigo-400 font-semibold"> R$ {{ number_format($pers->final_price, 2, ',', '.') }}</span>
                                                                     @endif
                                                                 </div>
                                                             </div>
@@ -537,7 +537,7 @@
 
 @push('scripts')
 <script>
-        console.log("🚀 Script de personalização carregado!");
+        console.log(" Script de personalização carregado!");
 
         // --- FUNÇÕES DE ADICIONAIS (Placeholder) ---
         function calculateAddonsTotal() {
@@ -1308,7 +1308,7 @@
                     const sizeMB = (file.size / 1024 / 1024).toFixed(2);
                     html += `
                         <div class="flex items-center justify-between text-xs bg-gray-50 dark:bg-slate-800 px-2 py-1 rounded border border-gray-200 dark:border-slate-700">
-                            <span class="truncate flex-1 text-gray-900 dark:text-white">📄 ${file.name}</span>
+                            <span class="truncate flex-1 text-gray-900 dark:text-white"> ${file.name}</span>
                             <span class="text-gray-500 dark:text-slate-400 ml-2">${sizeMB} MB</span>
                         </div>
                     `;
@@ -1473,7 +1473,7 @@
 
         // Abrir modal de confirmação de exclusão
         window.removePersonalization = function(id) {
-            console.log('🗑️ Solicitando remoção de personalização ID:', id);
+            console.log(' Solicitando remoção de personalização ID:', id);
             pendingDeleteId = id;
             
             // Buscar informações da personalização para mostrar no modal
@@ -1494,7 +1494,7 @@
         
         // Fechar modal de confirmação
         window.closeDeleteConfirmationModal = function() {
-            console.log('✖️ Cancelando exclusão');
+            console.log(' Cancelando exclusão');
             document.getElementById('deleteConfirmationModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
             pendingDeleteId = null;
@@ -1503,7 +1503,7 @@
         // Confirmar e executar exclusão
         window.confirmDeletePersonalization = async function() {
             if (!pendingDeleteId) {
-                console.error('❌ Nenhuma personalização pendente para exclusão');
+                console.error(' Nenhuma personalização pendente para exclusão');
                 return;
             }
             
@@ -1540,14 +1540,14 @@
         
         // Alias para deletePersonalization (usado nos botões das personalizações órfãs)
         window.deletePersonalization = function(id) {
-            console.log('🔄 deletePersonalization alias chamado para ID:', id);
+            console.log(' deletePersonalization alias chamado para ID:', id);
             return removePersonalization(id);
         }
         
         // Função para editar personalização
         window.editPersonalization = async function(id) {
             try {
-                console.log('🔧 Editando personalização ID:', id);
+                console.log(' Editando personalização ID:', id);
                 // Buscar dados da personalização
                 const response = await fetch(`/api/personalizations/${id}`, {
                     method: 'GET',
@@ -1673,7 +1673,7 @@
                 alert('Erro ao carregar personalização: ' + error.message);
             }
         }
-        console.log("✅ Script de personalização inicializado com sucesso!");
+        console.log(" Script de personalização inicializado com sucesso!");
 </script>
 @endpush
 @endsection

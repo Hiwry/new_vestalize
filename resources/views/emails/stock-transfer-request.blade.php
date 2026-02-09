@@ -146,14 +146,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚨 Solicitação de Transferência</h1>
+            <h1> Solicitação de Transferência</h1>
             <p>Pedido #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</p>
-            <span class="urgent-badge">⚡ URGENTE</span>
+            <span class="urgent-badge"> URGENTE</span>
         </div>
         
         <div class="content">
             <div class="info-box">
-                <h3>📦 Detalhes da Transferência</h3>
+                <h3> Detalhes da Transferência</h3>
                 <div class="info-row">
                     <span class="info-label">De:</span>
                     <span class="info-value">{{ $sourceStore->name }}</span>
@@ -168,7 +168,7 @@
                 </div>
             </div>
 
-            <h3 style="color: #111827; margin-bottom: 12px;">📋 Itens Solicitados</h3>
+            <h3 style="color: #111827; margin-bottom: 12px;"> Itens Solicitados</h3>
             
             <table class="items-table">
                 <thead>

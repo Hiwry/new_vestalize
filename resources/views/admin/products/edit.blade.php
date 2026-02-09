@@ -212,7 +212,9 @@
                             <form action="{{ route('admin.products.set-primary-image', $image) }}" method="POST" class="inline">
                                 @csrf
                                 <button type="submit" class="bg-indigo-600 text-white p-1 rounded text-xs" title="Definir como principal">
-                                    ⭐
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.216 3.74a1 1 0 00.95.69h3.93c.969 0 1.371 1.24.588 1.81l-3.18 2.31a1 1 0 00-.364 1.118l1.216 3.74c.3.921-.755 1.688-1.54 1.118l-3.18-2.31a1 1 0 00-1.175 0l-3.18 2.31c-.784.57-1.838-.197-1.539-1.118l1.216-3.74a1 1 0 00-.364-1.118l-3.18-2.31c-.783-.57-.38-1.81.588-1.81h3.93a1 1 0 00.951-.69l1.215-3.74z"></path>
+                                    </svg>
                                 </button>
                             </form>
                             @endif
@@ -220,7 +222,9 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="bg-red-600 text-white p-1 rounded text-xs" title="Excluir">
-                                    ✕
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
                                 </button>
                             </form>
                         </div>

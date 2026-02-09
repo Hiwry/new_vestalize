@@ -44,22 +44,38 @@ class SublimationProductPrice extends Model
 
     /**
      * Buscar preço para um tipo e quantidade específicos
+     * Prioriza preços do tenant, depois busca preços globais (tenant_id = null)
      */
     public static function getPriceFor(string $productType, int $quantity, ?int $tenantId = null): ?float
     {
-        $query = static::where('product_type', $productType)
+        // Primeiro, tentar buscar preço específico do tenant
+        if ($tenantId) {
+            $price = static::where('product_type', $productType)
+                ->where('tenant_id', $tenantId)
+                ->where('quantity_from', '<=', $quantity)
+                ->where(function($q) use ($quantity) {
+                    $q->whereNull('quantity_to')
+                      ->orWhere('quantity_to', '>=', $quantity);
+                })
+                ->orderBy('quantity_from', 'desc')
+                ->first();
+            
+            if ($price) {
+                return (float) $price->price;
+            }
+        }
+        
+        // Se não encontrou preço do tenant, buscar preço global
+        $globalPrice = static::where('product_type', $productType)
+            ->whereNull('tenant_id')
             ->where('quantity_from', '<=', $quantity)
             ->where(function($q) use ($quantity) {
                 $q->whereNull('quantity_to')
                   ->orWhere('quantity_to', '>=', $quantity);
-            });
+            })
+            ->orderBy('quantity_from', 'desc')
+            ->first();
         
-        if ($tenantId) {
-            $query->where('tenant_id', $tenantId);
-        }
-        
-        $price = $query->orderBy('quantity_from', 'desc')->first();
-        
-        return $price ? (float) $price->price : null;
+        return $globalPrice ? (float) $globalPrice->price : null;
     }
 }

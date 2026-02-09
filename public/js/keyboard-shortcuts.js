@@ -138,7 +138,12 @@ class KeyboardShortcuts {
             <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="keyboardShortcuts.toggleHelpModal()"></div>
             <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">⌨️ Atalhos de Teclado</h3>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 inline-flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V9a1 1 0 011-1zM7 12h.01M10 12h.01M13 12h.01M16 12h.01M7 15h10"></path>
+                        </svg>
+                        Atalhos de Teclado
+                    </h3>
                     <button onclick="keyboardShortcuts.toggleHelpModal()" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -364,19 +369,19 @@ class KeyboardShortcuts {
         const q = query.toLowerCase();
 
         if (q.includes('novo') || q.includes('criar') || q.includes('pedido')) {
-            actions.push({ icon: '📦', label: 'Criar Novo Pedido', url: '/pedidos/wizard/inicio' });
+            actions.push({ icon: '', label: 'Criar Novo Pedido', url: '/pedidos/wizard/inicio' });
         }
         if (q.includes('cliente') || q.includes('cadastr')) {
-            actions.push({ icon: '👤', label: 'Cadastrar Cliente', url: '/clientes/create' });
+            actions.push({ icon: '', label: 'Cadastrar Cliente', url: '/clientes/create' });
         }
         if (q.includes('kanban') || q.includes('producao') || q.includes('produção')) {
-            actions.push({ icon: '📋', label: 'Ir para Kanban', url: '/kanban' });
+            actions.push({ icon: '', label: 'Ir para Kanban', url: '/kanban' });
         }
         if (q.includes('config') || q.includes('ajust')) {
-            actions.push({ icon: '⚙️', label: 'Configurações', url: '/settings' });
+            actions.push({ icon: '', label: 'Configurações', url: '/settings' });
         }
         if (q.includes('relat') || q.includes('dashboard')) {
-            actions.push({ icon: '📊', label: 'Dashboard', url: '/dashboard' });
+            actions.push({ icon: '', label: 'Dashboard', url: '/dashboard' });
         }
 
         return actions;

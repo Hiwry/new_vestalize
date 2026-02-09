@@ -294,10 +294,10 @@
 
         // Definir função editItem IMEDIATAMENTE (antes de qualquer uso)
         function editItem(itemId) {
-            console.log('🔧 editItem chamado com ID:', itemId, typeof itemId);
+            console.log(' editItem chamado com ID:', itemId, typeof itemId);
             
             if (!itemId) {
-                console.error('❌ ID do item não fornecido!');
+                console.error(' ID do item não fornecido!');
                 alert('Erro: ID do item não fornecido.');
                 return;
             }
@@ -305,12 +305,12 @@
             // Verificar se o modal existe
             const modal = document.getElementById('editItemModal');
             if (!modal) {
-                console.error('❌ Modal editItemModal não encontrado!');
+                console.error(' Modal editItemModal não encontrado!');
                 alert('Erro: Modal de edição não encontrado. Recarregue a página.');
                 return;
             }
             
-            console.log('✅ Modal encontrado, abrindo...');
+            console.log(' Modal encontrado, abrindo...');
             
             // Limpar formulário antes de preencher
             const form = document.getElementById('editItemForm');
@@ -323,7 +323,7 @@
             document.body.style.overflow = 'hidden';
             
             // Buscar dados do item
-            console.log('📡 Buscando dados do item na API:', `/api/order-items/${itemId}`);
+            console.log(' Buscando dados do item na API:', `/api/order-items/${itemId}`);
             fetch(`/api/order-items/${itemId}`, {
                 method: 'GET',
                 headers: {
@@ -332,7 +332,7 @@
                 }
             })
                 .then(response => {
-                    console.log('📥 Resposta recebida:', response.status, response.statusText);
+                    console.log(' Resposta recebida:', response.status, response.statusText);
                     if (!response.ok) {
                         return response.json().then(err => {
                             throw new Error(err.error || `HTTP error! status: ${response.status}`);
@@ -341,23 +341,23 @@
                     return response.json();
                 })
                 .then(data => {
-                    console.log('✅ Dados do item recebidos:', data);
+                    console.log(' Dados do item recebidos:', data);
                     currentItemData = data;
                     
                     // Garantir que as opções estão carregadas antes de preencher
                     if (Object.keys(productOptions).length === 0) {
-                        console.log('⏳ Opções não carregadas, carregando agora...');
+                        console.log('[AGUARDANDO] Opções não carregadas, carregando agora...');
                         loadProductOptions().then(() => {
-                            console.log('✅ Opções carregadas, preenchendo formulário...');
+                            console.log(' Opções carregadas, preenchendo formulário...');
                             setTimeout(() => populateEditForm(data), 300);
                         });
                     } else {
-                        console.log('✅ Opções já carregadas, preenchendo formulário...');
+                        console.log(' Opções já carregadas, preenchendo formulário...');
                         setTimeout(() => populateEditForm(data), 300);
                     }
                 })
                 .catch(error => {
-                    console.error('❌ Erro ao carregar item:', error);
+                    console.error(' Erro ao carregar item:', error);
                     alert('Erro ao carregar dados do item: ' + error.message);
                     modal.classList.add('hidden');
                     document.body.style.overflow = 'auto';
@@ -366,7 +366,7 @@
         
         // Expor função globalmente IMEDIATAMENTE
         window.editItem = editItem;
-        console.log('✅ Função editItem definida e exposta globalmente:', typeof window.editItem);
+        console.log(' Função editItem definida e exposta globalmente:', typeof window.editItem);
 
         // Carregar opções de produtos
         async function loadProductOptions() {
@@ -463,26 +463,26 @@
 
 
         function populateEditForm(item) {
-            console.log('📝 Preenchendo formulário com dados:', item);
+            console.log(' Preenchendo formulário com dados:', item);
             
             try {
                 // Preencher ID do item
                 const editingItemId = document.getElementById('editingItemId');
                 if (editingItemId) {
                     editingItemId.value = item.id || '';
-                    console.log('✅ ID do item preenchido:', item.id);
+                    console.log(' ID do item preenchido:', item.id);
                 }
                 
                 // Preencher preço unitário
                 const unitPriceInput = document.getElementById('unit_price');
                 if (unitPriceInput && item.unit_price) {
                     unitPriceInput.value = parseFloat(item.unit_price).toFixed(2);
-                    console.log('✅ Preço unitário preenchido:', item.unit_price);
+                    console.log(' Preço unitário preenchido:', item.unit_price);
                 }
 
                 // Preencher personalização usando IDs
                 if (item.print_type_ids && item.print_type_ids.length > 0) {
-                    console.log('✅ Preenchendo personalização por IDs:', item.print_type_ids);
+                    console.log(' Preenchendo personalização por IDs:', item.print_type_ids);
                     // Desmarcar todos primeiro
                     document.querySelectorAll('input[name="personalizacao[]"]').forEach(cb => cb.checked = false);
                     // Marcar os selecionados
@@ -490,13 +490,13 @@
                         const checkbox = document.querySelector(`input[name="personalizacao[]"][value="${id}"]`);
                         if (checkbox) {
                             checkbox.checked = true;
-                            console.log(`✅ Personalização ${id} marcada`);
+                            console.log(` Personalização ${id} marcada`);
                         } else {
-                            console.warn(`⚠️ Checkbox de personalização ${id} não encontrado`);
+                            console.warn(` Checkbox de personalização ${id} não encontrado`);
                         }
                     });
                 } else if (item.print_type) {
-                    console.log('⚠️ Usando fallback para personalização por nome:', item.print_type);
+                    console.log(' Usando fallback para personalização por nome:', item.print_type);
                     // Fallback: tentar por nome
                     const personalizacoes = item.print_type.split(', ');
                     personalizacoes.forEach(p => {
@@ -505,7 +505,7 @@
                             const label = document.querySelector(`label[for="${cb.id}"]`);
                             if (label && label.textContent.trim().includes(p.trim())) {
                                 cb.checked = true;
-                                console.log(`✅ Personalização "${p.trim()}" marcada por nome`);
+                                console.log(` Personalização "${p.trim()}" marcada por nome`);
                             }
                         });
                     });
@@ -514,42 +514,42 @@
                 // Preencher campos usando IDs quando disponíveis
                 if (item.fabric_id) {
                     setSelectValueById('tecido', item.fabric_id);
-                    console.log('✅ Tecido preenchido por ID:', item.fabric_id);
+                    console.log(' Tecido preenchido por ID:', item.fabric_id);
                 } else if (item.fabric) {
                     setSelectValue('tecido', item.fabric);
-                    console.log('✅ Tecido preenchido por nome:', item.fabric);
+                    console.log(' Tecido preenchido por nome:', item.fabric);
                 }
                 
                 if (item.color_id) {
                     setSelectValueById('cor', item.color_id);
-                    console.log('✅ Cor preenchida por ID:', item.color_id);
+                    console.log(' Cor preenchida por ID:', item.color_id);
                 } else if (item.color) {
                     setSelectValue('cor', item.color);
-                    console.log('✅ Cor preenchida por nome:', item.color);
+                    console.log(' Cor preenchida por nome:', item.color);
                 }
                 
                 if (item.model_id) {
                     setSelectValueById('tipo_corte', item.model_id);
-                    console.log('✅ Tipo de corte preenchido por ID:', item.model_id);
+                    console.log(' Tipo de corte preenchido por ID:', item.model_id);
                 } else if (item.model) {
                     setSelectValue('tipo_corte', item.model);
-                    console.log('✅ Tipo de corte preenchido por nome:', item.model);
+                    console.log(' Tipo de corte preenchido por nome:', item.model);
                 }
                 
                 if (item.detail_id) {
                     setSelectValueById('detalhe', item.detail_id);
-                    console.log('✅ Detalhe preenchido por ID:', item.detail_id);
+                    console.log(' Detalhe preenchido por ID:', item.detail_id);
                 } else if (item.detail) {
                     setSelectValue('detalhe', item.detail);
-                    console.log('✅ Detalhe preenchido por nome:', item.detail);
+                    console.log(' Detalhe preenchido por nome:', item.detail);
                 }
                 
                 if (item.collar_id) {
                     setSelectValueById('gola', item.collar_id);
-                    console.log('✅ Gola preenchida por ID:', item.collar_id);
+                    console.log(' Gola preenchida por ID:', item.collar_id);
                 } else if (item.collar) {
                     setSelectValue('gola', item.collar);
-                    console.log('✅ Gola preenchida por nome:', item.collar);
+                    console.log(' Gola preenchida por nome:', item.collar);
                 }
 
                 // Preencher tamanhos
@@ -559,7 +559,7 @@
                         try {
                             sizes = JSON.parse(item.sizes);
                         } catch (e) {
-                            console.warn('⚠️ Erro ao parsear sizes:', e);
+                            console.warn(' Erro ao parsear sizes:', e);
                             sizes = {};
                         }
                     } else {
@@ -567,7 +567,7 @@
                     }
                     
                     if (sizes && typeof sizes === 'object') {
-                        console.log('✅ Preenchendo tamanhos:', sizes);
+                        console.log(' Preenchendo tamanhos:', sizes);
                         let filledCount = 0;
                         Object.entries(sizes).forEach(([size, quantity]) => {
                             const input = document.querySelector(`input[name="tamanhos[${size}]"]`);
@@ -575,10 +575,10 @@
                                 input.value = quantity || 0;
                                 filledCount++;
                             } else {
-                                console.warn(`⚠️ Input de tamanho "${size}" não encontrado`);
+                                console.warn(` Input de tamanho "${size}" não encontrado`);
                             }
                         });
-                        console.log(`✅ ${filledCount} tamanhos preenchidos`);
+                        console.log(` ${filledCount} tamanhos preenchidos`);
                     }
                 }
                 
@@ -586,19 +586,19 @@
                 const artNameInput = document.getElementById('art_name');
                 if (artNameInput && item.art_name) {
                     artNameInput.value = item.art_name;
-                    console.log('✅ Nome da arte preenchido:', item.art_name);
+                    console.log(' Nome da arte preenchido:', item.art_name);
                 }
                 
                 // Preencher notas da arte se houver campo
                 const artNotesInput = document.getElementById('art_notes');
                 if (artNotesInput && item.art_notes) {
                     artNotesInput.value = item.art_notes;
-                    console.log('✅ Notas da arte preenchidas');
+                    console.log(' Notas da arte preenchidas');
                 }
                 
-                console.log('✅ Formulário preenchido com sucesso!');
+                console.log(' Formulário preenchido com sucesso!');
             } catch (error) {
-                console.error('❌ Erro ao preencher formulário:', error);
+                console.error(' Erro ao preencher formulário:', error);
                 alert('Erro ao preencher formulário: ' + error.message);
             }
         }
@@ -606,39 +606,39 @@
         function setSelectValueById(selectId, valueId) {
             const select = document.getElementById(selectId);
             if (!select) {
-                console.warn(`⚠️ setSelectValueById: Select "${selectId}" não encontrado`);
+                console.warn(` setSelectValueById: Select "${selectId}" não encontrado`);
                 return false;
             }
             
-            console.log(`🔍 setSelectValueById: Procurando ID ${valueId} em ${selectId} (${select.options.length} opções)`);
+            console.log(` setSelectValueById: Procurando ID ${valueId} em ${selectId} (${select.options.length} opções)`);
             
             // Procurar por ID exato
             for (let option of select.options) {
                 if (option.value == valueId) {
                     option.selected = true;
                     select.value = valueId;
-                    console.log(`✅ setSelectValueById: "${selectId}" = "${option.textContent.trim()}" (ID: ${valueId})`);
+                    console.log(` setSelectValueById: "${selectId}" = "${option.textContent.trim()}" (ID: ${valueId})`);
                     return true;
                 }
             }
             
-            console.warn(`⚠️ setSelectValueById: ID ${valueId} não encontrado em ${selectId}`);
+            console.warn(` setSelectValueById: ID ${valueId} não encontrado em ${selectId}`);
             return false;
         }
 
         function setSelectValue(selectId, value) {
             const select = document.getElementById(selectId);
             if (!select) {
-                console.warn(`⚠️ setSelectValue: Select "${selectId}" não encontrado`);
+                console.warn(` setSelectValue: Select "${selectId}" não encontrado`);
                 return false;
             }
             
             if (!value) {
-                console.warn(`⚠️ setSelectValue: Valor vazio para "${selectId}"`);
+                console.warn(` setSelectValue: Valor vazio para "${selectId}"`);
                 return false;
             }
             
-            console.log(`🔍 setSelectValue: Procurando "${value}" em ${selectId} (${select.options.length} opções)`);
+            console.log(` setSelectValue: Procurando "${value}" em ${selectId} (${select.options.length} opções)`);
 
             // Procurar por correspondência exata primeiro
             for (let option of select.options) {
@@ -648,7 +648,7 @@
                 if (optText === value || optTextClean === value) {
                     option.selected = true;
                     select.value = option.value;
-                    console.log(`✅ setSelectValue: "${selectId}" = "${optText}" (correspondência exata)`);
+                    console.log(` setSelectValue: "${selectId}" = "${optText}" (correspondência exata)`);
                     return true;
                 }
             }
@@ -660,12 +660,12 @@
                     value.toLowerCase().includes(optText.toLowerCase().replace(/\s*\(.*?\)\s*$/, '').trim())) {
                     option.selected = true;
                     select.value = option.value;
-                    console.log(`✅ setSelectValue: "${selectId}" = "${optText}" (correspondência parcial)`);
+                    console.log(` setSelectValue: "${selectId}" = "${optText}" (correspondência parcial)`);
                     return true;
                 }
             }
             
-            console.warn(`⚠️ setSelectValue: Valor "${value}" não encontrado em ${selectId}`);
+            console.warn(` setSelectValue: Valor "${value}" não encontrado em ${selectId}`);
             return false;
         }
 
@@ -694,20 +694,20 @@
                 e.stopPropagation();
                 
                 const itemId = editButton.getAttribute('data-item-id');
-                console.log('🔧 Botão de editar clicado!', {
+                console.log(' Botão de editar clicado!', {
                     itemId: itemId,
                     editItemExists: typeof window.editItem,
                     editItemType: typeof window.editItem
                 });
                 
                 if (!itemId) {
-                    console.error('❌ data-item-id não encontrado no botão!');
+                    console.error(' data-item-id não encontrado no botão!');
                     alert('Erro: ID do item não encontrado.');
                     return;
                 }
                 
                 if (typeof window.editItem !== 'function') {
-                    console.error('❌ window.editItem não é uma função!', typeof window.editItem);
+                    console.error(' window.editItem não é uma função!', typeof window.editItem);
                     alert('Erro: Função de edição não carregada. Recarregue a página.');
                     return;
                 }
@@ -719,7 +719,7 @@
                     }
                     window.editItem(itemIdNum);
                 } catch (error) {
-                    console.error('❌ Erro ao chamar editItem:', error);
+                    console.error(' Erro ao chamar editItem:', error);
                     alert('Erro ao editar item: ' + error.message);
                 }
                 return;
@@ -737,14 +737,14 @@
 
         // Carregar opções quando a página carregar
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Página carregada, iniciando carregamento de opções...');
+            console.log(' Página carregada, iniciando carregamento de opções...');
             
             // Verificar se o modal existe
             const modal = document.getElementById('editItemModal');
             if (modal) {
-                console.log('✅ Modal editItemModal encontrado');
+                console.log(' Modal editItemModal encontrado');
             } else {
-                console.error('❌ Modal editItemModal NÃO encontrado!');
+                console.error(' Modal editItemModal NÃO encontrado!');
             }
             
             // Carregar opções de produtos
@@ -752,13 +752,13 @@
             
             // Verificar quantos botões existem
             const editButtons = document.querySelectorAll('.edit-item-btn');
-            console.log(`✅ ${editButtons.length} botões de editar encontrados na página.`);
+            console.log(` ${editButtons.length} botões de editar encontrados na página.`);
             
             // Verificar se editItem está disponível
             if (typeof window.editItem === 'function') {
-                console.log('✅ Função editItem disponível globalmente');
+                console.log(' Função editItem disponível globalmente');
             } else {
-                console.error('❌ Função editItem NÃO está disponível globalmente!');
+                console.error(' Função editItem NÃO está disponível globalmente!');
             }
         });
     </script>

@@ -148,7 +148,7 @@ class LisasSeeder extends Seeder
             );
         }
 
-        echo "✓ Preços e personalização 'Lisas' adicionados com sucesso!\n";
+        echo " Preços e personalização 'Lisas' adicionados com sucesso!\n";
     }
 }
 

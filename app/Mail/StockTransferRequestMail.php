@@ -40,7 +40,7 @@ class StockTransferRequestMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '🚨 Solicitação Urgente de Transferência - Pedido #' . str_pad($this->order->id, 6, '0', STR_PAD_LEFT),
+            subject: ' Solicitação Urgente de Transferência - Pedido #' . str_pad($this->order->id, 6, '0', STR_PAD_LEFT),
         );
     }
 

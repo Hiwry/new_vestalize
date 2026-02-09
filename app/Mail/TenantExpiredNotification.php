@@ -31,7 +31,7 @@ class TenantExpiredNotification extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '⚠️ Vencimento de ' . ucfirst($this->type) . ': ' . $this->tenant->name,
+            subject: ' Vencimento de ' . ucfirst($this->type) . ': ' . $this->tenant->name,
         );
     }
 

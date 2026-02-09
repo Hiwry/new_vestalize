@@ -43,19 +43,19 @@
                 redirect: 'follow'  // Mudei para 'follow' para permitir redirecionamentos automáticos
             })
             .then(async response => {
-                console.log('📡 Resposta recebida:', response.status, response.statusText);
-                console.log('📍 URL final:', response.url);
+                console.log(' Resposta recebida:', response.status, response.statusText);
+                console.log(' URL final:', response.url);
                 
                 // Se foi redirecionado para a página de listagem (sucesso)
                 if (response.url.includes('/orcamento') && !response.url.includes('confirmacao')) {
-                    console.log('✅ Sucesso! Já na página de destino');
+                    console.log(' Sucesso! Já na página de destino');
                     window.location.href = response.url;
                     return;
                 }
                 
                 // Se foi bem sucedido (200-299)
                 if (response.ok) {
-                    console.log('✅ Sucesso! Redirecionando...');
+                    console.log(' Sucesso! Redirecionando...');
                     // Verificar se há mensagem de sucesso na resposta
                     const text = await response.text();
                     window.location.href = '/orcamento';
@@ -70,10 +70,10 @@
                     if (contentType && contentType.includes('application/json')) {
                         const json = await response.json();
                         errorMsg = json.message || json.error || errorMsg;
-                        console.error('❌ Erro JSON:', json);
+                        console.error(' Erro JSON:', json);
                     } else {
                         const text = await response.text();
-                        console.error('❌ Resposta completa:', text);
+                        console.error(' Resposta completa:', text);
                         
                         // Tentar extrair mensagem de erro do HTML
                         const match = text.match(/<title>(.*?)<\/title>/i);
@@ -90,17 +90,17 @@
                         }
                     }
                 } catch (e) {
-                    console.error('❌ Erro ao processar resposta:', e);
+                    console.error(' Erro ao processar resposta:', e);
                 }
                 
                 throw new Error(errorMsg);
             })
             .catch(error => {
-                console.error('❌ Erro ao finalizar orçamento:', error);
+                console.error(' Erro ao finalizar orçamento:', error);
                 
                 // Se o erro for de rede, pode ser que tenha funcionado mas não conseguimos verificar
                 if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                    console.log('⚠️ Erro de rede, verificando se orçamento foi criado...');
+                    console.log(' Erro de rede, verificando se orçamento foi criado...');
                     // Tentar redirecionar de qualquer forma
                     setTimeout(() => {
                         window.location.href = '/orcamento';
@@ -461,7 +461,7 @@
 @push('scripts')
 <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('✅ Página carregada');
+            console.log(' Página carregada');
         });
 </script>
 @endpush

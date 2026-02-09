@@ -32,7 +32,7 @@
                 
                 <div class="mb-6 bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 rounded">
                     <p class="text-sm text-blue-700 dark:text-blue-300">
-                        💡 Para pagamentos via boleto, pode levar até 2 dias úteis para compensar.
+                         Para pagamentos via boleto, pode levar até 2 dias úteis para compensar.
                     </p>
                 </div>
                 

@@ -944,23 +944,34 @@ class OrderWizardController extends Controller
         }
     }
 
-    public function togglePin($id)
+    public function togglePin($id, Request $request)
     {
         try {
             $item = \App\Models\OrderItem::findOrFail($id);
             $item->is_pinned = !$item->is_pinned;
             $item->save();
 
-            return response()->json([
-                'success' => true,
-                'is_pinned' => $item->is_pinned,
-                'message' => $item->is_pinned ? 'Item fixado no topo!' : 'Item desafixado.'
-            ]);
+            $order = $item->order;
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'is_pinned' => $item->is_pinned,
+                    'message' => $item->is_pinned ? 'Item fixado no topo!' : 'Item desafixado.',
+                    'html' => view('orders.wizard.partials.items_sidebar', compact('order'))->render(),
+                    'items_data' => $order->items->toArray()
+                ]);
+            }
+
+            return redirect()->back()->with('success', $item->is_pinned ? 'Item fixado!' : 'Item desafixado.');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro ao alterar status do item'
-            ], 500);
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao alterar status do item: ' . $e->getMessage()
+                ], 500);
+            }
+            return redirect()->back()->with('error', 'Erro ao alterar status do item.');
         }
     }
 }

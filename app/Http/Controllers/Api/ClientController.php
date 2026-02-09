@@ -294,11 +294,11 @@ class ClientController extends Controller
     public function getOrderItem($id): JsonResponse
     {
         try {
-            \Log::info('🔍 Buscando item para edição', ['item_id' => $id]);
+            \Log::info(' Buscando item para edição', ['item_id' => $id]);
             
             $item = \App\Models\OrderItem::with('sublimations')->findOrFail($id);
             
-            \Log::info('✅ Item encontrado', [
+            \Log::info(' Item encontrado', [
                 'item_id' => $item->id,
                 'fabric' => $item->fabric,
                 'color' => $item->color,
@@ -361,11 +361,11 @@ class ClientController extends Controller
                 'cover_image_url' => $item->cover_image ? asset('storage/' . $item->cover_image) : null,
             ];
             
-            \Log::info('📤 Retornando dados do item', ['data' => $data]);
+            \Log::info(' Retornando dados do item', ['data' => $data]);
             
             return response()->json($data);
         } catch (\Exception $e) {
-            \Log::error('❌ Erro ao buscar item: ' . $e->getMessage(), [
+            \Log::error(' Erro ao buscar item: ' . $e->getMessage(), [
                 'item_id' => $id,
                 'trace' => $e->getTraceAsString()
             ]);

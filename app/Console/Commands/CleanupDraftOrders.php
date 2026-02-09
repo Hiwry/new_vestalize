@@ -86,7 +86,7 @@ class CleanupDraftOrders extends Command
                 $deletedCount++;
             }
             
-            $this->info("✅ {$deletedCount} pedidos rascunho órfãos foram removidos com sucesso!");
+            $this->info(" {$deletedCount} pedidos rascunho órfãos foram removidos com sucesso!");
         } else {
             $this->info('Operação cancelada.');
         }

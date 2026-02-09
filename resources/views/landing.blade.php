@@ -669,7 +669,7 @@
                             Comece agora mesmo com 7 dias grátis. Sem cartão de crédito, sem compromisso.
                         </p>
                         <a href="{{ route('register') ?? '#' }}" class="inline-block bg-white text-violet-700 hover:bg-violet-50 px-10 py-5 rounded-xl font-bold text-xl shadow-lg transition-all transform hover:scale-105">
-                            Começar Teste Grátis 🚀
+                            Começar Teste Grátis 
                         </a>
                     </div>
                 </div>
@@ -717,8 +717,8 @@
             </div>
 
             <div class="pt-8 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-4">
-                <p class="text-gray-500 text-sm">© {{ date('Y') }} Vestalize. Todos os direitos reservados.</p>
-                <p class="text-gray-500 text-sm">Feito com 💜 para confecções brasileiras</p>
+                <p class="text-gray-500 text-sm">Copyright {{ date('Y') }} Vestalize. Todos os direitos reservados.</p>
+                <p class="text-gray-500 text-sm">Feito com  para confecções brasileiras</p>
             </div>
         </div>
     </footer>

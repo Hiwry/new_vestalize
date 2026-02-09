@@ -178,12 +178,12 @@
                     <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Histórico</h4>
                     <div class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
                         @if($piece->opened_at)
-                            <p>📦 Aberta em: {{ $piece->opened_at->format('d/m/Y H:i') }}</p>
+                            <p> Aberta em: {{ $piece->opened_at->format('d/m/Y H:i') }}</p>
                         @endif
                         @if($piece->sold_at)
-                            <p>💰 Vendida em: {{ $piece->sold_at->format('d/m/Y H:i') }}</p>
+                            <p> Vendida em: {{ $piece->sold_at->format('d/m/Y H:i') }}</p>
                             @if($piece->soldBy)
-                                <p>👤 Vendedor: {{ $piece->soldBy->name }}</p>
+                                <p> Vendedor: {{ $piece->soldBy->name }}</p>
                             @endif
                         @endif
                     </div>

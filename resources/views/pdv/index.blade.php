@@ -1191,7 +1191,7 @@ async function loadStockByCutType(cutTypeId) {
                                 </span>
                             ` : `
                                 <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200">
-                                    ✗ Sem estoque
+                                     Sem estoque
                                 </span>
                             `}
                         </div>
@@ -1245,7 +1245,7 @@ async function loadStockByCutType(cutTypeId) {
                     ${colorId ? `
                         <div class="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                             <p class="text-xs text-yellow-700 dark:text-yellow-300">
-                                ⚠ Solicitações de estoque serão criadas automaticamente ao finalizar a venda
+                                 Solicitações de estoque serão criadas automaticamente ao finalizar a venda
                             </p>
                         </div>
                     ` : ''}
@@ -1316,14 +1316,14 @@ async function checkStockAvailability() {
                 if (stockQuantity) stockQuantity.className = 'text-sm font-bold text-green-600 dark:text-green-400';
                 if (stockSuccess) {
                     stockSuccess.classList.remove('hidden');
-                    stockSuccess.textContent = `✓ Estoque suficiente para ${quantity} unidade(s)`;
+                    stockSuccess.textContent = ` Estoque suficiente para ${quantity} unidade(s)`;
                 }
             } else {
                 stockInfo.className = 'mt-3 p-3 rounded-lg border border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20';
                 if (stockQuantity) stockQuantity.className = 'text-sm font-bold text-red-600 dark:text-red-400';
                 if (stockWarning) {
                     stockWarning.classList.remove('hidden');
-                    stockWarning.innerHTML = `⚠ Estoque insuficiente! Disponível: ${available} unidade(s). <button type="button" onclick="createStockRequest()" class="text-blue-600 dark:text-blue-400 underline ml-1">Solicitar estoque</button>`;
+                    stockWarning.innerHTML = ` Estoque insuficiente! Disponível: ${available} unidade(s). <button type="button" onclick="createStockRequest()" class="text-blue-600 dark:text-blue-400 underline ml-1">Solicitar estoque</button>`;
                 }
             }
         } else {

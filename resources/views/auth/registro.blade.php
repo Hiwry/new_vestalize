@@ -327,7 +327,7 @@
                                 feedback.className = 'referral-feedback mt-2 text-xs text-green-400 font-medium italic';
                                 referralInput.parentNode.appendChild(feedback);
                             }
-                            feedback.textContent = `✓ Indicado por: ${data.affiliate_name}`;
+                            feedback.textContent = ` Indicado por: ${data.affiliate_name}`;
                         }
                     })
                     .catch(error => {

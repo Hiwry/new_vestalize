@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('content')
 <div class="max-w-4xl mx-auto">
@@ -380,7 +380,7 @@
             } else if (step < currentStep) {
                 // Completed
                 circle.className = "w-8 h-8 rounded-full flex items-center justify-center bg-green-500 text-white font-bold text-sm";
-                circle.innerHTML = "✓";
+                circle.innerHTML = "";
                 circle.style.setProperty('color', 'white', 'important');
                 label.className = "text-xs font-medium mt-2 text-green-600";
             } else {

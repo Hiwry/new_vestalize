@@ -28,14 +28,14 @@ class FixCashTransactionStatus extends Command
      */
     public function handle()
     {
-        $this->info('🔍 Verificando transações de caixa...');
+        $this->info(' Verificando transações de caixa...');
 
         // Buscar IDs dos status "Pronto" e "Entregue"
         $statusPronto = Status::where('name', 'Pronto')->first();
         $statusEntregue = Status::where('name', 'Entregue')->first();
 
         if (!$statusPronto || !$statusEntregue) {
-            $this->error('❌ Status "Pronto" ou "Entregue" não encontrados!');
+            $this->error(' Status "Pronto" ou "Entregue" não encontrados!');
             return 1;
         }
 
@@ -45,7 +45,7 @@ class FixCashTransactionStatus extends Command
             ->whereNotNull('order_id')
             ->get();
 
-        $this->info("📊 Encontradas {$transactions->count()} transações confirmadas.");
+        $this->info(" Encontradas {$transactions->count()} transações confirmadas.");
 
         $updated = 0;
 
@@ -53,7 +53,7 @@ class FixCashTransactionStatus extends Command
             $order = Order::with('status')->find($transaction->order_id);
 
             if (!$order) {
-                $this->warn("⚠️  Pedido #{$transaction->order_id} não encontrado (Transação ID: {$transaction->id})");
+                $this->warn("  Pedido #{$transaction->order_id} não encontrado (Transação ID: {$transaction->id})");
                 continue;
             }
 
@@ -61,12 +61,12 @@ class FixCashTransactionStatus extends Command
             if (!in_array($order->status_id, [$statusPronto->id, $statusEntregue->id])) {
                 $transaction->update(['status' => 'pendente']);
                 $updated++;
-                $this->line("✅ Transação ID {$transaction->id} (Pedido #{$order->id} - {$order->status->name}) → Pendente");
+                $this->line(" Transação ID {$transaction->id} (Pedido #{$order->id} - {$order->status->name}) → Pendente");
             }
         }
 
         $this->newLine();
-        $this->info("✨ Concluído! {$updated} transações atualizadas para 'pendente'.");
+        $this->info(" Concluído! {$updated} transações atualizadas para 'pendente'.");
 
         return 0;
     }

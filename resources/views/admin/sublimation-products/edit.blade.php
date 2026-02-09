@@ -12,13 +12,13 @@
                 </a>
                 <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-md flex items-center justify-center">
                     @if($product->type == 'camisa')
-                        <span class="text-xl">👕</span>
+                        <span class="text-xl"></span>
                     @elseif($product->type == 'conjunto')
-                        <span class="text-xl">🏃</span>
+                        <span class="text-xl"></span>
                     @elseif($product->type == 'bandeira')
-                        <span class="text-xl">🚩</span>
+                        <span class="text-xl"></span>
                     @else
-                        <span class="text-xl">📦</span>
+                        <span class="text-xl"></span>
                     @endif
                 </div>
                 <div>
@@ -63,7 +63,7 @@
                 
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                     <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 bg-purple-50 dark:bg-purple-900/20">
-                        <h2 class="text-base font-semibold text-purple-900 dark:text-purple-100">📋 Informações do Produto</h2>
+                        <h2 class="text-base font-semibold text-purple-900 dark:text-purple-100"> Informações do Produto</h2>
                     </div>
                     
                     <div class="p-5 space-y-4">
@@ -87,12 +87,12 @@
                             <label class="flex items-center">
                                 <input type="checkbox" name="fabric_always_white" value="1" {{ $product->fabric_always_white ? 'checked' : '' }}
                                        class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">⚪ Tecido branco</span>
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300"> Tecido branco</span>
                             </label>
                             <label class="flex items-center">
                                 <input type="checkbox" name="active" value="1" {{ $product->active ? 'checked' : '' }}
                                        class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">✅ Ativo</span>
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300"> Ativo</span>
                             </label>
                         </div>
                     </div>
@@ -108,7 +108,7 @@
             <!-- Tabela de Preços por Quantidade (estilo planilha) -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/20">
-                    <h2 class="text-base font-semibold text-blue-900 dark:text-blue-100">💰 Tabela de Preços</h2>
+                    <h2 class="text-base font-semibold text-blue-900 dark:text-blue-100"> Tabela de Preços</h2>
                     <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">Defina o preço por faixa de quantidade</p>
                 </div>
                 
@@ -137,7 +137,7 @@
                                         <form method="POST" action="{{ route('admin.sublimation-products.prices.destroy', [$product, $price]) }}" class="inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-red-500 hover:text-red-700 p-1" onclick="return confirm('Remover?')">✕</button>
+                                            <button type="submit" class="text-red-500 hover:text-red-700 p-1" onclick="return confirm('Remover?')"></button>
                                         </form>
                                     </td>
                                 </tr>
@@ -154,7 +154,7 @@
                     <!-- Adicionar nova faixa -->
                     <form method="POST" action="{{ route('admin.sublimation-products.prices.store', $product) }}" class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4">
                         @csrf
-                        <div class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">➕ Adicionar faixa:</div>
+                        <div class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"> Adicionar faixa:</div>
                         <div class="flex items-center gap-2">
                             <input type="number" name="quantity_from" required min="1" placeholder="De"
                                    class="w-20 px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-center">
@@ -179,7 +179,7 @@
         <!-- Coluna Direita: Adicionais (estilo tabela simples) -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 bg-yellow-50 dark:bg-yellow-900/20">
-                <h2 class="text-base font-semibold text-yellow-900 dark:text-yellow-100">🏷️ ADICIONAIS</h2>
+                <h2 class="text-base font-semibold text-yellow-900 dark:text-yellow-100"> ADICIONAIS</h2>
                 <p class="text-xs text-yellow-700 dark:text-yellow-300 mt-1">Itens extras com valor fixo (+ ou -)</p>
             </div>
             
@@ -208,7 +208,7 @@
                                     <form method="POST" action="{{ route('admin.sublimation-products.addons.destroy', [$product, $addon]) }}" class="inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:text-red-700 p-1" onclick="return confirm('Remover?')">✕</button>
+                                        <button type="submit" class="text-red-500 hover:text-red-700 p-1" onclick="return confirm('Remover?')"></button>
                                     </form>
                                 </td>
                             </tr>
@@ -225,7 +225,7 @@
                 <!-- Adicionar novo adicional -->
                 <form method="POST" action="{{ route('admin.sublimation-products.addons.store', $product) }}" class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4">
                     @csrf
-                    <div class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">➕ Adicionar item:</div>
+                    <div class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"> Adicionar item:</div>
                     <div class="flex items-center gap-2">
                         <input type="text" name="name" required placeholder="Nome (ex: GOLA V, M. LONGA)"
                                class="flex-1 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 uppercase">
@@ -238,12 +238,12 @@
                             +
                         </button>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">💡 Use valores negativos para descontos (ex: -3.00 para REGATA)</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2"> Use valores negativos para descontos (ex: -3.00 para REGATA)</p>
                 </form>
 
                 <!-- Sugestões rápidas -->
                 <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <div class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">⚡ Adicionais comuns:</div>
+                    <div class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"> Adicionais comuns:</div>
                     <div class="flex flex-wrap gap-1">
                         @php
                             $suggestions = [

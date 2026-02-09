@@ -816,7 +816,7 @@ class PDVController extends Controller
                 ]);
             }
             
-            \Log::info('📬 Notificações de solicitação de estoque enviadas (PDV)', [
+            \Log::info(' Notificações de solicitação de estoque enviadas (PDV)', [
                 'stock_request_id' => $stockRequest->id,
                 'order_id' => $orderId,
                 'users_notified' => $stockUsers->count(),

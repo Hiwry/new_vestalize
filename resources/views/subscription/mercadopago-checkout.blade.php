@@ -105,7 +105,7 @@
             
             <!-- Security Info -->
             <div class="text-center mt-6 text-white/80 text-sm">
-                <p>🔒 Pagamento 100% seguro via Mercado Pago</p>
+                <p> Pagamento 100% seguro via Mercado Pago</p>
             </div>
         </div>
     </div>

@@ -256,7 +256,7 @@ class EditOrderController extends Controller
             if ($request->isMethod('post')) {
                 $action = $request->input('action', 'add_item');
                 
-                Log::info('🎯 POST recebido no EditOrderController@sewing', [
+                Log::info(' POST recebido no EditOrderController@sewing', [
                     'action' => $action,
                     'editing_item_id' => $request->input('editing_item_id'),
                     'method' => $request->method()
@@ -301,7 +301,7 @@ class EditOrderController extends Controller
                             });
 
                         if ($onlyLisas) {
-                            Log::info('🚀 Pulando etapa de personalização - apenas LISAS detectadas');
+                            Log::info(' Pulando etapa de personalização - apenas LISAS detectadas');
                             return redirect()->route('orders.edit.payment');
                         }
                     }
@@ -1364,7 +1364,7 @@ class EditOrderController extends Controller
 
     private function updateItem(Request $request)
     {
-        Log::info('🔧 UPDATE ITEM CHAMADO!', [
+        Log::info(' UPDATE ITEM CHAMADO!', [
             'editing_item_id' => $request->input('editing_item_id'),
             'action' => $request->input('action'),
             'all_inputs' => $request->except(['_token'])

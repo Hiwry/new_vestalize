@@ -24,7 +24,7 @@ class PaymentController extends Controller
     /**
      * Create Stripe Payment Intent
      */
-    public function createIntent(Plan $plan)
+    public function createIntent(Plan $plan, Request $request)
     {
         try {
             $stripeSecret = config('services.stripe.secret');
@@ -37,21 +37,42 @@ class PaymentController extends Controller
             
             Stripe::setApiKey($stripeSecret);
 
-            // Amount in cents
-            $amount = (int) ($plan->price * 100);
+            $method = $request->input('method');
+            $allowedMethods = ['pix', 'card'];
+            if ($method && !in_array($method, $allowedMethods, true)) {
+                return response()->json([
+                    'error' => 'Método de pagamento inválido.'
+                ], 422);
+            }
 
-            $paymentIntent = PaymentIntent::create([
+            $amount = (float) $plan->price;
+            $couponCode = strtoupper((string) $request->input('coupon_code', ''));
+            $discountAmount = 0;
+
+            if ($couponCode === 'VESTASTART' && $plan->slug === 'start') {
+                $amount = 79.90;
+                $discountAmount = 20.00;
+            }
+
+            // Amount in cents
+            $amount = (int) round($amount * 100);
+
+            $paymentIntentData = [
                 'amount' => $amount,
                 'currency' => 'brl',
-                'description' => "Assinatura Plano {$plan->name}",
+                'description' => "Assinatura Plano {$plan->name}" . ($couponCode ? " (Cupom: $couponCode)" : ""),
                 'metadata' => [
                     'tenant_id' => auth()->user()->tenant_id,
                     'plan_id' => $plan->id,
                     'plan_slug' => $plan->slug,
+                    'coupon_code' => $couponCode,
+                    'discount_amount' => $discountAmount,
                 ],
-                // Apenas cartão (PIX e Boleto requerem configuração específica no Stripe)
-                'payment_method_types' => ['card'],
-            ]);
+                // Cartão ou PIX
+                'payment_method_types' => $method ? [$method] : ['card', 'pix'],
+            ];
+
+            $paymentIntent = PaymentIntent::create($paymentIntentData);
 
             return response()->json([
                 'clientSecret' => $paymentIntent->client_secret,

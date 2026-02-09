@@ -7,7 +7,7 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- ⚡ CRITICAL: Prevenir flash aplicando tema ANTES de qualquer renderização -->
+        <!--  CRITICAL: Prevenir flash aplicando tema ANTES de qualquer renderização -->
         <script>
             (function() {
                 const isDarkMode = localStorage.getItem('dark') === 'true';

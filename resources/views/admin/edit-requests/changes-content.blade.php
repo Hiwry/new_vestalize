@@ -19,7 +19,7 @@
         
         @if(isset($differences['order']))
         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <h5 class="font-medium text-gray-900 dark:text-gray-100 mb-3">📋 Dados do Pedido</h5>
+            <h5 class="font-medium text-gray-900 dark:text-gray-100 mb-3"> Dados do Pedido</h5>
             <div class="space-y-2">
                 @foreach($differences['order'] as $key => $change)
                 <div class="grid grid-cols-2 gap-4 py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
@@ -65,7 +65,7 @@
 
         @if(isset($differences['client']))
         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <h5 class="font-medium text-gray-900 dark:text-gray-100 mb-3">👤 Dados do Cliente</h5>
+            <h5 class="font-medium text-gray-900 dark:text-gray-100 mb-3"> Dados do Cliente</h5>
             <div class="space-y-2">
                 @foreach($differences['client'] as $key => $change)
                 <div class="grid grid-cols-2 gap-4 py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
@@ -103,7 +103,7 @@
 
         @if(isset($differences['items']))
         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <h5 class="font-medium text-gray-900 dark:text-gray-100 mb-3">🎨 Itens do Pedido</h5>
+            <h5 class="font-medium text-gray-900 dark:text-gray-100 mb-3"> Itens do Pedido</h5>
             @foreach($differences['items'] as $itemId => $itemChanges)
             <div class="mb-4 last:mb-0">
                 <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Item #{{ $itemId }}</p>
@@ -149,7 +149,7 @@
                                         elseif($key === 'files' && is_array($oldValue)) {
                                             echo '<div class="space-y-1">';
                                             foreach($oldValue as $file) {
-                                                echo '<div class="text-xs">📎 ' . ($file['file_name'] ?? 'Arquivo') . '</div>';
+                                                echo '<div class="text-xs"> ' . ($file['file_name'] ?? 'Arquivo') . '</div>';
                                             }
                                             echo '</div>';
                                         }
@@ -208,7 +208,7 @@
                                         elseif($key === 'files' && is_array($newValue)) {
                                             echo '<div class="space-y-1">';
                                             foreach($newValue as $file) {
-                                                echo '<div class="text-xs">📎 ' . ($file['file_name'] ?? 'Arquivo') . '</div>';
+                                                echo '<div class="text-xs"> ' . ($file['file_name'] ?? 'Arquivo') . '</div>';
                                             }
                                             echo '</div>';
                                         }
@@ -239,7 +239,7 @@
     @elseif($editRequest->status === 'approved' && $editRequest->order_snapshot_before)
     <!-- Solicitação Aprovada mas ainda não implementada -->
     <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-        <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2">✅ Edição Aprovada</h4>
+        <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2"> Edição Aprovada</h4>
         <p class="text-sm text-green-800 dark:text-green-200">Esta edição foi aprovada e está aguardando implementação pelo usuário. O estado atual do pedido foi salvo e as alterações poderão ser visualizadas após a implementação.</p>
     </div>
     
@@ -252,7 +252,12 @@
     @else
     <!-- Solicitação Pendente -->
     <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-        <h4 class="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">⏳ Aguardando Análise</h4>
+        <h4 class="font-semibold text-yellow-900 dark:text-yellow-100 mb-2 inline-flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 2h8m-8 20h8M9 2v6l3 3 3-3V2M9 22v-6l3-3 3 3v6"></path>
+            </svg>
+            Aguardando Análise
+        </h4>
         <p class="text-sm text-yellow-800 dark:text-yellow-200">Esta solicitação está pendente de análise. As alterações detalhadas serão visíveis após a aprovação e implementação.</p>
     </div>
 

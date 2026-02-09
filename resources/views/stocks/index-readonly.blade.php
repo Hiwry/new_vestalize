@@ -110,15 +110,15 @@
                 <div class="flex items-center gap-3">
                     <span class="text-indigo-700 dark:text-indigo-400">{{ $group['store']['name'] }}</span>
                     <span class="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 rounded-full font-semibold border border-amber-300 dark:border-amber-700">
-                        🧵 {{ $group['fabric_type']['name'] ?? $group['fabric']['name'] ?? '-' }}
+                         {{ $group['fabric_type']['name'] ?? $group['fabric']['name'] ?? '-' }}
                     </span>
                     @if($group['cut_type']['name'] ?? null)
                     <span class="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 rounded-full font-semibold border border-purple-300 dark:border-purple-700">
-                        ✂️ {{ $group['cut_type']['name'] }}
+                         {{ $group['cut_type']['name'] }}
                     </span>
                     @endif
                     @if($group['shelf'] ?? null)
-                    <span class="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded">📍 {{ $group['shelf'] }}</span>
+                    <span class="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded"> {{ $group['shelf'] }}</span>
                     @endif
                 </div>
             </div>

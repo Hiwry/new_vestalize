@@ -145,7 +145,7 @@ class PlansSeeder extends Seeder
             }
         }
         
-        $this->command->info('✅ Planos criados/atualizados com sucesso!');
+        $this->command->info(' Planos criados/atualizados com sucesso!');
         $this->command->table(
             ['Plano', 'Preço', 'Usuários', 'Lojas', 'Features'],
             collect($plans)->map(function($plan) {

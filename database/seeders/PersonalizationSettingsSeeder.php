@@ -13,7 +13,7 @@ class PersonalizationSettingsSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('🎨 Criando configurações de personalização...');
+        $this->command->info(' Criando configurações de personalização...');
 
         // Configurações por tipo de personalização
         $settings = [
@@ -128,10 +128,10 @@ class PersonalizationSettingsSeeder extends Seeder
             );
         }
 
-        $this->command->info('✅ Configurações criadas!');
+        $this->command->info(' Configurações criadas!');
 
         // Opções especiais (adicionais)
-        $this->command->info('✨ Criando opções especiais...');
+        $this->command->info(' Criando opções especiais...');
 
         $specialOptions = [
             // Serigrafia
@@ -164,6 +164,6 @@ class PersonalizationSettingsSeeder extends Seeder
             );
         }
 
-        $this->command->info('✅ Opções especiais criadas!');
+        $this->command->info(' Opções especiais criadas!');
     }
 }

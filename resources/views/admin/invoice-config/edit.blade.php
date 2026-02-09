@@ -101,7 +101,7 @@
                         <input type="file" name="certificate" accept=".pfx,.p12"
                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-900/50 dark:file:text-indigo-300 hover:file:bg-indigo-100">
                         @if($config->certificate_path)
-                            <p class="mt-2 text-xs text-green-600 dark:text-green-400">✓ Certificado carregado @if($config->certificate_expires_at)- Expira {{ $config->certificate_expires_at->format('d/m/Y') }}@endif</p>
+                            <p class="mt-2 text-xs text-green-600 dark:text-green-400"> Certificado carregado @if($config->certificate_expires_at)- Expira {{ $config->certificate_expires_at->format('d/m/Y') }}@endif</p>
                         @endif
                     </div>
                     <div>

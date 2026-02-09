@@ -4,7 +4,7 @@ description: Como consolidar migrations de forma segura (schema:dump)
 
 # Consolidação de Migrations
 
-## ⚠️ IMPORTANTE: Leia antes de executar
+##  IMPORTANTE: Leia antes de executar
 
 Este processo **NÃO DEVE** ser executado diretamente em produção. 
 Ele requer um backup completo do banco de dados antes de qualquer ação.

@@ -99,7 +99,7 @@ class FocusNfeService
 
         return [
             'success' => true,
-            'message' => '✅ NF-e emitida com sucesso! (MODO DEMONSTRAÇÃO - Nota não válida fiscalmente)',
+            'message' => ' NF-e emitida com sucesso! (MODO DEMONSTRAÇÃO - Nota não válida fiscalmente)',
             'invoice' => $invoice->fresh(),
             'demo' => true,
         ];

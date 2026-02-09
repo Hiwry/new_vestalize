@@ -2,19 +2,19 @@
 
 ![Avento Thumbnail](https://github.com/user-attachments/assets/ed6b7c90-8a71-4617-83a5-81480808ca02)
 
-## 🔥 Introduction
+##  Introduction
 
 Avento is a modern, high-performance project management web application designed to streamline workflows, manage projects, and handle invoices with an elegant and responsive design.
 
-## 🔗 Live Preview
+##  Live Preview
 
 Check out the live demo of Avento here: [Live Preview](https://avento-app.vercel.app)
 
-## 🎥 Watch on YouTube
+##  Watch on YouTube
 
 Take a look at YouTube video by watching the demo: [Watch the Video](https://www.youtube.com/watch?v=8UlfQRGvAtU)
 
-## 💻 Tech Stack
+##  Tech Stack
 
 - **Next.js 16** – React framework for production
 - **React 19** – The library for web and native user interfaces
@@ -23,7 +23,7 @@ Take a look at YouTube video by watching the demo: [Watch the Video](https://www
 - **Motion** – Production-ready motion library
 - **TypeScript** – Type-safe code
 
-## 🛠️ Installation
+##  Installation
 
 Clone the repository:
 
@@ -62,18 +62,18 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## 🚀 Deploy on Vercel
+##  Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
-## 📜 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## ☕ Buy Me a Coffee
+##  Buy Me a Coffee
 
 If you enjoy using this project, consider supporting my work!
 
-[Buy Me a Coffee ☕](https://buymeacoffee.com/shreyas29)
+[Buy Me a Coffee ](https://buymeacoffee.com/shreyas29)

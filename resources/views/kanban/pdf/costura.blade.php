@@ -211,7 +211,7 @@
                                 <img src="{{ $coverImageUrl }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
                             @else
                                 <div style="color: #cbd5e1; padding: 20px;">
-                                    <div style="font-size: 24px; margin-bottom: 10px;">🖼️</div>
+                                    <div style="font-size: 24px; margin-bottom: 10px;"></div>
                                     <div>SEM IMAGEM</div>
                                     <div style="font-size: 9px;">Adicione uma capa ao pedido ou ao item</div>
                                 </div>

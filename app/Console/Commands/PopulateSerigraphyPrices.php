@@ -83,7 +83,7 @@ class PopulateSerigraphyPrices extends Command
             ]);
         }
 
-        $this->info('✅ Preços de serigrafia populados com sucesso!');
+        $this->info(' Preços de serigrafia populados com sucesso!');
         $this->info('Total de preços base criados: ' . (count($priceData) * 3));
         $this->info('Total de preços de cores criados: ' . (count($priceData) + 1));
     }

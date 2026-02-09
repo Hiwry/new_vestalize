@@ -8,7 +8,7 @@
         @if($order->items->count() > 0)
             <div class="space-y-3">
                 @foreach($order->items as $index => $item)
-                <div class="p-4 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-colors">
+                <div id="sidebar-item-{{ $item->id }}" class="p-4 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-colors">
                     <div class="flex justify-between items-start mb-3">
                         <span class="text-sm font-semibold text-gray-900 dark:text-white">Item {{ $index + 1 }}</span>
                         <div class="flex gap-1">

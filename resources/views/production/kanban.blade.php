@@ -836,7 +836,7 @@
                     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-2 border-indigo-200 p-6">
                         <div class="flex justify-between items-center mb-4 pb-3 border-b border-indigo-300">
                             <h5 class="text-xl font-bold text-indigo-900">Item ${item.item_number || index + 1}</h5>
-                            <span class="text-sm bg-indigo-600 text-white px-3 py-1 rounded-full font-semibold">${item.quantity} peças</span>
+                            <span class="text-sm bg-indigo-600 text-white px-3 py-1 rounded-full font-semibold" style="color: #fff !important;">${item.quantity} peças</span>
                         </div>
 
                         <!-- Imagem de Capa -->
@@ -1081,14 +1081,14 @@
                                         };
                                         
                                         if (changes.client) {
-                                            changesHtml += '<div class="text-xs font-semibold text-orange-700">📋 Cliente:</div>';
+                                            changesHtml += '<div class="text-xs font-semibold text-orange-700"> Cliente:</div>';
                                             Object.entries(changes.client).forEach(([field, change]) => {
                                                 changesHtml += '<div class="text-xs ml-2"><span class="font-medium">' + (fieldLabels[field] || field) + ':</span> <span class="line-through text-red-500">' + formatValue(change.old) + '</span> → <span class="text-green-600">' + formatValue(change.new) + '</span></div>';
                                             });
                                         }
                                         
                                         if (changes.order) {
-                                            changesHtml += '<div class="text-xs font-semibold text-orange-700 mt-1">📦 Pedido:</div>';
+                                            changesHtml += '<div class="text-xs font-semibold text-orange-700 mt-1"> Pedido:</div>';
                                             Object.entries(changes.order).forEach(([field, change]) => {
                                                 changesHtml += '<div class="text-xs ml-2"><span class="font-medium">' + (fieldLabels[field] || field) + ':</span> <span class="line-through text-red-500">' + formatValue(change.old) + '</span> → <span class="text-green-600">' + formatValue(change.new) + '</span></div>';
                                             });
@@ -1097,16 +1097,16 @@
                                         if (changes.items) {
                                             Object.entries(changes.items).forEach(([itemId, itemChange]) => {
                                                 if (itemChange.type === 'modified' && itemChange.changes) {
-                                                    changesHtml += '<div class="text-xs font-semibold text-orange-700 mt-1">👕 Item ' + itemId + ':</div>';
+                                                    changesHtml += '<div class="text-xs font-semibold text-orange-700 mt-1"> Item ' + itemId + ':</div>';
                                                     Object.entries(itemChange.changes).forEach(([field, change]) => {
                                                         if (field !== 'sublimations' && field !== 'files') {
                                                             changesHtml += '<div class="text-xs ml-2"><span class="font-medium">' + (fieldLabels[field] || field) + ':</span> <span class="line-through text-red-500">' + formatValue(change.old) + '</span> → <span class="text-green-600">' + formatValue(change.new) + '</span></div>';
                                                         }
                                                     });
                                                 } else if (itemChange.type === 'added') {
-                                                    changesHtml += '<div class="text-xs font-semibold text-green-700 mt-1">➕ Novo Item adicionado</div>';
+                                                    changesHtml += '<div class="text-xs font-semibold text-green-700 mt-1"> Novo Item adicionado</div>';
                                                 } else if (itemChange.type === 'removed') {
-                                                    changesHtml += '<div class="text-xs font-semibold text-red-700 mt-1">➖ Item removido</div>';
+                                                    changesHtml += '<div class="text-xs font-semibold text-red-700 mt-1"> Item removido</div>';
                                                 }
                                             });
                                         }

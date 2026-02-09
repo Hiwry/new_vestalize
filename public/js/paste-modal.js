@@ -180,7 +180,7 @@ class PasteModal {
 
         if (hasFiles) {
             this.updatePreview();
-            this.showNotification('✅ Arquivo(s) colado(s) com sucesso!', 'success');
+            this.showNotification(' Arquivo(s) colado(s) com sucesso!', 'success');
         }
     }
 
@@ -213,7 +213,7 @@ class PasteModal {
         const sizeMB = file.size / 1024 / 1024;
         
         if (sizeMB > maxSize) {
-            this.showNotification(`❌ Arquivo muito grande: ${file.name} (${sizeMB.toFixed(2)}MB). Máximo: ${maxSize}MB`, 'error');
+            this.showNotification(` Arquivo muito grande: ${file.name} (${sizeMB.toFixed(2)}MB). Máximo: ${maxSize}MB`, 'error');
             return;
         }
 
@@ -227,7 +227,7 @@ class PasteModal {
                 : ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'cdr', 'ai', 'svg']);
         
         if (!allowedExtensions.includes(extension)) {
-            this.showNotification(`❌ Tipo de arquivo não permitido: .${extension}. Permitidos: ${allowedExtensions.join(', ')}`, 'error');
+            this.showNotification(` Tipo de arquivo não permitido: .${extension}. Permitidos: ${allowedExtensions.join(', ')}`, 'error');
             return;
         }
 
@@ -299,7 +299,7 @@ class PasteModal {
             if (typeof notify === 'function') {
                 notify('Nenhum arquivo selecionado', 'error');
             } else {
-                this.showNotification('❌ Nenhum arquivo selecionado', 'error');
+                this.showNotification(' Nenhum arquivo selecionado', 'error');
             }
             return;
         }
@@ -325,9 +325,9 @@ class PasteModal {
         this.currentInput.dispatchEvent(new Event('change', { bubbles: true }));
         
         if (typeof notify === 'function') {
-            notify(`✅ ${this.files.length} arquivo(s) adicionado(s)!`, 'success');
+            notify(` ${this.files.length} arquivo(s) adicionado(s)!`, 'success');
         } else {
-            this.showNotification(`✅ ${this.files.length} arquivo(s) adicionado(s)!`, 'success');
+            this.showNotification(` ${this.files.length} arquivo(s) adicionado(s)!`, 'success');
         }
         
         this.close();

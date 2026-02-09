@@ -44,7 +44,7 @@ class TenantCreated extends Notification implements ShouldQueue
         $planName = $planNames[$this->tenant->plan] ?? 'Básico';
 
         $message = (new MailMessage)
-            ->subject('Bem-vindo ao Vestalize! 🎉')
+            ->subject('Bem-vindo ao Vestalize! ')
             ->greeting('Olá, ' . $this->tenant->name . '!')
             ->line('Sua conta foi criada com sucesso.')
             ->line('')

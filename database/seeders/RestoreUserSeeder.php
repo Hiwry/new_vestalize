@@ -55,9 +55,9 @@ class RestoreUserSeeder extends Seeder
             $user->stores()->attach($store->id, ['role' => 'admin_geral']);
         }
 
-        $this->command->info('✅ Usuário restaurado com sucesso!');
-        $this->command->info('📧 Email: hiwry-keveny2013@hotmail.com');
-        $this->command->info('🔑 Senha: qyVv');
-        $this->command->info('🏪 Código da Loja: ORCQWR');
+        $this->command->info(' Usuário restaurado com sucesso!');
+        $this->command->info(' Email: hiwry-keveny2013@hotmail.com');
+        $this->command->info(' Senha: qyVv');
+        $this->command->info(' Código da Loja: ORCQWR');
     }
 }

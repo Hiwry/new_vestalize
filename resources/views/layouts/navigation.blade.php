@@ -54,7 +54,7 @@
             <div class="flex items-center ms-4">
                 <button onclick="toggleDarkMode()" 
                         class="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out">
-                    <span class="text-sm mr-2">🌙</span>
+                    <span class="text-sm mr-2"></span>
                     <svg id="moon-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
                     </svg>
@@ -86,7 +86,7 @@
 
                         @if(Auth::user()->isAdmin())
                         <x-dropdown-link :href="route('admin.company.settings')">
-                            🏢 Dados da Empresa
+                             Dados da Empresa
                         </x-dropdown-link>
                         @endif
 

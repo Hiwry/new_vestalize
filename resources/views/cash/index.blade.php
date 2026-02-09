@@ -43,7 +43,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <!-- Saldo Atual (Confirmado) - Mais importante -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6 border-l-4 border-blue-500 dark:border-blue-600">
-            <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">💰 Saldo Atual</p>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mb-1"> Saldo Atual</p>
             <p class="text-3xl font-bold {{ $saldoAtual >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400' }}">
                 R$ {{ number_format($saldoAtual, 2, ',', '.') }}
             </p>
@@ -52,7 +52,7 @@
 
         <!-- Total Entradas do Período -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6 border-l-4 border-green-500 dark:border-green-600">
-            <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">📈 Entradas (Período)</p>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mb-1"> Entradas (Período)</p>
             <p class="text-3xl font-bold text-green-600 dark:text-green-400">
                 R$ {{ number_format($totalEntradas, 2, ',', '.') }}
             </p>
@@ -61,7 +61,7 @@
 
         <!-- Total Saídas do Período -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6 border-l-4 border-red-500 dark:border-red-600">
-            <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">📉 Saídas (Período)</p>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mb-1"> Saídas (Período)</p>
             <p class="text-3xl font-bold text-red-600 dark:text-red-400">
                 R$ {{ number_format($totalSaidas, 2, ',', '.') }}
             </p>
@@ -231,7 +231,12 @@ Visualização em Grid (até 8 notas por linha) -->
             <div class="bg-orange-50 dark:bg-orange-900/10 rounded-lg border-2 border-orange-200 dark:border-orange-800/30 min-h-96 flex-shrink-0" style="min-width: 280px;">
                 <div class="px-4 py-3 bg-orange-500 dark:bg-orange-600 rounded-t-md">
                     <h3 class="font-semibold text-white flex items-center justify-between">
-                        <span>⏳ Pendente</span>
+                        <span class="inline-flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 2h8m-8 20h8M9 2v6l3 3 3-3V2M9 22v-6l3-3 3 3v6"></path>
+                            </svg>
+                            Pendente
+                        </span>
                         <span class="text-sm bg-white/20 px-2 py-1 rounded">{{ $pendentes->count() }}</span>
                     </h3>
                     <p class="text-xs text-white/80 mt-1">Total: R$ {{ number_format($totalPendentes, 2, ',', '.') }}</p>
@@ -249,7 +254,7 @@ Visualização em Grid (até 8 notas por linha) -->
             <div class="bg-blue-50 dark:bg-blue-900/10 rounded-lg border-2 border-blue-200 dark:border-blue-800/30 min-h-96 flex-shrink-0" style="min-width: 280px;">
                 <div class="px-4 py-3 bg-blue-500 dark:bg-blue-600 rounded-t-md">
                     <h3 class="font-semibold text-white flex items-center justify-between">
-                        <span>✓ Confirmado</span>
+                        <span> Confirmado</span>
                         <span class="text-sm bg-white/20 px-2 py-1 rounded">{{ $confirmadas->count() }}</span>
                     </h3>
                     <p class="text-xs text-white/80 mt-1">Saldo: R$ {{ number_format($totalConfirmadas, 2, ',', '.') }}</p>
@@ -267,7 +272,7 @@ Visualização em Grid (até 8 notas por linha) -->
             <div class="bg-red-50 dark:bg-red-900/10 rounded-lg border-2 border-red-200 dark:border-red-800/30 min-h-96 flex-shrink-0" style="min-width: 280px;">
                 <div class="px-4 py-3 bg-red-500 dark:bg-red-600 rounded-t-md">
                     <h3 class="font-semibold text-white flex items-center justify-between">
-                        <span>✕ Cancelado</span>
+                        <span> Cancelado</span>
                         <span class="text-sm bg-white/20 px-2 py-1 rounded">{{ $canceladas->count() }}</span>
                     </h3>
                     <p class="text-xs text-white/80 mt-1">Total: R$ {{ number_format($totalCanceladas, 2, ',', '.') }}</p>
@@ -285,7 +290,7 @@ Visualização em Grid (até 8 notas por linha) -->
             <div class="bg-purple-50 dark:bg-purple-900/10 rounded-lg border-2 border-purple-200 dark:border-purple-800/30 min-h-96 flex-shrink-0" style="min-width: 280px;">
                 <div class="px-4 py-3 bg-purple-500 dark:bg-purple-600 rounded-t-md">
                     <h3 class="font-semibold text-white flex items-center justify-between">
-                        <span>💸 Sangria</span>
+                        <span> Sangria</span>
                         <span class="text-sm bg-white/20 px-2 py-1 rounded">{{ $sangrias->count() }}</span>
                     </h3>
                     <p class="text-xs text-white/80 mt-1">Total: R$ {{ number_format($totalSangrias, 2, ',', '.') }}</p>

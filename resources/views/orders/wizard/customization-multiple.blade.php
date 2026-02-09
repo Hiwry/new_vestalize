@@ -379,7 +379,7 @@
                                                         
                                                         @if($pers->files && $pers->files->count() > 0)
                                                             <div class="mt-2 pt-2 border-t border-gray-200 dark:border-slate-700">
-                                                                <div class="text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">📁 Arquivos da Arte:</div>
+                                                                <div class="text-xs font-medium text-gray-600 dark:text-slate-400 mb-1"> Arquivos da Arte:</div>
                                                                 <div class="flex flex-wrap gap-2">
                                                                     @foreach($pers->files as $file)
                                                                         <a href="{{ asset('storage/' . $file->file_path) }}" 
@@ -2049,7 +2049,7 @@
                     const sizeMB = (file.size / 1024 / 1024).toFixed(2);
                     html += `
                         <div class="flex items-center justify-between text-xs bg-gray-50 dark:bg-slate-800 px-2 py-1 rounded border border-gray-200 dark:border-slate-700">
-                            <span class="truncate flex-1 text-gray-900 dark:text-white">📄 ${file.name}</span>
+                            <span class="truncate flex-1 text-gray-900 dark:text-white"> ${file.name}</span>
                             <span class="text-gray-500 dark:text-slate-400 ml-2">${sizeMB} MB</span>
                         </div>
                     `;

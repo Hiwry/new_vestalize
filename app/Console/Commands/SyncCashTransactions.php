@@ -64,7 +64,7 @@ class SyncCashTransactions extends Command
             }
         }
 
-        $this->info("✅ Sincronização concluída! {$count} transação(ões) criada(s).");
+        $this->info(" Sincronização concluída! {$count} transação(ões) criada(s).");
         
         return Command::SUCCESS;
     }

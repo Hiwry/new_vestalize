@@ -31,7 +31,7 @@ class AdminNewTenantNotification extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '🚀 Novo Cliente Registrado: ' . $this->tenant->name,
+            subject: ' Novo Cliente Registrado: ' . $this->tenant->name,
         );
     }
 

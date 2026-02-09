@@ -27,6 +27,119 @@
     .dark .custom-scrollbar::-webkit-scrollbar-thumb {
         background-color: #4b5563;
     }
+
+    /* Order modal visual polish */
+    #order-modal .order-modal-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+    }
+    .dark #order-modal .order-modal-card {
+        background: #0b1221;
+        border-color: #1f2937;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+    }
+    #order-modal .order-modal-card.accent {
+        background: linear-gradient(135deg, #f8fafc, #eef2ff);
+        border-color: #e0e7ff;
+    }
+    .dark #order-modal .order-modal-card.accent {
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.16), rgba(124, 58, 237, 0.16));
+        border-color: #312e81;
+    }
+    #order-modal .order-modal-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .dark #order-modal .order-modal-title { color: #e5e7eb; }
+    #order-modal .order-modal-title svg { color: #4f46e5; }
+    #order-modal .order-action-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: stretch;
+    }
+    #order-modal .order-action-grid > * { flex: 1 1 220px; }
+    #order-modal .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border-radius: 12px;
+        font-weight: 700;
+        padding: 0.65rem 1rem;
+        transition: all 0.18s ease;
+        box-shadow: 0 12px 25px rgba(79, 70, 229, 0.18);
+        color: #fff;
+    }
+    #order-modal .btn-modern:hover { transform: translateY(-1px); }
+    #order-modal .btn-modern svg { color: currentColor; }
+    #order-modal .btn-primary { background: linear-gradient(135deg, #4f46e5, #7c3aed); }
+    #order-modal .btn-warning { background: linear-gradient(135deg, #f59e0b, #f97316); box-shadow: 0 12px 25px rgba(249, 115, 22, 0.22); }
+    #order-modal .btn-success { background: linear-gradient(135deg, #16a34a, #22c55e); box-shadow: 0 12px 25px rgba(34, 197, 94, 0.22); }
+    #order-modal .btn-rose { background: linear-gradient(135deg, #ec4899, #db2777); box-shadow: 0 12px 25px rgba(236, 72, 153, 0.22); }
+    #order-modal .btn-neutral {
+        background: #fff;
+        color: #111827;
+        border: 1px solid #e2e8f0;
+        box-shadow: none;
+    }
+    #order-modal .btn-neutral:hover { border-color: #cbd5e1; }
+    .dark #order-modal .btn-neutral { background: #0f172a; color: #e5e7eb; border-color: #1f2937; }
+    #order-modal .pill-soft {
+        padding: 0.35rem 0.75rem;
+        border-radius: 9999px;
+        background: #eef2ff;
+        color: #4338ca;
+        font-weight: 700;
+    }
+    .dark #order-modal .pill-soft { background: rgba(124, 58, 237, 0.15); color: #c4b5fd; }
+    #order-modal .surface-muted {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+    }
+    .dark #order-modal .surface-muted { background: #111827; border-color: #1f2937; }
+    #order-modal .order-subcard {
+        background: #ffffff;
+        border: 1px solid #d7e0ee;
+        border-radius: 14px;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    }
+    .dark #order-modal .order-subcard {
+        background: #0f172a;
+        border-color: #334155;
+    }
+    #order-modal .order-subcard-title {
+        color: #1f2937;
+        font-weight: 700;
+    }
+    .dark #order-modal .order-subcard-title { color: #e5e7eb; }
+    #order-modal .btn-compact {
+        min-height: 34px;
+        padding: 0.4rem 0.85rem;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        line-height: 1rem;
+    }
+    #order-modal .file-empty-state {
+        color: #475569;
+        font-weight: 500;
+        text-align: center;
+        padding: 0.65rem 0.75rem;
+        border-radius: 10px;
+        border: 1px dashed #cbd5e1;
+        background: #ffffff;
+    }
+    .dark #order-modal .file-empty-state {
+        color: #cbd5e1;
+        border-color: #475569;
+        background: #0f172a;
+    }
 </style>
 @endpush
 
@@ -601,7 +714,7 @@
                                     }
                                 }
                             @endphp
-                            <div class="kanban-card custom-card-shadow group/card bg-white border border-gray-200 text-gray-900 rounded-xl overflow-hidden cursor-pointer hover:bg-gray-50 transition-all duration-200 dark:bg-[#22272e] dark:border-[#373e47] dark:text-gray-100 dark:hover:bg-[#2d333b]" 
+                            <div class="kanban-card custom-card-shadow group/card bg-white border border-gray-200 text-gray-900 rounded-xl overflow-hidden cursor-pointer hover:bg-gray-50 hover:border-indigo-300 transition-all duration-200 dark:bg-[#22272e] dark:border-[#373e47] dark:text-gray-100 dark:hover:bg-[#2d333b] dark:hover:border-indigo-500/40" 
                                  style="box-shadow: var(--kanban-card-shadow) !important;"
                                  data-order-id="{{ $order->id }}">
                                 
@@ -628,24 +741,27 @@
                                                 <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-orange-500/20 text-orange-200 border border-orange-400/40">Editado</span>
                                             @endif
                                             @if($order->stock_separation_status === 'in_separation')
-                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-blue-500/20 text-blue-200 border border-blue-400/40 dark:bg-blue-600/20 dark:text-blue-100 dark:border-blue-500/40">Em Separação</span>
+                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-600/20 dark:text-blue-100 dark:border-blue-500/40">Em Separação</span>
+                                            @elseif($order->stock_separation_status === 'completed')
+                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-600/20 dark:text-emerald-100 dark:border-emerald-500/40">Separado</span>
                                             @endif
                                             @if($order->stock_status === 'none')
-                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-red-100 text-red-700 border border-red-200 dark:bg-red-500/20 dark:text-red-200 dark:border-red-400/40">Sem estoque</span>
+                                                <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-red-600 !text-white border border-red-500 shadow-sm shadow-red-500/30 dark:bg-red-500 dark:border-red-400" style="color: #fff !important;">
+                                                    Sem estoque
+                                                </span>
                                             @elseif($order->stock_status === 'partial')
                                                 <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-yellow-100 text-yellow-700 border border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-100 dark:border-yellow-400/40">Estoque parcial</span>
                                             @elseif($order->stock_status === 'total')
                                                 <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-green-100 text-green-700 border border-green-200 dark:bg-green-500/15 dark:text-green-200 dark:border-green-400/30">Estoque ok</span>
                                             @endif
                                             @if($order->is_event)
-                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-purple-600 text-white border border-purple-600 dark:bg-purple-600 dark:text-white dark:border-purple-600">Evento</span>
+                                                <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-gradient-to-r from-fuchsia-600 to-violet-600 !text-white border border-fuchsia-500 shadow-sm shadow-fuchsia-500/30 dark:from-fuchsia-500 dark:to-violet-500 dark:border-fuchsia-400" style="color: #fff !important;">
+                                                    Evento
+                                                </span>
                                             @endif
                                         </div>
                                         <div class="flex items-center gap-2 text-gray-600 text-[11px] dark:text-gray-400">
-                                            <div class="flex items-center gap-1">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-                                                </svg>
+                                            <div class="flex items-center gap-1 px-1.5 py-0.5 rounded-md border {{ $filesCount > 0 ? 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-500/15 dark:text-sky-200 dark:border-sky-400/30' : 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-400/30' }}">
                                                 <span>{{ $filesCount }} arq.</span>
                                             </div>
                                             <div id="comment-badge-{{ $order->id }}"
@@ -1109,8 +1225,11 @@
                         </svg>
                         Adicionar Imagem (Ctrl+V, Arraste ou Clique)
                     </button>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
-                        💡 Use Ctrl+V para colar da área de transferência!
+                    <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-2 inline-flex items-center justify-center gap-1.5 w-full">
+                        <svg class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <span>Use Ctrl+V para colar da área de transferência!</span>
                     </p>
                 </div>
                 
@@ -1546,8 +1665,8 @@
                                     <button onclick="downloadAllFiles(${orderId})"
                                             id="btn-download-files-${orderId}"
                                             data-count="1"
-                                            class="flex items-center justify-center px-3 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition">
-                                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            class="btn-modern btn-success">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
                                         </svg>
                                         <span class="btn-text text-white">Arquivos da Arte (1)</span>
@@ -1660,7 +1779,7 @@
                     if (remaining === 0) {
                         if (!document.getElementById(`no-files-msg-${itemId}`)) {
                             list.insertAdjacentHTML('beforeend',
-                                `<p class="text-sm text-gray-500 dark:text-gray-400 text-center py-2" id="no-files-msg-${itemId}">Nenhum arquivo anexado.</p>`
+                                `<p class="file-empty-state" id="no-files-msg-${itemId}">Nenhum arquivo anexado.</p>`
                             );
                         }
                     }
@@ -1737,89 +1856,89 @@
             
             let html = `
                 <!-- Container principal com 2 colunas -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 order-modal-layout">
                     <!-- COLUNA ESQUERDA -->
                     <div class="space-y-6">
                         <!-- Ações do Pedido -->
-                        <div class="bg-gradient-to-r from-violet-50 to-fuchsia-50 dark:from-violet-900/20 dark:to-fuchsia-900/20 rounded-lg p-4 border-2 border-violet-200 dark:border-violet-600/30">
-                    <h4 class="font-semibold mb-3 text-violet-900 dark:text-violet-200 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-violet-700 dark:text-violet-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
-                        </svg>
-                        Ações
-                    </h4>
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="openEditRequestModal(${order.id})" 
-                                class="px-3 py-1.5 text-sm bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-medium rounded-md transition-all flex items-center shadow">
-                            <svg class="w-4 h-4 mr-1.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                            </svg>
-                            Editar Pedido
-                        </button>
-                        @if(Auth::user()->isAdmin() || Auth::user()->isProducao())
-                        <div class="flex gap-2 flex-1">
-                            <select id="move-status-select" 
-                                    class="flex-1 px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-violet-300 dark:border-violet-600/30 rounded-md text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 transition-all">
-                                <option value="">Selecione a coluna...</option>
-                                @foreach($statuses as $status)
-                                <option value="{{ $status->id }}" data-status-id="{{ $status->id }}">
-                                    {{ $status->name }}
-                                </option>
-                                @endforeach
-                            </select>
-                            <button onclick="moveCardToColumn(${order.id})" 
-                                    class="px-4 py-1.5 text-sm bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-medium rounded-md transition-all flex items-center shadow">
-                                <svg class="w-4 h-4 mr-1.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        <div class="order-modal-card accent p-4">
+                            <h4 class="order-modal-title mb-3">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
                                 </svg>
-                                Mover
-                            </button>
+                                Ações
+                            </h4>
+                            <div class="order-action-grid">
+                                <button onclick="openEditRequestModal(${order.id})" 
+                                        class="btn-modern btn-warning min-w-[180px]">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                    Editar Pedido
+                                </button>
+                                @if(Auth::user()->isAdmin() || Auth::user()->isProducao())
+                                <div class="flex items-center gap-2 w-full">
+                                    <select id="move-status-select" 
+                                            class="flex-1 h-[46px] px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-slate-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400">
+                                        <option value="">Selecione a coluna...</option>
+                                        @foreach($statuses as $status)
+                                        <option value="{{ $status->id }}" data-status-id="{{ $status->id }}">
+                                            {{ $status->name }}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                    <button onclick="moveCardToColumn(${order.id})" 
+                                            class="btn-modern btn-primary h-[46px] min-w-[140px]">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Mover
+                                    </button>
+                                </div>
+                                @endif
+                            </div>
                         </div>
-                        @endif
-                    </div>
-                </div>
 
-                    <!-- Botões de Download -->
-                <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4 border border-violet-200 dark:border-violet-600/30">
-                    <h4 class="font-semibold mb-3 text-violet-900 dark:text-violet-200 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-violet-700 dark:text-violet-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
-                        </svg>
-                        Downloads
-                    </h4>
-                    <div class="flex flex-wrap gap-2" id="downloads-list-${order.id}">
-                        <a href="/kanban/download-costura/${order.id}" target="_blank"
-                           class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition shadow-sm">
-                            <svg class="w-4 h-4 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
-                            </svg>
-                            ${isPersonalized ? 'Folha Personalizado (A4)' : 'Folha Costura (A4)'}
-                        </a>
-                        <a href="/kanban/download-personalizacao/${order.id}" target="_blank"
-                           class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition shadow-sm">
-                            <svg class="w-4 h-4 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
-                            </svg>
-                            Folha Personalização (A4)
-                        </a>
-                        ${totalFiles > 0 ? `
-                        <button onclick="downloadAllFiles(${order.id})"
-                                id="btn-download-files-${order.id}"
-                                data-count="${totalFiles}"
-                                class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium bg-green-600 hover:bg-green-700 text-white rounded-lg transition shadow-sm">
-                            <svg class="w-4 h-4 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
-                            </svg>
-                            <span class="btn-text text-white">Arquivos da Arte (${totalFiles})</span>
-                        </button>
-                        ` : ''}
-                    </div>
-                </div>
+                        <!-- Botões de Download -->
+                        <div class="order-modal-card accent p-4">
+                            <h4 class="order-modal-title mb-3">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                </svg>
+                                Downloads
+                            </h4>
+                            <div class="flex flex-wrap gap-2" id="downloads-list-${order.id}">
+                                <a href="/kanban/download-costura/${order.id}" target="_blank"
+                                   class="btn-modern btn-primary">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                    </svg>
+                                    ${isPersonalized ? 'Folha Personalizado (A4)' : 'Folha Costura (A4)'}
+                                </a>
+                                <a href="/kanban/download-personalizacao/${order.id}" target="_blank"
+                                   class="btn-modern btn-rose">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                    </svg>
+                                    Folha Personalização (A4)
+                                </a>
+                                ${totalFiles > 0 ? `
+                                <button onclick="downloadAllFiles(${order.id})"
+                                        id="btn-download-files-${order.id}"
+                                        data-count="${totalFiles}"
+                                        class="btn-modern btn-success">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                    </svg>
+                                    <span class="btn-text text-white">Arquivos da Arte (${totalFiles})</span>
+                                </button>
+                                ` : ''}
+                            </div>
+                        </div>
 
                     <!-- Informações do Cliente -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-4">
-                    <h4 class="font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="order-modal-card p-4">
+                    <h4 class="order-modal-title mb-3">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
                         Cliente
@@ -1834,9 +1953,9 @@
 
                     <!-- Vendedor -->
                 ${order.seller ? `
-                <div class="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-4">
-                    <h4 class="font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="order-modal-card p-4">
+                    <h4 class="order-modal-title mb-3">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
                         Vendedor
@@ -1891,16 +2010,16 @@
                                 : null);
 
                         return `
-                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border-2 border-indigo-200 dark:border-indigo-600/30 p-6">
+                    <div class="order-modal-card accent p-6 space-y-5">
                         <div class="flex justify-between items-center mb-4 pb-3 border-b border-indigo-300 dark:border-indigo-600/30">
                             <h5 class="text-xl font-bold text-indigo-900 dark:text-indigo-300">Item ${item.item_number || index + 1}</h5>
-                            <span class="text-sm bg-indigo-600 dark:bg-indigo-600 text-white px-3 py-1 rounded-full font-semibold">${item.quantity} peças</span>
+                            <span class="text-sm bg-indigo-600 dark:bg-indigo-600 !text-white px-3 py-1 rounded-full font-semibold" style="color: #fff !important;">${item.quantity} peças</span>
                         </div>
 
                         <!-- Nome da Arte -->
-                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4 border-2 border-purple-200 dark:border-purple-600/30">
+                        <div class="order-subcard p-4 mb-4">
                             <div class="flex items-center justify-between mb-3">
-                                <h6 class="font-semibold text-purple-900 dark:text-purple-300 flex items-center">
+                                <h6 class="order-subcard-title flex items-center">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
                                     </svg>
@@ -1908,10 +2027,7 @@
                                 </h6>
                                 <button onclick="saveArtName(${item.id})" 
                                         id="save-art-name-btn-${item.id}"
-                                        class="px-3 py-1 bg-purple-600 text-white text-xs rounded-md hover:bg-purple-700 transition-colors flex items-center">
-                                    <svg class="w-4 h-4 mr-1 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
-                                    </svg>
+                                        class="btn-modern btn-primary btn-compact !text-white flex items-center">
                                     Salvar
                                 </button>
                             </div>
@@ -1919,10 +2035,10 @@
                                    id="art-name-input-${item.id}"
                                    value="${item.art_name || ''}"
                                    placeholder="Digite o nome da arte..."
-                                   class="w-full px-3 py-2 border border-purple-300 dark:border-purple-600/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-400 rounded-md focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-500 focus:border-purple-500 dark:focus:border-transparent"
+                                   class="w-full px-3 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-gray-800 text-slate-800 dark:text-gray-100 placeholder-slate-400 dark:placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500 focus:border-indigo-500 dark:focus:border-indigo-400"
                                    onkeypress="if(event.key==='Enter') saveArtName(${item.id})">
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-start">
-                                <svg class="w-4 h-4 mr-1 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <p class="text-xs text-slate-600 dark:text-slate-300 mt-2 flex items-start">
+                                <svg class="w-4 h-4 mr-1 flex-shrink-0 mt-0.5 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 Este nome aparecerá no card do Kanban e nos PDFs
@@ -1930,24 +2046,24 @@
                         </div>
 
                         <!-- Imagem de Capa -->
-                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+                        <div class="order-subcard p-4 mb-4">
                             <div class="flex justify-between items-center mb-3">
-                                <h6 class="font-semibold text-gray-900 dark:text-gray-100 flex items-center">
+                                <h6 class="order-subcard-title flex items-center">
                                     <svg class="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                     </svg>
                                     Imagem de Capa
                                 </h6>
                                 <button onclick="editItemCoverImage(${item.id})" 
-                                        class="px-3 py-1 bg-indigo-600 dark:bg-indigo-600 text-white text-xs rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition-colors">
+                                        class="btn-modern btn-primary btn-compact !text-white">
                                     ${item.cover_image ? 'Alterar' : 'Adicionar'}
                                 </button>
                             </div>
-                            <div class="mb-2 flex items-start bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-600/30 rounded-md p-2">
+                            <div class="mb-2 flex items-start bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700 rounded-lg p-2">
                                 <svg class="w-4 h-4 mr-1.5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <span class="text-xs text-blue-700 dark:text-blue-400"><strong>Tamanho recomendado:</strong> 794 x 1123 pixels (A4 em 96 DPI)</span>
+                                <span class="text-xs text-indigo-700 dark:text-indigo-300"><strong>Tamanho recomendado:</strong> 794 x 1123 pixels (A4 em 96 DPI)</span>
                             </div>
                             ${coverImageUrl ? `
                                 <img src="${coverImageUrl}" alt="Capa" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 shadow-md bg-gray-50 dark:bg-gray-900/20" style="max-height: 600px; object-fit: contain;" onerror="this.parentElement.innerHTML='<div class=\'text-center text-gray-500 dark:text-gray-400 py-8 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/20\'><svg class=\'w-16 h-16 mx-auto mb-3 text-gray-400 dark:text-gray-500\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg><p class=\'text-sm font-medium mb-1 text-gray-700 dark:text-gray-300\'>Imagem não encontrada</p><p class=\'text-xs text-gray-500 dark:text-gray-400\'>O arquivo de imagem não foi encontrado no servidor</p></div>'">
@@ -1963,7 +2079,7 @@
                         </div>
 
                         <!-- Detalhes da Costura -->
-                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+                        <div class="surface-muted p-4 mb-4">
                             <h6 class="font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
                                 <svg class="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -2010,7 +2126,7 @@
 
                         <!-- Personalização -->
                         ${item.sublimations && item.sublimations.length > 0 ? `
-                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                        <div class="surface-muted p-4">
                             <h6 class="font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
                                 <svg class="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
@@ -2051,9 +2167,9 @@
                         ` : ''}
 
                         <!-- Arquivos do Item -->
-                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mt-4">
+                        <div class="order-subcard p-4 mt-4">
                             <div class="flex justify-between items-center mb-3">
-                                <h6 class="font-semibold text-gray-900 dark:text-gray-100 flex items-center">
+                                <h6 class="order-subcard-title flex items-center">
                                     <svg class="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                     </svg>
@@ -2062,8 +2178,8 @@
                                 <div class="relative">
                                     <input type="file" id="file-upload-${item.id}" class="hidden" onchange="handleFileUpload(this, ${item.id})" accept=".cdr,.cdrx,.pdf,.jpg,.jpeg,.png,.ai,.eps,.svg">
                                     <button onclick="document.getElementById('file-upload-${item.id}').click()" 
-                                            class="px-3 py-1 bg-indigo-600 text-white text-xs rounded-md hover:bg-indigo-700 transition flex items-center shadow-sm">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            class="btn-modern btn-primary btn-compact !text-white flex items-center">
+                                        <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                         </svg>
                                         Adicionar Arquivo
@@ -2121,7 +2237,7 @@
                                     `).join('') : ''
                                 ).filter(f => f).join('') : ''}
                                 ${(!item.files || item.files.length === 0) && (!item.sublimations || !item.sublimations.some(sub => sub.files && sub.files.length > 0)) ? 
-                                    '<p class="text-sm text-gray-500 dark:text-gray-400 text-center py-2" id="no-files-msg-' + item.id + '">Nenhum arquivo anexado.</p>' : ''
+                                    '<p class="file-empty-state" id="no-files-msg-' + item.id + '">Nenhum arquivo anexado.</p>' : ''
                                 }
                             </div>
                         </div>
@@ -2134,9 +2250,9 @@
                     <!-- COLUNA DIREITA -->
                     <div class="space-y-6">
                         <!-- Data de Entrega e Solicitação de Antecipação -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-4">
-                    <h4 class="font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="order-modal-card p-4">
+                    <h4 class="order-modal-title mb-3">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                         Entrega
@@ -2163,10 +2279,10 @@
                         </div>
                         ` : `
                         <button type="button" 
-                                class="delivery-request-btn px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition text-sm font-medium flex items-center"
+                                class="delivery-request-btn btn-modern btn-primary w-full justify-center"
                                 data-order-id="${order.id}"
                                 data-delivery-date="${order.delivery_date || ''}">
-                            <svg class="w-3.5 h-3.5 mr-1.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                             </svg>
                             Solicitar Antecipação
@@ -2177,9 +2293,9 @@
 
                         <!-- Pagamento -->
                 ${order.payments && order.payments.length > 0 ? `
-                <div class="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-4">
-                    <h4 class="font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="order-modal-card p-4">
+                    <h4 class="order-modal-title mb-3">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
                         </svg>
                         Pagamento
@@ -2232,8 +2348,8 @@
                         ${restante > 0 ? `
                         <div class="border-t border-gray-300 dark:border-gray-700 pt-3 mt-3">
                             <button onclick="openPaymentModal(${order.id}, ${restante})" 
-                                    class="px-4 py-2 bg-green-600 dark:bg-green-600 text-white rounded-md hover:bg-green-700 dark:hover:bg-green-700 transition text-sm font-medium flex items-center">
-                                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    class="btn-modern btn-success w-full justify-center">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                 </svg>
                                 Registrar Pagamento Restante
@@ -2247,9 +2363,9 @@
                 ` : ''}
 
                         <!-- Comentários -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-4">
-                    <h4 class="font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="order-modal-card p-4">
+                    <h4 class="order-modal-title mb-3">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                         </svg>
                         Comentários
@@ -2261,7 +2377,7 @@
                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-400 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500 focus:border-indigo-500 dark:focus:border-transparent" 
                                   rows="3"></textarea>
                         <button onclick="addComment(${order.id})" 
-                                class="mt-2 px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 text-sm font-medium">
+                                class="btn-modern btn-primary mt-2">
                             Adicionar Comentário
                         </button>
                     </div>
@@ -2281,9 +2397,9 @@
                 </div>
 
                         <!-- Log de Atendimento -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-4">
-                    <h4 class="font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="order-modal-card p-4">
+                    <h4 class="order-modal-title mb-3">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                         Log de Atendimento
@@ -2361,7 +2477,7 @@
                                         
                                         // Cliente
                                         if (changes.client) {
-                                            changesHtml += '<div class="text-xs font-semibold text-orange-700 dark:text-orange-300">📋 Cliente:</div>';
+                                            changesHtml += '<div class="text-xs font-semibold text-orange-700 dark:text-orange-300 flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 104 0M9 5a2 2 0 114 0"></path></svg><span>Cliente:</span></div>';
                                             Object.entries(changes.client).forEach(([field, change]) => {
                                                 const label = fieldLabels[field] || field;
                                                 changesHtml += '<div class="text-xs ml-2 text-gray-600 dark:text-gray-400">' +
@@ -2373,7 +2489,7 @@
                                         
                                         // Pedido
                                         if (changes.order) {
-                                            changesHtml += '<div class="text-xs font-semibold text-orange-700 dark:text-orange-300 mt-1">📦 Pedido:</div>';
+                                            changesHtml += '<div class="text-xs font-semibold text-orange-700 dark:text-orange-300 mt-1 flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"></path></svg><span>Pedido:</span></div>';
                                             Object.entries(changes.order).forEach(([field, change]) => {
                                                 const label = fieldLabels[field] || field;
                                                 changesHtml += '<div class="text-xs ml-2 text-gray-600 dark:text-gray-400">' +
@@ -2387,7 +2503,7 @@
                                         if (changes.items) {
                                             Object.entries(changes.items).forEach(([itemId, itemChange]) => {
                                                 if (itemChange.type === 'modified' && itemChange.changes) {
-                                                    changesHtml += '<div class="text-xs font-semibold text-orange-700 dark:text-orange-300 mt-1">👕 Item ' + itemId + ' (modificado):</div>';
+                                                    changesHtml += '<div class="text-xs font-semibold text-orange-700 dark:text-orange-300 mt-1 flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V6a4 4 0 118 0v1m-9 0h10l1 13H6L7 7z"></path></svg><span>Item ' + itemId + ' (modificado):</span></div>';
                                                     Object.entries(itemChange.changes).forEach(([field, change]) => {
                                                         if (field !== 'sublimations' && field !== 'files') {
                                                             const label = fieldLabels[field] || field;
@@ -2398,9 +2514,9 @@
                                                         }
                                                     });
                                                 } else if (itemChange.type === 'added') {
-                                                    changesHtml += '<div class="text-xs font-semibold text-green-700 dark:text-green-300 mt-1">➕ Novo Item ' + itemId + ' adicionado</div>';
+                                                    changesHtml += '<div class="text-xs font-semibold text-green-700 dark:text-green-300 mt-1 flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg><span>Novo Item ' + itemId + ' adicionado</span></div>';
                                                 } else if (itemChange.type === 'removed') {
-                                                    changesHtml += '<div class="text-xs font-semibold text-red-700 dark:text-red-300 mt-1">➖ Item ' + itemId + ' removido</div>';
+                                                    changesHtml += '<div class="text-xs font-semibold text-red-700 dark:text-red-300 mt-1 flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg><span>Item ' + itemId + ' removido</span></div>';
                                                 }
                                             });
                                         }

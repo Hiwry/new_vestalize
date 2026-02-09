@@ -1,5 +1,5 @@
 <x-mail::message>
-# 🚀 Novo Cliente no Vestalize!
+#  Novo Cliente no Vestalize!
 
 Olá, Admin. Uma nova empresa acaba de se cadastrar na plataforma através do onboarding automático.
 

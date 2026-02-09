@@ -279,16 +279,16 @@ html.dark {
 /* ============================================
    Form Elements
    ============================================ */
-.avento-theme input,
-.avento-theme select,
-.avento-theme textarea {
-    background: var(--avento-bg-input) !important;
-    border: 1px solid var(--avento-border) !important;
-    color: var(--avento-text-primary) !important;
-    border-radius: 0.75rem !important;
-    padding: 0.75rem 1rem !important;
-    transition: all 0.2s ease !important;
-}
+ .avento-theme input,
+ .avento-theme select,
+ .avento-theme textarea {
+     background: var(--avento-bg-input) !important;
+     border: 1px solid var(--avento-border) !important;
+     color: var(--avento-text-primary);
+     border-radius: 0.75rem !important;
+     padding: 0.75rem 1rem !important;
+     transition: all 0.2s ease !important;
+ }
 
 /* Fix for browser autofill "strange gray" background */
 .avento-theme input:-webkit-autofill,
@@ -450,10 +450,10 @@ html:not(.dark) .text-adaptive {
 
 /* Force specific colors in Light Mode for elements that usually use text-white */
 /* EXCEPTION: Elements with colored backgrounds (buttons, badges) should keep white text */
-html:not(.dark) .avento-theme .text-white:not(.stay-white):not([class*="bg-indigo"]):not([class*="bg-purple"]):not([class*="bg-blue"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-orange"]):not([class*="bg-emerald"]):not([class*="bg-[#7c3aed]"]),
-html:not(.dark) .avento-theme .text-white\/80:not(.stay-white):not([class*="bg-indigo"]):not([class*="bg-purple"]):not([class*="bg-blue"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-orange"]):not([class*="bg-emerald"]):not([class*="bg-[#7c3aed]"]),
-html:not(.dark) .avento-theme .text-white\/70:not(.stay-white):not([class*="bg-indigo"]):not([class*="bg-purple"]):not([class*="bg-blue"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-orange"]):not([class*="bg-emerald"]):not([class*="bg-[#7c3aed]"]) {
-    color: var(--avento-text-primary) !important;
+html:not(.dark) .avento-theme .text-white:not(.stay-white):not([class*="bg-"]):not([class*="from-"]):not([class*="to-"]),
+html:not(.dark) .avento-theme .text-white\/80:not(.stay-white):not([class*="bg-"]):not([class*="from-"]):not([class*="to-"]),
+html:not(.dark) .avento-theme .text-white\/70:not(.stay-white):not([class*="bg-"]):not([class*="from-"]):not([class*="to-"]) {
+    color: var(--avento-text-primary);
 }
 
 /* Ensure buttons/links with colored backgrounds ALWAYS have white text */

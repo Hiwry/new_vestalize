@@ -9,9 +9,9 @@ echo "<h1>Teste de DOMPDF com GD</h1>";
 // Verificar GD
 echo "<h2>1. Verificação da Extensão GD</h2>";
 if (extension_loaded('gd')) {
-    echo "<p style='color: green'>✅ GD está carregada</p>";
+    echo "<p style='color: green'> GD está carregada</p>";
 } else {
-    echo "<p style='color: red'>❌ GD NÃO está carregada</p>";
+    echo "<p style='color: red'> GD NÃO está carregada</p>";
     die("GD não está disponível!");
 }
 
@@ -20,9 +20,9 @@ echo "<h2>2. Verificação de funções GD</h2>";
 $functions = ['imagecreatetruecolor', 'imagecreatefromjpeg', 'imagecreatefrompng', 'imagecreatefromgif'];
 foreach ($functions as $func) {
     if (function_exists($func)) {
-        echo "<p style='color: green'>✅ Função $func existe</p>";
+        echo "<p style='color: green'> Função $func existe</p>";
     } else {
-        echo "<p style='color: red'>❌ Função $func NÃO existe</p>";
+        echo "<p style='color: red'> Função $func NÃO existe</p>";
     }
 }
 
@@ -37,9 +37,9 @@ try {
     $dompdf->setPaper('A4', 'portrait');
     $dompdf->render();
     
-    echo "<p style='color: green'>✅ PDF simples gerado com sucesso!</p>";
+    echo "<p style='color: green'> PDF simples gerado com sucesso!</p>";
 } catch (Exception $e) {
-    echo "<p style='color: red'>❌ Erro: " . $e->getMessage() . "</p>";
+    echo "<p style='color: red'> Erro: " . $e->getMessage() . "</p>";
 }
 
 // Teste de PDF com imagem base64
@@ -70,9 +70,9 @@ try {
     $dompdf->setPaper('A4', 'portrait');
     $dompdf->render();
     
-    echo "<p style='color: green'>✅ PDF com imagem base64 gerado com sucesso!</p>";
+    echo "<p style='color: green'> PDF com imagem base64 gerado com sucesso!</p>";
 } catch (Exception $e) {
-    echo "<p style='color: red'>❌ Erro: " . $e->getMessage() . "</p>";
+    echo "<p style='color: red'> Erro: " . $e->getMessage() . "</p>";
     echo "<pre>" . $e->getTraceAsString() . "</pre>";
 }
 

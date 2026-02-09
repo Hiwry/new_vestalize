@@ -1,5 +1,5 @@
 <x-mail::message>
-# 🎉 Bem-vindo ao Vestalize!
+#  Bem-vindo ao Vestalize!
 
 Olá **{{ $tenant->name }}**,
 
@@ -7,7 +7,7 @@ Olá **{{ $tenant->name }}**,
 
 ---
 
-## 🔐 Suas Credenciais de Acesso
+##  Suas Credenciais de Acesso
 
 <x-mail::table>
 | Campo | Valor |
@@ -20,12 +20,12 @@ Olá **{{ $tenant->name }}**,
 ---
 
 <x-mail::button :url="config('app.url') . '/login'" color="primary">
-🚀 Acessar o Sistema
+ Acessar o Sistema
 </x-mail::button>
 
 ---
 
-## ⚠️ Importante
+##  Importante
 
 - **Altere sua senha** no primeiro acesso para garantir a segurança da sua conta.
 - Guarde o **Código da Loja** — ele identifica sua empresa no sistema.

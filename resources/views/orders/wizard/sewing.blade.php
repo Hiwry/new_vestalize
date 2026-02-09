@@ -146,7 +146,8 @@
                             <!-- Personalização movida para o Wizard (Etapa 1) -->
 
                             <!-- Wizard Trigger / Main Configuration Card -->
-                            <div class="p-5 bg-white dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700 space-y-3">
+                            <div id="normal-wizard-trigger" class="p-5 bg-white dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700 space-y-3">
+
                                 <label class="block text-sm font-semibold text-gray-900 dark:text-white">Configuração do Item</label>
                                 
                                 <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 shadow-sm flex flex-col items-center justify-center text-center space-y-4">
@@ -195,14 +196,143 @@
                                       -->
                                 </div>
                             </div>
+
+                            <!-- SUBLIMAÇÃO FULLPAGE FORM (Hidden - Shows when SUB.TOTAL is selected) -->
+                            <div id="sublimation-fullpage-form" class="hidden">
+                                <div class="p-5 bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700">
+                                    <!-- Header -->
+                                    <div class="flex items-center justify-between mb-5 pb-4 border-b border-gray-100 dark:border-slate-800">
+                                        <div>
+                                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Sublimação Total</h3>
+                                            <p class="text-sm text-gray-500 dark:text-slate-400">Configure os detalhes do item</p>
+                                        </div>
+                                        <button type="button" onclick="hideSubFullpageForm()" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 transition-colors">
+                                            <i class="fa-solid fa-times"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Form Grid -->
+                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                                        <!-- Left Column -->
+                                        <div class="space-y-4">
+                                            <!-- Tipo de Produto -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Tipo de Produto *</label>
+                                                <select id="fullpage_sub_type" onchange="loadFullpageSubAddons()" class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400 focus:border-gray-400">
+                                                    <option value="">Selecione o tipo</option>
+                                                    @if(isset($sublimationTypes))
+                                                    @foreach($sublimationTypes as $type)
+                                                    <option value="{{ $type->slug }}">{{ $type->name }}</option>
+                                                    @endforeach
+                                                    @endif
+                                                </select>
+                                            </div>
+
+                                            <!-- Nome da Arte -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Nome da Arte *</label>
+                                                <input type="text" id="fullpage_art_name" placeholder="Ex: Logo Empresa ABC" class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400">
+                                            </div>
+
+                                            <!-- Adicionais -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Adicionais</label>
+                                                <div id="fullpage-sub-addons" class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-2 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
+                                                    <p class="text-sm text-gray-400 col-span-full text-center py-2">Selecione um tipo primeiro</p>
+                                                </div>
+                                            </div>
+
+                                            <!-- Arquivos -->
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Arquivo Corel</label>
+                                                    <label class="flex flex-col items-center justify-center w-full h-16 border border-dashed border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                                                        <i class="fa-solid fa-upload text-gray-400 text-sm mb-0.5"></i>
+                                                        <span class="text-xs text-gray-500">.CDR, .AI, .PDF</span>
+                                                        <input type="file" id="fullpage_corel_file" class="hidden" accept=".cdr,.ai,.pdf,.eps">
+                                                    </label>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Imagem Capa</label>
+                                                    <label class="flex flex-col items-center justify-center w-full h-16 border border-dashed border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                                                        <i class="fa-solid fa-image text-gray-400 text-sm mb-0.5"></i>
+                                                        <span class="text-xs text-gray-500">PNG, JPG</span>
+                                                        <input type="file" id="fullpage_cover_image" class="hidden" accept="image/*">
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <!-- Observações -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Observações</label>
+                                                <textarea id="fullpage_notes" rows="2" placeholder="Observações para produção..." class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Column -->
+                                        <div class="space-y-4">
+                                            <!-- Tamanhos Grade -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Tamanhos e Quantidades</label>
+                                                <div class="grid grid-cols-5 gap-2 mb-2">
+                                                    @foreach(['PP', 'P', 'M', 'G', 'GG'] as $size)
+                                                    <div class="text-center">
+                                                        <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">{{ $size }}</label>
+                                                        <input type="number" data-size="{{ $size }}" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-1 py-2 border border-gray-300 dark:border-slate-600 rounded text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-gray-400">
+                                                    </div>
+                                                    @endforeach
+                                                </div>
+                                                <div class="grid grid-cols-5 gap-2">
+                                                    @foreach(['EXG', 'G1', 'G2', 'G3', 'Esp.'] as $size)
+                                                    <div class="text-center">
+                                                        <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">{{ $size }}</label>
+                                                        <input type="number" data-size="{{ $size == 'Esp.' ? 'Especial' : $size }}" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-1 py-2 border border-gray-300 dark:border-slate-600 rounded text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-gray-400">
+                                                    </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+
+                                            <!-- Totais -->
+                                            <div class="grid grid-cols-2 gap-3 pt-2">
+                                                <div class="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700 text-center">
+                                                    <span class="block text-xs text-gray-500 dark:text-slate-400 mb-0.5">Total de Peças</span>
+                                                    <span class="text-2xl font-bold text-gray-900 dark:text-white" id="fullpage-total-qty">0</span>
+                                                </div>
+                                                <div class="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700 text-center">
+                                                    <span class="block text-xs text-gray-500 dark:text-slate-400 mb-0.5">Preço Unitário</span>
+                                                    <span class="text-xl font-bold text-gray-900 dark:text-white" id="fullpage-unit-price">R$ 0,00</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Total Final -->
+                                            <div class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg text-center border border-gray-200 dark:border-slate-700">
+                                                <span class="block text-sm text-gray-600 dark:text-slate-400 mb-1">Total do Item</span>
+                                                <span class="text-3xl font-bold text-gray-900 dark:text-white" id="fullpage-total-price">R$ 0,00</span>
+                                            </div>
+
+
+                                            <!-- Botão Adicionar -->
+                                            <button type="button" onclick="submitFullpageSubItem()" class="w-full py-3 bg-white hover:bg-gray-50 border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                                                <i class="fa-solid fa-plus"></i>
+                                                Adicionar Item
+                                            </button>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
                             <div id="sewing-wizard-modal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
+
                                 <!-- Backdrop -->
                                 <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
                                      onclick="closeSewingWizard()"></div>
 
                                 <!-- Modal Panel -->
                                 <div class="absolute inset-0 flex items-center justify-center p-4">
-                                    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden transform transition-all animate-fade-in-up border border-gray-200 dark:border-slate-700">
+                                    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden transform transition-all animate-fade-in-up border border-gray-200 dark:border-slate-700">
                                         
                                         <!-- Header -->
                                         <div class="px-6 py-4 flex-none border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-gray-50/50 dark:bg-slate-800/50">
@@ -229,6 +359,133 @@
                                                 <p class="text-xs text-gray-500 mb-4">Você pode selecionar múltiplas opções.</p>
                                                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="wizard-options-personalizacao">
                                                     <!-- Filled by JS -->
+                                                </div>
+                                            </div>
+
+                                            <!-- Step SUB: Sublimação Total (shown when SUB.TOTAL is selected) -->
+                                            <div id="step-sub" class="wizard-step hidden">
+                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Configurar Sublimação Total</h4>
+                                                
+                                                <div class="space-y-5">
+                                                    <!-- Tipo de Produto SUB.TOTAL -->
+                                                    <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
+                                                        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Tipo de Produto</label>
+                                                        <select id="sub_wizard_type" onchange="loadSubWizardAddons()" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500">
+                                                            <option value="">Selecione o tipo</option>
+                                                            @if(isset($sublimationTypes))
+                                                            @foreach($sublimationTypes as $type)
+                                                            <option value="{{ $type->slug }}">{{ $type->name }}</option>
+                                                            @endforeach
+                                                            @endif
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- Adicionais -->
+                                                    <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Adicionais</label>
+                                                        <div id="sub-wizard-addons" class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                                            <p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Selecione um tipo primeiro</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Nome da Arte -->
+                                                    <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Nome da Arte *</label>
+                                                        <input type="text" id="sub_wizard_art_name" required placeholder="Ex: Logo Empresa ABC" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500">
+                                                    </div>
+
+                                                    <!-- Tamanhos e Quantidades -->
+                                                    <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Tamanhos e Quantidades</label>
+                                                        <div class="grid grid-cols-5 gap-3 mb-3">
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">PP</label>
+                                                                <input type="number" data-size="PP" min="0" value="0" onchange="calculateSubWizardTotal()" class="sub-wizard-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">P</label>
+                                                                <input type="number" data-size="P" min="0" value="0" onchange="calculateSubWizardTotal()" class="sub-wizard-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">M</label>
+                                                                <input type="number" data-size="M" min="0" value="0" onchange="calculateSubWizardTotal()" class="sub-wizard-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G</label>
+                                                                <input type="number" data-size="G" min="0" value="0" onchange="calculateSubWizardTotal()" class="sub-wizard-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">GG</label>
+                                                                <input type="number" data-size="GG" min="0" value="0" onchange="calculateSubWizardTotal()" class="sub-wizard-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                                                            </div>
+                                                        </div>
+                                                        <div class="grid grid-cols-5 gap-3">
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">EXG</label>
+                                                                <input type="number" data-size="EXG" min="0" value="0" onchange="calculateSubWizardTotal()" class="sub-wizard-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G1</label>
+                                                                <input type="number" data-size="G1" min="0" value="0" onchange="calculateSubWizardTotal()" class="sub-wizard-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G2</label>
+                                                                <input type="number" data-size="G2" min="0" value="0" onchange="calculateSubWizardTotal()" class="sub-wizard-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G3</label>
+                                                                <input type="number" data-size="G3" min="0" value="0" onchange="calculateSubWizardTotal()" class="sub-wizard-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">Esp.</label>
+                                                                <input type="number" data-size="Especial" min="0" value="0" onchange="calculateSubWizardTotal()" class="sub-wizard-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <!-- Total de Peças e Preço -->
+                                                        <div class="mt-4 grid grid-cols-2 gap-4">
+                                                            <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-center">
+                                                                <span class="block text-xs text-gray-600 dark:text-slate-400 mb-1">Total de Peças</span>
+                                                                <span class="text-2xl font-black text-purple-600 dark:text-purple-400" id="sub-wizard-total-qty">0</span>
+                                                            </div>
+                                                            <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg text-center">
+                                                                <span class="block text-xs text-gray-600 dark:text-slate-400 mb-1">Preço Unitário</span>
+                                                                <span class="text-2xl font-black text-green-600 dark:text-green-400" id="sub-wizard-unit-price">R$ 0,00</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Arquivos -->
+                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                            <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Arquivo Corel</label>
+                                                            <label class="flex flex-col items-center justify-center w-full h-20 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                                                <i class="fa-solid fa-file-import text-gray-400 text-xl mb-1"></i>
+                                                                <span class="text-xs text-gray-500">.CDR, .AI, .PDF</span>
+                                                                <input type="file" id="sub_wizard_corel" class="hidden" accept=".cdr,.ai,.pdf,.eps">
+                                                            </label>
+                                                        </div>
+                                                        <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                            <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Imagem de Capa</label>
+                                                            <label class="flex flex-col items-center justify-center w-full h-20 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                                                <i class="fa-solid fa-image text-gray-400 text-xl mb-1"></i>
+                                                                <span class="text-xs text-gray-500">PNG, JPG, WEBP</span>
+                                                                <input type="file" id="sub_wizard_cover" class="hidden" accept="image/*">
+                                                            </label>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Observações -->
+                                                    <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Observações</label>
+                                                        <textarea id="sub_wizard_notes" rows="2" placeholder="Observações importantes para a produção..." class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm"></textarea>
+                                                    </div>
+
+                                                    <!-- Total Final -->
+                                                    <div class="p-4 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl text-white text-center">
+                                                        <span class="block text-sm opacity-80 mb-1">Total do Item</span>
+                                                        <span class="text-3xl font-black" id="sub-wizard-total-price">R$ 0,00</span>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -612,9 +869,16 @@
             const data = await response.json();
 
             if (data.success) {
+                // Optimistic: The item is already being updated by the sidebar HTML below
+                // handle instant visual feedback
+                const itemEl = document.getElementById(`sidebar-item-${itemToDeleteId}`);
+                if (itemEl) itemEl.style.opacity = '0';
+
                 // Atualizar HTML da sidebar
                 const sidebar = document.getElementById('items-sidebar-container');
-                if (sidebar) sidebar.innerHTML = data.html;
+                if (sidebar) {
+                    sidebar.innerHTML = data.html;
+                }
                 
                 // Atualizar dados dos itens
                 if (data.items_data) {
@@ -622,6 +886,7 @@
                     window.itemsData = itemsData;
                 }
                 
+                if (window.showToast) window.showToast('Item removido com sucesso!', 'success');
                 closeDeleteModal();
             } else {
                 alert('Erro ao remover item: ' + (data.message || 'Erro desconhecido'));
@@ -719,12 +984,16 @@
 
                 const action = document.getElementById('form-action').value;
                 if (action === 'add_item') {
-                    cancelEdit(); 
+                    // Reset form instead of reload
+                    if (typeof window.resetForm === 'function') window.resetForm();
+                    else form.reset();
+                    
+                    if (window.showToast) window.showToast('Item adicionado com sucesso!', 'success');
                 } else {
-                    cancelEdit();
+                    if (window.showToast) window.showToast('Item atualizado com sucesso!', 'success');
                 }
-
-                window.location.reload(); 
+                
+                cancelEdit(); 
                 
             } else {
                  if (data.errors) {
@@ -749,6 +1018,42 @@
             if (form) form.dataset.submitting = 'false';
         }
     }
+    function resetForm() {
+        if (typeof window.resetSewingWizard === 'function') {
+            window.resetSewingWizard();
+        }
+        
+        const form = document.getElementById('sewing-form');
+        if (form) {
+            form.reset();
+            const editingId = document.getElementById('editing-item-id');
+            if (editingId) editingId.value = '';
+            
+            const formAction = document.getElementById('form-action');
+            if (formAction) formAction.value = 'add_item';
+            
+            const formTitle = document.getElementById('form-title');
+            if (formTitle) formTitle.innerText = 'Adicionar Novo Item';
+
+            // Reset selected types in Step 1
+            const types = document.querySelectorAll('.personalization-type-checkbox');
+            types.forEach(cb => cb.checked = false);
+            
+            // Clear current customization tags
+            const tags = document.getElementById('main-summary-tags');
+            if (tags) {
+                tags.innerHTML = '';
+                tags.classList.add('hidden');
+            }
+            
+            // Back to step 1
+            if (typeof window.goToWizardStep === 'function') {
+                window.goToWizardStep(1);
+            }
+        }
+    }
+    window.resetForm = resetForm;
+
     window.handleSewingFormSubmit = handleSewingFormSubmit;
 
     let optionsWithParents = {};
@@ -821,11 +1126,11 @@
                                 <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">${item.size}:</span>
                                 ${hasStock ? `
                                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200">
-                                        ✓ ${item.available} total
+                                         ${item.available} total
                                     </span>
                                 ` : `
                                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200">
-                                        ✗ Sem estoque
+                                         Sem estoque
                                     </span>
                                 `}
                             </div>
@@ -844,7 +1149,7 @@
                 if (stockSection) {
                     stockSection.classList.remove('hidden');
                     if (stockBySize) {
-                        stockBySize.innerHTML = '<p class="text-sm text-yellow-600 dark:text-yellow-400 text-center py-2">⚠ Nenhum estoque cadastrado para este produto</p>';
+                        stockBySize.innerHTML = '<p class="text-sm text-yellow-600 dark:text-yellow-400 text-center py-2"> Nenhum estoque cadastrado para este produto</p>';
                     }
                 }
             }
@@ -919,9 +1224,22 @@
         }
     }
     window.closeSewingWizard = closeSewingWizard;
+    
+    // Track if we're in sublimation mode
+    let isInSublimationMode = false;
+    window.isInSublimationMode = isInSublimationMode;
 
     function wizardNextStep() {
         if (!validateStep(wizardCurrentStep)) return;
+
+        // Check if SUB.TOTAL is selected at step 1 - redirect to step-sub
+        if (wizardCurrentStep === 1 && isSublimationTotalSelected()) {
+            // Close modal and show fullpage sublimation form
+            closeSewingWizard();
+            showSubFullpageForm();
+            return;
+        }
+
 
         if (wizardCurrentStep < wizardTotalSteps) {
             // Skip logic for Detail Color
@@ -958,6 +1276,32 @@
     window.wizardNextStep = wizardNextStep;
 
     function wizardPrevStep() {
+        // Handle going back from step-sub
+        if (isInSublimationMode) {
+            isInSublimationMode = false;
+            window.isInSublimationMode = false;
+            
+            // Hide step-sub and sublimation submit button
+            const subStep = document.getElementById('step-sub');
+            if (subStep) subStep.classList.add('hidden');
+            
+            const subSubmitBtn = document.getElementById('wizard-sub-submit-btn');
+            if (subSubmitBtn) subSubmitBtn.classList.add('hidden');
+            
+            // Show next button
+            const nextBtn = document.getElementById('wizard-next-btn');
+            if (nextBtn) nextBtn.classList.remove('hidden');
+            
+            // Reset sublimation step
+            resetSubWizardStep();
+            
+            // Go back to step 1
+            wizardCurrentStep = 1;
+            window.wizardCurrentStep = wizardCurrentStep;
+            updateWizardUI();
+            return;
+        }
+        
         if (wizardCurrentStep > 1) {
             // Skip logic backward for Detail Color
             if (wizardCurrentStep === 7) {
@@ -989,6 +1333,7 @@
         }
     }
     window.wizardPrevStep = wizardPrevStep;
+
 
     function validateStep(step) {
         if (step === 1) {
@@ -1397,6 +1742,23 @@
                 if (!cor.parent_ids || cor.parent_ids.length === 0) return true;
                 return cor.parent_ids.some(pid => allowedParentIds.includes(pid.toString()));
             });
+         }
+         
+         // Filter to only Branco (white) if sublimation personalization is selected
+         const personalizacaoOptions = getOptionList(['personalizacao']);
+         const selectedPersonalizacoesNames = (selectedPersonalizacoes || []).map(id => {
+             const p = personalizacaoOptions.find(opt => opt.id.toString() === id.toString());
+             return p ? p.name.toUpperCase() : '';
+         });
+         
+         const isSublimacaoSelected = selectedPersonalizacoesNames.some(name => 
+             name.includes('SUB') || name.includes('SUBLIMACAO') || name.includes('SUBLIMAÇÃO')
+         );
+         
+         if (isSublimacaoSelected) {
+             items = items.filter(cor => 
+                 cor.name.toUpperCase() === 'BRANCO' || cor.name.toUpperCase() === 'WHITE'
+             );
          }
          
          container.innerHTML = items.map(color => {
@@ -1923,7 +2285,19 @@
             });
             const data = await response.json();
             if (data.success) {
-                window.location.reload();
+                // Update sidebar HTML
+                const sidebar = document.getElementById('items-sidebar-container');
+                if (sidebar && data.html) {
+                    sidebar.innerHTML = data.html;
+                }
+                
+                // Update itemsData global
+                if (data.items_data) {
+                    itemsData = data.items_data;
+                    window.itemsData = itemsData;
+                }
+                
+                if (window.showToast) window.showToast(data.message || 'Status alterado!', 'success');
             } else {
                 alert('Erro ao alterar status do item: ' + (data.message || 'Erro desconhecido'));
             }
@@ -2107,7 +2481,530 @@
         }
     }
     window.initSublimationForm = initSublimationForm;
+
+    // ========================
+    // SUBLIMATION WIZARD STEP (Integrated into main wizard)
+    // ========================
+    
+    let subWizardAddons = [];
+    let subWizardUnitPrice = 0;
+    window.subWizardAddons = subWizardAddons;
+    window.subWizardUnitPrice = subWizardUnitPrice;
+    
+    // Check if any selected personalization is SUB.TOTAL
+    function isSublimationTotalSelected() {
+        const personalizacaoOptions = getOptionList(['personalizacao']);
+        const selectedIds = selectedPersonalizacoes || [];
+        
+        for (const id of selectedIds) {
+            const p = personalizacaoOptions.find(opt => opt.id.toString() === id.toString());
+            if (p) {
+                const name = p.name.toUpperCase();
+                if (name.includes('SUB') && (name.includes('TOTAL') || name.includes('SUBLIM'))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    window.isSublimationTotalSelected = isSublimationTotalSelected;
+    
+    // Load addons for selected sublimation type
+    async function loadSubWizardAddons() {
+        const typeSlug = document.getElementById('sub_wizard_type')?.value;
+        const container = document.getElementById('sub-wizard-addons');
+        if (!container) return;
+        
+        if (!typeSlug) {
+            container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Selecione um tipo primeiro</p>';
+            subWizardAddons = [];
+            return;
+        }
+        
+        container.innerHTML = '<p class="text-sm text-gray-500 col-span-full"><i class="fa-solid fa-spinner animate-spin mr-2"></i>Carregando...</p>';
+        
+        try {
+            const response = await fetch(`/api/sublimation-total/addons/${typeSlug}`);
+            const data = await response.json();
+            
+            if (data.success && data.addons && data.addons.length > 0) {
+                subWizardAddons = data.addons;
+                container.innerHTML = data.addons.map(addon => {
+                    const priceText = addon.price > 0 ? `+R$${parseFloat(addon.price).toFixed(2).replace('.', ',')}` : 
+                                      addon.price < 0 ? `-R$${Math.abs(parseFloat(addon.price)).toFixed(2).replace('.', ',')}` : '';
+                    return `
+                    <label class="flex items-center gap-2 p-2 bg-white dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600 cursor-pointer hover:border-purple-400 transition-colors">
+                        <input type="checkbox" name="sub_addons[]" value="${addon.id}" onchange="calculateSubWizardTotal()" class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500">
+                        <span class="text-sm text-gray-700 dark:text-slate-300 flex-1">${addon.name}</span>
+                        ${priceText ? `<span class="text-xs font-bold ${addon.price > 0 ? 'text-green-600' : 'text-red-500'}">${priceText}</span>` : ''}
+                    </label>
+                    `;
+                }).join('');
+            } else {
+                container.innerHTML = '<p class="text-sm text-gray-500 col-span-full">Nenhum adicional disponível</p>';
+                subWizardAddons = [];
+            }
+        } catch (error) {
+            console.error('Error loading addons:', error);
+            container.innerHTML = '<p class="text-sm text-red-500 col-span-full">Erro ao carregar adicionais</p>';
+        }
+        
+        calculateSubWizardTotal();
+    }
+    window.loadSubWizardAddons = loadSubWizardAddons;
+    
+    // Calculate total for sublimation wizard
+    async function calculateSubWizardTotal() {
+        const typeSlug = document.getElementById('sub_wizard_type')?.value;
+        const sizeInputs = document.querySelectorAll('.sub-wizard-size');
+        
+        let totalQty = 0;
+        sizeInputs.forEach(input => {
+            totalQty += parseInt(input.value) || 0;
+        });
+        
+        // Update quantity display
+        const qtyEl = document.getElementById('sub-wizard-total-qty');
+        if (qtyEl) qtyEl.textContent = totalQty;
+        
+        // Get selected addons price adjustment
+        let addonsAdjustment = 0;
+        const selectedAddonCheckboxes = document.querySelectorAll('#sub-wizard-addons input[type="checkbox"]:checked');
+        selectedAddonCheckboxes.forEach(cb => {
+            const addonId = parseInt(cb.value);
+            const addon = subWizardAddons.find(a => a.id === addonId);
+            if (addon) addonsAdjustment += parseFloat(addon.price) || 0;
+        });
+        
+        // Fetch base price from API
+        let baseUnitPrice = 0;
+        if (typeSlug && totalQty > 0) {
+            try {
+                const response = await fetch(`/api/sublimation-total/price/${typeSlug}/${totalQty}`);
+                const data = await response.json();
+                if (data.success && data.price) {
+                    baseUnitPrice = parseFloat(data.price);
+                }
+            } catch (error) {
+                console.error('Error fetching price:', error);
+            }
+        }
+        
+        // Calculate final unit price with addons
+        subWizardUnitPrice = baseUnitPrice + addonsAdjustment;
+        const totalPrice = subWizardUnitPrice * totalQty;
+        
+        // Update displays
+        const unitPriceEl = document.getElementById('sub-wizard-unit-price');
+        if (unitPriceEl) unitPriceEl.textContent = 'R$ ' + subWizardUnitPrice.toFixed(2).replace('.', ',');
+        
+        const totalPriceEl = document.getElementById('sub-wizard-total-price');
+        if (totalPriceEl) totalPriceEl.textContent = 'R$ ' + totalPrice.toFixed(2).replace('.', ',');
+        
+        window.subWizardUnitPrice = subWizardUnitPrice;
+    }
+    window.calculateSubWizardTotal = calculateSubWizardTotal;
+    
+    // Submit sublimation item from wizard step
+    async function submitSubWizardItem() {
+        const typeSlug = document.getElementById('sub_wizard_type')?.value;
+        const artName = document.getElementById('sub_wizard_art_name')?.value?.trim();
+        
+        if (!typeSlug) {
+            alert('Selecione o tipo de produto.');
+            return false;
+        }
+        
+        if (!artName) {
+            alert('Informe o nome da arte.');
+            return false;
+        }
+        
+        // Get sizes
+        const sizeInputs = document.querySelectorAll('.sub-wizard-size');
+        const tamanhos = {};
+        let totalQty = 0;
+        sizeInputs.forEach(input => {
+            const qty = parseInt(input.value) || 0;
+            if (qty > 0) {
+                tamanhos[input.dataset.size] = qty;
+                totalQty += qty;
+            }
+        });
+        
+        if (totalQty === 0) {
+            alert('Adicione pelo menos uma peça.');
+            return false;
+        }
+        
+        // Get selected addons
+        const selectedAddons = [];
+        document.querySelectorAll('#sub-wizard-addons input[type="checkbox"]:checked').forEach(cb => {
+            selectedAddons.push(parseInt(cb.value));
+        });
+        
+        // Build form data
+        const formData = new FormData();
+        formData.append('action', 'add_sublimation_item');
+        formData.append('sublimation_type', typeSlug);
+        formData.append('art_name', artName);
+        formData.append('tamanhos', JSON.stringify(tamanhos));
+        formData.append('quantity', totalQty);
+        formData.append('unit_price', subWizardUnitPrice);
+        formData.append('art_notes', document.getElementById('sub_wizard_notes')?.value || '');
+        formData.append('_token', document.querySelector('input[name="_token"]')?.value);
+        
+        selectedAddons.forEach(id => formData.append('sublimation_addons[]', id));
+        
+        const coverFile = document.getElementById('sub_wizard_cover')?.files?.[0];
+        if (coverFile) formData.append('item_cover_image', coverFile);
+        
+        const corelFile = document.getElementById('sub_wizard_corel')?.files?.[0];
+        if (corelFile) formData.append('corel_file', corelFile);
+        
+        try {
+            const response = await fetch('{{ isset($editData) ? route("orders.edit.sewing") : route("orders.wizard.sewing") }}', {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                closeSewingWizard();
+                window.location.reload();
+                return true;
+            } else {
+                alert(data.message || 'Erro ao adicionar item.');
+                return false;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Erro ao processar solicitação.');
+            return false;
+        }
+    }
+    window.submitSubWizardItem = submitSubWizardItem;
+    
+    // Reset sublimation wizard step
+    function resetSubWizardStep() {
+        const typeSelect = document.getElementById('sub_wizard_type');
+        if (typeSelect) typeSelect.value = '';
+        
+        const artInput = document.getElementById('sub_wizard_art_name');
+        if (artInput) artInput.value = '';
+        
+        document.querySelectorAll('.sub-wizard-size').forEach(input => input.value = 0);
+        
+        const notesInput = document.getElementById('sub_wizard_notes');
+        if (notesInput) notesInput.value = '';
+        
+        const addonsContainer = document.getElementById('sub-wizard-addons');
+        if (addonsContainer) addonsContainer.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Selecione um tipo primeiro</p>';
+        
+        subWizardAddons = [];
+        subWizardUnitPrice = 0;
+        
+        document.getElementById('sub-wizard-total-qty').textContent = '0';
+        document.getElementById('sub-wizard-unit-price').textContent = 'R$ 0,00';
+        document.getElementById('sub-wizard-total-price').textContent = 'R$ 0,00';
+    }
+    window.resetSubWizardStep = resetSubWizardStep;
+
+    // ========================
+    // FULLPAGE SUBLIMATION FORM (Outside modal, in main content area)
+    // ========================
+    
+    let fullpageSubAddons = [];
+    let fullpageSubUnitPrice = 0;
+    
+    // Show fullpage sublimation form
+    function showSubFullpageForm() {
+        const normalTrigger = document.getElementById('normal-wizard-trigger');
+        const fullpageForm = document.getElementById('sublimation-fullpage-form');
+        const sewingWizardModal = document.getElementById('sewing-wizard-modal');
+        
+        if (normalTrigger) normalTrigger.classList.add('hidden');
+        if (fullpageForm) fullpageForm.classList.remove('hidden');
+        if (sewingWizardModal) sewingWizardModal.classList.add('hidden');
+        
+        document.body.style.overflow = 'auto';
+    }
+    window.showSubFullpageForm = showSubFullpageForm;
+    
+    // Hide fullpage sublimation form
+    function hideSubFullpageForm() {
+        const normalTrigger = document.getElementById('normal-wizard-trigger');
+        const fullpageForm = document.getElementById('sublimation-fullpage-form');
+        
+        if (normalTrigger) normalTrigger.classList.remove('hidden');
+        if (fullpageForm) fullpageForm.classList.add('hidden');
+        
+        // Reset form
+        resetFullpageSubForm();
+    }
+    window.hideSubFullpageForm = hideSubFullpageForm;
+    
+    // Load addons for fullpage form
+    async function loadFullpageSubAddons() {
+        const typeSlug = document.getElementById('fullpage_sub_type')?.value;
+        const container = document.getElementById('fullpage-sub-addons');
+        if (!container) return;
+        
+        if (!typeSlug) {
+            container.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center py-4">Selecione um tipo primeiro</p>';
+            fullpageSubAddons = [];
+            return;
+        }
+        
+        container.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center py-4"><i class="fa-solid fa-spinner animate-spin mr-2"></i>Carregando...</p>';
+        
+        try {
+            const response = await fetch(`/api/sublimation-total/addons/${typeSlug}`);
+            const data = await response.json();
+            
+            if (data.success && data.addons && data.addons.length > 0) {
+                fullpageSubAddons = data.addons;
+                container.innerHTML = data.addons.map(addon => {
+                    const priceText = addon.price > 0 ? `+R$${parseFloat(addon.price).toFixed(2).replace('.', ',')}` : 
+                                      addon.price < 0 ? `-R$${Math.abs(parseFloat(addon.price)).toFixed(2).replace('.', ',')}` : '';
+                    return `
+                    <label class="flex items-center gap-2 p-2.5 bg-gray-50 dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-700 cursor-pointer hover:border-purple-400 transition-colors">
+                        <input type="checkbox" name="fullpage_addons[]" value="${addon.id}" onchange="calculateFullpageSubTotal()" class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500">
+                        <span class="text-sm text-gray-700 dark:text-slate-300 flex-1">${addon.name}</span>
+                        ${priceText ? `<span class="text-xs font-bold ${addon.price > 0 ? 'text-green-600' : 'text-red-500'}">${priceText}</span>` : ''}
+                    </label>
+                    `;
+                }).join('');
+            } else {
+                container.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center py-4">Nenhum adicional disponível</p>';
+                fullpageSubAddons = [];
+            }
+        } catch (error) {
+            console.error('Error loading addons:', error);
+            container.innerHTML = '<p class="text-sm text-red-500 col-span-full text-center py-4">Erro ao carregar adicionais</p>';
+        }
+        
+        calculateFullpageSubTotal();
+    }
+    window.loadFullpageSubAddons = loadFullpageSubAddons;
+    
+    // Calculate total for fullpage form
+    async function calculateFullpageSubTotal() {
+        const typeSlug = document.getElementById('fullpage_sub_type')?.value;
+        const sizeInputs = document.querySelectorAll('.fullpage-sub-size');
+        
+        let totalQty = 0;
+        sizeInputs.forEach(input => {
+            totalQty += parseInt(input.value) || 0;
+        });
+        
+        // Update quantity display
+        const qtyEl = document.getElementById('fullpage-total-qty');
+        if (qtyEl) qtyEl.textContent = totalQty;
+        
+        // Get selected addons price adjustment
+        let addonsAdjustment = 0;
+        const selectedAddonCheckboxes = document.querySelectorAll('#fullpage-sub-addons input[type="checkbox"]:checked');
+        selectedAddonCheckboxes.forEach(cb => {
+            const addonId = parseInt(cb.value);
+            const addon = fullpageSubAddons.find(a => a.id === addonId);
+            if (addon) addonsAdjustment += parseFloat(addon.price) || 0;
+        });
+        
+        // Fetch base price from API
+        let baseUnitPrice = 0;
+        if (typeSlug && totalQty > 0) {
+            try {
+                const response = await fetch(`/api/sublimation-total/price/${typeSlug}/${totalQty}`);
+                const data = await response.json();
+                if (data.success && data.price) {
+                    baseUnitPrice = parseFloat(data.price);
+                }
+            } catch (error) {
+                console.error('Error fetching price:', error);
+            }
+        }
+        
+        // Calculate final unit price with addons
+        fullpageSubUnitPrice = baseUnitPrice + addonsAdjustment;
+        const totalPrice = fullpageSubUnitPrice * totalQty;
+        
+        // Update displays
+        const unitPriceEl = document.getElementById('fullpage-unit-price');
+        if (unitPriceEl) unitPriceEl.textContent = 'R$ ' + fullpageSubUnitPrice.toFixed(2).replace('.', ',');
+        
+        const totalPriceEl = document.getElementById('fullpage-total-price');
+        if (totalPriceEl) totalPriceEl.textContent = 'R$ ' + totalPrice.toFixed(2).replace('.', ',');
+    }
+    window.calculateFullpageSubTotal = calculateFullpageSubTotal;
+    
+    // Submit sublimation item from fullpage form
+    let isSubmittingFullpage = false;
+    
+    async function submitFullpageSubItem() {
+        // Prevent multiple submissions
+        if (isSubmittingFullpage) return false;
+        
+        const submitBtn = document.querySelector('#sublimation-fullpage-form button[onclick*="submitFullpageSubItem"]');
+        const typeSlug = document.getElementById('fullpage_sub_type')?.value;
+        const artName = document.getElementById('fullpage_art_name')?.value?.trim();
+        
+        if (!typeSlug) {
+            alert('Selecione o tipo de produto.');
+            return false;
+        }
+        
+        if (!artName) {
+            alert('Informe o nome da arte.');
+            return false;
+        }
+        
+        // Set loading state
+        isSubmittingFullpage = true;
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Adicionando...';
+        }
+
+        
+        // Get sizes
+        const sizeInputs = document.querySelectorAll('.fullpage-sub-size');
+        const tamanhos = {};
+        let totalQty = 0;
+        sizeInputs.forEach(input => {
+            const qty = parseInt(input.value) || 0;
+            if (qty > 0) {
+                tamanhos[input.dataset.size] = qty;
+                totalQty += qty;
+            }
+        });
+        
+        if (totalQty === 0) {
+            alert('Adicione pelo menos uma peça.');
+            return false;
+        }
+        
+        // Get selected addons
+        const selectedAddons = [];
+        document.querySelectorAll('#fullpage-sub-addons input[type="checkbox"]:checked').forEach(cb => {
+            selectedAddons.push(parseInt(cb.value));
+        });
+        
+        // Build form data
+        const formData = new FormData();
+        formData.append('action', 'add_sublimation_item');
+        formData.append('sublimation_type', typeSlug);
+        formData.append('art_name', artName);
+        
+        // Send tamanhos as array entries
+        Object.keys(tamanhos).forEach(size => {
+            formData.append(`tamanhos[${size}]`, tamanhos[size]);
+        });
+        
+        formData.append('quantity', totalQty);
+
+        formData.append('unit_price', fullpageSubUnitPrice);
+        formData.append('art_notes', document.getElementById('fullpage_notes')?.value || '');
+        formData.append('_token', document.querySelector('input[name="_token"]')?.value);
+        
+        selectedAddons.forEach(id => formData.append('sublimation_addons[]', id));
+        
+        const coverFile = document.getElementById('fullpage_cover_image')?.files?.[0];
+        if (coverFile) formData.append('item_cover_image', coverFile);
+        
+        const corelFile = document.getElementById('fullpage_corel_file')?.files?.[0];
+        if (corelFile) formData.append('corel_file', corelFile);
+        
+        try {
+            const response = await fetch('{{ isset($editData) ? route("orders.edit.sewing") : route("orders.wizard.sewing") }}', {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                // Update sidebar HTML
+                const sidebar = document.getElementById('items-sidebar-container');
+                if (sidebar && data.html) {
+                    sidebar.innerHTML = data.html;
+                }
+
+                // Update itemsData global
+                if (data.items_data) {
+                    itemsData = data.items_data;
+                    window.itemsData = itemsData;
+                }
+
+                // Reset state
+                hideSubFullpageForm();
+                resetFullpageSubForm();
+                
+                isSubmittingFullpage = false;
+                if (submitBtn) {
+                  submitBtn.disabled = false;
+                  submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Adicionar Item';
+                }
+
+                if (window.showToast) window.showToast('Item SUB. TOTAL adicionado!', 'success');
+
+                return true;
+            } else {
+                // Reset loading state on error
+                isSubmittingFullpage = false;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Adicionar Item';
+                }
+                alert(data.message || 'Erro ao adicionar item.');
+                return false;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            // Reset loading state on error
+            isSubmittingFullpage = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Adicionar Item';
+            }
+            alert('Erro ao processar solicitação.');
+            return false;
+        }
+
+    }
+    window.submitFullpageSubItem = submitFullpageSubItem;
+    
+    // Reset fullpage sublimation form
+    function resetFullpageSubForm() {
+        const typeSelect = document.getElementById('fullpage_sub_type');
+        if (typeSelect) typeSelect.value = '';
+        
+        const artInput = document.getElementById('fullpage_art_name');
+        if (artInput) artInput.value = '';
+        
+        document.querySelectorAll('.fullpage-sub-size').forEach(input => input.value = 0);
+        
+        const notesInput = document.getElementById('fullpage_notes');
+        if (notesInput) notesInput.value = '';
+        
+        const addonsContainer = document.getElementById('fullpage-sub-addons');
+        if (addonsContainer) addonsContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center py-4">Selecione um tipo primeiro</p>';
+        
+        fullpageSubAddons = [];
+        fullpageSubUnitPrice = 0;
+        
+        const qtyEl = document.getElementById('fullpage-total-qty');
+        if (qtyEl) qtyEl.textContent = '0';
+        const unitPriceEl = document.getElementById('fullpage-unit-price');
+        if (unitPriceEl) unitPriceEl.textContent = 'R$ 0,00';
+        const totalPriceEl = document.getElementById('fullpage-total-price');
+        if (totalPriceEl) totalPriceEl.textContent = 'R$ 0,00';
+    }
+    window.resetFullpageSubForm = resetFullpageSubForm;
 })();
+
+
 </script>
 @endpush
 @endsection
