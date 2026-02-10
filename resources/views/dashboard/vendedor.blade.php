@@ -302,7 +302,7 @@
     $proximasEntregas = Order::where('is_draft', false)
         ->where('user_id', Auth::id())
         ->whereBetween('delivery_date', [Carbon::today(), Carbon::today()->addDays(7)])
-        ->with(['client', 'status'])
+        ->with(['client', 'status', 'items'])
         ->orderBy('delivery_date', 'asc')
         ->limit(10)
         ->get();
@@ -319,6 +319,7 @@
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Pedido</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Cliente</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Arte</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Data de Entrega</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total</th>
@@ -335,6 +336,9 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                         {{ $pedido->client ? $pedido->client->name : 'Sem cliente' }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {{ $pedido->items->pluck('art_name')->filter()->unique()->implode(', ') ?: '—' }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                         {{ $pedido->delivery_date ? $pedido->delivery_date->format('d/m/Y') : 'N/A' }}
@@ -366,6 +370,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Tipo</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Pedido/Venda</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Cliente</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Arte</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Data</th>
@@ -394,6 +399,9 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                         {{ $pedido->client ? $pedido->client->name : 'Sem cliente' }}
                     </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {{ $pedido->items->pluck('art_name')->filter()->unique()->implode(', ') ?: '—' }}
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" 
                               style="background-color: {{ $pedido->status->color }}20; color: {{ $pedido->status->color }}">
@@ -405,7 +413,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">Nenhum pedido encontrado</td>
+                    <td colspan="7" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">Nenhum pedido encontrado</td>
                 </tr>
                 @endforelse
             </tbody>

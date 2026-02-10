@@ -536,25 +536,6 @@
     </div>
     @endif
 
-    <!-- Termos e Condições -->
-    @php
-        $globalTerms = $companySettings->terms_conditions ?? '';
-        $orderTerms = \App\Models\TermsCondition::getActiveForOrder($order);
-        $combinedTerms = $globalTerms;
-        if ($orderTerms) {
-            $combinedTerms .= ($combinedTerms ? "\n\n" : "") . $orderTerms;
-        }
-    @endphp
-
-    @if($combinedTerms)
-    <div class="section">
-        <div class="section-title">TERMOS E CONDIÇÕES</div>
-        <div style="padding: 8px; font-size: 8px; color: #444; line-height: 1.4; text-align: justify; white-space: pre-wrap; background-color: #fafafa; border: 1px solid #eee;">
-            {!! nl2br(e($combinedTerms)) !!}
-        </div>
-    </div>
-    @endif
-
     <!-- Observações -->
     @if($order->notes)
     <div class="section">
