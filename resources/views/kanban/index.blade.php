@@ -856,19 +856,25 @@
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                                             <span class="text-gray-800 font-semibold dark:text-gray-200">Estoque:</span>
                                             @php
-                                                $stockLabel = [
-                                                    'total' => 'Total disponível',
-                                                    'partial' => 'Disponível parcial',
-                                                    'none' => 'Indisponível',
-                                                    'pending' => 'Aguardando verificação',
-                                                ][$order->stock_status ?? 'pending'] ?? 'Pendente';
+                                                $stockLabel = 'Aguardando verificação';
+                                                $stockColorClass = 'text-gray-500 dark:text-gray-400';
                                                 
-                                                $stockColorClass = [
-                                                    'total' => 'text-emerald-600 dark:text-emerald-400',
-                                                    'partial' => 'text-amber-600 dark:text-amber-400',
-                                                    'none' => 'text-rose-600 dark:text-rose-400',
-                                                    'pending' => 'text-gray-500 dark:text-gray-400',
-                                                ][$order->stock_status ?? 'pending'] ?? 'text-gray-500';
+                                                if ($order->stock_separation_status === 'in_separation') {
+                                                    $stockLabel = 'Em separação';
+                                                    $stockColorClass = 'text-blue-600 dark:text-blue-400';
+                                                } elseif ($order->stock_status === 'none') {
+                                                    $stockLabel = 'Sem estoque / Indisponível';
+                                                    $stockColorClass = 'text-rose-600 dark:text-rose-400';
+                                                } elseif ($order->stock_status === 'total') {
+                                                    $stockLabel = 'Com estoque / Disponível';
+                                                    $stockColorClass = 'text-emerald-600 dark:text-emerald-400';
+                                                } elseif ($order->stock_status === 'partial') {
+                                                    $stockLabel = 'Disponível parcial';
+                                                    $stockColorClass = 'text-amber-600 dark:text-amber-400';
+                                                } elseif ($order->stock_separation_status === 'completed') {
+                                                    $stockLabel = 'Separado / Reservado';
+                                                    $stockColorClass = 'text-teal-600 dark:text-teal-400';
+                                                }
                                             @endphp
                                             <span class="font-bold {{ $stockColorClass }}">{{ $stockLabel }}</span>
                                         </div>
