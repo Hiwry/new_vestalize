@@ -37,7 +37,7 @@
 
             {{-- Links Columns --}}
             <div>
-                <h4 class="font-semibold text-white mb-4">Plataforma</h4>
+                <h4 class="font-semibold text-footer-heading mb-4">Plataforma</h4>
                 <ul class="space-y-3 text-sm text-muted">
                     <li><a href="#features" class="hover:text-purple-400 transition-colors">Funcionalidades</a></li>
                     <li><a href="#pricing" class="hover:text-purple-400 transition-colors">Planos</a></li>
@@ -47,7 +47,7 @@
             </div>
 
             <div>
-                <h4 class="font-semibold text-white mb-4">Empresa</h4>
+                <h4 class="font-semibold text-footer-heading mb-4">Empresa</h4>
                 <ul class="space-y-3 text-sm text-muted">
                     <li><a href="#" class="hover:text-purple-400 transition-colors">Sobre Nós</a></li>
                     <li><a href="#" class="hover:text-purple-400 transition-colors">Blog</a></li>
@@ -57,7 +57,7 @@
             </div>
 
             <div>
-                <h4 class="font-semibold text-white mb-4">Suporte</h4>
+                <h4 class="font-semibold text-footer-heading mb-4">Suporte</h4>
                 <ul class="space-y-3 text-sm text-muted">
                     <li><a href="#" class="hover:text-purple-400 transition-colors">Central de Ajuda</a></li>
                     <li><a href="#" class="hover:text-purple-400 transition-colors">Tutoriais</a></li>
@@ -72,7 +72,7 @@
         </div>
 
         {{-- Bottom Bar --}}
-        <div class="border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="border-t border-subtle mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <p class="text-sm text-muted">
                 &copy; {{ date('Y') }} Vestalize Tecnologia. Todos os direitos reservados.
             </p>

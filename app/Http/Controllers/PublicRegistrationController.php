@@ -123,7 +123,7 @@ class PublicRegistrationController extends Controller
         // 5. Notificar o Super Admin
         try {
             $adminEmail = config('mail.admin_email', 'hiwry@hotmail.com'); // Usando fallback se não configurado
-            \Illuminate\Support\Facades\Mail::to($adminEmail)->send(new \App\Mail\AdminNewTenantNotification($tenant, $user));
+            \Illuminate\Support\Facades\Mail::to($adminEmail)->queue(new \App\Mail\AdminNewTenantNotification($tenant, $user));
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Erro ao notificar admin sobre novo registro: ' . $e->getMessage());
         }

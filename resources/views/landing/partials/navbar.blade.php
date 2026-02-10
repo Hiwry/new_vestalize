@@ -39,7 +39,7 @@
                 </svg>
             </button>
 
-            <a href="{{ route('login') }}" class="hidden lg:block text-sm text-muted hover:text-white font-medium transition-colors">
+            <a href="{{ route('login') }}" class="hidden lg:block text-sm text-muted hover:text-foreground font-medium transition-colors">
                 Login
             </a>
             <a href="{{ route('register.public') }}" class="btn-primary text-sm py-2 px-4">
@@ -73,16 +73,16 @@
         x-cloak
         class="lg:hidden px-4 pb-4 space-y-2"
     >
-        <a href="#workflow" @click="mobileOpen = false" class="block py-2 text-white/70 hover:text-white">
+        <a href="#workflow" @click="mobileOpen = false" class="block py-2 text-muted hover:text-foreground">
             Como Funciona
         </a>
-        <a href="#features" @click="mobileOpen = false" class="block py-2 text-white/70 hover:text-white">
+        <a href="#features" @click="mobileOpen = false" class="block py-2 text-muted hover:text-foreground">
             Funcionalidades
         </a>
-        <a href="#pricing" @click="mobileOpen = false" class="block py-2 text-white/70 hover:text-white">
+        <a href="#pricing" @click="mobileOpen = false" class="block py-2 text-muted hover:text-foreground">
             Planos
         </a>
-        <a href="{{ route('login') }}" class="block py-2 text-white/70 hover:text-white">
+        <a href="{{ route('login') }}" class="block py-2 text-muted hover:text-foreground">
             Login
         </a>
     </div>

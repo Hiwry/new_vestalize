@@ -1,4 +1,4 @@
-{{-- Pricing Section --}}
+{{-- Pricing Section - Personalizados --}}
 <section id="pricing" class="w-full py-16 lg:py-24 relative">
     <div class="landing-wrapper">
         <div class="flex flex-col items-center text-center">
@@ -22,9 +22,9 @@
                 Comece grátis por 14 dias. Sem cartão de crédito.
             </p>
 
-            {{-- Toggle - CSS puro com checkbox --}}
+            {{-- Toggle --}}
             <div class="flex items-center gap-4 mt-8 scroll-animate delay-300">
-                <span id="label-mensal" class="text-sm font-medium text-white transition-colors duration-300">Mensal</span>
+                <span id="label-mensal" class="text-sm font-medium text-heading transition-colors duration-300">Mensal</span>
                 
                 <label class="pricing-toggle-label relative cursor-pointer">
                     <input type="checkbox" id="pricing-toggle-input" class="sr-only peer">
@@ -75,12 +75,12 @@
                 @endphp
 
                 <div class="pricing-card {{ $isPopular ? 'popular' : '' }} scroll-animate delay-{{ 400 + ($index * 100) }}">
-                    <div class="text-sm {{ $isPopular ? 'text-purple-400' : 'text-muted' }} font-medium mb-2">
+                    <div class="text-sm {{ $isPopular ? 'feature-icon-color' : 'text-muted' }} font-medium mb-2">
                         {{ $plan->name }}
                     </div>
                     <div class="flex items-baseline gap-1 mb-4">
-                        <span class="price-monthly text-4xl font-bold text-white">R$ {{ $monthly }}</span>
-                        <span class="price-yearly text-4xl font-bold text-white hidden">R$ {{ $yearly }}</span>
+                        <span class="price-monthly text-4xl font-bold text-heading">R$ {{ $monthly }}</span>
+                        <span class="price-yearly text-4xl font-bold text-heading hidden">R$ {{ $yearly }}</span>
                         <span class="text-muted">/mês</span>
                     </div>
                     @if(!empty($plan->description))
@@ -91,8 +91,8 @@
 
                     <ul class="space-y-3 mb-8">
                         @forelse ($featureList as $feature)
-                            <li class="flex items-center gap-3 text-sm text-white/80">
-                                <svg class="w-5 h-5 {{ $isPopular ? 'text-purple-400' : 'text-green-400' }} flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <li class="flex items-center gap-3 text-sm text-muted">
+                                <svg class="w-5 h-5 {{ $isPopular ? 'feature-icon-color' : 'check-icon' }} flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
                                 {{ $feature }}

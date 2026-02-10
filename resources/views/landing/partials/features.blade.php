@@ -66,14 +66,14 @@
             @foreach ($features as $index => $feature)
                 <div class="landing-card scroll-animate delay-{{ ($index % 3 + 3) * 100 }}">
                     {{-- Icon --}}
-                    <div class="w-12 h-12 rounded-lg bg-purple-600/20 flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="w-12 h-12 rounded-lg feature-icon-bg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 feature-icon-color" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             {!! $feature['icon'] !!}
                         </svg>
                     </div>
                     
                     {{-- Title --}}
-                    <h3 class="text-lg font-semibold text-white mb-2">
+                    <h3 class="text-lg font-semibold text-heading mb-2">
                         {{ $feature['title'] }}
                     </h3>
                     

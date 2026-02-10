@@ -9,16 +9,23 @@
     --primary-hover: #6d28d9;
     --primary-light: rgba(124, 58, 237, 0.1);
 
-    --background: #f7f9fd;
-    --foreground: #0b1023;
-    --muted: #4a4f6a;
-    --border: rgba(15, 18, 34, 0.12);
+    --background: #fafbff;
+    --foreground: #1a1a2e;
+    --muted: #5a5f7a;
+    --border: rgba(15, 18, 34, 0.10);
     --card-bg: #ffffff;
-    --card-hover: #f1f2f8;
+    --card-hover: #f5f3ff;
     --input-bg: #ffffff;
-    --navbar-bg: rgba(255, 255, 255, 0.9);
-    --glow-opacity: 0.05;
-    --shadow: 0 12px 30px rgba(15, 18, 34, 0.08);
+    --navbar-bg: rgba(255, 255, 255, 0.92);
+    --glow-opacity: 0.06;
+    --shadow: 0 4px 16px rgba(124, 58, 237, 0.06), 0 1px 3px rgba(0,0,0,0.04);
+    --heading-color: var(--foreground);
+    --icon-bg: rgba(124, 58, 237, 0.08);
+    --icon-color: #7c3aed;
+    --section-alt-bg: #f3f0ff;
+    --footer-heading: var(--foreground);
+    --check-color: #7c3aed;
+    --arrow-color: rgba(124, 58, 237, 0.3);
 }
 
 /* Dark palette (ativada com .dark no body/html) */
@@ -37,6 +44,13 @@
     --navbar-bg: rgba(10, 10, 10, 0.8);
     --glow-opacity: 0.12;
     --shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    --heading-color: #ffffff;
+    --icon-bg: rgba(147, 51, 234, 0.2);
+    --icon-color: #c084fc;
+    --section-alt-bg: transparent;
+    --footer-heading: #ffffff;
+    --check-color: #a78bfa;
+    --arrow-color: rgba(255, 255, 255, 0.25);
 }
 
 /* Base Landing Page Styles */
@@ -543,12 +557,16 @@
     left: 0;
     right: 0;
     height: 88px;
-    background: rgba(10, 10, 10, 0.8);
+    background: rgba(250, 251, 255, 0.85);
     backdrop-filter: blur(8px);
     z-index: 99;
     mask-image: linear-gradient(to bottom, black 20%, transparent);
     -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent);
     pointer-events: none;
+}
+
+.dark .navbar-backdrop {
+    background: rgba(10, 10, 10, 0.8);
 }
 
 /* ============================================
@@ -559,6 +577,14 @@
     color: var(--muted);
 }
 
+.text-heading {
+    color: var(--heading-color);
+}
+
+.text-footer-heading {
+    color: var(--footer-heading);
+}
+
 .border-subtle {
     border-color: var(--border);
 }
@@ -566,6 +592,29 @@
 .bg-glass {
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(16px);
+}
+
+html:not(.dark) .bg-glass {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+/* Feature icon adaptive */
+.feature-icon-bg {
+    background: var(--icon-bg);
+}
+
+.feature-icon-color {
+    color: var(--icon-color);
+}
+
+/* Check icon color */
+.check-icon {
+    color: var(--check-color);
+}
+
+/* Arrow color */
+.arrow-icon {
+    color: var(--arrow-color);
 }
 
 /* Hide scrollbar */
@@ -579,8 +628,7 @@
 }
 
 /* =============================
-   Override utilidades herdadas
-   para light mode com contraste
+   Theme-aware overrides
    ============================= */
 
 /* Força textos claros herdados a usarem o foreground escuro do tema */
@@ -634,4 +682,31 @@ html:not(.dark) .text-adaptive-gradient {
 .landing-title .text-gradient-primary {
     color: var(--primary) !important;
     -webkit-text-fill-color: currentColor !important;
+}
+
+/* Pricing text in light mode */
+html:not(.dark) .landing-page .price-monthly,
+html:not(.dark) .landing-page .price-yearly {
+    color: var(--foreground) !important;
+}
+
+/* Section badge in light mode */
+html:not(.dark) .section-badge {
+    background: rgba(124, 58, 237, 0.06);
+    border-color: rgba(124, 58, 237, 0.15);
+}
+
+/* Pricing toggle labels in light mode */
+html:not(.dark) .pricing-toggle-active {
+    color: var(--foreground) !important;
+}
+
+html:not(.dark) .landing-page .pricing-card {
+    background: #ffffff;
+    box-shadow: 0 2px 12px rgba(124, 58, 237, 0.06), 0 1px 3px rgba(0,0,0,0.03);
+}
+
+html:not(.dark) .landing-page .pricing-card.popular {
+    background: linear-gradient(to bottom, rgba(124, 58, 237, 0.04), #ffffff);
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.12), 0 1px 3px rgba(0,0,0,0.04);
 }

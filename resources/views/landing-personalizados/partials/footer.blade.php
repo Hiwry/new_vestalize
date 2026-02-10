@@ -1,4 +1,4 @@
-{{-- Footer --}}
+{{-- Footer - Personalizados --}}
 <footer class="landing-footer py-12 lg:py-16">
     <div class="landing-wrapper">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
@@ -12,7 +12,7 @@
                     >
                 </a>
                 <p class="text-sm text-muted leading-relaxed max-w-xs">
-                    A plataforma completa para gestão de negócios de personalizados que une vendas, produção e financeiro.
+                    A plataforma completa para gestão de personalizados que une vendas, produção e financeiro.
                 </p>
                 
                 {{-- Social Links --}}
@@ -37,27 +37,25 @@
 
             {{-- Links Columns --}}
             <div>
-                <h4 class="font-semibold text-white mb-4">Plataforma</h4>
+                <h4 class="font-semibold text-footer-heading mb-4">Plataforma</h4>
                 <ul class="space-y-3 text-sm text-muted">
                     <li><a href="#features" class="hover:text-purple-400 transition-colors">Funcionalidades</a></li>
                     <li><a href="#pricing" class="hover:text-purple-400 transition-colors">Planos</a></li>
-                    <li><a href="#" class="hover:text-purple-400 transition-colors">Integrações</a></li>
-                    <li><a href="#" class="hover:text-purple-400 transition-colors">Atualizações</a></li>
+                    <li><a href="/" class="hover:text-purple-400 transition-colors">Para Confecções</a></li>
                 </ul>
             </div>
 
             <div>
-                <h4 class="font-semibold text-white mb-4">Empresa</h4>
+                <h4 class="font-semibold text-footer-heading mb-4">Empresa</h4>
                 <ul class="space-y-3 text-sm text-muted">
                     <li><a href="#" class="hover:text-purple-400 transition-colors">Sobre Nós</a></li>
                     <li><a href="#" class="hover:text-purple-400 transition-colors">Blog</a></li>
-                    <li><a href="#" class="hover:text-purple-400 transition-colors">Carreiras</a></li>
                     <li><a href="#" class="hover:text-purple-400 transition-colors">Contato</a></li>
                 </ul>
             </div>
 
             <div>
-                <h4 class="font-semibold text-white mb-4">Suporte</h4>
+                <h4 class="font-semibold text-footer-heading mb-4">Suporte</h4>
                 <ul class="space-y-3 text-sm text-muted">
                     <li><a href="#" class="hover:text-purple-400 transition-colors">Central de Ajuda</a></li>
                     <li><a href="#" class="hover:text-purple-400 transition-colors">Tutoriais</a></li>
@@ -72,7 +70,7 @@
         </div>
 
         {{-- Bottom Bar --}}
-        <div class="border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="border-t border-subtle mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <p class="text-sm text-muted">
                 &copy; {{ date('Y') }} Vestalize Tecnologia. Todos os direitos reservados.
             </p>

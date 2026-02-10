@@ -57,7 +57,7 @@
 
                     {{-- Content --}}
                     <div class="-mt-8 flex flex-col items-center">
-                        <h3 class="text-xl md:text-2xl font-semibold text-white">
+                        <h3 class="text-xl md:text-2xl font-semibold text-heading">
                             {{ $step['title'] }}
                         </h3>
                         <p class="text-sm text-muted max-w-[280px] leading-relaxed mt-2">
@@ -68,7 +68,7 @@
                     {{-- Arrow (mobile) --}}
                     @if ($index < count($steps) - 1)
                         <div class="flex md:hidden relative my-4 rotate-90">
-                            <svg class="w-8 h-8 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="w-8 h-8 arrow-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                             </svg>
                         </div>
