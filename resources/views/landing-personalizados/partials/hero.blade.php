@@ -13,7 +13,7 @@
             </div>
 
             {{-- Title --}}
-            <h1 class="landing-title mt-8">
+            <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mt-6 lg:mt-8 px-2 max-w-full">
                 <span class="animate-word animate-fade-in-blur inline-block">Chega</span>
                 <span class="animate-word animate-fade-in-blur inline-block delay-100">de</span>
                 <span class="animate-word animate-fade-in-blur inline-block delay-200">Planilha</span>
@@ -26,8 +26,9 @@
             </h1>
 
             {{-- Description --}}
-            <p class="landing-desc mt-6 max-w-2xl animate-fade-in-up delay-300">
-                Pare de perder pedidos no WhatsApp e controlar tudo em planilhas. O Vestalize centraliza canecas, camisetas, artes, brindes e muito mais em um só lugar.
+            <p class="text-sm sm:text-base lg:text-lg text-muted mt-4 lg:mt-6 max-w-2xl animate-fade-in-up delay-300 px-4">
+                Sistema completo para quem trabalha com <strong class="stay-white">sublimação, serigrafia, DTF, canecas, camisetas e brindes</strong>. 
+                Controle pedidos, artes, materiais e entregas.
             </p>
 
             {{-- CTAs --}}
@@ -62,17 +63,25 @@
 
             {{-- Floating Badges (desktop only) --}}
             <div class="hidden lg:block">
-                <div class="floating-badge" style="top: 15%; left: 5%; animation-delay: 0s;">
-                    Canecas & Copos
+                <div class="floating-badge flex items-center gap-2 !rounded-full !py-2 !px-4 !bg-black/80 !backdrop-blur-md !border !border-white/20 !text-white !shadow-2xl !w-fit !whitespace-nowrap" style="top: 15%; left: 10%; animation-delay: 0s;">
+                    <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span class="font-semibold tracking-wide">Sublimação</span>
                 </div>
-                <div class="floating-badge" style="top: 25%; right: 8%; animation-delay: 0.5s;">
-                    Camisetas Sublimadas
+                <div class="floating-badge flex items-center gap-2 !rounded-full !py-2 !px-4 !bg-black/80 !backdrop-blur-md !border !border-white/20 !text-white !shadow-2xl !w-fit !whitespace-nowrap" style="top: 25%; right: 12%; animation-delay: 0.5s;">
+                    <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                    <span class="font-semibold tracking-wide">Camisetas</span>
                 </div>
-                <div class="floating-badge" style="top: 55%; left: 10%; animation-delay: 1s;">
-                    Brindes Corporativos
+                <div class="floating-badge flex items-center gap-2 !rounded-full !py-2 !px-4 !bg-black/80 !backdrop-blur-md !border !border-white/20 !text-white !shadow-2xl !w-fit !whitespace-nowrap" style="top: 50%; left: 15%; animation-delay: 1s;">
+                    <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                    <span class="font-semibold tracking-wide">Canecas</span>
                 </div>
-                <div class="floating-badge" style="top: 65%; right: 15%; animation-delay: 1.5s;">
-                    Artes & Mockups
+                <div class="floating-badge flex items-center gap-2 !rounded-full !py-2 !px-4 !bg-black/80 !backdrop-blur-md !border !border-white/20 !text-white !shadow-2xl !w-fit !whitespace-nowrap" style="top: 40%; right: 18%; animation-delay: 1.5s;">
+                    <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+                    <span class="font-semibold tracking-wide">Brindes</span>
+                </div>
+                <div class="floating-badge flex items-center gap-2 !rounded-full !py-2 !px-4 !bg-black/80 !backdrop-blur-md !border !border-white/20 !text-white !shadow-2xl !w-fit !whitespace-nowrap" style="top: 65%; right: 10%; animation-delay: 2s;">
+                    <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+                    <span class="font-semibold tracking-wide">DTF / Silk</span>
                 </div>
             </div>
         </div>

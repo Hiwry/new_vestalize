@@ -39,12 +39,28 @@
 
                 {{-- CTA Buttons --}}
                 <div class="flex items-center gap-4 flex-wrap justify-center mt-8">
-                    <a href="{{ route('register.public') }}" class="btn-primary text-base py-3 px-8 hover:scale-105 transition-transform">
+                    <a href="{{ route('register.public') }}" class="btn-primary text-sm sm:text-base py-3 px-8 hover:scale-105 transition-transform !rounded-full !shadow-lg !shadow-purple-500/20">
                         Começar Gratuitamente
                     </a>
-                    <a href="#pricing" class="btn-outline text-base py-3 px-8">
+                    <a href="#pricing" class="btn-outline text-sm sm:text-base py-3 px-8">
                         Ver Planos
                     </a>
+                </div>
+
+                {{-- Trust badges --}}
+                <div class="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-6 lg:mt-8 text-xs sm:text-sm text-muted">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Suporte via WhatsApp
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Cancele quando quiser
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Dados seguros
+                    </span>
                 </div>
             </div>
         </div>

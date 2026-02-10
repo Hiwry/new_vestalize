@@ -326,7 +326,6 @@
     background: var(--primary);
     color: white;
     font-weight: 600;
-    border-radius: 0.5rem;
     transition: all 0.2s ease;
 }
 
@@ -343,7 +342,6 @@
     background: transparent;
     color: var(--foreground);
     font-weight: 600;
-    border-radius: 0.5rem;
     border: 1px solid var(--border);
     transition: all 0.2s ease;
 }
@@ -357,13 +355,6 @@
 .floating-badge {
     position: absolute;
     z-index: 30;
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.5rem;
-    border: 1px solid var(--border);
-    backdrop-filter: blur(12px);
-    background: var(--card-bg);
-    font-size: 0.875rem;
-    color: var(--foreground);
     white-space: nowrap;
     animation: float 3s ease-in-out infinite;
     box-shadow: var(--shadow);
