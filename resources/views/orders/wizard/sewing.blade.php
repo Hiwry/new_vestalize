@@ -1875,6 +1875,35 @@
     }
     window.clearWizardImage = clearWizardImage;
 
+    function previewSublimationImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewImg = document.getElementById('sub-image-preview');
+                const previewContainer = document.getElementById('sub-image-preview-container');
+                const placeholder = document.getElementById('sub-image-placeholder');
+                
+                if (previewImg) previewImg.src = e.target.result;
+                if (previewContainer) previewContainer.classList.remove('hidden');
+                if (placeholder) placeholder.classList.add('hidden');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    window.previewSublimationImage = previewSublimationImage;
+
+    function clearSublimationImage() {
+        const fileInput = document.getElementById('sub_wizard_file_input');
+        if (fileInput) fileInput.value = '';
+        
+        const previewContainer = document.getElementById('sub-image-preview-container');
+        const placeholder = document.getElementById('sub-image-placeholder');
+        
+        if (previewContainer) previewContainer.classList.add('hidden');
+        if (placeholder) placeholder.classList.remove('hidden');
+    }
+    window.clearSublimationImage = clearSublimationImage;
+
     function updateFinalSummary() {
         const summaryTecido = document.getElementById('summary-tecido-val');
         if (summaryTecido) summaryTecido.textContent = wizardData.tecido ? wizardData.tecido.name : '-';
@@ -3002,6 +3031,57 @@
         if (totalPriceEl) totalPriceEl.textContent = 'R$ 0,00';
     }
     window.resetFullpageSubForm = resetFullpageSubForm;
+
+    // --- Clipboard Paste Listener ---
+    document.addEventListener('paste', function(e) {
+        // Encontrar se algum modal relevante está aberto
+        const wizardModal = document.getElementById('sewing-wizard-modal');
+        const subModal = document.getElementById('sublimation-modal');
+
+        let targetInput = null;
+        let previewFn = null;
+
+        if (subModal && !subModal.classList.contains('hidden')) {
+            targetInput = document.getElementById('sub_wizard_file_input');
+            previewFn = window.previewSublimationImage;
+        } else if (wizardModal && !wizardModal.classList.contains('hidden') && window.wizardCurrentStep === 10) {
+            targetInput = document.getElementById('wizard_file_input');
+            previewFn = window.previewWizardImage;
+        }
+
+        if (!targetInput) return;
+
+        const items = (e.clipboardData || window.clipboardData).items;
+        if (!items) return;
+
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const blob = items[i].getAsFile();
+                if (!blob) continue;
+
+                // Criar arquivo fake do blob
+                const file = new File([blob], "pasted-image-" + Date.now() + ".png", { type: "image/png" });
+
+                // Usar DataTransfer para simular seleção de arquivo
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                targetInput.files = dataTransfer.files;
+
+                // Disparar preview
+                if (previewFn) previewFn(targetInput);
+                
+                // Mostrar notificação se disponível
+                if (window.showToast) {
+                    window.showToast('Imagem colada com sucesso!', 'success');
+                } else if (typeof showNotification === 'function') {
+                    showNotification('Imagem colada com sucesso!', 'success');
+                }
+                
+                e.preventDefault();
+                break;
+            }
+        }
+    });
 })();
 
 

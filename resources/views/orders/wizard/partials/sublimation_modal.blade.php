@@ -128,13 +128,24 @@
                     <!-- Imagem de Capa -->
                     <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
                         <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Imagem de Capa</label>
-                        <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">
-                            <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <span class="text-xs text-gray-500 mt-1">PNG, JPG, WEBP</span>
-                            <input type="file" name="item_cover_image" class="hidden" accept="image/*">
-                        </label>
+                        <div class="relative w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 flex flex-col items-center justify-center overflow-hidden" onclick="document.getElementById('sub_wizard_file_input').click()">
+                            <input type="file" name="item_cover_image" id="sub_wizard_file_input" class="hidden" accept="image/*" onchange="previewSublimationImage(this)">
+                            
+                            <div id="sub-image-placeholder" class="flex flex-col items-center justify-center py-4">
+                                <svg class="w-8 h-8 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <span class="text-xs text-gray-500">Clique ou cole (Ctrl+V)</span>
+                                <span class="text-[10px] text-gray-400">PNG, JPG, WEBP</span>
+                            </div>
+
+                            <div id="sub-image-preview-container" class="hidden relative w-full h-full p-2">
+                                <img id="sub-image-preview" class="w-full h-full object-contain rounded-md border border-gray-200 dark:border-slate-600">
+                                <button type="button" onclick="event.stopPropagation(); clearSublimationImage()" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-[10px] shadow-sm hover:bg-red-600 transition-transform hover:scale-110 z-10">
+                                    <i class="fa-solid fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
