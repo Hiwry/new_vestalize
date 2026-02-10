@@ -15,8 +15,712 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    {{-- Landing Page Custom CSS --}}
-    <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+    {{-- Landing Page Custom CSS - Inlined to bypass server restrictions --}}
+<style>
+/* ============================================
+   Vestalize Landing Page Styles
+   Adapted from Avento (Next.js) to Laravel
+   ============================================ */
+
+/* CSS Variables - Light First (alto contraste) */
+:root {
+    --primary: #7c3aed;
+    --primary-hover: #6d28d9;
+    --primary-light: rgba(124, 58, 237, 0.1);
+
+    --background: #fafbff;
+    --foreground: #1a1a2e;
+    --muted: #5a5f7a;
+    --border: rgba(15, 18, 34, 0.10);
+    --card-bg: #ffffff;
+    --card-hover: #f5f3ff;
+    --input-bg: #ffffff;
+    --navbar-bg: rgba(255, 255, 255, 0.92);
+    --glow-opacity: 0.06;
+    --shadow: 0 4px 16px rgba(124, 58, 237, 0.06), 0 1px 3px rgba(0,0,0,0.04);
+    --heading-color: var(--foreground);
+    --icon-bg: rgba(124, 58, 237, 0.08);
+    --icon-color: #7c3aed;
+    --section-alt-bg: #f3f0ff;
+    --footer-heading: var(--foreground);
+    --check-color: #7c3aed;
+    --arrow-color: rgba(124, 58, 237, 0.3);
+}
+
+/* Dark palette (ativada com .dark no body/html) */
+.dark {
+    --primary: #7c3aed;
+    --primary-hover: #6d28d9;
+    --primary-light: rgba(124, 58, 237, 0.18);
+
+    --background: #0a0a0a;
+    --foreground: #fafafa;
+    --muted: #a1a1aa;
+    --border: rgba(255, 255, 255, 0.08);
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --card-hover: rgba(255, 255, 255, 0.08);
+    --input-bg: #121212;
+    --navbar-bg: rgba(10, 10, 10, 0.8);
+    --glow-opacity: 0.12;
+    --shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    --heading-color: #ffffff;
+    --icon-bg: rgba(147, 51, 234, 0.2);
+    --icon-color: #c084fc;
+    --section-alt-bg: transparent;
+    --footer-heading: #ffffff;
+    --check-color: #a78bfa;
+    --arrow-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Base Landing Page Styles */
+.landing-page {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+}
+
+/* Background gradient */
+.landing-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, var(--glow-opacity)), transparent);
+}
+
+/* Wrapper */
+.landing-wrapper {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+/* Fade In Up */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Fade In with Blur */
+@keyframes fadeInBlur {
+    from {
+        opacity: 0;
+        filter: blur(10px);
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        filter: blur(0);
+        transform: translateY(0);
+    }
+}
+
+/* Float animation for badges */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Shimmer for gradient text */
+@keyframes shimmer {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Pulse glow */
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.6;
+        transform: scale(1.2);
+    }
+}
+
+/* Animation classes */
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-fade-in-blur {
+    animation: fadeInBlur 0.4s ease-out forwards;
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Scroll-triggered animations (start hidden) */
+.scroll-animate {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.scroll-animate.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Staggered delays */
+.delay-100 {
+    transition-delay: 0.1s;
+    animation-delay: 0.1s;
+}
+
+.delay-200 {
+    transition-delay: 0.2s;
+    animation-delay: 0.2s;
+}
+
+.delay-300 {
+    transition-delay: 0.3s;
+    animation-delay: 0.3s;
+}
+
+.delay-400 {
+    transition-delay: 0.4s;
+    animation-delay: 0.4s;
+}
+
+.delay-500 {
+    transition-delay: 0.5s;
+    animation-delay: 0.5s;
+}
+
+.delay-600 {
+    transition-delay: 0.6s;
+    animation-delay: 0.6s;
+}
+
+/* ============================================
+   Components
+   ============================================ */
+
+/* Navbar */
+.landing-navbar {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 2rem);
+    max-width: 72rem;
+    z-index: 100;
+    border-radius: 1.5rem;
+    border: 1px solid var(--border);
+    backdrop-filter: blur(16px);
+    background: var(--navbar-bg);
+    box-shadow: var(--shadow);
+}
+
+.landing-navbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.5rem 0.75rem 0.75rem;
+}
+
+/* Badge glow effect */
+.badge-glow {
+    background: linear-gradient(to right, rgba(124, 58, 237, 0.1), rgba(124, 58, 237, 0.05));
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+}
+
+/* Gradient text */
+.text-gradient-primary {
+    background: linear-gradient(to right, var(--primary), #8b5cf6, var(--primary));
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Section title */
+.landing-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    color: var(--foreground);
+}
+
+@media (min-width: 768px) {
+    .landing-title {
+        font-size: 3.5rem;
+    }
+}
+
+/* Section description */
+.landing-desc {
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 36rem;
+}
+
+@media (min-width: 768px) {
+    .landing-desc {
+        font-size: 1.125rem;
+    }
+}
+
+/* Section badge */
+.section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 0.875rem;
+    color: var(--muted);
+}
+
+/* Cards */
+.landing-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+}
+
+.landing-card:hover {
+    background: var(--card-hover);
+    border-color: rgba(124, 58, 237, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Buttons */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    color: var(--foreground);
+    font-weight: 600;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+.btn-outline:hover {
+    background: var(--card-bg);
+    border-color: var(--primary);
+}
+
+/* Floating badges */
+.floating-badge {
+    position: absolute;
+    z-index: 30;
+    white-space: nowrap;
+    animation: float 3s ease-in-out infinite;
+    box-shadow: var(--shadow);
+}
+
+/* Dashboard preview container */
+.dashboard-preview {
+    position: relative;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 0.5rem;
+    border-radius: 1.5rem;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
+}
+
+.dashboard-preview::before {
+    content: '';
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    width: 80%;
+    height: 33%;
+    background: rgba(124, 58, 237, 0.2);
+    filter: blur(160px);
+    z-index: -1;
+}
+
+.dashboard-preview-inner {
+    border-radius: 1rem;
+    border: 1px solid var(--border);
+    background: var(--background);
+    overflow: hidden;
+}
+
+/* Gradient overlay at bottom of hero */
+.hero-gradient-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    width: 100%;
+    height: 75%;
+    background: linear-gradient(to top, var(--background) 10%, transparent);
+    pointer-events: none;
+}
+
+/* Workflow number */
+.workflow-number {
+    font-size: 8rem;
+    font-weight: 700;
+    line-height: 1;
+    background: linear-gradient(to bottom, rgba(124, 58, 237, 0.45), rgba(124, 58, 237, 0));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    user-select: none;
+}
+
+@media (min-width: 768px) {
+    .workflow-number {
+        font-size: 10rem;
+    }
+}
+
+/* Pricing card */
+.pricing-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+}
+
+.pricing-card.popular {
+    border-color: var(--primary);
+    background: linear-gradient(to bottom, rgba(124, 58, 237, 0.1), transparent);
+}
+
+.pricing-card.popular::before {
+    content: 'POPULAR';
+    position: absolute;
+    top: -0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.25rem 0.75rem;
+    background: var(--primary);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 9999px;
+}
+
+/* Pricing Toggle - Checkbox based with smooth animation */
+.pricing-toggle-label {
+    position: relative;
+    display: inline-block;
+}
+
+.pricing-toggle-label .toggle-track {
+    position: relative;
+}
+
+.pricing-toggle-label .toggle-thumb {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.pricing-toggle-label input:checked~.toggle-track {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.pricing-toggle-label input:checked~.toggle-thumb {
+    left: 32px;
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.6);
+}
+
+/* CTA Section */
+.cta-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-grid-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -20;
+    background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+}
+
+.cta-mask {
+    position: absolute;
+    inset: 0;
+    z-index: -10;
+    background: var(--background);
+    mask-image: radial-gradient(ellipse 70% 50% at 50% 50%, transparent 40%, white 70%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 50% at 50% 50%, transparent 40%, white 70%);
+}
+
+.cta-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    width: 50%;
+    height: 75%;
+    border-radius: 9999px;
+    background: rgba(124, 58, 237, 0.2);
+    filter: blur(96px);
+    z-index: 0;
+}
+
+/* Footer */
+.landing-footer {
+    border-top: 1px solid var(--border);
+    background: var(--background);
+    position: relative;
+    z-index: 10;
+}
+
+/* Mobile menu */
+.mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    background: var(--background);
+    padding: 6rem 1.5rem 2rem;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.mobile-menu.is-open {
+    transform: translateX(0);
+}
+
+/* Blur backdrop for navbar on mobile */
+.navbar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 88px;
+    background: rgba(250, 251, 255, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 99;
+    mask-image: linear-gradient(to bottom, black 20%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent);
+    pointer-events: none;
+}
+
+.dark .navbar-backdrop {
+    background: rgba(10, 10, 10, 0.8);
+}
+
+/* ============================================
+   Utilities
+   ============================================ */
+
+.text-muted {
+    color: var(--muted);
+}
+
+.text-heading {
+    color: var(--heading-color);
+}
+
+.text-footer-heading {
+    color: var(--footer-heading);
+}
+
+.border-subtle {
+    border-color: var(--border);
+}
+
+.bg-glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+}
+
+html:not(.dark) .bg-glass {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+/* Feature icon adaptive */
+.feature-icon-bg {
+    background: var(--icon-bg);
+}
+
+.feature-icon-color {
+    color: var(--icon-color);
+}
+
+/* Check icon color */
+.check-icon {
+    color: var(--check-color);
+}
+
+/* Arrow color */
+.arrow-icon {
+    color: var(--arrow-color);
+}
+
+/* Hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* =============================
+   Theme-aware overrides
+   ============================= */
+
+/* Força textos claros herdados a usarem o foreground escuro do tema */
+html:not(.dark) .landing-page .text-white:not(.stay-white),
+html:not(.dark) .landing-page .text-white\/80:not(.stay-white),
+html:not(.dark) .landing-page .text-white\/70:not(.stay-white),
+html:not(.dark) .landing-page .text-white\/60:not(.stay-white),
+html:not(.dark) .landing-page .text-foreground,
+html:not(.dark) .landing-page .text-foreground\/80,
+html:not(.dark) .landing-page .text-muted-foreground {
+    color: var(--foreground) !important;
+}
+
+html:not(.dark) .landing-page .text-muted {
+    color: var(--muted) !important;
+}
+
+/* Destaques que devem permanecer roxos */
+.landing-page .text-gradient-primary,
+.landing-page .text-primary {
+    color: var(--primary) !important;
+    -webkit-text-fill-color: currentColor;
+}
+
+/* Força branco em elementos específicos (mesmo no light mode) */
+.stay-white {
+    color: #ffffff !important;
+}
+
+/* Títulos animados do hero */
+html:not(.dark) .landing-page .landing-title .animate-word:not(.text-gradient-primary) {
+    color: var(--foreground) !important;
+}
+
+/* Gradiente adaptativo para títulos sobre fundo variado */
+.text-adaptive-gradient {
+    background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.7));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+html:not(.dark) .text-adaptive-gradient {
+    background: linear-gradient(to right, var(--foreground), var(--muted));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Força destaque roxo em ambas variações */
+.landing-title .text-gradient-primary {
+    color: var(--primary) !important;
+    -webkit-text-fill-color: currentColor !important;
+}
+
+/* Pricing text in light mode */
+html:not(.dark) .landing-page .price-monthly,
+html:not(.dark) .landing-page .price-yearly {
+    color: var(--foreground) !important;
+}
+
+/* Section badge in light mode */
+html:not(.dark) .section-badge {
+    background: rgba(124, 58, 237, 0.06);
+    border-color: rgba(124, 58, 237, 0.15);
+}
+
+/* Pricing toggle labels in light mode */
+html:not(.dark) .pricing-toggle-active {
+    color: var(--foreground) !important;
+}
+
+html:not(.dark) .landing-page .pricing-card {
+    background: #ffffff;
+    box-shadow: 0 2px 12px rgba(124, 58, 237, 0.06), 0 1px 3px rgba(0,0,0,0.03);
+}
+
+html:not(.dark) .landing-page .pricing-card.popular {
+    background: linear-gradient(to bottom, rgba(124, 58, 237, 0.04), #ffffff);
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.12), 0 1px 3px rgba(0,0,0,0.04);
+}
+</style>
 
     {{-- Compiled Tailwind CSS - Inlined to bypass server restrictions --}}
 <style>
