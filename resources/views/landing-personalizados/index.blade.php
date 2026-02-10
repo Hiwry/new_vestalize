@@ -342,6 +342,7 @@
     align-items: center;
     justify-content: center;
     padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
     background: var(--primary);
     color: white;
     font-weight: 600;
@@ -358,6 +359,7 @@
     align-items: center;
     justify-content: center;
     padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
     background: transparent;
     color: var(--foreground);
     font-weight: 600;
