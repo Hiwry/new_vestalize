@@ -753,6 +753,8 @@
                                                 <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-yellow-100 text-yellow-700 border border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-100 dark:border-yellow-400/40">Estoque parcial</span>
                                             @elseif($order->stock_status === 'total')
                                                 <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-green-100 text-green-700 border border-green-200 dark:bg-green-500/15 dark:text-green-200 dark:border-green-400/30">Estoque ok</span>
+                                            @elseif(!$order->stock_status || $order->stock_status === 'pending')
+                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-gray-100 text-gray-600 border border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">Estoque pendente</span>
                                             @endif
                                             @if($order->is_event)
                                                 <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-gradient-to-r from-fuchsia-600 to-violet-600 !text-white border border-fuchsia-500 shadow-sm shadow-fuchsia-500/30 dark:from-fuchsia-500 dark:to-violet-500 dark:border-fuchsia-400" style="color: #fff !important;">
@@ -849,6 +851,26 @@
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9 4 9-4M4 10v6l8 4 8-4v-6"></path></svg>
                                             <span class="text-gray-800 font-semibold dark:text-gray-200">Qtd:</span>
                                             <span>{{ $quantityTotal }} unid</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                                            <span class="text-gray-800 font-semibold dark:text-gray-200">Estoque:</span>
+                                            @php
+                                                $stockLabel = [
+                                                    'total' => 'Total disponível',
+                                                    'partial' => 'Disponível parcial',
+                                                    'none' => 'Indisponível',
+                                                    'pending' => 'Aguardando verificação',
+                                                ][$order->stock_status ?? 'pending'] ?? 'Pendente';
+                                                
+                                                $stockColorClass = [
+                                                    'total' => 'text-emerald-600 dark:text-emerald-400',
+                                                    'partial' => 'text-amber-600 dark:text-amber-400',
+                                                    'none' => 'text-rose-600 dark:text-rose-400',
+                                                    'pending' => 'text-gray-500 dark:text-gray-400',
+                                                ][$order->stock_status ?? 'pending'] ?? 'text-gray-500';
+                                            @endphp
+                                            <span class="font-bold {{ $stockColorClass }}">{{ $stockLabel }}</span>
                                         </div>
                                     </div>
 

@@ -175,21 +175,42 @@
                             @foreach($sizes as $size)
                             <th scope="col" class="px-3 py-4 text-center font-bold text-gray-400">{{ $size }}</th>
                             @endforeach
-                            <th scope="col" class="px-6 py-4 text-center font-bold bg-gray-50 dark:bg-gray-900/30">Total</th>
+                            <th scope="col" class="px-6 py-4 text-center font-bold">Total</th>
                             <th scope="col" class="px-6 py-4 text-right font-bold">Ações</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                        @php
+                            $rowColor = $group['color']['hex'] ?? null;
+                            $rowStyle = '';
+                            $textClass = 'text-gray-900 dark:text-white';
+                            
+                            if ($rowColor) {
+                                $rowStyle = "background-color: {$rowColor} !important;";
+                                
+                                // Determinar se a cor é clara ou escura para o contraste do texto
+                                $hex = str_replace('#', '', $rowColor);
+                                if (strlen($hex) == 3) {
+                                    $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+                                }
+                                $r = hexdec(substr($hex, 0, 2));
+                                $g = hexdec(substr($hex, 2, 2));
+                                $b = hexdec(substr($hex, 4, 2));
+                                $brightness = ($r * 299 + $g * 587 + $b * 114) / 1000;
+                                
+                                $textClass = $brightness > 125 ? 'text-gray-900' : 'text-white';
+                            }
+                        @endphp
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2">
-                                    <div class="w-4 h-4 rounded-full border border-gray-200 dark:border-gray-600 shadow-sm" style="background-color: {{ $group['color']['hex'] ?? '#ccc' }}"></div>
+                                    <div class="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-500 shadow-sm" style="background-color: {{ $rowColor ?? '#ccc' }}"></div>
                                     <span class="font-bold text-gray-900 dark:text-white">{{ $group['color']['name'] ?? '-' }}</span>
                                 </div>
                             </td>
                             
                             @foreach($sizes as $size)
-                            <td class="px-2 py-4 text-center">
+                            <td class="px-2 py-4 text-center" style="{{ $rowStyle }}">
                                 @if(isset($group['sizes'][$size]))
                                     @php
                                         $sizeData = $group['sizes'][$size];
@@ -197,34 +218,33 @@
                                         $reserved = (int)$sizeData['reserved_quantity'];
                                         $minStock = (int)($sizeData['min_stock'] ?? 10);
                                         
-                                        // Cores mais vibrantes e visíveis no dark mode
-                                        $bgClass = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-800 dark:text-emerald-200';
-                                        if ($qty == 0) $bgClass = 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300';
-                                        elseif ($qty < $minStock) $bgClass = 'bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-200';
-                                        elseif ($qty < $minStock * 2) $bgClass = 'bg-amber-100 text-amber-700 dark:bg-amber-800 dark:text-amber-200';
+                                        $bgClass = 'bg-emerald-100 text-emerald-700 shadow-sm';
+                                        if ($qty == 0) $bgClass = 'bg-gray-100 text-gray-500';
+                                        elseif ($qty < $minStock) $bgClass = 'bg-red-100 text-red-700';
+                                        elseif ($qty < $minStock * 2) $bgClass = 'bg-amber-100 text-amber-700';
                                     @endphp
                                     <div class="flex flex-col items-center justify-center">
-                                        <span class="px-2.5 py-1 rounded-lg font-bold text-xs {{ $bgClass }}">
+                                        <span class="px-2.5 py-1 rounded-lg font-bold text-xs {{ $bgClass }} border border-white/20">
                                             {{ $qty }}
                                         </span>
                                         @if($reserved > 0)
-                                            <span class="text-[10px] font-bold text-orange-400 dark:text-orange-300 mt-1" title="Reservado">R: {{ $reserved }}</span>
+                                            <span class="text-[10px] font-bold mt-1 {{ $textClass }} opacity-80" title="Reservado">R: {{ $reserved }}</span>
                                         @endif
-                                        <span class="text-[9px] text-gray-300 dark:text-gray-500 mt-0.5">#{{ $sizeData['id'] }}</span>
+                                        <span class="text-[9px] mt-0.5 {{ $textClass }} opacity-50">#{{ $sizeData['id'] }}</span>
                                     </div>
                                 @else
-                                    <span class="text-gray-200 dark:text-gray-700">-</span>
+                                    <span class="{{ $textClass }} opacity-20">-</span>
                                 @endif
                             </td>
                             @endforeach
 
-                             <td class="px-6 py-4 text-center bg-gray-50 dark:bg-gray-900/30">
+                             <td class="px-6 py-4 text-center" style="{{ $rowStyle }}">
                                 <span class="px-3 py-1 rounded-full bg-indigo-500 text-white text-xs font-bold shadow-sm" style="color: #ffffff !important;">
                                     {{ $group['total_available'] }}
                                 </span>
                             </td>
 
-                            <td class="px-6 py-4 text-right">
+                            <td class="px-6 py-4 text-right" style="{{ $rowStyle }}">
                                 @php
                                     $firstStockId = null;
                                     if(isset($group['sizes']) && is_array($group['sizes'])) {
@@ -260,7 +280,7 @@
                                         <i class="fa-solid fa-trash text-xs text-white" style="color: #ffffff !important;"></i>
                                     </button>
                                     @else
-                                        <span class="text-xs text-gray-400 italic">Indisponível</span>
+                                        <span class="text-xs {{ $textClass }} italic opacity-60">Indisponível</span>
                                     @endif
                                 </div>
                             </td>

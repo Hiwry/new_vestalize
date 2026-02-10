@@ -162,6 +162,7 @@ class StockController extends Controller
                     'color' => $stock->color ? [
                         'id' => $stock->color->id,
                         'name' => $stock->color->name,
+                        'hex' => $stock->color->color_hex,
                     ] : null,
                     'sizes' => [],
                     'total_quantity' => 0,
@@ -304,6 +305,7 @@ class StockController extends Controller
                     'color' => $stock->color ? [
                         'id' => $stock->color->id,
                         'name' => $stock->color->name,
+                        'hex' => $stock->color->color_hex,
                     ] : null,
                     'shelf' => $stock->shelf,
                     'sizes' => [],
