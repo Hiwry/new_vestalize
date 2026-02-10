@@ -740,22 +740,32 @@
                                             @if($order->edit_status === 'requested')
                                                 <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-orange-500/20 text-orange-200 border border-orange-400/40">Editado</span>
                                             @endif
-                                            @if($order->stock_separation_status === 'in_separation')
-                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-600/20 dark:text-blue-100 dark:border-blue-500/40">Em Separação</span>
-                                            @elseif($order->stock_separation_status === 'completed')
-                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-600/20 dark:text-emerald-100 dark:border-emerald-500/40">Separado</span>
-                                            @endif
-                                            @if($order->stock_status === 'none')
-                                                <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-red-600 !text-white border border-red-500 shadow-sm shadow-red-500/30 dark:bg-red-500 dark:border-red-400" style="color: #fff !important;">
-                                                    Sem estoque
-                                                </span>
-                                            @elseif($order->stock_status === 'partial')
-                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-yellow-100 text-yellow-700 border border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-100 dark:border-yellow-400/40">Estoque parcial</span>
-                                            @elseif($order->stock_status === 'total')
-                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-green-100 text-green-700 border border-green-200 dark:bg-green-500/15 dark:text-green-200 dark:border-green-400/30">Estoque ok</span>
-                                            @elseif(!$order->stock_status || $order->stock_status === 'pending')
-                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-gray-100 text-gray-600 border border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">Estoque pendente</span>
-                                            @endif
+                                            @php
+                                                $stockPillLabel = 'Estoque pendente';
+                                                $stockPillClass = 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600';
+                                                $stockPillStyle = '';
+                                                
+                                                if ($order->stock_separation_status === 'in_separation') {
+                                                    $stockPillLabel = 'Em Separação';
+                                                    $stockPillClass = 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-600/20 dark:text-blue-100 dark:border-blue-500/40';
+                                                } elseif ($order->stock_status === 'none') {
+                                                    $stockPillLabel = 'Sem estoque';
+                                                    $stockPillClass = 'bg-red-600 !text-white border-red-500 shadow-sm shadow-red-500/30 dark:bg-red-500 dark:border-red-400';
+                                                    $stockPillStyle = 'color: #fff !important;';
+                                                } elseif ($order->stock_status === 'total') {
+                                                    $stockPillLabel = 'Estoque ok';
+                                                    $stockPillClass = 'bg-green-100 text-green-700 border-green-200 dark:bg-green-500/15 dark:text-green-200 dark:border-green-400/30';
+                                                } elseif ($order->stock_status === 'partial') {
+                                                    $stockPillLabel = 'Estoque parcial';
+                                                    $stockPillClass = 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-100 dark:border-yellow-400/40';
+                                                } elseif ($order->stock_separation_status === 'completed') {
+                                                    $stockPillLabel = 'Separado';
+                                                    $stockPillClass = 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-600/20 dark:text-emerald-100 dark:border-emerald-500/40';
+                                                }
+                                            @endphp
+                                            <span class="px-2 py-1 rounded-md text-[11px] font-semibold {{ $stockPillClass }}" style="{{ $stockPillStyle }}">
+                                                {{ $stockPillLabel }}
+                                            </span>
                                             @if($order->is_event)
                                                 <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-gradient-to-r from-fuchsia-600 to-violet-600 !text-white border border-fuchsia-500 shadow-sm shadow-fuchsia-500/30 dark:from-fuchsia-500 dark:to-violet-500 dark:border-fuchsia-400" style="color: #fff !important;">
                                                     Evento
