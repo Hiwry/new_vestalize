@@ -69,7 +69,7 @@ class PaymentController extends Controller
                     'discount_amount' => $discountAmount,
                 ],
                 // Cartão ou PIX
-                'payment_method_types' => $method ? [$method] : ['card', 'pix'],
+                'payment_method_types' => $method ? [$method] : ['card'],
             ];
 
             $paymentIntent = PaymentIntent::create($paymentIntentData);

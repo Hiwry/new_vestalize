@@ -317,41 +317,13 @@
                                         </template>
                                     </div>
 
-                                    <button type="button" @click="
-                                        const btn = $el;
-                                        btn.disabled = true;
-                                        btn.textContent = 'Carregando...';
-                                        
-                                        try {
-                                            const response = await fetch('{{ route('mercadopago.create-preference', $plan) }}', {
-                                                method: 'POST',
-                                                headers: {
-                                                    'Content-Type': 'application/json',
-                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                                },
-                                                body: JSON.stringify({ coupon_code: coupon })
-                                            });
-                                            const data = await response.json();
-                                            if (data.error) {
-                                                alert(data.error);
-                                                btn.disabled = false;
-                                                btn.textContent = 'Pagar com Mercado Pago';
-                                            } else {
-                                                window.location.href = data.init_point;
-                                            }
-                                        } catch (error) {
-                                            alert('Erro ao processar pagamento');
-                                            btn.disabled = false;
-                                            btn.textContent = 'Pagar com Mercado Pago';
-                                        }
-                                    " class="inline-flex w-full justify-center py-2.5 px-4 bg-gray-900 hover:bg-gray-800 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm">
-                                        Pagar com Mercado Pago
-                                    </button>
+                                    <a href="{{ route('subscription.checkout', $plan) }}" class="inline-flex w-full justify-center py-2.5 px-4 bg-gray-900 hover:bg-gray-800 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm">
+                                        <i class="fa-solid fa-credit-card mr-2"></i> Pagar com Cartão
+                                    </a>
 
                                     <button type="button" @click="generatePix('{{ $plan->id }}', coupon, $event)" class="inline-flex w-full justify-center py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm">
                                         <i class="fa-solid fa-qrcode mr-2"></i> Pagar com PIX
                                     </button>
-                                    
                                     <form action="{{ route('subscription.trial', $plan) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="w-full py-2.5 px-4 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-sm font-medium transition-colors">
