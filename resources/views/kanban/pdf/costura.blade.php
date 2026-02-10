@@ -130,6 +130,9 @@
                                 <tr><td style="color: #64748b;">Cor:</td><td style="font-weight: bold; word-break: break-word;">{{ $item->color }}</td></tr>
                                 <tr><td style="color: #64748b;">Gola:</td><td style="font-weight: bold;">{{ $item->collar }}</td></tr>
                                 <tr><td style="color: #64748b;">Modelo:</td><td style="font-weight: bold;">{{ $item->model }}</td></tr>
+                                @if($item->print_type)
+                                <tr><td style="color: #64748b;">Tipo:</td><td style="font-weight: bold; color: #6366f1;">{{ $item->print_type }}</td></tr>
+                                @endif
                             </table>
                         </div>
 
