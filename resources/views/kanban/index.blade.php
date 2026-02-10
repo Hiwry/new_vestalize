@@ -742,8 +742,8 @@
                                             @endif
                                             @php
                                                 $stockPillLabel = 'Estoque pendente';
-                                                $stockPillClass = 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600';
-                                                $stockPillStyle = '';
+                                                $stockPillClass = 'bg-amber-500 !text-white border-amber-400 shadow-sm shadow-amber-500/30';
+                                                $stockPillStyle = 'color: #fff !important;';
                                                 
                                                 if ($order->stock_separation_status === 'in_separation') {
                                                     $stockPillLabel = 'Em Separação';
@@ -867,7 +867,7 @@
                                             <span class="text-gray-800 font-semibold dark:text-gray-200">Estoque:</span>
                                             @php
                                                 $stockLabel = 'Aguardando verificação';
-                                                $stockColorClass = 'text-gray-500 dark:text-gray-400';
+                                                $stockColorClass = 'text-amber-600 dark:text-amber-400';
                                                 
                                                 if ($order->stock_separation_status === 'in_separation') {
                                                     $stockLabel = 'Em separação';
