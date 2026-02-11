@@ -11,45 +11,119 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    {{-- Vite & Landing theme --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+    {{-- Tailwind CDN fallback --}}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#7c3aed',
+                        'primary-hover': '#6d28d9',
+                        muted: 'var(--muted)',
+                        foreground: 'var(--foreground)',
+                        background: 'var(--background)',
+                    }
+                }
+            }
+        }
+    </script>
 
-    {{-- Alpine.js --}}
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style type="text/css">
+        :root {
+            --primary: #7c3aed;
+            --primary-hover: #6d28d9;
+            --primary-light: rgba(124, 58, 237, 0.1);
+            --background: #fafbff;
+            --foreground: #1a1a2e;
+            --muted: #5a5f7a;
+            --border: rgba(15, 18, 34, 0.10);
+            --card-bg: #ffffff;
+            --card-hover: #f5f3ff;
+            --input-bg: #ffffff;
+            --navbar-bg: rgba(255, 255, 255, 0.92);
+            --glow-opacity: 0.06;
+            --shadow: 0 4px 16px rgba(124, 58, 237, 0.06), 0 1px 3px rgba(0,0,0,0.04);
+        }
 
-    <style>
+        .dark {
+            --primary: #7c3aed;
+            --primary-hover: #6d28d9;
+            --primary-light: rgba(124, 58, 237, 0.18);
+            --background: #0a0a0a;
+            --foreground: #fafafa;
+            --muted: #a1a1aa;
+            --border: rgba(255, 255, 255, 0.08);
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-hover: rgba(255, 255, 255, 0.08);
+            --input-bg: #121212;
+            --navbar-bg: rgba(10, 10, 10, 0.8);
+            --glow-opacity: 0.12;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+        }
+
         body {
             background-color: var(--background);
             color: var(--foreground);
             transition: background-color 0.3s ease, color 0.3s ease;
+            font-family: 'Inter', sans-serif;
         }
+
+        .landing-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, var(--glow-opacity)), transparent);
+        }
+
         .auth-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
             backdrop-filter: blur(16px);
             border-radius: 1.5rem;
+            box-shadow: var(--shadow);
         }
+
         .input-theme {
             background-color: var(--input-bg) !important;
             border: 1px solid var(--border) !important;
             color: var(--foreground) !important;
             transition: all 0.3s ease;
         }
-        .input-theme:focus {
-            border-color: var(--primary) !important;
-            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2) !important;
+
+        .btn-primary {
+            background-color: var(--primary) !important;
+            color: #ffffff !important;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
-        input:-webkit-autofill {
-            -webkit-text-fill-color: var(--foreground) !important;
-            transition: background-color 5000s ease-in-out 0s;
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover) !important;
+            transform: translateY(-1px);
         }
-        html:not(.light) input:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0px 1000px #121212 inset !important;
+
+        .text-muted { color: var(--muted) !important; }
+        .text-foreground { color: var(--foreground) !important; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        html.light input:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+
+        @keyframes fadeInBlur {
+            from { opacity: 0; filter: blur(10px); transform: translateY(10px); }
+            to { opacity: 1; filter: blur(0); transform: translateY(0); }
         }
+
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .animate-fade-in-blur { animation: fadeInBlur 0.4s ease-out forwards; }
+
+        [x-cloak] { display: none !important; }
     </style>
     <script>
         // Pre-check theme to avoid flash (sync with admin/landing "dark" key)
@@ -98,8 +172,8 @@
         </div>
 
         {{-- Card --}}
-        <div class="w-full max-w-2xl animate-fade-in-up">
-            <div class="auth-card p-10 shadow-2xl">
+        <div class="w-full max-w-2xl px-0 sm:px-6 animate-fade-in-up">
+            <div class="auth-card p-6 sm:p-10 shadow-2xl">
                 <div class="text-center mb-10">
                     <h1 class="text-3xl font-bold text-foreground mb-2">Comece seu teste grátis</h1>
                     <p class="text-muted text-sm font-medium">Crie sua conta para testar a plataforma completa</p>
@@ -267,8 +341,7 @@
                                id="terms"
                                value="1"
                                @click="accepted = !accepted"
-                               class="mt-1 w-5 h-5 rounded border text-purple-600 focus:ring-purple-500 focus:ring-offset-0"
-                               style="border-color: var(--border);"
+                               class="mt-1 w-5 h-5 rounded border border-gray-300 dark:border-white/10 text-purple-600 focus:ring-purple-500 focus:ring-offset-0 bg-white/5"
                                {{ old('terms') ? 'checked' : '' }}
                                required>
                         <label for="terms" class="text-sm text-muted leading-relaxed">
@@ -301,7 +374,8 @@
         </div>
     </div>
 
-    <script src="{{ asset('js/landing.js') }}"></script>
+    {{-- Scripts inlined for maximum reliability --}}
+    {{-- landing.js omitted to avoid asset loading issues on restricted environments --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const referralInput = document.querySelector('input[name="referral_code"]');
