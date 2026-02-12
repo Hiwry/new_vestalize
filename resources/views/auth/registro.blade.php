@@ -396,7 +396,7 @@
                 {{-- Link login --}}
                 <p class="mt-8 text-center text-sm text-muted">
                     Já tem uma conta?
-                    <a href="{{ route('login') }}" class="font-bold text-purple-600 hover:text-purple-500 transition-colors">
+                    <a href="{{ config('app.url') . '/login' }}" class="font-bold text-purple-600 hover:text-purple-500 transition-colors">
                         Fazer login
                     </a>
                 </p>

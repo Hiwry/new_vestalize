@@ -14,6 +14,14 @@ Route::get('/imagens-aplicacao/{filename}', [\App\Http\Controllers\StorageContro
 // Landing Page para Personalizados (subdomain em produção - DEVE VIR ANTES da rota principal)
 Route::domain('personalizados.vestalize.com')->group(function () {
     Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'personalizados'])->name('welcome.personalizados');
+    
+    // Forçar Login e Logout para o domínio principal para manter consistência e design
+    Route::get('/login', function() {
+        return redirect()->to(config('app.url') . '/login');
+    });
+    Route::get('/logout', function() {
+        return redirect()->to(config('app.url') . '/logout');
+    });
 });
 
 // Rota Pública da Landing Page (principal)
