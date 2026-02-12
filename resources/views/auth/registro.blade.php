@@ -35,6 +35,7 @@
             --primary: #7c3aed;
             --primary-hover: #6d28d9;
             --primary-light: rgba(124, 58, 237, 0.1);
+
             --background: #fafbff;
             --foreground: #1a1a2e;
             --muted: #5a5f7a;
@@ -45,12 +46,20 @@
             --navbar-bg: rgba(255, 255, 255, 0.92);
             --glow-opacity: 0.06;
             --shadow: 0 4px 16px rgba(124, 58, 237, 0.06), 0 1px 3px rgba(0,0,0,0.04);
+            --heading-color: var(--foreground);
+            --icon-bg: rgba(124, 58, 237, 0.08);
+            --icon-color: #7c3aed;
+            --section-alt-bg: #f3f0ff;
+            --footer-heading: var(--foreground);
+            --check-color: #7c3aed;
+            --arrow-color: rgba(124, 58, 237, 0.3);
         }
 
         .dark {
             --primary: #7c3aed;
             --primary-hover: #6d28d9;
             --primary-light: rgba(124, 58, 237, 0.18);
+
             --background: #0a0a0a;
             --foreground: #fafafa;
             --muted: #a1a1aa;
@@ -61,6 +70,13 @@
             --navbar-bg: rgba(10, 10, 10, 0.8);
             --glow-opacity: 0.12;
             --shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            --heading-color: #ffffff;
+            --icon-bg: rgba(147, 51, 234, 0.2);
+            --icon-color: #c084fc;
+            --section-alt-bg: transparent;
+            --footer-heading: #ffffff;
+            --check-color: #a78bfa;
+            --arrow-color: rgba(255, 255, 255, 0.25);
         }
 
         body {
@@ -109,6 +125,20 @@
 
         .text-muted { color: var(--muted) !important; }
         .text-foreground { color: var(--foreground) !important; }
+        
+        .text-gradient-primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dark .text-gradient-primary {
+            background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -141,7 +171,13 @@
             }
 
             document.documentElement.classList.toggle('dark', isDark);
-            document.documentElement.classList.toggle('light', !isDark);
+            
+            // Add light class explicitly if not dark to help CSS selectors
+            if (!isDark) {
+                document.documentElement.classList.add('light');
+            } else {
+                document.documentElement.classList.remove('light');
+            }
 
             const syncBodyClasses = () => {
                 if (!document.body) return;
@@ -161,8 +197,9 @@
     <div class="landing-bg"></div>
 
     <div class="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
-        <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-600/20 blur-[120px] rounded-full -z-10"></div>
-        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/10 blur-[150px] rounded-full -z-10"></div>
+        {{-- Decorative Blobs (Premium Landing Style) --}}
+        <div class="absolute top-0 inset-x-0 w-3/5 mx-auto h-20 rounded-full bg-purple-600 blur-[64px] opacity-20 -z-10"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 blur-[120px] rounded-full -z-10"></div>
 
         {{-- Logo --}}
         <div class="mb-8 animate-fade-in-blur">
@@ -175,7 +212,7 @@
         <div class="w-full max-w-2xl px-0 sm:px-6 animate-fade-in-up">
             <div class="auth-card p-6 sm:p-10 shadow-2xl">
                 <div class="text-center mb-10">
-                    <h1 class="text-3xl font-bold text-foreground mb-2">Comece seu teste grátis</h1>
+                    <h1 class="text-3xl font-bold text-gradient-primary mb-2">Comece seu teste grátis</h1>
                     <p class="text-muted text-sm font-medium">Crie sua conta para testar a plataforma completa</p>
                 </div>
 
