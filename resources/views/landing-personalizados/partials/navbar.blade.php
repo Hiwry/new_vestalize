@@ -40,7 +40,7 @@
             <a href="{{ config('app.url') . '/login' }}" class="hidden lg:block text-sm text-muted hover:text-foreground font-medium transition-colors">
                 Login
             </a>
-            <a href="{{ route('register.public') }}" class="hidden lg:inline-flex btn-primary text-sm py-2 px-4">
+            <a href="{{ config('app.url') . '/registro' }}" class="hidden lg:inline-flex btn-primary text-sm py-2 px-4">
                 Teste Grátis
             </a>
             
@@ -83,7 +83,7 @@
         <a href="{{ config('app.url') . '/login' }}" class="block py-2 text-muted hover:text-foreground">
             Login
         </a>
-        <a href="{{ route('register.public') }}" class="block w-full text-center btn-primary text-sm py-2.5 mt-2">
+        <a href="{{ config('app.url') . '/registro' }}" class="block w-full text-center btn-primary text-sm py-2.5 mt-2">
             Teste Grátis
         </a>
     </div>

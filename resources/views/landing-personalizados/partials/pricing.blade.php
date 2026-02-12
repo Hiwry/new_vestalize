@@ -102,7 +102,7 @@
                         @endforelse
                     </ul>
 
-                    <a href="{{ route('register.public') }}" class="{{ $isPopular ? 'btn-primary' : 'btn-outline' }} w-full text-center">
+                    <a href="{{ config('app.url') . '/registro' }}" class="{{ $isPopular ? 'btn-primary' : 'btn-outline' }} w-full text-center">
                         Começar Teste Grátis
                     </a>
                 </div>

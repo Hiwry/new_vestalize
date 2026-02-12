@@ -22,6 +22,9 @@ Route::domain('personalizados.vestalize.com')->group(function () {
     Route::get('/logout', function() {
         return redirect()->to(config('app.url') . '/logout');
     });
+    Route::get('/registro', function() {
+        return redirect()->to(config('app.url') . '/registro');
+    });
 });
 
 // Rota Pública da Landing Page (principal)

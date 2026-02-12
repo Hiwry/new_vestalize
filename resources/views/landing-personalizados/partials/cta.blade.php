@@ -39,7 +39,7 @@
 
                 {{-- CTA Buttons --}}
                 <div class="flex items-center gap-4 flex-wrap justify-center mt-8">
-                    <a href="{{ route('register.public') }}" class="btn-primary text-sm sm:text-base py-3 px-8 hover:scale-105 transition-transform !rounded-full !shadow-lg !shadow-purple-500/20">
+                    <a href="{{ config('app.url') . '/registro' }}" class="btn-primary text-sm sm:text-base py-3 px-8 hover:scale-105 transition-transform !rounded-full !shadow-lg !shadow-purple-500/20">
                         Começar Gratuitamente
                     </a>
                     <a href="#pricing" class="btn-outline text-sm sm:text-base py-3 px-8">
