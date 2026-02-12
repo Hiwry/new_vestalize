@@ -55,7 +55,8 @@
             --arrow-color: rgba(124, 58, 237, 0.3);
         }
 
-        .dark {
+        :root.dark,
+        html.dark {
             --primary: #7c3aed;
             --primary-hover: #6d28d9;
             --primary-light: rgba(124, 58, 237, 0.18);
@@ -133,7 +134,8 @@
             background-clip: text;
         }
 
-        .dark .text-gradient-primary {
+        .dark .text-gradient-primary,
+        html.dark .text-gradient-primary {
             background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -159,15 +161,11 @@
         // Pre-check theme to avoid flash (sync with admin/landing "dark" key)
         (function() {
             const savedDark = localStorage.getItem('dark');
-            let isDark = false;
-
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            let isDark = prefersDark;
             if (savedDark !== null) {
                 isDark = savedDark === 'true' || savedDark === 'dark';
-            } else {
-                const legacyTheme = localStorage.getItem('theme');
-                if (legacyTheme !== null) {
-                    isDark = legacyTheme === 'dark';
-                }
             }
 
             document.documentElement.classList.toggle('dark', isDark);
