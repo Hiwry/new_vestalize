@@ -56,18 +56,47 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Logo da Empresa</label>
                         <div class="flex flex-col sm:flex-row items-center gap-6">
                             <div class="relative w-32 h-32 bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 flex items-center justify-center p-4">
-                                @if($tenant)
-                                    <img src="{{ asset('vestalize.svg') }}" alt="Vestalize" class="w-full h-full object-contain">
-                                @else
-                                    <svg class="w-12 h-12 text-gray-300 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                @endif
+                                @php
+                                    $currentLogo = 'vestalize.svg';
+                                    if ($tenant && $tenant->logo_path) {
+                                        $currentLogo = $tenant->logo_path;
+                                        // Se o caminho não começar com images/, verificar se está no storage legacy
+                                        if (!str_starts_with($currentLogo, 'images/') && !str_starts_with($currentLogo, 'http')) {
+                                            $currentLogo = 'storage/' . $currentLogo;
+                                        }
+                                    } elseif (isset($settings) && $settings->logo_path) {
+                                        $currentLogo = $settings->logo_path;
+                                    }
+                                @endphp
+                                <img src="{{ asset($currentLogo) }}" alt="Logo" class="w-full h-full object-contain" id="logo-preview">
                             </div>
                             <div class="flex-1 text-center sm:text-left">
                                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
                                     Essa logo será utilizada em documentos importantes como <strong>Orçamentos, Pedidos, Notas e Assinaturas</strong> do cliente. Certifique-se de usar uma imagem de alta qualidade com fundo transparente (PNG).
                                 </p>
-                                <input type="file" name="logo" id="logo" accept="image/*" class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2.5 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 transition cursor-pointer">
+                                <input type="file" name="logo" id="logo" accept="image/*" class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2.5 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 transition cursor-pointer" onchange="previewImage(this)">
                                 <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">Formatos aceitos: PNG, JPG ou SVG. Tamanho máximo: 2MB.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cores da Marca -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <!-- Cor Primária -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 text-center md:text-left">Cor Primária (Claro)</label>
+                            <div class="flex items-center gap-3">
+                                <input type="color" name="primary_color_light" id="primary_color" value="{{ old('primary_color_light', $tenant->primary_color ?? '#6366f1') }}" class="w-12 h-12 rounded-lg border-0 p-1 cursor-pointer bg-white dark:bg-gray-700 shadow-sm ring-1 ring-gray-200 dark:ring-gray-600">
+                                <input type="text" value="{{ old('primary_color_light', $tenant->primary_color ?? '#6366f1') }}" class="flex-1 px-4 py-2.5 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm transition-all sm:text-sm" placeholder="#000000">
+                            </div>
+                        </div>
+
+                        <!-- Cor Secundária -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 text-center md:text-left">Cor Secundária (Claro)</label>
+                            <div class="flex items-center gap-3">
+                                <input type="color" name="secondary_color_light" id="secondary_color" value="{{ old('secondary_color_light', $tenant->secondary_color ?? '#4f46e5') }}" class="w-12 h-12 rounded-lg border-0 p-1 cursor-pointer bg-white dark:bg-gray-700 shadow-sm ring-1 ring-gray-200 dark:ring-gray-600">
+                                <input type="text" value="{{ old('secondary_color_light', $tenant->secondary_color ?? '#4f46e5') }}" class="flex-1 px-4 py-2.5 border-0 ring-1 ring-gray-300 dark:ring-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm transition-all sm:text-sm" placeholder="#000000">
                             </div>
                         </div>
                     </div>
@@ -177,6 +206,17 @@
 </form>
 
 <script>
+    // Preview de imagem em tempo real
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('logo-preview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
     // Preview de cor em tempo real
     const primaryInput = document.getElementById('primary_color');
     const primaryText = primaryInput.nextElementSibling;
@@ -187,6 +227,10 @@
         }
     });
 
+    primaryInput.addEventListener('input', function() {
+        primaryText.value = this.value;
+    });
+
     const secondaryInput = document.getElementById('secondary_color');
     const secondaryText = secondaryInput.nextElementSibling;
 
@@ -194,6 +238,10 @@
         if(/^#[0-9A-F]{6}$/i.test(this.value)) {
             secondaryInput.value = this.value;
         }
+    });
+
+    secondaryInput.addEventListener('input', function() {
+        secondaryText.value = this.value;
     });
 </script>
 @endsection

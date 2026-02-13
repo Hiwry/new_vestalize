@@ -85,10 +85,13 @@ class SettingsController extends Controller
 
         // 1. Atualizar Tenant (Branding básico)
         if ($request->hasFile('logo')) {
-            if ($tenant->logo_path) {
-                Storage::disk('public')->delete($tenant->logo_path);
+            if ($tenant->logo_path && file_exists(public_path($tenant->logo_path))) {
+                @unlink(public_path($tenant->logo_path));
             }
-            $path = $request->file('logo')->store('logos', 'public');
+            $file = $request->file('logo');
+            $filename = 'logo_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('images'), $filename);
+            $path = 'images/' . $filename;
             $tenant->logo_path = $path;
         }
         
