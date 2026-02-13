@@ -72,10 +72,30 @@
     </style>
 </head>
 <body>
+    @php
+        $logoPath = null;
+        if (isset($companySettings->logo_path) && $companySettings->logo_path && file_exists(public_path($companySettings->logo_path))) {
+            $logoPath = public_path($companySettings->logo_path);
+        } else {
+            $logoPath = public_path('vestalize.svg');
+        }
+    @endphp
+
     <div class="header">
-        <div class="company-name">{{ $companySettings->company_name ?? 'Vestalize' }}</div>
-        <div class="document-title">Comprovante de Separação de Estoque</div>
-        <div>Data: {{ date('d/m/Y H:i') }}</div>
+        <div style="display: table; width: 100%;">
+            <div style="display: table-row;">
+                <div style="display: table-cell; vertical-align: middle; width: 30%; text-align: left;">
+                    @if($logoPath && file_exists($logoPath))
+                        <img src="{{ $logoPath }}" alt="Logo" style="max-height: 60px; max-width: 150px;">
+                    @endif
+                </div>
+                <div style="display: table-cell; vertical-align: middle; width: 70%; text-align: right;">
+                    <div class="company-name">{{ $companySettings->company_name ?? 'Vestalize' }}</div>
+                    <div class="document-title">Comprovante de Separação de Estoque</div>
+                    <div>Data: {{ date('d/m/Y H:i') }}</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="info-section">

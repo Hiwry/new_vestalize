@@ -186,17 +186,17 @@
         <div style="display: table; width: 100%;">
             <div style="display: table-row;">
                 @php
-                    $finalLogo = public_path('vestalize.svg');
+                    $finalLogo = null;
+                    if (isset($companySettings->logo_path) && $companySettings->logo_path && file_exists(public_path($companySettings->logo_path))) {
+                        $finalLogo = public_path($companySettings->logo_path);
+                    } else {
+                        $finalLogo = public_path('vestalize.svg');
+                    }
                 @endphp
 
                 @if($finalLogo && file_exists($finalLogo))
                 <div style="display: table-cell; vertical-align: middle; width: 25%; padding-right: 15px;">
-                    @php
-                        $imageData = base64_encode(file_get_contents($finalLogo));
-                        $imageType = pathinfo($finalLogo, PATHINFO_EXTENSION);
-                        $imageSrc = "data:image/{$imageType};base64,{$imageData}";
-                    @endphp
-                    <img src="{{ $imageSrc }}" 
+                    <img src="{{ $finalLogo }}" 
                          alt="Logo" 
                          style="max-height: 55px; max-width: 130px; object-fit: contain;">
                 </div>

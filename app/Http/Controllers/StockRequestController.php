@@ -812,6 +812,7 @@ class StockRequestController extends Controller
             $options->set('defaultFont', 'Arial');
             $options->set('isRemoteEnabled', true);
             $options->set('isHtml5ParserEnabled', true);
+            $options->set('isImageEnabled', true);
             $options->set('chroot', public_path());
             
             $dompdf = new Dompdf($options);

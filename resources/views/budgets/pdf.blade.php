@@ -196,16 +196,19 @@
 </head>
 <body>
     @php
-        $tenant = auth()->user()->tenant;
         $logoPath = null;
-        $logoPath = public_path('vestalize.svg');
+        if (isset($settings->logo_path) && $settings->logo_path && file_exists(public_path($settings->logo_path))) {
+            $logoPath = public_path($settings->logo_path);
+        } else {
+            $logoPath = public_path('vestalize.svg');
+        }
     @endphp
 
     <!-- Company Header -->
     <table class="header-container">
         <tr>
             <td style="width: 50%; vertical-align: top;">
-                @if($logoPath)
+                @if($logoPath && file_exists($logoPath))
                     <img src="{{ $logoPath }}" alt="Logo" class="company-logo">
                 @else
                     <div class="company-name">{{ $settings->company_name ?? 'MINHA EMPRESA' }}</div>

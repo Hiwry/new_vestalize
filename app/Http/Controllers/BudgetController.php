@@ -782,10 +782,11 @@ class BudgetController extends Controller
         $html = view('budgets.pdf', compact('budget', 'settings', 'modo'))->render();
 
         $options = new \Dompdf\Options();
-        $options->set('isHtml5ParserEnabled', true);
-        $options->set('isPhpEnabled', true);
         $options->set('defaultFont', 'Arial');
-        $options->set('isRemoteEnabled', false); 
+        $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isImageEnabled', true);
+        $options->set('chroot', public_path());
         
         $dompdf = new \Dompdf\Dompdf($options);
         $dompdf->loadHtml($html);

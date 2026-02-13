@@ -149,7 +149,18 @@
 </head>
 <body>
     <div class="header">
-        <img src="{{ public_path('vestalize.svg') }}" alt="Vestalize" style="max-height: 80px; margin-bottom: 10px;">
+        @php
+            $logoPath = null;
+            if (isset($companySettings->logo_path) && $companySettings->logo_path && file_exists(public_path($companySettings->logo_path))) {
+                $logoPath = public_path($companySettings->logo_path);
+            } else {
+                $logoPath = public_path('vestalize.svg');
+            }
+        @endphp
+
+        @if($logoPath && file_exists($logoPath))
+            <img src="{{ $logoPath }}" alt="Logo" style="max-height: 80px; margin-bottom: 10px;">
+        @endif
         
         <div class="company-details" style="font-size: 11px; margin-bottom: 10px;">
             <div style="font-weight: bold; font-size: 14px; margin-bottom: 2px;">{{ $companySettings->company_name ?? 'Nóbrega Confecções' }}</div>

@@ -120,14 +120,38 @@
     </style>
 </head>
 <body>
-    <h1>LISTA DE PEDIDOS 
-        @if($startDate && $endDate)
-            {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} à {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}
-        @endif
-        @if($selectedStore)
-            - {{ strtoupper($selectedStore->name) }}
-        @endif
-    </h1>
+    @php
+        $companySettings = \App\Models\CompanySetting::getSettings($selectedStore ? $selectedStore->id : null);
+        $logoPath = null;
+        if (isset($companySettings->logo_path) && $companySettings->logo_path && file_exists(public_path($companySettings->logo_path))) {
+            $logoPath = public_path($companySettings->logo_path);
+        } else {
+            $logoPath = public_path('vestalize.svg');
+        }
+    @endphp
+
+    <table style="width: 100%; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+        <tr>
+            <td style="width: 30%; vertical-align: middle;">
+                @if($logoPath && file_exists($logoPath))
+                    <img src="{{ $logoPath }}" alt="Logo" style="max-height: 60px; max-width: 150px;">
+                @endif
+            </td>
+            <td style="width: 70%; text-align: right; vertical-align: middle;">
+                <h2 style="font-size: 16px; margin-bottom: 3px;">{{ $companySettings->company_name ?? 'LISTA DE PEDIDOS' }}</h2>
+                <div style="font-size: 9px; color: #666;">
+                    @if($companySettings->company_phone) Tel: {{ $companySettings->company_phone }} @endif
+                    @if($companySettings->company_email) | {{ $companySettings->company_email }} @endif
+                </div>
+                <div style="font-size: 12px; font-weight: bold; margin-top: 5px;">
+                    LISTA DE PEDIDOS 
+                    @if($startDate && $endDate)
+                        - {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} à {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}
+                    @endif
+                </div>
+            </td>
+        </tr>
+    </table>
     
     <table>
         <thead>
@@ -260,4 +284,3 @@
     </div>
 </body>
 </html>
-

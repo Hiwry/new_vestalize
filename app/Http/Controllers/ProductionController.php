@@ -506,6 +506,8 @@ class ProductionController extends Controller
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isPhpEnabled', true);
         $options->set('defaultFont', 'Arial');
+        $options->set('isImageEnabled', true);
+        $options->set('chroot', public_path());
         
         $dompdf = new Dompdf($options);
         
