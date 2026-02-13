@@ -1501,13 +1501,13 @@
     window.renderWizardDetalheOptions = renderWizardDetalheOptions;
 
     function renderWizardDetailColorOptions() {
-        const detailId = wizardData.detalhe ? wizardData.detalhe.id : null;
-        if (!detailId) {
+        const fabricId = wizardData.tecido ? wizardData.tecido.id : null;
+        if (!fabricId) {
             const container = document.getElementById('wizard-options-cor-detalhe');
-            if (container) container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Selecione um detalhe primeiro.</div>';
+            if (container) container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Selecione o tecido primeiro.</div>';
             return;
         }
-        renderOptionCards('wizard-options-cor-detalhe', 'detail_color', ['cor', 'cor_detalhe', 'detail_color'], detailId);
+        renderOptionCards('wizard-options-cor-detalhe', 'detail_color', ['cor', 'cor_detalhe', 'detail_color'], fabricId);
     }
     window.renderWizardDetailColorOptions = renderWizardDetailColorOptions;
 
@@ -1517,13 +1517,13 @@
     window.renderWizardGolaOptions = renderWizardGolaOptions;
 
     function renderWizardCollarColorOptions() {
-        const collarId = wizardData.gola ? wizardData.gola.id : null;
-        if (!collarId) {
+        const fabricId = wizardData.tecido ? wizardData.tecido.id : null;
+        if (!fabricId) {
             const container = document.getElementById('wizard-options-cor-gola');
-            if (container) container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Selecione a gola primeiro.</div>';
+            if (container) container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Selecione o tecido primeiro.</div>';
             return;
         }
-        renderOptionCards('wizard-options-cor-gola', 'collar_color', ['cor', 'cor_gola', 'collar_color'], collarId);
+        renderOptionCards('wizard-options-cor-gola', 'collar_color', ['cor', 'cor_gola', 'collar_color'], fabricId);
     }
     window.renderWizardCollarColorOptions = renderWizardCollarColorOptions;
 
