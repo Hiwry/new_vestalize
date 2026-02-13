@@ -73,7 +73,7 @@
                     </svg>
                     Voltar
                 </a>
-                <a href="{{ route('kanban.index') }}" 
+                <a href="{{ route('production.kanban') }}" 
                    class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-slate-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     Ver no Kanban
                 </a>
