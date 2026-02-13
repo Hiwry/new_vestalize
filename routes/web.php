@@ -212,7 +212,7 @@ Route::middleware('auth')->group(function () {
         Route::get('personalizacao/refresh', [\App\Http\Controllers\BudgetController::class, 'refreshCustomizations'])->name('customization.refresh');
         Route::get('confirmacao', [\App\Http\Controllers\BudgetController::class, 'confirm'])->name('confirm');
         Route::post('finalizar', [\App\Http\Controllers\BudgetController::class, 'finalize'])->name('finalize');
-        Route::get('{id}/pdf', [\App\Http\Controllers\BudgetController::class, 'downloadPdf'])->name('pdf')->middleware('plan:pdf_quotes');
+        Route::get('{id}/pdf', [\App\Http\Controllers\BudgetController::class, 'downloadPdf'])->name('pdf');
         Route::get('{id}/detalhes', [\App\Http\Controllers\BudgetController::class, 'show'])->name('show');
         Route::post('{id}/solicitar-edicao', [\App\Http\Controllers\BudgetController::class, 'requestEdit'])->name('request-edit');
         Route::post('{id}/aprovar', [\App\Http\Controllers\BudgetController::class, 'approve'])->name('approve');

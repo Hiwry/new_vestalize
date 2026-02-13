@@ -31,8 +31,8 @@ class CheckPlanLimits
                 ->with('error', 'Sessão expirada. Por favor, faça login novamente.');
         }
 
-        // Se for Super Admin (Admin Master), ignora limites de plano
-        if ($user->isAdminGeral()) {
+        // Se for Admin (Geral ou Loja) ou Produção, ignora limites de plano para garantir fluxo operacional
+        if ($user->isAdminGeral() || $user->isAdminLoja() || $user->isProducao()) {
             return $next($request);
         }
 
@@ -51,11 +51,7 @@ class CheckPlanLimits
 
         // Verificar se o recurso está disponível no plano
         if ($feature && !$tenant->canAccess($feature)) {
-            $planName = [
-                'basic' => 'Básico',
-                'pro' => 'Pro',
-                'premium' => 'Premium',
-            ][$tenant->plan] ?? 'seu plano atual';
+            $planName = $tenant->currentPlan ? $tenant->currentPlan->name : 'seu plano atual';
 
             return redirect()->back()
                 ->with('error', "O recurso '{$feature}' não está disponível no plano {$planName}. Faça upgrade para ter acesso.");
