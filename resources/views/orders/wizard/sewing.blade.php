@@ -1486,7 +1486,12 @@
                 <div class="wizard-option-card p-4 rounded-xl border ${isActive ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : 'border-gray-200 dark:border-slate-700'} hover:border-[#7c3aed] dark:hover:border-[#7c3aed] cursor-pointer transition-all"
                     onclick="selectWizardOption('${fieldKey}', '${item.id}', '${item.name.replace(/'/g, '')}', ${price}, true)">
                     <div class="flex items-center justify-between">
-                        <span class="font-semibold text-gray-800 dark:text-gray-100">${item.name}</span>
+                        <div class="flex items-center gap-3">
+                            ${(fieldKey === 'detail_color' || fieldKey === 'collar_color') ? 
+                                `<div class="w-6 h-6 rounded-full border border-gray-200 dark:border-gray-600 shadow-sm" style="background-color: ${item.color_hex || getColorHex(item.name)}"></div>` 
+                                : ''}
+                            <span class="font-semibold text-gray-800 dark:text-gray-100">${item.name}</span>
+                        </div>
                         ${price > 0 ? `<span class="text-xs font-bold text-[#7c3aed]">R$ ${price.toFixed(2).replace('.', ',')}</span>` : ''}
                     </div>
                 </div>
@@ -1782,7 +1787,7 @@
             <div class="wizard-option-card group cursor-pointer p-3 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center gap-2 ${activeClass}"
                  data-id="${color.id}"
                  onclick="selectWizardColor(this)">
-                <div class="w-8 h-8 rounded-full shadow-sm ring-2 ring-gray-100 dark:ring-slate-800" style="background-color: ${color.hex_code || getColorHex(color.name)}"></div>
+                <div class="w-8 h-8 rounded-full shadow-sm ring-2 ring-gray-100 dark:ring-slate-800" style="background-color: ${color.color_hex || color.hex_code || getColorHex(color.name)}"></div>
                 <span class="text-xs font-bold text-center text-gray-700 dark:text-slate-300 group-hover:text-[#7c3aed]">${color.name}</span>
             </div>
             `;

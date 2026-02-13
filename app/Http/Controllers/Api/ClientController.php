@@ -61,6 +61,7 @@ class ClientController extends Controller
                 'cost' => $item->cost,
                 'parent_id' => $item->parent_id, // Keep for backward compatibility
                 'parent_ids' => $parentIds,
+                'color_hex' => $item->color_hex,
             ];
         };
 
