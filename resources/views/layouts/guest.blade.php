@@ -65,6 +65,14 @@
             /* Ícones devem manter seu peso padrão */
             .fa, .fas, .far, .fal, .fad, .fab { font-weight: 900 !important; }
             .far, .fal { font-weight: 400 !important; }
+
+            /* Fix para inputs no Dark Mode */
+            .dark { color-scheme: dark; }
+            .dark input:not([type="checkbox"]):not([type="radio"]) {
+                background-color: #0a0a0a !important;
+                color: #ffffff !important;
+                border-color: #1a1a1a !important;
+            }
         </style>
     <!-- Dark Mode Script -->
         <script src="{{ asset('js/dark-mode.js') }}"></script>

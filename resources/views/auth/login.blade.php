@@ -46,6 +46,7 @@
             --card-bg: #030303;
             --card-hover: #080808;
             --input-bg: #050505;
+            color-scheme: dark;
         }
 
         body {
@@ -65,20 +66,24 @@
             color: var(--foreground) !important;
             transition: all 0.3s ease;
         }
+        
+        .dark .input-theme {
+            background-color: #050505 !important;
+            color: #fafafa !important;
+        }
+
         .input-theme:focus {
             border-color: var(--primary) !important;
             box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2) !important;
         }
         /* Forçar cores no Autofill do Navegador */
-        input:-webkit-autofill {
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active {
             -webkit-text-fill-color: var(--foreground) !important;
+            -webkit-box-shadow: 0 0 0px 1000px var(--input-bg) inset !important;
             transition: background-color 5000s ease-in-out 0s;
-        }
-        html:not(.light) input:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0px 1000px #121212 inset !important;
-        }
-        html.light input:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
         }
     </style>
     <script>
