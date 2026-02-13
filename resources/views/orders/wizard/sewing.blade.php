@@ -1445,12 +1445,20 @@
 
     function filterByParent(items, parentId) {
         if (!parentId) return items;
+        
+        // Convert to array if not already
+        const parentIds = Array.isArray(parentId) ? parentId : [parentId];
+        
         return items.filter(item => {
+            // Check item.parent_ids array
             if (Array.isArray(item.parent_ids)) {
-                return item.parent_ids.includes(parseInt(parentId)) || item.parent_ids.includes(parentId);
+                return item.parent_ids.some(pid => 
+                    parentIds.includes(parseInt(pid)) || parentIds.includes(pid.toString()) || parentIds.includes(pid)
+                );
             }
+            // Check item.parent_id single value
             if (item.parent_id !== undefined && item.parent_id !== null) {
-                return item.parent_id == parentId;
+                return parentIds.includes(parseInt(item.parent_id)) || parentIds.includes(item.parent_id.toString()) || parentIds.includes(item.parent_id);
             }
             return true;
         });
@@ -1501,13 +1509,16 @@
     window.renderWizardDetalheOptions = renderWizardDetalheOptions;
 
     function renderWizardDetailColorOptions() {
-        const fabricId = wizardData.tecido ? wizardData.tecido.id : null;
-        if (!fabricId) {
+        const parentIds = [];
+        if (wizardData.tecido) parentIds.push(wizardData.tecido.id);
+        if (wizardData.tipo_tecido) parentIds.push(wizardData.tipo_tecido.id);
+
+        if (parentIds.length === 0) {
             const container = document.getElementById('wizard-options-cor-detalhe');
             if (container) container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Selecione o tecido primeiro.</div>';
             return;
         }
-        renderOptionCards('wizard-options-cor-detalhe', 'detail_color', ['cor', 'cor_detalhe', 'detail_color'], fabricId);
+        renderOptionCards('wizard-options-cor-detalhe', 'detail_color', ['cor', 'cor_detalhe', 'detail_color'], parentIds);
     }
     window.renderWizardDetailColorOptions = renderWizardDetailColorOptions;
 
@@ -1517,13 +1528,16 @@
     window.renderWizardGolaOptions = renderWizardGolaOptions;
 
     function renderWizardCollarColorOptions() {
-        const fabricId = wizardData.tecido ? wizardData.tecido.id : null;
-        if (!fabricId) {
+        const parentIds = [];
+        if (wizardData.tecido) parentIds.push(wizardData.tecido.id);
+        if (wizardData.tipo_tecido) parentIds.push(wizardData.tipo_tecido.id);
+
+        if (parentIds.length === 0) {
             const container = document.getElementById('wizard-options-cor-gola');
             if (container) container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Selecione o tecido primeiro.</div>';
             return;
         }
-        renderOptionCards('wizard-options-cor-gola', 'collar_color', ['cor', 'cor_gola', 'collar_color'], fabricId);
+        renderOptionCards('wizard-options-cor-gola', 'collar_color', ['cor', 'cor_gola', 'collar_color'], parentIds);
     }
     window.renderWizardCollarColorOptions = renderWizardCollarColorOptions;
 
