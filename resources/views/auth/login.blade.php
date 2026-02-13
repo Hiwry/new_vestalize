@@ -20,6 +20,34 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
+        :root {
+            --primary: #7c3aed;
+            --primary-hover: #8b5cf6;
+            --primary-light: rgba(124, 58, 237, 0.1);
+
+            --background: #ffffff;
+            --foreground: #0f172a;
+            --muted: #64748b;
+            --border: rgba(0, 0, 0, 0.05);
+            --card-bg: #ffffff;
+            --card-hover: #f9fafb;
+            --input-bg: #f8fafc;
+        }
+
+        .dark {
+            --primary: #7c3aed;
+            --primary-hover: #8b5cf6;
+            --primary-light: rgba(124, 58, 237, 0.18);
+
+            --background: #000000;
+            --foreground: #fafafa;
+            --muted: #a1a1aa;
+            --border: #1a1a1a;
+            --card-bg: #030303;
+            --card-hover: #080808;
+            --input-bg: #050505;
+        }
+
         body {
             background-color: var(--background);
             color: var(--foreground);

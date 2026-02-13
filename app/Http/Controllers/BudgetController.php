@@ -779,14 +779,25 @@ class BudgetController extends Controller
         // Verificar modo do PDF (detalhado ou unificado)
         $modo = $request->query('modo', 'detalhado');
         
-        $pdf = \PDF::loadView('budgets.pdf', compact('budget', 'settings', 'modo'));
+        $html = view('budgets.pdf', compact('budget', 'settings', 'modo'))->render();
+
+        $options = new \Dompdf\Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        $options->set('defaultFont', 'Arial');
+        $options->set('isRemoteEnabled', false); 
+        
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
         
         $filename = 'orcamento-' . $budget->budget_number;
         if ($modo === 'unificado') {
             $filename .= '-valor-unico';
         }
 
-        return $pdf->download($filename . '.pdf');
+        return $dompdf->stream($filename . '.pdf', ["Attachment" => true]);
     }
 
     /**

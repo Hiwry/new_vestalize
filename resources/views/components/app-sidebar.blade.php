@@ -395,7 +395,7 @@
                     <a href="{{ route('personalized.orders.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('personalized.orders.index') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Personalizados
                     </a>
-                    <a href="{{ route('kanban.index', ['type' => 'personalized']) }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('kanban.index') && request()->get('type') == 'personalized' ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
+                    <a href="{{ route('production.kanban', ['type' => 'personalized']) }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('kanban.index') && request()->get('type') == 'personalized' ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
                         Kanban Personalizados
                     </a>
                     @endif
