@@ -45,8 +45,12 @@ class CheckPlanLimits
 
         // Verificar se a assinatura está ativa
         if (!$tenant->isActive()) {
+            $expiredDate = $tenant->subscription_ends_at 
+                ? $tenant->subscription_ends_at->format('d/m/Y') 
+                : 'N/A';
+            
             return redirect()->route('dashboard')
-                ->with('error', 'Sua assinatura está inativa. Entre em contato com o suporte.');
+                ->with('error', "Sua assinatura expirou em {$expiredDate}. Renove para continuar acessando todas as funcionalidades.");
         }
 
         // Verificar se o recurso está disponível no plano
