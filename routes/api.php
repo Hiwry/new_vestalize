@@ -130,9 +130,11 @@ Route::get('/personalization-prices/sizes', [\App\Http\Controllers\Api\Personali
 Route::get('/personalization-prices/ranges', [\App\Http\Controllers\Api\PersonalizationPriceController::class, 'getPriceRanges']);
 Route::post('/personalization-prices/multiple', [\App\Http\Controllers\Api\PersonalizationPriceController::class, 'getMultiplePrices']);
 
-// Personalizações (sem middleware de autenticação temporariamente)
-Route::get('/personalizations/{id}', [\App\Http\Controllers\Api\PersonalizationController::class, 'show']);
-Route::delete('/personalizations/{id}', [\App\Http\Controllers\Api\PersonalizationController::class, 'destroy']);
+// Personalizações - PROTEGIDAS com autenticação
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/personalizations/{id}', [\App\Http\Controllers\Api\PersonalizationController::class, 'show']);
+    Route::delete('/personalizations/{id}', [\App\Http\Controllers\Api\PersonalizationController::class, 'destroy']);
+});
 
 // Product Options
 Route::get('/product-options', function (Request $request) {
@@ -162,14 +164,14 @@ Route::get('/product-options', function (Request $request) {
     return response()->json(['id' => null], 404);
 });
 
-// Buscar dados do item para edição
-Route::get('/order-items/{id}', [\App\Http\Controllers\Api\ClientController::class, 'getOrderItem'])->withoutMiddleware(['web']);
+// Buscar dados do item para edição - PROTEGIDO
+Route::get('/order-items/{id}', [\App\Http\Controllers\Api\ClientController::class, 'getOrderItem'])->middleware('auth:sanctum');
 
-// Upload de imagem de capa do item (sem CSRF para API)
-Route::post('/order-items/{id}/cover-image', [\App\Http\Controllers\Api\ClientController::class, 'updateItemCoverImage'])->withoutMiddleware(['web']);
+// Upload de imagem de capa do item - PROTEGIDO
+Route::post('/order-items/{id}/cover-image', [\App\Http\Controllers\Api\ClientController::class, 'updateItemCoverImage'])->middleware('auth:sanctum');
 
-// Atualizar nome da arte do item
-Route::post('/order-items/{id}/art-name', [\App\Http\Controllers\Api\ClientController::class, 'updateArtName'])->withoutMiddleware(['web']);
+// Atualizar nome da arte do item - PROTEGIDO
+Route::post('/order-items/{id}/art-name', [\App\Http\Controllers\Api\ClientController::class, 'updateArtName'])->middleware('auth:sanctum');
 
 // Stock APIs moved to web.php for proper session authentication (tenant_id support)
 
@@ -236,8 +238,7 @@ Route::get('/sublimation-total/price/{type}/{quantity}', function (Request $requ
 // API V1 - MOBILE & INTEGRATIONS
 // =============================================
 Route::prefix('v1')->group(function () {
-    
-    // Autenticação Mobile (Token)
+    // Autenticação Mobile (Token) - COM RATE LIMITING para prevenir brute force
     Route::post('/login', function (Request $request) {
         $request->validate([
             'email' => 'required|email',
@@ -260,7 +261,7 @@ Route::prefix('v1')->group(function () {
                 'tenant_id' => $user->tenant_id
             ]
         ]);
-    });
+    })->middleware('throttle:5,1'); // Máximo 5 tentativas por minuto
 
     // Rotas Protegidas
     Route::middleware('auth:sanctum')->group(function () {

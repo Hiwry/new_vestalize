@@ -116,9 +116,11 @@ class PublicRegistrationController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'admin',
-            'tenant_id' => $tenant->id,
         ]);
+        // SEGURANÇA: role e tenant_id atribuídos explicitamente
+        $user->role = 'admin';
+        $user->tenant_id = $tenant->id;
+        $user->save();
 
         // 5. Notificar o Super Admin
         try {

@@ -60,16 +60,19 @@ class SecurityHeadersMiddleware
     {
         $isProduction = app()->environment('production');
         
+        // URLs de dev - apenas incluir em desenvolvimento
+        $devUrls = $isProduction ? '' : ' http://localhost:5173 http://127.0.0.1:*';
+        $devWs = $isProduction ? '' : ' ws://localhost:* ws://127.0.0.1:*';
+        $devConnect = $isProduction ? '' : ' http://localhost:* http://127.0.0.1:*';
+        
         $directives = [
             "default-src 'self'",
-            // Stripe precisa estar liberado para o checkout funcionar
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' 'inline-speculation-rules' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.bunny.net https://js.stripe.com https://unpkg.com http://localhost:5173 https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/",
-            "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://js.stripe.com https://unpkg.com http://localhost:5173 https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/",
-            "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com https://unpkg.com http://localhost:5173",
-            "font-src 'self' https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com data: http://localhost:5173",
-            "img-src 'self' data: https: blob: http://127.0.0.1:* http://localhost:*",
-            // Stripe endpoints para requisicoes do JS
-            "connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:* https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://js.stripe.com https://api.stripe.com https://m.stripe.network https://q.stripe.com https://unpkg.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' 'inline-speculation-rules' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.bunny.net https://js.stripe.com https://unpkg.com https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/" . $devUrls,
+            "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://js.stripe.com https://unpkg.com https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/" . $devUrls,
+            "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com https://unpkg.com" . $devUrls,
+            "font-src 'self' https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com data:" . $devUrls,
+            "img-src 'self' data: https: blob:" . $devConnect,
+            "connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://js.stripe.com https://api.stripe.com https://m.stripe.network https://q.stripe.com https://unpkg.com" . $devConnect . $devWs,
             "frame-src 'self' https://js.stripe.com https://www.google.com/recaptcha/ https://recaptcha.google.com/",
             "frame-ancestors 'none'",
             "base-uri 'self'",

@@ -81,10 +81,12 @@ class TenantController extends Controller
             'name' => $tenant->name,
             'email' => $tenant->email,
             'password' => \Illuminate\Support\Facades\Hash::make($password),
-            'role' => 'admin',
-            'tenant_id' => $tenant->id,
-            'store_name' => 'Matriz', // Default store name?
+            'store_name' => 'Matriz',
         ]);
+        // SEGURANÇA: role e tenant_id atribuídos explicitamente
+        $user->role = 'admin';
+        $user->tenant_id = $tenant->id;
+        $user->save();
 
         // Seed Default Store for Tenant
         $store = \App\Models\Store::create([
@@ -206,10 +208,12 @@ class TenantController extends Controller
                 'name' => $tenant->name,
                 'email' => $tenant->email,
                 'password' => \Illuminate\Support\Facades\Hash::make($password),
-                'role' => 'admin',
-                'tenant_id' => $tenant->id,
                 'store_name' => 'Matriz',
             ]);
+            // SEGURANÇA: role e tenant_id atribuídos explicitamente
+            $user->role = 'admin';
+            $user->tenant_id = $tenant->id;
+            $user->save();
         } else {
             // Apenas redefinir senha
             $user->password = \Illuminate\Support\Facades\Hash::make($password);

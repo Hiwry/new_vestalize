@@ -53,11 +53,19 @@ class UserController extends Controller
 
         $validated['password'] = Hash::make($validated['password']);
 
+        // SEGURANÇA: role e tenant_id atribuídos explicitamente (não via mass assignment)
+        $role = $validated['role'];
+        $tenantId = Auth::user()->tenant_id;
+        unset($validated['role']); // Remover do array para não tentar via $fillable
+
         $user = User::create($validated);
+        $user->role = $role;
+        $user->tenant_id = $tenantId;
+        $user->save();
 
         // Atribuir loja ao usuário (se fornecido)
         if (!empty($validated['store_id'])) {
-            $user->stores()->attach($validated['store_id'], ['role' => $validated['role']]);
+            $user->stores()->attach($validated['store_id'], ['role' => $role]);
         }
 
         return redirect()->route('admin.users.index')
@@ -93,15 +101,20 @@ class UserController extends Controller
             unset($validated['password']);
         }
 
+        // SEGURANÇA: role atribuído explicitamente
+        $role = $validated['role'];
+        unset($validated['role']);
         $user->update($validated);
+        $user->role = $role;
+        $user->save();
 
         // Sincronizar atribuição de loja
         if (isset($validated['store_id']) && !empty($validated['store_id'])) {
             // Atribui a loja ao usuário com a role apropriada
-            $user->stores()->sync([$validated['store_id'] => ['role' => $validated['role']]]);
+            $user->stores()->sync([$validated['store_id'] => ['role' => $role]]);
         } else {
             // Se não tem store_id, remove vínculos apenas se não for admin geral
-            if ($validated['role'] !== 'admin') {
+            if ($role !== 'admin') {
                 $user->stores()->detach();
             }
         }

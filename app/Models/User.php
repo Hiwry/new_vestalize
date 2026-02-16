@@ -18,6 +18,9 @@ class User extends Authenticatable
 
     /**
      * The attributes that are mass assignable.
+     * SEGURANÇA: 'role' e 'tenant_id' foram removidos para prevenir
+     * escalação de privilégio via mass assignment.
+     * Atribuir explicitamente: $user->role = 'vendedor'; $user->tenant_id = $tenantId;
      *
      * @var list<string>
      */
@@ -25,10 +28,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
         'store',
         'store_name',
-        'tenant_id',
     ];
 
     /**

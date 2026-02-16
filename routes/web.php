@@ -752,15 +752,5 @@ Route::post('/mercadopago/webhook', [\App\Http\Controllers\MercadoPagoController
 
 require __DIR__.'/auth.php';
 
-Route::get('/test-mail', function () {
-    try {
-        \Illuminate\Support\Facades\Mail::raw('Teste de envio de email Titan Mail para Hotmail - Vestalize', function ($message) {
-            $message->to('hiwry-keveny2013@hotmail.com')
-                   ->subject('Teste de Conexão SMTP Externo');
-        });
-        return 'Email enviado com sucesso para hiwry-keveny2013@hotmail.com! Verifique sua caixa de entrada e spam.';
-    } catch (\Exception $e) {
-        return 'Erro ao enviar email: ' . $e->getMessage();
-    }
-});
+// Rota /test-mail removida por segurança (não expor SMTP em produção)
 

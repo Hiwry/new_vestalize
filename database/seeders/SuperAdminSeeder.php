@@ -18,15 +18,17 @@ class SuperAdminSeeder extends Seeder
             return;
         }
 
-        User::create([
+        $user = User::create([
             'name' => 'Super Admin',
             'email' => 'admin@vestalize.com',
-            'password' => Hash::make('admin123'), // Senha padrão
-            'role' => 'admin',
-            'tenant_id' => null, // Super Admin não tem tenant
+            'password' => Hash::make('admin123'), // ⚠️ TROCAR IMEDIATAMENTE em produção!
             'store_name' => 'Sistema Vestalize',
             'email_verified_at' => now(),
         ]);
+        // SEGURANÇA: role e tenant_id atribuídos explicitamente
+        $user->role = 'admin';
+        $user->tenant_id = null; // Super Admin não tem tenant
+        $user->save();
         
         $this->command->info('Super Admin created successfully!');
         $this->command->info('Email: admin@vestalize.com');
