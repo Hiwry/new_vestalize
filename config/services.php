@@ -47,6 +47,11 @@ return [
     'mercadopago' => [
         'public_key' => env('MERCADOPAGO_PUBLIC_KEY'),
         'access_token' => env('MERCADOPAGO_ACCESS_TOKEN'),
+        'webhook_secret' => env('MERCADOPAGO_WEBHOOK_SECRET'),
+        'enforce_webhook_signature' => filter_var(
+            env('MERCADOPAGO_ENFORCE_WEBHOOK_SIGNATURE', env('APP_ENV') === 'production'),
+            FILTER_VALIDATE_BOOL
+        ),
     ],
 
     'recaptcha' => [

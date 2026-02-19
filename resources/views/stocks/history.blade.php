@@ -99,6 +99,21 @@
 
     <!-- Tabela -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+        @php
+            $groupStats = [];
+            foreach ($history as $historyItem) {
+                $groupKey = $historyItem->history_context_key ?? "history_{$historyItem->id}";
+                if (!isset($groupStats[$groupKey])) {
+                    $groupStats[$groupKey] = [
+                        'count' => 0,
+                        'net' => 0,
+                    ];
+                }
+
+                $groupStats[$groupKey]['count']++;
+                $groupStats[$groupKey]['net'] += (int) ($historyItem->quantity_change ?? 0);
+            }
+        @endphp
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-900 dark:text-gray-300">
@@ -113,7 +128,47 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                     @forelse($history as $item)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                    @php
+                        $groupKey = $item->history_context_key ?? "history_{$item->id}";
+                        $isGrouped = ($item->history_context_type ?? 'none') !== 'none';
+                        $stats = $groupStats[$groupKey] ?? ['count' => 0, 'net' => 0];
+                        $net = (int) ($stats['net'] ?? 0);
+                    @endphp
+                    @if($item->history_group_start ?? false)
+                    <tr class="bg-indigo-50 dark:bg-indigo-900/20">
+                        <td colspan="6" class="px-4 py-2">
+                            <button type="button"
+                                    data-group-toggle="{{ $groupKey }}"
+                                    class="w-full flex items-center justify-between gap-3 text-left">
+                                <div class="flex items-center gap-2 text-xs">
+                                    <svg data-group-icon="{{ $groupKey }}" class="w-3 h-3 text-indigo-700 dark:text-indigo-300 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full font-semibold bg-indigo-100 text-indigo-700 dark:bg-indigo-800/60 dark:text-indigo-200">
+                                        {{ $item->history_context_badge }}
+                                    </span>
+                                    <span class="font-semibold text-indigo-700 dark:text-indigo-300">
+                                        {{ $item->history_context_label }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2 text-[11px]">
+                                    <span class="text-indigo-700 dark:text-indigo-300 font-semibold">
+                                        {{ $stats['count'] }} movimentação(ões)
+                                    </span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full font-bold
+                                        @if($net > 0) bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300
+                                        @elseif($net < 0) bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300
+                                        @else bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 @endif">
+                                        Saldo {{ $net > 0 ? '+' : '' }}{{ $net }}
+                                    </span>
+                                </div>
+                            </button>
+                        </td>
+                    </tr>
+                    @endif
+                    <tr
+                        @if($isGrouped) data-group-row="{{ $groupKey }}" @endif
+                        class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition {{ $isGrouped ? 'hidden' : '' }}">
                         <td class="px-4 py-3 whitespace-nowrap text-gray-600 dark:text-gray-400">
                             {{ $item->action_date->format('d/m/Y H:i') }}
                         </td>
@@ -179,6 +234,12 @@
                                     </div>
                                 @endif
 
+                                @if(($item->history_context_type ?? null) === 'catalog')
+                                    <div class="text-xs font-medium text-amber-600 dark:text-amber-400">
+                                        {{ $item->history_context_label }}
+                                    </div>
+                                @endif
+
                                 @if($item->notes)
                                     <div class="bg-gray-700 dark:bg-gray-800 p-2 rounded text-xs border border-gray-600 dark:border-gray-700 !text-white font-bold">
                                         {{ $item->notes }}
@@ -215,4 +276,33 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleButtons = document.querySelectorAll('[data-group-toggle]');
+
+    toggleButtons.forEach((button) => {
+        const groupKey = button.getAttribute('data-group-toggle');
+        const icon = button.querySelector(`[data-group-icon="${groupKey}"]`);
+
+        button.dataset.expanded = 'false';
+
+        button.addEventListener('click', function () {
+            const isExpanded = this.dataset.expanded === 'true';
+            const nextExpanded = !isExpanded;
+            this.dataset.expanded = nextExpanded ? 'true' : 'false';
+
+            document.querySelectorAll(`[data-group-row="${groupKey}"]`).forEach((row) => {
+                row.classList.toggle('hidden', !nextExpanded);
+            });
+
+            if (icon) {
+                icon.style.transform = nextExpanded ? 'rotate(90deg)' : 'rotate(0deg)';
+            }
+        });
+    });
+});
+</script>
+@endpush
 @endsection

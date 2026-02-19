@@ -151,6 +151,7 @@ class TenantController extends Controller
             'email' => 'required|email',
             'plan_id' => 'required|exists:plans,id',
             'status' => 'required|in:active,suspended,cancelled',
+            'trial_ends_at' => 'nullable|date',
             'subscription_ends_at' => 'nullable|date',
             'password' => 'nullable|string|min:6',
         ]);

@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\OrderItem;
 use App\Models\PersonalizationPrice;
 use App\Models\ProductOption;
 use App\Services\ImageProcessor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ClientController extends Controller
 {
@@ -95,7 +97,7 @@ class ClientController extends Controller
                 'cover_image' => 'required|image|max:10240', // Máximo 10MB
             ]);
 
-            $item = \App\Models\OrderItem::findOrFail($id);
+            $item = $this->findOrderItemForCurrentUser((int) $id);
             \Log::info('Item encontrado: ' . json_encode($item->toArray()));
             
             // Processar e salvar a imagem
@@ -165,7 +167,7 @@ class ClientController extends Controller
             \Log::error('Stack trace: ' . $e->getTraceAsString());
             return response()->json([
                 'success' => false,
-                'message' => 'Erro interno do servidor: ' . $e->getMessage()
+                'message' => 'Erro interno do servidor. Tente novamente mais tarde.'
             ], 500);
         }
     }
@@ -181,7 +183,7 @@ class ClientController extends Controller
                 'art_name' => 'required|string|max:255',
             ]);
 
-            $item = \App\Models\OrderItem::findOrFail($id);
+            $item = $this->findOrderItemForCurrentUser((int) $id);
             \Log::info('Item encontrado: ID ' . $item->id);
             
             // Atualizar o nome da arte
@@ -206,7 +208,7 @@ class ClientController extends Controller
             \Log::error('Stack trace: ' . $e->getTraceAsString());
             return response()->json([
                 'success' => false,
-                'message' => 'Erro interno do servidor: ' . $e->getMessage()
+                'message' => 'Erro interno do servidor. Tente novamente mais tarde.'
             ], 500);
         }
     }
@@ -297,7 +299,7 @@ class ClientController extends Controller
         try {
             \Log::info(' Buscando item para edição', ['item_id' => $id]);
             
-            $item = \App\Models\OrderItem::with('sublimations')->findOrFail($id);
+            $item = $this->findOrderItemForCurrentUser((int) $id, true);
             
             \Log::info(' Item encontrado', [
                 'item_id' => $item->id,
@@ -370,7 +372,31 @@ class ClientController extends Controller
                 'item_id' => $id,
                 'trace' => $e->getTraceAsString()
             ]);
-            return response()->json(['error' => 'Item não encontrado: ' . $e->getMessage()], 404);
+            return response()->json(['error' => 'Item não encontrado.'], 404);
         }
+    }
+
+    private function findOrderItemForCurrentUser(int $id, bool $withSublimations = false): OrderItem
+    {
+        $query = OrderItem::query()->whereKey($id);
+
+        if ($withSublimations) {
+            $query->with('sublimations');
+        }
+
+        $user = Auth::user();
+        if (!$user || !$user->isAdminGeral()) {
+            $tenantId = $user?->tenant_id;
+
+            if ($tenantId !== null) {
+                $query->whereHas('order', function ($orderQuery) use ($tenantId) {
+                    $orderQuery->where('tenant_id', $tenantId);
+                });
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        }
+
+        return $query->firstOrFail();
     }
 }

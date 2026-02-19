@@ -72,6 +72,32 @@ class StockHistoryController extends Controller
         }
 
         $history = $query->paginate(20)->withQueryString();
+
+        // Enriquecer itens com contexto de agrupamento (Pedido, Venda, Catálogo)
+        $previousGroupKey = null;
+        $groupSequence = 0;
+        $history->setCollection(
+            $history->getCollection()->map(function (StockHistory $item) use (&$previousGroupKey, &$groupSequence) {
+                $context = $this->resolveMovementContext($item);
+                $groupKey = $context['key'];
+                $isGroupedContext = $context['type'] !== 'none';
+                $isGroupStart = $isGroupedContext && $groupKey !== $previousGroupKey;
+
+                if ($isGroupStart) {
+                    $groupSequence++;
+                }
+
+                $item->setAttribute('history_context_type', $context['type']);
+                $item->setAttribute('history_context_key', $groupKey);
+                $item->setAttribute('history_context_label', $context['label']);
+                $item->setAttribute('history_context_badge', $context['badge']);
+                $item->setAttribute('history_group_start', $isGroupStart);
+                $item->setAttribute('history_group_seq', $isGroupedContext ? $groupSequence : null);
+
+                $previousGroupKey = $groupKey;
+                return $item;
+            })
+        );
         
         // Data for filters
         $stores = StoreHelper::getAvailableStores();
@@ -80,5 +106,78 @@ class StockHistoryController extends Controller
         $actions = ['entrada', 'saida', 'transferencia', 'reserva', 'liberacao', 'edicao', 'devolucao', 'perda', 'ajuste'];
 
         return view('stocks.history', compact('history', 'stores', 'users', 'actions'));
+    }
+
+    /**
+     * Resolve contexto de agrupamento para uma movimentação.
+     */
+    private function resolveMovementContext(StockHistory $item): array
+    {
+        $order = $item->order ?: optional($item->stockRequest)->order;
+
+        if ($order) {
+            $paddedId = str_pad((string) $order->id, 6, '0', STR_PAD_LEFT);
+            $origin = strtolower((string) ($order->origin ?? ''));
+
+            if ((bool) ($order->is_pdv ?? false) || $origin === 'pdv') {
+                return [
+                    'type' => 'sale',
+                    'key' => "sale_{$order->id}",
+                    'label' => "Venda PDV #{$paddedId}",
+                    'badge' => 'Venda',
+                ];
+            }
+
+            if ($origin === 'catalogo') {
+                return [
+                    'type' => 'catalog_order',
+                    'key' => "catalog_order_{$order->id}",
+                    'label' => "Pedido Catálogo Convertido #{$paddedId}",
+                    'badge' => 'Catálogo',
+                ];
+            }
+
+            return [
+                'type' => 'order',
+                'key' => "order_{$order->id}",
+                'label' => "Pedido #{$paddedId}",
+                'badge' => 'Pedido',
+            ];
+        }
+
+        $catalogCode = $this->extractCatalogCode($item->stockRequest->request_notes ?? null)
+            ?? $this->extractCatalogCode($item->notes ?? null);
+
+        if ($catalogCode) {
+            return [
+                'type' => 'catalog',
+                'key' => "catalog_{$catalogCode}",
+                'label' => "Pedido Catálogo {$catalogCode}",
+                'badge' => 'Catálogo',
+            ];
+        }
+
+        return [
+            'type' => 'none',
+            'key' => "history_{$item->id}",
+            'label' => null,
+            'badge' => null,
+        ];
+    }
+
+    /**
+     * Extrai o código CAT-XXXX de uma string.
+     */
+    private function extractCatalogCode(?string $text): ?string
+    {
+        if (!$text) {
+            return null;
+        }
+
+        if (preg_match('/(CAT-[A-Za-z0-9]+)/i', $text, $matches)) {
+            return strtoupper($matches[1]);
+        }
+
+        return null;
     }
 }

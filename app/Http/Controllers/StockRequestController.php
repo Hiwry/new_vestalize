@@ -73,15 +73,18 @@ class StockRequestController extends Controller
         // Agrupar solicitações por pedido e especificações (tecido, cor, corte)
         $groupedRequests = [];
         foreach ($allRequests as $stockRequest) {
-            // Criar chave única: order_id + fabric_id + color_id + cut_type_id + status
-            $groupKey = sprintf(
-                '%s_%s_%s_%s_%s',
-                $stockRequest->order_id ?? 'sem_pedido_' . $stockRequest->id,
-                $stockRequest->fabric_id ?? '0',
-                $stockRequest->color_id ?? '0',
-                $stockRequest->cut_type_id ?? '0',
-                $stockRequest->status
-            );
+            // Agrupar por order_id se existir, caso contrário pelo ID da própria solicitação
+            // Isso garante que pedidos consolidados fiquem em uma linha e manuais fiquem separados
+            if ($stockRequest->order_id) {
+                $groupKey = "order_{$stockRequest->order_id}_{$stockRequest->status}";
+            } else {
+                // Tenta extrair ID do pedido das notas se for pedido de catálogo ainda não convertido
+                if ($stockRequest->request_notes && preg_match('/Pedido Catálogo #([A-Za-z0-9]+)/', $stockRequest->request_notes, $matches)) {
+                    $groupKey = "catalog_{$matches[1]}_{$stockRequest->status}";
+                } else {
+                    $groupKey = "manual_{$stockRequest->id}_{$stockRequest->status}";
+                }
+            }
             
             if (!isset($groupedRequests[$groupKey])) {
                 $order = $stockRequest->order;
@@ -112,12 +115,19 @@ class StockRequestController extends Controller
             
             $groupedRequests[$groupKey]['requests'][] = $stockRequest;
             
-            // Agrupar tamanhos e quantidades
+            // Agrupar tamanhos, cores e quantidades
             $size = $stockRequest->size;
-            if (!isset($groupedRequests[$groupKey]['sizes_summary'][$size])) {
-                $groupedRequests[$groupKey]['sizes_summary'][$size] = 0;
+            $colorName = $stockRequest->color->name ?? 'N/A';
+            $sizeKey = "{$size}_{$colorName}";
+            
+            if (!isset($groupedRequests[$groupKey]['sizes_summary'][$sizeKey])) {
+                $groupedRequests[$groupKey]['sizes_summary'][$sizeKey] = [
+                    'size' => $size,
+                    'color' => $colorName,
+                    'quantity' => 0
+                ];
             }
-            $groupedRequests[$groupKey]['sizes_summary'][$size] += $stockRequest->requested_quantity;
+            $groupedRequests[$groupKey]['sizes_summary'][$sizeKey]['quantity'] += $stockRequest->requested_quantity;
         }
         
         // Converter para array e paginar
@@ -395,8 +405,15 @@ class StockRequestController extends Controller
         }
         
         // Notificar lojas
-        if ($stockRequest->target_store_id) {
-            Notification::createStockRequestCreated($stockRequest->target_store_id, $stockRequest);
+        $storeName = $stockRequest->requestingStore->name ?? 'N/A';
+        $productInfo = sprintf('%s - %s', $stockRequest->fabric->name ?? 'N/A', $stockRequest->color->name ?? 'N/A');
+        
+        $estoqueUsers = \App\Models\User::where(function($q) {
+            $q->where('role', 'estoque')->orWhere('role', 'admin')->orWhere('role', 'admin_geral');
+        })->get();
+
+        foreach ($estoqueUsers as $user) {
+            Notification::createStockRequestCreated($user->id, $stockRequest->id, $storeName, $productInfo);
         }
 
         if ($request->wantsJson()) {
@@ -434,7 +451,10 @@ class StockRequestController extends Controller
 
             // Se for transferência Avulsa (broadcast), PRECISA selecionar a loja de origem
             // MAS para vendas PDV onde a solicitação é para a própria loja, usar a loja solicitante como padrão
-            $storeId = $validated['fulfilling_store_id'] ?? $stockRequest->target_store_id;
+            $selectedFulfillingStoreId = isset($validated['fulfilling_store_id'])
+                ? (int) $validated['fulfilling_store_id']
+                : null;
+            $storeId = $selectedFulfillingStoreId ?: $stockRequest->target_store_id;
             
             // Se ainda não tem store_id, usar a loja solicitante (PDV)
             if (!$storeId) {
@@ -461,6 +481,8 @@ class StockRequestController extends Controller
 
             DB::beginTransaction();
             
+            $approvedRequests = [];
+            
             // Se o usuário enviou itens específicos (novo modal), aprovar apenas esses
             if (is_array($itemsToApprove) && !empty($itemsToApprove)) {
                 $requests = StockRequest::whereIn('id', array_keys($itemsToApprove))
@@ -486,18 +508,46 @@ class StockRequestController extends Controller
             }
 
             foreach ($requests as $req) {
-                if ($req->target_store_id === null && $storeId) {
-                    $req->target_store_id = $storeId;
+                $fulfillingStoreId = $selectedFulfillingStoreId ?: ($req->target_store_id ?: $storeId);
+
+                if (!$fulfillingStoreId) {
+                    throw new \Exception('Não foi possível determinar a loja de origem para aprovação.');
+                }
+
+                if (!StoreHelper::canAccessStore($fulfillingStoreId)) {
+                    throw new \Exception('Você não tem permissão na loja de origem selecionada.');
+                }
+
+                if ((int) ($req->target_store_id ?? 0) !== (int) $fulfillingStoreId) {
+                    $req->target_store_id = $fulfillingStoreId;
                 }
                 
                 $stock = Stock::findByParams(
-                    $req->target_store_id,
+                    $fulfillingStoreId,
                     $req->fabric_id,
                     $req->fabric_type_id ?? null,
                     $req->color_id,
                     $req->cut_type_id,
                     $req->size
                 );
+                
+                $closeMatches = Stock::where('store_id', $fulfillingStoreId)
+                    ->where('color_id', $req->color_id)
+                    ->where('size', $req->size)
+                    ->get();
+
+                \Illuminate\Support\Facades\Log::info('Stock Approval Debug', [
+                    'request_id' => $req->id,
+                    'target_store_id' => $req->target_store_id,
+                    'fulfilling_store_id' => $fulfillingStoreId,
+                    'fabric_id' => $req->fabric_id,
+                    'color_id' => $req->color_id,
+                    'cut_type_id' => $req->cut_type_id,
+                    'size' => $req->size,
+                    'found_stock' => $stock ? $stock->toArray() : 'null',
+                    'close_matches' => $closeMatches->toArray(), // Log what IS there
+                    'available_qty' => $stock ? $stock->available_quantity : 'N/A'
+                ]);
 
                 // Quantidade a aprovar para este item
                 if (is_array($itemsToApprove)) {
@@ -509,7 +559,9 @@ class StockRequestController extends Controller
                     $qtyToApprove = ($req->id === $stockRequest->id) ? $approvedQuantity : $req->requested_quantity;
                 }
 
-                if (!$stock || !$stock->hasStock($qtyToApprove)) {
+                $force = $request->boolean('force', false);
+
+                if (!$force && (!$stock || !$stock->hasStock($qtyToApprove))) {
                     // SE for o item principal (que o usuário clicou), lançar erro com detalhes
                     if ($req->id === $stockRequest->id || is_array($itemsToApprove)) {
                         $available = $stock ? $stock->available_quantity : 0;
@@ -520,13 +572,33 @@ class StockRequestController extends Controller
                     }
                 }
 
-                $success = $stock->use(
-                    $qtyToApprove,
-                    $user->id,
-                    $req->order_id,
-                    $req->id,
-                    "Aprovação de solicitação #{$req->id}"
-                );
+                // Se forçado e não tem estoque registro, criar com 0 se precisar?
+                // O método use() precisa da instância. Se $stock for null, não dá pra chamar use().
+                // Então precisamos criar o registro de estoque se não existir e for forçado.
+                if (!$stock && $force) {
+                    $stock = Stock::createOrUpdateStock([
+                        'store_id' => $fulfillingStoreId,
+                        'fabric_id' => $req->fabric_id,
+                        'fabric_type_id' => $req->fabric_type_id,
+                        'color_id' => $req->color_id,
+                        'cut_type_id' => $req->cut_type_id,
+                        'size' => $req->size,
+                        'quantity' => 0,
+                    ]);
+                }
+
+                if ($stock) {
+                    $success = $stock->use(
+                        $qtyToApprove,
+                        $user->id,
+                        $req->order_id,
+                        $req->id,
+                        "Aprovação de solicitação #{$req->id}",
+                        $force
+                    );
+                } else {
+                    $success = false;
+                }
 
                 if (!$success) {
                     if ($req->id === $stockRequest->id || is_array($itemsToApprove)) {
@@ -536,6 +608,7 @@ class StockRequestController extends Controller
                 }
 
                 $req->update([
+                    'target_store_id' => $fulfillingStoreId,
                     'status' => 'aprovado',
                     'approved_quantity' => $qtyToApprove,
                     'approved_by' => $user->id,
@@ -543,14 +616,39 @@ class StockRequestController extends Controller
                     'approval_notes' => $validated['approval_notes'] ?? null,
                 ]);
 
-                $productInfo = sprintf('%s - %s', $req->fabric->name ?? 'Tecido', $req->color->name ?? 'Cor');
-                Notification::createStockRequestApproved(
-                    $req->requested_by,
-                    $req->id,
-                    $user->name,
-                    $productInfo,
-                    $qtyToApprove
-                );
+                $approvedRequests[] = $req;
+            }
+
+            // Notificação consolidada (Performance)
+            if (!empty($approvedRequests)) {
+                $first = $approvedRequests[0];
+                $count = count($approvedRequests);
+                $requesterId = $first->requested_by;
+                
+                if ($count === 1) {
+                    $productInfo = sprintf('%s - %s', $first->fabric->name ?? 'Tecido', $first->color->name ?? 'Cor');
+                    \App\Models\Notification::createStockRequestApproved(
+                        $requesterId,
+                        $first->id,
+                        $user->name,
+                        $productInfo,
+                        $first->approved_quantity
+                    );
+                } else {
+                    $orderInfo = $first->order_id ? "do Pedido #{$first->order_id}" : "de sua solicitação";
+                    \App\Models\Notification::create([
+                        'user_id' => $requesterId,
+                        'type' => 'stock_request_approved',
+                        'title' => 'Solicitações de Estoque Aprovadas',
+                        'message' => "{$user->name} aprovou {$count} itens {$orderInfo}.",
+                        'link' => route('stock-requests.index', ['order_id' => $first->order_id]),
+                        'data' => [
+                            'approver_name' => $user->name,
+                            'items_count' => $count,
+                            'order_id' => $first->order_id
+                        ],
+                    ]);
+                }
             }
             
              if ($stockRequest->order_id) {
@@ -829,6 +927,71 @@ class StockRequestController extends Controller
             
         } catch (\Exception $e) {
             \Log::error('Erro ao gerar PDF de separação: ' . $e->getMessage());
+            return response('Erro ao gerar PDF: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Gerar comprovante consolidado para todo o pedido
+     */
+    public function generateOrderReceipt($orderIds)
+    {
+        $ids = explode(',', $orderIds);
+        
+        $items = StockRequest::with(['fabric', 'color', 'cutType', 'approvedBy', 'targetStore', 'requestingStore'])
+            ->whereIn('order_id', $ids)
+            ->whereIn('status', ['aprovado', 'em_transferencia', 'concluido'])
+            ->get();
+
+        if ($items->isEmpty()) {
+            return redirect()->back()->with('error', 'Nenhuma solicitação aprovada encontrada para os pedidos selecionados.');
+        }
+
+        // Para dados do cabeçalho, usar o primeiro item como referência
+        $firstItem = $items->first();
+        $order = Order::with('client')->find($firstItem->order_id);
+        
+        $approver = $firstItem->approvedBy;
+        $store = $firstItem->targetStore; 
+        $targetStore = $firstItem->requestingStore;
+        
+        $totalQuantity = $items->sum('approved_quantity');
+        $notes = $items->first(fn($i) => !empty($i->approval_notes))->approval_notes ?? null;
+
+        $storeId = $store ? $store->id : null;
+        if (!$storeId) {
+             $mainStore = Store::where('is_main', true)->first();
+             $storeId = $mainStore ? $mainStore->id : null;
+        }
+        $companySettings = CompanySetting::getSettings($storeId);
+
+        try {
+            $html = view('stock-requests.pdf.receipt', compact(
+                'items', 'order', 'approver', 'store', 'targetStore', 'totalQuantity', 'companySettings', 'notes'
+            ))->render();
+            
+            $options = new Options();
+            $options->set('defaultFont', 'Arial');
+            $options->set('isRemoteEnabled', true);
+            $options->set('isHtml5ParserEnabled', true);
+            $options->set('isImageEnabled', true);
+            $options->set('chroot', public_path());
+            
+            $dompdf = new Dompdf($options);
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+            
+            $orderIdLabel = $order ? $order->id : implode('-', $ids);
+            $filename = 'Comprovante_Completo_Pedido_' . $orderIdLabel . '.pdf';
+            
+            return response($dompdf->output(), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Erro ao gerar PDF de separação consolidado: ' . $e->getMessage());
             return response('Erro ao gerar PDF: ' . $e->getMessage(), 500);
         }
     }

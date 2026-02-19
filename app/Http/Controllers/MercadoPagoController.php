@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Plan;
 use App\Models\Tenant;
 use App\Models\SubscriptionPayment;
+use App\Support\MercadoPagoWebhookVerifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use MercadoPago\MercadoPagoConfig;
@@ -219,17 +220,19 @@ class MercadoPagoController extends Controller
                 'content' => $content
             ]);
 
-            // Return a 422 if it's a validation error from MP, otherwise 500
+            $statusCode = $e->getStatusCode() === 400 ? 422 : 500;
+
             return response()->json([
-                'error' => 'Erro na API do Mercado Pago: ' . ($content['message'] ?? $e->getMessage()),
-                'details' => $content
-            ], $e->getStatusCode() == 400 ? 422 : 500);
+                'error' => $statusCode === 422
+                    ? 'Não foi possível criar o pagamento com os dados enviados.'
+                    : 'Não foi possível iniciar o pagamento agora. Tente novamente.',
+            ], $statusCode);
         } catch (\Exception $e) {
             Log::error('MercadoPago Preference Error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
             return response()->json([
-                'error' => 'Erro interno ao criar preferência: ' . $e->getMessage()
+                'error' => 'Erro interno ao iniciar pagamento. Tente novamente.'
             ], 500);
         }
     }
@@ -240,19 +243,27 @@ class MercadoPagoController extends Controller
     public function webhook(Request $request)
     {
         try {
-            Log::info('MercadoPago Webhook recebido:', $request->all());
+            $webhookSecret = config('services.mercadopago.webhook_secret');
+            $enforceSignature = (bool) config('services.mercadopago.enforce_webhook_signature', false);
+            if (!MercadoPagoWebhookVerifier::isValid($request, is_string($webhookSecret) ? $webhookSecret : null, $enforceSignature)) {
+                Log::warning('MercadoPago webhook inválido (assinatura).', [
+                    'request_id' => $request->header('x-request-id'),
+                ]);
+
+                return response()->json(['status' => 'invalid_signature'], 401);
+            }
 
             // Mercado Pago envia o tipo de notificação
-            $type = $request->input('type');
+            $type = strtolower((string) ($request->input('type') ?? $request->input('action') ?? ''));
 
-            if ($type === 'payment') {
-                $paymentId = $request->input('data.id');
+            if ($type === '' || str_contains($type, 'payment')) {
+                $paymentId = MercadoPagoWebhookVerifier::extractDataId($request);
 
                 if ($paymentId) {
                     $client = new PaymentClient();
                     $payment = $client->get($paymentId);
 
-                    Log::info('Payment details:', (array) $payment);
+                    Log::info('MercadoPago payment webhook processado.', ['payment_id' => $paymentId]);
 
                     // Processar pagamento aprovado
                     if ($payment->status === 'approved') {
@@ -268,24 +279,29 @@ class MercadoPagoController extends Controller
                             if ($tenant && $plan) {
                                 // Atualizar plano do tenant
                                 $tenant->plan_id = $plan->id;
-                                $tenant->plan_expires_at = now()->addMonth();
+                                $tenant->subscription_ends_at = now()->addMonth(); // Fix: table uses subscription_ends_at
+                                $tenant->status = 'active'; // Ensure status is active on payment
                                 if (isset($metadata['coupon_code'])) {
                                     $tenant->applied_coupon = $metadata['coupon_code'];
                                 }
                                 $tenant->save();
 
-                                // Registrar pagamento
-                                $subscriptionPayment = SubscriptionPayment::create([
-                                    'tenant_id' => $tenant->id,
-                                    'plan_id' => $plan->id,
-                                    'amount' => $payment->transaction_amount,
-                                    'coupon_code' => $metadata['coupon_code'] ?? null,
-                                    'discount_amount' => $metadata['discount_amount'] ?? 0,
-                                    'payment_method' => $payment->payment_type_id,
-                                    'payment_intent_id' => $payment->id, // payment_id -> payment_intent_id matches model
-                                    'status' => 'succeeded', // approved -> succeeded to match system status
-                                    'paid_at' => now(),
-                                ]);
+                                // Registrar pagamento de forma idempotente
+                                $subscriptionPayment = SubscriptionPayment::updateOrCreate(
+                                    [
+                                        'tenant_id' => $tenant->id,
+                                        'payment_intent_id' => (string) $payment->id,
+                                    ],
+                                    [
+                                        'plan_id' => $plan->id,
+                                        'amount' => $payment->transaction_amount,
+                                        'coupon_code' => $metadata['coupon_code'] ?? null,
+                                        'discount_amount' => $metadata['discount_amount'] ?? 0,
+                                        'payment_method' => $payment->payment_type_id,
+                                        'status' => 'succeeded',
+                                        'paid_at' => now(),
+                                    ]
+                                );
 
                                 // Registrar comissão de afiliado se o tenant tiver um afiliado vinculado
                                 if ($tenant->affiliate_id && $subscriptionPayment) {
@@ -311,7 +327,7 @@ class MercadoPagoController extends Controller
 
         } catch (\Exception $e) {
             Log::error('MercadoPago Webhook Error: ' . $e->getMessage());
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Erro interno no processamento do webhook'], 500);
         }
     }
 

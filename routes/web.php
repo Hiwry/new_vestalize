@@ -49,11 +49,7 @@ Route::prefix('pedido')->name('client.order.')->group(function () {
     Route::post('/{token}/confirmar', [\App\Http\Controllers\ClientOrderController::class, 'confirm'])->name('confirm');
 });
 
-// Catálogo Público (acesso sem login)
-Route::prefix('catalogo')->name('catalog.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\CatalogController::class, 'index'])->name('index');
-    Route::get('/{id}', [\App\Http\Controllers\CatalogController::class, 'show'])->name('show');
-});
+// Catálogo Público — rotas movidas para bloco no final do arquivo (com {storeCode})
 
 // Orçamento Online Público
 Route::prefix('solicitar-orcamento')->name('quote.')->group(function () {
@@ -109,6 +105,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/nfe/{id}/status', [\App\Http\Controllers\Admin\InvoiceController::class, 'checkStatus'])->name('admin.invoice.status');
     Route::post('/nfe/{id}/cancelar', [\App\Http\Controllers\Admin\InvoiceController::class, 'cancel'])->name('admin.invoice.cancel');
     
+    // Hub do Catálogo
+    Route::get('/catalogo-gestao', function() {
+        return view('admin.catalog.hub');
+    })->name('admin.catalog.index')->middleware('admin');
+
+    // Gateway de pagamento do catálogo
+    Route::get('/catalogo-gateway', [\App\Http\Controllers\Admin\CatalogGatewayController::class, 'edit'])
+        ->name('admin.catalog-gateway.edit')
+        ->middleware('admin');
+    Route::put('/catalogo-gateway', [\App\Http\Controllers\Admin\CatalogGatewayController::class, 'update'])
+        ->name('admin.catalog-gateway.update')
+        ->middleware('admin');
+
+    // Pedidos do Catálogo (admin)
+    Route::prefix('catalogo-pedidos')->name('admin.catalog-orders.')->middleware('admin')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\CatalogOrderController::class, 'index'])->name('index');
+        Route::get('/{catalogOrder}', [\App\Http\Controllers\Admin\CatalogOrderController::class, 'show'])->name('show');
+        Route::post('/{catalogOrder}/status', [\App\Http\Controllers\Admin\CatalogOrderController::class, 'updateStatus'])->name('updateStatus');
+        Route::post('/{catalogOrder}/pagamento', [\App\Http\Controllers\Admin\CatalogOrderController::class, 'updatePayment'])->name('updatePayment');
+        Route::post('/{catalogOrder}/converter', [\App\Http\Controllers\Admin\CatalogOrderController::class, 'convertToOrder'])->name('convert');
+    });
+
     // Lista de Pedidos
     Route::get('/pedidos', [\App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
     Route::get('/pedidos/{id}/detalhes', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
@@ -462,6 +480,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\StockRequestController::class, 'index'])->name('index');
         Route::post('/', [\App\Http\Controllers\StockRequestController::class, 'store'])->name('store');
         Route::get('/{id}/receipt', [\App\Http\Controllers\StockRequestController::class, 'generateReceipt'])->name('receipt');
+        Route::get('/order/{orderId}/receipt', [\App\Http\Controllers\StockRequestController::class, 'generateOrderReceipt'])->name('order-receipt');
         Route::post('/{id}/approve', [\App\Http\Controllers\StockRequestController::class, 'approve'])->name('approve');
         Route::post('/{id}/reject', [\App\Http\Controllers\StockRequestController::class, 'reject'])->name('reject');
         Route::post('/{id}/complete', [\App\Http\Controllers\StockRequestController::class, 'complete'])->name('complete');
@@ -532,6 +551,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/trial/{plan}', [\App\Http\Controllers\SubscriptionController::class, 'requestTrial'])->name('trial');
         Route::post('/renew', [\App\Http\Controllers\SubscriptionController::class, 'renewRequest'])->name('renew');
         Route::post('/validate-coupon', [\App\Http\Controllers\SubscriptionController::class, 'validateCoupon'])->name('validate-coupon');
+        Route::get('/select-payment/{plan}', function(\App\Models\Plan $plan) {
+            return view('subscription.payment-method-selection', compact('plan'));
+        })->name('select-payment');
 
         // Stripe Checkout
         Route::get('/checkout/{plan}', [\App\Http\Controllers\PaymentController::class, 'checkout'])->name('checkout');
@@ -608,6 +630,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::resource('tecidos', \App\Http\Controllers\Admin\TecidoController::class)->names('tecidos');
     Route::resource('personalizacoes', \App\Http\Controllers\Admin\PersonalizacaoController::class)->names('personalizacoes');
     Route::resource('modelos', \App\Http\Controllers\Admin\ModeloController::class)->names('modelos');
+    Route::post('products/{product}/duplicate', [\App\Http\Controllers\Admin\ProductController::class, 'duplicate'])->name('products.duplicate');
+    Route::get('products/stock-preview', [\App\Http\Controllers\Admin\ProductController::class, 'getCutTypeStock'])->name('products.stock-preview');
+    Route::post('products/import-template', [\App\Http\Controllers\Admin\ProductController::class, 'importTemplate'])->name('products.import-template');
     Route::resource('products', \App\Http\Controllers\Admin\ProductController::class)->names('products');
     Route::delete('products/images/{image}', [\App\Http\Controllers\Admin\ProductController::class, 'deleteImage'])->name('products.delete-image');
     Route::post('products/images/{image}/set-primary', [\App\Http\Controllers\Admin\ProductController::class, 'setPrimaryImage'])->name('products.set-primary-image');
@@ -719,23 +744,6 @@ Route::middleware('auth')->prefix('uniforms')->name('uniforms.')->group(function
 
 
 // ========================================
-// ASSINATURAS - Seleção de Método e Checkout
-// ========================================
-Route::middleware('auth')->prefix('subscription')->name('subscription.')->group(function () {
-    Route::get('/select-payment/{plan}', function(\App\Models\Plan $plan) {
-        return view('subscription.payment-method-selection', compact('plan'));
-    })->name('select-payment');
-    
-    // Stripe Checkout
-    Route::get('/checkout/{plan}', [\App\Http\Controllers\PaymentController::class, 'checkout'])->name('checkout');
-    Route::post('/create-intent/{plan}', [\App\Http\Controllers\PaymentController::class, 'createIntent'])->name('create-intent');
-    Route::get('/return', [\App\Http\Controllers\PaymentController::class, 'return'])->name('return');
-});
-
-// Webhook do Stripe (fora do CSRF)
-Route::post('/stripe/webhook', [\App\Http\Controllers\PaymentController::class, 'webhook'])->name('stripe.webhook')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
-
-// ========================================
 // MERCADO PAGO - Pagamentos com PIX
 // ========================================
 Route::middleware('auth')->prefix('mercadopago')->name('mercadopago.')->group(function () {
@@ -750,7 +758,33 @@ Route::middleware('auth')->prefix('mercadopago')->name('mercadopago.')->group(fu
 // Webhook do Mercado Pago (fora do CSRF)
 Route::post('/mercadopago/webhook', [\App\Http\Controllers\MercadoPagoController::class, 'webhook'])->name('mercadopago.webhook')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
+// Webhook do Mercado Pago para pedidos do catálogo (fora do CSRF)
+Route::post('/catalogo/pagamento/webhook/mercadopago', [\App\Http\Controllers\CatalogController::class, 'mercadoPagoWebhook'])
+    ->name('catalog.payment.webhook')
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+Route::get('/catalogo/pagamento/webhook/mercadopago', function () {
+    return response()->json([
+        'ok' => true,
+        'message' => 'Endpoint de webhook ativo. Use requisição POST para enviar eventos do Mercado Pago.',
+    ], 200);
+})->name('catalog.payment.webhook.health');
+
+// ─── Catálogo Público (sem autenticação) ───
+Route::prefix('catalogo/{storeCode}')->name('catalog.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\CatalogController::class, 'show'])->name('show');
+    Route::get('/produto/{product}', [\App\Http\Controllers\CatalogController::class, 'productDetail'])->name('product');
+    Route::post('/carrinho/adicionar', [\App\Http\Controllers\CatalogController::class, 'addToCart'])->name('cart.add');
+    Route::post('/carrinho/atualizar', [\App\Http\Controllers\CatalogController::class, 'updateCart'])->name('cart.update');
+    Route::post('/carrinho/remover', [\App\Http\Controllers\CatalogController::class, 'removeFromCart'])->name('cart.remove');
+    Route::get('/carrinho', [\App\Http\Controllers\CatalogController::class, 'getCart'])->name('cart.get');
+    Route::get('/checkout', [\App\Http\Controllers\CatalogController::class, 'checkout'])->name('checkout');
+    Route::post('/checkout', [\App\Http\Controllers\CatalogController::class, 'processCheckout'])->name('processCheckout');
+    Route::get('/confirmacao/{orderCode}', [\App\Http\Controllers\CatalogController::class, 'confirmation'])->name('confirmation');
+    Route::get('/confirmacao/{orderCode}/pdf', [\App\Http\Controllers\CatalogController::class, 'downloadOrderPdf'])->name('confirmation.pdf');
+});
+
 require __DIR__.'/auth.php';
+
 
 // Rota /test-mail removida por segurança (não expor SMTP em produção)
 

@@ -148,16 +148,20 @@ class PaymentController extends Controller
             // Log payment for audit (super admin history)
             $subscriptionPayment = null;
             try {
-                $subscriptionPayment = SubscriptionPayment::create([
-                    'tenant_id' => $tenant->id,
-                    'plan_id' => $metadata->plan_id,
-                    'amount' => $paymentIntent->amount_received / 100,
-                    'currency' => $paymentIntent->currency,
-                    'payment_intent_id' => $paymentIntent->id,
-                    'payment_method' => $paymentIntent->payment_method_types[0] ?? null,
-                    'status' => $paymentIntent->status,
-                    'paid_at' => now(),
-                ]);
+                $subscriptionPayment = SubscriptionPayment::updateOrCreate(
+                    [
+                        'tenant_id' => $tenant->id,
+                        'payment_intent_id' => (string) $paymentIntent->id,
+                    ],
+                    [
+                        'plan_id' => $metadata->plan_id,
+                        'amount' => $paymentIntent->amount_received / 100,
+                        'currency' => $paymentIntent->currency,
+                        'payment_method' => $paymentIntent->payment_method_types[0] ?? null,
+                        'status' => $paymentIntent->status,
+                        'paid_at' => now(),
+                    ]
+                );
             } catch (\Exception $e) {
                 Log::error('SubscriptionPayment log failed: ' . $e->getMessage());
             }
@@ -207,7 +211,7 @@ class PaymentController extends Controller
             return redirect()->route('subscription.index')->with('error', 'Pagamento não foi confirmado. Status: ' . ($paymentIntent->status ?? $redirectStatus ?? 'desconhecido'));
         } catch (\Exception $e) {
             Log::error('Stripe Return Error: ' . $e->getMessage());
-            return redirect()->route('subscription.index')->with('error', 'Erro ao validar pagamento: ' . $e->getMessage());
+            return redirect()->route('subscription.index')->with('error', 'Erro ao validar pagamento. Tente novamente.');
         }
     }
 }

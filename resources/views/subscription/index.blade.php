@@ -162,13 +162,13 @@
                                 $isExpiring = $daysLeft >= 0 && $daysLeft <= 7;
                             @endphp
                             
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                                {{ $isTrial ? 'Expira em' : 'Renovação em' }}
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-1 font-medium">
+                                {{ $isTrial ? 'Expira em' : 'Próxima Renovação' }}
                             </p>
-                            <p class="text-xl font-semibold {{ $isExpired ? 'text-red-600' : ($isExpiring ? 'text-amber-600' : 'text-gray-900 dark:text-white') }}">
+                            <p class="text-2xl font-bold {{ $isExpired ? 'text-red-500' : ($isExpiring ? 'text-amber-500' : 'text-gray-900 dark:text-white') }}">
                                 {{ $endDate->format('d/m/Y') }}
                             </p>
-                            <p class="text-sm mt-1 {{ $isExpired ? 'text-red-500' : ($isExpiring ? 'text-amber-500' : 'text-gray-400') }}">
+                            <p class="text-sm mt-1 {{ $isExpired ? 'text-red-400' : ($isExpiring ? 'text-amber-400' : 'text-gray-400') }}">
                                 @if($isExpired)
                                     <i class="fa-solid fa-circle-exclamation mr-1"></i> Expirado há {{ (int)abs($daysLeft) }} dias
                                 @else
@@ -180,14 +180,19 @@
                                 <div class="mt-4">
                                      <form action="{{ route('subscription.renew') }}" method="POST">
                                         @csrf
-                                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors shadow-sm">
-                                            <i class="fa-solid fa-rotate mr-2"></i> Renovar Agora
+                                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-lg transition-all shadow-md hover:shadow-lg">
+                                            <i class="fa-solid fa-rotate mr-2 text-xs"></i> Renovar Agora
                                         </button>
                                     </form>
                                 </div>
                             @endif
                         @else
-                            <p class="text-sm text-gray-500">Assinatura vitalícia ou não definida</p>
+                            <div class="bg-gray-50 dark:bg-gray-900/40 p-3 rounded-lg border border-gray-100 dark:border-gray-700 inline-block">
+                                <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1 font-bold">Prazo / Vencimento</p>
+                                <p class="text-sm font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-infinity"></i> Acesso Vitalício ou Sem Expiração
+                                </p>
+                            </div>
                         @endif
                     </div>
                 </div>

@@ -63,7 +63,12 @@
                             @forelse ($tenants as $tenant)
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $tenant->name }}</div>
+                                        <div class="text-sm font-bold text-gray-900 dark:text-gray-100 flex items-center">
+                                            {{ $tenant->name }}
+                                            <a href="{{ route('admin.tenants.edit', $tenant) }}" class="ml-2 text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300" title="Editar">
+                                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                            </a>
+                                        </div>
                                         <div class="text-sm text-gray-500">{{ $tenant->email }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -96,9 +101,8 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @php
-                                            $isAtrasado = ($tenant->status === 'suspended') || 
-                                                         ($tenant->trial_ends_at && $tenant->trial_ends_at->isPast() && $tenant->status === 'active' && !$tenant->subscription_ends_at) ||
-                                                         ($tenant->subscription_ends_at && $tenant->subscription_ends_at->isPast() && $tenant->status === 'active');
+                                            $isActive = $tenant->isActive();
+                                            $isAtrasado = !$isActive && $tenant->status !== 'cancelled';
                                         @endphp
                                         
                                         @if($isAtrasado)
@@ -122,15 +126,25 @@
                                             {{ $tenant->subscription_ends_at ? $tenant->subscription_ends_at->format('d/m/Y') : '-' }}
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-4">
-                                        <a href="{{ route('admin.tenants.edit', $tenant) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">Editar</a>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex items-center gap-3">
+                                            <a href="{{ route('admin.tenants.edit', $tenant) }}" 
+                                               class="inline-flex items-center px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-all"
+                                               title="Editar Cliente">
+                                                <i class="fa-solid fa-edit mr-1"></i>
+                                                Editar
+                                            </a>
                                         
-                                        <form action="{{ route('admin.tenants.resend-access', $tenant) }}" method="POST" class="inline">
-                                            @csrf
-                                            <button type="submit" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300" onclick="return confirm('Reenviar email de acesso?')">
-                                                Reenviar
-                                            </button>
-                                        </form>
+                                            <form action="{{ route('admin.tenants.resend-access', $tenant) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit" 
+                                                        class="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-xs font-bold rounded-lg transition-all"
+                                                        onclick="return confirm('Reenviar email de acesso?')">
+                                                    <i class="fa-solid fa-paper-plane mr-1 text-[10px]"></i>
+                                                    Acesso
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

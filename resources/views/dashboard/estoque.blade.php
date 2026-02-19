@@ -377,7 +377,11 @@
                     '#3B82F6',
                     '#6B7280',
                     '#DC2626'
-                ]
+                ],
+                borderWidth: 0,
+                hoverBorderWidth: 0,
+                borderColor: 'transparent',
+                hoverBorderColor: 'transparent'
             }]
         },
         options: {

@@ -59,7 +59,15 @@ class CategoryController extends Controller
         $validated['active'] = $request->has('active') ? true : false;
         $validated['order'] = $validated['order'] ?? (Category::max('order') ?? 0) + 1;
 
-        Category::create($validated);
+        $category = Category::create($validated);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Categoria criada com sucesso!',
+                'category' => $category
+            ]);
+        }
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Categoria criada com sucesso!');

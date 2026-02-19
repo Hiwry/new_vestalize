@@ -82,15 +82,26 @@
                     </div>
                 </div>
 
-                <div>
-                    <label for="subscription_ends_at" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Vencimento da Assinatura
-                    </label>
-                    <input type="date" name="subscription_ends_at" id="subscription_ends_at"
-                        value="{{ $tenant->subscription_ends_at ? $tenant->subscription_ends_at->format('Y-m-d') : '' }}"
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Deixe em branco para acesso vitalício/indefinido.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="trial_ends_at" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Fim do Trial
+                        </label>
+                        <input type="date" name="trial_ends_at" id="trial_ends_at"
+                            value="{{ $tenant->trial_ends_at ? $tenant->trial_ends_at->format('Y-m-d') : '' }}"
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label for="subscription_ends_at" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Vencimento da Assinatura
+                        </label>
+                        <input type="date" name="subscription_ends_at" id="subscription_ends_at"
+                            value="{{ $tenant->subscription_ends_at ? $tenant->subscription_ends_at->format('Y-m-d') : '' }}"
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
                 </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">Deixe em branco para acesso vitalício/indefinido.</p>
 
                 <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
                     <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Alterar Senha de Acesso</h3>

@@ -593,11 +593,68 @@
         color: #e2e8f0;
     }
 
-    .transfer-modal-subtitle {
-        color: #64748b;
-        font-size: 0.82rem;
-        font-weight: 600;
-        margin-top: 0.2rem;
+    .stock-bulk-bar {
+        position: fixed;
+        bottom: 1.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(8px);
+        padding: 0.75rem 1.5rem;
+        border-radius: 999px;
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateX(-50%) translateY(20px);
+    }
+
+    .stock-bulk-bar.active {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .stock-bulk-count {
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.875rem;
+    }
+
+    .stock-bulk-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .stock-bulk-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: filter 0.2s;
+    }
+
+    .stock-bulk-btn.approve { background-color: #10b981; }
+    .stock-bulk-btn.pdf { background-color: #3b82f6; }
+    .stock-bulk-btn:hover { filter: brightness(1.1); }
+
+    .stock-checkbox {
+        width: 1.1rem;
+        height: 1.1rem;
+        border-radius: 0.3rem;
+        border: 2px solid #cbd5e1;
+        cursor: pointer;
+        accent-color: #3b82f6;
+    }
     }
 
     .dark .transfer-modal-subtitle {
@@ -970,18 +1027,53 @@
         const approveModal = document.getElementById('approve-modal');
         const storeSelectContainer = document.getElementById('approve-fulfilling-store-container');
         const storeSelect = document.getElementById('approve-fulfilling-store');
+        const storeHint = document.getElementById('approve-fulfilling-store-hint');
         const sizesContainer = document.getElementById('approve-sizes-container');
 
         if (requests && requests.length > 0 && approveModal) {
             const firstRequest = requests[0];
             modal.value = firstRequest.id;
-            
-            if (isBroadcast && storeSelectContainer) {
+
+            if (storeSelectContainer) {
                 storeSelectContainer.style.display = 'block';
-                if(storeSelect) storeSelect.required = true;
-            } else if (storeSelectContainer) {
-                storeSelectContainer.style.display = 'none';
-                if(storeSelect) storeSelect.required = false;
+            }
+
+            if (storeSelect) {
+                storeSelect.required = true;
+                const candidateStoreIds = [...new Set(
+                    requests
+                        .map(req => req.target_store_id || req.requesting_store_id || null)
+                        .filter(Boolean)
+                        .map(id => String(id))
+                )];
+
+                let preferredStoreId = '';
+                if (candidateStoreIds.length === 1) {
+                    preferredStoreId = candidateStoreIds[0];
+                } else if (firstRequest.target_store_id) {
+                    preferredStoreId = String(firstRequest.target_store_id);
+                } else if (firstRequest.requesting_store_id) {
+                    preferredStoreId = String(firstRequest.requesting_store_id);
+                }
+
+                const availableOptionValues = Array.from(storeSelect.options).map(option => option.value);
+                storeSelect.value = preferredStoreId && availableOptionValues.includes(preferredStoreId)
+                    ? preferredStoreId
+                    : '';
+            }
+
+            if (storeHint) {
+                const targetStores = [...new Set(
+                    requests
+                        .map(req => req.target_store_id || null)
+                        .filter(Boolean)
+                )];
+
+                if (targetStores.length > 1) {
+                    storeHint.textContent = 'O lote possui múltiplas lojas de origem. Selecione qual estoque será usado nesta aprovação.';
+                } else {
+                    storeHint.textContent = 'Selecione de qual loja sairá o estoque.';
+                }
             }
 
             // Limpar e preencher tamanhos
@@ -1023,6 +1115,8 @@
     window.approveAllGroup = function(requests) {
         const requestsInput = document.getElementById('approve-group-requests');
         const modal = document.getElementById('approve-group-modal');
+        const storeSelect = document.getElementById('approve-group-fulfilling-store');
+        const storeHint = document.getElementById('approve-group-fulfilling-store-hint');
         if (requestsInput && modal) {
             requestsInput.value = JSON.stringify(requests);
             modal.classList.remove('hidden');
@@ -1031,6 +1125,35 @@
             if (useRequestedCheckbox && customQuantityContainer) {
                 useRequestedCheckbox.checked = true;
                 customQuantityContainer.style.display = 'none';
+            }
+
+            if (storeSelect) {
+                const candidateStoreIds = [...new Set(
+                    (requests || [])
+                        .map(req => req.target_store_id || req.requesting_store_id || null)
+                        .filter(Boolean)
+                        .map(id => String(id))
+                )];
+
+                let preferredStoreId = '';
+                if (candidateStoreIds.length === 1) {
+                    preferredStoreId = candidateStoreIds[0];
+                } else if (requests && requests.length && requests[0].requesting_store_id) {
+                    preferredStoreId = String(requests[0].requesting_store_id);
+                }
+
+                const availableOptionValues = Array.from(storeSelect.options).map(option => option.value);
+                storeSelect.value = preferredStoreId && availableOptionValues.includes(preferredStoreId)
+                    ? preferredStoreId
+                    : '';
+
+                if (storeHint) {
+                    if (candidateStoreIds.length > 1) {
+                        storeHint.textContent = 'O lote possui múltiplas lojas de origem. Selecione qual estoque será usado.';
+                    } else {
+                        storeHint.textContent = 'Selecione de qual loja sairá o estoque para o lote.';
+                    }
+                }
             }
         }
     };
@@ -1200,7 +1323,10 @@
         <table class="stock-requests-table">
             <thead>
                 <tr>
-                    <th class="sticky-left text-left">ID</th>
+                    <th class="sticky-left text-center" style="width: 40px;">
+                        <input type="checkbox" id="select-all-requests" class="stock-checkbox">
+                    </th>
+                    <th class="text-left">ID</th>
                     <th class="text-left">Origem <span class="text-gray-400">→</span> Destino</th>
                     <th class="text-left">Produto</th>
                     <th class="text-left">Tamanhos</th>
@@ -1216,8 +1342,17 @@
             </thead>
             <tbody>
                 @forelse($requests as $group)
-                <tr>
-                    <td class="sticky-left">
+                <tr data-group-id="{{ $group['order_id'] ?? $group['requests'][0]->id }}" class="stock-group-row">
+                    <td class="sticky-left text-center">
+                        @if($group['status'] === 'pendente' || in_array($group['status'], ['aprovado', 'em_transferencia', 'concluido']))
+                        <input type="checkbox" 
+                               class="stock-checkbox group-checkbox" 
+                               data-order-id="{{ $group['order_id'] }}"
+                               data-requests="{{ json_encode($group['requests']) }}"
+                               data-is-broadcast="{{ $group['target_store'] ? 'false' : 'true' }}">
+                        @endif
+                    </td>
+                    <td>
                         @if($group['order_id'])
                             <div class="flex flex-wrap items-center gap-2">
                                 <span class="stock-id-badge">
@@ -1259,25 +1394,44 @@
                         </div>
                     </td>
                     <td>
-                        <span class="stock-product-main">{{ $group['fabric']->name ?? '-' }}</span>
-                        <span class="stock-product-sub">{{ $group['color']->name ?? '-' }} • {{ $group['cut_type']->name ?? '-' }}</span>
+                        @php
+                            $uniqueFabrics = [];
+                            foreach ($group['requests'] as $req) {
+                                $fabricName = $req->fabric->name ?? 'N/A';
+                                if (!in_array($fabricName, $uniqueFabrics)) {
+                                    $uniqueFabrics[] = $fabricName;
+                                }
+                            }
+                        @endphp
+                        
+                        @foreach($uniqueFabrics as $fabric)
+                            <div class="mb-1 last:mb-0">
+                                <span class="stock-product-main">{{ $fabric }}</span>
+                            </div>
+                        @endforeach
                     </td>
                     <td>
                         <div class="flex flex-wrap gap-1.5">
                             @php
                                 $sizeOrder = ['PP' => 1, 'P' => 2, 'M' => 3, 'G' => 4, 'GG' => 5, 'EXG' => 6, 'G1' => 7, 'G2' => 8, 'G3' => 9];
                                 uksort($group['sizes_summary'], function($a, $b) use ($sizeOrder) {
-                                    return ($sizeOrder[$a] ?? 99) <=> ($sizeOrder[$b] ?? 99);
+                                    // Pega a parte do tamanho da chave (antes do _)
+                                    $sizeA = explode('_', $a)[0] ?? '';
+                                    $sizeB = explode('_', $b)[0] ?? '';
+                                    return ($sizeOrder[$sizeA] ?? 99) <=> ($sizeOrder[$sizeB] ?? 99);
                                 });
                             @endphp
-                            @foreach($group['sizes_summary'] as $size => $quantity)
-                                <span class="stock-size-chip">{{ $quantity }}{{ $size }}</span>
+                            @foreach($group['sizes_summary'] as $data)
+                                <span class="stock-size-chip">{{ $data['size'] }} • {{ $data['color'] }}</span>
                             @endforeach
                         </div>
                     </td>
                     <td class="text-center">
                         @php
-                            $totalRequested = array_sum($group['sizes_summary']);
+                            $totalRequested = 0;
+                            foreach ($group['sizes_summary'] as $data) {
+                                $totalRequested += $data['quantity'];
+                            }
                         @endphp
                         <span class="stock-number-pill">{{ $totalRequested }}</span>
                     </td>
@@ -1408,16 +1562,31 @@
                                     <span class="text-gray-400 dark:text-gray-500 text-xs font-semibold">Aguardando aprovação</span>
                                 @endif
                             @elseif(in_array($group['status'], ['aprovado', 'em_transferencia', 'concluido']))
-                                {{-- Botão para baixar comprovante de conferência --}}
-                                <a href="{{ route('stock-requests.receipt', $group['requests'][0]->id) }}" 
-                                   target="_blank"
-                                   class="stock-row-action receipt"
-                                   title="Baixar Termo de Conferência">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                    </svg>
-                                    PDF
-                                </a>
+                                {{-- Botão para baixar comprovante de conferência individual/grupo --}}
+                                <div class="flex flex-col gap-1">
+                                    <a href="{{ route('stock-requests.receipt', $group['requests'][0]->id) }}" 
+                                       target="_blank"
+                                       class="stock-row-action receipt w-full"
+                                       title="Baixar Termo de Conferência (Este Item)">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        PDF Item
+                                    </a>
+
+                                    @if($group['order_id'])
+                                    <a href="{{ route('stock-requests.order-receipt', $group['order_id']) }}" 
+                                       target="_blank"
+                                       class="stock-row-action receipt w-full"
+                                       style="background-color: #059669;"
+                                       title="Baixar PDF de Todas as Peças do Pedido">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        PDF Completo
+                                    </a>
+                                    @endif
+                                </div>
                             @else
                                 <span class="text-gray-400 dark:text-gray-500 font-semibold">-</span>
                             @endif
@@ -1459,9 +1628,9 @@
             <input type="hidden" name="_method" value="POST">
             <input type="hidden" id="approve-request-id" name="id">
             
-            <div class="mb-4" id="approve-fulfilling-store-container" style="display: none;">
+            <div class="mb-4" id="approve-fulfilling-store-container">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Loja de Origem (Atendimento):</label>
-                <select id="approve-fulfilling-store" name="fulfilling_store_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                <select id="approve-fulfilling-store" name="fulfilling_store_id" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     <option value="">Selecione a loja...</option>
                     @foreach($stores as $store)
                         @if(\App\Helpers\StoreHelper::canAccessStore($store->id))
@@ -1469,7 +1638,7 @@
                         @endif
                     @endforeach
                 </select>
-                <p class="text-xs text-gray-500 mt-1">Selecione de qual loja sairá o estoque.</p>
+                <p id="approve-fulfilling-store-hint" class="text-xs text-gray-500 mt-1">Selecione de qual loja sairá o estoque.</p>
             </div>
             
             <div class="mb-4">
@@ -1482,6 +1651,14 @@
                 </div>
             </div>
             
+            <div class="mb-4">
+                <div class="flex items-center gap-2 mb-1">
+                    <input type="checkbox" id="approve-force" name="force" value="1" class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500">
+                    <label for="approve-force" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Forçar aprovação (permitir estoque negativo)
+                    </label>
+                </div>
+            </div>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Observações:</label>
                 <textarea id="approve-notes" name="approval_notes" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"></textarea>
@@ -1892,6 +2069,18 @@
         <form id="approve-group-form">
             <input type="hidden" id="approve-group-requests">
             <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Loja de Origem (Atendimento):</label>
+                <select id="approve-group-fulfilling-store" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                    <option value="">Selecione a loja...</option>
+                    @foreach($stores as $store)
+                        @if(\App\Helpers\StoreHelper::canAccessStore($store->id))
+                        <option value="{{ $store->id }}">{{ $store->name }}</option>
+                        @endif
+                    @endforeach
+                </select>
+                <p id="approve-group-fulfilling-store-hint" class="text-xs text-gray-500 mt-1">Selecione de qual loja sairá o estoque para o lote.</p>
+            </div>
+            <div class="mb-4">
                 <div class="flex items-center gap-2 mb-2">
                     <input type="checkbox" id="approve-group-use-requested" checked class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
                     <label class="text-sm text-gray-700 dark:text-gray-300">Usar quantidade solicitada</label>
@@ -1900,6 +2089,14 @@
             <div class="mb-4" id="approve-group-custom-quantity-container" style="display: none;">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Quantidade Personalizada:</label>
                 <input type="number" id="approve-group-quantity" min="1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+            </div>
+            <div class="mb-4">
+                <div class="flex items-center gap-2 mb-1">
+                    <input type="checkbox" id="approve-group-force" name="force" value="1" class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500">
+                    <label for="approve-group-force" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Forçar aprovação (permitir estoque negativo)
+                    </label>
+                </div>
             </div>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Observações:</label>
@@ -2050,6 +2247,13 @@
         const customQuantityInput = document.getElementById('approve-group-quantity').value;
         const customQuantity = customQuantityInput ? parseInt(customQuantityInput) : null;
         const notes = document.getElementById('approve-group-notes').value;
+        const force = document.getElementById('approve-group-force').checked;
+        const fulfillingStoreId = document.getElementById('approve-group-fulfilling-store')?.value;
+
+        if (!fulfillingStoreId) {
+            showNotification('Selecione a loja de origem para aprovar o lote.', 'error');
+            return;
+        }
         
         if (!useRequested && (!customQuantity || customQuantity <= 0)) {
             showNotification('Informe uma quantidade válida', 'error');
@@ -2062,7 +2266,9 @@
             // Se useRequested é true, não enviamos quantidade customizada
             // O backend vai usar a quantidade solicitada
             const approvalData = {
-                approval_notes: notes || 'Aprovação em grupo'
+                approval_notes: notes || 'Aprovação em grupo',
+                force: force,
+                fulfilling_store_id: parseInt(fulfillingStoreId, 10)
             };
             
             if (!useRequested && customQuantity) {
@@ -2141,6 +2347,12 @@
         const id = document.getElementById('approve-request-id').value;
         const form = document.getElementById('approve-form');
         const formData = new FormData(form);
+        const fulfillingStoreId = formData.get('fulfilling_store_id');
+
+        if (!fulfillingStoreId) {
+            showNotification('Selecione a loja de origem que será usada na aprovação.', 'error');
+            return;
+        }
         
         const body = {};
         let hasQuantity = false;

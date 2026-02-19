@@ -300,43 +300,32 @@
                 $canCatalog = Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('catalog');
             @endphp
             @if($canCatalog)
+            @php
+                $isCatalogActive = request()->routeIs('admin.catalog.index') || 
+                                  request()->routeIs('admin.catalog-orders.*') || 
+                                  request()->routeIs('admin.catalog-gateway.*') || 
+                                  request()->routeIs('admin.products.*') || 
+                                  request()->routeIs('admin.categories.*') || 
+                                  request()->routeIs('admin.tecidos.*') || 
+                                  request()->routeIs('admin.modelos.*') || 
+                                  request()->routeIs('admin.sublimation-products.*') || 
+                                  request()->routeIs('admin.sub-local-products.*');
+            @endphp
+            @if($canCatalog)
             <div class="mt-1">
-                <button @click="toggleGroup('catalogo')"
-                        class="flex items-center w-full text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
-                        :class="expanded ? 'px-4 py-3.5 justify-between' : 'justify-center p-3.5 mx-auto'"
-                        title="Catálogo">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                            <i class="fa-solid fa-list-ul text-lg group-hover:text-primary transition-colors"></i>
-                        </div>
-                        <span class="ml-4" x-show="expanded">Catálogo</span>
+                <a href="{{ route('admin.catalog.index') }}"
+                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ $isCatalogActive ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   title="Catálogo">
+                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                        <i class="fa-solid fa-list-ul text-lg"></i>
                     </div>
-                    <i x-show="expanded" class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" :class="openGroups.catalogo ? 'rotate-90 text-primary' : ''"></i>
-                </button>
-                
-                <div x-show="openGroups.catalogo && expanded" x-collapse x-cloak class="space-y-1 my-1 px-2">
-                    <a href="{{ route('admin.products.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.products.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Produtos
-                    </a>
-                    <a href="{{ route('admin.categories.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.categories.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Categorias
-                    </a>
-                    <a href="{{ route('admin.tecidos.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.tecidos.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Tecidos
-                    </a>
-                    <a href="{{ route('admin.modelos.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.modelos.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Modelos
-                    </a>
-                    @if(Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('sublimation_total') || Auth::user()->tenant?->canAccess('catalog'))
-                    <a href="{{ route('admin.sublimation-products.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.sublimation-products.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Sublimação Total
-                    </a>
-                    @endif
-                    <a href="{{ route('admin.sub-local-products.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.sub-local-products.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Sublimação Local
-                    </a>
-                </div>
+                    <span class="ml-4 whitespace-nowrap overflow-hidden transition-all duration-300" x-show="expanded">
+                        Catálogo
+                    </span>
+                </a>
             </div>
+            @endif
             @endif
             @endif
 

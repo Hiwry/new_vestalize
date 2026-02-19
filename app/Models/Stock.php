@@ -136,6 +136,9 @@ class Stock extends Model
             ]);
         }
         
+        // Verificar estoque baixo após reserva
+        $this->checkLowStockAfterChange();
+        
         return true;
     }
 
@@ -169,12 +172,13 @@ class Stock extends Model
     /**
      * Baixar estoque (usar quantidade)
      */
-    public function use(int $quantity, ?int $userId = null, ?int $orderId = null, ?int $stockRequestId = null, ?string $notes = null): bool
+    public function use(int $quantity, ?int $userId = null, ?int $orderId = null, ?int $stockRequestId = null, ?string $notes = null, bool $force = false): bool
     {
         // Verificar se há estoque disponível
+        $this->refresh(); // Garantir dados frescos
         $availableQuantity = $this->available_quantity;
         
-        if ($availableQuantity <= 0) {
+        if (!$force && $availableQuantity <= 0) {
             \Log::warning('Tentativa de usar estoque sem quantidade disponível', [
                 'stock_id' => $this->id,
                 'available' => $availableQuantity,
@@ -183,25 +187,34 @@ class Stock extends Model
             return false;
         }
         
-        // Se a quantidade solicitada for maior que a disponível, usar apenas o disponível
-        $quantityToUse = min($quantity, $availableQuantity);
-        
-        if ($quantityToUse < $quantity) {
-            \Log::warning('Quantidade solicitada maior que disponível - usando apenas o disponível', [
-                'stock_id' => $this->id,
-                'available' => $availableQuantity,
-                'requested' => $quantity,
-                'will_use' => $quantityToUse,
-            ]);
+        // Se a quantidade solicitada for maior que a disponível e NÃO for forçado, usar apenas o disponível
+        if ($force) {
+            $quantityToUse = $quantity;
+        } else {
+            $quantityToUse = min($quantity, $availableQuantity);
+            
+            if ($quantityToUse < $quantity) {
+                \Log::warning('Quantidade solicitada maior que disponível - usando apenas o disponível', [
+                    'stock_id' => $this->id,
+                    'available' => $availableQuantity,
+                    'requested' => $quantity,
+                    'will_use' => $quantityToUse,
+                ]);
+            }
         }
 
         $oldQuantity = $this->quantity;
         $oldReserved = $this->reserved_quantity;
+        
+        // Se forçado, libera o que tiver reservado até o limite do solicitado, 
+        // mas não limita a operação pela reserva
         $reservedToRelease = max(0, min($quantityToUse, $this->reserved_quantity));
         
         // Decrementar quantidade e quantidade reservada
         $this->decrement('quantity', $quantityToUse);
-        $this->decrement('reserved_quantity', $reservedToRelease);
+        if ($reservedToRelease > 0) {
+            $this->decrement('reserved_quantity', $reservedToRelease);
+        }
         
         // Recarregar para garantir que temos os valores atualizados
         $this->refresh();
@@ -214,6 +227,7 @@ class Stock extends Model
             'new_reserved' => $this->reserved_quantity,
             'quantity_used' => $quantityToUse,
             'reserved_released' => $reservedToRelease,
+            'force' => $force
         ]);
         
         // Registrar histórico
@@ -317,8 +331,8 @@ class Stock extends Model
         return self::where('store_id', $storeId)
             ->when($fabricId !== null, fn($q) => $q->where('fabric_id', $fabricId))
             ->when($fabricTypeId !== null, fn($q) => $q->where('fabric_type_id', $fabricTypeId))
-            ->where('color_id', $colorId)
-            ->where('cut_type_id', $cutTypeId)
+            ->when($colorId !== null, fn($q) => $q->where('color_id', $colorId))
+            ->when($cutTypeId !== null, fn($q) => $q->where('cut_type_id', $cutTypeId))
             ->where('size', $size)
             ->first();
     }

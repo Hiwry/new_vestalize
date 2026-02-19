@@ -79,6 +79,18 @@
         } else {
             $logoPath = public_path('vestalize.svg');
         }
+
+        $referenceRequest = isset($items) && $items instanceof \Illuminate\Support\Collection && $items->isNotEmpty()
+            ? $items->first()
+            : null;
+
+        $catalogCode = null;
+        $referenceNotes = $referenceRequest->request_notes ?? null;
+        if ($referenceNotes && preg_match('/(CAT-[A-Za-z0-9]+)/i', $referenceNotes, $matches)) {
+            $catalogCode = strtoupper($matches[1]);
+        }
+
+        $isManualWithdrawal = $referenceNotes && str_contains(strtoupper($referenceNotes), '[RETIRADA]');
     @endphp
 
     <div class="header">
@@ -104,8 +116,12 @@
             @if($order)
                 #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }} 
                 @if($order->is_pdv) (PDV) @endif
+            @elseif($catalogCode)
+                Pedido Catálogo: {{ $catalogCode }}
+            @elseif($isManualWithdrawal)
+                Venda/Retirada Avulsa
             @else
-                N/A (Transferência Avulsa)
+                Transferência Avulsa
             @endif
         </div>
         

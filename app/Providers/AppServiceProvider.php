@@ -5,11 +5,14 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\CatalogOrder;
 use App\Observers\OrderObserver;
 use App\Observers\AuditObserver;
+use App\Policies\CatalogOrderPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +29,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::policy(CatalogOrder::class, CatalogOrderPolicy::class);
+
         // Registrar Observers para Pedidos e Auditoria Global
         Order::observe(OrderObserver::class);
         Order::observe(AuditObserver::class);

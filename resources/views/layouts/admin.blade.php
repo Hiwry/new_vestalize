@@ -121,11 +121,13 @@
         .bg-card-bg { background-color: var(--card-bg); }
         .bg-input-bg { background-color: var(--input-bg); }
         
-        /* Light mode: Ensure clean backgrounds */
-        .bg-gray-50, .bg-slate-50, .bg-zinc-50, .bg-neutral-50, .bg-stone-50,
-        .bg-gray-100, .bg-slate-100, .bg-zinc-100,
+        /* Light mode baseline surfaces */
         .bg-white {
-            background-color: #ffffff; /* Default white for light mode */
+            background-color: var(--card-bg);
+        }
+        .bg-gray-50, .bg-slate-50, .bg-zinc-50, .bg-neutral-50, .bg-stone-50,
+        .bg-gray-100, .bg-slate-100, .bg-zinc-100 {
+            background-color: #f8fafc;
         }
 
         /* Cards and Widgets */
@@ -177,8 +179,10 @@
 
         /* Texto */
         .dark .text-gray-900, .dark .text-slate-900, .dark .text-zinc-900, .dark .text-white { color: var(--foreground); }
-        .text-gray-800, .text-gray-700, .text-gray-600, .text-gray-500, .text-gray-400,
-        .text-slate-800, .text-slate-700, .text-slate-600, .text-slate-500, .text-slate-400,
+        .text-gray-800, .text-slate-800, .text-zinc-800 { color: var(--foreground); }
+        .text-gray-700, .text-slate-700, .text-zinc-700 { color: #334155; }
+        .text-gray-600, .text-gray-500, .text-gray-400,
+        .text-slate-600, .text-slate-500, .text-slate-400,
         .dark .text-gray-300, .dark .text-gray-400, .dark .text-zinc-400, .dark .text-slate-400 {
             color: var(--muted);
         }
@@ -781,8 +785,11 @@
                 {{-- Banner de Assinatura Expirada --}}
                 @auth
                     @php
-                        $tenant = Auth::user()->tenant;
-                        $subscriptionExpired = $tenant && !$tenant->isActive();
+                        $user = Auth::user();
+                        $tenant = $user ? $user->tenant : null;
+                        $isActive = $tenant ? $tenant->isActive() : true;
+                        $subscriptionExpired = $tenant && !$isActive;
+                        
                         $daysExpired = 0;
                         if ($subscriptionExpired && $tenant->subscription_ends_at) {
                             $daysExpired = (int) now()->diffInDays($tenant->subscription_ends_at);
@@ -1067,6 +1074,36 @@
             dedupeFlashMessages();
         }
         window.dedupeFlashMessages = dedupeFlashMessages;
+
+        // Global function to copy catalog URL
+        window.copyCatalogUrl = function() {
+            const input = document.getElementById('catalog-url-input');
+            const btn = document.getElementById('copy-catalog-btn');
+            const icon = document.getElementById('copy-icon');
+            const text = document.getElementById('copy-text');
+            
+            if (!input) return;
+
+            // Selecionar texto e copiar (funciona em HTTP e HTTPS)
+            input.select();
+            input.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            
+            if (btn && icon && text) {
+                // Feedback visual
+                icon.className = 'fa-solid fa-check';
+                text.textContent = 'Copiado!';
+                btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+                
+                setTimeout(() => {
+                    icon.className = 'fa-solid fa-copy';
+                    text.textContent = 'Copiar Link';
+                    btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+                    btn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+                }, 2000);
+            }
+        };
     </script>
 
     @stack('scripts')

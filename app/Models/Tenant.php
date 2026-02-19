@@ -154,17 +154,23 @@ class Tenant extends Model
      */
     public function isActive(): bool
     {
-        if ($this->status !== 'active') {
+        // Se o status não for active, nunca está ativo
+        if (($this->status ?? '') !== 'active') {
             return false;
         }
 
-        // Verificar se está em período de trial
-        if ($this->trial_ends_at && $this->trial_ends_at->isFuture()) {
+        // 1. Trial Prioritário
+        if (!empty($this->trial_ends_at) && $this->trial_ends_at->isFuture()) {
             return true;
         }
 
-        // Verificar se a assinatura está válida
-        return $this->subscription_ends_at && $this->subscription_ends_at->isFuture();
+        // 2. Vitalício / Sem data definida (consideramos ativo se status = active)
+        if (empty($this->subscription_ends_at)) {
+            return true;
+        }
+
+        // 3. Assinatura com data definida
+        return $this->subscription_ends_at->isFuture();
     }
 
     /**

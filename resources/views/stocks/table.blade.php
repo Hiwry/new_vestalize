@@ -168,39 +168,40 @@
 
             <!-- Content Table -->
             <div class="overflow-x-auto">
+                @php
+                    $rowColor = $group['color']['hex'] ?? null;
+                    $headerRowStyle = '';
+                    $headerTextStyle = '';
+                    $bodyTextClass = 'text-gray-900 dark:text-white';
+
+                    if ($rowColor) {
+                        $hex = str_replace('#', '', $rowColor);
+                        if (strlen($hex) == 3) {
+                            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+                        }
+
+                        $r = hexdec(substr($hex, 0, 2));
+                        $g = hexdec(substr($hex, 2, 2));
+                        $b = hexdec(substr($hex, 4, 2));
+                        $brightness = ($r * 299 + $g * 587 + $b * 114) / 1000;
+                        $headerTextColor = $brightness > 125 ? '#111827' : '#ffffff';
+
+                        $headerRowStyle = "background-color: {$rowColor} !important;";
+                        $headerTextStyle = "color: {$headerTextColor} !important;";
+                    }
+                @endphp
                 <table class="w-full text-sm text-left">
-                    <thead class="text-xs text-gray-500 uppercase bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+                    <thead class="text-xs uppercase bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700" style="{{ $headerRowStyle }}">
                         <tr>
-                            <th scope="col" class="px-6 py-4 font-bold">Cor</th>
+                            <th scope="col" class="px-6 py-4 font-bold text-gray-500 dark:text-gray-300" style="{{ $headerTextStyle }}">Cor</th>
                             @foreach($sizes as $size)
-                            <th scope="col" class="px-3 py-4 text-center font-bold text-gray-400">{{ $size }}</th>
+                            <th scope="col" class="px-3 py-4 text-center font-bold text-gray-400" style="{{ $headerTextStyle }}">{{ $size }}</th>
                             @endforeach
-                            <th scope="col" class="px-6 py-4 text-center font-bold">Total</th>
-                            <th scope="col" class="px-6 py-4 text-right font-bold">Ações</th>
+                            <th scope="col" class="px-6 py-4 text-center font-bold text-gray-500 dark:text-gray-300" style="{{ $headerTextStyle }}">Total</th>
+                            <th scope="col" class="px-6 py-4 text-right font-bold text-gray-500 dark:text-gray-300" style="{{ $headerTextStyle }}">Ações</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                        @php
-                            $rowColor = $group['color']['hex'] ?? null;
-                            $rowStyle = '';
-                            $textClass = 'text-gray-900 dark:text-white';
-                            
-                            if ($rowColor) {
-                                $rowStyle = "background-color: {$rowColor} !important;";
-                                
-                                // Determinar se a cor é clara ou escura para o contraste do texto
-                                $hex = str_replace('#', '', $rowColor);
-                                if (strlen($hex) == 3) {
-                                    $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
-                                }
-                                $r = hexdec(substr($hex, 0, 2));
-                                $g = hexdec(substr($hex, 2, 2));
-                                $b = hexdec(substr($hex, 4, 2));
-                                $brightness = ($r * 299 + $g * 587 + $b * 114) / 1000;
-                                
-                                $textClass = $brightness > 125 ? 'text-gray-900' : 'text-white';
-                            }
-                        @endphp
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2">
@@ -210,7 +211,7 @@
                             </td>
                             
                             @foreach($sizes as $size)
-                            <td class="px-2 py-4 text-center" style="{{ $rowStyle }}">
+                            <td class="px-2 py-4 text-center">
                                 @if(isset($group['sizes'][$size]))
                                     @php
                                         $sizeData = $group['sizes'][$size];
@@ -228,23 +229,23 @@
                                             {{ $qty }}
                                         </span>
                                         @if($reserved > 0)
-                                            <span class="text-[10px] font-bold mt-1 {{ $textClass }} opacity-80" title="Reservado">R: {{ $reserved }}</span>
+                                            <span class="text-[10px] font-bold mt-1 {{ $bodyTextClass }} opacity-80" title="Reservado">R: {{ $reserved }}</span>
                                         @endif
-                                        <span class="text-[9px] mt-0.5 {{ $textClass }} opacity-50">#{{ $sizeData['id'] }}</span>
+                                        <span class="text-[9px] mt-0.5 {{ $bodyTextClass }} opacity-50">#{{ $sizeData['id'] }}</span>
                                     </div>
                                 @else
-                                    <span class="{{ $textClass }} opacity-20">-</span>
+                                    <span class="{{ $bodyTextClass }} opacity-20">-</span>
                                 @endif
                             </td>
                             @endforeach
 
-                             <td class="px-6 py-4 text-center" style="{{ $rowStyle }}">
+                             <td class="px-6 py-4 text-center">
                                 <span class="px-3 py-1 rounded-full bg-indigo-500 text-white text-xs font-bold shadow-sm" style="color: #ffffff !important;">
                                     {{ $group['total_available'] }}
                                 </span>
                             </td>
 
-                            <td class="px-6 py-4 text-right" style="{{ $rowStyle }}">
+                            <td class="px-6 py-4 text-right">
                                 @php
                                     $firstStockId = null;
                                     if(isset($group['sizes']) && is_array($group['sizes'])) {
@@ -280,7 +281,7 @@
                                         <i class="fa-solid fa-trash text-xs text-white" style="color: #ffffff !important;"></i>
                                     </button>
                                     @else
-                                        <span class="text-xs {{ $textClass }} italic opacity-60">Indisponível</span>
+                                        <span class="text-xs {{ $bodyTextClass }} italic opacity-60">Indisponível</span>
                                     @endif
                                 </div>
                             </td>

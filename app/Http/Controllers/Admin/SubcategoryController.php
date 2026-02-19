@@ -67,7 +67,15 @@ class SubcategoryController extends Controller
         $validated['active'] = $request->has('active') ? true : false;
         $validated['order'] = $validated['order'] ?? (Subcategory::max('order') ?? 0) + 1;
 
-        Subcategory::create($validated);
+        $subcategory = Subcategory::create($validated);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Subcategoria criada com sucesso!',
+                'subcategory' => $subcategory
+            ]);
+        }
 
         return redirect()->route('admin.subcategories.index')
             ->with('success', 'Subcategoria criada com sucesso!');
