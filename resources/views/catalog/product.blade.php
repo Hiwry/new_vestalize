@@ -218,6 +218,71 @@
     }
     .color-option:hover .stock-hint { opacity: 1; }
 
+    .quick-variant-card {
+        margin-bottom: 20px;
+        padding: 16px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+    }
+    .quick-variant-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+    @media (min-width: 640px) {
+        .quick-variant-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .quick-variant-label {
+        font-size: 11px;
+        font-weight: 800;
+        color: #94a3b8;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        letter-spacing: 0.4px;
+    }
+    .quick-variant-select {
+        width: 100%;
+        height: 48px;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        background: white;
+        color: #334155;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 0 12px;
+        outline: none;
+        transition: all 0.2s;
+    }
+    .quick-variant-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-light);
+    }
+    .quick-variant-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .quick-variant-meta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+    }
+    .quick-color-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 1px solid #cbd5e1;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
     /* Premium Aesthetic Refinements */
     .product-detail {
         opacity: 0;
@@ -529,6 +594,30 @@
             }
         },
 
+        getVariantStock(size, color) {
+            if (!size || !color) return 0;
+            return this.stockData[size] ? (parseInt(this.stockData[size][color]) || 0) : 0;
+        },
+
+        getSizeAvailability(size) {
+            if (this.selectedColor) {
+                return this.getVariantStock(size, this.selectedColor);
+            }
+
+            const row = this.stockData[size] || {};
+            return Object.values(row).reduce((sum, value) => sum + (parseInt(value) || 0), 0);
+        },
+
+        getColorAvailability(color) {
+            if (this.selectedSize) {
+                return this.getVariantStock(this.selectedSize, color);
+            }
+
+            return Object.values(this.stockData).reduce((sum, row) => {
+                return sum + (parseInt((row || {})[color]) || 0);
+            }, 0);
+        },
+
         get totalBulkQty() {
             return Object.values(this.bulkItems).reduce((sum, q) => sum + (parseInt(q) || 0), 0);
         },
@@ -627,6 +716,61 @@
 
         {{-- Wholesale Grid Implementation --}}
         @if(count($stockGrid) > 0)
+            <div class="quick-variant-card">
+                <div class="option-title" style="margin-bottom: 10px;">
+                    Selecione Cor e Tamanho
+                    <span class="option-selected" x-show="selectedSize && selectedColor">
+                        <span x-show="variantStock > 0" x-text="variantStock + ' disponiveis'"></span>
+                        <span x-show="variantStock <= 0">Sem estoque</span>
+                    </span>
+                </div>
+
+                <div class="quick-variant-grid">
+                    <div>
+                        <div class="quick-variant-label">Tamanho</div>
+                        <select class="quick-variant-select"
+                                x-model="selectedSize"
+                                @change="checkSpecificStock()">
+                            <option value="">Selecione um tamanho</option>
+                            @foreach($stockSizes as $size => $qty)
+                                <option value="{{ $size }}" :disabled="getSizeAvailability('{{ $size }}') <= 0">{{ $size }} ({{ $qty }} un.)</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <div class="quick-variant-label">Cor</div>
+                        <select class="quick-variant-select"
+                                x-model="selectedColor"
+                                @change="
+                                    const opt = $event.target.options[$event.target.selectedIndex];
+                                    selectedColorHex = opt ? (opt.dataset.hex || '') : '';
+                                    checkSpecificStock();
+                                ">
+                            <option value="">Selecione uma cor</option>
+                            @foreach($stockColors as $color)
+                                <option value="{{ $color['name'] }}" data-hex="{{ $color['hex'] }}" :disabled="getColorAvailability('{{ $color['name'] }}') <= 0">
+                                    {{ $color['name'] }} ({{ $color['total_qty'] }} un.)
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="quick-variant-footer">
+                    <div class="quick-variant-meta">
+                        <span class="quick-color-dot" x-show="selectedColor" :style="'background:' + (selectedColorHex || '#cbd5e1')"></span>
+                        <span x-text="selectedColor || 'Selecione uma cor para continuar'"></span>
+                    </div>
+
+                    <div class="qty-input-group">
+                        <button type="button" class="qty-btn" @click="qty = Math.max(1, qty - 1)"><i class="fas fa-minus"></i></button>
+                        <div class="qty-display" x-text="qty"></div>
+                        <button type="button" class="qty-btn" @click="qty = Math.min(variantStock || 999, qty + 1)"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+
             <div class="option-title" style="margin-bottom: 8px;">
                 Grade de Quantidades
                 <span class="option-selected" x-show="totalBulkQty > 0" x-text="totalBulkQty + ' un. selecionadas'"></span>
@@ -786,7 +930,7 @@
                     <button class="add-btn" 
                             style="height: 56px; padding: 0 32px; font-size: 15px; margin: 0;"
                             @click="
-                                if (Object.keys(bulkItems).length > 0) {
+                                if (totalBulkQty > 0) {
                                     let items = [];
                                     for (let key in bulkItems) {
                                         if (bulkItems[key] > 0) {
@@ -831,7 +975,7 @@
     </div>
     <button class="sticky-add-btn" 
             @click="
-                if (Object.keys(bulkItems).length > 0) {
+                if (totalBulkQty > 0) {
                     let items = [];
                     for (let key in bulkItems) {
                         if (bulkItems[key] > 0) {
@@ -843,6 +987,7 @@
                     addToCart({{ $product->id }}, null, null, null, items);
                 } else {
                     if ({{ count($stockSizes) > 0 ? 'true' : 'false' }} && !selectedSize) { alert('Selecione um tamanho'); return; } 
+                    if ({{ count($stockColors) > 0 ? 'true' : 'false' }} && !selectedColor) { alert('Selecione uma cor'); return; }
                     await addToCart({{ $product->id }}, selectedSize || null, selectedColor || null, qty);
                     selectedSize = ''; selectedColor = ''; qty = 1; variantStock = 0;
                 }
