@@ -250,9 +250,35 @@
 <div id="template-modal" 
      class="fixed inset-0 z-50 hidden overflow-y-auto" 
      x-data="{ 
-        activeCutId: {{ $cutTypes->first()->id ?? 'null' }},
-        activeCutSlug: '{{ Str::slug($cutTypes->first()->name ?? '') }}',
-        templates: {{ json_encode($templates) }},
+        activeCutId: 'all',
+        activeCutSlug: 'all',
+        searchQuery: '',
+        currentPage: 1,
+        perPage: 6,
+        templates: Object.entries({{ json_encode($templates) }}).map(([id, data]) => ({ id, ...data })),
+        
+        get filteredTemplates() {
+            return this.templates.filter(t => {
+                const matchesSlug = this.activeCutSlug === 'all' || t.compatible_cuts.some(c => this.activeCutSlug.includes(c));
+                const matchesSearch = t.title.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+                                     t.description.toLowerCase().includes(this.searchQuery.toLowerCase());
+                return matchesSlug && matchesSearch;
+            });
+        },
+
+        get paginatedTemplates() {
+            const start = (this.currentPage - 1) * this.perPage;
+            return this.filteredTemplates.slice(start, start + this.perPage);
+        },
+
+        get totalPages() {
+            return Math.ceil(this.filteredTemplates.length / this.perPage) || 1;
+        },
+
+        resetPagination() {
+            this.currentPage = 1;
+        },
+
         init() {
             // Sincronizar visibilidade com o botão antigo
             const observer = new MutationObserver((mutations) => {
@@ -260,10 +286,15 @@
                     if (mutation.attributeName === 'class') {
                         const isHidden = document.getElementById('template-modal').classList.contains('hidden');
                         this.$el.style.display = isHidden ? 'none' : 'block';
+                        if (!isHidden) this.resetPagination();
                     }
                 });
             });
             observer.observe(document.getElementById('template-modal'), { attributes: true });
+            
+            // Watch for filter changes
+            this.$watch('activeCutSlug', () => this.resetPagination());
+            this.$watch('searchQuery', () => this.resetPagination());
         }
      }"
      style="display: none;">
@@ -277,81 +308,131 @@
                 <div>
                     <h3 class="text-2xl font-black text-white flex items-center tracking-tight">
                         <i class="fa-solid fa-layer-group mr-4 text-indigo-200"></i>
-                        Modelos Sugeridos
+                        Galeria de Modelos
                     </h3>
-                    <p class="text-indigo-100 text-xs font-bold mt-1 uppercase tracking-widest opacity-80">Selecione um tipo de corte para ver os modelos</p>
+                    <p class="text-indigo-100 text-xs font-bold mt-1 uppercase tracking-widest opacity-80">Encontre a base perfeita para o seu novo produto</p>
                 </div>
                 <button type="button" @click="document.getElementById('template-modal').classList.add('hidden')" class="text-indigo-100 hover:text-white bg-indigo-500/30 hover:bg-indigo-500/50 w-10 h-10 rounded-xl flex items-center justify-center transition-all">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
             
-            <div class="p-0 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 flex items-center overflow-x-auto scrollbar-hide">
-                @foreach($cutTypes as $cut)
+            {{-- Search and Tabs --}}
+            <div class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700 p-6 space-y-4">
+                {{-- Global Search --}}
+                <div class="relative group">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" 
+                           x-model="searchQuery" 
+                           placeholder="Pesquisar por título, descrição ou tecido..." 
+                           class="block w-full pl-11 pr-4 py-3.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-semibold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none dark:text-white dark:placeholder-gray-500 shadow-sm">
+                </div>
+
+                {{-- Tabs --}}
+                <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2">
                     <button type="button" 
-                            @click="activeCutId = {{ $cut->id }}; activeCutSlug = '{{ Str::slug($cut->name) }}'"
-                            class="px-8 py-4 text-sm font-black whitespace-nowrap transition-all border-b-2"
-                            :class="activeCutId == {{ $cut->id }} ? 'text-indigo-600 border-indigo-600 dark:text-indigo-400 dark:border-indigo-400 bg-white dark:bg-gray-800' : 'text-gray-500 border-transparent hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'">
-                        {{ $cut->name }}
+                            @click="activeCutId = 'all'; activeCutSlug = 'all'"
+                            class="px-5 py-2.5 text-xs font-black whitespace-nowrap transition-all rounded-xl border-2"
+                            :class="activeCutSlug === 'all' ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'">
+                        <i class="fa-solid fa-border-all mr-2"></i>Todos os Modelos
                     </button>
-                @endforeach
+                    @foreach($cutTypes as $cut)
+                        <button type="button" 
+                                @click="activeCutId = {{ $cut->id }}; activeCutSlug = '{{ Str::slug($cut->name) }}'"
+                                class="px-5 py-2.5 text-xs font-black whitespace-nowrap transition-all rounded-xl border-2"
+                                :class="activeCutId == {{ $cut->id }} ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'">
+                            {{ $cut->name }}
+                        </button>
+                    @endforeach
+                </div>
             </div>
 
-            <div class="p-8 max-h-[60vh] overflow-y-auto custom-scrollbar">
+            <div class="p-8 max-h-[60vh] overflow-y-auto custom-scrollbar bg-gray-50/20 dark:bg-transparent">
+                {{-- Models Grid --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @foreach($templates as $id => $template)
-                    <div class="group bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-indigo-500/50 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
-                         x-show="{{ json_encode($template['compatible_cuts']) }}.includes(activeCutSlug)">
-                        
-                        <div class="p-6 flex-grow">
-                            <div class="w-14 h-14 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                                <i class="fa-solid {{ $template['icon'] }} text-indigo-600 dark:text-indigo-400 text-2xl"></i>
+                    <template x-for="template in paginatedTemplates" :key="template.id">
+                        <div class="group bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-indigo-500/50 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
+                            <div class="p-6 flex-grow">
+                                <div class="w-14 h-14 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                                    <i class="fa-solid text-indigo-600 dark:text-indigo-400 text-2xl" :class="template.icon"></i>
+                                </div>
+                                
+                                <h4 class="text-lg font-black text-gray-900 dark:text-white mb-2 leading-tight tracking-tight" x-text="template.title"></h4>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2" x-text="template.description"></p>
+                                
+                                <div class="mt-6 flex flex-wrap gap-2">
+                                    <span class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-lg uppercase tracking-widest border border-indigo-100/50 dark:border-indigo-800/50" x-text="template.category"></span>
+                                    <span class="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-black rounded-lg uppercase tracking-widest border border-emerald-100/50 dark:border-emerald-800/50" x-text="'R$ ' + parseFloat(template.default_price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })"></span>
+                                </div>
                             </div>
-                            
-                            <h4 class="text-lg font-black text-gray-900 dark:text-white mb-2 leading-tight tracking-tight">{{ $template['title'] }}</h4>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2">
-                                {{ $template['description'] }}
-                            </p>
-                            
-                            <div class="mt-6 flex flex-wrap gap-2">
-                                <span class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-lg uppercase tracking-widest border border-indigo-100/50 dark:border-indigo-800/50">
-                                    {{ $template['category'] }}
-                                </span>
-                                <span class="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-black rounded-lg uppercase tracking-widest border border-emerald-100/50 dark:border-emerald-800/50">
-                                    R$ {{ number_format($template['default_price'], 2, ',', '.') }}
-                                </span>
+
+                            <div class="px-6 pb-6 mt-auto">
+                                <form action="{{ route('admin.products.import-template') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="template_id" :value="template.id">
+                                    <input type="hidden" name="cut_type_id" :value="activeCutId === 'all' ? '' : activeCutId">
+                                    <button type="submit" class="w-full py-3.5 bg-gray-900 dark:bg-indigo-600 hover:bg-indigo-600 dark:hover:bg-indigo-700 text-white rounded-xl text-sm font-black shadow-lg shadow-gray-200 dark:shadow-none transition-all flex items-center justify-center group/btn active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <i class="fa-solid fa-download mr-2 group-hover/btn:translate-y-0.5 transition-transform"></i> 
+                                        Importar Modelo
+                                    </button>
+                                </form>
                             </div>
                         </div>
+                    </template>
 
-                        <div class="px-6 pb-6 mt-auto">
-                            <form action="{{ route('admin.products.import-template') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="template_id" value="{{ $id }}">
-                                <input type="hidden" name="cut_type_id" :value="activeCutId">
-                                <button type="submit" class="w-full py-3.5 bg-gray-900 dark:bg-indigo-600 hover:bg-indigo-600 dark:hover:bg-indigo-700 text-white rounded-xl text-sm font-black shadow-lg shadow-gray-200 dark:shadow-none transition-all flex items-center justify-center group/btn active:scale-95">
-                                    <i class="fa-solid fa-download mr-2 group-hover/btn:translate-y-0.5 transition-transform"></i> 
-                                    Importar p/ <span class="mx-1" x-text="' ' + activeCutSlug"></span>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    @endforeach
-
-                    {{-- Empty State for Cut Type --}}
+                    {{-- Empty State --}}
                     <div class="col-span-full py-16 flex flex-col items-center text-center" 
-                         x-show="!Object.values(templates).some(t => t.compatible_cuts.includes(activeCutSlug))">
+                         x-show="filteredTemplates.length === 0">
                         <div class="w-20 h-20 bg-gray-50 dark:bg-gray-700/30 rounded-3xl flex items-center justify-center mb-4">
-                            <i class="fa-solid fa-folder-open text-3xl text-gray-300 dark:text-gray-600"></i>
+                            <i class="fa-solid fa-magnifying-glass text-3xl text-gray-300 dark:text-gray-600"></i>
                         </div>
-                        <h4 class="text-lg font-bold text-gray-900 dark:text-white">Nenhum modelo compatível</h4>
+                        <h4 class="text-lg font-bold text-gray-900 dark:text-white">Nenhum modelo encontrado</h4>
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xs">
-                            Não encontramos modelos sugeridos específicos para o corte <span class="font-bold text-indigo-500" x-text="activeCutSlug"></span>.
+                            Tente ajustar sua busca ou mudar o tipo de corte selecionado.
                         </p>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-gray-50 dark:bg-gray-900/80 px-8 py-5 flex justify-between items-center border-t border-gray-100 dark:border-gray-700">
+            {{-- Footer with Pagination --}}
+            <div class="bg-white dark:bg-gray-900/80 px-8 py-5 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-gray-100 dark:border-gray-700">
+                <div class="flex items-center gap-4">
+                    <button type="button" 
+                            @click="currentPage > 1 ? currentPage-- : null"
+                            :disabled="currentPage === 1"
+                            class="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                        <i class="fa-solid fa-chevron-left text-gray-600 dark:text-gray-400"></i>
+                    </button>
+                    
+                    <span class="text-sm font-bold text-gray-600 dark:text-gray-400">
+                        Página <span class="text-indigo-600 dark:text-indigo-400" x-text="currentPage"></span> de <span x-text="totalPages"></span>
+                    </span>
+
+                    <button type="button" 
+                            @click="currentPage < totalPages ? currentPage++ : null"
+                            :disabled="currentPage === totalPages"
+                            class="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                        <i class="fa-solid fa-chevron-right text-gray-600 dark:text-gray-400"></i>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-6">
+                    <span class="text-xs text-gray-400 font-bold uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-indigo-400"></i>
+                        <span x-text="filteredTemplates.length"></span> modelos disponíveis
+                    </span>
+                    <button type="button" 
+                            @click="document.getElementById('template-modal').classList.add('hidden')"
+                            class="px-6 py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-sm font-black rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
                 <span class="text-xs text-gray-400 font-bold uppercase tracking-widest flex items-center gap-2">
                     <i class="fa-solid fa-circle-info text-indigo-400"></i>
                     A importação criará um novo produto editável
