@@ -589,7 +589,27 @@ class EditOrderController extends Controller
                         'order_cover_image' => 'nullable|image|max:10240',
                         'discount_type' => 'nullable|string|in:none,percentage,fixed',
                         'discount_value' => 'nullable|numeric|min:0',
+                        'item_price_overrides' => 'nullable|json',
                     ]);
+
+                    // Apply item price overrides (dilution) if provided
+                    if (!empty($validated['item_price_overrides'])) {
+                        $overrides = json_decode($validated['item_price_overrides'], true);
+                        if (is_array($overrides) && count($overrides) > 0) {
+                            foreach ($order->items as $item) {
+                                $key = (string) $item->id;
+                                if (isset($overrides[$key])) {
+                                    $item->update([
+                                        'unit_price'  => round((float) $overrides[$key]['unit_price'], 4),
+                                        'total_price' => round((float) $overrides[$key]['total_price'], 2),
+                                    ]);
+                                }
+                            }
+                            $order->load('items');
+                            $order->update(['subtotal' => $order->items->sum('total_price')]);
+                            $order->refresh();
+                        }
+                    }
 
                     Log::info('Payment form validated', $validated);
 

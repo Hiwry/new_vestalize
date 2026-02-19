@@ -138,6 +138,32 @@
                             <!-- Será preenchido via JavaScript -->
                         </div>
                         
+                        <!-- Diluir Valor no Pedido -->
+                        <div class="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700/50">
+                            <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-lg p-3">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                    <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">Diluir Valor no Pedido</span>
+                                </div>
+                                <p class="text-xs text-amber-700 dark:text-amber-400 mb-3">Digite um valor total desejado e ele será distribuído proporcionalmente entre todos os itens.</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap">R$</span>
+                                    <input type="number" id="dilution-target" step="0.01" min="0"
+                                           placeholder="Ex: 2200.00"
+                                           class="flex-1 px-3 py-1.5 text-sm rounded-md border border-amber-300 dark:border-amber-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none">
+                                    <button type="button" onclick="applyDilution()"
+                                            class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-md transition-colors whitespace-nowrap">
+                                        Diluir
+                                    </button>
+                                    <button type="button" onclick="resetDilution()" id="dilution-reset-btn"
+                                            class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-300 text-sm font-semibold rounded-md transition-colors whitespace-nowrap hidden">
+                                        Resetar
+                                    </button>
+                                </div>
+                                <div id="dilution-feedback" class="mt-2 text-xs font-medium hidden"></div>
+                            </div>
+                        </div>
+
                         <!-- Acréscimo Especial (personalizável) -->
                         <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-200 dark:border-slate-700/50">
                             <div class="flex items-center space-x-2">
@@ -180,6 +206,7 @@
                     <input type="hidden" name="order_data" value="{{ json_encode($order->items->first()->sizes ?? []) }}">
                     <input type="hidden" name="discount_type" id="discount-type-data">
                     <input type="hidden" name="discount_value" id="discount-value-data">
+                    <input type="hidden" name="item_price_overrides" id="item-price-overrides-data">
 
                     <!-- Data de Entrada -->
                     <div class="space-y-3">
@@ -373,9 +400,11 @@
     // State
     window.paymentMethods = [];
     window.subtotal = {{ $order->subtotal }};
+    window.originalSubtotal = {{ $order->subtotal }};
     window.deliveryFee = {{ $sessionPaymentData['delivery_fee'] ?? $order->delivery_fee ?? 0 }};
     window.sizeSurcharges = {};
     window.orderItems = @json($order->items);
+    window.itemPriceOverrides = {}; // id -> { unit_price, total_price }
     window.discountType = 'none';
     window.discountValue = 0;
 
@@ -423,11 +452,15 @@
                 const surchargesInput = document.getElementById('size-surcharges-data');
                 const discTypeInput = document.getElementById('discount-type-data');
                 const discValInput = document.getElementById('discount-value-data');
+                const overridesInput = document.getElementById('item-price-overrides-data');
                 
                 if (methodsInput) methodsInput.value = JSON.stringify(window.paymentMethods);
                 if (surchargesInput) surchargesInput.value = JSON.stringify(window.sizeSurcharges);
                 if (discTypeInput) discTypeInput.value = window.discountType;
                 if (discValInput) discValInput.value = window.discountValue;
+                if (overridesInput) overridesInput.value = Object.keys(window.itemPriceOverrides).length > 0
+                    ? JSON.stringify(window.itemPriceOverrides)
+                    : '';
             });
             form.dataset.listenerAttached = 'true';
         }
@@ -658,6 +691,91 @@
         const suggested = rem > 0 ? (rem >= totalFinal * 0.5 ? totalFinal * 0.5 : rem) : 0;
         const input = document.getElementById('new-payment-amount');
         if (input) input.value = suggested.toFixed(2);
+    };
+
+    // ─── Dilution Feature ───
+    window.applyDilution = function() {
+        const targetInput = document.getElementById('dilution-target');
+        const feedback = document.getElementById('dilution-feedback');
+        const resetBtn = document.getElementById('dilution-reset-btn');
+        const target = parseFloat(targetInput?.value);
+
+        if (!target || target <= 0) {
+            if (feedback) {
+                feedback.textContent = 'Digite um valor válido maior que zero.';
+                feedback.className = 'mt-2 text-xs font-medium text-red-600 dark:text-red-400';
+                feedback.classList.remove('hidden');
+            }
+            return;
+        }
+
+        const currentSubtotal = window.originalSubtotal;
+        if (currentSubtotal <= 0) {
+            if (feedback) {
+                feedback.textContent = 'O subtotal original é zero, não é possível diluir.';
+                feedback.className = 'mt-2 text-xs font-medium text-red-600 dark:text-red-400';
+                feedback.classList.remove('hidden');
+            }
+            return;
+        }
+
+        const factor = target / currentSubtotal;
+        window.itemPriceOverrides = {};
+        let newSubtotal = 0;
+
+        window.orderItems.forEach((item, idx) => {
+            const originalUnitPrice = parseFloat(item.unit_price) || 0;
+            const originalTotalPrice = parseFloat(item.total_price) || 0;
+            const qty = parseInt(item.quantity) || 1;
+
+            let newUnitPrice, newTotalPrice;
+
+            // Last item absorbs rounding difference
+            if (idx === window.orderItems.length - 1) {
+                newTotalPrice = parseFloat((target - newSubtotal).toFixed(2));
+                newUnitPrice = qty > 0 ? parseFloat((newTotalPrice / qty).toFixed(4)) : 0;
+            } else {
+                newUnitPrice = parseFloat((originalUnitPrice * factor).toFixed(4));
+                newTotalPrice = parseFloat((newUnitPrice * qty).toFixed(2));
+            }
+
+            newSubtotal += newTotalPrice;
+            window.itemPriceOverrides[item.id] = { unit_price: newUnitPrice, total_price: newTotalPrice };
+        });
+
+        // Update window.subtotal so all total calculations use the new diluted value
+        window.subtotal = target;
+        window.calculateTotal();
+
+        if (feedback) {
+            const diff = target - currentSubtotal;
+            const sign = diff >= 0 ? '+' : '-';
+            feedback.textContent = `✓ Diluição aplicada! Subtotal: R$ ${target.toFixed(2).replace('.', ',')} (${sign}R$ ${Math.abs(diff).toFixed(2).replace('.', ',')})`;
+            feedback.className = 'mt-2 text-xs font-medium text-green-700 dark:text-green-400';
+            feedback.classList.remove('hidden');
+        }
+        if (resetBtn) resetBtn.classList.remove('hidden');
+
+        // Update the subtotal display in the order summary
+        const subtotalEl = document.getElementById('subtotal');
+        if (subtotalEl) subtotalEl.textContent = `R$ ${target.toFixed(2).replace('.', ',')}`;
+    };
+
+    window.resetDilution = function() {
+        window.subtotal = window.originalSubtotal;
+        window.itemPriceOverrides = {};
+        window.calculateTotal();
+
+        const targetInput = document.getElementById('dilution-target');
+        const feedback = document.getElementById('dilution-feedback');
+        const resetBtn = document.getElementById('dilution-reset-btn');
+
+        if (targetInput) targetInput.value = '';
+        if (feedback) feedback.classList.add('hidden');
+        if (resetBtn) resetBtn.classList.add('hidden');
+
+        const subtotalEl = document.getElementById('subtotal');
+        if (subtotalEl) subtotalEl.textContent = `R$ ${window.originalSubtotal.toFixed(2).replace('.', ',')}`;
     };
 
     window.showToast = function(message, type = 'info') {

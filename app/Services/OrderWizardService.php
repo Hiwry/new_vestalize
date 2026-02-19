@@ -310,6 +310,30 @@ class OrderWizardService
     public function processSavePayment(Order $order, array $validated, ?string $orderCoverImagePath = null): array
     {
         return DB::transaction(function () use ($order, $validated, $orderCoverImagePath) {
+            // Apply item price overrides (dilution) if provided
+            if (!empty($validated['item_price_overrides'])) {
+                $overrides = is_string($validated['item_price_overrides'])
+                    ? json_decode($validated['item_price_overrides'], true)
+                    : $validated['item_price_overrides'];
+
+                if (is_array($overrides) && count($overrides) > 0) {
+                    foreach ($order->items as $item) {
+                        $key = (string) $item->id;
+                        if (isset($overrides[$key])) {
+                            $item->update([
+                                'unit_price'  => round((float) $overrides[$key]['unit_price'], 4),
+                                'total_price' => round((float) $overrides[$key]['total_price'], 2),
+                            ]);
+                        }
+                    }
+                    // Reload items and recalculate order subtotal
+                    $order->load('items');
+                    $newSubtotal = $order->items->sum('total_price');
+                    $order->update(['subtotal' => $newSubtotal]);
+                    $order->refresh();
+                }
+            }
+
             $subtotal = $order->subtotal;
             $delivery = (float)($validated['delivery_fee'] ?? 0);
             

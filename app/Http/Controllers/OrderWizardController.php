@@ -849,6 +849,7 @@ class OrderWizardController extends Controller
             'order_cover_image' => 'nullable|image|max:10240',
             'discount_type' => 'nullable|string|in:none,percentage,fixed',
             'discount_value' => 'nullable|numeric|min:0',
+            'item_price_overrides' => 'nullable|json',
         ]);
 
         $order = Order::with('items')->findOrFail(session('current_order_id'));
