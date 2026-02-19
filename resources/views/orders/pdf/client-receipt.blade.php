@@ -290,8 +290,17 @@
 
     <!-- Itens do Pedido -->
     @foreach($order->items as $item)
+    @php
+        // Garantir que sizes seja um array
+        $itemSizesForSum = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) && !empty($item->sizes) ? json_decode($item->sizes, true) : []);
+        $itemSizesForSum = $itemSizesForSum ?? [];
+        
+        // Priorizar a quantidade total do item se a soma dos tamanhos for zero
+        $sumSizes = array_sum($itemSizesForSum);
+        $totalQuantity = ($sumSizes > 0) ? $sumSizes : (int)$item->quantity;
+    @endphp
     <div class="item-section">
-        <div class="item-header">ITEM {{ $loop->iteration }} - {{ $item->print_type }}</div>
+        <div class="item-header">ITEM {{ $item->item_number ?? $loop->iteration }} - {{ $item->print_type }} ({{ $totalQuantity }} {{ $totalQuantity > 1 ? 'UNIDADES' : 'UNIDADE' }})</div>
         
         <!-- Nome da Arte -->
         @if($item->art_name)
@@ -321,17 +330,9 @@
                     <div class="info-value">{{ $item->print_type }}</div>
                 </div>
             </div>
-            @php
-                // Garantir que sizes seja um array
-                $itemSizesForSum = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) && !empty($item->sizes) ? json_decode($item->sizes, true) : []);
-                $itemSizesForSum = $itemSizesForSum ?? [];
-                
-                // Priorizar a quantidade total do item se a soma dos tamanhos for zero
-                $sumSizes = array_sum($itemSizesForSum);
-                $totalQuantity = ($sumSizes > 0) ? $sumSizes : (int)$item->quantity;
-            @endphp
-            <div class="price-row">
-                <span>Quantidade Total: {{ $totalQuantity }} unidades</span>
+        </div>
+        <div class="price-row">
+            <span>Quantidade Total: {{ $totalQuantity }} unidades</span>
                 <span>Preço Unitário da Costura: R$ {{ number_format($item->unit_price, 2, ',', '.') }}</span>
                 <span><strong>Valor da Costura: R$ {{ number_format($item->unit_price * $totalQuantity, 2, ',', '.') }}</strong></span>
             </div>

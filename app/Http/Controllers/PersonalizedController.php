@@ -252,6 +252,7 @@ class PersonalizedController extends Controller
             // Create Order
             \Log::info('Personalized checkout creating order');
             $order = Order::create([
+                'tenant_id' => $tenantId, // Forçar o tenant correto para evitar erros de escopo
                 'client_id' => $validated['client_id'],
                 'user_id' => Auth::id(), // Seller
                 'store_id' => $storeId,
