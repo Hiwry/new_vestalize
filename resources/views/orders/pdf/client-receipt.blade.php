@@ -5,8 +5,8 @@
     <title>Nota do Pedido #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</title>
     <style>
         :root {
-            --brand-primary: {{ $order->tenant->primary_color ?? '#000' }};
-            --brand-secondary: {{ $order->tenant->secondary_color ?? '#333' }};
+            --brand-primary: {{ $order->tenant?->primary_color ?? '#000' }};
+            --brand-secondary: {{ $order->tenant?->secondary_color ?? '#333' }};
         }
         * {
             margin: 0;
@@ -202,7 +202,7 @@
                 </div>
                 @endif
                 <div style="display: table-cell; vertical-align: middle; {{ ($finalLogo && file_exists($finalLogo)) ? 'width: 75%;' : 'width: 100%;' }}">
-                    <h2 style="margin: 0 0 3px 0; font-size: 14px; text-transform: uppercase;">{{ $companySettings->company_name ?? $order->tenant->name }}</h2>
+                    <h2 style="margin: 0 0 3px 0; font-size: 14px; text-transform: uppercase;">{{ $companySettings->company_name ?? ($order->tenant?->name ?? 'Vestalize') }}</h2>
                     <div style="font-size: 8px; line-height: 1.3;">
                         @if($companySettings->company_address || $companySettings->company_city)
                         <span>{{ $companySettings->company_address }}@if($companySettings->company_city), {{ $companySettings->company_city }}@endif @if($companySettings->company_state) - {{ $companySettings->company_state }}@endif @if($companySettings->company_zip) | CEP: {{ $companySettings->company_zip }}@endif</span><br>
@@ -241,19 +241,19 @@
         <div class="info-grid">
             <div class="info-row">
                 <div class="info-label">Nome:</div>
-                <div class="info-value">{{ $order->client->name }}</div>
+                <div class="info-value">{{ $order->client?->name ?? 'Consumidor Final (Não identificado)' }}</div>
             </div>
             <div class="info-row">
                 <div class="info-label">Telefone:</div>
-                <div class="info-value">{{ $order->client->phone_primary }}</div>
+                <div class="info-value">{{ $order->client?->phone_primary ?? 'N/A' }}</div>
             </div>
-            @if($order->client->email)
+            @if($order->client?->email)
             <div class="info-row">
                 <div class="info-label">Email:</div>
                 <div class="info-value">{{ $order->client->email }}</div>
             </div>
             @endif
-            @if($order->client->cpf_cnpj)
+            @if($order->client?->cpf_cnpj)
             <div class="info-row">
                 <div class="info-label">CPF/CNPJ:</div>
                 <div class="info-value">{{ $order->client->cpf_cnpj }}</div>
@@ -269,9 +269,9 @@
             <div class="info-row">
                 <div class="info-label">Status Atual:</div>
                 <div class="info-value">
-                    <span class="status-badge status-{{ strtolower(str_replace(' ', '-', $order->status->name)) }}" 
-                          style="background-color: {{ $order->status->color }}20; color: {{ $order->status->color }}">
-                        {{ $order->status->name }}
+                    <span class="status-badge status-{{ strtolower(str_replace(' ', '-', $order->status?->name ?? 'Novo')) }}" 
+                          style="background-color: {{ $order->status?->color ?? '#666' }}20; color: {{ $order->status?->color ?? '#666' }}">
+                        {{ $order->status?->name ?? 'Novo' }}
                     </span>
                 </div>
             </div>
