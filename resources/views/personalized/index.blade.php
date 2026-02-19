@@ -348,7 +348,8 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
             },
             body: JSON.stringify({
                 client_id: clientId,
@@ -357,20 +358,24 @@
                 notes: notes
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
+        .then(async response => {
+            const isJson = response.headers.get('content-type')?.includes('application/json');
+            const data = isJson ? await response.json() : null;
+
+            if (response.ok && data && data.success) {
                 alert(data.message);
                 location.reload();
             } else {
-                alert('Erro: ' + data.message);
+                const errorMsg = data ? data.message : (response.status === 403 ? 'Erro 403: Acesso Negado/Proibido.' : 'Erro ' + response.status);
+                console.error('Checkout error:', response.status, data);
+                alert('Erro ao finalizar venda: ' + errorMsg);
                 btn.innerText = originalText;
                 btn.disabled = false;
             }
         })
         .catch(err => {
-            console.error(err);
-            alert('Erro ao processar venda.');
+            console.error('Fetch error:', err);
+            alert('Erro de conexão ou erro inesperado ao processar venda.');
             btn.innerText = originalText;
             btn.disabled = false;
         });

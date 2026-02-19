@@ -198,14 +198,17 @@ class PersonalizedController extends Controller
      */
     public function checkout(Request $request)
     {
+        Log::info('Personalized checkout starting...', ['request' => $request->all()]);
         $validated = $request->validate([
             'client_id' => 'nullable|exists:clients,id',
             'payment_method' => 'required|string|in:pix,dinheiro,cartao,cartao_credito,cartao_debito,transferencia,boleto',
             'discount' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ]);
+        Log::info('Personalized checkout validation passed', ['validated' => $validated]);
 
         $cart = Session::get('personalized_cart', []);
+        Log::info('Personalized checkout cart retrieved', ['cart_count' => count($cart)]);
         
         if (empty($cart)) {
             return response()->json(['success' => false, 'message' => 'Carrinho vazio.'], 400);
@@ -213,15 +216,25 @@ class PersonalizedController extends Controller
 
         DB::beginTransaction();
         try {
+            Log::info('Personalized checkout transaction started');
             $normalizedPaymentMethod = $this->normalizePaymentMethod($validated['payment_method']);
             $subtotal = $this->calculateCartTotal($cart);
             $discount = $validated['discount'] ?? 0;
             $finalTotal = max(0, $subtotal - $discount);
             $totalQuantity = array_sum(array_column($cart, 'quantity'));
+            Log::info('Personalized checkout values', [
+                'subtotal' => $subtotal,
+                'discount' => $discount,
+                'final_total' => $finalTotal,
+                'total_quantity' => $totalQuantity
+            ]);
+            Log::info('Personalized checkout values', ['subtotal' => $subtotal, 'discount' => $discount, 'finalTotal' => $finalTotal]);
 
             $user = Auth::user();
             $storeId = app(OrderWizardService::class)->resolveStoreId($user);
             $tenantId = $user?->tenant_id ?? session('selected_tenant_id');
+            Log::info('Personalized checkout context', ['user_id' => $user->id, 'store_id' => $storeId, 'tenant_id' => $tenantId]);
+
             if ($tenantId === null && $storeId) {
                 $tenantId = Store::find($storeId)?->tenant_id;
             }
@@ -234,9 +247,10 @@ class PersonalizedController extends Controller
             if (!$status) {
                 $status = (clone $statusQuery)->orderBy('position')->first();
             }
+            Log::info('Personalized checkout status identified', ['status_id' => $status?->id]);
             
             // Create Order
-            // Assuming we use the standard Order model
+            Log::info('Personalized checkout creating order');
             $order = Order::create([
                 'client_id' => $validated['client_id'],
                 'user_id' => Auth::id(), // Seller
@@ -253,6 +267,7 @@ class PersonalizedController extends Controller
                 'notes' => $validated['notes'] ?? 'Venda via Módulo Personalizados',
                 'origin' => 'personalized',
             ]);
+            Log::info('Personalized checkout order created', ['order_id' => $order->id]);
 
             // Add Items
             $itemNumber = 1;
@@ -305,6 +320,12 @@ class PersonalizedController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Personalized checkout exception', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json(['success' => false, 'message' => 'Erro ao processar: ' . $e->getMessage()], 500);
         }
     }
