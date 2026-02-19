@@ -200,7 +200,7 @@ class PersonalizedController extends Controller
     {
         $validated = $request->validate([
             'client_id' => 'nullable|exists:clients,id',
-            'payment_method' => 'required|string', // pix, dinheiro, cartao, etc.
+            'payment_method' => 'required|string|in:pix,dinheiro,cartao,cartao_credito,cartao_debito,transferencia,boleto',
             'discount' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ]);
@@ -213,6 +213,7 @@ class PersonalizedController extends Controller
 
         DB::beginTransaction();
         try {
+            $normalizedPaymentMethod = $this->normalizePaymentMethod($validated['payment_method']);
             $subtotal = $this->calculateCartTotal($cart);
             $discount = $validated['discount'] ?? 0;
             $finalTotal = max(0, $subtotal - $discount);
@@ -274,15 +275,21 @@ class PersonalizedController extends Controller
             }
 
             // Create Payment Record (Simplified)
+            $paymentMethodPayload = [
+                'method' => $normalizedPaymentMethod,
+                'amount' => $finalTotal,
+                'date' => now()->toDateString(),
+            ];
+
+            if ($validated['payment_method'] !== $normalizedPaymentMethod) {
+                $paymentMethodPayload['original_method'] = $validated['payment_method'];
+            }
+
             Payment::create([
                 'order_id' => $order->id,
-                'method' => $validated['payment_method'],
-                'payment_method' => $validated['payment_method'],
-                'payment_methods' => [[
-                    'method' => $validated['payment_method'],
-                    'amount' => $finalTotal,
-                    'date' => now()->toDateString(),
-                ]],
+                'method' => $normalizedPaymentMethod,
+                'payment_method' => $normalizedPaymentMethod,
+                'payment_methods' => [$paymentMethodPayload],
                 'amount' => $finalTotal,
                 'entry_amount' => $finalTotal,
                 'remaining_amount' => 0,
@@ -305,5 +312,13 @@ class PersonalizedController extends Controller
     private function calculateCartTotal($cart)
     {
         return array_sum(array_column($cart, 'total_price'));
+    }
+
+    private function normalizePaymentMethod(string $paymentMethod): string
+    {
+        return match ($paymentMethod) {
+            'cartao_credito', 'cartao_debito' => 'cartao',
+            default => $paymentMethod,
+        };
     }
 }
