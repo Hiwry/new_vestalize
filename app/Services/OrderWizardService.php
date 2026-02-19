@@ -15,6 +15,7 @@ use App\Models\PersonalizationPrice;
 use App\Helpers\StoreHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class OrderWizardService
@@ -79,7 +80,7 @@ class OrderWizardService
             $storeId = $mainStore ? $mainStore->id : null;
         }
         
-        Log::info('Store ID resolvido para pedido', [
+        \Log::info('Store ID resolvido para pedido', [
             'user_id' => $user->id,
             'user_name' => $user->name,
             'tenant_id' => $user->tenant_id,

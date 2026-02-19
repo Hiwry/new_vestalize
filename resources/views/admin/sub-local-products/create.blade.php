@@ -1,6 +1,29 @@
 @extends('layouts.admin')
 
 @section('content')
+<script>
+function quantityPricing(initialTiers, initialEnabled) {
+    return {
+        tiers: initialTiers && initialTiers.length > 0 ? initialTiers : [],
+        enabled: initialEnabled,
+
+        addTier() {
+            const lastTier = this.tiers[this.tiers.length - 1];
+            const newMinQty = lastTier ? (lastTier.max_quantity + 1) : 1;
+            
+            this.tiers.push({
+                min_quantity: newMinQty,
+                max_quantity: newMinQty + 9,
+                price: 0
+            });
+        },
+
+        removeTier(index) {
+            this.tiers.splice(index, 1);
+        }
+    };
+}
+</script>
 <div class="mb-8">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-4">
@@ -290,29 +313,4 @@
     </form>
 </div>
 
-@push('scripts')
-<script>
-function quantityPricing(initialTiers, initialEnabled) {
-    return {
-        tiers: initialTiers && initialTiers.length > 0 ? initialTiers : [],
-        enabled: initialEnabled,
-
-        addTier() {
-            const lastTier = this.tiers[this.tiers.length - 1];
-            const newMinQty = lastTier ? (lastTier.max_quantity + 1) : 1;
-            
-            this.tiers.push({
-                min_quantity: newMinQty,
-                max_quantity: newMinQty + 9,
-                price: 0
-            });
-        },
-
-        removeTier(index) {
-            this.tiers.splice(index, 1);
-        }
-    };
-}
-</script>
-@endpush
 @endsection
