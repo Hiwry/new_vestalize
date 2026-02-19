@@ -293,66 +293,84 @@ class ProductController extends Controller
     public function importTemplate(Request $request): RedirectResponse
     {
         $templateId = $request->input('template_id');
-        $templates = $this->getTemplates();
+        
+        // Buscar template no banco
+        $template = \App\Models\ProductTemplate::find($templateId);
 
-        if (!isset($templates[$templateId])) {
+        if (!$template) {
             return redirect()->route('admin.products.index')
                 ->with('error', 'Template não encontrado.');
         }
 
-        $template = $templates[$templateId];
-
         try {
             // 1. Garantir que a categoria existe
-            $tenantId = auth()->user()->tenant_id;
-            $baseSlug = Str::slug($template['category']);
+            $user = auth()->user();
+            if (!$user || !$user->tenant_id) {
+                throw new \Exception('Usuário sem tenant vinculado.');
+            }
+            $tenantId = $user->tenant_id;
             
-            // Buscar dentro do tenant atual (com o scope ativo)
-            $category = Category::where('name', $template['category'])->first();
+            $baseSlug = Str::slug($template->category);
+            
+            // Buscar categoria existente ou criar
+            $category = Category::where('tenant_id', $tenantId)
+                ->where('name', $template->category)
+                ->first();
             
             if (!$category) {
-                // Gerar slug único globalmente (slug pode já existir em outro tenant)
+                // Gerar slug único
                 $slug = $baseSlug;
                 $counter = 1;
-                while (\DB::table('categories')->where('slug', $slug)->exists()) {
+                while (Category::where('tenant_id', $tenantId)->where('slug', $slug)->exists()) {
                     $slug = $baseSlug . '-' . $counter;
                     $counter++;
                 }
                 
                 $category = Category::create([
                     'tenant_id' => $tenantId,
-                    'name' => $template['category'],
+                    'name' => $template->category,
                     'slug' => $slug,
                     'active' => true,
                 ]);
             }
 
-            // 2. Tentar encontrar atributos pelos nomes (Case-insensitive) nas Opções de Produto
-            $tecido = \App\Models\ProductOption::withoutGlobalScopes()->where('type', 'tecido')->where('name', 'like', '%' . ($template['tecido_keyword'] ?? '---') . '%')->first();
-            $personalizacao = \App\Models\ProductOption::withoutGlobalScopes()->where('type', 'personalizacao')->where('name', 'like', '%' . ($template['personalizacao_keyword'] ?? '---') . '%')->first();
-            $modelo = \App\Models\ProductOption::withoutGlobalScopes()->where('type', 'detalhe')->where('name', 'like', '%' . ($template['modelo_keyword'] ?? '---') . '%')->first();
+            // 2. Tentar encontrar atributos pelos nomes (Case-insensitive)
+            $tecido = \App\Models\ProductOption::withoutGlobalScopes()
+                ->where('type', 'tecido')
+                ->where('name', 'like', '%' . ($template->tecido_keyword ?? '---') . '%')
+                ->first();
+                
+            $personalizacao = \App\Models\ProductOption::withoutGlobalScopes()
+                ->where('type', 'personalizacao')
+                ->where('name', 'like', '%' . ($template->personalizacao_keyword ?? '---') . '%')
+                ->first();
+                
+            $modelo = \App\Models\ProductOption::withoutGlobalScopes()
+                ->where('type', 'detalhe')
+                ->where('name', 'like', '%' . ($template->modelo_keyword ?? '---') . '%')
+                ->first();
 
             // 3. Criar o produto
             $product = Product::create([
-                'tenant_id' => auth()->user()->tenant_id,
-                'title' => $template['title'],
-                'description' => $template['description'],
+                'tenant_id' => $tenantId,
+                'title' => $template->title,
+                'description' => $template->description,
                 'category_id' => $category->id,
                 'tecido_id' => $tecido?->id,
                 'personalizacao_id' => $personalizacao?->id,
                 'modelo_id' => $modelo?->id,
                 'cut_type_id' => $request->input('cut_type_id'),
-                'price' => $template['default_price'],
+                'price' => $template->default_price,
                 'sale_type' => 'unidade',
-                'allow_application' => $template['allow_application'] ?? false,
-                'application_types' => ($template['allow_application'] ?? false) ? ['sublimacao_local', 'dtf'] : [],
+                'allow_application' => $template->allow_application,
+                'application_types' => $template->allow_application ? ['sublimacao_local', 'dtf'] : [],
                 'active' => true,
                 'show_in_catalog' => true,
-                'order' => (Product::max('order') ?? 0) + 1,
+                'order' => (Product::where('tenant_id', $tenantId)->max('order') ?? 0) + 1,
             ]);
 
             return redirect()->route('admin.products.edit', $product)
-                ->with('success', "Modelo '{$template['title']}' importado com sucesso! Agora você pode ajustar os detalhes e adicionar imagens.");
+                ->with('success', "Modelo '{$template->title}' importado com sucesso! Agora você pode ajustar os detalhes e adicionar imagens.");
         } catch (\Exception $e) {
             return redirect()->route('admin.products.index')
                 ->with('error', 'Erro ao importar modelo: ' . $e->getMessage());
@@ -361,108 +379,113 @@ class ProductController extends Controller
 
     private function getTemplates(): array
     {
-        return [
-            'camisa_basica' => [
-                'title' => 'Camisa Básica PP',
-                'description' => 'Camiseta clássica gola redonda, ideal para personalização e uniformes.',
-                'category' => 'Camisetas',
-                'tecido_keyword' => 'Algodão',
-                'default_price' => 18.67,
-                'icon' => 'fa-shirt',
-                'compatible_cuts' => ['basica', 'babylook', 'infantil', 'longline', 'manga-curta'],
-                'allow_application' => true,
-            ],
-            'manga_longa' => [
-                'title' => 'Camisa Manga Longa Algodão',
-                'description' => 'Camiseta manga longa ideal para climas amenos ou uniformização.',
-                'category' => 'Camisetas',
-                'tecido_keyword' => 'Malha',
-                'default_price' => 45.00,
-                'icon' => 'fa-shirt',
-                'compatible_cuts' => ['manga-longa', 'basica'],
-                'allow_application' => true,
-            ],
-            'polo_classic' => [
-                'title' => 'Camisa Polo Piquet',
-                'description' => 'Camisa polo com peitilho e gola em ribana. Visual executivo e profissional.',
-                'category' => 'Polos',
-                'tecido_keyword' => 'Piquet',
-                'default_price' => 55.00,
-                'icon' => 'fa-shirt',
-                'compatible_cuts' => ['polo'],
-                'allow_application' => true,
-            ],
-            'avental_tradicional' => [
-                'title' => 'Avental Tradicional',
-                'description' => 'Avental com regulagem no pescoço e bolsos frontais. Ideal para cozinha e eventos.',
-                'category' => 'Acessórios',
-                'tecido_keyword' => 'Oxford',
-                'default_price' => 35.00,
-                'icon' => 'fa-vest',
-                'compatible_cuts' => ['avental'],
-                'allow_application' => true,
-            ],
-            'calca_brim' => [
-                'title' => 'Calça Profissional Brim',
-                'description' => 'Calça resistente para trabalho pesado, com bolsos reforçados.',
-                'category' => 'Calças',
-                'tecido_keyword' => 'Brim',
-                'default_price' => 75.00,
-                'icon' => 'fa-user-tie',
-                'compatible_cuts' => ['calca', 'bata'],
-                'allow_application' => false,
-            ],
-            'bata_profissional' => [
-                'title' => 'Bata ou Jaleco Profissional',
-                'description' => 'Vestimenta para área de saúde, limpeza ou operacional. Com bolsos e botões.',
-                'category' => 'Uniformes',
-                'tecido_keyword' => 'Brim',
-                'default_price' => 58.00,
-                'icon' => 'fa-user-doctor',
-                'compatible_cuts' => ['bata', 'jaleco'],
-                'allow_application' => true,
-            ],
-            'bermuda_esportiva' => [
-                'title' => 'Bermuda Esportiva Dry',
-                'description' => 'Bermuda leve e confortável para prática de esportes e atividades físicas.',
-                'category' => 'Esportivo',
-                'tecido_keyword' => 'Dry',
-                'default_price' => 32.00,
-                'icon' => 'fa-person-running',
-                'compatible_cuts' => ['bermuda', 'calcao', 'shorts'],
-                'allow_application' => true,
-            ],
-            'colete_identificacao' => [
-                'title' => 'Colete de Identificação',
-                'description' => 'Colete leve para staff, eventos ou identificação rápida de equipes.',
-                'category' => 'Eventos',
-                'tecido_keyword' => 'Poliéster',
-                'default_price' => 25.00,
-                'icon' => 'fa-vest',
-                'compatible_cuts' => ['colete'],
-                'allow_application' => true,
-            ],
-            'moletom_canguru' => [
-                'title' => 'Moletom Canguru com Capuz',
-                'description' => 'Blusa de moletom com bolso frontal e capuz ajustável. Conforto térmico.',
-                'category' => 'Moletons',
-                'tecido_keyword' => 'Moletom',
-                'default_price' => 120.00,
-                'icon' => 'fa-vest',
-                'compatible_cuts' => ['moletom', 'basica'],
-                'allow_application' => true,
-            ],
-            'camisa_uv' => [
-                'title' => 'Camisa Proteção UV',
-                'description' => 'Camiseta com tratamento UV, ideal para trabalho ao ar livre ou esportes.',
-                'category' => 'Esportivo',
-                'tecido_keyword' => 'Poliamida',
-                'default_price' => 65.00,
-                'icon' => 'fa-sun',
-                'compatible_cuts' => ['uv', 'manga-longa', 'manga-curta'],
-                'allow_application' => true,
-            ],
-        ];
+        $tenantId = auth()->user()->tenant_id;
+        
+        $count = \App\Models\ProductTemplate::where('tenant_id', $tenantId)->count();
+        \Illuminate\Support\Facades\Log::info("getTemplates called for Tenant: {$tenantId}. Existing templates: {$count}");
+
+        // Se ainda não houver templates no banco para este tenant, popular com os padrões relevantes
+        if ($count === 0) {
+            \Illuminate\Support\Facades\Log::info("No templates found. Seeding now...");
+            $this->seedTenantTemplates($tenantId);
+        }
+
+        // Retornar templates exclusivos do tenant
+        $templates = \App\Models\ProductTemplate::where('tenant_id', $tenantId)
+            ->where('active', true)
+            ->get();
+            
+        \Illuminate\Support\Facades\Log::info("Returning {$templates->count()} templates.");
+
+        return $templates->keyBy('id')->toArray();
+    }
+
+    private function seedTenantTemplates(int $tenantId): void
+    {
+        \Illuminate\Support\Facades\Log::info("Starting seedTenantTemplates for Tenant {$tenantId}");
+
+        // Buscar os tipos de corte que o cliente REALMENTE tem
+        $activeCutTypes = \App\Models\ProductOption::where('tenant_id', $tenantId)
+            ->where('type', 'tipo_corte')
+            ->where('active', true)
+            ->get();
+            
+        \Illuminate\Support\Facades\Log::info("Found {$activeCutTypes->count()} active cut types for tenant.");
+
+        if ($activeCutTypes->isEmpty()) {
+            \Illuminate\Support\Facades\Log::warning("No cut types found! Seeding aborted.");
+            return;
+        }
+
+        foreach ($activeCutTypes as $cut) {
+            $cutName = $cut->name;
+            $slug = Str::slug($cutName);
+            $lowerName = mb_strtolower($cutName);
+
+            \Illuminate\Support\Facades\Log::info("Processing Cut: {$cutName} (Slug: {$slug})");
+
+            // Heurística para determinar Categoria e Ícone
+            $category = 'Outros';
+            $icon = 'fa-shirt';
+            $tecido = null;
+            $allowApp = true;
+
+            if (str_contains($lowerName, 'colete')) {
+                $category = 'Eventos';
+                $icon = 'fa-vest';
+            } elseif (str_contains($lowerName, 'calça') || str_contains($lowerName, 'calca')) {
+                $category = 'Calças';
+                $icon = 'fa-user-tie';
+                $allowApp = false;
+            } elseif (str_contains($lowerName, 'bermuda') || str_contains($lowerName, 'shorts')) {
+                $category = 'Esportivo';
+                $icon = 'fa-person-running';
+            } elseif (str_contains($lowerName, 'avental')) {
+                $category = 'Acessórios';
+                $icon = 'fa-vest-patches';
+            } elseif (str_contains($lowerName, 'polo')) {
+                $category = 'Polos';
+                $icon = 'fa-shirt';
+            } elseif (str_contains($lowerName, 'moletom')) {
+                $category = 'Moletons';
+                $icon = 'fa-user-astronaut'; // Icone mais "fechado"
+            } elseif (str_contains($lowerName, 'bata') || str_contains($lowerName, 'jaleco')) {
+                $category = 'Uniformes';
+                $icon = 'fa-user-doctor';
+            } elseif (str_contains($lowerName, 'manga longa')) {
+                $category = 'Camisetas';
+                $icon = 'fa-shirt'; // Poderia ser outro
+            } elseif (str_contains($lowerName, 'infantil') || str_contains($lowerName, 'babylook') || str_contains($lowerName, 'básica') || str_contains($lowerName, 'basica')) {
+                $category = 'Camisetas';
+                $icon = 'fa-shirt';
+            }
+
+            // Tentar extrair tecido do nome (ex: "Básica Algodão")
+            if (str_contains($lowerName, 'algodão') || str_contains($lowerName, 'algodao')) $tecido = 'Algodão';
+            elseif (str_contains($lowerName, 'pv')) $tecido = 'PV';
+            elseif (str_contains($lowerName, 'piquet')) $tecido = 'Piquet';
+            elseif (str_contains($lowerName, 'dry')) $tecido = 'Dry';
+            elseif (str_contains($lowerName, 'poliamida')) $tecido = 'Poliamida';
+            elseif (str_contains($lowerName, 'brim')) $tecido = 'Brim';
+            elseif (str_contains($lowerName, 'oxford')) $tecido = 'Oxford';
+            elseif (str_contains($lowerName, 'cacharrel')) $tecido = 'Cacharrel';
+
+            // Criar o template baseada EXATAMENTE no corte existente
+            $template = \App\Models\ProductTemplate::create([
+                'tenant_id' => $tenantId,
+                'title' => $cutName, // O título do modelo é o próprio nome do corte
+                'description' => "Modelo baseado no corte {$cutName}. Ideal para produção sob demanda.",
+                'category' => $category,
+                'tecido_keyword' => $tecido,
+                'default_price' => $cut->price ?? 0.00, // Usa o preço base do corte!
+                'icon' => $icon,
+                'compatible_cuts' => [$slug], // Compatível apenas com ele mesmo
+                'allow_application' => $allowApp,
+                'active' => true,
+            ]);
+            
+            \Illuminate\Support\Facades\Log::info("Created Template ID: {$template->id} for '{$cutName}'");
+        }
     }
 
     public function deleteImage(ProductImage $image): RedirectResponse
