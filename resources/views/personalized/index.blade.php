@@ -372,16 +372,17 @@
                 const errorMsg = data ? data.message : (response.status === 403 ? 'Erro 403: Acesso Negado/Proibido.' : 'Erro ' + response.status);
                 console.error('Checkout error:', response.status, data);
                 alert('Erro ao finalizar venda: ' + errorMsg);
-                btn.innerText = originalText;
+                btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         })
         .catch(err => {
             console.error('Fetch error:', err);
             alert('Erro de conexão ou erro inesperado ao processar venda.');
-            btn.innerText = originalText;
+            btn.innerHTML = originalText;
             btn.disabled = false;
         });
     }
+    window.confirmCheckout = confirmCheckout;
 </script>
 @endsection
