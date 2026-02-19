@@ -325,7 +325,10 @@
                 // Garantir que sizes seja um array
                 $itemSizesForSum = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) && !empty($item->sizes) ? json_decode($item->sizes, true) : []);
                 $itemSizesForSum = $itemSizesForSum ?? [];
-                $totalQuantity = array_sum($itemSizesForSum);
+                
+                // Priorizar a quantidade total do item se a soma dos tamanhos for zero
+                $sumSizes = array_sum($itemSizesForSum);
+                $totalQuantity = ($sumSizes > 0) ? $sumSizes : (int)$item->quantity;
             @endphp
             <div class="price-row">
                 <span>Quantidade Total: {{ $totalQuantity }} unidades</span>
@@ -401,8 +404,10 @@
                 $isSimpleItem = !$hasRealSizes;
                 $printType = trim($item->print_type ?? '');
                 $fabric = trim($item->fabric ?? '');
+                $orderOrigin = $order->origin ?? '';
                 
-                $shouldShowTotalOnly = (($printType === 'Sublimação Local' || $fabric === 'Produto Pronto') && $isSimpleItem);
+                // Mostrar apenas total se for simples/sem tamanhos marcados, ou se for módulo personalizado sem tamanhos
+                $shouldShowTotalOnly = $isSimpleItem || ($printType === 'Sublimação Local' || $fabric === 'Produto Pronto' || $orderOrigin === 'personalized');
             @endphp
 
             @if($shouldShowTotalOnly)
