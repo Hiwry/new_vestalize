@@ -234,21 +234,27 @@
     </div>
 </div>
 @push('scripts')
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <script>
-    // Fechar modal ao clicar fora
-    window.onclick = function(event) {
-        let modal = document.getElementById('template-modal');
-        if (event.target == modal) {
-            modal.style.display = 'none';
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('template-modal');
+        if (!modal) return;
+
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
         }
-    }
+
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+    });
 </script>
 @endpush
 
 {{-- Template Selection Modal --}}
 <div id="template-modal" 
-     class="fixed inset-0 z-50 hidden overflow-y-auto" 
+     class="fixed inset-0 z-[120] hidden overflow-y-auto" 
      x-data="{ 
         activeCutId: 'all',
         activeCutSlug: 'all',
@@ -280,24 +286,11 @@
         },
 
         init() {
-            // Sincronizar visibilidade com o botão antigo
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.attributeName === 'class') {
-                        const isHidden = document.getElementById('template-modal').classList.contains('hidden');
-                        this.$el.style.display = isHidden ? 'none' : 'block';
-                        if (!isHidden) this.resetPagination();
-                    }
-                });
-            });
-            observer.observe(document.getElementById('template-modal'), { attributes: true });
-            
             // Watch for filter changes
             this.$watch('activeCutSlug', () => this.resetPagination());
             this.$watch('searchQuery', () => this.resetPagination());
         }
-     }"
-     style="display: none;">
+     }">
     
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 bg-gray-500/75 dark:bg-black/75 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
@@ -433,19 +426,5 @@
         </div>
     </div>
 </div>
-                <span class="text-xs text-gray-400 font-bold uppercase tracking-widest flex items-center gap-2">
-                    <i class="fa-solid fa-circle-info text-indigo-400"></i>
-                    A importação criará um novo produto editável
-                </span>
-                <button type="button" 
-                        @click="document.getElementById('template-modal').classList.add('hidden')"
-                        class="px-6 py-2.5 text-sm font-black text-gray-600 dark:text-gray-400 hover:text-red-500 transition-colors">
-                    Fechar Galeria
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 @endsection
 
