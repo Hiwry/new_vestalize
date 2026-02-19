@@ -107,15 +107,19 @@ function quantityPricing(initialTiers, initialEnabled) {
                             <label for="price" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                                 Preço de Venda (R$) <span class="text-red-500">*</span>
                             </label>
-                            <input 
-                                type="number" 
-                                name="price" 
-                                id="price" 
-                                step="0.01"
-                                value="{{ old('price', $subLocalProduct->price) }}"
-                                required
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                            >
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">R$</span>
+                                <input 
+                                    type="number" 
+                                    name="price" 
+                                    id="price" 
+                                    step="0.01"
+                                    value="{{ old('price', $subLocalProduct->price) }}"
+                                    required
+                                    style="padding-left: 3.5rem !important;"
+                                    class="w-full pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                >
+                            </div>
                         </div>
 
                         <!-- Custo -->
@@ -124,6 +128,7 @@ function quantityPricing(initialTiers, initialEnabled) {
                                 Custo (R$)
                             </label>
                             <div class="relative">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">R$</span>
                                 <input 
                                     type="number" 
                                     name="cost" 
@@ -131,7 +136,8 @@ function quantityPricing(initialTiers, initialEnabled) {
                                     step="0.01"
                                     min="0"
                                     value="{{ old('cost', $subLocalProduct->cost ?? 0) }}"
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                    style="padding-left: 3.5rem !important;"
+                                    class="w-full pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                                 >
                             </div>
                             <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium ml-1">Valor de custo para cálculo de margem</p>

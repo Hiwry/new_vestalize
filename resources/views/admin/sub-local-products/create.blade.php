@@ -113,9 +113,10 @@ function quantityPricing(initialTiers, initialEnabled) {
                         <div>
                             <label for="price" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Preço de Venda <span class="text-red-500">*</span></label>
                             <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">R$</span>
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">R$</span>
                                 <input type="number" name="price" id="price" step="0.01" value="{{ old('price') }}" required
-                                       class="w-full pl-16 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all"
+                                       style="padding-left: 3.5rem !important;"
+                                       class="w-full pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all"
                                        placeholder="0,00">
                             </div>
                         </div>
@@ -123,9 +124,10 @@ function quantityPricing(initialTiers, initialEnabled) {
                         <div>
                             <label for="cost" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Preço de Custo</label>
                             <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">R$</span>
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">R$</span>
                                 <input type="number" name="cost" id="cost" step="0.01" value="{{ old('cost', 0) }}"
-                                       class="w-full pl-16 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all"
+                                       style="padding-left: 3.5rem !important;"
+                                       class="w-full pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all"
                                        placeholder="0,00">
                             </div>
                         </div>
