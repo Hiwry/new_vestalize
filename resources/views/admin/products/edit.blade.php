@@ -485,14 +485,16 @@ window.autoFillCutTypeFromCatalogFields = async function() {
     const tecidoId = document.getElementById('tecido_id')?.value || '';
     const personalizacaoId = document.getElementById('personalizacao_id')?.value || '';
     const modeloId = document.getElementById('modelo_id')?.value || '';
+    const title = document.getElementById('title')?.value || '';
 
-    if (!tecidoId && !personalizacaoId && !modeloId) return;
+    if (!tecidoId && !personalizacaoId && !modeloId && !title.trim()) return;
 
     try {
         const params = new URLSearchParams({
             tecido_id: tecidoId,
             personalizacao_id: personalizacaoId,
             modelo_id: modeloId,
+            title: title,
         });
 
         const response = await fetch(`{{ route('admin.products.cut-type-suggestion') }}?${params.toString()}`);
@@ -619,7 +621,7 @@ document.getElementById('cut_type_id')?.addEventListener('change', (event) => {
     }
 });
 
-['tecido_id', 'personalizacao_id', 'modelo_id'].forEach((fieldId) => {
+['tecido_id', 'personalizacao_id', 'modelo_id', 'title'].forEach((fieldId) => {
     document.getElementById(fieldId)?.addEventListener('change', () => {
         if (!document.getElementById('cut_type_id')?.value && typeof window.autoFillCutTypeFromCatalogFields === 'function') {
             window.autoFillCutTypeFromCatalogFields();

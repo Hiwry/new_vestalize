@@ -350,6 +350,65 @@ class ProductController extends Controller
                 ->where('name', 'like', '%' . ($template->modelo_keyword ?? '---') . '%')
                 ->first();
 
+            // 2.1 Resolver tipo de corte automaticamente quando não vier do modal
+            $requestedCutTypeId = $request->filled('cut_type_id') ? (int) $request->input('cut_type_id') : null;
+            $cutTypeQuery = \App\Models\ProductOption::withoutGlobalScopes()
+                ->where('type', 'tipo_corte')
+                ->where('active', true);
+
+            if (Schema::hasColumn('product_options', 'tenant_id')) {
+                $cutTypeQuery->where(function ($q) use ($tenantId) {
+                    $q->where('tenant_id', $tenantId)->orWhereNull('tenant_id');
+                });
+            }
+
+            $availableCutTypes = $cutTypeQuery->get(['id', 'name']);
+            $resolvedCutTypeId = null;
+
+            if ($requestedCutTypeId && $availableCutTypes->contains('id', $requestedCutTypeId)) {
+                $resolvedCutTypeId = $requestedCutTypeId;
+            }
+
+            if (!$resolvedCutTypeId && is_array($template->compatible_cuts) && !empty($template->compatible_cuts)) {
+                $compatibleSlugs = collect($template->compatible_cuts)
+                    ->map(static fn ($value) => Str::slug((string) $value))
+                    ->filter()
+                    ->values()
+                    ->all();
+
+                $compatibleMatch = $availableCutTypes->first(function ($cutType) use ($compatibleSlugs) {
+                    return in_array(Str::slug((string) $cutType->name), $compatibleSlugs, true);
+                });
+
+                if ($compatibleMatch) {
+                    $resolvedCutTypeId = (int) $compatibleMatch->id;
+                }
+            }
+
+            if (!$resolvedCutTypeId && !empty($template->title)) {
+                $normalizedTitle = Str::lower(Str::ascii((string) $template->title));
+                $bestScore = 0;
+
+                foreach ($availableCutTypes as $cutType) {
+                    $normalizedCutName = Str::lower(Str::ascii((string) $cutType->name));
+                    if ($normalizedCutName === '') {
+                        continue;
+                    }
+
+                    $score = 0;
+                    if ($normalizedCutName === $normalizedTitle) {
+                        $score += 1000;
+                    } elseif (str_contains($normalizedTitle, $normalizedCutName) || str_contains($normalizedCutName, $normalizedTitle)) {
+                        $score += max(strlen($normalizedCutName), strlen($normalizedTitle));
+                    }
+
+                    if ($score > $bestScore) {
+                        $bestScore = $score;
+                        $resolvedCutTypeId = (int) $cutType->id;
+                    }
+                }
+            }
+
             // 3. Criar o produto
             $product = Product::create([
                 'tenant_id' => $tenantId,
@@ -359,7 +418,7 @@ class ProductController extends Controller
                 'tecido_id' => $tecido?->id,
                 'personalizacao_id' => $personalizacao?->id,
                 'modelo_id' => $modelo?->id,
-                'cut_type_id' => $request->input('cut_type_id'),
+                'cut_type_id' => $resolvedCutTypeId,
                 'price' => $template->default_price,
                 'sale_type' => 'unidade',
                 'allow_application' => $template->allow_application,
@@ -557,8 +616,9 @@ class ProductController extends Controller
         $tecidoId = $request->query('tecido_id');
         $personalizacaoId = $request->query('personalizacao_id');
         $modeloId = $request->query('modelo_id');
+        $title = trim((string) $request->query('title', ''));
 
-        if (!$tecidoId && !$personalizacaoId && !$modeloId) {
+        if (!$tecidoId && !$personalizacaoId && !$modeloId && $title === '') {
             return response()->json([
                 'success' => true,
                 'cut_type_id' => null,
@@ -642,6 +702,48 @@ class ProductController extends Controller
                     if (!empty($bestId)) {
                         $cutTypeId = $bestId;
                     }
+                }
+            }
+
+            if (!$cutTypeId && $title !== '') {
+                $normalizedTitle = $normalize($title);
+                $titleWords = collect(explode(' ', $normalizedTitle))
+                    ->filter(static fn ($word) => strlen((string) $word) >= 3)
+                    ->values();
+
+                $bestScore = 0;
+                $bestId = null;
+
+                foreach ($availableCutTypes as $cutType) {
+                    $normalizedCutName = $normalize($cutType->name);
+                    if ($normalizedCutName === '') {
+                        continue;
+                    }
+
+                    $score = 0;
+                    if ($normalizedCutName === $normalizedTitle) {
+                        $score += 1000;
+                    } elseif (
+                        str_contains($normalizedTitle, $normalizedCutName) ||
+                        str_contains($normalizedCutName, $normalizedTitle)
+                    ) {
+                        $score += max(strlen($normalizedCutName), strlen($normalizedTitle));
+                    }
+
+                    foreach ($titleWords as $word) {
+                        if (str_contains($normalizedCutName, (string) $word)) {
+                            $score += strlen((string) $word);
+                        }
+                    }
+
+                    if ($score > $bestScore) {
+                        $bestScore = $score;
+                        $bestId = (int) $cutType->id;
+                    }
+                }
+
+                if (!empty($bestId)) {
+                    $cutTypeId = $bestId;
                 }
             }
 
