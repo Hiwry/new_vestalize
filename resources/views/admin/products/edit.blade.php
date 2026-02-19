@@ -476,6 +476,40 @@
 
 @push('page-scripts')
 <script>
+window.__cutTypeManualChoice = false;
+
+window.autoFillCutTypeFromCatalogFields = async function() {
+    const cutTypeSelect = document.getElementById('cut_type_id');
+    if (!cutTypeSelect || cutTypeSelect.value || window.__cutTypeManualChoice) return;
+
+    const tecidoId = document.getElementById('tecido_id')?.value || '';
+    const personalizacaoId = document.getElementById('personalizacao_id')?.value || '';
+    const modeloId = document.getElementById('modelo_id')?.value || '';
+
+    if (!tecidoId && !personalizacaoId && !modeloId) return;
+
+    try {
+        const params = new URLSearchParams({
+            tecido_id: tecidoId,
+            personalizacao_id: personalizacaoId,
+            modelo_id: modeloId,
+        });
+
+        const response = await fetch(`{{ route('admin.products.cut-type-suggestion') }}?${params.toString()}`);
+        const data = await response.json();
+
+        if (!data.success || !data.cut_type_id) return;
+
+        const suggestedId = String(data.cut_type_id);
+        if (cutTypeSelect.querySelector(`option[value="${suggestedId}"]`)) {
+            cutTypeSelect.value = suggestedId;
+            cutTypeSelect.dispatchEvent(new Event('change'));
+        }
+    } catch (error) {
+        console.error('Erro ao sugerir tipo de corte:', error);
+    }
+}
+
 // --- Sincronização Dinâmica de Estoque ---
 window.syncStockFromCutType = async function() {
     const cutTypeId = document.getElementById('cut_type_id')?.value;
@@ -575,19 +609,36 @@ window.syncStockFromCutType = async function() {
 }
 
 // Ouvir mudança no Tipo de Corte
-document.getElementById('cut_type_id')?.addEventListener('change', () => {
+document.getElementById('cut_type_id')?.addEventListener('change', (event) => {
+    if (event?.isTrusted) {
+        window.__cutTypeManualChoice = true;
+    }
+
     if (typeof window.syncStockFromCutType === 'function') {
         window.syncStockFromCutType();
     }
 });
 
+['tecido_id', 'personalizacao_id', 'modelo_id'].forEach((fieldId) => {
+    document.getElementById(fieldId)?.addEventListener('change', () => {
+        if (!document.getElementById('cut_type_id')?.value && typeof window.autoFillCutTypeFromCatalogFields === 'function') {
+            window.autoFillCutTypeFromCatalogFields();
+        }
+    });
+});
+
 // Sincronizar ao carregar se já tiver valor (ex: após importação)
 document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.autoFillCutTypeFromCatalogFields === 'function') {
+        window.autoFillCutTypeFromCatalogFields();
+    }
+
     if (document.getElementById('cut_type_id')?.value) {
         // Apenas sincronizar se for um produto novo ou se o usuário acabou de entrar após import
         // Mas para simplificar, vamos sincronizar se os tamanhos estiverem vazios
         const hasSizes = document.querySelectorAll('input[name="available_sizes[]"]:checked').length > 0;
-        if (!hasSizes) {
+        const hasColors = @json(!empty($product->available_colors));
+        if (!hasSizes || !hasColors) {
             if (typeof window.syncStockFromCutType === 'function') {
                 window.syncStockFromCutType();
             }
@@ -772,13 +823,30 @@ async function submitQuickForm(event, type) {
 
 // ─── Color Manager (Alpine.js) ───
 window.colorManager = function() {
+    const normalizeColors = (items) => {
+        if (!Array.isArray(items)) return [];
+
+        return items
+            .map((item) => {
+                if (!item || typeof item !== 'object') return null;
+
+                const name = String(item.name ?? '').trim();
+                const rawHex = String(item.hex ?? item.color_hex ?? '').trim();
+                const hex = /^#([A-Fa-f0-9]{6})$/.test(rawHex) ? rawHex : '#666666';
+
+                if (!name) return null;
+                return { name, hex };
+            })
+            .filter(Boolean);
+    };
+
     return {
-        colors: @json($product->available_colors ?? []),
+        colors: normalizeColors(@json($product->available_colors ?? [])),
         newName: '',
         newHex: '#000000',
         init() {
             window.addEventListener('sync-colors', (e) => {
-                this.colors = e.detail;
+                this.colors = normalizeColors(e.detail);
             });
         },
         addColor() {

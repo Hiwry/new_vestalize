@@ -141,7 +141,7 @@
 
         /* Sub-sections and Inputs */
         .bg-gray-50,
-        input, select, textarea {
+        input:not([type="color"]), select, textarea {
             background-color: var(--input-bg);
             border-color: var(--border);
         }
@@ -168,7 +168,7 @@
 
         .dark .bg-gray-700, .dark .bg-slate-700, .dark .bg-zinc-700,
         .dark .bg-gray-50, .dark .bg-gray-600,
-        .dark input, .dark select, .dark textarea {
+        .dark input:not([type="color"]), .dark select, .dark textarea {
             background-color: var(--input-bg) !important;
             border-color: var(--border) !important;
         }
@@ -190,7 +190,7 @@
         .shadow, .shadow-sm, .shadow-md, .shadow-lg { box-shadow: var(--shadow) !important; }
         .rounded-lg, .rounded-xl, .rounded-2xl { border-radius: 16px !important; }
         /* Inputs */
-        input, select, textarea {
+        input:not([type="color"]), select, textarea {
             background-color: var(--input-bg) !important;
             color: var(--foreground);
             border-color: var(--border) !important;

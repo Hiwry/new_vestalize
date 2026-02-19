@@ -551,5 +551,110 @@ class ProductController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
+    public function suggestCutType(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $tecidoId = $request->query('tecido_id');
+        $personalizacaoId = $request->query('personalizacao_id');
+        $modeloId = $request->query('modelo_id');
+
+        if (!$tecidoId && !$personalizacaoId && !$modeloId) {
+            return response()->json([
+                'success' => true,
+                'cut_type_id' => null,
+            ]);
+        }
+
+        $normalize = static function (?string $value): string {
+            $normalized = Str::lower(Str::ascii((string) $value));
+            $normalized = preg_replace('/[^a-z0-9\\s]/', ' ', $normalized);
+            $normalized = preg_replace('/\\s+/', ' ', trim((string) $normalized));
+            return $normalized ?? '';
+        };
+
+        try {
+            $cutTypeId = null;
+
+            $availableCutTypes = \App\Models\ProductOption::withoutGlobalScopes()
+                ->where('type', 'tipo_corte')
+                ->where('active', true)
+                ->get(['id', 'name']);
+
+            $availableCutTypeIds = $availableCutTypes->pluck('id')
+                ->map(static fn ($id) => (int) $id)
+                ->all();
+
+            if (!empty($tecidoId)) {
+                $bestFromStock = \App\Models\Stock::query()
+                    ->whereNotNull('cut_type_id')
+                    ->where('fabric_id', $tecidoId)
+                    ->selectRaw('cut_type_id, SUM(quantity) as total_qty, COUNT(*) as item_count')
+                    ->groupBy('cut_type_id')
+                    ->orderByDesc('total_qty')
+                    ->orderByDesc('item_count')
+                    ->first();
+
+                if ($bestFromStock && in_array((int) $bestFromStock->cut_type_id, $availableCutTypeIds, true)) {
+                    $cutTypeId = (int) $bestFromStock->cut_type_id;
+                }
+            }
+
+            if (!$cutTypeId) {
+                $candidateOptionIds = collect([$tecidoId, $personalizacaoId, $modeloId])
+                    ->filter(static fn ($value) => !empty($value))
+                    ->map(static fn ($value) => (int) $value)
+                    ->values();
+
+                $keywords = \App\Models\ProductOption::withoutGlobalScopes()
+                    ->whereIn('id', $candidateOptionIds)
+                    ->pluck('name')
+                    ->flatMap(static function ($name) use ($normalize) {
+                        $normalized = $normalize($name);
+                        return $normalized !== '' ? explode(' ', $normalized) : [];
+                    })
+                    ->filter(static fn ($word) => strlen((string) $word) >= 3)
+                    ->unique()
+                    ->values();
+
+                if ($keywords->isNotEmpty()) {
+                    $bestScore = 0;
+                    $bestId = null;
+
+                    foreach ($availableCutTypes as $cutType) {
+                        $normalizedCutName = $normalize($cutType->name);
+                        if ($normalizedCutName === '') {
+                            continue;
+                        }
+
+                        $score = 0;
+                        foreach ($keywords as $keyword) {
+                            if (str_contains($normalizedCutName, (string) $keyword)) {
+                                $score += strlen((string) $keyword);
+                            }
+                        }
+
+                        if ($score > $bestScore) {
+                            $bestScore = $score;
+                            $bestId = (int) $cutType->id;
+                        }
+                    }
+
+                    if (!empty($bestId)) {
+                        $cutTypeId = $bestId;
+                    }
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'cut_type_id' => $cutTypeId,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
 

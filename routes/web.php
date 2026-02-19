@@ -632,6 +632,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::resource('modelos', \App\Http\Controllers\Admin\ModeloController::class)->names('modelos');
     Route::post('products/{product}/duplicate', [\App\Http\Controllers\Admin\ProductController::class, 'duplicate'])->name('products.duplicate');
     Route::get('products/stock-preview', [\App\Http\Controllers\Admin\ProductController::class, 'getCutTypeStock'])->name('products.stock-preview');
+    Route::get('products/cut-type-suggestion', [\App\Http\Controllers\Admin\ProductController::class, 'suggestCutType'])->name('products.cut-type-suggestion');
     Route::post('products/import-template', [\App\Http\Controllers\Admin\ProductController::class, 'importTemplate'])->name('products.import-template');
     Route::resource('products', \App\Http\Controllers\Admin\ProductController::class)->names('products');
     Route::delete('products/images/{image}', [\App\Http\Controllers\Admin\ProductController::class, 'deleteImage'])->name('products.delete-image');

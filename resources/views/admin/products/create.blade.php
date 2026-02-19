@@ -343,6 +343,40 @@
 
 @push('page-scripts')
 <script>
+window.__cutTypeManualChoice = false;
+
+window.autoFillCutTypeFromCatalogFields = async function() {
+    const cutTypeSelect = document.getElementById('cut_type_id');
+    if (!cutTypeSelect || cutTypeSelect.value || window.__cutTypeManualChoice) return;
+
+    const tecidoId = document.getElementById('tecido_id')?.value || '';
+    const personalizacaoId = document.getElementById('personalizacao_id')?.value || '';
+    const modeloId = document.getElementById('modelo_id')?.value || '';
+
+    if (!tecidoId && !personalizacaoId && !modeloId) return;
+
+    try {
+        const params = new URLSearchParams({
+            tecido_id: tecidoId,
+            personalizacao_id: personalizacaoId,
+            modelo_id: modeloId,
+        });
+
+        const response = await fetch(`{{ route('admin.products.cut-type-suggestion') }}?${params.toString()}`);
+        const data = await response.json();
+
+        if (!data.success || !data.cut_type_id) return;
+
+        const suggestedId = String(data.cut_type_id);
+        if (cutTypeSelect.querySelector(`option[value="${suggestedId}"]`)) {
+            cutTypeSelect.value = suggestedId;
+            cutTypeSelect.dispatchEvent(new Event('change'));
+        }
+    } catch (error) {
+        console.error('Erro ao sugerir tipo de corte:', error);
+    }
+}
+
 // Filtrar subcategorias por categoria
 document.getElementById('category_id')?.addEventListener('change', function() {
     const categoryId = this.value;
@@ -372,6 +406,20 @@ document.getElementById('category_id')?.addEventListener('change', function() {
 });
 
 // Toggle tipos de aplicação
+document.getElementById('cut_type_id')?.addEventListener('change', (event) => {
+    if (event?.isTrusted) {
+        window.__cutTypeManualChoice = true;
+    }
+});
+
+['tecido_id', 'personalizacao_id', 'modelo_id'].forEach((fieldId) => {
+    document.getElementById(fieldId)?.addEventListener('change', () => {
+        if (!document.getElementById('cut_type_id')?.value && typeof window.autoFillCutTypeFromCatalogFields === 'function') {
+            window.autoFillCutTypeFromCatalogFields();
+        }
+    });
+});
+
 function toggleApplicationTypes() {
     const allowApplication = document.getElementById('allow_application').checked;
     const container = document.getElementById('application-types-container');
@@ -425,6 +473,10 @@ document.getElementById('images').addEventListener('change', function(e) {
 // Executar ao carregar a página
 document.addEventListener('DOMContentLoaded', function() {
     updatePriceLabel();
+
+    if (typeof window.autoFillCutTypeFromCatalogFields === 'function') {
+        window.autoFillCutTypeFromCatalogFields();
+    }
 });
 
 // Checkbox logic style
