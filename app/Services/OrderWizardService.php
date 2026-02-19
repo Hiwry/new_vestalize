@@ -15,7 +15,6 @@ use App\Models\PersonalizationPrice;
 use App\Helpers\StoreHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class OrderWizardService
@@ -345,7 +344,7 @@ class OrderWizardService
             $totalPieces = $order->items->sum('quantity');
             $unitPrice = $totalPieces > 0 ? $subtotal / $totalPieces : $subtotal;
             
-            Log::info('Size surcharge calculation', [
+            \Log::info('Size surcharge calculation', [
                 'subtotal' => $subtotal,
                 'total_pieces' => $totalPieces,
                 'unit_price' => $unitPrice
@@ -917,7 +916,7 @@ class OrderWizardService
                                    '. Solicitações criadas: ' . $stockResult['requests_created'],
                 ]);
             } catch (\Exception $e) {
-                Log::warning('Erro ao verificar estoque na finalização do pedido', [
+                \Log::warning('Erro ao verificar estoque na finalização do pedido', [
                     'error' => $e->getMessage(),
                     'order_id' => $order->id,
                 ]);
