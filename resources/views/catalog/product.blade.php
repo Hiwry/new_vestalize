@@ -738,26 +738,28 @@
                 </a>
             @endif
         </div>
+
+        {{-- Sticky Mobile CTA --}}
+        <div class="mobile-sticky-cta" :class="{ 'visible': true }" x-init="$nextTick(() => { setTimeout(() => $el.classList.add('visible'), 500) })">
+            <div class="sticky-total-price">
+                <span class="label">Subtotal</span>
+                <span class="val" x-text="formatMoney(subtotal)"></span>
+            </div>
+            <button class="sticky-add-btn"
+                    @click="
+                        if ({{ count($stockSizes) > 0 ? 'true' : 'false' }} && !selectedSize) { alert('Selecione um tamanho'); return; }
+                        if ({{ count($stockColors) > 0 ? 'true' : 'false' }} && !selectedColor) { alert('Selecione uma cor'); return; }
+                        await addToCart({{ $product->id }}, selectedSize || null, selectedColor || null, qty);
+                        selectedSize = ''; selectedColor = ''; qty = 1; variantStock = 0;
+                    ">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Adicionar à sacola</span>
+            </button>
+        </div>
     </div>
 </div>
 
-{{-- Sticky Mobile CTA --}}
-<div class="mobile-sticky-cta" :class="{ 'visible': true }" x-init="$nextTick(() => { setTimeout(() => $el.classList.add('visible'), 500) })">
-    <div class="sticky-total-price">
-        <span class="label">Subtotal</span>
-        <span class="val" x-text="formatMoney(subtotal)"></span>
-    </div>
-    <button class="sticky-add-btn"
-            @click="
-                if ({{ count($stockSizes) > 0 ? 'true' : 'false' }} && !selectedSize) { alert('Selecione um tamanho'); return; }
-                if ({{ count($stockColors) > 0 ? 'true' : 'false' }} && !selectedColor) { alert('Selecione uma cor'); return; }
-                await addToCart({{ $product->id }}, selectedSize || null, selectedColor || null, qty);
-                selectedSize = ''; selectedColor = ''; qty = 1; variantStock = 0;
-            ">
-        <i class="fas fa-shopping-bag"></i>
-        <span>Adicionar à sacola</span>
-    </button>
-</div>
+
 
 @if($relatedProducts->count() > 0)
     <div class="related-section">
