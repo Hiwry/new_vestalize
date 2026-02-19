@@ -182,7 +182,7 @@
                 <textarea id="checkout-notes" rows="3" placeholder="Ex: Entregar amanhã..." class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
             </div>
             
-            <button onclick="confirmCheckout()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold shadow-lg shadow-green-200 dark:shadow-none transition-all active:scale-[0.99]" style="color: #ffffff !important;">
+            <button id="confirm-checkout-btn" onclick="confirmCheckout()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold shadow-lg shadow-green-200 dark:shadow-none transition-all active:scale-[0.99]" style="color: #ffffff !important;">
                 <span class="text-white" style="color: #ffffff !important;">Confirmar Venda</span>
             </button>
         </div>
@@ -333,15 +333,18 @@
     }
 
     function confirmCheckout() {
+        console.log('confirmCheckout triggered');
         const clientId = document.getElementById('client-select').value;
         const method = document.getElementById('checkout-payment-method').value;
         const discount = document.getElementById('checkout-discount').value;
         const notes = document.getElementById('checkout-notes').value;
 
+        console.log('Checkout data:', { clientId, method, discount, notes });
+
         // Show loading state
-        const btn = document.querySelector('#checkout-modal button');
-        const originalText = btn.innerText;
-        btn.innerText = 'Processando...';
+        const btn = document.getElementById('confirm-checkout-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="text-white">Processando...</span>';
         btn.disabled = true;
 
         fetch('{{ route("personalized.checkout") }}', {
