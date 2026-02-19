@@ -563,7 +563,8 @@
                 : {{ (float)$product->price }};
             return price * q;
         }
-    }'>
+    }'
+    x-init="$watch('subtotal', val => { const el = document.getElementById('sticky-subtotal'); if (el) el.textContent = formatMoney(val); })">
         <div class="product-breadcrumb">
             <a href="{{ route('catalog.show', $storeCode) }}">Catálogo</a>
             <i class="fas fa-chevron-right" style="font-size: 8px;"></i>
@@ -740,17 +741,19 @@
         </div>
 
         {{-- Sticky Mobile CTA --}}
-        <div class="mobile-sticky-cta" :class="{ 'visible': true }" x-init="$nextTick(() => { setTimeout(() => $el.classList.add('visible'), 500) })">
+        <div class="mobile-sticky-cta visible">
             <div class="sticky-total-price">
                 <span class="label">Subtotal</span>
-                <span class="val" x-text="formatMoney(subtotal)"></span>
+                <span class="val" id="sticky-subtotal">R$ {{ number_format($product->price, 2, ',', '.') }}</span>
             </div>
             <button class="sticky-add-btn"
-                    @click="
-                        if ({{ count($stockSizes) > 0 ? 'true' : 'false' }} && !selectedSize) { alert('Selecione um tamanho'); return; }
-                        if ({{ count($stockColors) > 0 ? 'true' : 'false' }} && !selectedColor) { alert('Selecione uma cor'); return; }
-                        await addToCart({{ $product->id }}, selectedSize || null, selectedColor || null, qty);
-                        selectedSize = ''; selectedColor = ''; qty = 1; variantStock = 0;
+                    onclick="
+                        var sz = document.querySelector('.product-info')._x_dataStack?.[0]?.selectedSize;
+                        var sc = document.querySelector('.product-info')._x_dataStack?.[0]?.selectedColor;
+                        var q = document.querySelector('.product-info')._x_dataStack?.[0]?.qty ?? 1;
+                        @if(count($stockSizes) > 0) if (!sz) { alert('Selecione um tamanho'); return; } @endif
+                        @if(count($stockColors) > 0) if (!sc) { alert('Selecione uma cor'); return; } @endif
+                        addToCart({{ $product->id }}, sz || null, sc || null, q);
                     ">
                 <i class="fas fa-shopping-bag"></i>
                 <span>Adicionar à sacola</span>
