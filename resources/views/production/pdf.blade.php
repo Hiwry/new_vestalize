@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Lista de Pedidos - Produção</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th {
+            background-color: #f0f0f0;
+            border: 1px solid #000;
+            padding: 6px 4px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 9px;
+        }
+        
+        td {
+            border: 1px solid #000;
+            padding: 6px 4px;
+            vertical-align: middle;
+            font-size: 9px;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        /* Cores para status */
+        .row-yellow {
+            background-color: #ffff99;
+        }
+        
+        .row-orange {
+            background-color: #ffcc99;
+        }
+        
+        .row-red {
+            background-color: #ff9999;
+        }
+        
+        .evento-badge {
+            background-color: #ff0000;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 8px;
+            font-weight: bold;
+            display: inline-block;
+            margin-left: 5px;
+        }
+        
+        .status-badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 8px;
+            display: inline-block;
+        }
+
+        .open-badge {
+            display: inline-block;
+            margin-top: 2px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 8px;
+            font-weight: bold;
+            background-color: #111827;
+            color: #ffffff;
+        }
+        
+        .atrasado {
+            background-color: #ff9999;
+            color: #8b0000;
+            font-weight: bold;
+        }
+        
+        .col-vendedor { width: 8%; }
+        .col-descricao { width: 22%; }
+        .col-os { width: 8%; }
+        .col-servico { width: 15%; }
+        .col-qt { width: 5%; }
+        .col-data { width: 10%; }
+        .col-classificacao { width: 12%; }
+        .col-status { width: 12%; }
+        .col-obs { width: 8%; }
+        
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 8px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    @php
+        $companySettings = \App\Models\CompanySetting::getSettings($selectedStore ? $selectedStore->id : null);
+        $logoPath = null;
+        if (isset($companySettings->logo_path) && $companySettings->logo_path && file_exists(public_path($companySettings->logo_path))) {
+            $logoPath = public_path($companySettings->logo_path);
+        } else {
+            $logoPath = public_path('vestalize.svg');
+        }
+    @endphp
+
+    <table style="width: 100%; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+        <tr>
+            <td style="width: 30%; vertical-align: middle;">
+                @if($logoPath && file_exists($logoPath))
+                    <img src="{{ $logoPath }}" alt="Logo" style="max-height: 60px; max-width: 150px;">
+                @endif
+            </td>
+            <td style="width: 70%; text-align: right; vertical-align: middle;">
+                <h2 style="font-size: 16px; margin-bottom: 3px;">{{ $companySettings->company_name ?? 'LISTA DE PEDIDOS' }}</h2>
+                <div style="font-size: 9px; color: #666;">
+                    @if($companySettings->company_phone) Tel: {{ $companySettings->company_phone }} @endif
+                    @if($companySettings->company_email) | {{ $companySettings->company_email }} @endif
+                </div>
+                <div style="font-size: 12px; font-weight: bold; margin-top: 5px;">
+                    LISTA DE PEDIDOS 
+                    @if($startDate && $endDate)
+                        - {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} à {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}
+                    @endif
+                </div>
+            </td>
+        </tr>
+    </table>
+    
+    <table>
+        <thead>
+            <tr>
+                <th class="col-vendedor">VENDEDOR</th>
+                <th class="col-descricao">DESCRIÇÃO</th>
+                <th class="col-os">OS</th>
+                <th class="col-servico">SERVIÇO</th>
+                <th class="col-qt">QT</th>
+                <th class="col-data">DATA DE ENT.</th>
+                <th class="col-status">STATUS</th>
+                <th class="col-classificacao">LOJA</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php
+                $hoje = \Carbon\Carbon::now()->startOfDay();
+            @endphp
+            
+            @foreach($orders as $order)
+                @php
+                    $firstItem = $order->items->first();
+                    $artName = $firstItem?->art_name ?? ($order->client ? $order->client->name : 'Cliente não encontrado');
+                    $deliveryDate = $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date) : null;
+                    $isDelayed = $deliveryDate && $deliveryDate->lt($hoje);
+                    $requiresOpen = false;
+                    if (!empty($openLocationIds) || !empty($openLocationNames)) {
+                        foreach ($order->items as $item) {
+                            foreach ($item->sublimations as $sub) {
+                                if ($sub->location && in_array($sub->location->id, $openLocationIds)) {
+                                    $requiresOpen = true;
+                                    break 2;
+                                }
+                                if ($sub->location_id && in_array($sub->location_id, $openLocationIds)) {
+                                    $requiresOpen = true;
+                                    break 2;
+                                }
+                                $locRaw = $sub->location_name ?? '';
+                                if (is_numeric($locRaw) && in_array((int) $locRaw, $openLocationIds)) {
+                                    $requiresOpen = true;
+                                    break 2;
+                                }
+                                if (is_string($locRaw) && $locRaw !== '') {
+                                    $locName = mb_strtolower(trim($locRaw));
+                                    if (in_array($locName, $openLocationNames)) {
+                                        $requiresOpen = true;
+                                        break 2;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Definir cor da linha baseado no status ou atraso
+                    $rowClass = '';
+                    if ($order->is_event) {
+                        $rowClass = 'row-red';
+                    } elseif ($isDelayed) {
+                        $rowClass = 'row-orange';
+                    } else {
+                        $rowClass = 'row-yellow';
+                    }
+                @endphp
+                
+                <tr class="{{ $rowClass }}">
+                    <td>{{ strtoupper($order->seller ?? 'N/A') }}</td>
+                    <td>
+                        <strong>{{ $artName }}</strong>
+                        @if($firstItem)
+                            <br>
+                            <small>
+                                {{ $firstItem->fabric }}
+                                @if($firstItem->color)
+                                    / {{ $firstItem->color }}
+                                @endif
+                            </small>
+                            @if($requiresOpen)
+                                <br>
+                                <span class="open-badge">ABERTO P/ PERSONALIZAÇÃO</span>
+                            @endif
+                        @endif
+                    </td>
+                    <td class="text-center">{{ str_pad($order->id, 5, '0', STR_PAD_LEFT) }}</td>
+                    <td class="text-center">
+                        @if($firstItem)
+                            {{ strtoupper($firstItem->print_type) }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="text-center"><strong>{{ $order->items->sum('quantity') }}</strong></td>
+                    <td class="text-center">
+                        @if($deliveryDate)
+                            {{ $deliveryDate->format('d/m/Y') }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        <span class="status-badge" style="background-color: {{ $order->status->color ?? '#6B7280' }}; color: white;">
+                            {{ $order->status->name ?? 'Indefinido' }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        @if($order->store)
+                            {{ $order->store->name }}
+                        @elseif($order->store_id)
+                            {{ \App\Models\Store::find($order->store_id)?->name ?? '-' }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+            
+            @if($orders->isEmpty())
+                <tr>
+                    <td colspan="8" class="text-center" style="padding: 20px;">
+                        Nenhum pedido encontrado para o período selecionado.
+                    </td>
+                </tr>
+            @endif
+        </tbody>
+    </table>
+    
+    <div class="footer">
+        Total de pedidos: <strong>{{ $orders->count() }}</strong> | 
+        Total de peças: <strong>{{ $orders->sum(function($order) { return $order->items->sum('quantity'); }) }}</strong> |
+        Gerado em: {{ \Carbon\Carbon::now()->format('d/m/Y H:i') }}
+    </div>
+</body>
+</html>
