@@ -367,6 +367,13 @@
 
             if (response.ok && data && data.success) {
                 alert(data.message);
+                
+                // Trigger PDF Download
+                if (data.order_id) {
+                    const pdfUrl = '{{ route("orders.client-receipt", ["id" => ":id"]) }}'.replace(':id', data.order_id);
+                    window.open(pdfUrl, '_blank');
+                }
+                
                 location.reload();
             } else {
                 const errorMsg = data ? data.message : (response.status === 403 ? 'Erro 403: Acesso Negado/Proibido.' : 'Erro ' + response.status);
