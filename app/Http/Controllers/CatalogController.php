@@ -94,24 +94,28 @@ class CatalogController extends Controller
             ->catalogVisible()
             ->with(['images', 'category', 'subcategory', 'tecido', 'personalizacao', 'modelo', 'cutType'])
             ->findOrFail($productId);
-
-        // Buscar tamanhos e cores do estoque real
+        // Buscar tamanhos e cores do estoque real (consolidado em todas as lojas do tenant)
         $stockSizes = [];
         $stockColors = [];
+        $stockGrid = [];
         $totalStock = 0;
 
-        if ($store) {
+        $storeIds = Store::withoutGlobalScopes()
+            ->where('tenant_id', $tenant->id)
+            ->pluck('id');
+
+        if ($storeIds->isNotEmpty()) {
             $stockQuery = \App\Models\Stock::withoutGlobalScopes()
-                ->where('store_id', $store->id)
-                ->where('quantity', '>', 0);
+                ->whereIn('store_id', $storeIds)
+                ->whereRaw('(quantity - reserved_quantity) > 0');
 
             // Filtrar SOMENTE se o produto tem um tipo de corte associado
-            // Se não tiver, não deve mostrar estoque de outros itens aleatórios
+            // Se nao tiver, nao deve mostrar estoque de outros itens aleatorios
             if ($product->cut_type_id) {
                 $stockQuery->where('cut_type_id', $product->cut_type_id);
             } else {
-                // Forçar query vazia se não houver cut_type_id 
-                // (já que neste sistema o estoque é gerido por cut_type)
+                // Forcar query vazia se nao houver cut_type_id
+                // (ja que neste sistema o estoque e gerido por cut_type)
                 $stockQuery->whereRaw('1 = 0');
             }
 
@@ -119,39 +123,62 @@ class CatalogController extends Controller
                 $query->withoutGlobalScopes();
             }])->get();
 
-            // Extrair tamanhos únicos com quantidades
+            $availableQty = static fn ($item): int => max(0, (int) $item->quantity - (int) $item->reserved_quantity);
+
+            // Extrair tamanhos unicos com quantidades disponiveis
             $stockSizes = $stockItems
-                ->whereNotNull('size')
-                ->where('size', '!=', '')
-                ->groupBy('size')
-                ->map(fn($items) => $items->sum('quantity'))
+                ->filter(fn ($item) => !empty($item->size))
+                ->groupBy(fn ($item) => trim((string) $item->size))
+                ->map(fn ($items) => $items->sum($availableQty))
+                ->filter(fn ($qty) => $qty > 0)
                 ->sortKeys()
                 ->toArray();
 
+            // Consolidar cores por nome para evitar duplicidade de IDs com o mesmo rotulo
             $stockColors = $stockItems
-                ->whereNotNull('color_id')
-                ->groupBy('color_id')
-                ->map(function ($items) {
-                    $item = $items->first();
-                    $color = $item->color;
-                    return $color ? [
-                        'name' => $color->name,
-                        'hex' => $color->color_hex ?? '#666666',
-                        'total_qty' => $items->sum('quantity'),
-                    ] : null;
+                ->map(function ($item) use ($availableQty) {
+                    $qty = $availableQty($item);
+                    $name = trim((string) optional($item->color)->name);
+
+                    if ($qty <= 0 || $name === '') {
+                        return null;
+                    }
+
+                    return [
+                        'name' => $name,
+                        'hex' => optional($item->color)->color_hex ?: '#666666',
+                        'qty' => $qty,
+                    ];
                 })
                 ->filter()
+                ->groupBy(fn ($item) => mb_strtolower((string) $item['name']))
+                ->map(function ($items) {
+                    $first = $items->first();
+
+                    return [
+                        'name' => $first['name'],
+                        'hex' => $first['hex'],
+                        'total_qty' => $items->sum('qty'),
+                    ];
+                })
+                ->values()
+                ->sortBy('name')
                 ->values()
                 ->toArray();
 
-            $totalStock = $stockItems->sum('quantity');
+            $totalStock = $stockItems->sum($availableQty);
 
-            // Criar matriz de estoque: Tamanho x Cor (Nome)
-            $stockGrid = [];
+            // Criar matriz de estoque: Tamanho x Cor (Nome), somando entre lojas
             foreach ($stockItems as $si) {
-                if ($si->size && $si->color) {
-                    $stockGrid[$si->size][$si->color->name] = $si->quantity;
+                $size = trim((string) $si->size);
+                $colorName = trim((string) optional($si->color)->name);
+                $qty = $availableQty($si);
+
+                if ($size === '' || $colorName === '' || $qty <= 0) {
+                    continue;
                 }
+
+                $stockGrid[$size][$colorName] = ($stockGrid[$size][$colorName] ?? 0) + $qty;
             }
         }
 
