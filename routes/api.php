@@ -130,11 +130,12 @@ Route::get('/personalization-prices/sizes', [\App\Http\Controllers\Api\Personali
 Route::get('/personalization-prices/ranges', [\App\Http\Controllers\Api\PersonalizationPriceController::class, 'getPriceRanges']);
 Route::post('/personalization-prices/multiple', [\App\Http\Controllers\Api\PersonalizationPriceController::class, 'getMultiplePrices']);
 
-// Personalizações - PROTEGIDAS com autenticação
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/personalizations/{id}', [\App\Http\Controllers\Api\PersonalizationController::class, 'show']);
-    Route::delete('/personalizations/{id}', [\App\Http\Controllers\Api\PersonalizationController::class, 'destroy']);
-});
+// Personalizações - ROTAS REMOVIDAS (Movidas para web.php para suporte a sessões)
+// Route::middleware('auth:sanctum')->group(function () {
+//     Route::get('/personalizations/{id}', [\App\Http\Controllers\Api\PersonalizationController::class, 'show']);
+//     Route::delete('/personalizations/{id}', [\App\Http\Controllers\Api\PersonalizationController::class, 'destroy']);
+// });
+
 
 // Product Options
 Route::get('/product-options', function (Request $request) {

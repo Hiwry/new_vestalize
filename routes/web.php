@@ -298,6 +298,13 @@ Route::middleware('auth')->group(function () {
         })->name('pdf');
         
         // Solicitações de Edição para Produção
+        Route::prefix('personalizations')->group(function () {
+            Route::get('{id}', [\App\Http\Controllers\Api\PersonalizationController::class, 'show'])->name('personalizations.show');
+            Route::delete('{id}', [\App\Http\Controllers\Api\PersonalizationController::class, 'destroy'])->name('personalizations.destroy');
+        });
+
+        // Solicitações de Edição para Produção
+
         Route::get('/edit-requests', function() {
             if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
                 abort(403, 'Acesso negado. Apenas administradores e usuários de produção podem acessar.');

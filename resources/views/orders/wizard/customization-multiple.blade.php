@@ -2176,7 +2176,7 @@
         window.confirmDeletePersonalization = confirmDeletePersonalization;
 
         function deletePersonalization(id) {
-            const url = `/api/personalizations/${id}`;
+            const url = `/personalizations/${id}`;
             fetch(url, {
                 method: 'DELETE',
                 headers: {
@@ -2206,7 +2206,7 @@
 
         async function editPersonalization(id) {
             try {
-                const response = await fetch(`/api/personalizations/${id}`);
+                const response = await fetch(`/personalizations/${id}`);
                 const data = await response.json();
                 
                 if (!data.success) throw new Error(data.message || 'Erro ao carregar');
