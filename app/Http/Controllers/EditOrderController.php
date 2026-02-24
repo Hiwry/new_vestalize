@@ -341,6 +341,53 @@ class EditOrderController extends Controller
 
             // Processar POST - salvar personalização
             if ($request->isMethod('post')) {
+
+                // Handler para salvar nome da arte e arquivos gerais do item
+                if ($request->input('action') === 'save_order_art') {
+                    try {
+                        $validated = $request->validate([
+                            'item_id'        => 'required|exists:order_items,id',
+                            'order_art_name' => 'nullable|string|max:255',
+                            'order_art_files' => 'nullable|array',
+                            'order_art_files.*' => 'nullable|file|max:51200',
+                            'apply_all_items' => 'nullable|boolean',
+                        ]);
+
+                        $files = $request->file('order_art_files', []);
+                        $applyAll = $request->boolean('apply_all_items');
+
+                        /** @var \App\Services\OrderWizardService $wizardService */
+                        $wizardService = app(\App\Services\OrderWizardService::class);
+
+                        if ($applyAll) {
+                            $orderItems = \App\Models\OrderItem::where('order_id', $orderId)->get();
+                            $shouldUpdateName = filled($validated['order_art_name'] ?? null);
+                            foreach ($orderItems as $orderItem) {
+                                $payload = $validated;
+                                if (!$shouldUpdateName) {
+                                    $payload['order_art_name'] = $orderItem->art_name;
+                                }
+                                $wizardService->processSaveOrderArt($orderItem, $payload, $files);
+                            }
+                        } else {
+                            $item = \App\Models\OrderItem::where('order_id', $orderId)->findOrFail($validated['item_id']);
+                            $wizardService->processSaveOrderArt($item, $validated, $files);
+                        }
+
+                        return redirect()->back()->with('success', $applyAll
+                            ? 'Arte aplicada em todos os itens com sucesso!'
+                            : 'Arte do item atualizada com sucesso!');
+
+                    } catch (\Exception $e) {
+                        Log::error('Error saving order art in edit mode', [
+                            'error' => $e->getMessage(),
+                            'file'  => $e->getFile(),
+                            'line'  => $e->getLine(),
+                        ]);
+                        return redirect()->back()->with('error', 'Erro ao salvar arte: ' . $e->getMessage());
+                    }
+                }
+
                 try {
                     // Validar dados recebidos
                     $validated = $request->validate([
