@@ -14,42 +14,43 @@
     
     /* Toggle Switch Glassmorphism */
     .glass-toggle {
-        width: 3.5rem;
-        height: 1.75rem;
-        background-color: rgba(255, 255, 255, 0.1); 
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        width: 3rem;
+        height: 1.5rem;
+        background-color: #d1d5db;
+        border: 1px solid #d1d5db;
         border-radius: 9999px;
         position: relative;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
     }
     
     .dark .glass-toggle {
-        background-color: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.1);
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.15);
     }
 
     .glass-toggle::after {
         content: '';
         position: absolute;
-        top: 2px;
+        top: 50%;
         left: 2px;
-        width: 1.5rem;
-        height: 1.5rem;
+        transform: translateY(-50%);
+        width: 1.125rem;
+        height: 1.125rem;
         background-color: white;
         border-radius: 50%;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
     .glass-toggle-input:checked + .glass-toggle {
-        background-color: #7c3aed; /* --primary */
+        background-color: #7c3aed;
         border-color: #7c3aed;
     }
 
     .glass-toggle-input:checked + .glass-toggle::after {
-        transform: translateX(1.75rem);
+        left: calc(100% - 1.125rem - 2px);
     }
 </style>
 @endpush
@@ -73,6 +74,7 @@
 
 
         <!-- Cards Grid (Preços) -->
+
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
             @foreach($pricesByType as $typeKey => $typeData)
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/25 border border-gray-200 dark:border-gray-700 overflow-hidden card-hover">
