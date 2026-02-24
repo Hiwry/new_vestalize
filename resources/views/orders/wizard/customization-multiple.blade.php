@@ -434,8 +434,8 @@
             <!-- Modal Header com gradiente e ícone -->
             <div class="px-6 py-5 border-b border-gray-200 dark:border-slate-700/50 flex items-center justify-between sticky top-0 bg-white dark:bg-gradient-to-r dark:from-purple-600/20 dark:via-slate-900 dark:to-slate-900 z-10 backdrop-blur-sm">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-white dark:bg-purple-500/20 rounded-xl flex items-center justify-center ring-1 ring-gray-200 dark:ring-purple-500/30">
-                        <svg class="w-6 h-6 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-500/20 rounded-xl flex items-center justify-center ring-1 ring-purple-200 dark:ring-purple-500/30">
+                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                         </svg>
                     </div>
@@ -461,31 +461,31 @@
 
                 <!-- Vincular a outros itens -->
                 @if($order->items->count() > 1)
-                <div id="linkItemsSection" class="bg-gradient-to-r from-blue-600/20 to-blue-600/10 border border-blue-500/30 rounded-xl p-4 ring-1 ring-blue-500/20">
-                    <label class="flex items-center gap-2 text-sm font-semibold text-blue-300 mb-3">
-                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div id="linkItemsSection" class="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/10 border border-purple-200 dark:border-purple-500/30 rounded-xl p-4 ring-1 ring-purple-100 dark:ring-purple-500/20">
+                    <label class="flex items-center gap-2 text-sm font-semibold text-purple-700 dark:text-purple-300 mb-3">
+                        <svg class="w-5 h-5 text-purple-500 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
                         </svg>
                         Aplicar em outros itens também
                     </label>
-                    <p class="text-xs text-slate-400 mb-3">Marque os itens que receberão a mesma personalização (mesma arte, local e tamanho)</p>
+                    <p class="text-xs text-gray-500 dark:text-slate-400 mb-3">Marque os itens que receberão a mesma personalização (mesma arte, local e tamanho)</p>
                     
                     <div class="space-y-2" id="linkItemsCheckboxes">
                         @foreach($order->items as $item)
-                        <label class="flex items-center p-2 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-blue-500/50 cursor-pointer transition-colors link-item-label" data-item-id="{{ $item->id }}">
+                        <label class="flex items-center p-2.5 bg-white dark:bg-slate-800/50 border border-purple-200 dark:border-slate-700 rounded-lg hover:border-purple-400 dark:hover:border-purple-500/50 cursor-pointer transition-colors link-item-label shadow-sm" data-item-id="{{ $item->id }}">
                             <input type="checkbox" name="linked_item_ids[]" value="{{ $item->id }}" 
-                                   class="link-item-checkbox w-4 h-4 text-blue-500 border-slate-600 rounded focus:ring-blue-500 bg-slate-700">
+                                   class="link-item-checkbox w-4 h-4 text-purple-600 dark:text-purple-500 border-gray-300 dark:border-slate-600 rounded focus:ring-purple-500 bg-white dark:bg-slate-700">
                             <div class="ml-3 flex-1">
-                                <span class="text-sm font-medium text-white">Item {{ $item->item_number }}</span>
-                                <span class="text-xs text-slate-400 ml-2">{{ $item->model }} • {{ $item->quantity }} pç</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">Item {{ $item->item_number }}</span>
+                                <span class="text-xs text-gray-500 dark:text-slate-400 ml-2">{{ $item->model }} • {{ $item->quantity }} pç</span>
                             </div>
-                            <span class="text-xs text-slate-500">{{ $item->print_type }}</span>
+                            <span class="text-xs text-gray-400 dark:text-slate-500 uppercase font-medium">{{ $item->print_type }}</span>
                         </label>
                         @endforeach
                     </div>
                     
-                    <div id="linkedItemsSummary" class="mt-3 p-2 bg-green-900/30 border border-green-700/50 rounded-lg hidden">
-                        <div class="flex items-center text-sm text-green-400">
+                    <div id="linkedItemsSummary" class="mt-3 p-2.5 bg-emerald-50 dark:bg-green-900/30 border border-emerald-200 dark:border-green-700/50 rounded-lg hidden">
+                        <div class="flex items-center text-sm text-emerald-700 dark:text-green-400">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
