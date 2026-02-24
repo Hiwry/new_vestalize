@@ -247,7 +247,13 @@ Route::middleware('auth')->group(function () {
 
 
     // Notificações
+    Route::prefix('personalizations')->group(function () {
+        Route::get('{id}', [\App\Http\Controllers\Api\PersonalizationController::class, 'show'])->name('personalizations.show');
+        Route::delete('{id}', [\App\Http\Controllers\Api\PersonalizationController::class, 'destroy'])->name('personalizations.destroy');
+    });
+
     Route::prefix('notifications')->name('notifications.')->group(function () {
+
         Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
         Route::post('{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('read');
         Route::post('read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('read-all');
@@ -298,12 +304,7 @@ Route::middleware('auth')->group(function () {
         })->name('pdf');
         
         // Solicitações de Edição para Produção
-        Route::prefix('personalizations')->group(function () {
-            Route::get('{id}', [\App\Http\Controllers\Api\PersonalizationController::class, 'show'])->name('personalizations.show');
-            Route::delete('{id}', [\App\Http\Controllers\Api\PersonalizationController::class, 'destroy'])->name('personalizations.destroy');
-        });
 
-        // Solicitações de Edição para Produção
 
         Route::get('/edit-requests', function() {
             if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {

@@ -1512,7 +1512,7 @@
             closeDeleteConfirmationModal();
             
             try {
-                const response = await fetch(`/api/personalizations/${id}`, {
+                const response = await fetch(`/personalizations/${id}`, {
                     method: 'DELETE',
                     headers: {
                         'Accept': 'application/json',
@@ -1549,7 +1549,7 @@
             try {
                 console.log(' Editando personalização ID:', id);
                 // Buscar dados da personalização
-                const response = await fetch(`/api/personalizations/${id}`, {
+                const response = await fetch(`/personalizations/${id}`, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',

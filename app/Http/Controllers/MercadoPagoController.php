@@ -16,9 +16,13 @@ class MercadoPagoController extends Controller
 {
     public function __construct()
     {
-        // Configurar o SDK do Mercado Pago
-        MercadoPagoConfig::setAccessToken(config('services.mercadopago.access_token'));
+        // Configurar o SDK do Mercado Pago de forma segura
+        $accessToken = config('services.mercadopago.access_token');
+        if ($accessToken) {
+            MercadoPagoConfig::setAccessToken($accessToken);
+        }
     }
+
 
     /**
      * Exibir página de checkout
