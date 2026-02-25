@@ -283,6 +283,7 @@ class PersonalizationPriceController extends Controller
                         'quantity_from' => $priceData['quantity_from'],
                         'quantity_to' => $priceData['quantity_to'] ?: null,
                         'price' => $priceData['price'],
+                        'cost' => $priceData['cost'] ?? 0,
                         'active' => true,
                         'order' => 0,
                     ]);
@@ -319,7 +320,8 @@ class PersonalizationPriceController extends Controller
                         'size_dimensions' => null,
                         'quantity_from' => $colorData['from'],
                         'quantity_to' => $colorData['to'],
-                        'price' => $colorData['price']
+                        'price' => $colorData['price'],
+                        'cost' => $colorData['cost'] ?? 0,
                     ]);
                     
                     \Log::info("Created color price for range {$colorData['from']}-{$colorData['to']} to {$colorData['price']}");

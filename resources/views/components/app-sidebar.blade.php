@@ -10,7 +10,8 @@
             'financeiro': localStorage.getItem('sidebarGroupFinanceiro') === 'true',
             'assinaturas': localStorage.getItem('sidebarGroupAssinaturas') === 'true',
             'sistema': localStorage.getItem('sidebarGroupSistema') === 'true',
-            'catalogo': localStorage.getItem('sidebarGroupCatalogo') === 'true'
+            'catalogo': localStorage.getItem('sidebarGroupCatalogo') === 'true',
+            'tutoriais': localStorage.getItem('sidebarGroupTutoriais') === 'true'
         },
         isMobile() { return window.innerWidth < 768; },
         updateLayout() {
@@ -459,6 +460,20 @@
                 </a>
             </div>
             @endif
+
+            <!-- LINK: TUTORIAIS -->
+            <div class="mt-1">
+                <a href="{{ route('tutorials.index') }}"
+                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('tutorials.*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   title="Tutoriais">
+                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                        <i class="fa-solid fa-graduation-cap text-lg"></i>
+                    </div>
+                    <span class="ml-4" x-show="expanded">Tutoriais</span>
+                </a>
+            </div>
+
 
             <!-- LINK: CONFIGURAÇÕES (Singular) -->
             <div class="mt-1">

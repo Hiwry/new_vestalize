@@ -70,6 +70,9 @@ Route::middleware('auth')->group(function () {
     // Nomear como "dashboard" para alinhar com o redirecionamento do login
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::view('/vendas', 'sales.index')->name('sales.index');
+    
+    // Tutoriais
+    Route::get('/tutoriais', [\App\Http\Controllers\TutorialController::class, 'index'])->name('tutorials.index');
     Route::get('/financeiro', [\App\Http\Controllers\FinancialController::class, 'index'])->name('financial.dashboard')->middleware('plan:financial');
     Route::get('/financeiro/nfe', [\App\Http\Controllers\Admin\InvoiceController::class, 'index'])->name('admin.invoices.index')->middleware('plan:financial');
     
@@ -679,6 +682,19 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         Route::post('/commissions/{commission}/approve', [\App\Http\Controllers\AffiliateController::class, 'approveCommission'])->name('affiliates.commissions.approve');
         Route::post('/commissions/{commission}/pay', [\App\Http\Controllers\AffiliateController::class, 'payCommission'])->name('affiliates.commissions.pay');
         Route::post('/commissions/{commission}/cancel', [\App\Http\Controllers\AffiliateController::class, 'cancelCommission'])->name('affiliates.commissions.cancel');
+        
+        // Gerenciamento de Tutoriais (Super Admin)
+        Route::prefix('tutorials')->name('tutorials.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\TutorialManagementController::class, 'index'])->name('index');
+            Route::post('/categories', [\App\Http\Controllers\Admin\TutorialManagementController::class, 'storeCategory'])->name('categories.store');
+            Route::put('/categories/{category}', [\App\Http\Controllers\Admin\TutorialManagementController::class, 'updateCategory'])->name('categories.update');
+            Route::delete('/categories/{category}', [\App\Http\Controllers\Admin\TutorialManagementController::class, 'destroyCategory'])->name('categories.destroy');
+            Route::post('/categories/{category}/toggle', [\App\Http\Controllers\Admin\TutorialManagementController::class, 'toggleCategory'])->name('categories.toggle');
+            Route::post('/videos', [\App\Http\Controllers\Admin\TutorialManagementController::class, 'storeTutorial'])->name('store');
+            Route::put('/videos/{tutorial}', [\App\Http\Controllers\Admin\TutorialManagementController::class, 'updateTutorial'])->name('update');
+            Route::delete('/videos/{tutorial}', [\App\Http\Controllers\Admin\TutorialManagementController::class, 'destroyTutorial'])->name('destroy');
+            Route::post('/videos/{tutorial}/toggle', [\App\Http\Controllers\Admin\TutorialManagementController::class, 'toggleTutorial'])->name('toggle');
+        });
     });
 
     // Configuração de Orçamento Online (Planos Pro/Premium)

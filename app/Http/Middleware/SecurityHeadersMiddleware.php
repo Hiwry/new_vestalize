@@ -73,7 +73,7 @@ class SecurityHeadersMiddleware
             "font-src 'self' https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com data:" . $devUrls,
             "img-src 'self' data: https: blob:" . $devConnect,
             "connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://js.stripe.com https://api.stripe.com https://m.stripe.network https://q.stripe.com https://unpkg.com" . $devConnect . $devWs,
-            "frame-src 'self' https://js.stripe.com https://www.google.com/recaptcha/ https://recaptcha.google.com/",
+            "frame-src 'self' https://js.stripe.com https://www.google.com/recaptcha/ https://recaptcha.google.com/ https://www.youtube.com https://www.youtube-nocookie.com",
             "frame-ancestors 'none'",
             "base-uri 'self'",
             "form-action 'self'",

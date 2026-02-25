@@ -18,6 +18,9 @@
                 <a href="{{ route('admin.plans.index') }}" class="text-purple-600 dark:text-purple-400 hover:underline">
                     Gerenciar Planos
                 </a>
+                <a href="{{ route('admin.tutorials.index') }}" class="text-purple-600 dark:text-purple-400 hover:underline">
+                    Gerenciar Tutoriais
+                </a>
             </div>
             <a href="{{ route('admin.tenants.create') }}" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                 Nova Assinatura

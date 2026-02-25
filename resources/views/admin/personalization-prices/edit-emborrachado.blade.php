@@ -1,5 +1,44 @@
 @extends('layouts.admin')
 
+@push('styles')
+<style>
+    .qty-col {
+        width: 100px !important;
+        max-width: 100px !important;
+        min-width: 90px !important;
+    }
+    .actions-col {
+        width: 60px !important;
+        max-width: 60px !important;
+    }
+    /* Aggressive overrides for Avento global theme */
+    #price-table input, #color-price-table input {
+        padding: 6px 10px !important;
+        height: 36px !important;
+        min-height: 36px !important;
+        border-radius: 8px !important;
+        font-size: 13px !important;
+    }
+    #price-table .qty-col input, #color-price-table .qty-col input {
+        padding: 6px 4px !important;
+        width: 100% !important;
+    }
+    #price-table td, #color-price-table td {
+        height: 52px !important;
+        padding-top: 4px !important;
+        padding-bottom: 4px !important;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="max-w-7xl mx-auto" x-data="{}">
     <!-- Breadcrumb -->
@@ -114,12 +153,12 @@
             </div>
 
             <div class="p-6 overflow-x-auto">
-                <table class="min-w-full" id="price-table">
+                <table class="min-w-full" id="price-table" style="table-layout: auto !important;">
                     <thead>
                         <tr id="table-header" class="border-b border-gray-200 dark:border-gray-700">
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">DE</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">ATÉ</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">AÇÕES</th>
+                            <th class="qty-col px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">DE</th>
+                            <th class="qty-col px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">ATÉ</th>
+                            <th class="actions-col px-4 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">AÇÕES</th>
                         </tr>
                     </thead>
                     <tbody id="price-tbody">
@@ -133,10 +172,12 @@
                                         $quantityGroups[$qtyKey] = [
                                             'from' => $priceItem->quantity_from,
                                             'to' => $priceItem->quantity_to,
-                                            'prices' => []
+                                            'prices' => [],
+                                            'costs' => []
                                         ];
                                     }
                                     $quantityGroups[$qtyKey]['prices'][$sizeName] = $priceItem->price;
+                                    $quantityGroups[$qtyKey]['costs'][$sizeName] = $priceItem->cost ?? 0;
                                 }
                             }
                             uasort($quantityGroups, function($a, $b) {
@@ -146,27 +187,35 @@
                         
                         @forelse($quantityGroups as $qtyIndex => $qtyGroup)
                         <tr class="price-row hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b border-gray-100 dark:border-gray-700" data-index="{{ $loop->index }}">
-                            <td class="px-4 py-3">
+                            <td class="qty-col px-3 py-3">
                                 <input type="number" name="prices[{{ $loop->index }}][quantity_from]" value="{{ $qtyGroup['from'] }}" min="1" required
-                                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all"
+                                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all font-medium text-center"
                                        placeholder="10">
                             </td>
-                            <td class="px-4 py-3">
+                            <td class="qty-col px-3 py-3">
                                 <input type="number" name="prices[{{ $loop->index }}][quantity_to]" value="{{ $qtyGroup['to'] }}" min="1"
-                                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all"
+                                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all font-medium text-center"
                                        placeholder="∞">
                             </td>
                             @foreach($sizes as $size)
-                            <td class="px-4 py-3">
-                                <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm">R$</span>
-                                    <input type="number" name="prices[{{ $loop->parent->index }}][{{ $size }}]" value="{{ $qtyGroup['prices'][$size] ?? '' }}" step="0.01" min="0" data-size="{{ $size }}"
-                                           class="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all"
-                                           placeholder="0,00">
+                            <td class="px-3 py-3">
+                                <div class="flex gap-1.5 items-center">
+                                    <div class="relative flex-1 min-w-[80px]">
+                                        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-emerald-500 dark:text-emerald-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
+                                        <input type="number" name="prices[{{ $loop->parent->index }}][{{ $size }}][price]" value="{{ $qtyGroup['prices'][$size] ?? '' }}" step="0.01" min="0" data-size="{{ $size }}" data-field="price"
+                                               class="w-full pl-9 pr-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-right font-medium tabular-nums"
+                                               placeholder="0,00" title="Venda — {{ $size }}">
+                                    </div>
+                                    <div class="relative flex-1 min-w-[80px]">
+                                        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-amber-500 dark:text-amber-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
+                                        <input type="number" name="prices[{{ $loop->parent->index }}][{{ $size }}][cost]" value="{{ $qtyGroup['costs'][$size] ?? '' }}" step="0.01" min="0" data-size="{{ $size }}" data-field="cost"
+                                               class="w-full pl-9 pr-2 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 transition-all text-right font-medium tabular-nums"
+                                               placeholder="0,00" title="Custo — {{ $size }}">
+                                    </div>
                                 </div>
                             </td>
                             @endforeach
-                            <td class="px-4 py-3 text-center">
+                            <td class="actions-col px-4 py-3 text-center">
                                 <button type="button" onclick="removeRow(this)" 
                                         class="inline-flex items-center p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                         title="Remover linha">
@@ -217,35 +266,51 @@
                 <table class="min-w-full" id="color-price-table">
                     <thead>
                         <tr class="border-b border-gray-200 dark:border-gray-700">
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">DE</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">ATÉ</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">PREÇO</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">AÇÕES</th>
+                            <th class="qty-col px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">DE</th>
+                            <th class="qty-col px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">ATÉ</th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                <div class="text-center">
+                                    <span class="text-xs font-bold">PREÇO</span>
+                                    <div class="flex justify-center gap-1 mt-1">
+                                        <span class="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-1.5 py-0.5 rounded">Venda</span>
+                                        <span class="text-[10px] font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-1.5 py-0.5 rounded">Custo</span>
+                                    </div>
+                                </div>
+                            </th>
+                            <th class="actions-col px-4 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">AÇÕES</th>
                         </tr>
                     </thead>
                     <tbody id="color-price-tbody">
                         @if(isset($colorPrices) && $colorPrices->count() > 0)
                             @foreach($colorPrices as $index => $colorPrice)
                             <tr class="color-price-row hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b border-gray-100 dark:border-gray-700" data-index="{{ $index }}">
-                                <td class="px-4 py-3">
+                                <td class="qty-col px-3 py-3">
                                     <input type="number" name="color_prices[{{ $index }}][from]" value="{{ $colorPrice->quantity_from }}" min="1" required
-                                           class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all"
+                                           class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all font-medium text-center"
                                            placeholder="10">
                                 </td>
-                                <td class="px-4 py-3">
+                                <td class="qty-col px-3 py-3">
                                     <input type="number" name="color_prices[{{ $index }}][to]" value="{{ $colorPrice->quantity_to }}" min="1"
-                                           class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all"
+                                           class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all font-medium text-center"
                                            placeholder="∞">
                                 </td>
                                 <td class="px-4 py-3">
-                                    <div class="relative">
-                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm">R$</span>
-                                        <input type="number" name="color_prices[{{ $index }}][price]" value="{{ $colorPrice->price }}" step="0.01" min="0"
-                                               class="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all"
-                                               placeholder="0,00">
+                                    <div class="flex gap-1.5 items-center">
+                                        <div class="relative flex-1 min-w-[80px]">
+                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-emerald-500 dark:text-emerald-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
+                                            <input type="number" name="color_prices[{{ $index }}][price]" value="{{ $colorPrice->price }}" step="0.01" min="0" data-field="price"
+                                                   class="w-full pl-9 pr-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all text-right font-medium tabular-nums"
+                                                   placeholder="0,00" title="Venda">
+                                        </div>
+                                        <div class="relative flex-1 min-w-[80px]">
+                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-amber-500 dark:text-amber-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
+                                            <input type="number" name="color_prices[{{ $index }}][cost]" value="{{ $colorPrice->cost ?? 0 }}" step="0.01" min="0" data-field="cost"
+                                                   class="w-full pl-9 pr-2 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 transition-all text-right font-medium tabular-nums"
+                                                   placeholder="0,00" title="Custo">
+                                        </div>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 text-center">
+                                <td class="actions-col px-4 py-3 text-center">
                                     <button type="button" onclick="removeColorRow(this)" 
                                             class="inline-flex items-center p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                             title="Remover linha">
@@ -415,8 +480,16 @@
             
             availableSizes.forEach(size => {
                 const th = document.createElement('th');
-                th.textContent = size;
-                th.className = 'px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase';
+                th.className = 'px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase';
+                th.innerHTML = `
+                    <div class="text-center">
+                        <span class="text-xs font-bold text-gray-700 dark:text-gray-200">${size}</span>
+                        <div class="flex justify-center gap-1 mt-1">
+                            <span class="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-1.5 py-0.5 rounded">Venda</span>
+                            <span class="text-[10px] font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-1.5 py-0.5 rounded">Custo</span>
+                        </div>
+                    </div>
+                `;
                 headerRow.appendChild(th);
             });
             
@@ -436,10 +509,13 @@
         const toCell = cells[1];
         const actionsCell = cells[cells.length - 1];
         
-        const existingValues = {};
+        const existingPriceValues = {};
+        const existingCostValues = {};
         availableSizes.forEach(size => {
-            const existingInput = row.querySelector(`input[name*="[${size}]"]`);
-            if (existingInput) existingValues[size] = existingInput.value;
+            const priceInput = row.querySelector(`input[name*="[${size}][price]"]`) || row.querySelector(`input[name*="[${size}]"][data-field="price"]`);
+            const costInput = row.querySelector(`input[name*="[${size}][cost]"]`) || row.querySelector(`input[name*="[${size}]"][data-field="cost"]`);
+            if (priceInput) existingPriceValues[size] = priceInput.value;
+            if (costInput) existingCostValues[size] = costInput.value;
         });
         
         row.innerHTML = '';
@@ -448,24 +524,23 @@
         
         availableSizes.forEach(size => {
             const td = document.createElement('td');
-            td.className = 'px-4 py-3';
-            const div = document.createElement('div');
-            div.className = 'relative';
-            const span = document.createElement('span');
-            span.className = 'absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm';
-            span.textContent = 'R$';
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.name = `prices[${row.dataset.index}][${size}]`;
-            input.step = '0.01';
-            input.min = '0';
-            input.setAttribute('data-size', size);
-            input.className = 'w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all';
-            input.placeholder = '0,00';
-            if (existingValues[size]) input.value = existingValues[size];
-            div.appendChild(span);
-            div.appendChild(input);
-            td.appendChild(div);
+            td.className = 'px-3 py-3';
+            td.innerHTML = `
+                <div class="flex gap-1.5 items-center">
+                    <div class="relative flex-1 min-w-[80px]">
+                        <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-emerald-500 dark:text-emerald-400 text-[11px] font-bold pointer-events-none">R$</span>
+                        <input type="number" name="prices[${row.dataset.index}][${size}][price]" step="0.01" min="0" data-size="${size}" data-field="price"
+                               class="w-full pl-8 pr-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-right font-medium tabular-nums"
+                               placeholder="0,00" title="Venda — ${size}" value="${existingPriceValues[size] || ''}">
+                    </div>
+                    <div class="relative flex-1 min-w-[80px]">
+                        <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-amber-500 dark:text-amber-400 text-[11px] font-bold pointer-events-none">R$</span>
+                        <input type="number" name="prices[${row.dataset.index}][${size}][cost]" step="0.01" min="0" data-size="${size}" data-field="cost"
+                               class="w-full pl-8 pr-2 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 transition-all text-right font-medium tabular-nums"
+                               placeholder="0,00" title="Custo — ${size}" value="${existingCostValues[size] || ''}">
+                    </div>
+                </div>
+            `;
             row.appendChild(td);
         });
         
@@ -560,30 +635,37 @@
         newRow.setAttribute('data-index', rowIndex);
         
         let html = `
-            <td class="px-4 py-3">
+            <td class="qty-col px-3 py-3">
                 <input type="number" name="prices[${rowIndex}][quantity_from]" value="" min="1" required
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all" placeholder="10">
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all font-medium text-center" placeholder="10">
             </td>
-            <td class="px-4 py-3">
+            <td class="qty-col px-3 py-3">
                 <input type="number" name="prices[${rowIndex}][quantity_to]" value="" min="1"
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all" placeholder="∞">
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all font-medium text-center" placeholder="∞">
             </td>
         `;
         
         availableSizes.forEach(size => {
             html += `
-                <td class="px-4 py-3">
-                    <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm">R$</span>
-                        <input type="number" name="prices[${rowIndex}][${size}]" value="" step="0.01" min="0" data-size="${size}"
-                               class="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all" placeholder="0,00">
+                <td class="px-3 py-3">
+                    <div class="flex gap-1.5 items-center">
+                        <div class="relative flex-1 min-w-[80px]">
+                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-emerald-500 dark:text-emerald-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
+                            <input type="number" name="prices[${rowIndex}][${size}][price]" value="" step="0.01" min="0" data-size="${size}" data-field="price"
+                                   class="w-full pl-9 pr-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all text-right font-medium tabular-nums" placeholder="0,00" title="Venda — ${size}">
+                        </div>
+                        <div class="relative flex-1 min-w-[80px]">
+                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-amber-500 dark:text-amber-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
+                            <input type="number" name="prices[${rowIndex}][${size}][cost]" value="" step="0.01" min="0" data-size="${size}" data-field="cost"
+                                   class="w-full pl-9 pr-2 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 transition-all text-right font-medium tabular-nums" placeholder="0,00" title="Custo — ${size}">
+                        </div>
                     </div>
                 </td>
             `;
         });
         
         html += `
-            <td class="px-4 py-3 text-center">
+            <td class="actions-col px-4 py-3 text-center">
                 <button type="button" onclick="removeRow(this)" class="inline-flex items-center p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Remover linha">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -636,22 +718,29 @@
         newRow.className = 'color-price-row hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b border-gray-100 dark:border-gray-700';
         newRow.setAttribute('data-index', colorRowIndex);
         newRow.innerHTML = `
-            <td class="px-4 py-3">
+            <td class="qty-col px-3 py-3">
                 <input type="number" name="color_prices[${colorRowIndex}][from]" value="" min="1" required
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all" placeholder="10">
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all font-medium text-center" placeholder="10">
             </td>
-            <td class="px-4 py-3">
+            <td class="qty-col px-3 py-3">
                 <input type="number" name="color_prices[${colorRowIndex}][to]" value="" min="1"
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all" placeholder="∞">
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all font-medium text-center" placeholder="∞">
             </td>
             <td class="px-4 py-3">
-                <div class="relative">
-                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm">R$</span>
-                    <input type="number" name="color_prices[${colorRowIndex}][price]" value="" step="0.01" min="0"
-                           class="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all" placeholder="0,00">
+                <div class="flex gap-1.5 items-center">
+                    <div class="relative flex-1 min-w-[80px]">
+                        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-emerald-500 dark:text-emerald-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
+                        <input type="number" name="color_prices[${colorRowIndex}][price]" value="" step="0.01" min="0" data-field="price"
+                               class="w-full pl-9 pr-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all text-right font-medium tabular-nums" placeholder="0,00" title="Venda">
+                    </div>
+                    <div class="relative flex-1 min-w-[80px]">
+                        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-amber-500 dark:text-amber-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
+                        <input type="number" name="color_prices[${colorRowIndex}][cost]" value="" step="0.01" min="0" data-field="cost"
+                               class="w-full pl-9 pr-2 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 transition-all text-right font-medium tabular-nums" placeholder="0,00" title="Custo">
+                    </div>
                 </div>
             </td>
-            <td class="px-4 py-3 text-center">
+            <td class="actions-col px-4 py-3 text-center">
                 <button type="button" onclick="removeColorRow(this)" class="inline-flex items-center p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Remover linha">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -706,7 +795,7 @@
             const toVal = toInput.value ? parseInt(toInput.value) : Infinity;
 
             if (qty >= fromVal && qty <= toVal) {
-                const priceInput = row.querySelector(`input[data-size="${size}"]`);
+                const priceInput = row.querySelector(`input[data-size="${size}"][data-field="price"]`) || row.querySelector(`input[data-size="${size}"]`);
                 if (priceInput) {
                     basePrice = parseFloat(priceInput.value) || 0;
                 }
