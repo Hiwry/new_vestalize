@@ -40,6 +40,11 @@
         padding: 6px 4px !important;
         width: 100% !important;
     }
+    #addons-table input[name*="[price_adjustment]"] {
+        padding-left: 30px !important;
+        padding-right: 12px !important;
+        text-align: right !important;
+    }
 </style>
 @endpush
 
@@ -240,7 +245,7 @@
                                                 <span class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
                                                 <input type="number" name="addons[{{ $index }}][price_adjustment]" 
                                                        value="{{ $addon->price_adjustment }}" step="0.01"
-                                                       class="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all font-medium tabular-nums">
+                                                       class="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all font-medium tabular-nums text-right">
                                             </div>
                                         </td>
                                         <td class="actions-col px-4 py-3 text-center">
@@ -459,7 +464,7 @@
                     <span class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
                     <input type="number" name="addons[${addonRowIndex}][price_adjustment]" 
                            value="0" step="0.01"
-                           class="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all font-medium tabular-nums">
+                           class="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all font-medium tabular-nums text-right">
                 </div>
             </td>
             <td class="actions-col px-4 py-3 text-center">

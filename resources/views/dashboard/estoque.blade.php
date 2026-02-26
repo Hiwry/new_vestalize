@@ -1,6 +1,31 @@
 @extends('layouts.admin')
 
 @section('content')
+<style>
+    /* Evita borda global em bolhas de ícone (regra do tema pega .rounded-full + .bg-*) */
+    .estoque-icon-badge {
+        border-radius: 9999px;
+        padding: 0.75rem;
+        border: 0 !important;
+        box-shadow: none !important;
+        outline: 0 !important;
+    }
+    .estoque-icon-badge svg {
+        display: block;
+    }
+    .estoque-icon-blue { background-color: #dbeafe; }
+    .estoque-icon-green { background-color: #dcfce7; }
+    .estoque-icon-red { background-color: #fee2e2; }
+    .estoque-icon-orange { background-color: #ffedd5; }
+    .estoque-icon-yellow { background-color: #fef3c7; }
+    .estoque-icon-indigo { background-color: #e0e7ff; }
+    .dark .estoque-icon-blue { background-color: rgba(30, 58, 138, 0.3); }
+    .dark .estoque-icon-green { background-color: rgba(20, 83, 45, 0.3); }
+    .dark .estoque-icon-red { background-color: rgba(127, 29, 29, 0.3); }
+    .dark .estoque-icon-orange { background-color: rgba(154, 52, 18, 0.3); }
+    .dark .estoque-icon-yellow { background-color: rgba(113, 63, 18, 0.3); }
+    .dark .estoque-icon-indigo { background-color: rgba(55, 48, 163, 0.3); }
+</style>
 <div class="flex justify-between items-center mb-8">
     <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Dashboard de Estoque</h1>
     
@@ -33,7 +58,7 @@
                 <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{ number_format($totalItensEstoque, 0, ',', '.') }}</p>
                 <p class="text-xs text-blue-600 mt-2">{{ number_format($totalDisponivel, 0, ',', '.') }} disponíveis</p>
             </div>
-            <div class="bg-blue-100 dark:bg-blue-900/30 rounded-full p-3">
+            <div class="estoque-icon-badge estoque-icon-blue">
                 <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                 </svg>
@@ -49,7 +74,7 @@
                 <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{ number_format($totalQuantidade, 0, ',', '.') }}</p>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">{{ number_format($totalReservado, 0, ',', '.') }} reservados</p>
             </div>
-            <div class="bg-green-100 dark:bg-green-900/30 rounded-full p-3">
+            <div class="estoque-icon-badge estoque-icon-green">
                 <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
@@ -65,7 +90,7 @@
                 <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{ number_format($estoqueBaixo, 0, ',', '.') }}</p>
                 <p class="text-xs text-red-600 mt-2">Abaixo do mínimo</p>
             </div>
-            <div class="bg-red-100 dark:bg-red-900/30 rounded-full p-3">
+            <div class="estoque-icon-badge estoque-icon-red">
                 <svg class="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                 </svg>
@@ -81,7 +106,7 @@
                 <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{ number_format($solicitacoesPendentes, 0, ',', '.') }}</p>
                 <p class="text-xs text-orange-600 mt-2">{{ $solicitacoesHoje }} hoje</p>
             </div>
-            <div class="bg-orange-100 dark:bg-orange-900/30 rounded-full p-3">
+            <div class="estoque-icon-badge estoque-icon-orange">
                 <svg class="w-8 h-8 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
@@ -99,7 +124,7 @@
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Aprovadas</p>
                 <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ number_format($solicitacoesAprovadas, 0, ',', '.') }}</p>
             </div>
-            <div class="bg-green-100 dark:bg-green-900/30 rounded-full p-3">
+            <div class="estoque-icon-badge estoque-icon-green">
                 <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
@@ -114,7 +139,7 @@
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Em Transferência</p>
                 <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ number_format($solicitacoesEmTransferencia, 0, ',', '.') }}</p>
             </div>
-            <div class="bg-yellow-100 dark:bg-yellow-900/30 rounded-full p-3">
+            <div class="estoque-icon-badge estoque-icon-yellow">
                 <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
                 </svg>
@@ -129,7 +154,7 @@
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Disponível</p>
                 <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ number_format($totalDisponivel, 0, ',', '.') }}</p>
             </div>
-            <div class="bg-indigo-100 dark:bg-indigo-900/30 rounded-full p-3">
+            <div class="estoque-icon-badge estoque-icon-indigo">
                 <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                 </svg>
