@@ -344,10 +344,17 @@
     // Adicionais disponíveis para a calculadora
     const availableAddons = @json($addons->toArray());
 
-    document.addEventListener('DOMContentLoaded', function() {
+    function initSubTotalPricesPage() {
         loadCalculatorAddons();
         updateCalculator();
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSubTotalPricesPage);
+    } else {
+        initSubTotalPricesPage();
+    }
+    document.addEventListener('ajax-content-loaded', initSubTotalPricesPage);
 
     // Funções para preços base
     function addBasePriceRow() {
@@ -546,6 +553,13 @@
         document.getElementById('calc-addons-price').textContent = `R$ ${addonsTotal.toFixed(2).replace('.', ',')}`;
         document.getElementById('calc-total-price').textContent = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
     }
+
+    // Expor funções para uso em handlers inline (onclick/onchange) e navegação AJAX
+    window.addBasePriceRow = addBasePriceRow;
+    window.removeBasePriceRow = removeBasePriceRow;
+    window.addAddonRow = addAddonRow;
+    window.removeAddonRow = removeAddonRow;
+    window.updateCalculator = updateCalculator;
 </script>
 @endpush
 @endsection
