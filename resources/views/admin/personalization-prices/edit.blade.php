@@ -69,9 +69,9 @@
         -moz-appearance: textfield;
     }
     .qty-col {
-        width: 84px !important;
-        max-width: 84px !important;
-        min-width: 76px !important;
+        width: 74px !important;
+        max-width: 74px !important;
+        min-width: 66px !important;
     }
     .actions-col {
         width: 46px !important;
@@ -81,6 +81,32 @@
     .size-col {
         width: 182px !important;
         min-width: 182px !important;
+    }
+    #prices-table {
+        width: auto !important;
+        table-layout: fixed !important;
+    }
+    #prices-table thead {
+        display: table-header-group !important;
+    }
+    #prices-table tbody {
+        display: table-row-group !important;
+    }
+    #prices-table tr {
+        display: table-row !important;
+    }
+    #prices-table th,
+    #prices-table td {
+        display: table-cell !important;
+    }
+    #prices-table col.qty-col-fixed {
+        width: 74px !important;
+    }
+    #prices-table col.size-col-fixed {
+        width: 182px !important;
+    }
+    #prices-table col.actions-col-fixed {
+        width: 46px !important;
     }
     /* Aggressive overrides for Avento global theme */
     #prices-table input.w-full {
@@ -92,11 +118,25 @@
     }
     #prices-table .qty-col input {
         padding: 6px 4px !important;
-        width: 72px !important;
-        min-width: 72px !important;
-        max-width: 72px !important;
+        width: 62px !important;
+        min-width: 62px !important;
+        max-width: 62px !important;
         margin: 0 auto !important;
         display: block !important;
+    }
+    #prices-table th.qty-col,
+    #prices-table td.qty-col {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+    }
+    #prices-table thead th:nth-child(1),
+    #prices-table thead th:nth-child(2),
+    #prices-table tbody td:nth-child(1),
+    #prices-table tbody td:nth-child(2) {
+        width: 1% !important;
+        min-width: 74px !important;
+        max-width: 74px !important;
+        white-space: nowrap !important;
     }
     #prices-table td {
         height: 48px !important;
@@ -239,7 +279,12 @@
 
                 <!-- Tabela de Preços -->
                 <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
-                    <table class="w-max" id="prices-table" style="table-layout: auto !important;">
+                    <table class="w-max" id="prices-table" style="table-layout: fixed !important;">
+                        <colgroup id="prices-colgroup">
+                            <col class="qty-col-fixed">
+                            <col class="qty-col-fixed">
+                            <col class="actions-col-fixed">
+                        </colgroup>
                         <thead>
                             <!-- Linha principal de cabeçalho -->
                             <tr class="bg-gray-50 dark:bg-gray-700/50 table-header-group">
@@ -467,14 +512,35 @@
     function renderTable() {
         const table = document.getElementById('prices-table');
         const tbody = document.getElementById('prices-tbody');
+        const colgroup = document.getElementById('prices-colgroup');
         
         // Atualizar cabeçalho
         const headerRow = table.querySelector('thead tr');
+        
+        let colgroupHtml = `
+            <col class="qty-col-fixed">
+            <col class="qty-col-fixed">
+        `;
+        availableSizes.forEach(() => {
+            colgroupHtml += `<col class="size-col-fixed">`;
+        });
+        colgroupHtml += `<col class="actions-col-fixed">`;
+        colgroup.innerHTML = colgroupHtml;
+
+        const tableWidth = (74 * 2) + (182 * availableSizes.length) + 46;
+        table.style.width = `${tableWidth}px`;
+        table.style.minWidth = `${tableWidth}px`;
         
         headerRow.innerHTML = `
             <th class="qty-col px-2 py-2.5 text-left text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Qtd. De</th>
             <th class="qty-col px-2 py-2.5 text-left text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Qtd. Até</th>
         `;
+        headerRow.querySelectorAll('th.qty-col').forEach((th) => {
+            th.style.width = '74px';
+            th.style.minWidth = '74px';
+            th.style.maxWidth = '74px';
+            th.style.display = 'table-cell';
+        });
         
         // Renderizar tamanhos
         availableSizes.forEach(size => {
@@ -519,6 +585,18 @@
                 tbody.appendChild(row);
             });
         }
+
+        tbody.querySelectorAll('tr').forEach((row) => {
+            [0, 1].forEach((idx) => {
+                const cell = row.children[idx];
+                if (!cell) return;
+                cell.colSpan = 1;
+                cell.style.width = '74px';
+                cell.style.minWidth = '74px';
+                cell.style.maxWidth = '74px';
+                cell.style.display = 'table-cell';
+            });
+        });
     }
 
     function createPriceRow(range, index) {
@@ -582,6 +660,13 @@
         `;
         
         row.innerHTML = html;
+        row.querySelectorAll('td.qty-col').forEach((cell) => {
+            cell.colSpan = 1;
+            cell.style.width = '74px';
+            cell.style.minWidth = '74px';
+            cell.style.maxWidth = '74px';
+            cell.style.display = 'table-cell';
+        });
         return row;
     }
 
