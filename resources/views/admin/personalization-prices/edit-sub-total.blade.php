@@ -361,7 +361,6 @@
         const row = document.createElement('tr');
         row.className = 'price-row border-b border-gray-100 dark:border-gray-700';
         row.innerHTML = `
-        row.innerHTML = `
             <td class="qty-col px-3 py-3">
                 <input type="number" name="base_prices[${basePriceRowIndex}][quantity_from]" 
                        value="1" min="1"
