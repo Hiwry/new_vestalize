@@ -331,14 +331,14 @@
                                      onclick="closeSewingWizard()"></div>
 
                                 <!-- Modal Panel -->
-                                <div class="absolute inset-0 flex items-center justify-center p-4">
-                                    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden transform transition-all animate-fade-in-up border border-gray-200 dark:border-slate-700">
+                                <div class="absolute inset-0 flex items-center justify-center p-2 sm:p-4">
+                                    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-5xl max-h-[88vh] flex flex-col overflow-hidden transform transition-all animate-fade-in-up border border-gray-200 dark:border-slate-700">
                                         
                                         <!-- Header -->
-                                        <div class="px-6 py-4 flex-none border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-gray-50/50 dark:bg-slate-800/50">
+                                        <div class="px-6 py-3 flex-none border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-gray-50/50 dark:bg-slate-800/50">
                                             <div>
-                                                <h3 class="text-lg font-black text-gray-900 dark:text-white">Configurar Modelo</h3>
-                                                <p class="text-xs text-gray-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5" id="wizard-step-title">Etapa 1 de 5</p>
+                                                <h3 class="text-lg font-black text-gray-900 dark:text-white leading-tight">Configurar Modelo</h3>
+                                                <p class="text-[10px] text-gray-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5" id="wizard-step-title">Etapa 1 de 5</p>
                                             </div>
                                             <button type="button" onclick="closeSewingWizard()" class="text-gray-400 hover:text-gray-500 transition-colors">
                                                 <i class="fa-solid fa-xmark text-xl"></i>
@@ -351,7 +351,7 @@
                                         </div>
 
                                         <!-- Steps Content -->
-                                        <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6 custom-scrollbar" id="wizard-content">
+                                        <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-5 custom-scrollbar" id="wizard-content">
                                             
                                             <!-- Step 1: Personalização -->
                                             <div id="step-1" class="wizard-step">
@@ -531,9 +531,9 @@
 
                                             <!-- Step 5: Detalhe -->
                                             <div id="step-5" class="wizard-step hidden">
-                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Selecione o(s) Detalhe(s)</h4>
-                                                <p class="text-[10px] text-gray-500 mb-4">Você pode selecionar múltiplos detalhes.</p>
-                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4" id="wizard-options-detalhe">
+                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-2">Selecione o(s) Detalhe(s)</h4>
+                                                <p class="text-[10px] text-gray-500 mb-3">Você pode selecionar múltiplos detalhes.</p>
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 mb-4" id="wizard-options-detalhe">
                                                     <!-- Filled by JS -->
                                                 </div>
                                                 
@@ -701,7 +701,7 @@
                                         </div>
 
                                         <!-- Footer -->
-                                        <div class="px-6 py-4 flex-none border-t border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/50 rounded-b-2xl">
+                                        <div class="px-6 py-3 flex-none border-t border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/50 rounded-b-2xl">
                                             <button type="button" id="wizard-prev-btn" onclick="wizardPrevStep()" class="px-4 py-2 text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed">
                                                 ← Voltar
                                             </button>
@@ -1498,7 +1498,7 @@
             const isActive = wizardData[fieldKey] && wizardData[fieldKey].id == item.id;
             const price = parseFloat(item.price || 0);
             return `
-                <div class="wizard-option-card p-4 rounded-xl border ${isActive ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : 'border-gray-200 dark:border-slate-700'} hover:border-[#7c3aed] dark:hover:border-[#7c3aed] cursor-pointer transition-all"
+                <div class="wizard-option-card p-2.5 rounded-xl border ${isActive ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : 'border-gray-200 dark:border-slate-700'} hover:border-[#7c3aed] dark:hover:border-[#7c3aed] cursor-pointer transition-all"
                     onclick="selectWizardOption('${fieldKey}', '${item.id}', '${item.name.replace(/'/g, '')}', ${price}, true)">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
@@ -1551,7 +1551,7 @@
             const isSelected = wizardData.detalhe.some(d => d.id == item.id);
             const price = parseFloat(item.price || 0);
             return `
-                <div class="wizard-option-card p-4 rounded-xl border ${isSelected ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : 'border-gray-200 dark:border-slate-700'} hover:border-[#7c3aed] dark:hover:border-[#7c3aed] cursor-pointer transition-all"
+                <div class="wizard-option-card p-2.5 rounded-xl border ${isSelected ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : 'border-gray-200 dark:border-slate-700'} hover:border-[#7c3aed] dark:hover:border-[#7c3aed] cursor-pointer transition-all"
                     onclick="toggleWizardDetail('${item.id}', '${item.name.replace(/'/g, '')}', ${price})">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
@@ -1730,7 +1730,7 @@
             const style = personalizationIconMap[key] || personalizationIconMap.default;
             
             return `
-            <label class="wizard-option-card group cursor-pointer p-4 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center gap-2 ${activeClass}"
+            <label class="wizard-option-card group cursor-pointer p-2.5 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center gap-1.5 ${activeClass}"
                    data-id="${item.id ?? ''}">
                 <input type="checkbox" class="personalizacao-checkbox hidden" value="${item.id ?? ''}" ${isSelected ? 'checked' : ''} onchange="syncWizardPersonalizacaoUI()">
                 <div class="w-10 h-10 rounded-full ${style.bubble} flex items-center justify-center ${style.color}">
