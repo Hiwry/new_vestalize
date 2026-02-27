@@ -179,7 +179,7 @@
 
         try {
             // Fazer requisição AJAX
-            const response = await fetch(url, {
+            const response = await fetch(new URL(url, window.location.origin).href + (url.includes('?') ? '&' : '?') + '_t=' + Date.now(), {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',

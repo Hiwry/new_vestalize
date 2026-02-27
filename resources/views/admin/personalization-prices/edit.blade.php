@@ -209,18 +209,19 @@
     <!-- Main Card -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/25 border border-gray-200 dark:border-gray-700 overflow-hidden">
         <!-- Header -->
-        <div class="px-6 py-5 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-800">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/50">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center flex-shrink-0 border border-indigo-100 dark:border-indigo-800/50 shadow-sm">
+                    <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
                 <div>
-                    <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ $types[$type] }}</h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Configure preços de venda e custo por tamanho e faixa de quantidade</p>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">{{ $types[$type] }}</h2>
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">Gestão de precificação por quantidade e faixas de aplicação</p>
                 </div>
             </div>
+
         </div>
 
         <form method="POST" action="{{ route('admin.personalization-prices.update', $type) }}" id="prices-form">

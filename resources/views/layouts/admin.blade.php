@@ -273,7 +273,7 @@
         .text-white { color: #ffffff !important; }
         
         /* Gradient button text fix */
-        .bg-gradient-to-r { color: #ffffff !important; }
+
 
         /* Sidebar - Dinâmico */
         #sidebar {
