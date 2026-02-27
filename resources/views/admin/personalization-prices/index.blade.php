@@ -266,17 +266,29 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 text-right">
-                                        <form method="POST" action="{{ route('admin.personalization-prices.locations.destroy', $location) }}" id="delete-location-form-{{ $location->id }}" class="inline-block">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" onclick="openDeleteLocationModal('delete-location-form-{{ $location->id }}', '{{ addslashes($location->name) }}')" 
-                                                    class="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100" 
-                                                    title="Remover localização">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <!-- Botão Editar -->
+                                            <button type="button" 
+                                                    onclick="openEditLocationModal('{{ $location->id }}', '{{ addslashes($location->name) }}', '{{ addslashes($location->pdf_note ?? '') }}')"
+                                                    class="p-2 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                                    title="Editar localização">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                 </svg>
                                             </button>
-                                        </form>
+
+                                            <form method="POST" action="{{ route('admin.personalization-prices.locations.destroy', $location) }}" id="delete-location-form-{{ $location->id }}" class="inline-block">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" onclick="openDeleteLocationModal('delete-location-form-{{ $location->id }}', '{{ addslashes($location->name) }}')" 
+                                                        class="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100" 
+                                                        title="Remover localização">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                                 @empty
@@ -337,6 +349,59 @@
     </div>
 @endsection
 
+@section('modals')
+    <!-- Modal de Edição de Localização -->
+    <div id="edit-location-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity backdrop-blur-sm"></div>
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100 dark:border-gray-700">
+                <form id="edit-location-form" method="POST">
+                    @csrf
+                    @method('PUT')
+                    
+                    <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/20">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Configurar Localização</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Configure o nome e a observação que aparecerá no PDF</p>
+                    </div>
+
+                    <div class="p-6 space-y-4">
+                        <!-- Nome -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Nome da Localização</label>
+                            <input type="text" name="name" id="edit-location-name-input" required
+                                   class="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm">
+                        </div>
+
+                        <!-- Observação PDF -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">
+                                Observação Automática (PDF)
+                            </label>
+                            <textarea name="pdf_note" id="edit-location-pdf-note-input" rows="3"
+                                      placeholder="Ex: {LOCAL} ABERTA PARA {TIPO}"
+                                      class="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"></textarea>
+                            <p class="mt-2 text-[10px] text-gray-500 dark:text-gray-400 leading-relaxed italic">
+                                Use <span class="text-indigo-500 font-mono font-bold">{LOCAL}</span> para o nome do local e <span class="text-indigo-500 font-mono font-bold">{TIPO}</span> para o tipo de aplicação (Bordado, DTF, etc). 
+                                <br>Se deixar vazio, usará o padrão: "{LOCAL} ABERTA PARA {TIPO}"
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
+                        <button type="button" onclick="closeEditLocationModal()" 
+                                class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 rounded-lg transition-colors border border-gray-200 dark:border-gray-700">
+                            Cancelar
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm">
+                            Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 @push('scripts')
 <script>
     let deleteLocationFormId = null;
@@ -361,6 +426,22 @@
             form.submit();
         }
         closeDeleteLocationModal();
+    }
+
+    function openEditLocationModal(id, name, pdfNote) {
+        const form = document.getElementById('edit-location-form');
+        form.action = `/admin/personalization-prices/locations/${id}`;
+        
+        document.getElementById('edit-location-name-input').value = name;
+        document.getElementById('edit-location-pdf-note-input').value = pdfNote;
+        
+        document.getElementById('edit-location-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeEditLocationModal() {
+        document.getElementById('edit-location-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
     }
 </script>
 @endpush

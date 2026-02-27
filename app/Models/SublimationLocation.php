@@ -12,6 +12,7 @@ class SublimationLocation extends Model
         'active',
         'show_in_pdf',
         'personalization_types',
+        'pdf_note',
     ];
 
     protected $casts = [

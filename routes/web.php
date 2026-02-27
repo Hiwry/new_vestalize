@@ -664,6 +664,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::delete('personalization-prices/locations/{location}', [\App\Http\Controllers\Admin\SublimationLocationController::class, 'destroy'])->name('personalization-prices.locations.destroy');
     Route::patch('personalization-prices/locations/{location}/toggle', [\App\Http\Controllers\Admin\SublimationLocationController::class, 'toggle'])->name('personalization-prices.locations.toggle');
     Route::patch('personalization-prices/locations/{location}/toggle-pdf', [\App\Http\Controllers\Admin\SublimationLocationController::class, 'togglePdf'])->name('personalization-prices.locations.toggle-pdf');
+    Route::put('personalization-prices/locations/{location}', [\App\Http\Controllers\Admin\SublimationLocationController::class, 'update'])->name('personalization-prices.locations.update');
     
     // Configurações de Personalização (novo sistema)
     Route::get('personalization-settings/{type}', [\App\Http\Controllers\Admin\PersonalizationSettingController::class, 'edit'])->name('personalization-settings.edit');

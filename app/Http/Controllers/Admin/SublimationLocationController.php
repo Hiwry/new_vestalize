@@ -50,4 +50,16 @@ class SublimationLocationController extends Controller
 
         return redirect()->back()->with('success', 'Visibilidade no PDF atualizada.');
     }
+
+    public function update(Request $request, SublimationLocation $location): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:100',
+            'pdf_note' => 'nullable|string|max:255',
+        ]);
+
+        $location->update($data);
+
+        return redirect()->back()->with('success', 'Localização atualizada com sucesso.');
+    }
 }

@@ -27,11 +27,12 @@
         }
         .item-container {
             width: 100%;
-            height: 48%; /* Tenta ocupar metade da area util */
-            margin-bottom: 5px;
-            padding-bottom: 5px;
-            border-bottom: 2px dashed #ccc;
+            height: 48.5%; /* Otimizado para caber 2 por pagina */
+            margin-bottom: 2px;
+            padding-bottom: 2px;
+            border-bottom: 1px dashed #ccc;
             display: block;
+            overflow: hidden;
         }
         .header-table {
             width: 100%;
@@ -93,8 +94,8 @@
     <div class="page">
         @foreach($chunk as $item)
         <div class="item-container">
-            <!-- Corpo com Borda e Margens Internas -->
-            <div style="border: 2px solid #cbd5e1; border-radius: 8px; padding: 15px; margin-top: 5px; height: 95%;">
+            <!-- Corpo com Borda e Margens Internas Compactas -->
+            <div style="border: 2px solid #cbd5e1; border-radius: 8px; padding: 10px; margin-top: 2px; height: 98%;">
                 
                 <!-- Header Compacto -->
                 <table class="header-table">
@@ -121,7 +122,7 @@
                     </tr>
                 </table>
 
-                <table class="main-content" style="width: 100%; height: 85%;">
+                <table class="main-content" style="width: 100%;">
                     <tr>
                     <!-- Coluna Esquerda: Detalhes, Specs e Tamanhos (30%) -->
                     <td style="width: 30%; vertical-align: top;">
@@ -203,7 +204,7 @@
 
                     <!-- Coluna Direita: Imagem Horizontal Grande (70%) -->
                     <td style="width: 70%; vertical-align: top;">
-                         <div class="box" style="height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; position: relative;">
+                         <div class="box" style="height: 380px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; position: relative;">
                              @php
                                 $imageData = $itemImages[$item->id] ?? [];
                                 $coverImageUrl = $imageData['coverImageUrl'] ?? null;
@@ -235,7 +236,18 @@
                                     
                                     if ($loc && $loc->show_in_pdf) {
                                         $type = $sub->application_type ? strtoupper($sub->application_type) : 'PERSONALIZAÇÃO';
-                                        $autoNotes[] = strtoupper($loc->name) . " ABERTA PARA " . $type;
+                                        
+                                        // Usar template personalizado se disponível
+                                        if (!empty($loc->pdf_note)) {
+                                            $note = str_replace(
+                                                ['{LOCAL}', '{local}', '{TIPO}', '{tipo}'],
+                                                [strtoupper($loc->name), $loc->name, $type, strtolower($type)],
+                                                $loc->pdf_note
+                                            );
+                                            $autoNotes[] = $note;
+                                        } else {
+                                            $autoNotes[] = strtoupper($loc->name) . " ABERTA PARA " . $type;
+                                        }
                                     }
                                 }
                             }
