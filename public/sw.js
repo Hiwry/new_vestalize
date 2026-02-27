@@ -32,9 +32,11 @@ self.addEventListener('fetch', event => {
         event.respondWith(
             fetch(event.request)
                 .then(response => {
-                    // Update cache with the new version
-                    const copy = response.clone();
-                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+                    // Update cache only for GET requests
+                    if (event.request.method === 'GET' && response.status === 200) {
+                        const copy = response.clone();
+                        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+                    }
                     return response;
                 })
                 .catch(() => {
