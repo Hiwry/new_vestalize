@@ -1258,8 +1258,9 @@
             // Skip logic for Detail Color
             if (wizardCurrentStep === 5) {
                 const isDifferentDetail = document.getElementById('different_detail_color_cb')?.checked;
-                const detail = wizardData.detalhe;
-                if (!detail || detail.name.toLowerCase().includes('sem') || !isDifferentDetail) {
+                const details = wizardData.detalhe;
+                const hasSemDetalhe = Array.isArray(details) ? details.some(d => d.name && d.name.toLowerCase().includes('sem')) : (details && details.name && details.name.toLowerCase().includes('sem'));
+                if (!details || (Array.isArray(details) && details.length === 0) || hasSemDetalhe || !isDifferentDetail) {
                     wizardData.detail_color = wizardData.cor;
                     wizardCurrentStep += 2;
                     window.wizardCurrentStep = wizardCurrentStep;
@@ -1319,8 +1320,9 @@
             // Skip logic backward for Detail Color
             if (wizardCurrentStep === 7) {
                 const isDifferentDetail = document.getElementById('different_detail_color_cb')?.checked;
-                const detail = wizardData.detalhe;
-                if (!detail || detail.name.toLowerCase().includes('sem') || !isDifferentDetail) {
+                const details = wizardData.detalhe;
+                const hasSemDetalhe = Array.isArray(details) ? details.some(d => d.name && d.name.toLowerCase().includes('sem')) : (details && details.name && details.name.toLowerCase().includes('sem'));
+                if (!details || (Array.isArray(details) && details.length === 0) || hasSemDetalhe || !isDifferentDetail) {
                     wizardCurrentStep -= 2;
                     window.wizardCurrentStep = wizardCurrentStep;
                     updateWizardUI();
