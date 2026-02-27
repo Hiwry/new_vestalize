@@ -105,7 +105,7 @@
                         </td>
                         <td style="width: 55%; background: #6366f1; color: white;" class="header-cell">
                             <span style="font-size: 16px; font-weight: bold;">{{ \Illuminate\Support\Str::upper($item->art_name ?? 'SEM NOME') }}</span>
-                            <span style="background: rgba(255,255,255,0.2); padding: 1px 6px; border-radius: 10px; font-size: 10px; margin-left: 5px;">OS {{ $order->id }}</span>
+                            <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 14px; margin-left: 8px; border: 1px solid rgba(255,255,255,0.3);">OS {{ $order->id }}</span>
                         </td>
                         <td style="width: 15%; background: #f1f5f9;" class="header-cell">
                             @php

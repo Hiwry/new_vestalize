@@ -33,8 +33,10 @@
             font-weight: bold;
         }
         .header .subtitle {
-            font-size: 12px;
+            font-size: 18px;
             color: var(--brand-secondary);
+            font-weight: bold;
+            margin-top: 5px;
         }
         .company-info {
             text-align: left;
