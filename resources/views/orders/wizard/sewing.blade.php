@@ -1913,9 +1913,13 @@
          );
          
          if (isSublimacaoSelected) {
-             items = items.filter(cor => 
-                 cor.name.toUpperCase() === 'BRANCO' || cor.name.toUpperCase() === 'WHITE'
+             const brancoCores = getOptionList(['cor']).filter(cor => 
+                cor.name.toUpperCase() === 'BRANCO' || cor.name.toUpperCase() === 'WHITE'
              );
+             
+             // If we found "Branco" in the original list but it was filtered out, add it back
+             // or just replace the items with only Branco/White
+             items = brancoCores;
          }
          
          container.innerHTML = items.map(color => {
