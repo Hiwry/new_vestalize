@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Artisan;
 
 // Rota específica para imagens de aplicação (alternativa mais confiável que /storage/)
 // Esta rota NÃO depende de .htaccess ou symlink
@@ -10,6 +11,16 @@ Route::get('/imagens-aplicacao/{filename}', [\App\Http\Controllers\StorageContro
     ->where('filename', '[^/]+')
     ->name('application.image')
     ->middleware([]);
+
+// Rota temporária para executar migrações via navegador (Shared Hosting Fix)
+Route::get('/run-migrations', function () {
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        return "Migrações executadas com sucesso!<br><pre>" . Artisan::output() . "</pre>";
+    } catch (\Exception $e) {
+        return "Erro ao executar migrações: " . $e->getMessage();
+    }
+});
 
 // Landing Page para Personalizados (subdomain em produção - DEVE VIR ANTES da rota principal)
 Route::domain('personalizados.vestalize.com')->group(function () {
