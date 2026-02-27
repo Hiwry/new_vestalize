@@ -15,6 +15,15 @@ use Illuminate\Support\Facades\Route;
 Route::get('registro', [App\Http\Controllers\PublicRegistrationController::class, 'show'])->name('register.public');
 Route::post('registro', [App\Http\Controllers\PublicRegistrationController::class, 'register'])->name('register.public.post');
 
+// Auth Designer (Marketplace - separada do Vestalize)
+Route::middleware('guest')->group(function () {
+    Route::get('marketplace/designer/cadastro', [App\Http\Controllers\Marketplace\DesignerAuthController::class, 'showRegister'])->name('designer.register');
+    Route::post('marketplace/designer/cadastro', [App\Http\Controllers\Marketplace\DesignerAuthController::class, 'register'])->name('designer.register.post');
+    Route::get('marketplace/designer/login', [App\Http\Controllers\Marketplace\DesignerAuthController::class, 'showLogin'])->name('designer.login');
+    Route::post('marketplace/designer/login', [App\Http\Controllers\Marketplace\DesignerAuthController::class, 'login'])->name('designer.login.post');
+});
+Route::post('marketplace/designer/logout', [App\Http\Controllers\Marketplace\DesignerAuthController::class, 'logout'])->name('designer.logout')->middleware('auth');
+
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');

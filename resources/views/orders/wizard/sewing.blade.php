@@ -332,7 +332,7 @@
 
                                 <!-- Modal Panel -->
                                 <div class="absolute inset-0 flex items-center justify-center p-4">
-                                    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden transform transition-all animate-fade-in-up border border-gray-200 dark:border-slate-700">
+                                    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden transform transition-all animate-fade-in-up border border-gray-200 dark:border-slate-700">
                                         
                                         <!-- Header -->
                                         <div class="px-6 py-4 flex-none border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-gray-50/50 dark:bg-slate-800/50">
@@ -531,15 +531,26 @@
 
                                             <!-- Step 5: Detalhe -->
                                             <div id="step-5" class="wizard-step hidden">
-                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Selecione o Detalhe</h4>
+                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Selecione o(s) Detalhe(s)</h4>
+                                                <p class="text-[10px] text-gray-500 mb-4">Você pode selecionar múltiplos detalhes.</p>
                                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4" id="wizard-options-detalhe">
                                                     <!-- Filled by JS -->
                                                 </div>
-                                                <div class="p-3 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700">
-                                                    <label class="flex items-center cursor-pointer">
-                                                        <input type="checkbox" id="different_detail_color_cb" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]">
-                                                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Cor do detalhe diferente do tecido?</span>
-                                                    </label>
+                                                
+                                                <div class="space-y-3">
+                                                    <div class="p-3 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                        <label class="flex items-center cursor-pointer">
+                                                            <input type="checkbox" id="different_detail_color_cb" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]" onchange="toggleDetailColorUI()">
+                                                            <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Cor do detalhe diferente do tecido?</span>
+                                                        </label>
+                                                    </div>
+                                                    
+                                                    <div id="individual-colors-toggle-container" class="hidden p-3 bg-purple-50 dark:bg-purple-900/10 rounded-xl border border-purple-200 dark:border-purple-800">
+                                                        <label class="flex items-center cursor-pointer">
+                                                            <input type="checkbox" id="individual_detail_colors_cb" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]" onchange="wizardData.individual_detail_colors = this.checked; renderWizardDetailColorOptions();">
+                                                            <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Definir cores individuais por detalhe?</span>
+                                                        </label>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -1188,8 +1199,10 @@
         tipo_tecido: null,
         cor: null,
         tipo_corte: null,
-        detalhe: null,
+        detalhe: [], // Alterado para array
         detail_color: null,
+        detail_colors: {}, // Novo: para cores individuais por detalhe
+        individual_detail_colors: false, // Novo toggle
         gola: null,
         collar_color: null,
         personalizacao: [],
@@ -1508,24 +1521,147 @@
     }
     window.renderWizardCorteOptions = renderWizardCorteOptions;
 
+    function toggleDetailColorUI() {
+        const isDifferent = document.getElementById('different_detail_color_cb').checked;
+        const toggleContainer = document.getElementById('individual-colors-toggle-container');
+        if (toggleContainer) {
+            toggleContainer.classList.toggle('hidden', !isDifferent);
+        }
+        if (!isDifferent) {
+            wizardData.individual_detail_colors = false;
+            const cb = document.getElementById('individual_detail_colors_cb');
+            if (cb) cb.checked = false;
+        }
+    }
+    window.toggleDetailColorUI = toggleDetailColorUI;
+
     function renderWizardDetalheOptions() {
-        renderOptionCards('wizard-options-detalhe', 'detalhe', ['detalhe', 'detail']);
+        const container = document.getElementById('wizard-options-detalhe');
+        if (!container) return;
+
+        let items = getOptionList(['detalhe', 'detail']);
+        if (!items || items.length === 0) {
+            container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Nenhuma opção disponível.</div>';
+            return;
+        }
+
+        container.innerHTML = items.map(item => {
+            const isSelected = wizardData.detalhe.some(d => d.id == item.id);
+            const price = parseFloat(item.price || 0);
+            return `
+                <div class="wizard-option-card p-4 rounded-xl border ${isSelected ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : 'border-gray-200 dark:border-slate-700'} hover:border-[#7c3aed] dark:hover:border-[#7c3aed] cursor-pointer transition-all"
+                    onclick="toggleWizardDetail('${item.id}', '${item.name.replace(/'/g, '')}', ${price})">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleWizardDetail('${item.id}', '${item.name.replace(/'/g, '')}', ${price})">
+                            <span class="font-semibold text-gray-800 dark:text-gray-100">${item.name}</span>
+                        </div>
+                        ${price > 0 ? `<span class="text-xs font-bold text-[#7c3aed]">R$ ${price.toFixed(2).replace('.', ',')}</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
     window.renderWizardDetalheOptions = renderWizardDetalheOptions;
 
+    function toggleWizardDetail(id, name, price) {
+        // Exclusive "Sem detalhe" logic
+        const isSemDetalhe = name.toLowerCase().includes('sem');
+        
+        if (isSemDetalhe) {
+            wizardData.detalhe = [{ id, name, price }];
+        } else {
+            // Remove "Sem detalhe" if found
+            wizardData.detalhe = wizardData.detalhe.filter(d => !d.name.toLowerCase().includes('sem'));
+            
+            const index = wizardData.detalhe.findIndex(d => d.id == id);
+            if (index > -1) {
+                wizardData.detalhe.splice(index, 1);
+                delete wizardData.detail_colors[id];
+            } else {
+                wizardData.detalhe.push({ id, name, price });
+            }
+        }
+        
+        renderWizardDetalheOptions();
+    }
+    window.toggleWizardDetail = toggleWizardDetail;
+
     function renderWizardDetailColorOptions() {
+        const container = document.getElementById('wizard-options-cor-detalhe');
+        if (!container) return;
+
         const parentIds = [];
         if (wizardData.tecido) parentIds.push(wizardData.tecido.id);
         if (wizardData.tipo_tecido) parentIds.push(wizardData.tipo_tecido.id);
 
         if (parentIds.length === 0) {
-            const container = document.getElementById('wizard-options-cor-detalhe');
-            if (container) container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Selecione o tecido primeiro.</div>';
+            container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Selecione o tecido primeiro.</div>';
             return;
         }
-        renderOptionCards('wizard-options-cor-detalhe', 'detail_color', ['cor', 'cor_detalhe', 'detail_color'], parentIds);
+
+        const details = wizardData.detalhe || [];
+        const isIndividual = wizardData.individual_detail_colors;
+
+        if (isIndividual && details.length > 0) {
+            // Individual color selection UI
+            let html = '<div class="col-span-full space-y-6">';
+            
+            details.forEach(detail => {
+                if (detail.name.toLowerCase().includes('sem')) return;
+
+                const currentColor = wizardData.detail_colors[detail.id];
+                const currentColorName = currentColor ? currentColor.name : 'Selecione';
+                const currentColorHex = currentColor ? (currentColor.color_hex || getColorHex(currentColor.name)) : '#ccc';
+
+                html += `
+                    <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
+                        <div class="flex items-center justify-between mb-3 border-b border-gray-100 dark:border-slate-800 pb-2">
+                            <span class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">Cor para: ${detail.name}</span>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 rounded-full border border-gray-200" style="background-color: ${currentColorHex}"></div>
+                                <span class="text-xs font-black text-[#7c3aed]">${currentColorName}</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                `;
+
+                let colors = getOptionList(['cor', 'cor_detalhe', 'detail_color']);
+                colors = filterByParent(colors, parentIds);
+
+                html += colors.map(color => {
+                    const isActive = wizardData.detail_colors[detail.id] && wizardData.detail_colors[detail.id].id == color.id;
+                    const hex = color.color_hex || getColorHex(color.name);
+                    return `
+                        <div class="w-8 h-8 rounded-full cursor-pointer border ${isActive ? 'ring-2 ring-[#7c3aed] ring-offset-2' : 'border-gray-200 dark:border-slate-700'} hover:scale-110 transition-transform" 
+                             style="background-color: ${hex}" 
+                             title="${color.name}"
+                             onclick="selectWizardDetailColor('${detail.id}', '${color.id}', '${color.name.replace(/'/g, '')}')">
+                        </div>
+                    `;
+                }).join('');
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        } else {
+            // Global color selection UI (existing logic)
+            renderOptionCards('wizard-options-cor-detalhe', 'detail_color', ['cor', 'cor_detalhe', 'detail_color'], parentIds);
+        }
     }
     window.renderWizardDetailColorOptions = renderWizardDetailColorOptions;
+
+    function selectWizardDetailColor(detailId, colorId, colorName) {
+        if (!wizardData.detail_colors) wizardData.detail_colors = {};
+        wizardData.detail_colors[detailId] = { id: colorId, name: colorName };
+        renderWizardDetailColorOptions();
+    }
+    window.selectWizardDetailColor = selectWizardDetailColor;
 
     function renderWizardGolaOptions() {
         renderOptionCards('wizard-options-gola', 'gola', ['gola', 'collar']);
@@ -1935,7 +2071,14 @@
         
         let unitPrice = 0;
         if(wizardData.tipo_corte) unitPrice += wizardData.tipo_corte.price;
-        if(wizardData.detalhe) unitPrice += wizardData.detalhe.price;
+        
+        // Sum all detail prices
+        if (Array.isArray(wizardData.detalhe)) {
+            wizardData.detalhe.forEach(d => {
+                unitPrice += parseFloat(d.price || 0);
+            });
+        }
+        
         if(wizardData.gola) unitPrice += wizardData.gola.price;
         
         const finalPriceEl = document.getElementById('wizard-final-price');
@@ -1959,11 +2102,63 @@
         const tipoCorteHidden = document.getElementById('tipo_corte_hidden');
         if (tipoCorteHidden) tipoCorteHidden.value = wizardData.tipo_corte ? wizardData.tipo_corte.id : '';
         
-        const detalheHidden = document.getElementById('detalhe_hidden');
-        if (detalheHidden) detalheHidden.value = wizardData.detalhe ? wizardData.detalhe.id : '';
+        // Handle Multiple Details
+        const detalheContainer = document.getElementById('hidden-detalhe-container') || (function() {
+            const div = document.createElement('div');
+            div.id = 'hidden-detalhe-container';
+            document.getElementById('sewing-form').appendChild(div);
+            return div;
+        })();
+        detalheContainer.innerHTML = '';
+        if (Array.isArray(wizardData.detalhe)) {
+            wizardData.detalhe.forEach(d => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'detalhe[]';
+                input.value = d.id;
+                detalheContainer.appendChild(input);
+            });
+        }
         
-        const detailColorHidden = document.getElementById('detail_color_hidden');
-        if (detailColorHidden) detailColorHidden.value = wizardData.detail_color ? wizardData.detail_color.id : '';
+        // Handle Detail Colors
+        const detailColorContainer = document.getElementById('hidden-detail-color-container') || (function() {
+            const div = document.createElement('div');
+            div.id = 'hidden-detail-color-container';
+            document.getElementById('sewing-form').appendChild(div);
+            return div;
+        })();
+        detailColorContainer.innerHTML = '';
+        
+        if (wizardData.individual_detail_colors) {
+            // Send colors as mapped array or special format
+            // For simplicity, we can send detail_id:color_id pairs
+            if (Array.isArray(wizardData.detalhe)) {
+                wizardData.detalhe.forEach(d => {
+                    const color = wizardData.detail_colors[d.id];
+                    if (color) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = `detail_color_map[${d.id}]`;
+                        input.value = color.id;
+                        detailColorContainer.appendChild(input);
+                    }
+                });
+            }
+            // Also send a flag
+            const individualFlag = document.createElement('input');
+            individualFlag.type = 'hidden';
+            individualFlag.name = 'individual_detail_colors';
+            individualFlag.value = '1';
+            detailColorContainer.appendChild(individualFlag);
+        } else {
+            if (wizardData.detail_color) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'detail_color';
+                input.value = wizardData.detail_color.id;
+                detailColorContainer.appendChild(input);
+            }
+        }
         
         const golaHidden = document.getElementById('gola_hidden');
         if (golaHidden) golaHidden.value = wizardData.gola ? wizardData.gola.id : '';
@@ -2092,8 +2287,10 @@
             tipo_tecido: null,
             cor: null,
             tipo_corte: null,
-            detalhe: null,
+            detalhe: [], 
             detail_color: null,
+            detail_colors: {}, 
+            individual_detail_colors: false,
             gola: null,
             collar_color: null,
             personalizacao: [],
@@ -2157,18 +2354,37 @@
              if(opt) wizardData.tipo_corte = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
         }
 
-        if (wIds.detalhe) {
+        if (Array.isArray(wIds.detalhe)) {
+            const allD = getOptionList(['detalhe']);
+            wizardData.detalhe = allD
+                .filter(d => wIds.detalhe.includes(d.id.toString()) || wIds.detalhe.includes(parseInt(d.id)))
+                .map(d => ({ id: d.id, name: d.name, price: parseFloat(d.price || 0) }));
+        } else if (wIds.detalhe) {
             const detail = getOptionList(['detalhe']).find(o => o.id == wIds.detalhe);
-            if (detail) wizardData.detalhe = { id: detail.id, name: detail.name, price: parseFloat(detail.price || 0) };
-        } else {
-             const opt = findOptionByName('detalhe', item.detail);
-             if(opt) wizardData.detalhe = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
+            if (detail) wizardData.detalhe = [{ id: detail.id, name: detail.name, price: parseFloat(detail.price || 0) }];
+        } else if (item.detail) {
+             const names = item.detail.split(',').map(n => n.trim().toLowerCase());
+             const allD = getOptionList(['detalhe']);
+             wizardData.detalhe = allD
+                 .filter(d => names.includes(d.name.toLowerCase()))
+                 .map(d => ({ id: d.id, name: d.name, price: parseFloat(d.price || 0) }));
+        }
+
+        wizardData.individual_detail_colors = !!wIds.individual_detail_colors;
+        if (wIds.detail_color_map) {
+            const allC = getOptionList(['cor']);
+            for (const [did, cid] of Object.entries(wIds.detail_color_map)) {
+                const color = allC.find(c => c.id == cid);
+                if (color) {
+                    wizardData.detail_colors[did] = { id: color.id, name: color.name };
+                }
+            }
         }
 
         if (wIds.detail_color) {
             const dc = getOptionList(['cor']).find(o => o.id == wIds.detail_color);
             if (dc) wizardData.detail_color = { id: dc.id, name: dc.name, price: 0 };
-        } else {
+        } else if (!wizardData.individual_detail_colors) {
              const opt = findOptionByName('cor', item.detail_color);
              if(opt) wizardData.detail_color = { id: opt.id, name: opt.name, price: 0 };
         }
@@ -2209,7 +2425,13 @@
 
         const diffDetailCb = document.getElementById('different_detail_color_cb');
         if (diffDetailCb) {
-            diffDetailCb.checked = (wizardData.detail_color && wizardData.cor && wizardData.detail_color.id != wizardData.cor.id);
+            diffDetailCb.checked = (wizardData.detail_color && wizardData.cor && wizardData.detail_color.id != wizardData.cor.id) || wizardData.individual_detail_colors;
+            toggleDetailColorUI();
+        }
+        
+        const individualColorsCb = document.getElementById('individual_detail_colors_cb');
+        if (individualColorsCb) {
+            individualColorsCb.checked = wizardData.individual_detail_colors;
         }
         
         const diffCollarCb = document.getElementById('different_collar_color_cb');

@@ -39,6 +39,23 @@
                         <div class="flex justify-between"><span>Tecido:</span><span class="font-medium text-gray-900 dark:text-white">{{ $item->fabric }}</span></div>
                         <div class="flex justify-between"><span>Cor:</span><span class="font-medium text-gray-900 dark:text-white">{{ $item->color }}</span></div>
                         <div class="flex justify-between"><span>Modelo:</span><span class="font-medium text-gray-900 dark:text-white">{{ $item->model }}</span></div>
+                        
+                        @if($item->detail)
+                        <div class="flex justify-between"><span>Detalhe:</span><span class="font-medium text-gray-900 dark:text-white">{{ $item->detail }}</span></div>
+                        @endif
+                        
+                        @if($item->detail_color)
+                        <div class="flex justify-between"><span>Cor Detalhe:</span><span class="font-medium text-gray-900 dark:text-white">{{ $item->detail_color }}</span></div>
+                        @endif
+                        
+                        @if($item->collar && $item->collar !== '-')
+                        <div class="flex justify-between"><span>Gola:</span><span class="font-medium text-gray-900 dark:text-white">{{ $item->collar }}</span></div>
+                        @endif
+                        
+                        @if($item->collar_color)
+                        <div class="flex justify-between"><span>Cor Gola:</span><span class="font-medium text-gray-900 dark:text-white">{{ $item->collar_color }}</span></div>
+                        @endif
+
                         <div class="flex justify-between"><span>Quantidade:</span><span class="font-medium text-gray-900 dark:text-white">{{ $item->quantity }} pç</span></div>
 
                         <div class="flex justify-between pt-2 border-t border-gray-200 dark:border-slate-700">

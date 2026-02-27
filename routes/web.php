@@ -60,6 +60,17 @@ Route::prefix('solicitar-orcamento')->name('quote.')->group(function () {
     Route::post('/{slug}', [\App\Http\Controllers\PublicQuoteController::class, 'submit'])->name('submit');
 });
 
+// ─── Marketplace - Rotas Públicas ───
+Route::prefix('marketplace')->name('marketplace.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Marketplace\MarketplaceController::class, 'index'])->name('home');
+    Route::get('/designers', [\App\Http\Controllers\Marketplace\MarketplaceController::class, 'designers'])->name('designers');
+    Route::get('/designers/{slug}', [\App\Http\Controllers\Marketplace\DesignerController::class, 'show'])->name('designers.show');
+    Route::get('/servicos', [\App\Http\Controllers\Marketplace\ServiceController::class, 'index'])->name('services.index');
+    Route::get('/servicos/{id}', [\App\Http\Controllers\Marketplace\ServiceController::class, 'show'])->name('services.show');
+    Route::get('/ferramentas', [\App\Http\Controllers\Marketplace\ToolController::class, 'index'])->name('tools.index');
+    Route::get('/ferramentas/{id}', [\App\Http\Controllers\Marketplace\ToolController::class, 'show'])->name('tools.show');
+});
+
 // Termos e Condições (Rotas Públicas)
 Route::view('/termos', 'terms')->name('terms.show');
 Route::view('/privacidade', 'privacy')->name('privacy.show');
@@ -577,6 +588,36 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\AffiliatePortalController::class, 'dashboard'])->name('dashboard');
         Route::get('/indicados', [\App\Http\Controllers\AffiliatePortalController::class, 'referrals'])->name('referrals');
     });
+
+    // ─── Marketplace - Rotas Autenticadas ───
+    Route::prefix('marketplace')->name('marketplace.')->group(function () {
+        // Créditos
+        Route::get('/creditos', [\App\Http\Controllers\Marketplace\CreditController::class, 'index'])->name('credits.index');
+        Route::post('/creditos/comprar/{package}', [\App\Http\Controllers\Marketplace\CreditController::class, 'purchase'])->name('credits.purchase');
+        Route::get('/creditos/pix/{package}', [\App\Http\Controllers\Marketplace\CreditController::class, 'generatePix'])->name('credits.pix');
+        Route::get('/creditos/retorno', [\App\Http\Controllers\Marketplace\CreditController::class, 'handleReturn'])->name('credits.return');
+
+        // Perfil de Designer
+        Route::get('/seja-designer', [\App\Http\Controllers\Marketplace\DesignerController::class, 'setup'])->name('designer.setup');
+        Route::post('/seja-designer', [\App\Http\Controllers\Marketplace\DesignerController::class, 'store'])->name('designer.store');
+        Route::get('/meu-perfil', [\App\Http\Controllers\Marketplace\DesignerController::class, 'edit'])->name('designer.edit');
+        Route::put('/meu-perfil', [\App\Http\Controllers\Marketplace\DesignerController::class, 'update'])->name('designer.update');
+
+        // Meus Serviços (designer)
+        Route::resource('meus-servicos', \App\Http\Controllers\Marketplace\ServiceController::class)->names('my-services');
+
+        // Pedidos
+        Route::post('/pedidos', [\App\Http\Controllers\Marketplace\OrderController::class, 'store'])->name('orders.store');
+        Route::get('/pedidos', [\App\Http\Controllers\Marketplace\OrderController::class, 'index'])->name('orders.index');
+        Route::get('/pedidos/{id}', [\App\Http\Controllers\Marketplace\OrderController::class, 'show'])->name('orders.show');
+        Route::post('/pedidos/{id}/entregar', [\App\Http\Controllers\Marketplace\OrderController::class, 'deliver'])->name('orders.deliver');
+        Route::post('/pedidos/{id}/confirmar', [\App\Http\Controllers\Marketplace\OrderController::class, 'complete'])->name('orders.complete');
+        Route::post('/pedidos/{id}/revisao', [\App\Http\Controllers\Marketplace\OrderController::class, 'requestRevision'])->name('orders.revision');
+        Route::post('/pedidos/{id}/avaliar', [\App\Http\Controllers\Marketplace\OrderController::class, 'review'])->name('orders.review');
+        
+        // Ferramentas download
+        Route::get('/ferramentas/{id}/download', [\App\Http\Controllers\Marketplace\ToolController::class, 'download'])->name('tools.download');
+    });
 });
 
 // Stripe Webhook (must be outside auth and CSRF protected group) - handling CSRF exclusion in bootstrap/app.php
@@ -694,6 +735,30 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
             Route::put('/videos/{tutorial}', [\App\Http\Controllers\Admin\TutorialManagementController::class, 'updateTutorial'])->name('update');
             Route::delete('/videos/{tutorial}', [\App\Http\Controllers\Admin\TutorialManagementController::class, 'destroyTutorial'])->name('destroy');
             Route::post('/videos/{tutorial}/toggle', [\App\Http\Controllers\Admin\TutorialManagementController::class, 'toggleTutorial'])->name('toggle');
+        });
+
+        // ─── Marketplace Admin ───
+        Route::prefix('marketplace')->name('marketplace.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'index'])->name('index');
+            Route::post('/designers/{id}/status', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'updateDesignerStatus'])->name('designer.status');
+            Route::get('/services', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'services'])->name('services');
+            Route::post('/services/{id}/toggle', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'toggleService'])->name('services.toggle');
+            
+            // Ferramentas Admin
+            Route::get('/tools', [\App\Http\Controllers\Marketplace\ToolController::class, 'adminIndex'])->name('tools.index');
+            Route::get('/tools/create', [\App\Http\Controllers\Marketplace\ToolController::class, 'adminCreate'])->name('tools.create');
+            Route::post('/tools', [\App\Http\Controllers\Marketplace\ToolController::class, 'adminStore'])->name('tools.store');
+            Route::get('/tools/{id}/edit', [\App\Http\Controllers\Marketplace\ToolController::class, 'adminEdit'])->name('tools.edit');
+            Route::put('/tools/{id}', [\App\Http\Controllers\Marketplace\ToolController::class, 'adminUpdate'])->name('tools.update');
+            Route::delete('/tools/{id}', [\App\Http\Controllers\Marketplace\ToolController::class, 'adminDestroy'])->name('tools.destroy');
+
+            // Pacotes de Crédito Admin
+            Route::get('/packages', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'packagesIndex'])->name('packages.index');
+            Route::get('/packages/create', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'packagesCreate'])->name('packages.create');
+            Route::post('/packages', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'packagesStore'])->name('packages.store');
+            Route::get('/packages/{id}/edit', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'packagesEdit'])->name('packages.edit');
+            Route::put('/packages/{id}', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'packagesUpdate'])->name('packages.update');
+            Route::delete('/packages/{id}', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'packagesDestroy'])->name('packages.destroy');
         });
     });
 

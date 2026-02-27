@@ -136,6 +136,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Verificar se é designer do marketplace
+     */
+    public function isDesigner(): bool
+    {
+        return $this->role === 'designer';
+    }
+
+    /**
+     * Perfil de designer do marketplace
+     */
+    public function designerProfile(): HasOne
+    {
+        return $this->hasOne(\App\Models\Marketplace\DesignerProfile::class);
+    }
+
+    /**
      * Obter IDs das lojas que o usuário pode acessar (incluindo sub-lojas)
      */
     public function getStoreIds(): array

@@ -199,6 +199,21 @@
             </a>
         </div>
 
+        <!-- LINK: MARKETPLACE -->
+        <div class="mt-2 text-nowrap">
+            <a href="{{ route('marketplace.home') }}"
+               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('marketplace.*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+               :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+               title="Marketplace">
+                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <i class="fa-solid fa-shop text-lg"></i>
+                </div>
+                <span class="ml-4 whitespace-nowrap overflow-hidden transition-all duration-300" x-show="expanded">
+                    Marketplace
+                </span>
+            </a>
+        </div>
+
         @if(auth()->user()->affiliate)
         <div class="mt-2 text-nowrap">
             <a href="{{ route('affiliate.dashboard') }}"
@@ -457,6 +472,19 @@
                         <i class="fa-solid fa-users-gear text-lg"></i>
                     </div>
                     <span class="ml-4" x-show="expanded">Assinaturas</span>
+                </a>
+            </div>
+
+            <!-- MARKETPLACE ADMIN (Super Admin apenas) -->
+            <div class="mt-1">
+                <a href="{{ route('admin.marketplace.index') }}"
+                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('admin.marketplace.*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   title="Marketplace Admin">
+                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                        <i class="fa-solid fa-store text-lg"></i>
+                    </div>
+                    <span class="ml-4" x-show="expanded">Marketplace Admin</span>
                 </a>
             </div>
             @endif

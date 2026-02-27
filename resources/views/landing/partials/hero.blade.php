@@ -34,7 +34,11 @@
                 <a href="{{ route('register.public') }}" class="btn-primary text-base py-3 px-6">
                     Teste Grátis
                 </a>
-                <a href="#features" class="btn-outline text-base py-3 px-6">
+                <a href="{{ route('marketplace.home') }}" class="btn-outline text-base py-3 px-6 flex items-center gap-2">
+                    <i class="fa-solid fa-shop text-xs text-primary"></i>
+                    Marketplace
+                </a>
+                <a href="#features" class="btn-outline text-base py-3 px-6 opacity-60 hover:opacity-100">
                     Ver Funcionalidades
                 </a>
             </div>
@@ -70,8 +74,9 @@
                 <div class="floating-badge" style="top: 55%; left: 10%; animation-delay: 1s;">
                     Orçamentos em PDF
                 </div>
-                <div class="floating-badge" style="top: 65%; right: 15%; animation-delay: 1.5s;">
-                    Kanban de Produção
+                <div class="floating-badge" style="top: 75%; left: 30%; animation-delay: 2s; border-color: var(--primary-color);">
+                    <span class="w-1.5 h-1.5 bg-primary rounded-full animate-ping mr-1.5"></span>
+                    Marketplace Designer
                 </div>
             </div>
         </div>

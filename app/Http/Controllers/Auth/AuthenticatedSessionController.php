@@ -28,6 +28,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Designers são redirecionados ao marketplace, não ao dashboard
+        if (Auth::user()->isDesigner()) {
+            return redirect()->intended(route('marketplace.home'));
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

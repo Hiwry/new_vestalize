@@ -1,3 +1,4 @@
+@auth
 @php
     $navUser = Auth::user();
     $canAccessKanban = $navUser->tenant_id === null || $navUser->tenant?->canAccess('kanban');
@@ -166,3 +167,30 @@
         </div>
     </div>
 </nav>
+@endauth
+
+@guest
+{{-- Navbar simplificada para visitantes (marketplace público) --}}
+<nav class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center gap-6">
+                <a href="/" class="shrink-0">
+                    <x-application-logo class="block h-9 w-auto" />
+                </a>
+                <div class="hidden sm:flex items-center gap-4">
+                    <a href="{{ route('marketplace.home') }}" class="text-sm font-bold {{ request()->routeIs('marketplace.home') ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700' }} transition-colors">Marketplace</a>
+                    <a href="{{ route('marketplace.services.index') }}" class="text-sm font-medium {{ request()->routeIs('marketplace.services.*') ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700' }} transition-colors">Serviços</a>
+                    <a href="{{ route('marketplace.tools.index') }}" class="text-sm font-medium {{ request()->routeIs('marketplace.tools.*') ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700' }} transition-colors">Ferramentas</a>
+                    <a href="{{ route('marketplace.designers') }}" class="text-sm font-medium {{ request()->routeIs('marketplace.designers*') ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700' }} transition-colors">Designers</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('login') }}" class="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">Login</a>
+                <a href="{{ route('register.public') }}" class="text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition-colors">Cadastre-se</a>
+            </div>
+        </div>
+    </div>
+</nav>
+@endguest
+

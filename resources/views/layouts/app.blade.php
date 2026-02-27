@@ -35,8 +35,8 @@
             }
 
             @php
-                $p = Auth::user()->tenant->primary_color ?? '#4f46e5';
-                $s = Auth::user()->tenant->secondary_color ?? '#7c3aed';
+                $p = Auth::user()?->tenant?->primary_color ?? '#4f46e5';
+                $s = Auth::user()?->tenant?->secondary_color ?? '#7c3aed';
                 
                 // Luminance check
                 $isLight = false;
@@ -47,6 +47,7 @@
                     if ((0.2126 * $r + 0.7152 * $g + 0.0722 * $b) > 200) $isLight = true;
                 }
             @endphp
+
             :root {
                 --brand-primary: {{ $p }};
                 --brand-secondary: {{ $s }};

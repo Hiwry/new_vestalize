@@ -15,18 +15,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    {{-- Vite CSS --}}
+    {{-- CSS & JS --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
-    {{-- Landing Page CSS --}}
     <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
-    
-    {{-- Alpine.js --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
+    <style>[x-cloak] { display: none !important; }</style>
+    @stack('styles')
 </head>
 <body class="landing-page antialiased">
     {{-- Background --}}

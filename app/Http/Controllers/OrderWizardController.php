@@ -244,7 +244,8 @@ class OrderWizardController extends Controller
             'tipo_tecido' => 'nullable|exists:product_options,id',
             'cor' => 'required|exists:product_options,id',
             'tipo_corte' => 'required|exists:product_options,id',
-            'detalhe' => 'nullable|exists:product_options,id',
+            'detalhe' => 'nullable|array',
+            'detalhe.*' => 'exists:product_options,id',
             'gola' => 'nullable|exists:product_options,id',
             'tamanhos' => 'required|array',
             'quantity' => 'required|integer|min:1',
@@ -254,6 +255,8 @@ class OrderWizardController extends Controller
             'art_notes' => 'nullable|string|max:1000',
             'collar_color' => 'nullable|string|max:100',
             'detail_color' => 'nullable|string|max:100',
+            'detail_color_map' => 'nullable|array',
+            'individual_detail_colors' => 'nullable|boolean',
             'apply_surcharge' => 'nullable|boolean',
             'is_client_modeling' => 'nullable|boolean',
             'existing_cover_image' => 'nullable|string'
@@ -344,14 +347,15 @@ class OrderWizardController extends Controller
     private function updateItem(Request $request)
     {
         $validated = $request->validate([
-            'editing_item_id' => 'required|integer',
+            'editing_item_id' => 'required|exists:order_items,id',
             'personalizacao' => 'required|array|min:1',
             'personalizacao.*' => 'exists:product_options,id',
             'tecido' => 'required|exists:product_options,id',
             'tipo_tecido' => 'nullable|exists:product_options,id',
             'cor' => 'required|exists:product_options,id',
             'tipo_corte' => 'required|exists:product_options,id',
-            'detalhe' => 'nullable|exists:product_options,id',
+            'detalhe' => 'nullable|array',
+            'detalhe.*' => 'exists:product_options,id',
             'gola' => 'nullable|exists:product_options,id',
             'tamanhos' => 'required|array',
             'quantity' => 'required|integer|min:1',
@@ -361,6 +365,8 @@ class OrderWizardController extends Controller
             'art_notes' => 'nullable|string|max:1000',
             'collar_color' => 'nullable|string|max:100',
             'detail_color' => 'nullable|string|max:100',
+            'detail_color_map' => 'nullable|array',
+            'individual_detail_colors' => 'nullable|boolean',
             'apply_surcharge' => 'nullable|boolean',
             'is_client_modeling' => 'nullable|boolean',
             'existing_cover_image' => 'nullable|string'

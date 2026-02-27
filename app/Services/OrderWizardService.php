@@ -207,7 +207,10 @@ class OrderWizardService
             $allOptionIds->push($validated['gola']);
         }
 
-        if (!empty($validated['detalhe'])) $allOptionIds->push($validated['detalhe']);
+        // Handle Details (Multiple)
+        $detalheIds = !empty($validated['detalhe']) ? (array)$validated['detalhe'] : [];
+        $allOptionIds = $allOptionIds->merge($detalheIds);
+
         if (!empty($validated['tipo_tecido'])) $allOptionIds->push($validated['tipo_tecido']);
         $allOptionIds = $allOptionIds->merge($validated['personalizacao'])->unique();
         
@@ -222,12 +225,41 @@ class OrderWizardService
         $cor = $allOptions[$validated['cor']];
         $tipoCorte = $allOptions[$validated['tipo_corte']];
         $gola = !empty($validated['gola']) ? ($allOptions[$validated['gola']] ?? null) : null;
-        $detalhe = !empty($validated['detalhe']) ? $allOptions[$validated['detalhe']] : null;
         $tipoTecido = !empty($validated['tipo_tecido']) ? $allOptions[$validated['tipo_tecido']] : null;
 
-        // Preço unitário (se não vier no validated, calcula das opções)
+        // Handle Details (Multiple)
+        $detalheOptions = $allOptions->only($detalheIds);
+        $detalheNames = $detalheOptions->pluck('name')->join(', ');
+
+        // Handle Detail Colors (Mapped or Single)
+        $detailColorNames = '';
+        $detailColorId = null;
+        
+        if (!empty($validated['individual_detail_colors']) && !empty($validated['detail_color_map'])) {
+            $mappedColorIds = array_values($validated['detail_color_map']);
+            $mappedColors = \App\Models\ProductOption::whereIn('id', $mappedColorIds)->get()->keyBy('id');
+            
+            $colorNamesList = [];
+            foreach ($detalheIds as $did) {
+                $cid = $validated['detail_color_map'][$did] ?? null;
+                if ($cid && isset($mappedColors[$cid])) {
+                    $colorNamesList[] = $mappedColors[$cid]->name;
+                }
+            }
+            $detailColorNames = !empty($colorNamesList) ? implode(', ', array_unique($colorNamesList)) : null;
+            if (count(array_unique($colorNamesList)) > 1) {
+                $detailColorNames = "Múltiplas Cores (" . $detailColorNames . ")";
+            }
+        } else {
+            $detailColorId = $validated['detail_color'] ?? null;
+            $detailColorOption = $detailColorId ? \App\Models\ProductOption::find($detailColorId) : null;
+            $detailColorNames = $detailColorOption ? $detailColorOption->name : null;
+        }
+
+        // Unit Price calculation (Sum all details)
+        $detailsPrice = $detalheOptions->sum('price');
         $unitPrice = $validated['unit_price'] ?? (
-            ($tipoCorte->price ?? 0) + ($detalhe->price ?? 0) + ($gola->price ?? 0)
+            ($tipoCorte->price ?? 0) + $detailsPrice + ($gola->price ?? 0)
         );
 
         $item->update([
@@ -235,7 +267,7 @@ class OrderWizardService
             'color' => $cor->name,
             'collar' => $gola ? $gola->name : '-',
             'model' => $tipoCorte->name,
-            'detail' => $detalhe ? $detalhe->name : null,
+            'detail' => $detalheNames ?: null,
             'print_type' => $personalizacaoNames,
             'sizes' => $validated['tamanhos'],
             'quantity' => $validated['quantity'],
@@ -246,7 +278,7 @@ class OrderWizardService
             'cover_image' => $coverImagePath,
             'art_notes' => $validated['art_notes'] ?? null,
             'collar_color' => $validated['collar_color'] ?? null,
-            'detail_color' => $validated['detail_color'] ?? null,
+            'detail_color' => $detailColorNames,
             'print_desc' => json_encode([
                 'apply_surcharge' => (bool)($validated['apply_surcharge'] ?? false),
                 'is_client_modeling' => (bool)($validated['is_client_modeling'] ?? false),
@@ -255,8 +287,10 @@ class OrderWizardService
                     'tipo_tecido' => $validated['tipo_tecido'] ?? null,
                     'cor' => $validated['cor'],
                     'tipo_corte' => $validated['tipo_corte'],
-                    'detalhe' => $validated['detalhe'] ?? null,
-                    'detail_color' => $validated['detail_color'] ?? null,
+                    'detalhe' => $detalheIds,
+                    'detail_color' => $detailColorId,
+                    'detail_color_map' => $validated['detail_color_map'] ?? null,
+                    'individual_detail_colors' => (bool)($validated['individual_detail_colors'] ?? false),
                     'gola' => $validated['gola'] ?? null,
                     'collar_color' => $validated['collar_color'] ?? null,
                     'personalizacao' => $validated['personalizacao'],
@@ -667,8 +701,9 @@ class OrderWizardService
             $allOptionIds->push($validated['gola']);
         }
 
-        if (!empty($validated['detalhe'])) {
-            $allOptionIds->push($validated['detalhe']);
+        $detalheIds = !empty($validated['detalhe']) ? (array)$validated['detalhe'] : [];
+        if (!empty($detalheIds)) {
+            $allOptionIds = $allOptionIds->merge($detalheIds);
         }
         if (!empty($validated['tipo_tecido'])) {
             $allOptionIds->push($validated['tipo_tecido']);
@@ -687,8 +722,34 @@ class OrderWizardService
         $cor = $allOptions[$validated['cor']];
         $tipoCorte = $allOptions[$validated['tipo_corte']];
         $gola = !empty($validated['gola']) ? ($allOptions[$validated['gola']] ?? null) : null;
-        $detalhe = !empty($validated['detalhe']) ? $allOptions[$validated['detalhe']] : null;
+        $detalheOptions = $allOptions->only($detalheIds);
+        $detalheNames = $detalheOptions->pluck('name')->join(', ');
         $tipoTecido = !empty($validated['tipo_tecido']) ? $allOptions[$validated['tipo_tecido']] : null;
+
+        // Handle Detail Colors (Mapped or Single)
+        $detailColorNames = '';
+        $detailColorId = null;
+        
+        if (!empty($validated['individual_detail_colors']) && !empty($validated['detail_color_map'])) {
+            $mappedColorIds = array_values($validated['detail_color_map']);
+            $mappedColors = \App\Models\ProductOption::whereIn('id', $mappedColorIds)->get()->keyBy('id');
+            
+            $colorNamesList = [];
+            foreach ($detalheIds as $did) {
+                $cid = $validated['detail_color_map'][$did] ?? null;
+                if ($cid && isset($mappedColors[$cid])) {
+                    $colorNamesList[] = $mappedColors[$cid]->name;
+                }
+            }
+            $detailColorNames = !empty($colorNamesList) ? implode(', ', array_unique($colorNamesList)) : null;
+            if (count(array_unique($colorNamesList)) > 1) {
+                $detailColorNames = "Múltiplas Cores (" . $detailColorNames . ")";
+            }
+        } else {
+            $detailColorId = $validated['detail_color'] ?? null;
+            $detailColorOption = $detailColorId ? \App\Models\ProductOption::find($detailColorId) : null;
+            $detailColorNames = $detailColorOption ? $detailColorOption->name : null;
+        }
 
         $itemNumber = $order->items()->count() + 1;
 
@@ -698,7 +759,7 @@ class OrderWizardService
             'color' => $cor->name,
             'collar' => $gola ? $gola->name : '-',
             'model' => $tipoCorte->name,
-            'detail' => $detalhe ? $detalhe->name : null,
+            'detail' => $detalheNames ?: null,
             'print_type' => $personalizacaoNames,
             'sizes' => $validated['tamanhos'],
             'quantity' => $validated['quantity'],
@@ -709,7 +770,7 @@ class OrderWizardService
             'cover_image' => $coverImagePath,
             'art_notes' => $validated['art_notes'] ?? null,
             'collar_color' => $validated['collar_color'] ?? null,
-            'detail_color' => $validated['detail_color'] ?? null,
+            'detail_color' => $detailColorNames,
             'print_desc' => json_encode([
                 'apply_surcharge' => (bool)($validated['apply_surcharge'] ?? false),
                 'is_client_modeling' => (bool)($validated['is_client_modeling'] ?? false),
@@ -718,8 +779,10 @@ class OrderWizardService
                     'tipo_tecido' => $validated['tipo_tecido'] ?? null,
                     'cor' => $validated['cor'],
                     'tipo_corte' => $validated['tipo_corte'],
-                    'detalhe' => $validated['detalhe'] ?? null,
-                    'detail_color' => $validated['detail_color'] ?? null,
+                    'detalhe' => $detalheIds,
+                    'detail_color' => $detailColorId,
+                    'detail_color_map' => $validated['detail_color_map'] ?? null,
+                    'individual_detail_colors' => (bool)($validated['individual_detail_colors'] ?? false),
                     'gola' => $validated['gola'] ?? null,
                     'collar_color' => $validated['collar_color'] ?? null,
                     'personalizacao' => $validated['personalizacao'],
