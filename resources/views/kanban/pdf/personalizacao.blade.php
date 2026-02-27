@@ -15,7 +15,7 @@
         }
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
+            font-size: 14px;
             color: #333;
         }
         .page {
@@ -57,14 +57,15 @@
             padding: 6px;
         }
         .box-title {
-            font-size: 11px;
+            font-size: 13px;
             font-weight: bold;
-            color: #475569;
+            color: #1e293b;
             text-align: center;
             text-transform: uppercase;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 2px;
+            padding-bottom: 4px;
+            background: #f1f5f9;
         }
         .size-badge {
             display: inline-block;
@@ -125,8 +126,8 @@
                         <!-- Especificações Básicas -->
                         <div class="box" style="margin-bottom: 5px;">
                             <div class="box-title">Geral</div>
-                            <table style="width: 100%; font-size: 12px;">
-                                <tr><td style="color: #64748b;">Qtd:</td><td style="font-weight: bold;">{{ $item->quantity }}</td></tr>
+                            <table style="width: 100%; font-size: 13px;">
+                                <tr><td style="color: #64748b;">Qtd:</td><td style="font-weight: bold; font-size: 16px;">{{ $item->quantity }}</td></tr>
                                 <tr><td style="color: #64748b;">Tipo:</td><td style="font-weight: bold;">{{ $item->print_type }}</td></tr>
                                 <tr><td style="color: #64748b;">Local:</td><td style="font-weight: bold;">{{ strtoupper($item->color) }}</td></tr>
                             </table>
@@ -155,16 +156,39 @@
                                         $appType = $sub->application_type ? strtoupper($sub->application_type) : 'APLICAÇÃO';
                                     @endphp
                                     <div style="border-bottom: 1px dashed #cbd5e1; padding-bottom: 4px; margin-bottom: 4px;">
-                                        <div style="font-weight: bold; color: #4338ca; font-size: 11px;">#{{ $loop->iteration }} {{ $appType }}</div>
-                                        <div style="font-size: 10px; color: #1e293b;">Local: {{ $locationName }}</div>
-                                        <div style="font-size: 10px; color: #1e293b;">Tam: {{ $sizeName }} | Qtd: {{ $sub->quantity }}</div>
-                                        @if($sub->color_count)<div style="font-size: 10px; color: #c026d3;">Cores: {{ $sub->color_count }}</div>@endif
-                                        @if($sub->seller_notes)<div style="font-size: 9px; color: #b45309; background: #fffbeb;">Obs: {{ $sub->seller_notes }}</div>@endif
+                                        <div style="font-weight: bold; color: #4338ca; font-size: 12px;">#{{ $loop->iteration }} {{ $appType }}</div>
+                                        <div style="font-size: 11px; color: #1e293b;">Local: <strong>{{ strtoupper($locationName) }}</strong></div>
+                                        <div style="font-size: 11px; color: #1e293b;">Tam: <strong>{{ $sizeName }}</strong> | Qtd: <strong>{{ $sub->quantity }}</strong></div>
+                                        @if($sub->color_count)<div style="font-size: 11px; color: #c026d3;">Cores: <strong>{{ $sub->color_count }}</strong></div>@endif
+                                        @if($sub->color_details)<div style="font-size: 11px; color: #7c3aed;">🎨 Cores: <strong>{{ $sub->color_details }}</strong></div>@endif
+                                        @if($sub->seller_notes)<div style="font-size: 10px; color: #b45309; background: #fffbeb; padding: 2px; border-radius: 2px; margin-top: 2px;">📝 Obs: {{ $sub->seller_notes }}</div>@endif
                                     </div>
                                 @endforeach
                             @else
                                 <div style="color: #cbd5e1; font-size: 9px; text-align: center;">Sem aplicações extras</div>
                             @endif
+                        </div>
+
+                        <!-- Tamanhos do Item (NOVIDADE) -->
+                        <div class="box" style="margin-bottom: 5px;">
+                            <div class="box-title">Tamanhos da Costura</div>
+                            <div style="font-size: 11px;">
+                                @php
+                                    $itemSizes = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) ? json_decode($item->sizes, true) : []);
+                                    $sizeOrder = ['PP','P','M','G','GG','EXG','G1','G2','G3','ESPECIAL'];
+                                @endphp
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    @foreach($sizeOrder as $sizeKey)
+                                        @php $qty = $itemSizes[$sizeKey] ?? $itemSizes[strtolower($sizeKey)] ?? 0; @endphp
+                                        @if($qty > 0)
+                                            <tr>
+                                                <td style="padding: 1px 4px; border-bottom: 1px solid #f1f5f9; font-weight: bold;">{{ $sizeKey }}</td>
+                                                <td style="padding: 1px 4px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold; font-size: 16px;">{{ $qty }}</td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                </table>
+                            </div>
                         </div>
 
                          <!-- Vendedor -->
@@ -210,10 +234,21 @@
 
                         @if($hasPersonalizationNotes || $order->notes)
                         <div style="margin-top: 5px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 4px; padding: 6px;">
-                            <strong style="color: #b45309; font-size: 9px;">OBSERVAÇÕES:</strong>
-                            <span style="font-size: 9px; color: #78350f;">
+                            <strong style="color: #b45309; font-size: 11px;">OBSERVAÇÕES DO PEDIDO:</strong>
+                            <div style="font-size: 11px; color: #78350f; line-height: 1.4;">
                                 {{ $order->notes }}
-                            </span>
+                            </div>
+                            
+                            @if($hasPersonalizationNotes)
+                                <div style="margin-top: 4px; border-top: 1px solid #fcd34d; padding-top: 4px;">
+                                    <strong style="color: #b45309; font-size: 11px;">OBSERVAÇÕES DE APLICAÇÃO:</strong>
+                                    @foreach($item->sublimations as $sub)
+                                        @if($sub->seller_notes)
+                                            <div style="font-size: 10px; color: #78350f;">• #{{ $loop->iteration }}: {{ $sub->seller_notes }}</div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                         @endif
                     </td>

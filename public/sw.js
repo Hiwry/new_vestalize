@@ -27,20 +27,24 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-    // Strategy: Network-First for HTML/Navigation, Cache-First for others (if in ASSETS)
-    if (event.request.mode === 'navigate' || (event.request.method === 'GET' && event.request.headers.get('accept').includes('text/html'))) {
+    // Strategy: Network-First for HTML/Navigation, Cache-First for others
+    if (event.request.mode === 'navigate' || 
+        (event.request.method === 'GET' && 
+         event.request.headers.get('accept') && 
+         event.request.headers.get('accept').includes('text/html'))) {
+        
         event.respondWith(
             fetch(event.request)
                 .then(response => {
-                    // Update cache only for GET requests
-                    if (event.request.method === 'GET' && response.status === 200) {
+                    // Update cache for successful GET navigation
+                    if (response.status === 200) {
                         const copy = response.clone();
                         caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
                     }
                     return response;
                 })
                 .catch(() => {
-                    // Fallback to cache if offline
+                    // Fallback to cache ONLY if network fails (offline)
                     return caches.match(event.request);
                 })
         );

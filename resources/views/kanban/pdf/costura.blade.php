@@ -224,14 +224,36 @@
                             @endif
                         </div>
                         
-                        @if($item->art_notes || $order->notes)
+                        @php
+                            $autoNotes = [];
+                            if($item->sublimations) {
+                                foreach($item->sublimations as $sub) {
+                                    $loc = $sub->location;
+                                    if (!$loc && is_numeric($sub->location_id)) {
+                                        $loc = \App\Models\SublimationLocation::find($sub->location_id);
+                                    }
+                                    
+                                    if ($loc && $loc->show_in_pdf) {
+                                        $type = $sub->application_type ? strtoupper($sub->application_type) : 'PERSONALIZAÇÃO';
+                                        $autoNotes[] = strtoupper($loc->name) . " ABERTA PARA " . $type;
+                                    }
+                                }
+                            }
+                            $autoNotes = array_unique($autoNotes);
+                        @endphp
+
+                        @if(!empty($autoNotes) || $item->art_notes || $order->notes)
                         <div style="margin-top: 5px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 4px; padding: 6px;">
-                            <strong style="color: #b45309; font-size: 9px;">OBSERVAÇÕES:</strong>
-                            <span style="font-size: 9px; color: #78350f;">
+                            <strong style="color: #b45309; font-size: 11px;">OBSERVAÇÕES:</strong>
+                            <div style="font-size: 11px; color: #78350f; line-height: 1.4;">
+                                @foreach($autoNotes as $autoNote)
+                                    <div style="font-weight: bold; color: #dc2626;">• {{ $autoNote }}</div>
+                                @endforeach
+                                
                                 {{ $item->art_notes }} 
                                 @if($item->art_notes && $order->notes) | @endif 
                                 {{ $order->notes }}
-                            </span>
+                            </div>
                         </div>
                         @endif
                     </td>
