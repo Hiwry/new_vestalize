@@ -15,8 +15,8 @@
         }
         body {
             font-family: Arial, sans-serif;
-            font-size: 11px;
-            line-height: 1.3;
+            font-size: 13px;
+            line-height: 1.4;
             color: #000;
             background: white;
         }
@@ -61,12 +61,12 @@
             border: 1px solid var(--brand-primary);
         }
         .section-title {
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
             color: white;
             background-color: var(--brand-primary);
-            margin-bottom: 6px;
-            padding: 4px 8px;
+            margin-bottom: 8px;
+            padding: 6px 10px;
             text-transform: uppercase;
         }
         .info-grid {
@@ -79,14 +79,14 @@
         .info-label {
             display: table-cell;
             font-weight: bold;
-            padding: 2px 8px 2px 0;
+            padding: 3px 10px 3px 0;
             width: 30%;
-            font-size: 10px;
+            font-size: 12px;
         }
         .info-value {
             display: table-cell;
-            padding: 2px 0;
-            font-size: 10px;
+            padding: 3px 0;
+            font-size: 12px;
         }
         .item-section {
             margin-bottom: 12px;
@@ -95,11 +95,13 @@
             border: 1px solid #ccc;
         }
         .item-header {
-            font-size: 11px;
+            font-size: 13px;
             font-weight: bold;
             color: var(--brand-primary);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             text-transform: uppercase;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 4px;
         }
         .application-item {
             background-color: white;
@@ -412,34 +414,36 @@
             @endphp
 
             @if($shouldShowTotalOnly)
-                <div style="font-weight: bold; margin-bottom: 3px; font-size: 10px;">QUANTIDADE:</div>
-                <div style="border: 1px solid #000; padding: 4px; text-align: center; font-weight: bold; font-size: 11px; background-color: #f0f0f0;">
+                <div style="font-weight: bold; margin-bottom: 3px; font-size: 12px;">QUANTIDADE:</div>
+                <div style="border: 2px solid #000; padding: 8px; text-align: center; font-weight: bold; font-size: 14px; background-color: #f0f0f0;">
                     Quantidade Total: {{ $totalQuantity }}
                 </div>
             @else
-                <div style="font-weight: bold; margin-bottom: 3px; font-size: 10px;">TAMANHOS:</div>
-                <table style="width: 100%; border-collapse: collapse; font-size: 9px;">
+                <div style="font-weight: bold; margin-bottom: 5px; font-size: 12px; border-bottom: 1px solid #000;">TAMANHOS (VERTICAL):</div>
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px; border: 1px solid #000;">
                     <thead>
-                        <tr style="background-color: #000 !important;">
-                            @foreach($allSizes as $size)
-                            <th style="border: 1px solid #000; padding: 4px; text-align: center; font-weight: bold; color: #fff !important; background-color: #000 !important;">{{ $size }}</th>
-                            @endforeach
+                        <tr style="background-color: #000 !important; color: #fff !important;">
+                            <th style="border: 1px solid #000; padding: 6px; text-align: left; font-weight: bold; width: 60%;">Tamanho</th>
+                            <th style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">Quantidade</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @foreach($allSizes as $size)
+                        @php
+                            $qty = $itemSizes[$size] ?? $itemSizes[strtolower($size)] ?? 0;
+                        @endphp
+                        @if($qty > 0)
                         <tr>
-                            @foreach($allSizes as $size)
-                            @php
-                                $qty = $itemSizes[$size] ?? $itemSizes[strtolower($size)] ?? 0;
-                            @endphp
-                            <td style="border: 1px solid #000; padding: 4px; text-align: center; color: #000 !important; background-color: {{ $qty > 0 ? '#f0f0f0' : '#fff' }} !important; {{ $qty > 0 ? 'font-weight: bold;' : '' }}">{{ $qty }}</td>
-                            @endforeach
+                            <td style="border: 1px solid #000; padding: 6px; text-align: left; font-weight: bold; background-color: #f8f8f8;">{{ $size }}</td>
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold; background-color: #e5e7eb; font-size: 14px;">{{ $qty }}</td>
                         </tr>
+                        @endif
+                        @endforeach
                     </tbody>
                 </table>
 
                 @if(isset($printDesc['is_client_modeling']) && $printDesc['is_client_modeling'])
-                <div style="margin-top: 5px; padding: 4px; background-color: #d1fae5; border: 1px solid #10b981; color: #065f46; font-weight: bold; font-size: 9px; text-transform: uppercase; text-align: center;">
+                <div style="margin-top: 8px; padding: 6px; background-color: #d1fae5; border: 1px solid #10b981; color: #065f46; font-weight: bold; font-size: 11px; text-transform: uppercase; text-align: center;">
                     * Tamanho Especial: Cliente possui modelagem própria
                 </div>
                 @endif

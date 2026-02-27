@@ -15,7 +15,7 @@
         }
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
+            font-size: 14px;
             color: #333;
         }
         .page {
@@ -57,31 +57,34 @@
             padding: 6px;
         }
         .box-title {
-            font-size: 11px;
+            font-size: 13px;
             font-weight: bold;
-            color: #475569;
+            color: #1e293b;
             text-align: center;
             text-transform: uppercase;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 2px;
+            padding-bottom: 4px;
+            background: #f1f5f9;
         }
         .size-badge {
-            display: inline-block;
-            padding: 2px 4px;
-            border-radius: 4px;
-            margin: 1px;
-            text-align: center;
-            min-width: 25px;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            text-align: left;
+            border-left: 5px solid transparent;
         }
         .size-qty {
-            font-size: 14px;
+            font-size: 18px;
             font-weight: bold;
-            display: block;
+            float: right;
+            margin-top: -2px;
         }
         .size-label {
-            font-size: 10px;
-            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-block;
         }
     </style>
 </head>
@@ -200,7 +203,7 @@
 
                     <!-- Coluna Direita: Imagem Horizontal Grande (70%) -->
                     <td style="width: 70%; vertical-align: top;">
-                         <div class="box" style="height: 340px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; position: relative;">
+                         <div class="box" style="height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; position: relative;">
                              @php
                                 $imageData = $itemImages[$item->id] ?? [];
                                 $coverImageUrl = $imageData['coverImageUrl'] ?? null;
