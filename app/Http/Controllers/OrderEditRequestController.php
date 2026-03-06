@@ -694,12 +694,30 @@ class OrderEditRequestController extends Controller
 
     public function index()
     {
-        $editRequests = OrderEditRequest::with(['order.client', 'user', 'approvedBy'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        $user = Auth::user();
+        $query = OrderEditRequest::with(['order.client', 'user', 'approvedBy'])
+            ->whereHas('order') // Força o escopo de tenant e remove solicitações de outros tenants
+            ->orderBy('created_at', 'desc');
+
+        // Filtragem por permissão
+        if (!$user->isAdminGeral() && !$user->isProducao()) {
+            if ($user->isAdminLoja()) {
+                $storeIds = $user->getStoreIds();
+                $query->whereHas('order', function($q) use ($storeIds) {
+                    $q->whereIn('store_id', $storeIds);
+                });
+            } else {
+                // Vendedores e outros só veem o que solicitaram
+                $query->where('user_id', $user->id);
+            }
+        } elseif ($user->isAdminGeral() && $user->tenant_id !== null) {
+            // Se for admin com tenant, o whereHas('order') já garante o isolamento
+        }
+
+        $editRequests = $query->paginate(20);
 
         // Retornar view apropriada com base no tipo de usuário
-        if (Auth::user()->isProducao() && !Auth::user()->isAdmin()) {
+        if ($user->isProducao() && !$user->isAdmin()) {
             return view('production.edit-requests', compact('editRequests'));
         }
 

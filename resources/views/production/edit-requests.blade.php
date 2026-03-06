@@ -15,10 +15,47 @@
         @endif
 
         @if(session('error'))
-<div class="bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-600/30 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg mb-6">
+        <div class="bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-600/30 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg mb-6">
             {{ session('error') }}
         </div>
         @endif
+
+        @if($editRequests->isEmpty())
+        <div class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-fade-in-up">
+            <div class="relative mb-8">
+                <div class="absolute inset-0 bg-indigo-500/20 blur-3xl rounded-full"></div>
+                <div class="relative bg-white dark:bg-gray-800 p-8 rounded-full shadow-2xl dark:shadow-indigo-500/10 border border-gray-100 dark:border-gray-700">
+                    <svg class="w-24 h-24 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                </div>
+            </div>
+            
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4 tracking-tight">Nenhuma solicitação de edição</h2>
+            
+            <p class="text-lg text-gray-600 dark:text-gray-400 max-w-lg mb-8 leading-relaxed">
+                Não há solicitações de alteração de pedidos pendentes ou registradas. 
+                Aqui você poderá revisar e autorizar mudanças em pedidos já realizados.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="{{ route('orders.index') }}" 
+                   class="inline-flex items-center px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/30 active:scale-95">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 118 0m-4 5v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2h2M7 11V7a4 4 0 014-4M5 11V4a2 2 0 012-2h5"></path>
+                    </svg>
+                    Ver Todos os Pedidos
+                </a>
+                <button onclick="window.location.reload()" 
+                        class="inline-flex items-center px-8 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Atualizar
+                </button>
+            </div>
+        </div>
+        @else
 
 <!-- Lista de Solicitações de Edição -->
 <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 overflow-hidden">
@@ -55,6 +92,7 @@
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
                             <div>
+                                @if($editRequest->order)
                                 <a href="{{ route('orders.show', $editRequest->order->id) }}" 
                                    class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">
                                     #{{ str_pad($editRequest->order->id, 6, '0', STR_PAD_LEFT) }}
@@ -62,15 +100,18 @@
                                 <div class="text-xs text-gray-500 dark:text-gray-400">
                                     R$ {{ number_format($editRequest->order->total, 2, ',', '.') }}
                                 </div>
+                                @else
+                                <span class="text-red-500 text-xs italic">Pedido Removido</span>
+                                @endif
                             </div>
                                 </div>
                             </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900 dark:text-gray-100">{{ $editRequest->order->client->name }}</div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $editRequest->order->client->phone_primary }}</div>
+                                <div class="text-sm text-gray-900 dark:text-gray-100">{{ $editRequest->order?->client?->name ?? 'N/A' }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ $editRequest->order?->client?->phone_primary ?? '' }}</div>
                             </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900 dark:text-gray-100">{{ $editRequest->user->name }}</div>
+                        <div class="text-sm text-gray-900 dark:text-gray-100">{{ $editRequest->user->name ?? 'Removido' }}</div>
                         <div class="text-xs text-gray-500 dark:text-gray-400">{{ $editRequest->created_at->format('d/m/Y H:i') }}</div>
                             </td>
                     <td class="px-6 py-4 max-w-xs">
@@ -81,65 +122,65 @@
                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                 @if($editRequest->status === 'pending')
                             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
-                                        Pendente
-                                    </span>
+                                         Pendente
+                                     </span>
                                 @elseif($editRequest->status === 'approved')
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
-                                        Aprovado
-                                    </span>
-                        @else
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300">
-                                        Rejeitado
-                                    </span>
-                                @endif
-                            </td>
+                                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
+                                         Aprovado
+                                     </span>
+                         @else
+                                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300">
+                                         Rejeitado
+                                     </span>
+                                 @endif
+                             </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500 dark:text-gray-400">
-                                {{ $editRequest->created_at->format('d/m/Y') }}
-                            </td>
+                                 {{ $editRequest->created_at->format('d/m/Y') }}
+                             </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                @if($editRequest->status === 'pending')
+                                 @if($editRequest->status === 'pending')
                             <div class="flex justify-center space-x-2">
                                 <button onclick="viewChanges({{ $editRequest->id }})" 
-                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                    </svg>
-                                    Ver
-                                </button>
-                                        <button onclick="approveEdit({{ $editRequest->id }})" 
-                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/30 rounded-md hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                            Aprovar
-                                        </button>
-                                        <button onclick="rejectEdit({{ $editRequest->id }})" 
-                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/30 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                            Rejeitar
-                                        </button>
-                                    </div>
-                                @else
+                                         class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
+                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                     </svg>
+                                     Ver
+                                 </button>
+                                         <button onclick="approveEdit({{ $editRequest->id }})" 
+                                         class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/30 rounded-md hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors">
+                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                     </svg>
+                                             Aprovar
+                                         </button>
+                                         <button onclick="rejectEdit({{ $editRequest->id }})" 
+                                         class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/30 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors">
+                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                     </svg>
+                                             Rejeitar
+                                         </button>
+                                     </div>
+                                 @else
                             <div class="flex flex-col items-center space-y-2">
                                 <button onclick="viewChanges({{ $editRequest->id }})" 
-                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                    </svg>
-                                    Ver
-                                </button>
-                                        @if($editRequest->approvedBy)
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">
-                                        Por: {{ $editRequest->approvedBy->name }}
-                                    </div>
-                                        @endif
-                                    </div>
-                                @endif
-                            </td>
+                                         class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
+                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                     </svg>
+                                     Ver
+                                 </button>
+                                         @if($editRequest->approvedBy)
+                                     <div class="text-xs text-gray-500 dark:text-gray-400">
+                                         Por: {{ $editRequest->approvedBy->name }}
+                                     </div>
+                                         @endif
+                                     </div>
+                                 @endif
+                             </td>
                         </tr>
                         @empty
                         <tr>
@@ -302,4 +343,5 @@
             }
         });
     </script>
+    @endif
 @endsection

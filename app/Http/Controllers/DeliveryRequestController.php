@@ -16,12 +16,31 @@ class DeliveryRequestController extends Controller
     // Listar solicitações (para admin e produção)
     public function index()
     {
-        $requests = DeliveryRequest::with(['order.client', 'requestedByUser'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $user = Auth::user();
+        $query = DeliveryRequest::with(['order.client', 'requestedByUser'])
+            ->whereHas('order') // Força o escopo de tenant e remove solicitações de pedidos inexistentes/de outros tenants
+            ->orderBy('created_at', 'desc');
+
+        // Filtragem por permissão
+        if (!$user->isAdminGeral() && !$user->isProducao()) {
+            if ($user->isAdminLoja()) {
+                $storeIds = $user->getStoreIds();
+                $query->whereHas('order', function($q) use ($storeIds) {
+                    $q->whereIn('store_id', $storeIds);
+                });
+            } else {
+                // Vendedores e outros só veem o que solicitaram
+                $query->where('requested_by', $user->id);
+            }
+        } elseif ($user->isAdminGeral() && $user->tenant_id !== null) {
+            // Se for admin com tenant (não super admin), garante que só vê o próprio tenant
+            // O whereHas('order') já cuida disso devido ao Global Scope do Order
+        }
+
+        $requests = $query->get();
 
         // Retornar view apropriada com base no tipo de usuário
-        if (Auth::user()->isProducao() && !Auth::user()->isAdmin()) {
+        if ($user->isProducao() && !$user->isAdmin()) {
             return view('production.delivery-requests', compact('requests'));
         }
 

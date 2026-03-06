@@ -231,9 +231,27 @@ class OrderCancellationController extends Controller
 
     public function index()
     {
-        $cancellations = OrderCancellation::with(['order.client', 'user', 'approvedBy'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        $user = Auth::user();
+        $query = OrderCancellation::with(['order.client', 'user', 'approvedBy'])
+            ->whereHas('order') // Força o escopo de tenant e remove solicitações de outros tenants
+            ->orderBy('created_at', 'desc');
+
+        // Filtragem por permissão
+        if (!$user->isAdminGeral()) {
+            if ($user->isAdminLoja()) {
+                $storeIds = $user->getStoreIds();
+                $query->whereHas('order', function($q) use ($storeIds) {
+                    $q->whereIn('store_id', $storeIds);
+                });
+            } else {
+                // Vendedores e outros só veem o que solicitaram
+                $query->where('user_id', $user->id);
+            }
+        } elseif ($user->isAdminGeral() && $user->tenant_id !== null) {
+            // Se for admin com tenant, o whereHas('order') já garante o isolamento
+        }
+
+        $cancellations = $query->paginate(20);
 
         return view('admin.cancellations.index', compact('cancellations'));
     }

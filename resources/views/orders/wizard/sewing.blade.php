@@ -1495,12 +1495,6 @@
     }
     window.closeSewingWizard = closeSewingWizard;
 
-    ensureSewingWizardPortal();
-    
-    // Track if we're in sublimation mode
-    let isInSublimationMode = false;
-    window.isInSublimationMode = isInSublimationMode;
-
     function wizardNextStep() {
         if (!validateStep(wizardCurrentStep)) return;
 
@@ -1517,9 +1511,8 @@
             // Skip logic for Detail Color
             if (wizardCurrentStep === 5) {
                 const isDifferentDetail = document.getElementById('different_detail_color_cb')?.checked;
-                const details = wizardData.detalhe;
-                const hasSemDetalhe = Array.isArray(details) ? details.some(d => d.name && d.name.toLowerCase().includes('sem')) : (details && details.name && details.name.toLowerCase().includes('sem'));
-                if (!details || (Array.isArray(details) && details.length === 0) || hasSemDetalhe || !isDifferentDetail) {
+                const detail = wizardData.detalhe;
+                if (!detail || !detail.name || detail.name.toLowerCase().includes('sem') || !isDifferentDetail) {
                     wizardData.detail_color = wizardData.cor;
                     wizardCurrentStep += 2;
                     window.wizardCurrentStep = wizardCurrentStep;
@@ -1532,7 +1525,7 @@
             if (wizardCurrentStep === 7) {
                 const isDifferentCollar = document.getElementById('different_collar_color_cb')?.checked;
                 const gola = wizardData.gola;
-                if (!gola || gola.name.toLowerCase().includes('sem') || !isDifferentCollar) {
+                if (!gola || !gola.name || gola.name.toLowerCase().includes('sem') || !isDifferentCollar) {
                     wizardData.collar_color = wizardData.cor;
                     wizardCurrentStep += 2;
                     window.wizardCurrentStep = wizardCurrentStep;
@@ -1579,9 +1572,8 @@
             // Skip logic backward for Detail Color
             if (wizardCurrentStep === 7) {
                 const isDifferentDetail = document.getElementById('different_detail_color_cb')?.checked;
-                const details = wizardData.detalhe;
-                const hasSemDetalhe = Array.isArray(details) ? details.some(d => d.name && d.name.toLowerCase().includes('sem')) : (details && details.name && details.name.toLowerCase().includes('sem'));
-                if (!details || (Array.isArray(details) && details.length === 0) || hasSemDetalhe || !isDifferentDetail) {
+                const detail = wizardData.detalhe;
+                if (!detail || !detail.name || detail.name.toLowerCase().includes('sem') || !isDifferentDetail) {
                     wizardCurrentStep -= 2;
                     window.wizardCurrentStep = wizardCurrentStep;
                     updateWizardUI();
@@ -1593,7 +1585,7 @@
             if (wizardCurrentStep === 9) {
                 const isDifferentCollar = document.getElementById('different_collar_color_cb')?.checked;
                 const gola = wizardData.gola;
-                if (!gola || gola.name.toLowerCase().includes('sem') || !isDifferentCollar) {
+                if (!gola || !gola.name || gola.name.toLowerCase().includes('sem') || !isDifferentCollar) {
                     wizardCurrentStep -= 2;
                     window.wizardCurrentStep = wizardCurrentStep;
                     updateWizardUI();
@@ -1612,7 +1604,7 @@
     function validateStep(step) {
         if (step === 1) {
              if (!wizardData.personalizacao || wizardData.personalizacao.length === 0) {
-                 alert('Selecione pelo menos uma personalizaÃ§Ã£o.');
+                 alert('Selecione pelo menos uma personalização.');
                  return false;
              }
         }
@@ -1637,7 +1629,7 @@
         if (step === 9) {
             const total = calculateWizardTotal();
             if (total <= 0) {
-                alert('Informe a quantidade de peÃ§as (pelo menos 1).');
+                alert('Informe a quantidade de peças (pelo menos 1).');
                 return false;
             }
             wizardData.sizes = {};
@@ -1652,7 +1644,7 @@
 
     function updateWizardUI() {
         const titles = [
-            "PersonalizaÃ§Ã£o", "Tecido", "Cor do Tecido", "Modelo", "Detalhe", "Cor do Detalhe", 
+            "Personalização", "Tecido", "Cor do Tecido", "Modelo", "Detalhe", "Cor do Detalhe", 
             "Gola", "Cor da Gola", "Tamanhos", "Imagem / Obs", "Resumo"
         ];
         const titleEl = document.getElementById('wizard-step-title');
@@ -1735,253 +1727,6 @@
                 return parentIds.includes(parseInt(item.parent_id)) || parentIds.includes(item.parent_id.toString()) || parentIds.includes(item.parent_id);
             }
             return true;
-        });
-    }
-    window.filterByParent = filterByParent;
-
-    function renderOptionCards(containerId, fieldKey, sourceKeys, parentId = null) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-
-        let items = getOptionList(sourceKeys);
-        if (parentId) {
-            items = filterByParent(items, parentId);
-        }
-
-        if (!items || items.length === 0) {
-            container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Nenhuma opÃ§Ã£o disponÃ­vel.</div>';
-            return;
-        }
-
-        container.innerHTML = items.map(item => {
-            const isActive = wizardData[fieldKey] && wizardData[fieldKey].id == item.id;
-            const price = parseFloat(item.price || 0);
-            return `
-                <div class="wizard-option-card p-2.5 rounded-xl border ${isActive ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : 'border-gray-200 dark:border-slate-700'} hover:border-[#7c3aed] dark:hover:border-[#7c3aed] cursor-pointer transition-all"
-                    onclick="selectWizardOption('${fieldKey}', '${item.id}', '${item.name.replace(/'/g, '')}', ${price}, true)">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            ${(fieldKey === 'detail_color' || fieldKey === 'collar_color') ? 
-                                `<div class="w-6 h-6 rounded-full border border-gray-200 dark:border-gray-600 shadow-sm" style="background-color: ${item.color_hex || getColorHex(item.name)}"></div>` 
-                                : ''}
-                            <span class="font-semibold text-gray-800 dark:text-gray-100">${item.name}</span>
-                        </div>
-                        ${price > 0 ? `<span class="text-xs font-bold text-[#7c3aed]">R$ ${price.toFixed(2).replace('.', ',')}</span>` : ''}
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-    window.renderOptionCards = renderOptionCards;
-
-    function renderWizardCorteOptions() {
-        const parentId = (wizardData.tipo_tecido && wizardData.tipo_tecido.id)
-            ? wizardData.tipo_tecido.id
-            : (wizardData.tecido ? wizardData.tecido.id : null);
-        renderOptionCards('wizard-options-corte', 'tipo_corte', ['tipo_corte', 'corte', 'cut_types'], parentId);
-    }
-    window.renderWizardCorteOptions = renderWizardCorteOptions;
-
-    function toggleDetailColorUI() {
-        const isDifferent = document.getElementById('different_detail_color_cb').checked;
-        const toggleContainer = document.getElementById('individual-colors-toggle-container');
-        if (toggleContainer) {
-            toggleContainer.classList.toggle('hidden', !isDifferent);
-        }
-        if (!isDifferent) {
-            wizardData.individual_detail_colors = false;
-            const cb = document.getElementById('individual_detail_colors_cb');
-            if (cb) cb.checked = false;
-        }
-    }
-    window.toggleDetailColorUI = toggleDetailColorUI;
-
-    function renderWizardDetalheOptions() {
-        const container = document.getElementById('wizard-options-detalhe');
-        if (!container) return;
-
-        let items = getOptionList(['detalhe', 'detail']);
-        if (!items || items.length === 0) {
-            container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Nenhuma opÃ§Ã£o disponÃ­vel.</div>';
-            return;
-        }
-
-        container.innerHTML = items.map(item => {
-            const isSelected = wizardData.detalhe.some(d => d.id == item.id);
-            const price = parseFloat(item.price || 0);
-            return `
-                <div class="wizard-option-card p-2.5 rounded-xl border ${isSelected ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : 'border-gray-200 dark:border-slate-700'} hover:border-[#7c3aed] dark:hover:border-[#7c3aed] cursor-pointer transition-all"
-                    onclick="toggleWizardDetail('${item.id}', '${item.name.replace(/'/g, '')}', ${price})">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleWizardDetail('${item.id}', '${item.name.replace(/'/g, '')}', ${price})">
-                            <span class="font-semibold text-gray-800 dark:text-gray-100">${item.name}</span>
-                        </div>
-                        ${price > 0 ? `<span class="text-xs font-bold text-[#7c3aed]">R$ ${price.toFixed(2).replace('.', ',')}</span>` : ''}
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-    window.renderWizardDetalheOptions = renderWizardDetalheOptions;
-
-    function toggleWizardDetail(id, name, price) {
-        // Exclusive "Sem detalhe" logic
-        const isSemDetalhe = name.toLowerCase().includes('sem');
-        
-        if (isSemDetalhe) {
-            wizardData.detalhe = [{ id, name, price }];
-        } else {
-            // Remove "Sem detalhe" if found
-            wizardData.detalhe = wizardData.detalhe.filter(d => !d.name.toLowerCase().includes('sem'));
-            
-            const index = wizardData.detalhe.findIndex(d => d.id == id);
-            if (index > -1) {
-                wizardData.detalhe.splice(index, 1);
-                delete wizardData.detail_colors[id];
-            } else {
-                wizardData.detalhe.push({ id, name, price });
-            }
-        }
-        
-        renderWizardDetalheOptions();
-    }
-    window.toggleWizardDetail = toggleWizardDetail;
-
-    function renderWizardDetailColorOptions() {
-        const container = document.getElementById('wizard-options-cor-detalhe');
-        if (!container) return;
-
-        const parentIds = [];
-        if (wizardData.tecido) parentIds.push(wizardData.tecido.id);
-        if (wizardData.tipo_tecido) parentIds.push(wizardData.tipo_tecido.id);
-
-        if (parentIds.length === 0) {
-            container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Selecione o tecido primeiro.</div>';
-            return;
-        }
-
-        const details = wizardData.detalhe || [];
-        const isIndividual = wizardData.individual_detail_colors;
-
-        if (isIndividual && details.length > 0) {
-            // Individual color selection UI
-            let html = '<div class="col-span-full space-y-6">';
-            
-            details.forEach(detail => {
-                if (detail.name.toLowerCase().includes('sem')) return;
-
-                const currentColor = wizardData.detail_colors[detail.id];
-                const currentColorName = currentColor ? currentColor.name : 'Selecione';
-                const currentColorHex = currentColor ? (currentColor.color_hex || getColorHex(currentColor.name)) : '#ccc';
-
-                html += `
-                    <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
-                        <div class="flex items-center justify-between mb-3 border-b border-gray-100 dark:border-slate-800 pb-2">
-                            <span class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">Cor para: ${detail.name}</span>
-                            <div class="flex items-center gap-2">
-                                <div class="w-4 h-4 rounded-full border border-gray-200" style="background-color: ${currentColorHex}"></div>
-                                <span class="text-xs font-black text-[#7c3aed]">${currentColorName}</span>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
-                `;
-
-                let colors = getOptionList(['cor', 'cor_detalhe', 'detail_color']);
-                colors = filterByParent(colors, parentIds);
-
-                html += colors.map(color => {
-                    const isActive = wizardData.detail_colors[detail.id] && wizardData.detail_colors[detail.id].id == color.id;
-                    const hex = color.color_hex || getColorHex(color.name);
-                    return `
-                        <div class="w-8 h-8 rounded-full cursor-pointer border ${isActive ? 'ring-2 ring-[#7c3aed] ring-offset-2' : 'border-gray-200 dark:border-slate-700'} hover:scale-110 transition-transform" 
-                             style="background-color: ${hex}" 
-                             title="${color.name}"
-                             onclick="selectWizardDetailColor('${detail.id}', '${color.id}', '${color.name.replace(/'/g, '')}')">
-                        </div>
-                    `;
-                }).join('');
-
-                html += `
-                        </div>
-                    </div>
-                `;
-            });
-
-            html += '</div>';
-            container.innerHTML = html;
-        } else {
-            // Global color selection UI (existing logic)
-            renderOptionCards('wizard-options-cor-detalhe', 'detail_color', ['cor', 'cor_detalhe', 'detail_color'], parentIds);
-        }
-    }
-    window.renderWizardDetailColorOptions = renderWizardDetailColorOptions;
-
-    function selectWizardDetailColor(detailId, colorId, colorName) {
-        if (!wizardData.detail_colors) wizardData.detail_colors = {};
-        wizardData.detail_colors[detailId] = { id: colorId, name: colorName };
-        renderWizardDetailColorOptions();
-    }
-    window.selectWizardDetailColor = selectWizardDetailColor;
-
-    function renderWizardGolaOptions() {
-        renderOptionCards('wizard-options-gola', 'gola', ['gola', 'collar']);
-    }
-    window.renderWizardGolaOptions = renderWizardGolaOptions;
-
-    function renderWizardCollarColorOptions() {
-        const parentIds = [];
-        if (wizardData.tecido) parentIds.push(wizardData.tecido.id);
-        if (wizardData.tipo_tecido) parentIds.push(wizardData.tipo_tecido.id);
-
-        if (parentIds.length === 0) {
-            const container = document.getElementById('wizard-options-cor-gola');
-            if (container) container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Selecione o tecido primeiro.</div>';
-            return;
-        }
-        renderOptionCards('wizard-options-cor-gola', 'collar_color', ['cor', 'cor_gola', 'collar_color'], parentIds);
-    }
-    window.renderWizardCollarColorOptions = renderWizardCollarColorOptions;
-
-    function loadWizardOptionsForStep(step) {
-        if (step === 1) renderWizardPersonalizacao();
-        if (step === 2) loadWizardTecidos();
-        if (step === 3) loadWizardCores();
-        if (step === 4) renderWizardCorteOptions();
-        if (step === 5) renderWizardDetalheOptions();
-        if (step === 6) renderWizardDetailColorOptions();
-        if (step === 7) renderWizardGolaOptions();
-        if (step === 8) renderWizardCollarColorOptions();
-    }
-    window.loadWizardOptionsForStep = loadWizardOptionsForStep;
-
-    function selectWizardOption(field, value, name, price = 0, autoAdvance = true) {
-        wizardData[field] = { id: value, name: name, price: parseFloat(price) };
-        
-        const containerId = `wizard-options-${field.replace(/_/g, '-')}`;
-        const container = document.getElementById(containerId);
-        
-        if (container) {
-             const cards = container.querySelectorAll('.wizard-option-card');
-             cards.forEach(c => c.classList.remove('ring-2', 'ring-[#7c3aed]', 'bg-purple-50', 'dark:bg-purple-900/20', 'shadow-sm'));
-        }
-
-        if (autoAdvance) {
-            setTimeout(() => wizardNextStep(), 300);
-        }
-    }
-    window.selectWizardOption = selectWizardOption;
-
-    // --- Step 1: PersonalizaÃ§Ã£o ---
-    function renderWizardPersonalizacao() {
-        const container = document.getElementById('wizard-options-personalizacao');
-        if(!container) return;
-        
-        const personalizacaoList = Array.isArray(options.personalizacao) ? [...options.personalizacao] : [];
-        personalizacaoList.sort((a, b) => {
-            const weightDiff = getPersonalizationSortWeight(a) - getPersonalizationSortWeight(b);
-            if (weightDiff !== 0) return weightDiff;
-            return (a?.name || '').localeCompare((b?.name || ''), 'pt-BR', { sensitivity: 'base' });
         });
 
         if (personalizacaoList.length === 0) {
@@ -2071,7 +1816,7 @@
                     const parentIds = Array.isArray(tecido.parent_ids) ? tecido.parent_ids.map(id => id.toString()) : [];
                     if (parentIds.length === 0) return true;
                     if (parentIds.some(pid => selectedIds.includes(pid))) return true;
-                    // Se nÃ£o houver no tecido, checar nos tipos de tecido vinculados
+                    // Se não houver no tecido, checar nos tipos de tecido vinculados
                     const hasTypeMatch = tipoTecidoItems.some(tipo => {
                         const tipoParentId = (tipo.parent_id || '').toString();
                         if (tipoParentId !== tecido.id.toString()) return false;
@@ -2175,17 +1920,13 @@
          });
          
          const isSublimacaoSelected = selectedPersonalizacoesNames.some(name => 
-             name.includes('SUB') || name.includes('SUBLIMACAO') || name.includes('SUBLIMAÃ‡ÃƒO')
+             name.includes('SUB') || name.includes('SUBLIMACAO') || name.includes('SUBLIMAÇÃO')
          );
          
          if (isSublimacaoSelected) {
-             const brancoCores = getOptionList(['cor']).filter(cor => 
-                cor.name.toUpperCase() === 'BRANCO' || cor.name.toUpperCase() === 'WHITE'
+             items = items.filter(cor => 
+                 cor.name.toUpperCase() === 'BRANCO' || cor.name.toUpperCase() === 'WHITE'
              );
-             
-             // If we found "Branco" in the original list but it was filtered out, add it back
-             // or just replace the items with only Branco/White
-             items = brancoCores;
          }
          
          container.innerHTML = items.map(color => {
@@ -2343,14 +2084,7 @@
         
         let unitPrice = 0;
         if(wizardData.tipo_corte) unitPrice += wizardData.tipo_corte.price;
-        
-        // Sum all detail prices
-        if (Array.isArray(wizardData.detalhe)) {
-            wizardData.detalhe.forEach(d => {
-                unitPrice += parseFloat(d.price || 0);
-            });
-        }
-        
+        if(wizardData.detalhe) unitPrice += wizardData.detalhe.price;
         if(wizardData.gola) unitPrice += wizardData.gola.price;
         
         const finalPriceEl = document.getElementById('wizard-final-price');
@@ -2374,63 +2108,11 @@
         const tipoCorteHidden = document.getElementById('tipo_corte_hidden');
         if (tipoCorteHidden) tipoCorteHidden.value = wizardData.tipo_corte ? wizardData.tipo_corte.id : '';
         
-        // Handle Multiple Details
-        const detalheContainer = document.getElementById('hidden-detalhe-container') || (function() {
-            const div = document.createElement('div');
-            div.id = 'hidden-detalhe-container';
-            document.getElementById('sewing-form').appendChild(div);
-            return div;
-        })();
-        detalheContainer.innerHTML = '';
-        if (Array.isArray(wizardData.detalhe)) {
-            wizardData.detalhe.forEach(d => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'detalhe[]';
-                input.value = d.id;
-                detalheContainer.appendChild(input);
-            });
-        }
+        const detalheHidden = document.getElementById('detalhe_hidden');
+        if (detalheHidden) detalheHidden.value = wizardData.detalhe ? wizardData.detalhe.id : '';
         
-        // Handle Detail Colors
-        const detailColorContainer = document.getElementById('hidden-detail-color-container') || (function() {
-            const div = document.createElement('div');
-            div.id = 'hidden-detail-color-container';
-            document.getElementById('sewing-form').appendChild(div);
-            return div;
-        })();
-        detailColorContainer.innerHTML = '';
-        
-        if (wizardData.individual_detail_colors) {
-            // Send colors as mapped array or special format
-            // For simplicity, we can send detail_id:color_id pairs
-            if (Array.isArray(wizardData.detalhe)) {
-                wizardData.detalhe.forEach(d => {
-                    const color = wizardData.detail_colors[d.id];
-                    if (color) {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = `detail_color_map[${d.id}]`;
-                        input.value = color.id;
-                        detailColorContainer.appendChild(input);
-                    }
-                });
-            }
-            // Also send a flag
-            const individualFlag = document.createElement('input');
-            individualFlag.type = 'hidden';
-            individualFlag.name = 'individual_detail_colors';
-            individualFlag.value = '1';
-            detailColorContainer.appendChild(individualFlag);
-        } else {
-            if (wizardData.detail_color) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'detail_color';
-                input.value = wizardData.detail_color.id;
-                detailColorContainer.appendChild(input);
-            }
-        }
+        const detailColorHidden = document.getElementById('detail_color_hidden');
+        if (detailColorHidden) detailColorHidden.value = wizardData.detail_color ? wizardData.detail_color.id : '';
         
         const golaHidden = document.getElementById('gola_hidden');
         if (golaHidden) golaHidden.value = wizardData.gola ? wizardData.gola.id : '';
@@ -2541,7 +2223,7 @@
     async function populateWizardFromItem(itemId, isDuplicate) {
         const item = itemsData.find(i => i.id == itemId);
         if (!item) {
-            alert('Item nÃ£o encontrado.');
+            alert('Item não encontrado.');
             return;
         }
 
@@ -2549,7 +2231,7 @@
              console.log('Waiting for options to load...');
              await new Promise(resolve => setTimeout(resolve, 800));
              if (Object.keys(optionsWithParents).length === 0) {
-                 alert('As opÃ§Ãµes de produtos ainda estÃ£o carregando. Por favor, aguarde um segundo e tente novamente.');
+                 alert('As opções de produtos ainda estão carregando. Por favor, aguarde um segundo e tente novamente.');
                  return;
              }
         }
@@ -2559,10 +2241,8 @@
             tipo_tecido: null,
             cor: null,
             tipo_corte: null,
-            detalhe: [], 
+            detalhe: null,
             detail_color: null,
-            detail_colors: {}, 
-            individual_detail_colors: false,
             gola: null,
             collar_color: null,
             personalizacao: [],
@@ -2594,7 +2274,7 @@
             const list = getOptionList([listKey]);
             if (!name) return null;
             const cleanName = name.split(' - ')[0].trim().toLowerCase();
-            return list.find(o => o.name.toLowerCase().includes(cleanName)) || null;
+            return list.find(o => o.name && o.name.toLowerCase().includes(cleanName)) || null;
         };
 
         if (wIds.tecido) {
@@ -2626,37 +2306,18 @@
              if(opt) wizardData.tipo_corte = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
         }
 
-        if (Array.isArray(wIds.detalhe)) {
-            const allD = getOptionList(['detalhe']);
-            wizardData.detalhe = allD
-                .filter(d => wIds.detalhe.includes(d.id.toString()) || wIds.detalhe.includes(parseInt(d.id)))
-                .map(d => ({ id: d.id, name: d.name, price: parseFloat(d.price || 0) }));
-        } else if (wIds.detalhe) {
+        if (wIds.detalhe) {
             const detail = getOptionList(['detalhe']).find(o => o.id == wIds.detalhe);
-            if (detail) wizardData.detalhe = [{ id: detail.id, name: detail.name, price: parseFloat(detail.price || 0) }];
-        } else if (item.detail) {
-             const names = item.detail.split(',').map(n => n.trim().toLowerCase());
-             const allD = getOptionList(['detalhe']);
-             wizardData.detalhe = allD
-                 .filter(d => names.includes(d.name.toLowerCase()))
-                 .map(d => ({ id: d.id, name: d.name, price: parseFloat(d.price || 0) }));
-        }
-
-        wizardData.individual_detail_colors = !!wIds.individual_detail_colors;
-        if (wIds.detail_color_map) {
-            const allC = getOptionList(['cor']);
-            for (const [did, cid] of Object.entries(wIds.detail_color_map)) {
-                const color = allC.find(c => c.id == cid);
-                if (color) {
-                    wizardData.detail_colors[did] = { id: color.id, name: color.name };
-                }
-            }
+            if (detail) wizardData.detalhe = { id: detail.id, name: detail.name, price: parseFloat(detail.price || 0) };
+        } else {
+             const opt = findOptionByName('detalhe', item.detail);
+             if(opt) wizardData.detalhe = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
         }
 
         if (wIds.detail_color) {
             const dc = getOptionList(['cor']).find(o => o.id == wIds.detail_color);
             if (dc) wizardData.detail_color = { id: dc.id, name: dc.name, price: 0 };
-        } else if (!wizardData.individual_detail_colors) {
+        } else {
              const opt = findOptionByName('cor', item.detail_color);
              if(opt) wizardData.detail_color = { id: opt.id, name: opt.name, price: 0 };
         }
@@ -2684,7 +2345,7 @@
                 const names = item.print_type.split(',').map(n => n.trim().toLowerCase());
                 const allP = getOptionList(['personalizacao']);
                 wizardData.personalizacao = allP
-                    .filter(p => names.includes(p.name.toLowerCase()))
+                    .filter(p => p.name && names.includes(p.name.toLowerCase()))
                     .map(p => p.id.toString());
             }
         }
@@ -2697,13 +2358,7 @@
 
         const diffDetailCb = document.getElementById('different_detail_color_cb');
         if (diffDetailCb) {
-            diffDetailCb.checked = (wizardData.detail_color && wizardData.cor && wizardData.detail_color.id != wizardData.cor.id) || wizardData.individual_detail_colors;
-            toggleDetailColorUI();
-        }
-        
-        const individualColorsCb = document.getElementById('individual_detail_colors_cb');
-        if (individualColorsCb) {
-            individualColorsCb.checked = wizardData.individual_detail_colors;
+            diffDetailCb.checked = (wizardData.detail_color && wizardData.cor && wizardData.detail_color.id != wizardData.cor.id);
         }
         
         const diffCollarCb = document.getElementById('different_collar_color_cb');
@@ -2845,7 +2500,7 @@
             }
         } catch (error) {
             console.error('Erro:', error);
-            alert('Erro ao processar solicitaÃ§Ã£o');
+            alert('Erro ao processar solicitação');
         }
     }
     window.togglePin = togglePin;
@@ -2913,7 +2568,7 @@
         if (!container) return;
         
         if (!addons || addons.length === 0) {
-            container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Nenhum adicional disponÃ­vel</p>';
+            container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Nenhum adicional disponível</p>';
             return;
         }
         
@@ -2964,7 +2619,7 @@
                 updateSublimationPreview();
             }
         } catch (error) {
-            console.error('Erro ao buscar preÃ§o:', error);
+            console.error('Erro ao buscar preço:', error);
         }
     }
     window.calculateSublimationPrice = calculateSublimationPrice;
@@ -2985,7 +2640,7 @@
                 e.preventDefault();
                 const quantity = parseInt(document.getElementById('sub_quantity')?.value) || 0;
                 if (quantity === 0) {
-                    alert('Adicione pelo menos uma peÃ§a nos tamanhos.');
+                    alert('Adicione pelo menos uma peça nos tamanhos.');
                     return;
                 }
                 const artName = document.getElementById('sub_art_name')?.value.trim();
@@ -3014,7 +2669,7 @@
                     }
                 } catch (error) {
                     console.error('Erro:', error);
-                    alert('Erro ao processar solicitaÃ§Ã£o.');
+                    alert('Erro ao processar solicitação.');
                 } finally {
                     btn.disabled = false;
                     btn.innerHTML = originalHtml;
@@ -3041,6 +2696,7 @@
         for (const id of selectedIds) {
             const p = personalizacaoOptions.find(opt => opt.id.toString() === id.toString());
             if (p) {
+                if (!p.name) continue;
                 const name = p.name.toUpperCase();
                 if (name.includes('SUB') && (name.includes('TOTAL') || name.includes('SUBLIM'))) {
                     return true;
@@ -3083,7 +2739,7 @@
                     `;
                 }).join('');
             } else {
-                container.innerHTML = '<p class="text-sm text-gray-500 col-span-full">Nenhum adicional disponÃ­vel</p>';
+                container.innerHTML = '<p class="text-sm text-gray-500 col-span-full">Nenhum adicional disponível</p>';
                 subWizardAddons = [];
             }
         } catch (error) {
@@ -3175,7 +2831,7 @@
         });
         
         if (totalQty === 0) {
-            alert('Adicione pelo menos uma peÃ§a.');
+            alert('Adicione pelo menos uma peça.');
             return false;
         }
         
@@ -3222,7 +2878,7 @@
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Erro ao processar solicitaÃ§Ã£o.');
+            alert('Erro ao processar solicitação.');
             return false;
         }
     }

@@ -438,7 +438,12 @@ class ProductController extends Controller
 
     private function getTemplates(): array
     {
-        $tenantId = auth()->user()->tenant_id;
+        $user = auth()->user();
+        if (!$user || !$user->tenant_id) {
+            return [];
+        }
+
+        $tenantId = $user->tenant_id;
         
         $count = \App\Models\ProductTemplate::where('tenant_id', $tenantId)->count();
         \Illuminate\Support\Facades\Log::info("getTemplates called for Tenant: {$tenantId}. Existing templates: {$count}");
@@ -459,8 +464,12 @@ class ProductController extends Controller
         return $templates->keyBy('id')->toArray();
     }
 
-    private function seedTenantTemplates(int $tenantId): void
+    private function seedTenantTemplates(?int $tenantId): void
     {
+        if (empty($tenantId)) {
+            return;
+        }
+
         \Illuminate\Support\Facades\Log::info("Starting seedTenantTemplates for Tenant {$tenantId}");
 
         // Buscar os tipos de corte que o cliente REALMENTE tem
