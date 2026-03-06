@@ -18,7 +18,68 @@ class StatusController extends Controller
             abort(403, 'Acesso negado.');
         }
         $statuses = Status::withCount('orders')->orderBy('position')->get();
-        return view('kanban.columns.index', compact('statuses'));
+
+        $nameCounts = $statuses->countBy(function ($status) {
+            return trim((string) $status->name);
+        });
+
+        $statuses->transform(function ($status) use ($nameCounts) {
+            $baseName = trim((string) $status->name);
+            $hasDuplicates = ($nameCounts[$baseName] ?? 0) > 1;
+            $suffix = $status->position ? ' (Pos. ' . $status->position . ')' : ' (#' . $status->id . ')';
+            $status->display_name = $hasDuplicates ? $baseName . $suffix : $baseName;
+
+            return $status;
+        });
+
+        $dashboardSelectedColumns = collect(session('production_dashboard_columns', []))
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->values();
+
+        $dashboardStatuses = $statuses
+            ->whereIn('id', $dashboardSelectedColumns)
+            ->values();
+
+        $totalColumns = $statuses->count();
+        $dashboardColumnCount = $dashboardStatuses->count();
+        $totalOrdersInColumns = (int) $statuses->sum('orders_count');
+        $emptyColumnsCount = (int) $statuses->where('orders_count', 0)->count();
+        $avgOrdersPerColumn = $totalColumns > 0
+            ? round($totalOrdersInColumns / $totalColumns, 1)
+            : 0;
+
+        $busiestStatus = $statuses
+            ->sortByDesc('orders_count')
+            ->first();
+
+        $columnLoadSeries = $statuses->map(function ($status) use ($totalOrdersInColumns, $dashboardSelectedColumns) {
+            $ordersCount = (int) ($status->orders_count ?? 0);
+
+            return [
+                'id' => $status->id,
+                'label' => $status->display_name,
+                'orders' => $ordersCount,
+                'position' => (int) ($status->position ?? 0),
+                'color' => $status->color ?: '#7c3aed',
+                'share' => $totalOrdersInColumns > 0
+                    ? round(($ordersCount / $totalOrdersInColumns) * 100, 1)
+                    : 0,
+                'in_dashboard' => $dashboardSelectedColumns->contains((int) $status->id),
+            ];
+        })->values();
+
+        return view('kanban.columns.index', compact(
+            'statuses',
+            'dashboardStatuses',
+            'totalColumns',
+            'dashboardColumnCount',
+            'totalOrdersInColumns',
+            'emptyColumnsCount',
+            'avgOrdersPerColumn',
+            'busiestStatus',
+            'columnLoadSeries'
+        ));
     }
 
     public function create(): View

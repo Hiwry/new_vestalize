@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\OrderStatusTracking;
 use App\Models\Status;
 use App\Models\Order;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -95,6 +96,17 @@ class ProductionDashboardController extends Controller
 
         // Obter todos os status (colunas do kanban)
         $allStatuses = Status::orderBy('position')->get();
+        $statusNameCounts = $allStatuses->countBy(function ($status) {
+            return trim((string) $status->name);
+        });
+        $allStatuses->transform(function ($status) use ($statusNameCounts) {
+            $baseName = trim((string) $status->name);
+            $hasDuplicates = ($statusNameCounts[$baseName] ?? 0) > 1;
+            $suffix = $status->position ? ' (Pos. ' . $status->position . ')' : ' (#' . $status->id . ')';
+            $status->dashboard_label = $hasDuplicates ? $baseName . $suffix : $baseName;
+
+            return $status;
+        });
         
         // Obter colunas selecionadas pelo usuário (da sessão ou request)
         // Se o formulário foi submetido, usa o que veio do request (mesmo que vazio)
@@ -228,7 +240,7 @@ class ProductionDashboardController extends Controller
                 
                 $statusStats[] = [
                     'status_id' => $status->id,
-                    'status_name' => $status->name,
+                    'status_name' => $status->dashboard_label ?? $status->name,
                     'avg_seconds' => (int) $avgSeconds,
                     'avg_formatted' => $this->formatSeconds((int) $avgSeconds),
                     'min_seconds' => (int) $minSeconds,
@@ -241,7 +253,7 @@ class ProductionDashboardController extends Controller
                 // Sem dados de tempo, mas mostrar o status com contagem de pedidos
                 $statusStats[] = [
                     'status_id' => $status->id,
-                    'status_name' => $status->name,
+                    'status_name' => $status->dashboard_label ?? $status->name,
                     'avg_seconds' => 0,
                     'avg_formatted' => 'Sem dados',
                     'min_seconds' => 0,
@@ -366,6 +378,65 @@ class ProductionDashboardController extends Controller
         $startDate = $start->format('Y-m-d');
         $endDate = $end->format('Y-m-d');
 
+        $statusFlowSeries = collect($statuses)->map(function ($status) use ($ordersByStatus) {
+            return [
+                'label' => $status->dashboard_label ?? $status->name,
+                'total' => (int) ($ordersByStatus[$status->id] ?? 0),
+                'color' => $status->color ?? '#7c3aed',
+            ];
+        })->values();
+
+        $timeInStatusSeries = collect($statusStats)
+            ->filter(function ($stat) {
+                return (int) ($stat['count'] ?? 0) > 0;
+            })
+            ->map(function ($stat) {
+                return [
+                    'label' => $stat['status_name'] ?? 'Sem status',
+                    'avg_seconds' => (int) ($stat['avg_seconds'] ?? 0),
+                    'avg_hours' => round(((int) ($stat['avg_seconds'] ?? 0)) / 3600, 2),
+                    'formatted' => $stat['avg_formatted'] ?? 'Sem dados',
+                    'count' => (int) ($stat['count'] ?? 0),
+                ];
+            })
+            ->sortByDesc('avg_seconds')
+            ->values();
+
+        $throughputSeries = (clone $baseQuery)
+            ->whereBetween('orders.created_at', [$start, $end])
+            ->selectRaw('DATE(orders.created_at) as production_day, COUNT(*) as total')
+            ->groupBy(DB::raw('DATE(orders.created_at)'))
+            ->orderBy('production_day', 'asc')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'label' => Carbon::parse($item->production_day)->format('d/m'),
+                    'total' => (int) ($item->total ?? 0),
+                ];
+            })
+            ->values();
+
+        $deliveryBaseQuery = Order::where('is_draft', false)
+            ->where('is_pdv', false)
+            ->where('is_cancelled', false)
+            ->whereNotNull('delivery_date');
+
+        if (!empty($storeIds)) {
+            $deliveryBaseQuery->whereIn('store_id', $storeIds);
+        }
+
+        $today = Carbon::today();
+        $weekEnd = Carbon::today()->copy()->endOfWeek();
+
+        $deliveryHealth = [
+            'late' => (clone $deliveryBaseQuery)->whereDate('delivery_date', '<', $today)->count(),
+            'today' => (clone $deliveryBaseQuery)->whereDate('delivery_date', $today)->count(),
+            'week' => (clone $deliveryBaseQuery)->whereBetween('delivery_date', [$today, $weekEnd])->count(),
+            'completed_ready' => (clone $baseQuery)->whereHas('status', function ($query) {
+                $query->whereIn('name', ['Concluído', 'Concluido', 'Finalizado']);
+            })->count(),
+        ];
+
         return view('production.dashboard', compact(
             'statusStats',
             'slowestStatus',
@@ -383,7 +454,11 @@ class ProductionDashboardController extends Controller
             'end',
             'deliveryOrders',
             'deliveryFilter',
-            'deliveryDateInput'
+            'deliveryDateInput',
+            'statusFlowSeries',
+            'timeInStatusSeries',
+            'throughputSeries',
+            'deliveryHealth'
         ));
     }
 

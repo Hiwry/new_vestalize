@@ -714,11 +714,17 @@ class OrderEditRequestController extends Controller
             // Se for admin com tenant, o whereHas('order') já garante o isolamento
         }
 
+        $statusCounts = [
+            'pending' => (clone $query)->where('status', 'pending')->count(),
+            'approved' => (clone $query)->where('status', 'approved')->count(),
+            'rejected' => (clone $query)->where('status', 'rejected')->count(),
+        ];
+
         $editRequests = $query->paginate(20);
 
         // Retornar view apropriada com base no tipo de usuário
-        if ($user->isProducao() && !$user->isAdmin()) {
-            return view('production.edit-requests', compact('editRequests'));
+        if (request()->routeIs('production.edit-requests.*')) {
+            return view('production.edit-requests', compact('editRequests', 'statusCounts'));
         }
 
         return view('admin.edit-requests.index', compact('editRequests'));

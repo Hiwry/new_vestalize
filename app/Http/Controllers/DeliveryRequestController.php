@@ -40,7 +40,7 @@ class DeliveryRequestController extends Controller
         $requests = $query->get();
 
         // Retornar view apropriada com base no tipo de usuário
-        if ($user->isProducao() && !$user->isAdmin()) {
+        if (request()->routeIs('production.delivery-requests.*')) {
             return view('production.delivery-requests', compact('requests'));
         }
 

@@ -10,6 +10,9 @@
     $lateOrdersCount = $ordersCollection->filter(function ($order) use ($today) {
         return $order->delivery_date && \Carbon\Carbon::parse($order->delivery_date)->isBefore($today);
     })->count();
+    $ordersWithoutDate = $ordersCollection->filter(function ($order) {
+        return empty($order->delivery_date);
+    })->count();
     $upcomingOrders = $ordersCollection->filter(function ($order) {
         return !empty($order->delivery_date);
     })->sortBy(function ($order) {
@@ -29,14 +32,106 @@
     } elseif (!empty($startDate)) {
         $periodRange = \Carbon\Carbon::parse($startDate)->format('d/m/Y');
     }
+
     $personalizationSummary = $ordersByPersonalization->map(function ($group) {
         return $group->count();
     })->sortDesc();
-    $ordersWithoutDate = \App\Models\Order::where('is_draft', false)
-        ->where('is_cancelled', false)
-        ->whereNull('delivery_date')
-        ->count();
+    $maxPersonalizationCount = (int) ($personalizationSummary->first() ?? 0);
+    $activeFiltersCount = collect([$search, $status, $personalizationType, $storeId])->filter(fn ($value) => filled($value))->count();
+
+    if ($period !== 'all') {
+        $activeFiltersCount++;
+    }
+
+    $activeFilters = collect([
+        filled($search) ? 'Busca: ' . $search : null,
+        filled($status) ? 'Status: ' . optional($statuses->firstWhere('id', (int) $status))->name : null,
+        filled($personalizationType) ? 'Personalizacao: ' . ($personalizationTypes[$personalizationType] ?? $personalizationType) : null,
+        filled($storeId) ? 'Loja: ' . optional($stores->firstWhere('id', (int) $storeId))->name : null,
+        $period !== 'all' ? 'Periodo: ' . $periodLabel . ($periodRange ? ' (' . $periodRange . ')' : '') : null,
+    ])->filter()->values();
+
+    $quickPeriods = [
+        'all' => 'Tudo',
+        'day' => 'Hoje',
+        'week' => 'Semana',
+        'month' => 'Mes',
+        'custom' => 'Personalizado',
+    ];
 @endphp
+
+<style>
+    .pl-summary::-webkit-details-marker { display: none; }
+    .pl-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(99, 102, 241, .18);
+        background: rgba(99, 102, 241, .08);
+        font-size: 12px;
+        font-weight: 700;
+    }
+    .pl-chip-muted {
+        border-color: rgba(148, 163, 184, .22);
+        background: rgba(148, 163, 184, .10);
+    }
+    .pl-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(148, 163, 184, .22);
+        background: rgba(255, 255, 255, .72);
+        font-size: 13px;
+        font-weight: 800;
+        color: rgb(71 85 105);
+        transition: .18s ease;
+    }
+    .dark .pl-pill {
+        background: rgba(15, 23, 42, .68);
+        color: rgb(148 163 184);
+    }
+    .pl-pill:hover { transform: translateY(-1px); }
+    .pl-pill.is-active {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border-color: transparent;
+        color: #fff;
+        box-shadow: 0 12px 24px rgba(79, 70, 229, .24);
+    }
+    .pl-progress-track {
+        height: 8px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, .18);
+    }
+    .pl-progress-bar {
+        height: 100%;
+        border-radius: inherit;
+    }
+    .pl-table-wrap { overflow-x: auto; }
+    .pl-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .pl-table th {
+        padding: 14px 18px;
+        background: rgba(148, 163, 184, .08);
+        border-bottom: 1px solid rgba(148, 163, 184, .18);
+        text-align: left;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: rgb(100 116 139);
+    }
+    .pl-table td {
+        padding: 16px 18px;
+        border-bottom: 1px solid rgba(148, 163, 184, .14);
+        vertical-align: top;
+    }
+    .pl-table tbody tr:hover td { background: rgba(99, 102, 241, .03); }
+</style>
 
 <div class="max-w-[1800px] mx-auto pb-24 space-y-8">
     @if(session('error'))
@@ -51,451 +146,436 @@
         </div>
     @endif
 
-    <!-- Hero / Header -->
-    <section class="relative overflow-hidden rounded-3xl border border-gray-200/70 dark:border-white/10 bg-white dark:bg-[#0b0f17] shadow-lg">
-        <div class="absolute -top-24 -right-24 h-64 w-64 bg-gradient-to-br from-indigo-500/20 via-purple-500/10 to-pink-500/20 blur-3xl"></div>
-        <div class="absolute -bottom-24 -left-24 h-64 w-64 bg-gradient-to-tr from-emerald-400/20 via-cyan-400/10 to-blue-500/20 blur-3xl"></div>
-        <div class="relative z-10 p-6 md:p-8 flex flex-col lg:flex-row gap-6 lg:items-center lg:justify-between">
-            <div class="space-y-4">
+    <section class="stay-white relative overflow-hidden rounded-[32px] border border-slate-200/70 bg-gradient-to-br from-slate-950 via-indigo-950 to-cyan-900 px-6 py-6 text-white shadow-2xl shadow-slate-900/20 md:px-8 md:py-8">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,.16),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(45,212,191,.18),transparent_32%)]"></div>
+        <div class="relative z-10 flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
+            <div class="max-w-3xl space-y-5">
                 <div class="flex flex-wrap items-center gap-2">
-                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
-                        Producao
+                    <span class="stay-white inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-cyan-100">
+                        Operacao de producao
                     </span>
-                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-gray-300 border border-gray-200 dark:border-white/10">
+                    <span class="stay-white inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-semibold text-slate-100">
                         {{ $periodLabel }}
                         @if($periodRange)
-                            <span class="text-[10px] font-bold text-gray-500 dark:text-gray-400">{{ $periodRange }}</span>
+                            <span class="stay-white rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.18em] text-cyan-100">{{ $periodRange }}</span>
                         @endif
                     </span>
                 </div>
+
                 <div>
-                    <h1 class="text-3xl md:text-4xl font-black tracking-tight text-gray-900 dark:text-gray-100">Painel de Producao</h1>
-                    <p class="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-2 max-w-2xl">
-                        Visao rapida do pipeline, prioridades do dia e acompanhamento dos pedidos em producao.
+                    <h1 class="stay-white max-w-2xl text-3xl font-black tracking-[-0.04em] text-white md:text-5xl">Lista operacional com foco em prioridade, prazo e proximo passo.</h1>
+                    <p class="stay-white mt-3 max-w-2xl text-sm text-slate-200/85 md:text-base">
+                        A pagina concentra urgencias, distribuicao da fila, filtros de acesso rapido e uma leitura mais clara da lista para uso continuo pela producao.
                     </p>
                 </div>
+
                 <div class="flex flex-wrap gap-3">
-                    <a href="{{ route('orders.wizard.start') }}" 
-                       class="inline-flex items-center px-6 py-3 bg-[#7c3aed] text-white rounded-xl font-bold hover:bg-[#6d28d9] transition shadow-lg shadow-purple-500/20">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        Novo Pedido
+                    <a href="{{ route('orders.wizard.start') }}" class="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-900 transition hover:-translate-y-0.5 hover:bg-cyan-50">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Novo pedido
                     </a>
-                    <a href="{{ route('production.kanban') }}" 
-                       class="inline-flex items-center px-6 py-3 bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-200 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-white/10 transition border border-gray-200 dark:border-white/10">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
-                        Ver em Kanban
+                    <a href="{{ route('kanban.index') }}" class="stay-white inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-white/15">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
+                        Abrir kanban
                     </a>
-                    <a href="{{ route('production.pdf') }}?{{ http_build_query(request()->except('page')) }}" 
-                       target="_blank"
-                       class="inline-flex items-center px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-500/20">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        PDF do Periodo
+                    <a href="{{ route('production.pdf') }}?{{ http_build_query(request()->except('page')) }}" target="_blank" class="stay-white inline-flex items-center gap-2 rounded-2xl border border-emerald-300/20 bg-emerald-400/15 px-5 py-3 text-sm font-black text-emerald-50 transition hover:-translate-y-0.5 hover:bg-emerald-400/20">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Exportar PDF
                     </a>
                 </div>
             </div>
-            <div class="w-full lg:w-80">
-                <div class="bg-gradient-to-br from-gray-50 to-white dark:from-[#0f172a] dark:to-[#0b0f17] border border-gray-200 dark:border-white/10 rounded-2xl p-5 shadow-inner">
-                    <h3 class="text-sm font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Hoje</h3>
-                    <div class="mt-4 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600 dark:text-gray-300">Entregas hoje</span>
-                            <span class="text-lg font-black text-indigo-600 dark:text-indigo-400">{{ $dueTodayCount }}</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600 dark:text-gray-300">Atrasados</span>
-                            <span class="text-lg font-black text-rose-600">{{ $lateOrdersCount }}</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600 dark:text-gray-300">Sem data</span>
-                            <span class="text-lg font-black text-amber-600">{{ $ordersWithoutDate ?? 0 }}</span>
-                        </div>
-                    </div>
+
+            <div class="grid w-full max-w-xl grid-cols-1 gap-3 sm:grid-cols-3 xl:max-w-md">
+                <div class="rounded-3xl border border-white/10 bg-white/10 p-4 backdrop-blur">
+                    <p class="stay-white text-[11px] font-black uppercase tracking-[0.24em] text-slate-200">Entrega hoje</p>
+                    <p class="stay-white mt-3 text-3xl font-black text-white">{{ $dueTodayCount }}</p>
+                    <p class="stay-white mt-2 text-xs font-semibold text-slate-200/80">Pedidos com vencimento no dia.</p>
+                </div>
+                <div class="rounded-3xl border border-white/10 bg-rose-400/12 p-4 backdrop-blur">
+                    <p class="stay-white text-[11px] font-black uppercase tracking-[0.24em] text-rose-100">Atrasados</p>
+                    <p class="stay-white mt-3 text-3xl font-black text-rose-100">{{ $lateOrdersCount }}</p>
+                    <p class="stay-white mt-2 text-xs font-semibold text-rose-50/80">Fila que pede repriorizacao.</p>
+                </div>
+                <div class="rounded-3xl border border-white/10 bg-amber-400/12 p-4 backdrop-blur">
+                    <p class="stay-white text-[11px] font-black uppercase tracking-[0.24em] text-amber-100">Sem data</p>
+                    <p class="stay-white mt-3 text-3xl font-black text-amber-50">{{ $ordersWithoutDate }}</p>
+                    <p class="stay-white mt-2 text-xs font-semibold text-amber-50/80">Pedidos sem prazo definido.</p>
                 </div>
             </div>
         </div>
     </section>
-    <!-- KPIs -->
-    <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
-            <div class="flex items-center justify-between">
+
+    <section class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.8fr)_minmax(320px,1fr)]">
+        <div class="rounded-3xl border border-slate-200/70 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 md:p-6">
+            <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Pedidos ativos</p>
-                    <p class="text-2xl font-black text-gray-900 dark:text-gray-100 mt-2">{{ $totalOrders }}</p>
+                    <p class="text-[11px] font-black uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Leitura rapida</p>
+                    <h2 class="mt-2 text-2xl font-black tracking-[-0.03em] text-slate-900 dark:text-slate-100">Atalhos de periodo e filtros ativos.</h2>
+                    <p class="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">Troque a janela de acompanhamento sem abrir o painel completo.</p>
                 </div>
-                <div class="w-11 h-11 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+
+                <div class="flex flex-wrap gap-2">
+                    @foreach($quickPeriods as $periodKey => $periodText)
+                        <a href="{{ route('production.index', array_merge(request()->except('page', 'period', 'start_date', 'end_date'), ['period' => $periodKey])) }}"
+                           class="pl-pill {{ $period === $periodKey ? 'is-active' : '' }}">
+                            {{ $periodText }}
+                        </a>
+                    @endforeach
                 </div>
+            </div>
+
+            <div class="mt-5 flex flex-wrap gap-2">
+                @forelse($activeFilters as $filterLabel)
+                    <span class="pl-chip">{{ $filterLabel }}</span>
+                @empty
+                    <span class="pl-chip pl-chip-muted">Sem filtros especificos. A lista mostra toda a operacao.</span>
+                @endforelse
             </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
-            <div class="flex items-center justify-between">
+        <div class="rounded-3xl border border-slate-200/70 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 md:p-6">
+            <div class="flex items-start justify-between gap-4">
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Valor em producao</p>
-                    <p class="text-2xl font-black text-gray-900 dark:text-gray-100 mt-2">R$ {{ number_format($totalValue, 2, ',', '.') }}</p>
+                    <p class="text-[11px] font-black uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Monitoramento</p>
+                    <h2 class="mt-2 text-xl font-black tracking-[-0.03em] text-slate-900 dark:text-slate-100">Estado da pagina</h2>
                 </div>
-                <div class="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path></svg>
-                </div>
+                <span class="stay-white rounded-full bg-slate-900 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white dark:bg-slate-100 dark:text-slate-900" style="color: #ffffff;">
+                    {{ $activeFiltersCount }} filtro(s)
+                </span>
             </div>
-        </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Status ativos</p>
-                    <p class="text-2xl font-black text-gray-900 dark:text-gray-100 mt-2">{{ $ordersByStatus->count() }}</p>
+            <div class="mt-5 grid grid-cols-2 gap-3">
+                <div class="rounded-2xl border border-slate-200/70 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/50">
+                    <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Pedidos</p>
+                    <p class="mt-2 text-3xl font-black text-slate-900 dark:text-slate-100">{{ $totalOrders }}</p>
                 </div>
-                <div class="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                <div class="rounded-2xl border border-slate-200/70 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/50">
+                    <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Valor</p>
+                    <p class="mt-2 text-2xl font-black text-slate-900 dark:text-slate-100">R$ {{ number_format($totalValue, 2, ',', '.') }}</p>
                 </div>
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Personalizacoes</p>
-                    <p class="text-2xl font-black text-gray-900 dark:text-gray-100 mt-2">{{ $ordersByPersonalization->count() }}</p>
+                <div class="rounded-2xl border border-slate-200/70 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/50">
+                    <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Etapas</p>
+                    <p class="mt-2 text-3xl font-black text-slate-900 dark:text-slate-100">{{ $ordersByStatus->count() }}</p>
                 </div>
-                <div class="w-11 h-11 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
+                <div class="rounded-2xl border border-slate-200/70 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/50">
+                    <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Tipos</p>
+                    <p class="mt-2 text-3xl font-black text-slate-900 dark:text-slate-100">{{ $ordersByPersonalization->count() }}</p>
                 </div>
             </div>
         </div>
     </section>
-    <!-- Pipeline + Personalizacao -->
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+    <section class="grid grid-cols-1 gap-6 2xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)_minmax(320px,.95fr)]">
+        <div class="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
             <div class="flex items-center justify-between">
                 <div>
-                    <h2 class="text-lg font-black text-gray-900 dark:text-gray-100">Pipeline por Status</h2>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Visao rapida do fluxo atual</p>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">Pipeline por status</h2>
+                    <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">Concentracao atual da fila por etapa.</p>
                 </div>
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Leitura direta</span>
             </div>
-            <div class="mt-5 flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+
+            <div class="mt-5 grid gap-3">
                 @foreach($statuses as $statusItem)
                     @php
                         $count = ($ordersByStatus[$statusItem->id] ?? collect())->count();
+                        $share = $totalOrders > 0 ? round(($count / $totalOrders) * 100) : 0;
                     @endphp
-                    <div class="min-w-[180px] flex-shrink-0 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900/40">
-                        <div class="flex items-center justify-between">
-                            <span class="inline-flex w-2.5 h-2.5 rounded-full" style="background-color: {{ $statusItem->color ?? '#9ca3af' }}"></span>
-                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400">{{ $count }}</span>
+                    <div class="rounded-2xl border border-slate-200/70 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/40">
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex min-w-0 items-center gap-3">
+                                <span class="inline-flex h-3 w-3 rounded-full" style="background-color: {{ $statusItem->color ?? '#9ca3af' }}"></span>
+                                <div class="min-w-0">
+                                    <p class="truncate text-sm font-black text-slate-900 dark:text-slate-100">{{ $statusItem->name }}</p>
+                                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ $share }}% da fila</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-black text-slate-900 dark:text-slate-100">{{ $count }}</p>
+                                <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">pedidos</p>
+                            </div>
                         </div>
-                        <div class="mt-3 text-sm font-semibold text-gray-900 dark:text-gray-100 truncate" title="{{ $statusItem->name }}">
-                            {{ $statusItem->name }}
-                        </div>
-                        <div class="mt-2 h-1.5 rounded-full bg-gray-200 dark:bg-gray-800">
-                            @php
-                                $progress = $totalOrders > 0 ? min(100, ($count / $totalOrders) * 100) : 0;
-                            @endphp
-                            <div class="h-1.5 rounded-full" style="background-color: {{ $statusItem->color ?? '#9ca3af' }}; width: {{ $progress }}%"></div>
+                        <div class="pl-progress-track mt-4">
+                            <div class="pl-progress-bar" style="width: {{ $share }}%; background-color: {{ $statusItem->color ?? '#9ca3af' }}"></div>
                         </div>
                     </div>
                 @endforeach
             </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+        <div class="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
             <div class="flex items-center justify-between">
                 <div>
-                    <h2 class="text-lg font-black text-gray-900 dark:text-gray-100">Tipos de Personalizacao</h2>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Distribuicao no periodo</p>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">Proximas entregas</h2>
+                    <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">Pedidos com prazo definido e leitura priorizada.</p>
                 </div>
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400">{{ $upcomingOrders->count() }} itens</span>
             </div>
+
             <div class="mt-5 space-y-3">
-                @forelse($personalizationSummary as $type => $count)
-                    <div class="flex items-center justify-between gap-3">
-                        <div class="flex-1">
-                            <div class="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{{ $type }}</div>
-                            <div class="mt-2 h-1.5 rounded-full bg-gray-200 dark:bg-gray-700">
-                                @php
-                                    $p = $personalizationSummary->first() ? ($count / $personalizationSummary->first()) * 100 : 0;
-                                @endphp
-                                <div class="h-1.5 rounded-full bg-indigo-500" style="width: {{ $p }}%"></div>
+                @forelse($upcomingOrders as $order)
+                    @php
+                        $deliveryDate = \Carbon\Carbon::parse($order->delivery_date);
+                        $isLate = $deliveryDate->isBefore($today);
+                        $isToday = $deliveryDate->isSameDay($today);
+                    @endphp
+                    <a href="{{ route('orders.show', $order->id) }}" class="block rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-white dark:border-slate-700 dark:bg-slate-950/40 dark:hover:border-indigo-500/40 dark:hover:bg-slate-950">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="text-sm font-black text-indigo-600 dark:text-indigo-400">#{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</p>
+                                <p class="mt-1 text-sm font-bold text-slate-900 dark:text-slate-100">{{ $order->client->name ?? '-' }}</p>
+                                <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">{{ $order->status->name ?? 'Indefinido' }}</p>
                             </div>
+                            <span class="rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] {{ $isLate ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-200' : ($isToday ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-200' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200') }}">
+                                {{ $isLate ? 'Atrasado' : ($isToday ? 'Hoje' : 'Planejado') }}
+                            </span>
                         </div>
-                        <div class="text-sm font-black text-gray-700 dark:text-gray-200">{{ $count }}</div>
-                    </div>
+                        <div class="mt-4 flex items-center justify-between gap-3 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                            <span>{{ $deliveryDate->format('d/m/Y') }}</span>
+                            <span>R$ {{ number_format($order->total, 2, ',', '.') }}</span>
+                        </div>
+                    </a>
                 @empty
-                    <div class="text-sm text-gray-500 dark:text-gray-400">Nenhuma personalizacao no periodo.</div>
+                    <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm font-semibold text-slate-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-400">
+                        Nenhuma entrega com data definida neste recorte.
+                    </div>
                 @endforelse
             </div>
         </div>
-    </section>
-    <!-- Proximas entregas + alertas -->
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-black text-gray-900 dark:text-gray-100">Proximas entregas</h2>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Pedidos com data definida</p>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50 dark:bg-gray-900/40">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Pedido</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Cliente</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Entrega</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                        @forelse($upcomingOrders as $order)
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-                                <td class="px-6 py-4 text-sm font-semibold text-indigo-600 dark:text-indigo-400">#{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200">{{ $order->client->name ?? '-' }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200">
-                                    {{ $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('d/m/Y') : '-' }}
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white" style="background-color: {{ $order->status->color ?? '#6B7280' }}">
-                                        {{ $order->status->name ?? 'Indefinido' }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-                                    Nenhuma entrega com data definida no periodo atual.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm space-y-4">
+        <div class="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
             <div>
-                <h2 class="text-lg font-black text-gray-900 dark:text-gray-100">Alertas rapidos</h2>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Foco nas pendencias</p>
+                <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">Tipos de personalizacao</h2>
+                <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">Mix do periodo e alertas basicos.</p>
             </div>
-            <div class="space-y-3">
-                <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-900/20 dark:border-amber-600/30 dark:text-amber-300">
+
+            <div class="mt-5 space-y-4">
+                @forelse($personalizationSummary as $type => $count)
+                    @php
+                        $p = $maxPersonalizationCount > 0 ? ($count / $maxPersonalizationCount) * 100 : 0;
+                    @endphp
+                    <div>
+                        <div class="flex items-center justify-between gap-3">
+                            <p class="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{{ $type }}</p>
+                            <span class="text-sm font-black text-slate-700 dark:text-slate-200">{{ $count }}</span>
+                        </div>
+                        <div class="pl-progress-track mt-2">
+                            <div class="pl-progress-bar bg-gradient-to-r from-indigo-500 via-violet-500 to-cyan-500" style="width: {{ $p }}%"></div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-sm text-slate-500 dark:text-slate-400">Nenhuma personalizacao no periodo.</div>
+                @endforelse
+            </div>
+
+            <div class="mt-6 space-y-3">
+                <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-800 dark:border-amber-600/30 dark:bg-amber-900/20 dark:text-amber-300">
                     <p class="text-xs font-bold uppercase tracking-widest">Sem data</p>
-                    <p class="text-sm mt-1">{{ $ordersWithoutDate ?? 0 }} pedido(s) sem data de entrega.</p>
+                    <p class="mt-1 text-sm">{{ $ordersWithoutDate }} pedido(s) sem data de entrega.</p>
                 </div>
-                <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 dark:bg-rose-900/20 dark:border-rose-600/30 dark:text-rose-300">
+                <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-rose-800 dark:border-rose-600/30 dark:bg-rose-900/20 dark:text-rose-300">
                     <p class="text-xs font-bold uppercase tracking-widest">Atrasados</p>
-                    <p class="text-sm mt-1">{{ $lateOrdersCount }} pedido(s) com entrega atrasada.</p>
+                    <p class="mt-1 text-sm">{{ $lateOrdersCount }} pedido(s) com entrega atrasada.</p>
                 </div>
-                <div class="p-4 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-800 dark:bg-indigo-900/20 dark:border-indigo-600/30 dark:text-indigo-300">
+                <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-indigo-800 dark:border-indigo-600/30 dark:bg-indigo-900/20 dark:text-indigo-300">
                     <p class="text-xs font-bold uppercase tracking-widest">Entregas hoje</p>
-                    <p class="text-sm mt-1">{{ $dueTodayCount }} pedido(s) para entrega hoje.</p>
+                    <p class="mt-1 text-sm">{{ $dueTodayCount }} pedido(s) para entrega hoje.</p>
                 </div>
             </div>
         </div>
     </section>
-    <!-- Filtros -->
-    <section class="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+    <section class="overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
         <details class="group" {{ ($search || $status || $personalizationType || $storeId || $period === 'custom') ? 'open' : '' }}>
-            <summary class="flex items-center justify-between cursor-pointer">
+            <summary class="pl-summary flex cursor-pointer items-center justify-between gap-4 px-6 py-5">
                 <div>
-                    <h2 class="text-lg font-black text-gray-900 dark:text-gray-100">Filtros avancados</h2>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Refine a lista por periodo, status ou loja</p>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">Filtros avancados</h2>
+                    <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">Refine a lista por periodo, status, loja ou texto livre.</p>
                 </div>
-                <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                    <span class="text-xs font-semibold">Expandir</span>
-                    <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400">
+                    <span class="text-xs font-bold">{{ $activeFiltersCount }} ativo(s)</span>
+                    <svg class="h-4 w-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </div>
             </summary>
-            <div class="mt-6">
-                <form method="GET" action="{{ route('production.index') }}" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <!-- Periodo -->
+            <div class="border-t border-slate-200/80 px-6 py-5 dark:border-slate-800">
+                <form method="GET" action="{{ route('production.index') }}" class="space-y-5">
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Periodo</label>
-                            <select name="period" class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-all text-sm">
-                                <option value="all" {{ $period === 'all' ? 'selected' : '' }}>Todo o Periodo</option>
+                            <label class="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Periodo</label>
+                            <select name="period" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                                <option value="all" {{ $period === 'all' ? 'selected' : '' }}>Todo o periodo</option>
                                 <option value="day" {{ $period === 'day' ? 'selected' : '' }}>Hoje</option>
-                                <option value="week" {{ $period === 'week' ? 'selected' : '' }}>Esta Semana (Seg-Sex)</option>
-                                <option value="month" {{ $period === 'month' ? 'selected' : '' }}>Este Mes</option>
+                                <option value="week" {{ $period === 'week' ? 'selected' : '' }}>Esta semana</option>
+                                <option value="month" {{ $period === 'month' ? 'selected' : '' }}>Este mes</option>
                                 <option value="custom" {{ $period === 'custom' ? 'selected' : '' }}>Personalizado</option>
                             </select>
                         </div>
 
-                        <!-- Data Inicio -->
-                        <div id="start-date-field" style="{{ $period === 'custom' ? '' : 'display: none;' }}">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Data Inicio</label>
-                            <input type="date" 
-                                   name="start_date" 
-                                   value="{{ $startDate }}"
-                                   class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-all text-sm">
+                        <div id="start-date-field" class="{{ $period === 'custom' ? '' : 'hidden' }}">
+                            <label class="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Data inicio</label>
+                            <input type="date" name="start_date" value="{{ $startDate }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
                         </div>
 
-                        <!-- Data Fim -->
-                        <div id="end-date-field" style="{{ $period === 'custom' ? '' : 'display: none;' }}">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Data Fim</label>
-                            <input type="date" 
-                                   name="end_date" 
-                                   value="{{ $endDate }}"
-                                   class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-all text-sm">
+                        <div id="end-date-field" class="{{ $period === 'custom' ? '' : 'hidden' }}">
+                            <label class="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Data fim</label>
+                            <input type="date" name="end_date" value="{{ $endDate }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
                         </div>
 
-                        <!-- Status -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
-                            <select name="status" class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-all text-sm">
-                                <option value="">Todos os Status</option>
+                            <label class="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Status</label>
+                            <select name="status" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                                <option value="">Todos os status</option>
                                 @foreach($statuses as $statusOption)
-                                    <option value="{{ $statusOption->id }}" {{ $status == $statusOption->id ? 'selected' : '' }}>
-                                        {{ $statusOption->name }}
-                                    </option>
+                                    <option value="{{ $statusOption->id }}" {{ $status == $statusOption->id ? 'selected' : '' }}>{{ $statusOption->name }}</option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <!-- Tipo de Personalizacao -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Personalizacao</label>
-                            <select name="personalization_type" class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-all text-sm">
-                                <option value="">Todos os Tipos</option>
+                            <label class="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Personalizacao</label>
+                            <select name="personalization_type" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                                <option value="">Todos os tipos</option>
                                 @foreach($personalizationTypes as $key => $label)
-                                    <option value="{{ $key }}" {{ $personalizationType == $key ? 'selected' : '' }}>
-                                        {{ $label }}
-                                    </option>
+                                    <option value="{{ $key }}" {{ $personalizationType == $key ? 'selected' : '' }}>{{ $label }}</option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <!-- Loja -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Loja</label>
-                            <select name="store_id" class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-all text-sm">
-                                <option value="">Todas as Lojas</option>
+                            <label class="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Loja</label>
+                            <select name="store_id" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                                <option value="">Todas as lojas</option>
                                 @foreach($stores as $store)
-                                    <option value="{{ $store->id }}" {{ $storeId == $store->id ? 'selected' : '' }}>
-                                        {{ $store->name }}
-                                    </option>
+                                    <option value="{{ $store->id }}" {{ $storeId == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <!-- Busca -->
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar</label>
-                            <input type="text" 
-                                   name="search" 
-                                   value="{{ $search }}"
-                                   placeholder="Numero do pedido, nome do cliente, telefone ou nome da arte..."
-                                   class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-500 transition-all text-sm">
+                        <div class="md:col-span-2 xl:col-span-6">
+                            <label class="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Busca</label>
+                            <input type="text" name="search" value="{{ $search }}" placeholder="Numero do pedido, nome do cliente, telefone ou nome da arte..." class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 placeholder:text-slate-400 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500">
                         </div>
                     </div>
 
-                    <div class="flex justify-end space-x-3">
-                        <button type="submit" 
-                                class="px-6 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition">
-                            Filtrar
-                        </button>
-                        <a href="{{ route('production.index') }}" 
-                           class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                            Limpar
-                        </a>
+                    <div class="flex flex-col gap-3 border-t border-slate-200/80 pt-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+                        <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Os filtros afetam a lista exibida e a exportacao em PDF.</p>
+                        <div class="flex flex-col gap-3 sm:flex-row">
+                            <button type="submit" class="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-3 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition hover:-translate-y-0.5">
+                                Aplicar filtros
+                            </button>
+                            <a href="{{ route('production.index') }}" class="rounded-2xl border border-slate-200 px-6 py-3 text-center text-sm font-black text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">
+                                Limpar
+                            </a>
+                        </div>
                     </div>
                 </form>
             </div>
         </details>
     </section>
-    <!-- Lista de Pedidos -->
-    <section class="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-black text-gray-900 dark:text-gray-100">Pedidos Encontrados</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+    <section class="overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+        <div class="border-b border-slate-200/80 px-6 py-5 dark:border-slate-800">
+            <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+                <div>
+                    <h3 class="text-2xl font-black tracking-[-0.03em] text-slate-900 dark:text-slate-100">Pedidos encontrados</h3>
+                    <p class="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">
                 Mostrando {{ $orders->count() }} de {{ $totalOrders }} pedidos
                 @if($period === 'day')
-                    ativos em producao
+                    ativos em producao.
                 @elseif($period === 'week')
-                    com entrega esta semana ({{ \Carbon\Carbon::parse($startDate)->format('d/m') }} a {{ \Carbon\Carbon::parse($endDate)->format('d/m') }})
+                    com entrega esta semana ({{ \Carbon\Carbon::parse($startDate)->format('d/m') }} a {{ \Carbon\Carbon::parse($endDate)->format('d/m') }}).
                 @elseif($period === 'month')
-                    com entrega este mes
+                    com entrega este mes.
                 @elseif($period === 'all')
-                    em qualquer periodo
+                    em qualquer periodo.
                 @else
-                    com entrega no periodo selecionado
+                    com entrega no periodo selecionado.
                 @endif
-            </p>
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    <span class="pl-chip pl-chip-muted">Desktop: tabela completa</span>
+                    <span class="pl-chip pl-chip-muted">Mobile: cards resumidos</span>
+                </div>
+            </div>
         </div>
 
         @if($orders->count() > 0)
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50 dark:bg-gray-700">
+            <div class="hidden lg:block pl-table-wrap">
+                <table class="pl-table">
+                    <thead>
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Pedido</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cliente</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Loja</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Vendedor</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Personalizacao</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Data Pedido</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Data Entrega</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acoes</th>
+                            <th>Pedido</th>
+                            <th>Cliente</th>
+                            <th>Loja</th>
+                            <th>Vendedor</th>
+                            <th>Status</th>
+                            <th>Personalizacao</th>
+                            <th>Datas</th>
+                            <th>Total</th>
+                            <th class="text-right">Acoes</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody>
                         @foreach($orders as $order)
                             @php
                                 $firstItem = $order->items->first();
+                                $deliveryDate = $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date) : null;
+                                $deliveryTone = $deliveryDate
+                                    ? ($deliveryDate->isBefore($today) ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-200'
+                                    : ($deliveryDate->isSameDay($today) ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-200'
+                                    : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200'))
+                                    : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
                             @endphp
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                            <tr>
+                                <td>
+                                    <div class="space-y-1">
+                                        <a href="{{ route('orders.show', $order->id) }}" class="text-sm font-black text-indigo-600 transition hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
                                         #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
+                                        </a>
+                                        <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y') }}</p>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $order->client->name ?? 'Cliente nao encontrado' }}</div>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ $order->client->phone_primary ?? '-' }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900 dark:text-gray-100">
-                                        @if($order->store)
-                                            {{ $order->store->name }}
-                                        @elseif($order->store_id)
-                                            {{ \App\Models\Store::find($order->store_id)?->name ?? '-' }}
-                                        @else
-                                            -
-                                        @endif
+                                <td>
+                                    <div class="space-y-1">
+                                        <div class="text-sm font-bold text-slate-900 dark:text-slate-100">{{ $order->client->name ?? 'Cliente nao encontrado' }}</div>
+                                        <div class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ $order->client->phone_primary ?? '-' }}</div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900 dark:text-gray-100">{{ $order->seller ?? '-' }}</div>
+                                <td>
+                                    <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ $order->store?->name ?? '-' }}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white" 
-                                          style="background-color: {{ $order->status->color ?? '#6B7280' }}">
+                                <td>
+                                    <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ $order->seller ?? '-' }}</div>
+                                </td>
+                                <td>
+                                    <span class="inline-flex rounded-full px-3 py-1 text-xs font-black text-white" style="background-color: {{ $order->status->color ?? '#6B7280' }}">
                                         {{ $order->status->name ?? 'Indefinido' }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900 dark:text-gray-100">{{ $firstItem->print_type ?? '-' }}</div>
-                                    @if($firstItem && $firstItem->art_name)
-                                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ $firstItem->art_name }}</div>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                                    {{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                                    {{ $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('d/m/Y') : '-' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                                    R$ {{ number_format($order->total, 2, ',', '.') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex space-x-2">
-                                        <a href="{{ route('orders.show', $order->id) }}" 
-                                           class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
-                                            Ver Detalhes
-                                        </a>
+                                <td>
+                                    <div class="space-y-1">
+                                        <div class="text-sm font-bold text-slate-900 dark:text-slate-100">{{ $firstItem->print_type ?? '-' }}</div>
+                                        <div class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ $firstItem->art_name ?? 'Sem arte informada' }}</div>
                                     </div>
+                                </td>
+                                <td>
+                                    <div class="space-y-2">
+                                        <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Entrega</p>
+                                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-black {{ $deliveryTone }}">
+                                            {{ $deliveryDate ? $deliveryDate->format('d/m/Y') : 'Sem data' }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="text-sm font-black text-slate-900 dark:text-slate-100">
+                                    R$ {{ number_format($order->total, 2, ',', '.') }}
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <a href="{{ route('orders.show', $order->id) }}" class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">
+                                        Ver detalhes
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
@@ -503,17 +583,74 @@
                 </table>
             </div>
 
-            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="space-y-4 px-6 py-5 lg:hidden">
+                @foreach($orders as $order)
+                    @php
+                        $firstItem = $order->items->first();
+                        $deliveryDate = $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date) : null;
+                        $deliveryTone = $deliveryDate
+                            ? ($deliveryDate->isBefore($today) ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-200'
+                            : ($deliveryDate->isSameDay($today) ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-200'
+                            : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200'))
+                            : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+                    @endphp
+                    <article class="rounded-3xl border border-slate-200/70 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-950/40">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <a href="{{ route('orders.show', $order->id) }}" class="text-base font-black text-indigo-600 dark:text-indigo-400">
+                                    #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
+                                </a>
+                                <p class="mt-1 text-sm font-bold text-slate-900 dark:text-slate-100">{{ $order->client->name ?? 'Cliente nao encontrado' }}</p>
+                                <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">{{ $order->client->phone_primary ?? '-' }}</p>
+                            </div>
+                            <span class="inline-flex rounded-full px-3 py-1 text-xs font-black text-white" style="background-color: {{ $order->status->color ?? '#6B7280' }}">
+                                {{ $order->status->name ?? 'Indefinido' }}
+                            </span>
+                        </div>
+
+                        <div class="mt-4 grid grid-cols-2 gap-3">
+                            <div>
+                                <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Entrega</p>
+                                <span class="mt-2 inline-flex rounded-full px-3 py-1 text-xs font-black {{ $deliveryTone }}">{{ $deliveryDate ? $deliveryDate->format('d/m/Y') : 'Sem data' }}</span>
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Total</p>
+                                <p class="mt-2 text-sm font-black text-slate-900 dark:text-slate-100">R$ {{ number_format($order->total, 2, ',', '.') }}</p>
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Loja</p>
+                                <p class="mt-2 text-sm font-semibold text-slate-700 dark:text-slate-300">{{ $order->store?->name ?? '-' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Vendedor</p>
+                                <p class="mt-2 text-sm font-semibold text-slate-700 dark:text-slate-300">{{ $order->seller ?? '-' }}</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 rounded-2xl bg-white px-4 py-3 dark:bg-slate-900">
+                            <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Personalizacao</p>
+                            <p class="mt-2 text-sm font-bold text-slate-900 dark:text-slate-100">{{ $firstItem->print_type ?? '-' }}</p>
+                            <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">{{ $firstItem->art_name ?? 'Sem arte informada' }}</p>
+                        </div>
+
+                        <a href="{{ route('orders.show', $order->id) }}" class="mt-4 inline-flex w-full items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-black text-white transition hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white">
+                            Abrir pedido
+                        </a>
+                    </article>
+                @endforeach
+            </div>
+
+            <div class="border-t border-slate-200/80 px-6 py-4 dark:border-slate-800">
                 {{ $orders->appends(request()->query())->links() }}
             </div>
         @else
             <div class="px-6 py-12 text-center">
-                <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">Nenhum pedido encontrado</h3>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    @if($search || $status || $personalizationType)
+                <h3 class="mt-2 text-sm font-medium text-slate-900 dark:text-slate-100">Nenhum pedido encontrado</h3>
+                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    @if($search || $status || $personalizationType || $storeId || $period === 'custom')
                         Tente ajustar os filtros para encontrar pedidos.
                     @else
                         Nao ha pedidos para o periodo selecionado.
@@ -525,21 +662,25 @@
 </div>
 
 <script>
-    document.querySelector('select[name="period"]').addEventListener('change', function() {
-        const startDateField = document.getElementById('start-date-field');
-        const endDateField = document.getElementById('end-date-field');
-        const startDateInput = startDateField ? startDateField.querySelector('input[name="start_date"]') : null;
-        const endDateInput = endDateField ? endDateField.querySelector('input[name="end_date"]') : null;
-        
-        if (this.value === 'custom') {
-            if (startDateField) startDateField.style.display = 'block';
-            if (endDateField) endDateField.style.display = 'block';
-        } else {
-            if (startDateField) startDateField.style.display = 'none';
-            if (endDateField) endDateField.style.display = 'none';
-            if (startDateInput) startDateInput.value = '';
-            if (endDateInput) endDateInput.value = '';
-        }
-    });
+    const periodSelect = document.querySelector('select[name="period"]');
+
+    if (periodSelect) {
+        periodSelect.addEventListener('change', function() {
+            const startDateField = document.getElementById('start-date-field');
+            const endDateField = document.getElementById('end-date-field');
+            const startDateInput = startDateField ? startDateField.querySelector('input[name="start_date"]') : null;
+            const endDateInput = endDateField ? endDateField.querySelector('input[name="end_date"]') : null;
+
+            if (this.value === 'custom') {
+                if (startDateField) startDateField.classList.remove('hidden');
+                if (endDateField) endDateField.classList.remove('hidden');
+            } else {
+                if (startDateField) startDateField.classList.add('hidden');
+                if (endDateField) endDateField.classList.add('hidden');
+                if (startDateInput) startDateInput.value = '';
+                if (endDateInput) endDateInput.value = '';
+            }
+        });
+    }
 </script>
 @endsection

@@ -309,6 +309,12 @@ Route::middleware('auth')->group(function () {
 
     // Produção (para administradores e produção)
     Route::prefix('producao')->name('production.')->group(function () {
+        Route::get('/central', function() {
+            if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
+                abort(403, 'Acesso negado. Apenas administradores e usuÃ¡rios de produÃ§Ã£o podem acessar.');
+            }
+            return view('production.hub');
+        })->name('hub');
         Route::get('/', function() {
             if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
                 abort(403, 'Acesso negado. Apenas administradores e usuários de produção podem acessar.');
@@ -319,7 +325,7 @@ Route::middleware('auth')->group(function () {
             if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
                 abort(403, 'Acesso negado. Apenas administradores e usuários de produção podem acessar.');
             }
-            return app(\App\Http\Controllers\ProductionController::class)->kanban(request());
+            return redirect()->route('kanban.index', request()->query());
         })->name('kanban');
         Route::get('/pdf', function() {
             if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
