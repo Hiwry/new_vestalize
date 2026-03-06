@@ -1,6 +1,15 @@
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition overflow-hidden">
+@php
+    $isSangriaCard = strtolower((string) ($transaction->category ?? '')) === 'sangria';
+@endphp
+<div
+    class="cash-kanban-card bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition overflow-hidden {{ $isSangriaCard ? 'cursor-default' : 'cursor-grab active:cursor-grabbing' }}"
+    draggable="{{ $isSangriaCard ? 'false' : 'true' }}"
+    data-transaction-id="{{ $transaction->id }}"
+    data-status="{{ $transaction->status }}"
+    data-category="{{ strtolower($transaction->category ?? '') }}"
+>
     @if($transaction->order_id)
-    <a href="{{ route('orders.show', $transaction->order_id) }}" class="block p-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
+    <a href="{{ route('orders.show', $transaction->order_id) }}" class="block p-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition" draggable="false">
         <div class="flex justify-between items-start mb-2">
             <span class="text-xs font-semibold px-2 py-1 rounded {{ $transaction->type === 'entrada' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' }}">
                 {{ $transaction->type === 'entrada' ? '↑ Entrada' : '↓ Saída' }}

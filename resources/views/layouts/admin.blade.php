@@ -47,11 +47,14 @@
     <!-- Tema Sync -->
     <script>
         (function() {
+            const html = document.documentElement;
             const isDarkMode = localStorage.getItem('dark') === 'true';
             if (isDarkMode) {
-                document.documentElement.classList.add('dark');
+                html.classList.add('dark');
+                html.style.colorScheme = 'dark';
             } else {
-                document.documentElement.classList.remove('dark');
+                html.classList.remove('dark');
+                html.style.colorScheme = 'light';
             }
         })();
     </script>
@@ -522,6 +525,10 @@
             // Garantir que a classe dark está aplicada após Tailwind carregar
             if (isDarkMode) {
                 html.classList.add('dark');
+                html.style.colorScheme = 'dark';
+            } else {
+                html.classList.remove('dark');
+                html.style.colorScheme = 'light';
             }
             
             // Mostrar conteúdo (remove visibility: hidden)
@@ -872,11 +879,16 @@
                 --sidebar-width: 4rem;
             }
             :root.sidebar-expanded {
-                --sidebar-width: 16rem;
+                --sidebar-width: 15rem;
+            }
+
+            #sidebar {
+                width: var(--sidebar-width) !important;
             }
         }
         #main-content {
-            margin-left: var(--sidebar-width);
+            margin-left: var(--sidebar-width) !important;
+            width: calc(100% - var(--sidebar-width)) !important;
             transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
@@ -1060,6 +1072,7 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').then(reg => {
+                    reg.update();
                     console.log('VESTALIZE: PWA Service Worker registrado com sucesso.');
                 }).catch(err => {
                     console.log('VESTALIZE: Falha ao registrar Service Worker PWA.', err);

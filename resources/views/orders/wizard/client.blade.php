@@ -1,12 +1,182 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="max-w-4xl mx-auto">
+<style>
+    .ow-shell {
+        --ow-surface-from: #f3f4f8;
+        --ow-surface-to: #eceff4;
+        --ow-surface-border: #d8dce6;
+        --ow-text-primary: #0f172a;
+        --ow-text-secondary: #64748b;
+        --ow-card-bg: #ffffff;
+        --ow-card-border: #dde2ea;
+        --ow-card-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        --ow-input-bg: #f8fafc;
+        --ow-accent: #7c3aed;
+        --ow-accent-strong: #6d28d9;
+        background: linear-gradient(180deg, var(--ow-surface-from) 0%, var(--ow-surface-to) 100%);
+        border: 1px solid var(--ow-surface-border);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+        color: var(--ow-text-primary);
+    }
+
+    .dark .ow-shell {
+        --ow-surface-from: #0f172a;
+        --ow-surface-to: #0b1322;
+        --ow-surface-border: rgba(148, 163, 184, 0.25);
+        --ow-text-primary: #e2e8f0;
+        --ow-text-secondary: #94a3b8;
+        --ow-card-bg: #111827;
+        --ow-card-border: rgba(148, 163, 184, 0.22);
+        --ow-card-shadow: 0 18px 38px rgba(2, 6, 23, 0.55);
+        --ow-input-bg: #0b1220;
+        box-shadow: 0 18px 38px rgba(2, 6, 23, 0.55);
+    }
+
+    .ow-progress {
+        background: var(--ow-card-bg);
+        border: 1px solid var(--ow-card-border);
+        border-radius: 14px;
+        padding: 14px;
+        box-shadow: var(--ow-card-shadow);
+    }
+
+    .ow-step-badge {
+        background: linear-gradient(135deg, var(--ow-accent-strong), var(--ow-accent)) !important;
+        color: #ffffff !important;
+        border: 1px solid color-mix(in srgb, var(--ow-accent) 50%, transparent);
+        box-shadow: 0 10px 18px rgba(124, 58, 237, 0.2);
+    }
+
+    .ow-progress-track {
+        background: color-mix(in srgb, var(--ow-card-border) 80%, #ffffff);
+        box-shadow: none;
+    }
+
+    .ow-progress-fill {
+        background: linear-gradient(90deg, var(--ow-accent-strong), var(--ow-accent));
+    }
+
+    .ow-card {
+        background: var(--ow-card-bg) !important;
+        border: 1px solid var(--ow-card-border) !important;
+        box-shadow: var(--ow-card-shadow) !important;
+        border-radius: 16px !important;
+    }
+
+    .ow-card-header {
+        background: color-mix(in srgb, var(--ow-card-bg) 94%, var(--ow-accent) 6%) !important;
+        border-bottom: 1px solid var(--ow-card-border) !important;
+    }
+
+    .ow-search-panel {
+        background: color-mix(in srgb, var(--ow-card-bg) 92%, var(--ow-accent) 8%) !important;
+        border: 1px solid color-mix(in srgb, var(--ow-accent) 20%, var(--ow-card-border)) !important;
+        box-shadow: none !important;
+    }
+
+    .ow-field-panel {
+        background: var(--ow-card-bg) !important;
+        border: 1px solid var(--ow-card-border) !important;
+        box-shadow: none !important;
+    }
+
+    .ow-search-toggle {
+        color: var(--ow-accent) !important;
+        background: var(--ow-card-bg) !important;
+        border: 1px solid var(--ow-card-border) !important;
+    }
+
+    .ow-shell input:not([type="color"]),
+    .ow-shell select,
+    .ow-shell textarea {
+        background: var(--ow-input-bg) !important;
+        border-color: color-mix(in srgb, var(--ow-card-border) 85%, var(--ow-accent) 15%) !important;
+        color: var(--ow-text-primary) !important;
+    }
+
+    .ow-shell input:focus,
+    .ow-shell select:focus,
+    .ow-shell textarea:focus {
+        border-color: var(--ow-accent) !important;
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--ow-accent) 18%, transparent) !important;
+    }
+
+    .ow-shell .text-gray-900,
+    .ow-shell .dark\:text-white {
+        color: var(--ow-text-primary) !important;
+    }
+
+    .ow-shell .text-gray-600,
+    .ow-shell .text-gray-500,
+    .ow-shell .dark\:text-slate-400 {
+        color: var(--ow-text-secondary) !important;
+    }
+
+    .ow-actions {
+        border-top: 1px solid var(--ow-card-border) !important;
+    }
+
+    .ow-btn-ghost {
+        background: var(--ow-input-bg) !important;
+        border: 1px solid var(--ow-card-border) !important;
+        color: var(--ow-text-secondary) !important;
+    }
+
+    .ow-btn-ghost:hover {
+        color: var(--ow-text-primary) !important;
+        background: color-mix(in srgb, var(--ow-input-bg) 92%, #ffffff) !important;
+    }
+
+    .ow-btn-primary {
+        background: linear-gradient(135deg, var(--ow-accent-strong), var(--ow-accent)) !important;
+        color: #ffffff !important;
+        border-radius: 12px;
+        box-shadow: 0 10px 20px rgba(109, 40, 217, 0.25);
+        transition: transform .18s ease, box-shadow .2s ease, filter .2s ease;
+    }
+
+    .ow-btn-primary:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.03);
+    }
+
+    .ow-search-result {
+        background: var(--ow-card-bg);
+        border: 1px solid var(--ow-card-border);
+        transition: transform .18s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .ow-search-result:hover {
+        border-color: color-mix(in srgb, var(--ow-accent) 38%, var(--ow-card-border));
+        box-shadow: 0 12px 22px rgba(15, 23, 42, 0.08);
+        transform: translateY(-1px);
+    }
+
+    .ow-search-result-icon {
+        background: linear-gradient(135deg, var(--ow-accent-strong), var(--ow-accent));
+    }
+
+    .ow-search-result-arrow {
+        color: var(--ow-accent) !important;
+    }
+
+    @media (max-width: 760px) {
+        .ow-shell {
+            padding: 14px;
+            border-radius: 16px;
+        }
+    }
+</style>
+<div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6">
+    <section class="ow-shell">
         <!-- Progress Bar -->
-        <div class="mb-8">
+        <div class="ow-progress mb-6">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-[#7c3aed] text-white stay-white force-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]" style="color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;">1</div>
+                    <div class="w-10 h-10 text-white stay-white force-white rounded-xl flex items-center justify-center text-sm font-bold ow-step-badge" style="color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;">1</div>
                     <div>
                         <span class="text-lg font-bold text-gray-900 dark:text-white">Dados do Cliente</span>
                         <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa 1 de 5</p>
@@ -17,15 +187,15 @@
                     <div class="text-2xl font-bold text-[#7c3aed] dark:text-[#a78bfa]">20%</div>
                 </div>
             </div>
-            <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-2.5 shadow-inner">
-                <div class="bg-[#7c3aed] h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 20%"></div>
+            <div class="w-full rounded-full h-2.5 ow-progress-track">
+                <div class="h-2.5 rounded-full transition-all duration-500 ease-out ow-progress-fill" style="width: 20%"></div>
             </div>
         </div>
 
         <!-- Main Card -->
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-slate-800 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-slate-800 overflow-hidden ow-card">
             <!-- Header -->
-            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/50">
+            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/50 ow-card-header">
                 <div class="flex items-center space-x-3">
                     <div class="flex items-center">
                         <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -45,7 +215,7 @@
 
             <!-- Buscar Cliente Existente -->
             <div class="mb-6" x-data="{ showSearch: false }" @click.away="">
-                <div class="bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-900/20 dark:to-purple-900/10 rounded-xl border-2 border-purple-200 dark:border-purple-800/30 p-5 shadow-sm transition-all">
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-900/20 dark:to-purple-900/10 rounded-xl border-2 border-purple-200 dark:border-purple-800/30 p-5 shadow-sm transition-all ow-search-panel">
                     <div class="flex items-center justify-between mb-3">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center shadow-md border border-purple-100 dark:border-purple-900/30">
@@ -59,7 +229,7 @@
                             </div>
                         </div>
                         <button @click="showSearch = !showSearch" 
-                                class="px-4 py-2 text-sm font-semibold text-[#7c3aed] dark:text-purple-300 bg-white dark:bg-slate-800 rounded-lg transition-all border border-purple-200 dark:border-purple-700 shadow-sm">
+                                class="px-4 py-2 text-sm font-semibold text-[#7c3aed] dark:text-purple-300 bg-white dark:bg-slate-800 rounded-lg transition-all border border-purple-200 dark:border-purple-700 shadow-sm ow-search-toggle">
                             <span x-show="!showSearch">Mostrar</span>
                             <span x-show="showSearch">Ocultar</span>
                         </button>
@@ -77,7 +247,7 @@
                                 </div>
                             </div>
                             <button type="button" onclick="window.runClientSearch()" style="color: white !important;" 
-                                    class="px-6 py-3 bg-[#7c3aed] text-white stay-white rounded-lg transition-colors text-sm font-semibold shadow-sm">
+                                    class="px-6 py-3 bg-[#7c3aed] text-white stay-white rounded-lg transition-colors text-sm font-semibold shadow-sm ow-btn-primary">
                                 Buscar
                             </button>
                         </div>
@@ -102,7 +272,7 @@
                         <h2 class="text-base font-bold text-gray-900 dark:text-white">Informações Básicas</h2>
                     </div>
 
-                    <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm">
+                    <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm ow-field-panel">
                         <div>
                             <label for="name" class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Nome Completo *</label>
                             <input id="name" name="name" type="text"
@@ -132,7 +302,7 @@
                         <h2 class="text-base font-bold text-gray-900 dark:text-white">Informações de Contato</h2>
                     </div>
 
-                    <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm space-y-4">
+                    <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm space-y-4 ow-field-panel">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="phone_primary" class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Telefone Principal *</label>
@@ -181,7 +351,7 @@
                         <h2 class="text-base font-bold text-gray-900 dark:text-white">Endereço</h2>
                     </div>
 
-                    <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm space-y-4">
+                    <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm space-y-4 ow-field-panel">
                         <div>
                             <label for="address" class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Endereço Completo</label>
                             <input id="address" name="address" type="text"
@@ -254,7 +424,7 @@
                         <h2 class="text-base font-bold text-gray-900 dark:text-white">Categoria do Cliente</h2>
                     </div>
 
-                    <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm">
+                    <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm ow-field-panel">
                         <div>
                             <label for="category" class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Tipo de Cliente</label>
                             <select id="category" name="category"
@@ -271,9 +441,9 @@
                 </div>
 
                 <!-- Botões de Ação -->
-                <div class="flex justify-between items-center pt-6 border-t border-gray-100 dark:border-slate-800">
+                <div class="flex justify-between items-center pt-6 border-t border-gray-100 dark:border-slate-800 ow-actions">
                     <a href="{{ isset($editData) ? route('orders.show', $order->id) : '/' }}" 
-                       class="inline-flex items-center px-5 py-2.5 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 rounded-lg transition-all text-sm font-medium shadow-sm hover:shadow">
+                       class="inline-flex items-center px-5 py-2.5 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 rounded-lg transition-all text-sm font-medium shadow-sm hover:shadow ow-btn-ghost">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
@@ -281,7 +451,7 @@
                     </a>
                     <button type="submit" 
                             style="color: white !important;"
-                            class="inline-flex items-center px-8 py-3 bg-[#7c3aed] text-white stay-white font-semibold rounded-xl shadow-sm transition-colors text-sm"
+                            class="inline-flex items-center px-8 py-3 bg-[#7c3aed] text-white stay-white font-semibold rounded-xl shadow-sm transition-colors text-sm ow-btn-primary"
                             onclick="console.log('Button clicked'); return true;">
                         Continuar
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -292,8 +462,8 @@
             </form>
             </div>
         </div>
+    </section>
     </div>
-</div>
 
 @push('page-scripts')
 <script>
@@ -376,10 +546,10 @@
                 resultsDiv.innerHTML = data.map(function(client) {
                     var clientJson = JSON.stringify(client).replace(/'/g, "&#39;");
                     return `
-                    <div class="p-4 bg-white dark:bg-slate-800 rounded-lg border-2 border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-black/20 cursor-pointer transition-all group"
+                    <div class="p-4 rounded-lg cursor-pointer group ow-search-result"
                          onclick='window.fillClientData(${clientJson})'>
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-gradient-to-br from-[#7c3aed] to-[#7c3aed] rounded-lg flex items-center justify-center shadow-lg shadow-[#7c3aed]/20 group-hover:scale-110 transition-transform">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg shadow-[#7c3aed]/20 group-hover:scale-110 transition-transform ow-search-result-icon">
                                 <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
@@ -390,7 +560,7 @@
                                     ${client.phone_primary || ''} ${client.email ? '• ' + client.email : ''}
                                 </div>
                             </div>
-                            <div class="text-[#7c3aed] dark:text-[#7c3aed] group-hover:translate-x-1 transition-transform">
+                            <div class="group-hover:translate-x-1 transition-transform ow-search-result-arrow">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                 </svg>

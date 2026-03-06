@@ -10,6 +10,27 @@
     let isNavigating = false;
     let currentUrl = window.location.href;
 
+    // Keep DOM theme state synchronized with localStorage.
+    function syncThemeWithStorage() {
+        if (typeof window.applySavedTheme === 'function') {
+            return window.applySavedTheme();
+        }
+
+        const isDarkMode = localStorage.getItem('dark') === 'true';
+        const html = document.documentElement;
+        const body = document.body;
+
+        html.classList.toggle('dark', isDarkMode);
+        html.style.colorScheme = isDarkMode ? 'dark' : 'light';
+
+        if (body) {
+            body.classList.toggle('dark', isDarkMode);
+            body.style.colorScheme = isDarkMode ? 'dark' : 'light';
+        }
+
+        return isDarkMode;
+    }
+
     // Função para extrair o conteúdo principal de uma página HTML
     function extractMainContent(html) {
         const parser = new DOMParser();
@@ -99,12 +120,8 @@
             return;
         }
 
-        // Garantir dark mode antes de mostrar loading
-        const isDarkMode = localStorage.getItem('dark') === 'true';
-        if (isDarkMode) {
-            document.documentElement.classList.add('dark');
-            document.documentElement.style.colorScheme = 'dark';
-        }
+        // Reapply saved theme before showing the loading state.
+        syncThemeWithStorage();
         
         // Mostrar loading
         const originalContent = mainContent.innerHTML;
@@ -246,25 +263,7 @@
 
             // Atualizar links ativos na sidebar
             updateActiveLink(url);
-
-            // Garantir que o dark mode seja mantido após carregar novo conteúdo
-            if (isDarkMode) {
-                document.documentElement.classList.add('dark');
-                document.documentElement.style.colorScheme = 'dark';
-            }
-            
-            // Atualizar ícones do dark mode
-            const moonIcon = document.getElementById('moon-icon');
-            const sunIcon = document.getElementById('sun-icon');
-            if (moonIcon && sunIcon) {
-                if (isDarkMode) {
-                    moonIcon.classList.add('hidden');
-                    sunIcon.classList.remove('hidden');
-                } else {
-                    moonIcon.classList.remove('hidden');
-                    sunIcon.classList.add('hidden');
-                }
-            }
+            syncThemeWithStorage();
 
             // Reinicializar scripts se necessário
             reinitializeScripts();
@@ -433,6 +432,13 @@
         setupSidebarNavigation();
     }
 
+    // Ensure initial theme consistency.
+    syncThemeWithStorage();
+
+    // Keep theme synced when toggled from any component.
+    window.addEventListener('theme-changed', syncThemeWithStorage);
+    window.addEventListener('dark-mode-toggled', syncThemeWithStorage);
+
     // Atualizar links ativos na inicialização
     updateActiveLink(window.location.href);
 
@@ -443,4 +449,3 @@
     };
 
 })();
-

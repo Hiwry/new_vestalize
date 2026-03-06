@@ -1,90 +1,119 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-    
-    {{-- Success message is now shown only in the layout admin.blade.php --}}
+<style>
+.stock-table {
+    font-size: 11px;
+    border-collapse: collapse;
+}
+.stock-table th {
+    background: #f8f9fa;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 6px 8px;
+    border: 1px solid #dee2e6;
+    font-size: 10px;
+}
+.dark .stock-table th {
+    background: #1f2937;
+    border-color: #374151;
+}
+.stock-table td {
+    padding: 4px 6px;
+    border: 1px solid #e9ecef;
+    text-align: center;
+}
+.dark .stock-table td {
+    border-color: #374151;
+}
+.stock-cell {
+    min-width: 35px;
+    font-weight: 600;
+}
+.stock-high { background: #d4edda !important; color: #155724; }
+.stock-medium { background: #fff3cd !important; color: #856404; }
+.stock-low { background: #f8d7da !important; color: #721c24; }
+.stock-zero { background: #f8f9fa !important; color: #6c757d; }
+.dark .stock-high { background: #064e3b !important; color: #6ee7b7; }
+.dark .stock-medium { background: #78350f !important; color: #fcd34d; }
+.dark .stock-low { background: #7f1d1d !important; color: #fca5a5; }
+.dark .stock-zero { background: #1f2937 !important; color: #6b7280; }
+</style>
 
-    <!-- Header Section -->
-    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+<div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-4">
+    {{-- Success message is shown in layout --}}
+
+    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
         <div>
-            <h1 class="text-3xl font-black text-gray-900 dark:text-white flex items-center gap-3 tracking-tight">
-                <div class="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl text-white shadow-lg shadow-emerald-200 dark:shadow-none transform rotate-3">
-                    <i class="fa-solid fa-boxes-stacked text-2xl text-white" style="color: #ffffff !important;"></i>
-                </div>
-                Estoque Geral
-            </h1>
-            <p class="text-gray-500 dark:text-gray-400 mt-2 text-lg font-medium ml-1">
-                Gerenciamento completo de inventário e insumos.
-            </p>
+            <h1 class="text-lg font-bold text-gray-900 dark:text-gray-100">Consulta de Estoque</h1>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Gerenciamento completo de inventario e insumos.</p>
         </div>
 
-        <div class="flex flex-col sm:flex-row flex-wrap items-center gap-3">
-             <!-- Action Buttons -->
-            <div class="flex gap-2">
-                 <a href="{{ route('stocks.dashboard') }}" class="px-5 py-2.5 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm transition-all duration-300 font-bold text-sm flex items-center gap-2 active:scale-95">
-                    <i class="fa-solid fa-chart-pie text-indigo-500"></i>
-                    Dashboard
-                </a>
-                <a href="{{ route('stocks.history') }}" class="px-5 py-2.5 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm transition-all duration-300 font-bold text-sm flex items-center gap-2 active:scale-95">
-                    <i class="fa-solid fa-clock-rotate-left text-gray-500"></i>
-                    Histórico
-                </a>
-                <a href="{{ route('stock-requests.index') }}" class="px-5 py-2.5 bg-white text-amber-500 border border-amber-200 hover:bg-amber-50 rounded-xl shadow-lg shadow-amber-200 dark:shadow-none transition-all duration-300 font-bold text-sm flex items-center gap-2 active:scale-95" style="background-color: #ffffff !important; color: #f59e0b !important; border: 1px solid #fde68a !important;">
-                    <i class="fa-solid fa-file-invoice text-amber-500" style="color: #f59e0b !important;"></i>
-                    Solicitações
-                </a>
-                <a href="{{ route('stocks.create') }}" class="px-5 py-2.5 bg-white text-emerald-600 border border-emerald-200 hover:bg-emerald-50 rounded-xl shadow-lg shadow-emerald-200 dark:shadow-none transition-all duration-300 font-bold text-sm flex items-center gap-2 active:scale-95" style="background-color: #ffffff !important; color: #059669 !important; border: 1px solid #a7f3d0 !important;">
-                    <i class="fa-solid fa-plus text-emerald-600" style="color: #059669 !important;"></i>
-                    Novo Item
-                </a>
-            </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ route('stocks.dashboard') }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-gray-300 dark:border-gray-700 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">
+                <i class="fa-solid fa-chart-pie text-indigo-500"></i>
+                Dashboard
+            </a>
+            <a href="{{ route('stocks.history') }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-gray-300 dark:border-gray-700 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">
+                <i class="fa-solid fa-clock-rotate-left text-gray-500"></i>
+                Historico
+            </a>
+            <a href="{{ route('stock-requests.index') }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-amber-300 text-xs font-semibold text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:border-amber-700 dark:hover:bg-amber-900/20">
+                <i class="fa-solid fa-file-invoice"></i>
+                Solicitacoes
+            </a>
+            <a href="{{ route('stocks.create') }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-emerald-300 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:border-emerald-700 dark:hover:bg-emerald-900/20">
+                <i class="fa-solid fa-plus"></i>
+                Novo Item
+            </a>
         </div>
     </div>
 
-    <!-- Filters Section -->
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <form method="GET" action="{{ route('stocks.index') }}" class="space-y-4">
+    <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 p-3">
+        <form method="GET" action="{{ route('stocks.index') }}" class="space-y-2">
             <input type="hidden" name="view" value="table">
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fa-solid fa-magnifying-glass text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
                     </div>
-                    <input type="text" name="search_id" value="{{ request('search_id') }}" placeholder="Buscar por ID..." style="padding-left: 3.5rem !important;"
-                           class="w-full pl-14 pr-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all dark:text-white text-sm font-medium">
+                    <input type="text"
+                           name="search_id"
+                           value="{{ request('search_id') }}"
+                           placeholder="Buscar por ID..."
+                           class="w-full text-xs pl-8 pr-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                 </div>
 
-                <select name="store_id" class="w-full py-2.5 px-4 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all dark:text-white text-sm font-medium appearance-none cursor-pointer">
+                <select name="store_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     <option value="">Todas Lojas</option>
                     @foreach($stores as $store)
                         <option value="{{ $store->id }}" {{ $storeId == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
                     @endforeach
                 </select>
 
-                <select name="fabric_type_id" class="w-full py-2.5 px-4 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all dark:text-white text-sm font-medium appearance-none cursor-pointer">
+                <select name="fabric_type_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     <option value="">Todos Tecidos</option>
                     @foreach($fabricTypes as $fabricType)
                         <option value="{{ $fabricType->id }}" {{ request('fabric_type_id') == $fabricType->id ? 'selected' : '' }}>{{ $fabricType->name }}</option>
                     @endforeach
                 </select>
 
-                <select name="color_id" class="w-full py-2.5 px-4 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all dark:text-white text-sm font-medium appearance-none cursor-pointer">
+                <select name="color_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     <option value="">Todas Cores</option>
                     @foreach($colors as $color)
                         <option value="{{ $color->id }}" {{ $colorId == $color->id ? 'selected' : '' }}>{{ $color->name }}</option>
                     @endforeach
                 </select>
 
-                <select name="cut_type_id" class="w-full py-2.5 px-4 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all dark:text-white text-sm font-medium appearance-none cursor-pointer">
+                <select name="cut_type_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     <option value="">Todos Tipos</option>
                     @foreach($cutTypes as $cutType)
                         <option value="{{ $cutType->id }}" {{ $cutTypeId == $cutType->id ? 'selected' : '' }}>{{ $cutType->name }}</option>
                     @endforeach
                 </select>
-                
-                 <select name="size" class="w-full py-2.5 px-4 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all dark:text-white text-sm font-medium appearance-none cursor-pointer">
+
+                <select name="size" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     <option value="">Todos Tamanhos</option>
                     @foreach($sizes as $size)
                         <option value="{{ $size }}" {{ $size == request('size') ? 'selected' : '' }}>{{ $size }}</option>
@@ -92,160 +121,124 @@
                 </select>
             </div>
 
-            <div class="flex items-center justify-between pt-2">
-                <label class="flex items-center gap-2 cursor-pointer group">
-                    <div class="relative">
-                        <input type="checkbox" name="low_stock" value="1" {{ $lowStock ? 'checked' : '' }} class="peer sr-only">
-                        <div class="w-10 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-white/30 border border-transparent dark:border-white/50 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600 shadow-inner"></div>
-                    </div>
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-300 group-hover:text-indigo-600 transition-colors">Apenas estoque crítico</span>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label class="inline-flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
+                    <input type="checkbox" name="low_stock" value="1" {{ $lowStock ? 'checked' : '' }} class="rounded border-gray-300 dark:border-gray-600">
+                    Apenas estoque critico
                 </label>
 
-                <div class="flex gap-3">
-                    <a href="{{ route('stocks.index', ['view' => 'table']) }}" class="px-6 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 font-bold text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <div class="flex gap-1">
+                    <a href="{{ route('stocks.index', ['view' => 'table']) }}" class="px-2 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs font-semibold hover:bg-gray-300 dark:hover:bg-gray-600">
                         Limpar
                     </a>
-                    <button type="submit" class="px-6 py-2.5 bg-white text-indigo-600 border border-indigo-200 hover:bg-indigo-50 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition-all duration-300 font-bold text-sm flex items-center gap-2 active:scale-95" style="background-color: #ffffff !important; color: #4f46e5 !important; border: 1px solid #c7d2fe !important;">
-                        <i class="fa-solid fa-filter text-indigo-600" style="color: #4f46e5 !important;"></i>
-                        Filtrar Resultados
+                    <button type="submit" class="px-2 py-1.5 bg-indigo-600 text-white rounded text-xs font-semibold hover:bg-indigo-700">
+                        Filtrar
                     </button>
                 </div>
             </div>
         </form>
     </div>
 
-    <!-- Stock Groups -->
-    <div class="space-y-6">
-        @forelse($groupedStocks as $key => $group)
-        <div class="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
-            <!-- Group Header -->
-            <div class="bg-gray-50 dark:bg-gray-900/50 px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex flex-wrap items-center gap-3">
-                    <div class="flex items-center gap-2">
-                         <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center text-white shadow-sm">
-                            <i class="fa-solid fa-store text-xs text-white" style="color: #ffffff !important;"></i>
-                        </div>
-                        <span class="font-bold text-gray-900 dark:text-white">{{ $group['store']['name'] }}</span>
+    <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="overflow-x-auto">
+            @forelse($groupedStocks as $key => $group)
+            <div class="border-b-2 border-gray-300 dark:border-gray-600">
+                <div class="bg-gray-100 dark:bg-gray-700 px-3 py-2 flex flex-col md:flex-row md:items-center justify-between gap-2 text-xs font-bold">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-indigo-700 dark:text-indigo-400">{{ $group['store']['name'] }}</span>
+                        <span class="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 rounded-full font-semibold border border-amber-300 dark:border-amber-700">
+                            {{ $group['fabric_type']['name'] ?? $group['fabric']['name'] ?? '-' }}
+                        </span>
+
+                        @if($group['cut_type']['name'] ?? null)
+                        <span class="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 rounded-full font-semibold border border-purple-300 dark:border-purple-700">
+                            {{ $group['cut_type']['name'] }}
+                        </span>
+                        @endif
+
+                        @php
+                            $shelf = null;
+                            foreach($sizes as $size) {
+                                if(isset($group['sizes'][$size]['shelf']) && $group['sizes'][$size]['shelf']) {
+                                    $shelf = $group['sizes'][$size]['shelf'];
+                                    break;
+                                }
+                            }
+                        @endphp
+
+                        @if($shelf)
+                        <span class="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded">
+                            {{ $shelf }}
+                        </span>
+                        @endif
                     </div>
 
-                    <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
-
-                    <span class="px-3 py-1 rounded-full bg-amber-500 text-white text-xs font-bold shadow-sm flex items-center gap-1" style="color: #ffffff !important;">
-                        <i class="fa-solid fa-scroll text-[10px] text-white" style="color: #ffffff !important;"></i>
-                        {{ $group['fabric_type']['name'] ?? $group['fabric']['name'] ?? '-' }}
-                    </span>
-
-                    @if($group['cut_type']['name'] ?? null)
-                    <span class="px-3 py-1 rounded-full bg-purple-500 text-white text-xs font-bold shadow-sm flex items-center gap-1" style="color: #ffffff !important;">
-                        <i class="fa-solid fa-scissors text-[10px] text-white" style="color: #ffffff !important;"></i>
-                        {{ $group['cut_type']['name'] }}
-                    </span>
-                    @endif
-
-                    @php
-                        $shelf = null;
-                        foreach($sizes as $size) {
-                            if(isset($group['sizes'][$size]['shelf']) && $group['sizes'][$size]['shelf']) {
-                                $shelf = $group['sizes'][$size]['shelf'];
-                                break;
-                            }
-                        }
-                    @endphp
-                    
-                    @if($shelf)
-                    <span class="px-3 py-1 rounded-full bg-blue-500 text-white text-xs font-bold shadow-sm flex items-center gap-1" style="color: #ffffff !important;">
-                        <i class="fa-solid fa-location-dot text-[10px] text-white" style="color: #ffffff !important;"></i>
-                        {{ $shelf }}
-                    </span>
-                    @endif
+                    <div class="text-[11px] text-gray-500 dark:text-gray-400 font-semibold">
+                        Atualizado em {{ \Carbon\Carbon::parse($group['last_updated'])->format('d/m/Y') }}
+                    </div>
                 </div>
-                
-                 <div class="flex items-center gap-2 text-xs font-medium text-gray-400">
-                    <i class="fa-regular fa-clock"></i>
-                    Atualizado em {{ \Carbon\Carbon::parse($group['last_updated'])->format('d/m/Y') }}
-                </div>
-            </div>
 
-            <!-- Content Table -->
-            <div class="overflow-x-auto">
-                @php
-                    $rowColor = $group['color']['hex'] ?? null;
-                    $headerRowStyle = '';
-                    $headerTextStyle = '';
-                    $bodyTextClass = 'text-gray-900 dark:text-white';
-
-                    if ($rowColor) {
-                        $hex = str_replace('#', '', $rowColor);
-                        if (strlen($hex) == 3) {
-                            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
-                        }
-
-                        $r = hexdec(substr($hex, 0, 2));
-                        $g = hexdec(substr($hex, 2, 2));
-                        $b = hexdec(substr($hex, 4, 2));
-                        $brightness = ($r * 299 + $g * 587 + $b * 114) / 1000;
-                        $headerTextColor = $brightness > 125 ? '#111827' : '#ffffff';
-
-                        $headerRowStyle = "background-color: {$rowColor} !important;";
-                        $headerTextStyle = "color: {$headerTextColor} !important;";
-                    }
-                @endphp
-                <table class="w-full text-sm text-left">
-                    <thead class="text-xs uppercase bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700" style="{{ $headerRowStyle }}">
+                <table class="w-full stock-table">
+                    <thead>
                         <tr>
-                            <th scope="col" class="px-6 py-4 font-bold text-gray-500 dark:text-gray-300" style="{{ $headerTextStyle }}">Cor</th>
+                            <th class="text-left">COR</th>
                             @foreach($sizes as $size)
-                            <th scope="col" class="px-3 py-4 text-center font-bold text-gray-400" style="{{ $headerTextStyle }}">{{ $size }}</th>
+                            <th>{{ $size }}</th>
                             @endforeach
-                            <th scope="col" class="px-6 py-4 text-center font-bold text-gray-500 dark:text-gray-300" style="{{ $headerTextStyle }}">Total</th>
-                            <th scope="col" class="px-6 py-4 text-right font-bold text-gray-500 dark:text-gray-300" style="{{ $headerTextStyle }}">Ações</th>
+                            <th class="bg-indigo-50 dark:bg-indigo-900/30">TOTAL</th>
+                            <th class="text-right">ACOES</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                            <td class="px-6 py-4">
+                    <tbody>
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <td class="text-left font-semibold text-gray-900 dark:text-gray-100">
+                                @php
+                                    $colorHex = $group['color']['hex'] ?? null;
+                                    $colorSwatch = (is_string($colorHex) && preg_match('/^#?[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/', trim($colorHex)))
+                                        ? ('#' . ltrim(trim($colorHex), '#'))
+                                        : '#6b7280';
+                                @endphp
                                 <div class="flex items-center gap-2">
-                                    <div class="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-500 shadow-sm" style="background-color: {{ $rowColor ?? '#ccc' }}"></div>
-                                    <span class="font-bold text-gray-900 dark:text-white">{{ $group['color']['name'] ?? '-' }}</span>
+                                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-white/30 dark:border-gray-500 shadow-sm"
+                                          style="background-color: {{ $colorSwatch }};"
+                                          title="{{ $group['color']['name'] ?? '-' }}"></span>
+                                    <span>{{ $group['color']['name'] ?? '-' }}</span>
                                 </div>
                             </td>
-                            
+
                             @foreach($sizes as $size)
-                            <td class="px-2 py-4 text-center">
+                            <td class="stock-cell">
                                 @if(isset($group['sizes'][$size]))
-                                    @php
-                                        $sizeData = $group['sizes'][$size];
-                                        $qty = (int)$sizeData['available_quantity'];
-                                        $reserved = (int)$sizeData['reserved_quantity'];
-                                        $minStock = (int)($sizeData['min_stock'] ?? 10);
-                                        
-                                        $bgClass = 'bg-emerald-100 text-emerald-700 shadow-sm';
-                                        if ($qty == 0) $bgClass = 'bg-gray-100 text-gray-500';
-                                        elseif ($qty < $minStock) $bgClass = 'bg-red-100 text-red-700';
-                                        elseif ($qty < $minStock * 2) $bgClass = 'bg-amber-100 text-amber-700';
-                                    @endphp
-                                    <div class="flex flex-col items-center justify-center">
-                                        <span class="px-2.5 py-1 rounded-lg font-bold text-xs {{ $bgClass }} border border-white/20">
-                                            {{ $qty }}
-                                        </span>
+                                @php
+                                    $sizeData = $group['sizes'][$size];
+                                    $qty = (int)($sizeData['available_quantity'] ?? 0);
+                                    $reserved = (int)($sizeData['reserved_quantity'] ?? 0);
+                                    $minStock = (int)($sizeData['min_stock'] ?? 5);
+
+                                    if ($qty == 0) $class = 'stock-zero';
+                                    elseif ($qty < $minStock) $class = 'stock-low';
+                                    elseif ($qty < $minStock * 2) $class = 'stock-medium';
+                                    else $class = 'stock-high';
+                                @endphp
+                                <div class="{{ $class }} rounded px-1 py-0.5">
+                                    <span class="block">
+                                        {{ $qty }}
                                         @if($reserved > 0)
-                                            <span class="text-[10px] font-bold mt-1 {{ $bodyTextClass }} opacity-80" title="Reservado">R: {{ $reserved }}</span>
+                                        <span class="text-orange-600 dark:text-orange-400 font-bold">({{ $reserved }})</span>
                                         @endif
-                                        <span class="text-[9px] mt-0.5 {{ $bodyTextClass }} opacity-50">#{{ $sizeData['id'] }}</span>
-                                    </div>
+                                    </span>
+                                </div>
                                 @else
-                                    <span class="{{ $bodyTextClass }} opacity-20">-</span>
+                                <span class="text-gray-300 dark:text-gray-600">-</span>
                                 @endif
                             </td>
                             @endforeach
 
-                             <td class="px-6 py-4 text-center">
-                                <span class="px-3 py-1 rounded-full bg-indigo-500 text-white text-xs font-bold shadow-sm" style="color: #ffffff !important;">
-                                    {{ $group['total_available'] }}
-                                </span>
+                            <td class="bg-indigo-50 dark:bg-indigo-900/30 font-bold text-indigo-700 dark:text-indigo-300">
+                                {{ $group['total_available'] }}
                             </td>
 
-                            <td class="px-6 py-4 text-right">
+                            <td class="text-right">
                                 @php
                                     $firstStockId = null;
                                     if(isset($group['sizes']) && is_array($group['sizes'])) {
@@ -258,7 +251,7 @@
                                     }
                                 @endphp
 
-                                <div class="flex items-center justify-end gap-2">
+                                <div class="flex items-center justify-end gap-1">
                                     @if($firstStockId && $firstStockId > 0)
                                     <a href="{{ route('stocks.edit', [
                                         'store_id' => $group['store']['id'] ?? null,
@@ -266,22 +259,27 @@
                                         'fabric_type_id' => $group['fabric_type']['id'] ?? null,
                                         'color_id' => $group['color']['id'] ?? null,
                                         'cut_type_id' => $group['cut_type']['id'] ?? null
-                                    ]) }}" 
-                                       class="w-8 h-8 flex items-center justify-center bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all shadow-sm shadow-blue-200 dark:shadow-none" title="Editar" style="color: #ffffff !important;">
-                                        <i class="fa-solid fa-pen text-xs text-white" style="color: #ffffff !important;"></i>
+                                    ]) }}"
+                                       class="inline-flex items-center justify-center w-7 h-7 rounded bg-purple-600 hover:bg-purple-700 text-white"
+                                       title="Editar">
+                                        <i class="fa-solid fa-pen text-[11px]"></i>
                                     </a>
-                                    
-                                    <button type="button" onclick="openTransferModal({{ $firstStockId }}, '{{ addslashes($group['store']['name'] ?? '') }}', '{{ addslashes($group['fabric_type']['name'] ?? $group['fabric']['name'] ?? '') }}', '{{ addslashes($group['color']['name'] ?? '') }}', {{ json_encode($group['sizes']) }})" 
-                                       class="w-8 h-8 flex items-center justify-center bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all shadow-sm shadow-green-200 dark:shadow-none" title="Transferir" style="color: #ffffff !important;">
-                                        <i class="fa-solid fa-arrow-right-arrow-left text-xs text-white" style="color: #ffffff !important;"></i>
+
+                                    <button type="button"
+                                            onclick="openTransferModal({{ $firstStockId }}, '{{ addslashes($group['store']['name'] ?? '') }}', '{{ addslashes($group['fabric_type']['name'] ?? $group['fabric']['name'] ?? '') }}', '{{ addslashes($group['color']['name'] ?? '') }}', {{ json_encode($group['sizes']) }})"
+                                            class="inline-flex items-center justify-center w-7 h-7 rounded bg-emerald-600 hover:bg-emerald-700 text-white"
+                                            title="Transferir">
+                                        <i class="fa-solid fa-arrow-right-arrow-left text-[11px]"></i>
                                     </button>
-                                    
-                                    <button type="button" onclick="openDeleteModal({{ $firstStockId }}, '{{ addslashes($group['fabric_type']['name'] ?? $group['fabric']['name'] ?? '') }}', '{{ addslashes($group['color']['name'] ?? '') }}')" 
-                                       class="w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all shadow-sm shadow-red-200 dark:shadow-none" title="Excluir" style="color: #ffffff !important;">
-                                        <i class="fa-solid fa-trash text-xs text-white" style="color: #ffffff !important;"></i>
+
+                                    <button type="button"
+                                            onclick="openDeleteModal({{ $firstStockId }}, '{{ addslashes($group['fabric_type']['name'] ?? $group['fabric']['name'] ?? '') }}', '{{ addslashes($group['color']['name'] ?? '') }}')"
+                                            class="inline-flex items-center justify-center w-7 h-7 rounded bg-red-600 hover:bg-red-700 text-white"
+                                            title="Excluir">
+                                        <i class="fa-solid fa-trash text-[11px]"></i>
                                     </button>
                                     @else
-                                        <span class="text-xs {{ $bodyTextClass }} italic opacity-60">Indisponível</span>
+                                    <span class="text-[11px] text-gray-500 italic">Indisponivel</span>
                                     @endif
                                 </div>
                             </td>
@@ -289,20 +287,41 @@
                     </tbody>
                 </table>
             </div>
-        </div>
-        @empty
-        <div class="bg-white dark:bg-gray-800 rounded-3xl p-12 text-center shadow-sm border border-gray-100 dark:border-gray-700">
-             <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fa-solid fa-box-open text-3xl text-gray-400"></i>
+            @empty
+            <div class="p-8 text-center text-gray-500 dark:text-gray-400">
+                <svg class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                </svg>
+                <p class="font-medium">Nenhum estoque encontrado</p>
+                <p class="text-sm mt-1">Tente ajustar os filtros</p>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Nenhum estoque encontrado</h3>
-            <p class="text-gray-500 dark:text-gray-400">Tente ajustar os filtros ou cadastre um novo item.</p>
+            @endforelse
         </div>
-        @endforelse
+    </div>
+
+    <div class="mt-1 flex flex-wrap items-center gap-4 text-xs text-gray-600 dark:text-gray-400">
+        <span class="font-semibold">Legenda:</span>
+        <div class="flex items-center gap-1">
+            <div class="w-4 h-4 stock-high rounded"></div>
+            <span>Alto</span>
+        </div>
+        <div class="flex items-center gap-1">
+            <div class="w-4 h-4 stock-medium rounded"></div>
+            <span>Medio</span>
+        </div>
+        <div class="flex items-center gap-1">
+            <div class="w-4 h-4 stock-low rounded"></div>
+            <span>Baixo</span>
+        </div>
+        <div class="flex items-center gap-1">
+            <div class="w-4 h-4 stock-zero rounded"></div>
+            <span>Zerado</span>
+        </div>
+        <span class="text-orange-600 dark:text-orange-400">(N) = Reservado</span>
     </div>
 </div>
 
-<!-- Modal de Transferência -->
+<!-- Modal de Transferencia -->
 <div id="transfer-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all scale-100">
         <div class="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex items-center justify-between">
@@ -316,26 +335,26 @@
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
         </div>
-        
+
         <form id="transfer-form" method="POST" class="p-6 space-y-4">
             @csrf
             <div>
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Origem</label>
                 <input type="text" id="transfer-from" readonly class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white font-bold text-sm">
             </div>
-            
+
             <div>
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Destino</label>
-                 <select name="target_store_id" required class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-green-500 dark:text-white text-sm font-bold appearance-none cursor-pointer">
+                <select name="target_store_id" required class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-green-500 dark:text-white text-sm font-bold appearance-none cursor-pointer">
                     <option value="">Selecione a loja de destino...</option>
                     @foreach($stores as $store)
                         <option value="{{ $store->id }}">{{ $store->name }}</option>
                     @endforeach
                 </select>
             </div>
-            
+
             <div>
-                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Quantidades</label>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Quantidades</label>
                 <div id="transfer-sizes-container" class="space-y-2 bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700 max-h-48 overflow-y-auto custom-scrollbar">
                     <!-- Inputs gerados via JS -->
                 </div>
@@ -346,25 +365,25 @@
                     Cancelar
                 </button>
                 <button type="submit" class="flex-1 px-4 py-3 bg-green-600 text-white rounded-xl font-bold text-sm hover:bg-green-700 shadow-lg shadow-green-200 dark:shadow-none transition-colors" style="color: #ffffff !important;">
-                    Confirmar Transferência
+                    Confirmar Transferencia
                 </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Modal de Exclusão -->
+<!-- Modal de Exclusao -->
 <div id="delete-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center">
         <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-2xl flex items-center justify-center mx-auto mb-6 text-red-500">
-             <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
+            <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
         </div>
-        
+
         <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2">Excluir Item?</h3>
         <p id="delete-message" class="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
-            Esta ação removerá permanentemente o estoque selecionado.
+            Esta acao removera permanentemente o estoque selecionado.
         </p>
-        
+
         <form id="delete-form" method="POST" class="flex gap-3">
             @csrf
             @method('DELETE')
@@ -383,18 +402,18 @@
 function openTransferModal(stockId, storeName, fabric, color, sizes) {
     document.getElementById('transfer-from').value = `${storeName} - ${fabric} - ${color}`;
     document.getElementById('transfer-form').action = `/stocks/${stockId}/transfer`;
-    
+
     const container = document.getElementById('transfer-sizes-container');
     container.innerHTML = '';
-    
+
     let hasAvailable = false;
     const orderedSizes = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3'];
-    
+
     orderedSizes.forEach(size => {
         if (sizes && sizes[size]) {
             const data = sizes[size];
             const maxQty = data.available_quantity || 0;
-            
+
             if (maxQty > 0) {
                 hasAvailable = true;
                 const div = document.createElement('div');
@@ -420,7 +439,7 @@ function openTransferModal(stockId, storeName, fabric, color, sizes) {
     if (!hasAvailable) {
         container.innerHTML = `
             <div class="text-center py-4">
-                <p class="text-sm font-bold text-gray-400">Nenhum item disponível para transferência.</p>
+                <p class="text-sm font-bold text-gray-400">Nenhum item disponivel para transferencia.</p>
             </div>
         `;
     }

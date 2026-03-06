@@ -241,8 +241,17 @@
                                                                         <span class="text-gray-700 dark:text-slate-300"><strong class="dark:text-white">Tamanho:</strong> {{ $pers['size'] }}</span>
                                                                     @endif
                                                                     <span class="text-gray-700 dark:text-slate-300"><strong class="dark:text-white">Qtd:</strong> {{ $pers['quantity'] ?? 0 }}</span>
-                                                                    @if(!empty($pers['color_count']) && $pers['color_count'] > 1)
+                                                                @if(!empty($pers['color_count']) && $pers['color_count'] > 1)
                                                                         <span class="text-gray-700 dark:text-slate-300"><strong class="dark:text-white">Cores:</strong> {{ $pers['color_count'] }}</span>
+                                                                    @endif
+                                                                    @php
+                                                                        $addonNames = collect($pers['addons'] ?? [])
+                                                                            ->map(fn ($addonId) => optional(($specialOptions ?? collect())->firstWhere('id', (int) $addonId))->name)
+                                                                            ->filter()
+                                                                            ->implode(', ');
+                                                                    @endphp
+                                                                    @if($addonNames !== '')
+                                                                        <span class="text-gray-700 dark:text-slate-300"><strong class="dark:text-white">Adicionais:</strong> {{ $addonNames }}</span>
                                                                     @endif
                                                                     @if(($pers['final_price'] ?? 0) > 0)
                                                                         <span class="text-indigo-600 dark:text-indigo-400 font-semibold">R$ {{ number_format($pers['final_price'], 2, ',', '.') }}</span>
@@ -420,7 +429,7 @@
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Adicionais</label>
                     
                     <!-- Checkbox para REGATA (desconto) -->
-                    <div class="mb-3">
+                    <div id="regataDiscountField" class="mb-3">
                         <label class="flex items-center">
                             <input type="checkbox" id="regataCheckbox" name="regata_discount" value="1"
                                    class="w-4 h-4 text-indigo-600 dark:text-indigo-500 border-gray-300 dark:border-slate-600 rounded focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-slate-700">
@@ -429,6 +438,10 @@
                             </span>
                         </label>
                     </div>
+                    
+                    <p id="addonsAvailability" class="mb-3 text-xs text-indigo-600 dark:text-indigo-400">
+                        Carregando adicionais disponíveis...
+                    </p>
                     
                     <!-- Botão para adicionar outros adicionais -->
                     <div class="mb-3">
@@ -490,6 +503,7 @@
                 </div>
                 <input type="hidden" id="unit_price" name="unit_price" value="0">
                 <input type="hidden" id="final_price" name="final_price" value="0">
+                <input type="hidden" id="base_size_price" value="0">
 
 
 
@@ -568,7 +582,18 @@
 
         // Dados de tamanhos por tipo
         const personalizationSizes = @json($personalizationData);
-        const normalizeTypeKey = (type) => (type || '').toString().trim().toUpperCase();
+        const normalizeTypeKey = (type) => {
+            if (!type) return '';
+
+            return type
+                .toString()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[._-]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .toUpperCase();
+        };
 
         const personalizationForm = document.getElementById('personalizationForm');
         let listenerRegistered = false;
@@ -618,6 +643,7 @@
             const addBtn = document.getElementById('addAddonBtn');
             const regataCheck = document.getElementById('regataCheckbox');
             const quantityInput = document.getElementById('quantity');
+            const colorCountInput = document.getElementById('color_count');
 
             // Remover listeners antigos para evitar duplicação
             if (addBtn) {
@@ -636,6 +662,25 @@
                 quantityInput.addEventListener('input', calculatePrice);
                 quantityInput.addEventListener('change', calculatePrice);
             }
+
+            if (colorCountInput) {
+                colorCountInput.removeEventListener('input', calculatePrice);
+                colorCountInput.removeEventListener('change', calculatePrice);
+                colorCountInput.addEventListener('input', calculatePrice);
+                colorCountInput.addEventListener('change', calculatePrice);
+            }
+
+            if (typeof updateAvailableAddonsState === 'function') {
+                updateAvailableAddonsState();
+            }
+        }
+
+        function showAddonsField() {
+            const addonsField = document.getElementById('addonsField');
+            if (!addonsField) return;
+
+            addonsField.classList.remove('hidden');
+            addonsField.style.display = 'block';
         }
 
 
@@ -695,28 +740,28 @@
                 toggleField('sizeField', false);
                 toggleField('quantityField', true);
                 toggleField('colorDetailsField', false);
-                toggleField('addonsField', true);
-                
-                setupAddonListeners();
+                showAddonsField();
             } else if (normalizedType === 'DTF') {
                 toggleField('locationField', true);
                 toggleField('sizeField', true);
                 toggleField('quantityField', true);
                 toggleField('colorDetailsField', false);
-                toggleField('addonsField', false);
+                showAddonsField();
             } else if (normalizedType === 'SUB. LOCAL') {
                 toggleField('locationField', true);
                 toggleField('sizeField', true);
                 toggleField('quantityField', true);
                 toggleField('colorDetailsField', false);
-                toggleField('addonsField', false);
+                showAddonsField();
             } else {
                 toggleField('locationField', true);
                 toggleField('sizeField', true);
                 toggleField('quantityField', true);
                 toggleField('colorDetailsField', true);
-                toggleField('addonsField', false);
+                showAddonsField();
             }
+
+            setupAddonListeners();
 
             // Definir quantidade automaticamente para TODOS os tipos
             if(document.getElementById('quantity')) {
@@ -1136,6 +1181,247 @@
             return total;
         }
 
+        @php
+            $addonsData = ($specialOptions ?? collect())->map(function($opt) {
+                return [
+                    'id' => $opt->id,
+                    'name' => $opt->name,
+                    'price_adjustment' => $opt->charge_type === 'fixed' ? (float) $opt->charge_value : 0,
+                    'percentage' => $opt->charge_type === 'percentage' ? (float) $opt->charge_value : 0,
+                    'charge_type' => $opt->charge_type,
+                    'description' => $opt->description ?? $opt->name,
+                    'personalization_type' => $opt->personalization_type,
+                ];
+            })->values();
+        @endphp
+        const dynamicAvailableAddons = @json($addonsData);
+
+        function getAvailableAddonsForType(type = currentPersonalizationType) {
+            const normalizedType = normalizeTypeKey(type);
+            return dynamicAvailableAddons.filter((addon) => normalizeTypeKey(addon.personalization_type) === normalizedType);
+        }
+
+        function updateAvailableAddonsState(type = currentPersonalizationType) {
+            showAddonsField();
+
+            const availability = document.getElementById('addonsAvailability');
+            const addBtn = document.getElementById('addAddonBtn');
+            const regataField = document.getElementById('regataDiscountField');
+            const filteredAddons = getAvailableAddonsForType(type);
+            const isSubTotal = normalizeTypeKey(type) === 'SUB TOTAL';
+
+            if (regataField) {
+                regataField.classList.toggle('hidden', !isSubTotal);
+            }
+
+            if (availability) {
+                if (filteredAddons.length === 0) {
+                    availability.textContent = 'Nenhum adicional ativo para este tipo no momento.';
+                } else if (filteredAddons.length === 1) {
+                    availability.textContent = '1 adicional disponível para esta personalização.';
+                } else {
+                    availability.textContent = `${filteredAddons.length} adicionais disponíveis para esta personalização.`;
+                }
+            }
+
+            if (addBtn) {
+                addBtn.disabled = filteredAddons.length === 0;
+                addBtn.classList.toggle('opacity-50', filteredAddons.length === 0);
+                addBtn.classList.toggle('cursor-not-allowed', filteredAddons.length === 0);
+            }
+        }
+
+        function appendAddonToSelection(addonData) {
+            const addonsList = document.getElementById('addonsList');
+            const addonsSelect = document.getElementById('addons');
+
+            if (!addonsList || !addonsSelect || !addonData) return;
+            if (document.querySelector(`[data-addon-id="${addonData.id}"]`)) return;
+
+            const addonPrice = parseFloat(addonData.price_adjustment ?? 0);
+            const addonPercentage = parseFloat(addonData.percentage ?? 0);
+            const chargeType = addonData.charge_type;
+
+            let priceDisplay = '<span class="text-gray-500 dark:text-slate-400 font-semibold">Grátis</span>';
+            if (chargeType === 'percentage' && addonPercentage > 0) {
+                priceDisplay = `<span class="text-emerald-600 dark:text-emerald-400 font-semibold">+${addonPercentage}%</span>`;
+            } else if (addonPrice > 0) {
+                priceDisplay = `<span class="text-indigo-600 dark:text-indigo-400 font-semibold">+R$ ${addonPrice.toFixed(2).replace('.', ',')}</span>`;
+            } else if (addonPrice < 0) {
+                priceDisplay = `<span class="text-green-600 dark:text-green-400 font-semibold">-R$ ${Math.abs(addonPrice).toFixed(2).replace('.', ',')}</span>`;
+            }
+
+            const addonElement = document.createElement('div');
+            addonElement.className = 'flex items-center justify-between p-2 bg-gray-50 dark:bg-slate-700 rounded border border-gray-200 dark:border-slate-600';
+            addonElement.setAttribute('data-addon-id', addonData.id);
+            addonElement.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="font-medium text-gray-700 dark:text-slate-200">${addonData.name}</span>
+                    <span class="text-sm">${priceDisplay}</span>
+                </div>
+                <button type="button" class="remove-addon text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors" data-addon-id="${addonData.id}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            `;
+
+            addonsList.appendChild(addonElement);
+
+            const option = document.createElement('option');
+            option.value = addonData.id;
+            option.selected = true;
+            option.textContent = addonData.name;
+            addonsSelect.appendChild(option);
+
+            addonElement.querySelector('.remove-addon').addEventListener('click', function() {
+                addonElement.remove();
+                option.remove();
+                updateAddonsPrices();
+            });
+        }
+
+        function openAddonModal() {
+            const existingModal = document.getElementById('addonModal');
+            if (existingModal) existingModal.remove();
+
+            const filteredAddons = getAvailableAddonsForType();
+            const modalHtml = `
+                <div id="addonModal" class="fixed inset-0 bg-gray-600 dark:bg-gray-900 bg-opacity-50 dark:bg-opacity-75 overflow-y-auto h-full w-full z-50">
+                    <div class="relative top-20 mx-auto p-5 border border-gray-200 dark:border-gray-700 w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+                        <div class="mt-3">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Selecionar Adicional</h3>
+                            <div class="space-y-2 max-h-60 overflow-y-auto">
+                                ${filteredAddons.length === 0
+                                    ? '<p class="text-sm text-gray-500 dark:text-slate-400">Nenhum adicional disponível para esta personalização.</p>'
+                                    : filteredAddons.map(addon => `
+                                        <label class="flex items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded cursor-pointer">
+                                            <input type="checkbox" class="addon-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 rounded" 
+                                                   value="${addon.id}" data-name="${addon.name}" data-price="${addon.price_adjustment}" data-percentage="${addon.percentage || 0}" data-charge-type="${addon.charge_type}" data-description="${addon.description}">
+                                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                                <span class="font-medium">${addon.name}</span>
+                                                <span class="text-gray-500 dark:text-gray-400">
+                                                    ${addon.charge_type === 'percentage'
+                                                        ? ` +${Number(addon.percentage || 0).toFixed(0)}%`
+                                                        : `${Number(addon.price_adjustment || 0) >= 0 ? ' +' : ' '}R$ ${Math.abs(Number(addon.price_adjustment || 0)).toFixed(2).replace('.', ',')}`}
+                                                </span>
+                                            </span>
+                                        </label>
+                                    `).join('')}
+                            </div>
+                            <div class="mt-4 flex justify-end space-x-2">
+                                <button type="button" id="cancelAddon" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-400 dark:hover:bg-gray-700 transition-colors">
+                                    Cancelar
+                                </button>
+                                <button type="button" id="confirmAddon" class="px-4 py-2 bg-indigo-600 dark:bg-indigo-500 text-white rounded hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors" ${filteredAddons.length === 0 ? 'disabled' : ''}>
+                                    Adicionar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            document.getElementById('cancelAddon').addEventListener('click', closeAddonModal);
+            document.getElementById('confirmAddon').addEventListener('click', confirmAddAddon);
+        }
+
+        function closeAddonModal() {
+            const modal = document.getElementById('addonModal');
+            if (modal) modal.remove();
+        }
+
+        function confirmAddAddon() {
+            const checkboxes = document.querySelectorAll('.addon-checkbox:checked');
+
+            checkboxes.forEach(checkbox => {
+                appendAddonToSelection({
+                    id: checkbox.value,
+                    name: checkbox.dataset.name,
+                    price_adjustment: checkbox.dataset.price,
+                    percentage: checkbox.dataset.percentage || 0,
+                    charge_type: checkbox.dataset.chargeType,
+                    description: checkbox.dataset.description,
+                });
+            });
+            
+            updateAddonsPrices();
+            closeAddonModal();
+        }
+
+        function updateAddonsPrices() {
+            const addonsSelect = document.getElementById('addons');
+            const selectedAddons = Array.from(addonsSelect.options).filter(opt => opt.selected);
+            const pricesContainer = document.getElementById('addons-prices');
+            const regataCheckbox = document.getElementById('regataCheckbox');
+            const basePrice = parseFloat(document.getElementById('base_size_price')?.value || 0);
+            
+            let totalAddonPrice = 0;
+            let pricesHtml = '';
+            
+            if (regataCheckbox && regataCheckbox.checked) {
+                totalAddonPrice += -3.00;
+                pricesHtml += `<div class="text-xs text-green-600 dark:text-green-400">• REGATA: -R$ 3,00 (desconto)</div>`;
+            }
+            
+            if (selectedAddons.length > 0) {
+                if (pricesHtml) pricesHtml += '<div class="mt-2"></div>';
+                
+                selectedAddons.forEach(option => {
+                    const addonId = parseInt(option.value);
+                    const addonData = dynamicAvailableAddons.find(a => a.id === addonId);
+                    
+                    if (addonData) {
+                        const price = addonData.charge_type === 'percentage'
+                            ? basePrice * ((parseFloat(addonData.percentage || 0)) / 100)
+                            : parseFloat(addonData.price_adjustment || 0);
+                        const sign = price >= 0 ? '+' : '';
+                        
+                        totalAddonPrice += price;
+                        pricesHtml += `<div class="text-xs text-gray-600 dark:text-slate-400">• ${addonData.name}: ${addonData.charge_type === 'percentage' ? `+${Number(addonData.percentage || 0).toFixed(0)}% (R$ ${Math.abs(price).toFixed(2).replace('.', ',')})` : `${sign}R$ ${Math.abs(price).toFixed(2).replace('.', ',')}`}</div>`;
+                    }
+                });
+            }
+            
+            if (totalAddonPrice !== 0) {
+                const sign = totalAddonPrice >= 0 ? '+' : '';
+                pricesHtml += `<div class="text-sm font-medium text-gray-900 dark:text-white mt-2">Total adicionais: ${sign}R$ ${Math.abs(totalAddonPrice).toFixed(2).replace('.', ',')}</div>`;
+            }
+            
+            pricesContainer.innerHTML = pricesHtml;
+            calculatePrice();
+        }
+
+        function calculateAddonsTotal(basePrice = null) {
+            const addonsSelect = document.getElementById('addons');
+            if (!addonsSelect) return 0;
+            
+            const selectedAddons = Array.from(addonsSelect.options).filter(opt => opt.selected);
+            let total = 0;
+            const currentBasePrice = basePrice ?? parseFloat(document.getElementById('base_size_price')?.value || 0);
+            
+            const regataCheckbox = document.getElementById('regataCheckbox');
+            if (regataCheckbox && regataCheckbox.checked) {
+                total += -3.00;
+            }
+            
+            selectedAddons.forEach(option => {
+                const addonId = parseInt(option.value);
+                const addonData = dynamicAvailableAddons.find(a => a.id === addonId);
+                
+                if (addonData) {
+                    if (addonData.charge_type === 'percentage') {
+                        total += currentBasePrice * ((parseFloat(addonData.percentage || 0)) / 100);
+                    } else {
+                        total += parseFloat(addonData.price_adjustment || 0);
+                    }
+                }
+            });
+            
+            return total;
+        }
+
         // Calcular preço
         async function calculatePrice() {
             const persTypeRaw = document.getElementById('modal_personalization_type').value;
@@ -1212,13 +1498,9 @@
                 }
                 
                 if (priceFound) {
+                    document.getElementById('base_size_price').value = unitPrice;
                     const qty = parseInt(quantity);
                     const currentColorCount = parseInt(document.getElementById('color_count')?.value || 1);
-                    
-                    if (apiType === 'SUB. TOTAL') {
-                        const addonsTotal = calculateAddonsTotal();
-                        unitPrice += addonsTotal;
-                    }
                     
                     if (apiType === 'SERIGRAFIA' || apiType === 'EMBORRACHADO') {
                         let colorPrice = 0;
@@ -1250,6 +1532,8 @@
                             unitPrice -= (discountPerApplication * applicationsWithDiscount);
                         }
                     }
+
+                    unitPrice += calculateAddonsTotal(parseFloat(document.getElementById('base_size_price').value || unitPrice));
                         
                     const total = unitPrice * qty;
                     
@@ -1280,11 +1564,8 @@
             
             let unitPrice = defaultPrices[normalizedType] || 5.00;
 
-            // Adicionar pre?o dos adicionais se for SUB. TOTAL
-            if (normalizedType === 'SUB. TOTAL') {
-                const addonsTotal = calculateAddonsTotal();
-                unitPrice += addonsTotal;
-            }
+            document.getElementById('base_size_price').value = unitPrice;
+            unitPrice += calculateAddonsTotal(unitPrice);
 
             const total = unitPrice * quantity;
             
@@ -1600,24 +1881,24 @@
                     toggleField('locationField', false);
                     toggleField('sizeField', false);
                     toggleField('colorDetailsField', false);
-                    toggleField('addonsField', true);
-                    setupAddonListeners();
+                    showAddonsField();
                 } else if (persType === 'DTF') {
                     toggleField('locationField', true);
                     toggleField('sizeField', true);
                     toggleField('colorDetailsField', false);
-                    toggleField('addonsField', false);
+                    showAddonsField();
                 } else if (persType === 'SUB. LOCAL') {
                     toggleField('locationField', true);
                     toggleField('sizeField', true);
                     toggleField('colorDetailsField', false);
-                    toggleField('addonsField', false);
+                    showAddonsField();
                 } else {
                     toggleField('locationField', true);
                     toggleField('sizeField', true);
                     toggleField('colorDetailsField', true);
-                    toggleField('addonsField', false);
+                    showAddonsField();
                 }
+                setupAddonListeners();
                 
                 // IMPORTANTE: Carregar tamanhos ANTES de definir o valor
                 loadSizes(persType);

@@ -86,7 +86,7 @@ class OrderController extends Controller
             }
         }
 
-        $orders = $query->orderBy('created_at', 'desc')->paginate(20);
+        $orders = $query->orderBy('created_at', 'desc')->paginate(8)->withQueryString();
         
         // DEBUG: Log para ver resultados da query
         \Log::info('OrderController::index RESULTADOS', [
@@ -163,7 +163,7 @@ class OrderController extends Controller
             }
         }
 
-        $orders = $query->orderBy('created_at', 'desc')->paginate(20);
+        $orders = $query->orderBy('created_at', 'desc')->paginate(8)->withQueryString();
 
         // DEBUG: Log para ver resultados da query
         \Log::info('OrderController::indexPersonalized RESULTADOS', [

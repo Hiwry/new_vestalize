@@ -567,7 +567,13 @@ class BudgetController extends Controller
             ->orderBy('order')
             ->get();
 
-        return view('budgets.wizard.customization-multiple', compact('itemPersonalizations', 'personalizationData', 'locations'));
+        $specialOptions = \App\Models\PersonalizationSpecialOption::where('active', true)
+            ->orderBy('order')
+            ->get();
+
+        $personalizationSettings = \App\Models\PersonalizationSetting::all()->keyBy('personalization_type');
+
+        return view('budgets.wizard.customization-multiple', compact('itemPersonalizations', 'personalizationData', 'locations', 'specialOptions', 'personalizationSettings'));
     }
 
     /**

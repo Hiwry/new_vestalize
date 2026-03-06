@@ -14,7 +14,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Vestuário Total -->
-        <a href="{{ route('admin.sublimation-products.index') }}" 
+        <a href="{{ route('admin.personalization-prices.edit', 'SUB. TOTAL') }}" 
            class="group relative flex flex-col p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-purple-500/50 dark:hover:border-purple-500/50 transition-all duration-200">
             <div class="flex items-center space-x-4 mb-4">
                 <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl group-hover:scale-110 transition-transform duration-200">

@@ -7,6 +7,7 @@ define('LARAVEL_START', microtime(true));
 
 // Caminhos possíveis para o Laravel
 $candidatePaths = [
+    __DIR__,
     __DIR__ . '/../laravel',
     __DIR__ . '/../backend',
     __DIR__ . '/..',

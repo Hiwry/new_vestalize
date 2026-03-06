@@ -35,7 +35,7 @@
                     Teste Grátis
                 </a>
                 <a href="{{ route('marketplace.home') }}" class="btn-outline text-base py-3 px-6 flex items-center gap-2">
-                    <i class="fa-solid fa-shop text-xs text-primary"></i>
+                    <i class="fa-solid fa-store text-xs text-primary"></i>
                     Marketplace
                 </a>
                 <a href="#features" class="btn-outline text-base py-3 px-6 opacity-60 hover:opacity-100">

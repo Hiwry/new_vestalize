@@ -1,62 +1,84 @@
 /**
- * Dark Mode Toggle Script
- * Sistema de Gestão de Pedidos
- * 
- * NOTA: Usar chave 'dark' consistentemente (não 'darkMode')
+ * Global dark mode handler.
+ * Uses localStorage key "dark" with values "true" / "false".
  */
+(function () {
+    const ICON_PAIRS = [
+        { moon: 'moon-icon', sun: 'sun-icon' },
+        { moon: 'moon-icon-mkt', sun: 'sun-icon-mkt' },
+    ];
 
-// ⚡ Aplicar dark mode IMEDIATAMENTE (antes do DOMContentLoaded)
-// Isso previne o "flash" de conteúdo light mode
-(function() {
-    const isDarkMode = localStorage.getItem('dark') === 'true';
-    if (isDarkMode) {
-        document.documentElement.classList.add('dark');
+    function getSavedDarkMode() {
+        return localStorage.getItem('dark') === 'true';
     }
-})();
 
-// Função global para toggle do dark mode
-window.toggleDarkMode = function() {
-    const html = document.documentElement;
-    const moonIcon = document.getElementById('moon-icon');
-    const sunIcon = document.getElementById('sun-icon');
-    
-    const isDark = html.classList.toggle('dark');
-    localStorage.setItem('dark', isDark ? 'true' : 'false');
-    html.style.colorScheme = isDark ? 'dark' : 'light';
-    
-    // Atualizar ícones
-    if (moonIcon && sunIcon) {
-        if (isDark) {
-            moonIcon.classList.add('hidden');
-            sunIcon.classList.remove('hidden');
-        } else {
-            moonIcon.classList.remove('hidden');
-            sunIcon.classList.add('hidden');
+    function syncIcons(isDark) {
+        ICON_PAIRS.forEach(({ moon, sun }) => {
+            const moonIcon = document.getElementById(moon);
+            const sunIcon = document.getElementById(sun);
+            if (!moonIcon || !sunIcon) {
+                return;
+            }
+
+            if (isDark) {
+                moonIcon.classList.add('hidden');
+                sunIcon.classList.remove('hidden');
+            } else {
+                moonIcon.classList.remove('hidden');
+                sunIcon.classList.add('hidden');
+            }
+        });
+    }
+
+    function dispatchThemeEvents(isDark) {
+        const detail = { dark: isDark };
+        ['theme-changed', 'dark-mode-toggled'].forEach((eventName) => {
+            document.dispatchEvent(new CustomEvent(eventName, { detail }));
+            window.dispatchEvent(new CustomEvent(eventName, { detail }));
+        });
+    }
+
+    function applyTheme(isDark) {
+        const html = document.documentElement;
+        const body = document.body;
+
+        html.classList.toggle('dark', isDark);
+        html.style.colorScheme = isDark ? 'dark' : 'light';
+
+        if (body) {
+            body.classList.toggle('dark', isDark);
+            body.style.colorScheme = isDark ? 'dark' : 'light';
         }
-    }
-    
-    // Disparar evento customizado
-    document.dispatchEvent(new CustomEvent('theme-changed', { 
-        detail: { dark: isDark } 
-    }));
-};
 
-// Atualizar ícones quando o DOM estiver pronto
-document.addEventListener('DOMContentLoaded', function() {
-    const isDarkMode = localStorage.getItem('dark') === 'true';
-    const html = document.documentElement;
-    const moonIcon = document.getElementById('moon-icon');
-    const sunIcon = document.getElementById('sun-icon');
-    
-    // Garantir que os ícones estão sincronizados
-    if (isDarkMode) {
-        html.classList.add('dark');
-        if (moonIcon) moonIcon.classList.add('hidden');
-        if (sunIcon) sunIcon.classList.remove('hidden');
-    } else {
-        html.classList.remove('dark');
-        if (moonIcon) moonIcon.classList.remove('hidden');
-        if (sunIcon) sunIcon.classList.add('hidden');
+        syncIcons(isDark);
+        return isDark;
     }
-});
 
+    window.applySavedTheme = function () {
+        return applyTheme(getSavedDarkMode());
+    };
+
+    window.toggleDarkMode = function () {
+        const nextDark = !document.documentElement.classList.contains('dark');
+        localStorage.setItem('dark', nextDark ? 'true' : 'false');
+        applyTheme(nextDark);
+        dispatchThemeEvents(nextDark);
+    };
+
+    // Apply immediately to avoid flash.
+    applyTheme(getSavedDarkMode());
+
+    // Re-sync after the full DOM is available.
+    document.addEventListener('DOMContentLoaded', function () {
+        applyTheme(getSavedDarkMode());
+    });
+
+    // Keep tabs/windows in sync.
+    window.addEventListener('storage', function (event) {
+        if (event.key === 'dark') {
+            const isDark = getSavedDarkMode();
+            applyTheme(isDark);
+            dispatchThemeEvents(isDark);
+        }
+    });
+})();

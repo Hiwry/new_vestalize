@@ -153,10 +153,10 @@
 <!-- Sidebar -->
 <aside id="sidebar" 
         :class="[
-            isMobile() ? 'w-full max-w-full sidebar-expanded' : (expanded ? 'w-64 sidebar-expanded' : 'w-16 sidebar-collapsed'),
+            isMobile() ? 'w-full max-w-full sidebar-expanded' : (expanded ? 'sidebar-expanded' : 'sidebar-collapsed'),
             (mobileOpen || !isMobile()) ? 'translate-x-0' : '-translate-x-full'
         ]"
-       class="fixed top-0 left-0 z-[60] h-screen bg-card-bg border-r border-border overflow-hidden transition-all duration-300 ease-in-out transform md:translate-x-0 shadow-2xl">
+       class="fixed top-0 left-0 z-[60] h-screen bg-card-bg border-r border-border overflow-hidden transition-all duration-300 ease-in-out transform md:translate-x-0 shadow-2xl flex flex-col">
     
     <!-- Header do Sidebar com Botão Toggle -->
     <div class="flex items-center h-20 border-b border-border bg-card-bg transition-all duration-300 relative"
@@ -181,7 +181,7 @@
     </div>
 
     <!-- Menu Items -->
-    <nav class="flex flex-col px-2 py-4 space-y-1 overflow-y-auto h-[calc(100vh-8rem)] scrollbar-thin">
+    <nav class="flex-1 min-h-0 flex flex-col px-2 py-4 space-y-1 overflow-y-auto scrollbar-thin">
         
         <div class="text-nowrap">
             <a href="{{ route('dashboard') }}" 

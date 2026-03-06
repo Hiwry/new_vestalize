@@ -803,42 +803,115 @@ class OrderWizardService
      */
     public function processAddSublimationItem(Order $order, array $validated, ?string $coverImagePath = null, ?string $corelFilePath = null): OrderItem
     {
-        // Buscar tipo para label e tecido padrão
-        $typeModel = \App\Models\SublimationProductType::with('tecido')->where('slug', $validated['sublimation_type'])->first();
+        $typeModel = \App\Models\SublimationProductType::query()
+            ->where('slug', $validated['sublimation_type'])
+            ->first();
         $typeLabel = $typeModel ? $typeModel->name : $validated['sublimation_type'];
-        $fabricName = ($typeModel && $typeModel->tecido) ? $typeModel->tecido->name : ('SUB. TOTAL - ' . $typeLabel);
 
-        // Buscar adicionais selecionados para descrição
-        $addonsLabel = '';
-        if (!empty($validated['sublimation_addons'])) {
-            $addons = \App\Models\SublimationProductAddon::whereIn('id', $validated['sublimation_addons'])->pluck('name');
-            $addonsLabel = $addons->join(', ');
+        $fabricType = strtoupper((string) ($validated['fabric_type'] ?? ''));
+        $modelType = strtoupper((string) ($validated['model_type'] ?? ''));
+        $baseCollar = strtoupper(trim((string) ($validated['base_collar'] ?? 'REDONDA')));
+        $fabricColor = strtoupper(trim((string) ($validated['fabric_color'] ?? 'BRANCO')));
+        $fabricCustom = trim((string) ($validated['fabric_custom'] ?? ''));
+        $fabricSurcharge = (float) ($validated['fabric_surcharge'] ?? 0);
+        $hasAddonColors = (bool) ($validated['has_addon_colors'] ?? false);
+
+        $fabricName = match ($fabricType) {
+            'PP' => 'PP',
+            'CACHARREL' => 'CACHARREL',
+            'OUTRO' => ($fabricCustom !== '' ? $fabricCustom : 'OUTRO TECIDO'),
+            default => ($fabricType !== '' ? $fabricType : 'SUB. TOTAL - ' . $typeLabel),
+        };
+
+        $modelName = match ($modelType) {
+            'BASICA' => 'BASICA',
+            'BABYLOOK' => 'BABYLOOK',
+            'INFANTIL' => 'INFANTIL',
+            default => $modelType,
+        };
+
+        $selectedAddonIds = collect($validated['sublimation_addons'] ?? [])
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
+            ->values()
+            ->all();
+
+        $addonColorMap = [];
+        if (!empty($validated['addon_color_map'])) {
+            $decoded = is_array($validated['addon_color_map'])
+                ? $validated['addon_color_map']
+                : json_decode((string) $validated['addon_color_map'], true);
+            if (is_array($decoded)) {
+                $addonColorMap = $decoded;
+            }
+        }
+
+        $selectedAddons = \App\Models\SublimationProductAddon::query()
+            ->whereIn('id', $selectedAddonIds)
+            ->get(['id', 'name', 'price']);
+
+        $addonsDetails = $selectedAddons->map(function ($addon) use ($addonColorMap) {
+            $color = trim((string) ($addonColorMap[(string) $addon->id] ?? $addonColorMap[$addon->id] ?? ''));
+            return [
+                'id' => (int) $addon->id,
+                'name' => (string) $addon->name,
+                'price' => (float) ($addon->price ?? 0),
+                'color' => $color !== '' ? $color : null,
+            ];
+        })->values()->all();
+
+        $addonsLabel = collect($addonsDetails)->pluck('name')->filter()->join(', ');
+        $addonDetailLabel = collect($addonsDetails)
+            ->map(function ($addon) {
+                return !empty($addon['color'])
+                    ? $addon['name'] . ' (' . $addon['color'] . ')'
+                    : $addon['name'];
+            })
+            ->filter()
+            ->join(', ');
+
+        $collarLabel = $baseCollar;
+        if ($addonsLabel !== '') {
+            $collarLabel .= ' + ' . $addonsLabel;
         }
 
         $itemNumber = $order->items()->count() + 1;
+        $quantity = (int) $validated['quantity'];
+        $unitPrice = (float) $validated['unit_price'];
+        $unitCost = (float) ($validated['unit_cost'] ?? 0);
 
         $item = new OrderItem([
             'item_number' => $itemNumber,
             'fabric' => $fabricName,
-            'color' => 'Sublimação Total',
-            'collar' => $addonsLabel ?: 'Nenhum adicional',
-            'model' => $typeLabel,
-            'detail' => null,
+            'color' => $fabricColor !== '' ? $fabricColor : 'BRANCO',
+            'collar' => $collarLabel,
+            'model' => trim($typeLabel . ' - ' . $modelName, ' -'),
+            'detail' => $addonDetailLabel !== '' ? $addonDetailLabel : null,
             'print_type' => 'SUB. TOTAL',
             'art_name' => $validated['art_name'],
             'sizes' => $validated['tamanhos'],
-            'quantity' => $validated['quantity'],
-            'unit_price' => $validated['unit_price'],
-            'total_price' => $this->calculateItemTotalPrice($validated['unit_price'], $validated['quantity'], $validated['tamanhos']),
-            'unit_cost' => $validated['unit_cost'] ?? 0,
-            'total_cost' => ($validated['unit_cost'] ?? 0) * $validated['quantity'],
+            'quantity' => $quantity,
+            'unit_price' => $unitPrice,
+            'total_price' => $this->calculateItemTotalPrice($unitPrice, $quantity, $validated['tamanhos']),
+            'unit_cost' => $unitCost,
+            'total_cost' => $unitCost * $quantity,
             'cover_image' => $coverImagePath,
             'art_notes' => $validated['art_notes'] ?? null,
             'print_desc' => json_encode([
-                'is_sublimation_total' => true, 
+                'is_sublimation_total' => true,
                 'type' => $validated['sublimation_type'],
+                'type_label' => $typeLabel,
+                'fabric_type' => $fabricType,
+                'fabric_custom' => $fabricType === 'OUTRO' ? ($fabricCustom !== '' ? $fabricCustom : null) : null,
+                'fabric_color' => $fabricColor !== '' ? $fabricColor : 'BRANCO',
+                'model_type' => $modelType,
+                'base_collar' => $baseCollar,
+                'fabric_surcharge' => $fabricSurcharge,
+                'has_addon_colors' => $hasAddonColors,
+                'addon_color_map' => $addonColorMap,
+                'addons' => $selectedAddonIds,
+                'addons_details' => $addonsDetails,
                 'corel_file' => $corelFilePath,
-                'addons' => $validated['sublimation_addons'] ?? []
             ]),
         ]);
 
@@ -1056,4 +1129,5 @@ class OrderWizardService
         return true;
     }
 }
+
 

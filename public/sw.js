@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vestalize-v2';
+const CACHE_NAME = 'vestalize-v3';
 const ASSETS = [
     // '/',
     // '/css/app.css',
@@ -22,7 +22,7 @@ self.addEventListener('activate', event => {
             return Promise.all(
                 cacheNames.filter(name => name !== CACHE_NAME).map(name => caches.delete(name))
             );
-        })
+        }).then(() => self.clients.claim())
     );
 });
 

@@ -15,6 +15,9 @@
                 if (isDarkMode) {
                     html.classList.add('dark');
                     html.style.colorScheme = 'dark';
+                } else {
+                    html.classList.remove('dark');
+                    html.style.colorScheme = 'light';
                 }
             })();
         </script>

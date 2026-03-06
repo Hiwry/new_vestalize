@@ -179,7 +179,10 @@
                     <x-application-logo class="block h-9 w-auto" />
                 </a>
                 <div class="hidden sm:flex items-center gap-4">
-                    <a href="{{ route('marketplace.home') }}" class="text-sm font-bold {{ request()->routeIs('marketplace.home') ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700' }} transition-colors">Marketplace</a>
+                    <a href="{{ route('marketplace.home') }}" class="text-sm font-bold {{ request()->routeIs('marketplace.home') ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700' }} transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-store {{ request()->routeIs('marketplace.home') ? 'text-indigo-600' : 'text-gray-400' }} text-xs"></i>
+                        Marketplace
+                    </a>
                     <a href="{{ route('marketplace.services.index') }}" class="text-sm font-medium {{ request()->routeIs('marketplace.services.*') ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700' }} transition-colors">Serviços</a>
                     <a href="{{ route('marketplace.tools.index') }}" class="text-sm font-medium {{ request()->routeIs('marketplace.tools.*') ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700' }} transition-colors">Ferramentas</a>
                     <a href="{{ route('marketplace.designers') }}" class="text-sm font-medium {{ request()->routeIs('marketplace.designers*') ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700' }} transition-colors">Designers</a>

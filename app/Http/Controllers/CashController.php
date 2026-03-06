@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\StoreHelper;
 use App\Models\CashTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,35 +18,7 @@ class CashController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        
-        // Super Admin (tenant_id === null) não deve ver dados de outros tenants
-        if ($user->tenant_id === null) {
-            $emptyCollection = collect([]);
-            return view('cash.index', [
-                'transactions' => $emptyCollection,
-                'pendentes' => $emptyCollection,
-                'confirmadas' => $emptyCollection,
-                'canceladas' => $emptyCollection,
-                'sangrias' => $emptyCollection,
-                'totalPendentes' => 0,
-                'totalConfirmadas' => 0,
-                'totalCanceladas' => 0,
-                'totalSangrias' => 0,
-                'totalEntradas' => 0,
-                'totalSaidas' => 0,
-                'saldoPeriodo' => 0,
-                'saldoAtual' => 0,
-                'saldoGeral' => 0,
-                'saldoPendente' => 0,
-                'totalSaidasGeral' => 0,
-                'startDate' => Carbon::now()->subDays(30)->format('Y-m-d'),
-                'endDate' => Carbon::now()->format('Y-m-d'),
-                'type' => 'all',
-                'isSuperAdmin' => true
-            ]);
-        }
-        
-        $isSuperAdmin = false;
+        $isSuperAdmin = $user->tenant_id === null;
         
         // Verificar se o usuário é administrador ou caixa
         if (!$user->isAdmin() && !$user->isCaixa()) {
@@ -57,11 +30,50 @@ class CashController extends Controller
         $endDate = $request->get('end_date');
         $type = $request->get('type', 'all');
 
-        $query = CashTransaction::with(['order', 'user']);
+        // Base sem filtro de período para calcular saldos gerais respeitando tenant/loja
+        $baseScopedQuery = CashTransaction::query();
+        StoreHelper::applyStoreFilter($baseScopedQuery);
+        $pendentesVendaTotal = (clone $baseScopedQuery)
+            ->where('status', 'pendente')
+            ->whereRaw("LOWER(COALESCE(category, '')) <> 'sangria'")
+            ->count();
+        $confirmadasTotal = (clone $baseScopedQuery)
+            ->where('status', 'confirmado')
+            ->whereRaw("LOWER(COALESCE(category, '')) <> 'sangria'")
+            ->count();
+        $latestCashReferenceDateRaw = (clone $baseScopedQuery)
+            ->where('status', 'confirmado')
+            ->max('transaction_date');
+        $latestCashReferenceDate = $latestCashReferenceDateRaw
+            ? Carbon::parse($latestCashReferenceDateRaw)->format('Y-m-d')
+            : Carbon::now()->format('Y-m-d');
 
-        // Aplicar filtro de data apenas se fornecido
+        $query = CashTransaction::with(['order', 'user']);
+        StoreHelper::applyStoreFilter($query);
+
+        // Aplicar filtro de data (incluindo o dia final completo)
         if ($startDate && $endDate) {
-            $query->whereBetween('transaction_date', [$startDate, $endDate]);
+            try {
+                $startFilter = Carbon::parse($startDate)->startOfDay();
+                $endFilter = Carbon::parse($endDate)->endOfDay();
+
+                // Se vier invertido por engano, corrige sem quebrar a listagem
+                if ($startFilter->gt($endFilter)) {
+                    [$startFilter, $endFilter] = [$endFilter, $startFilter];
+                }
+
+                $query->whereBetween('transaction_date', [$startFilter, $endFilter]);
+
+                // Normaliza para manter os inputs da tela no formato esperado
+                $startDate = $startFilter->format('Y-m-d');
+                $endDate = $endFilter->format('Y-m-d');
+            } catch (\Throwable $e) {
+                \Log::warning('Filtro de data inválido no caixa', [
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         $query->orderBy('transaction_date', 'desc')
@@ -90,6 +102,9 @@ class CashController extends Controller
         $sangrias = $transactions->where('status', 'confirmado')->filter(function($t) {
             return strtolower($t->category) === 'sangria';
         });
+        $pendentesVenda = $transactions->where('status', 'pendente')->filter(function($t) {
+            return strtolower($t->category) !== 'sangria';
+        });
 
         // Calcular totais por coluna
         $totalPendentes = $pendentes->where('type', 'entrada')->sum('amount');
@@ -102,13 +117,25 @@ class CashController extends Controller
         $totalSaidas = $transactions->where('type', 'saida')->sum('amount');
         $saldoPeriodo = $totalEntradas - $totalSaidas;
         
-        // Calcular saldos gerais
-        // CashTransaction::getSaldoAtual() and other methods might not be multi-tenant aware yet if they don't filter by user stores.
-        // However, since we are only fixing the isolation for Super Admin visualization for now, this is enough.
-        $saldoAtual = CashTransaction::getSaldoAtual(); // Apenas confirmadas
-        $saldoGeral = CashTransaction::getSaldoGeral(); // Tudo
-        $saldoPendente = CashTransaction::getSaldoPendente(); // Pendentes
-        $totalSaidasGeral = CashTransaction::getTotalSaidas(); // Todas as saídas
+        // Calcular saldos gerais respeitando escopo de loja/tenant do usuário
+        $entradasConfirmadas = (clone $baseScopedQuery)
+            ->where('type', 'entrada')
+            ->where('status', 'confirmado')
+            ->sum('amount');
+        $saidasConfirmadas = (clone $baseScopedQuery)
+            ->where('type', 'saida')
+            ->where('status', 'confirmado')
+            ->sum('amount');
+
+        $saldoAtual = $entradasConfirmadas - $saidasConfirmadas; // Apenas confirmadas
+        $saldoGeral = $saldoAtual; // Mantido por compatibilidade visual
+        $saldoPendente = (clone $baseScopedQuery)
+            ->where('type', 'entrada')
+            ->where('status', 'pendente')
+            ->sum('amount');
+        $totalSaidasGeral = (clone $baseScopedQuery)
+            ->where('type', 'saida')
+            ->sum('amount');
 
         return view('cash.index', compact(
             'transactions',
@@ -130,7 +157,11 @@ class CashController extends Controller
             'startDate',
             'endDate',
             'type',
-            'isSuperAdmin'
+            'isSuperAdmin',
+            'pendentesVenda',
+            'pendentesVendaTotal',
+            'confirmadasTotal',
+            'latestCashReferenceDate'
         ));
     }
 
@@ -317,6 +348,70 @@ class CashController extends Controller
             ->with('success', 'Transação atualizada com sucesso!');
     }
 
+    /**
+     * Atualização rápida de status (usado no Kanban drag-and-drop).
+     */
+    public function updateStatus(Request $request, $cash)
+    {
+        if (!Auth::user()->isAdmin() && !Auth::user()->isCaixa()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acesso negado.',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|in:pendente,confirmado,cancelado',
+        ]);
+
+        $query = CashTransaction::query();
+        StoreHelper::applyStoreFilter($query);
+        $transaction = $query->find($cash);
+
+        if (!$transaction) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Transação não encontrada.',
+            ], 404);
+        }
+
+        $oldStatus = $transaction->status;
+        $newStatus = $validated['status'];
+
+        if ($oldStatus === $newStatus) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Status já estava atualizado.',
+                'transaction' => [
+                    'id' => $transaction->id,
+                    'status' => $transaction->status,
+                ],
+            ]);
+        }
+
+        $transaction->status = $newStatus;
+
+        $statusNote = sprintf(
+            'Status alterado de %s para %s por %s em %s',
+            $oldStatus,
+            $newStatus,
+            Auth::user()->name ?? 'Sistema',
+            now()->format('d/m/Y H:i')
+        );
+
+        $transaction->notes = trim(($transaction->notes ? ($transaction->notes . PHP_EOL) : '') . $statusNote);
+        $transaction->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status atualizado com sucesso.',
+            'transaction' => [
+                'id' => $transaction->id,
+                'status' => $transaction->status,
+            ],
+        ]);
+    }
+
     public function destroy(CashTransaction $cash)
     {
         // Verificar se o usuário é administrador ou caixa
@@ -331,7 +426,7 @@ class CashController extends Controller
     }
 
     /**
-     * Relatório simplificado (resumo diário)
+     * Relatório simplificado (resumo por período)
      */
     public function reportSimplified(Request $request)
     {
@@ -343,13 +438,59 @@ class CashController extends Controller
                 ], 403);
             }
 
-            $date = $request->get('date', Carbon::now()->format('Y-m-d'));
-            
+            $period = strtolower((string) $request->get('period', 'month'));
+            $allowedPeriods = ['day', 'week', 'month', 'year', 'custom'];
+            if (!in_array($period, $allowedPeriods, true)) {
+                $period = 'month';
+            }
+
+            $referenceDate = Carbon::parse($request->get('date', Carbon::now()->format('Y-m-d')));
+            $startFilter = null;
+            $endFilter = null;
+
+            switch ($period) {
+                case 'day':
+                    $startFilter = $referenceDate->copy()->startOfDay();
+                    $endFilter = $referenceDate->copy()->endOfDay();
+                    break;
+                case 'week':
+                    $startFilter = $referenceDate->copy()->startOfWeek(Carbon::MONDAY)->startOfDay();
+                    $endFilter = $referenceDate->copy()->endOfWeek(Carbon::SUNDAY)->endOfDay();
+                    break;
+                case 'custom':
+                    $startFilter = Carbon::parse($request->get('start_date', $referenceDate->format('Y-m-d')))->startOfDay();
+                    $endFilter = Carbon::parse($request->get('end_date', $referenceDate->format('Y-m-d')))->endOfDay();
+                    if ($startFilter->gt($endFilter)) {
+                        [$startFilter, $endFilter] = [$endFilter, $startFilter];
+                    }
+                    break;
+                case 'month':
+                    $startFilter = $referenceDate->copy()->startOfMonth()->startOfDay();
+                    $endFilter = $referenceDate->copy()->endOfMonth()->endOfDay();
+                    break;
+                case 'year':
+                    $startFilter = $referenceDate->copy()->startOfYear()->startOfDay();
+                    $endFilter = $referenceDate->copy()->endOfYear()->endOfDay();
+                    break;
+                default:
+                    $startFilter = $referenceDate->copy()->startOfMonth()->startOfDay();
+                    $endFilter = $referenceDate->copy()->endOfMonth()->endOfDay();
+                    break;
+            }
+
             // Carregar relacionamentos necessários, incluindo order.user
-            $transactions = CashTransaction::with(['order.user', 'order.items', 'user'])
-                ->whereDate('transaction_date', $date)
-                ->where('status', 'confirmado')
-                ->get();
+            $transactionsQuery = CashTransaction::with(['order.user', 'order.items', 'user'])
+                ->whereBetween('transaction_date', [$startFilter, $endFilter])
+                ->where('status', 'confirmado');
+            StoreHelper::applyStoreFilter($transactionsQuery);
+            $transactions = $transactionsQuery->get();
+            $latestConfirmedDateQuery = CashTransaction::query()
+                ->where('status', 'confirmado');
+            StoreHelper::applyStoreFilter($latestConfirmedDateQuery);
+            $latestConfirmedDateRaw = $latestConfirmedDateQuery->max('transaction_date');
+            $latestConfirmedDate = $latestConfirmedDateRaw
+                ? Carbon::parse($latestConfirmedDateRaw)->format('Y-m-d')
+                : null;
 
             // Resumo por meio de pagamento
             $byPaymentMethod = [];
@@ -475,7 +616,13 @@ class CashController extends Controller
 
             return response()->json([
                 'success' => true,
-                'date' => $date,
+                'date' => $referenceDate->format('Y-m-d'),
+                'periodo' => [
+                    'tipo' => $period,
+                    'inicio' => $startFilter->format('Y-m-d'),
+                    'fim' => $endFilter->format('Y-m-d'),
+                ],
+                'ultima_data_com_movimento' => $latestConfirmedDate,
                 'resumo' => [
                     'por_meio_pagamento' => $byPaymentMethod,
                     'total_entradas' => round($totalEntradas, 2),
@@ -491,7 +638,10 @@ class CashController extends Controller
             \Log::error('Erro ao gerar relatório simplificado', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'date' => $request->get('date')
+                'period' => $request->get('period'),
+                'date' => $request->get('date'),
+                'start_date' => $request->get('start_date'),
+                'end_date' => $request->get('end_date'),
             ]);
             
             return response()->json([
@@ -517,12 +667,19 @@ class CashController extends Controller
             $startDate = $request->get('start_date', Carbon::now()->format('Y-m-d'));
             $endDate = $request->get('end_date', Carbon::now()->format('Y-m-d'));
 
-            $transactions = CashTransaction::with(['order.client', 'order.items', 'order.user', 'user'])
-                ->whereBetween('transaction_date', [$startDate, $endDate])
+            $startFilter = Carbon::parse($startDate)->startOfDay();
+            $endFilter = Carbon::parse($endDate)->endOfDay();
+            if ($startFilter->gt($endFilter)) {
+                [$startFilter, $endFilter] = [$endFilter, $startFilter];
+            }
+
+            $transactionsQuery = CashTransaction::with(['order.client', 'order.items', 'order.user', 'user'])
+                ->whereBetween('transaction_date', [$startFilter, $endFilter])
                 ->where('status', 'confirmado')
                 ->orderBy('transaction_date', 'desc')
-                ->orderBy('created_at', 'desc')
-                ->get();
+                ->orderBy('created_at', 'desc');
+            StoreHelper::applyStoreFilter($transactionsQuery);
+            $transactions = $transactionsQuery->get();
 
             $detalhes = $transactions->map(function($transaction) {
                 // Processar payment_methods de forma mais robusta
@@ -607,8 +764,8 @@ class CashController extends Controller
             return response()->json([
                 'success' => true,
                 'periodo' => [
-                    'inicio' => $startDate,
-                    'fim' => $endDate
+                    'inicio' => $startFilter->format('Y-m-d'),
+                    'fim' => $endFilter->format('Y-m-d')
                 ],
                 'total_transacoes' => $transactions->count(),
                 'detalhes' => $detalhes

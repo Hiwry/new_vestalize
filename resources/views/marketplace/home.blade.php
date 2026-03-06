@@ -3,9 +3,25 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Marketplace | Vestalize</title>
-    <meta name="description" content="Contrate designers especializados, compre ferramentas digitais e potencialize sua confecção.">
+    <title>Marketplace | Vestalize - Design e Ferramentas para Confecção</title>
+    <meta name="description" content="O marketplace definitivo para confecções. Contrate designers, compre ferramentas de modelagem e potencialize sua produção com o Vestalize.">
+    <meta name="keywords" content="marketplace têxtil, designers de moda, ferramentas para confecção, modelagem digital, sublimação, DTF, design para camisetas">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ route('marketplace.home') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    {{-- Open Graph / Facebook --}}
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ route('marketplace.home') }}">
+    <meta property="og:title" content="Marketplace Vestalize | Design e Ferramentas">
+    <meta property="og:description" content="Contrate especialistas e compre ferramentas digitais para sua confecção em um só lugar.">
+    <meta property="og:image" content="{{ asset('images/landing/marketplace-showcase.png') }}">
+
+    {{-- Twitter Card --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Marketplace Vestalize | Design e Ferramentas">
+    <meta name="twitter:description" content="O maior ecossistema de design e ferramentas para a indústria têxtil.">
+    <meta name="twitter:image" content="{{ asset('images/landing/marketplace-showcase.png') }}">
     
     {{-- Favicon --}}
     <link rel="icon" type="image/svg+xml" href="{{ asset('vestalize.svg') }}">
@@ -27,6 +43,18 @@
     {{-- Alpine.js --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
+    {{-- Schema.org Structured Data --}}
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "WebPage",
+        "name": "Marketplace Vestalize",
+        "description": "Contrate designers e compre ferramentas para sua confecção",
+        "url": "{{ route('marketplace.home') }}",
+        "image": "{{ asset('images/landing/marketplace-showcase.png') }}"
+    }
+    </script>
+
     <style>
         [x-cloak] { display: none !important; }
     </style>
@@ -182,6 +210,25 @@
                             <p class="text-xs text-muted mt-1">Desconto Assinantes</p>
                         </div>
                     </div>
+                </div>
+
+                {{-- Marketplace Preview --}}
+                <div class="mt-12 lg:mt-20 relative animate-fade-in-up delay-600">
+                    <div class="dashboard-preview">
+                        <div class="dashboard-preview-inner">
+                            <img 
+                                src="{{ asset('images/landing/marketplace-showcase.png') }}" 
+                                alt="Marketplace Vestalize - Designers e Ferramentas" 
+                                class="w-full h-auto"
+                            >
+                        </div>
+                    </div>
+                    
+                    {{-- Gradient overlay --}}
+                    <div class="hero-gradient-overlay"></div>
+
+                    {{-- Top glow --}}
+                    <div class="absolute top-0 inset-x-0 w-3/5 mx-auto h-20 rounded-full bg-purple-600 blur-[64px] opacity-40 -z-10"></div>
                 </div>
             </div>
         </section>

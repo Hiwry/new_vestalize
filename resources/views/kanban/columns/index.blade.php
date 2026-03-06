@@ -80,7 +80,7 @@
                             </a>
                             
                             @if($status->orders_count > 0)
-                            <button onclick="openMoveModal({{ $status->id }}, '{{ $status->name }}', {{ $status->orders_count }})"
+                            <button onclick="window.openMoveModal && window.openMoveModal({{ $status->id }}, '{{ $status->name }}', {{ $status->orders_count }})"
                                     class="px-3 py-1 text-sm bg-yellow-500 dark:bg-yellow-600 text-white rounded-md hover:bg-yellow-600 dark:hover:bg-yellow-700 transition" style="color: white !important;">
                                 Mover Pedidos
                             </button>
@@ -90,7 +90,7 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="button" 
-                                        onclick="openDeleteModal({{ $status->id }}, '{{ $status->name }}')"
+                                        onclick="window.openDeleteModal && window.openDeleteModal({{ $status->id }}, '{{ $status->name }}')"
                                         class="px-3 py-1 text-sm bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition
                                                {{ $status->orders_count > 0 ? 'opacity-50 cursor-not-allowed' : '' }}"
                                         {{ $status->orders_count > 0 ? 'disabled' : '' }}>
@@ -120,7 +120,7 @@
         <!-- Botão Salvar Ordem -->
         @if($statuses->count() > 1)
         <div class="mt-6 text-center">
-            <button onclick="saveOrder()" 
+            <button onclick="window.saveOrder && window.saveOrder()" 
                     class="px-6 py-2 bg-green-600 dark:bg-green-600 text-white rounded-md hover:bg-green-700 dark:hover:bg-green-700 transition" style="color: white !important;">
                 Salvar Ordem das Colunas
             </button>
@@ -151,11 +151,11 @@
                     </form>
                 </div>
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 flex justify-end space-x-3">
-                    <button onclick="closeMoveModal()" 
+                    <button onclick="window.closeMoveModal && window.closeMoveModal()" 
                             class="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                         Cancelar
                     </button>
-                    <button onclick="submitMove()" 
+                    <button onclick="window.submitMove && window.submitMove()" 
                             class="px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition">
                         Mover Pedidos
                     </button>
@@ -180,11 +180,11 @@
                     </p>
                 </div>
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 flex justify-end space-x-3">
-                    <button onclick="closeDeleteModal()" 
+                    <button onclick="window.closeDeleteModal && window.closeDeleteModal()" 
                             class="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                         Cancelar
                     </button>
-                    <button onclick="confirmDelete()" 
+                    <button onclick="window.confirmDelete && window.confirmDelete()" 
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition font-bold">
                         Sim, Excluir
                     </button>
@@ -255,6 +255,7 @@
                 alert('Erro ao salvar ordem das colunas: ' + error.message);
             });
         }
+        window.saveOrder = saveOrder;
 
         // Modal de mover pedidos
         let currentStatusId = null;
@@ -262,19 +263,35 @@
 
         function openMoveModal(statusId, statusName, ordersCount) {
             currentStatusId = statusId;
-            document.getElementById('moveCount').textContent = ordersCount;
-            document.getElementById('moveFromColumn').textContent = statusName;
-            document.getElementById('moveForm').action = `{{ url('kanban/columns') }}/${statusId}/move-orders`;
-            document.getElementById('moveModal').classList.remove('hidden');
+            const moveCount = document.getElementById('moveCount');
+            const moveFromColumn = document.getElementById('moveFromColumn');
+            const moveForm = document.getElementById('moveForm');
+            const moveModal = document.getElementById('moveModal');
+            if (!moveCount || !moveFromColumn || !moveForm || !moveModal) {
+                return;
+            }
+            moveCount.textContent = ordersCount;
+            moveFromColumn.textContent = statusName;
+            moveForm.action = `{{ url('kanban/columns') }}/${statusId}/move-orders`;
+            moveModal.classList.remove('hidden');
         }
+        window.openMoveModal = openMoveModal;
 
         function closeMoveModal() {
-            document.getElementById('moveModal').classList.add('hidden');
+            const moveModal = document.getElementById('moveModal');
+            if (!moveModal) {
+                return;
+            }
+            moveModal.classList.add('hidden');
             currentStatusId = null;
         }
+        window.closeMoveModal = closeMoveModal;
 
         function submitMove() {
             const form = document.getElementById('moveForm');
+            if (!form) {
+                return;
+            }
             const targetStatusId = form.target_status_id.value;
             
             if (!targetStatusId) {
@@ -284,24 +301,41 @@
 
             form.submit();
         }
+        window.submitMove = submitMove;
 
         // Modal de Deletar
         function openDeleteModal(statusId, statusName) {
             statusToDelete = statusId;
-            document.getElementById('deleteColumnName').textContent = statusName;
-            document.getElementById('deleteModal').classList.remove('hidden');
+            const deleteColumnName = document.getElementById('deleteColumnName');
+            const deleteModal = document.getElementById('deleteModal');
+            if (!deleteColumnName || !deleteModal) {
+                return;
+            }
+            deleteColumnName.textContent = statusName;
+            deleteModal.classList.remove('hidden');
         }
+        window.openDeleteModal = openDeleteModal;
 
         function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.add('hidden');
+            const deleteModal = document.getElementById('deleteModal');
+            if (!deleteModal) {
+                return;
+            }
+            deleteModal.classList.add('hidden');
             statusToDelete = null;
         }
+        window.closeDeleteModal = closeDeleteModal;
 
         function confirmDelete() {
             if (statusToDelete) {
-                document.getElementById('delete-form-' + statusToDelete).submit();
+                const deleteForm = document.getElementById('delete-form-' + statusToDelete);
+                if (!deleteForm) {
+                    return;
+                }
+                deleteForm.submit();
             }
         }
+        window.confirmDelete = confirmDelete;
 
         // Fechar modais ao clicar fora
         window.addEventListener('click', function(e) {

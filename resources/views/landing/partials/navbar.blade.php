@@ -23,8 +23,8 @@
             <a href="#pricing" class="text-sm text-muted hover:text-foreground font-medium transition-colors px-3 py-1.5">
                 Planos
             </a>
-            <a href="{{ route('marketplace.home') }}" class="text-sm text-muted hover:text-foreground font-medium transition-colors px-3 py-1.5 flex items-center gap-1.5">
-                <span class="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+            <a href="{{ route('marketplace.home') }}" class="text-sm text-muted hover:text-foreground font-medium transition-colors px-3 py-1.5 flex items-center gap-2">
+                <i class="fa-solid fa-store text-primary text-xs"></i>
                 Marketplace
             </a>
         </nav>
@@ -86,7 +86,8 @@
         <a href="#pricing" @click="mobileOpen = false" class="block py-2 text-muted hover:text-foreground">
             Planos
         </a>
-        <a href="{{ route('marketplace.home') }}" class="block py-2 text-primary font-bold">
+        <a href="{{ route('marketplace.home') }}" class="py-2 text-primary font-bold flex items-center gap-2">
+            <i class="fa-solid fa-store text-xs"></i>
             Marketplace
         </a>
         <a href="{{ route('login') }}" class="block py-2 text-muted hover:text-foreground">

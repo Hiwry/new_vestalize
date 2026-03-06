@@ -137,7 +137,18 @@
                 <tbody>
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                         <td class="text-left font-semibold text-gray-900 dark:text-gray-100">
-                            {{ $group['color']['name'] ?? '-' }}
+                            @php
+                                $colorHex = $group['color']['hex'] ?? null;
+                                $colorSwatch = (is_string($colorHex) && preg_match('/^#?[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/', trim($colorHex)))
+                                    ? ('#' . ltrim(trim($colorHex), '#'))
+                                    : '#6b7280';
+                            @endphp
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-3.5 h-3.5 rounded-full border border-white/30 dark:border-gray-500 shadow-sm"
+                                      style="background-color: {{ $colorSwatch }};"
+                                      title="{{ $group['color']['name'] ?? '-' }}"></span>
+                                <span>{{ $group['color']['name'] ?? '-' }}</span>
+                            </div>
                         </td>
                         @foreach($sizes as $sizeCol)
                         <td class="stock-cell">

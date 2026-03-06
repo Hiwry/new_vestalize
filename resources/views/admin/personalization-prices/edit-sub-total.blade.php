@@ -80,6 +80,97 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
+        <!-- Tipos de Produto SUB.TOTAL -->
+        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 border border-gray-200 dark:border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Tipos de Produto (SUB. TOTAL)</h2>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Adicione aqui tipos como Conjunto Esportivo, Bandeira e Winderbanner.</p>
+                    </div>
+                    <a href="{{ route('admin.personalization-prices.edit', 'SUB. TOTAL') }}"
+                       class="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        Atualizar
+                    </a>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-4">
+                @php
+                    $productTypes = collect($productTypes ?? []);
+                    $existingTypeNames = $productTypes->map(function ($typeItem) {
+                        return mb_strtolower(trim($typeItem->name ?? ''));
+                    })->toArray();
+                    $quickTypeNames = ['Conjunto Esportivo', 'Bandeira', 'Winderbanner'];
+                @endphp
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    @foreach($quickTypeNames as $quickName)
+                        @php $alreadyExists = in_array(mb_strtolower($quickName), $existingTypeNames, true); @endphp
+                        @if($alreadyExists)
+                            <div class="px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-xs font-medium text-emerald-700 dark:text-emerald-300 text-center">
+                                {{ $quickName }} ja cadastrado
+                            </div>
+                        @else
+                            <form method="POST" action="{{ route('admin.sublimation-products.types.store') }}">
+                                @csrf
+                                <input type="hidden" name="name" value="{{ $quickName }}">
+                                <button type="submit"
+                                        class="w-full px-3 py-2 rounded-lg border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20 text-xs font-semibold text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors">
+                                    + {{ $quickName }}
+                                </button>
+                            </form>
+                        @endif
+                    @endforeach
+                </div>
+
+                <form method="POST" action="{{ route('admin.sublimation-products.types.store') }}" class="flex flex-col sm:flex-row gap-2">
+                    @csrf
+                    <input type="text" name="name" placeholder="Novo tipo (ex: Regata, Cropped, etc)"
+                           class="flex-1 px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all"
+                           required maxlength="100">
+                    <button type="submit"
+                            class="inline-flex items-center justify-center px-4 py-2 bg-purple-600 dark:bg-purple-600 text-white stay-white text-sm font-medium rounded-md hover:bg-purple-700 dark:hover:bg-purple-700 transition-colors">
+                        Adicionar Tipo
+                    </button>
+                </form>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                    @forelse($productTypes as $productType)
+                        <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 p-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $productType->name }}</p>
+                                    <p class="text-[11px] text-gray-500 dark:text-gray-400">{{ $productType->slug }}</p>
+                                </div>
+                                @if($productType->tenant_id === auth()->user()->tenant_id)
+                                    <form method="POST" action="{{ route('admin.sublimation-products.types.destroy', $productType) }}" onsubmit="return confirm('Excluir tipo {{ $productType->name }}?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" title="Excluir tipo">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                            <div class="mt-3">
+                                <a href="{{ route('admin.sublimation-products.edit-type', $productType->slug) }}"
+                                   class="inline-flex items-center justify-center w-full px-3 py-2 rounded-md bg-purple-600 dark:bg-purple-600 text-white stay-white text-xs font-semibold hover:bg-purple-700 dark:hover:bg-purple-700 transition-colors">
+                                    Configurar Faixas e Adicionais
+                                </a>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="md:col-span-2 xl:col-span-3 text-center py-8 text-sm text-gray-500 dark:text-gray-400 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+                            Nenhum tipo de SUB. TOTAL cadastrado ainda.
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+        
         <!-- Preços Base (CACHARREL/PP) -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 border border-gray-200 dark:border-gray-700">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
@@ -349,17 +440,39 @@
     // Adicionais disponíveis para a calculadora
     const availableAddons = @json($addons->toArray());
 
+    function hasSubTotalCalculatorElements() {
+        return !!(
+            document.getElementById('base-prices-form') &&
+            document.getElementById('addons-form') &&
+            document.getElementById('calc-quantity') &&
+            document.getElementById('calc-addons')
+        );
+    }
+
     function initSubTotalPricesPage() {
+        if (!hasSubTotalCalculatorElements()) {
+            return;
+        }
         loadCalculatorAddons();
         updateCalculator();
     }
 
+    if (window.__subTotalDomInitHandler) {
+        document.removeEventListener('DOMContentLoaded', window.__subTotalDomInitHandler);
+    }
+    if (window.__subTotalAjaxInitHandler) {
+        document.removeEventListener('ajax-content-loaded', window.__subTotalAjaxInitHandler);
+    }
+
+    window.__subTotalDomInitHandler = initSubTotalPricesPage;
+    window.__subTotalAjaxInitHandler = initSubTotalPricesPage;
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initSubTotalPricesPage);
+        document.addEventListener('DOMContentLoaded', window.__subTotalDomInitHandler, { once: true });
     } else {
         initSubTotalPricesPage();
     }
-    document.addEventListener('ajax-content-loaded', initSubTotalPricesPage);
+    document.addEventListener('ajax-content-loaded', window.__subTotalAjaxInitHandler);
 
     // Funções para preços base
     function addBasePriceRow() {
@@ -505,7 +618,12 @@
     // Calculadora
     function loadCalculatorAddons() {
         const select = document.getElementById('calc-addons');
+        if (!select) return;
         select.innerHTML = '';
+
+        if (!Array.isArray(availableAddons)) {
+            return;
+        }
         
         availableAddons.forEach(addon => {
             const option = document.createElement('option');
@@ -517,8 +635,19 @@
     }
 
     async function updateCalculator() {
-        const quantity = parseInt(document.getElementById('calc-quantity').value) || 1;
-        const selectedAddonIds = Array.from(document.getElementById('calc-addons').selectedOptions).map(option => option.value);
+        const quantityInput = document.getElementById('calc-quantity');
+        const addonsSelect = document.getElementById('calc-addons');
+        const basePriceEl = document.getElementById('calc-base-price');
+        const addonsPriceEl = document.getElementById('calc-addons-price');
+        const totalPriceEl = document.getElementById('calc-total-price');
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+
+        if (!quantityInput || !addonsSelect || !basePriceEl || !addonsPriceEl || !totalPriceEl) {
+            return;
+        }
+
+        const quantity = parseInt(quantityInput.value) || 1;
+        const selectedAddonIds = Array.from(addonsSelect.selectedOptions).map(option => option.value);
         
         // Buscar preço base da API
         let basePrice = 0;
@@ -526,7 +655,7 @@
             const response = await fetch(`/api/personalization-prices/price?type=SUB. TOTAL&size=CACHARREL&quantity=${quantity}`, {
                 headers: {
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    'X-CSRF-TOKEN': csrfMeta ? csrfMeta.content : ''
                 }
             });
             
@@ -554,9 +683,9 @@
         const totalPrice = basePrice + addonsTotal;
         
         // Atualizar display
-        document.getElementById('calc-base-price').textContent = `R$ ${basePrice.toFixed(2).replace('.', ',')}`;
-        document.getElementById('calc-addons-price').textContent = `R$ ${addonsTotal.toFixed(2).replace('.', ',')}`;
-        document.getElementById('calc-total-price').textContent = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+        basePriceEl.textContent = `R$ ${basePrice.toFixed(2).replace('.', ',')}`;
+        addonsPriceEl.textContent = `R$ ${addonsTotal.toFixed(2).replace('.', ',')}`;
+        totalPriceEl.textContent = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
     }
 
     // Expor funções para uso em handlers inline (onclick/onchange) e navegação AJAX
@@ -568,3 +697,4 @@
 </script>
 @endpush
 @endsection
+

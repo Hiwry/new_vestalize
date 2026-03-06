@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <script>
@@ -54,7 +54,7 @@
 })();
 </script>
 <style>
-/* Animações Premium */
+/* AnimaÃ§Ãµes Premium */
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
@@ -73,22 +73,147 @@
 .hover-lift { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -8px rgba(0,0,0,0.15); }
 
+/* Dashboard visual parity */
+.sewing-dashboard-shell {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 1rem 1rem 1.5rem;
+}
+
+.sewing-dashboard-shell .glass-card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: var(--shadow) !important;
+}
+
+/* Host card must not trap fixed wizard modal */
+.wizard-host-card {
+    overflow: visible !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.sewing-dashboard-shell .sewing-ui-surface {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: var(--shadow) !important;
+}
+
+.sewing-dashboard-shell .sewing-ui-muted {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--border) !important;
+}
+
+.sewing-dashboard-shell .text-ui-primary { color: var(--foreground) !important; }
+.sewing-dashboard-shell .text-ui-muted { color: var(--muted) !important; }
+
+@media (min-width: 640px) {
+    .sewing-dashboard-shell {
+        padding: 1.25rem 1.5rem 1.75rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .sewing-dashboard-shell {
+        padding: 1.25rem 2rem 2rem;
+    }
+}
+
 /* Mobile responsiveness */
 @media (max-width: 640px) {
     .size-grid-mobile { grid-template-columns: repeat(5, 1fr) !important; gap: 0.375rem !important; }
     .size-grid-mobile input { padding: 0.375rem !important; font-size: 12px !important; }
     .size-grid-mobile label { font-size: 10px !important; }
 }
+
+/* Wizard modal comfort */
+.sewing-wizard-panel {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    border-radius: 1.25rem !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#wizard-content {
+    overscroll-behavior: contain;
+    min-height: 0;
+}
+
+#sewing-wizard-modal {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 10000 !important;
+    overflow: hidden !important;
+}
+
+#sewing-wizard-modal .wizard-overlay {
+    position: absolute;
+    inset: 0;
+}
+
+#sewing-wizard-modal .wizard-frame {
+    position: absolute;
+    z-index: 1;
+    top: 10vh;
+    bottom: 10vh;
+    left: calc(var(--sidebar-width, 0px) + ((100vw - var(--sidebar-width, 0px)) * 0.1));
+    right: calc((100vw - var(--sidebar-width, 0px)) * 0.1);
+    min-width: 0;
+}
+
+@media (max-width: 1023px) {
+    #sewing-wizard-modal .wizard-frame {
+        top: 6vh;
+        bottom: 6vh;
+        left: 1rem;
+        right: 1rem;
+    }
+}
+
+#sewing-wizard-modal .sewing-wizard-panel {
+    background: var(--card-bg) !important;
+    border-color: var(--border) !important;
+    box-shadow: var(--shadow) !important;
+}
+
+#sewing-wizard-modal .wizard-head,
+#sewing-wizard-modal .wizard-foot {
+    background: color-mix(in srgb, var(--card-bg) 95%, transparent) !important;
+    border-color: var(--border) !important;
+}
+
+#sewing-wizard-modal .wizard-bar-track {
+    background: var(--input-bg) !important;
+}
+
+#wizard-options-personalizacao {
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 0.9rem;
+}
+
+.wizard-personalization-card {
+    min-height: 110px;
+}
+
+@media (max-width: 640px) {
+    .wizard-personalization-card {
+        min-height: 98px;
+    }
+}
 </style>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-0">
+<div class="sewing-dashboard-shell">
     <!-- Progress Bar Premium -->
     <div class="mb-6 sm:mb-8 animate-fade-in-up">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#7c3aed] text-white stay-white rounded-xl sm:rounded-2xl flex items-center justify-center text-sm sm:text-base font-black shadow-xl shadow-purple-500/30 animate-float">2</div>
                 <div>
-                    <span class="text-base sm:text-xl font-black text-gray-900 dark:text-white">Costura e <span class="text-[#7c3aed]">Personalização</span></span>
+                    <span class="text-base sm:text-xl font-black text-gray-900 dark:text-white">Costura e <span class="text-[#7c3aed]">PersonalizaÃ§Ã£o</span></span>
                     <p class="text-[10px] sm:text-xs text-gray-500 dark:text-slate-400 mt-0.5 font-bold uppercase tracking-widest">Etapa 2 de 5</p>
                 </div>
             </div>
@@ -114,18 +239,18 @@
 
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        <!-- Formulário de Adicionar Item -->
+        <!-- FormulÃ¡rio de Adicionar Item -->
         <div class="lg:col-span-2">
-            <div class="glass-card rounded-2xl sm:rounded-3xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-100 dark:border-slate-800 overflow-hidden animate-fade-in-up delay-100">
+            <div class="glass-card wizard-host-card sewing-ui-surface rounded-2xl sm:rounded-3xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-100 dark:border-slate-800 overflow-hidden">
                 <!-- Header Premium -->
-                <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 dark:border-slate-800 bg-white dark:from-slate-800/50 dark:to-slate-900/50">
+                <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 dark:border-slate-800 sewing-ui-surface">
                     <div class="flex items-center space-x-3">
                         <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#7c3aed] rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30 border border-[#7c3aed]">
                             <i class="fa-solid fa-plus text-white stay-white text-sm sm:text-base"></i>
                         </div>
                         <div>
-                            <h1 class="text-base sm:text-xl font-black text-gray-900 dark:text-white" id="form-title">Adicionar Novo Item</h1>
-                            <p class="text-[10px] sm:text-sm text-gray-500 dark:text-slate-400 mt-0.5 font-medium">Configure os detalhes do item de costura</p>
+                            <h1 class="text-base sm:text-xl font-black text-ui-primary" id="form-title">Adicionar Novo Item</h1>
+                            <p class="text-[10px] sm:text-sm text-ui-muted mt-0.5 font-medium">Configure os detalhes do item de costura</p>
                         </div>
                     </div>
                 </div>
@@ -136,27 +261,27 @@
                             <input type="hidden" name="action" value="add_item" id="form-action">
                             <input type="hidden" name="editing_item_id" value="" id="editing-item-id">
 
-                            <!-- Personalização agora é selecionada dentro do modal -->
+                            <!-- PersonalizaÃ§Ã£o agora Ã© selecionada dentro do modal -->
                             <div id="hidden-personalizacao-container"></div>
                             <!-- Campos escondidos para envio ao backend -->
                             <input type="hidden" name="quantity" id="quantity" value="0">
                             <input type="hidden" name="unit_price" id="unit_price" value="0">
                             <input type="hidden" name="unit_cost" id="unit_cost" value="0">
                             <input type="hidden" name="art_notes" id="art_notes" value="">
-                            <!-- Personalização movida para o Wizard (Etapa 1) -->
+                            <!-- PersonalizaÃ§Ã£o movida para o Wizard (Etapa 1) -->
 
                             <!-- Wizard Trigger / Main Configuration Card -->
-                            <div id="normal-wizard-trigger" class="p-5 bg-white dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700 space-y-3">
+                            <div id="normal-wizard-trigger" class="p-5 sewing-ui-surface rounded-lg border border-gray-200 dark:border-slate-700 space-y-3">
 
-                                <label class="block text-sm font-semibold text-gray-900 dark:text-white">Configuração do Item</label>
+                                <label class="block text-sm font-semibold text-ui-primary">Configuração do Item</label>
                                 
-                                <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 shadow-sm flex flex-col items-center justify-center text-center space-y-4">
+                                <div class="sewing-ui-muted rounded-xl border border-gray-200 dark:border-slate-700 p-6 shadow-sm flex flex-col items-center justify-center text-center space-y-4">
                                     <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-[#7c3aed] dark:text-purple-400 mb-2">
                                         <i class="fa-solid fa-layer-group text-3xl"></i>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg font-bold text-gray-900 dark:text-white" id="summary-title">Configurar Novo Item</h4>
-                                        <p class="text-sm text-gray-500 dark:text-slate-400 mt-1 max-w-md mx-auto" id="summary-desc">Clique abaixo para iniciar a configuração completa do item (Tecido, Modelo, Tamanhos, etc).</p>
+                                        <h4 class="text-lg font-bold text-ui-primary" id="summary-title">Configurar Novo Item</h4>
+                                        <p class="text-sm text-ui-muted mt-1 max-w-md mx-auto" id="summary-desc">Clique abaixo para iniciar a configuraÃ§Ã£o completa do item (Tecido, Modelo, Tamanhos, etc).</p>
                                     </div>
                                     <button type="button" onclick="openSewingWizard()" class="px-6 py-3 bg-white text-[#7c3aed] border border-[#7c3aed] font-bold rounded-xl shadow-lg shadow-purple-500/10 hover:bg-purple-50 transition-all transform hover:scale-105">
                                         Iniciar Configuração
@@ -197,145 +322,235 @@
                                 </div>
                             </div>
 
-                            <!-- SUBLIMAÇÃO FULLPAGE FORM (Hidden - Shows when SUB.TOTAL is selected) -->
+                            <!-- SUBLIMAÃ‡ÃƒO FULLPAGE FORM (Hidden - Shows when SUB.TOTAL is selected) -->
                             <div id="sublimation-fullpage-form" class="hidden">
-                                <div class="p-5 bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700">
+                                <div class="p-4 sm:p-5 bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700">
                                     <!-- Header -->
-                                    <div class="flex items-center justify-between mb-5 pb-4 border-b border-gray-100 dark:border-slate-800">
+                                    <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-100 dark:border-slate-800">
                                         <div>
                                             <h3 class="text-lg font-bold text-gray-900 dark:text-white">Sublimação Total</h3>
-                                            <p class="text-sm text-gray-500 dark:text-slate-400">Configure os detalhes do item</p>
+                                            <p id="fullpage-step-subtitle" class="text-sm text-gray-500 dark:text-slate-400">Etapa 1 de 3 · Configuração</p>
                                         </div>
                                         <button type="button" onclick="hideSubFullpageForm()" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 transition-colors">
                                             <i class="fa-solid fa-times"></i>
                                         </button>
                                     </div>
 
-                                    <!-- Form Grid -->
-                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                                        <!-- Left Column -->
-                                        <div class="space-y-4">
-                                            <!-- Tipo de Produto -->
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Tipo de Produto *</label>
-                                                <select id="fullpage_sub_type" onchange="loadFullpageSubAddons()" class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400 focus:border-gray-400">
-                                                    <option value="">Selecione o tipo</option>
-                                                    @if(isset($sublimationTypes))
-                                                    @foreach($sublimationTypes as $type)
-                                                    <option value="{{ $type->slug }}">{{ $type->name }}</option>
-                                                    @endforeach
-                                                    @endif
-                                                </select>
-                                            </div>
+                                    <!-- Stepper -->
+                                    <div id="fullpage-step-indicator" class="grid grid-cols-3 gap-2 sm:gap-3 mb-5">
+                                        <div data-step="1" class="fullpage-step-chip flex items-center gap-2 px-3 py-2 rounded-lg border border-[#7c3aed]/40 bg-[#7c3aed]/10 text-[#7c3aed]">
+                                            <span class="w-6 h-6 rounded-full bg-[#7c3aed] text-white text-xs font-bold flex items-center justify-center">1</span>
+                                            <span class="text-xs sm:text-sm font-semibold">Configuração</span>
+                                        </div>
+                                        <div data-step="2" class="fullpage-step-chip flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400">
+                                            <span class="w-6 h-6 rounded-full bg-gray-200 dark:bg-slate-700 text-[11px] font-bold flex items-center justify-center">2</span>
+                                            <span class="text-xs sm:text-sm font-semibold">Produção</span>
+                                        </div>
+                                        <div data-step="3" class="fullpage-step-chip flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400">
+                                            <span class="w-6 h-6 rounded-full bg-gray-200 dark:bg-slate-700 text-[11px] font-bold flex items-center justify-center">3</span>
+                                            <span class="text-xs sm:text-sm font-semibold">Revisão</span>
+                                        </div>
+                                    </div>
 
-                                            <!-- Nome da Arte -->
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Nome da Arte *</label>
-                                                <input type="text" id="fullpage_art_name" placeholder="Ex: Logo Empresa ABC" class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400">
-                                            </div>
-
-                                            <!-- Adicionais -->
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Adicionais</label>
-                                                <div id="fullpage-sub-addons" class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-2 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
-                                                    <p class="text-sm text-gray-400 col-span-full text-center py-2">Selecione um tipo primeiro</p>
-                                                </div>
-                                            </div>
-
-                                            <!-- Arquivos -->
-                                            <div class="grid grid-cols-2 gap-3">
+                                    <div class="space-y-5">
+                                        <!-- Step 1 -->
+                                        <div id="fullpage-step-1" class="fullpage-sub-step space-y-4">
+                                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                                 <div>
-                                                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Arquivo Corel</label>
-                                                    <label class="flex flex-col items-center justify-center w-full h-16 border border-dashed border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
-                                                        <i class="fa-solid fa-upload text-gray-400 text-sm mb-0.5"></i>
-                                                        <span class="text-xs text-gray-500">.CDR, .AI, .PDF</span>
-                                                        <input type="file" id="fullpage_corel_file" class="hidden" accept=".cdr,.ai,.pdf,.eps">
-                                                    </label>
+                                                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Tipo de Produto *</label>
+                                                    <select id="fullpage_sub_type" onchange="loadFullpageSubAddons()" class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400 focus:border-gray-400">
+                                                        <option value="">Selecione o tipo</option>
+                                                        @if(isset($sublimationTypes))
+                                                        @foreach($sublimationTypes as $type)
+                                                        <option value="{{ $type->slug }}">{{ $type->name }}</option>
+                                                        @endforeach
+                                                        @endif
+                                                    </select>
                                                 </div>
                                                 <div>
-                                                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Imagem Capa</label>
-                                                    <label class="flex flex-col items-center justify-center w-full h-16 border border-dashed border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
-                                                        <i class="fa-solid fa-image text-gray-400 text-sm mb-0.5"></i>
-                                                        <span class="text-xs text-gray-500">PNG, JPG</span>
-                                                        <input type="file" id="fullpage_cover_image" class="hidden" accept="image/*">
-                                                    </label>
+                                                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Nome da Arte *</label>
+                                                    <input type="text" id="fullpage_art_name" placeholder="Ex: Logo Empresa ABC" class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400">
                                                 </div>
                                             </div>
 
-                                            <!-- Observações -->
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Observações</label>
-                                                <textarea id="fullpage_notes" rows="2" placeholder="Observações para produção..." class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400"></textarea>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Tecido *</label>
+                                                    <select id="fullpage_sub_fabric_type" onchange="toggleFullpageSpecialFabric(); calculateFullpageSubTotal();" class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400 focus:border-gray-400">
+                                                        <option value="">Selecione</option>
+                                                        <option value="PP">PP</option>
+                                                        <option value="CACHARREL">CACHARREL</option>
+                                                        <option value="OUTRO">OUTRO TECIDO</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Modelo *</label>
+                                                    <select id="fullpage_sub_model" class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400 focus:border-gray-400">
+                                                        <option value="">Selecione</option>
+                                                        <option value="BASICA">BASICA</option>
+                                                        <option value="BABYLOOK">BABYLOOK</option>
+                                                        <option value="INFANTIL">INFANTIL</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div id="fullpage-special-fabric-fields" class="hidden p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800 space-y-3">
+                                                <div>
+                                                    <label class="block text-xs font-semibold text-yellow-700 dark:text-yellow-300 mb-1">Nome do Tecido</label>
+                                                    <input type="text" id="fullpage_sub_fabric_custom" placeholder="Ex: PP Elastano Alure" class="w-full px-3 py-2 rounded-lg border border-yellow-300 dark:border-yellow-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-yellow-500">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-semibold text-yellow-700 dark:text-yellow-300 mb-1">Acrescimo por tecido especial (R$)</label>
+                                                    <input type="number" id="fullpage_sub_fabric_surcharge" value="10.00" step="0.01" min="0" oninput="calculateFullpageSubTotal()" class="w-full px-3 py-2 rounded-lg border border-yellow-300 dark:border-yellow-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-yellow-500">
+                                                </div>
+                                            </div>
+
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-300 mb-1">Cor do Tecido</label>
+                                                    <input type="text" id="fullpage_sub_fabric_color" value="BRANCO" readonly class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white text-sm">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-300 mb-1">Gola Padrão</label>
+                                                    <input type="text" id="fullpage_sub_base_collar" value="REDONDA" readonly class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white text-sm">
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <!-- Right Column -->
-                                        <div class="space-y-4">
-                                            <!-- Tamanhos Grade -->
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Tamanhos e Quantidades</label>
-                                                <div class="grid grid-cols-5 gap-2 mb-2">
-                                                    @foreach(['PP', 'P', 'M', 'G', 'GG'] as $size)
-                                                    <div class="text-center">
-                                                        <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">{{ $size }}</label>
-                                                        <input type="number" data-size="{{ $size }}" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-1 py-2 border border-gray-300 dark:border-slate-600 rounded text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-gray-400">
+                                        <!-- Step 2 -->
+                                        <div id="fullpage-step-2" class="fullpage-sub-step hidden space-y-4">
+                                            <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                                                <div class="xl:col-span-2 space-y-4">
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Tamanhos e Quantidades</label>
+                                                        <div class="grid grid-cols-5 gap-2 mb-2">
+                                                            @foreach(['PP', 'P', 'M', 'G', 'GG'] as $size)
+                                                            <div class="text-center">
+                                                                <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">{{ $size }}</label>
+                                                                <input type="number" data-size="{{ $size }}" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-1 py-2 border border-gray-300 dark:border-slate-600 rounded text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-gray-400">
+                                                            </div>
+                                                            @endforeach
+                                                        </div>
+                                                        <div class="grid grid-cols-5 gap-2">
+                                                            @foreach(['EXG', 'G1', 'G2', 'G3', 'Esp.'] as $size)
+                                                            <div class="text-center">
+                                                                <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">{{ $size }}</label>
+                                                                <input type="number" data-size="{{ $size == 'Esp.' ? 'Especial' : $size }}" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-1 py-2 border border-gray-300 dark:border-slate-600 rounded text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-gray-400">
+                                                            </div>
+                                                            @endforeach
+                                                        </div>
                                                     </div>
-                                                    @endforeach
-                                                </div>
-                                                <div class="grid grid-cols-5 gap-2">
-                                                    @foreach(['EXG', 'G1', 'G2', 'G3', 'Esp.'] as $size)
-                                                    <div class="text-center">
-                                                        <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">{{ $size }}</label>
-                                                        <input type="number" data-size="{{ $size == 'Esp.' ? 'Especial' : $size }}" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-1 py-2 border border-gray-300 dark:border-slate-600 rounded text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-gray-400">
+
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Adicionais</label>
+                                                        <div id="fullpage-sub-addons" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
+                                                            <p class="text-sm text-gray-400 col-span-full text-center py-2">Selecione um tipo primeiro</p>
+                                                        </div>
                                                     </div>
-                                                    @endforeach
+
+                                                    <div class="p-3 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
+                                                        <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                                                            <input type="checkbox" id="fullpage_has_addon_colors" onchange="renderFullpageAddonColorFields()" class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500">
+                                                            Terá cor nos adicionais?
+                                                        </label>
+                                                        <div id="fullpage-addon-color-fields" class="hidden space-y-2"></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="space-y-3">
+                                                    <div class="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700 text-center">
+                                                        <span class="block text-xs text-gray-500 dark:text-slate-400 mb-0.5">Total de Peças</span>
+                                                        <span class="text-2xl font-bold text-gray-900 dark:text-white" id="fullpage-total-qty">0</span>
+                                                    </div>
+                                                    <div class="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700 text-center">
+                                                        <span class="block text-xs text-gray-500 dark:text-slate-400 mb-0.5">Preço Unitário</span>
+                                                        <span class="text-xl font-bold text-gray-900 dark:text-white" id="fullpage-unit-price">R$ 0,00</span>
+                                                    </div>
+                                                    <div class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg text-center border border-gray-200 dark:border-slate-700">
+                                                        <span class="block text-sm text-gray-600 dark:text-slate-400 mb-1">Total do Item</span>
+                                                        <span class="text-3xl font-bold text-gray-900 dark:text-white" id="fullpage-total-price">R$ 0,00</span>
+                                                        <p id="fullpage-price-breakdown" class="text-xs text-gray-500 dark:text-slate-400 mt-1">Base R$ 0,00 + Adicionais R$ 0,00 + Tecido R$ 0,00</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Step 3 -->
+                                        <div id="fullpage-step-3" class="fullpage-sub-step hidden space-y-4">
+                                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                                <div class="space-y-3">
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Arquivo Corel</label>
+                                                        <label class="flex flex-col items-center justify-center w-full h-20 border border-dashed border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                                                            <i class="fa-solid fa-upload text-gray-400 text-sm mb-0.5"></i>
+                                                            <span class="text-xs text-gray-500">.CDR, .AI, .PDF</span>
+                                                            <input type="file" id="fullpage_corel_file" class="hidden" accept=".cdr,.ai,.pdf,.eps">
+                                                        </label>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Imagem Capa</label>
+                                                        <label class="flex flex-col items-center justify-center w-full h-20 border border-dashed border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                                                            <i class="fa-solid fa-image text-gray-400 text-sm mb-0.5"></i>
+                                                            <span class="text-xs text-gray-500">PNG, JPG</span>
+                                                            <input type="file" id="fullpage_cover_image" class="hidden" accept="image/*">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="space-y-3">
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Observações</label>
+                                                        <textarea id="fullpage_notes" rows="6" placeholder="Observações para produção..." class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400"></textarea>
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                            <!-- Totais -->
-                                            <div class="grid grid-cols-2 gap-3 pt-2">
-                                                <div class="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700 text-center">
-                                                    <span class="block text-xs text-gray-500 dark:text-slate-400 mb-0.5">Total de Peças</span>
-                                                    <span class="text-2xl font-bold text-gray-900 dark:text-white" id="fullpage-total-qty">0</span>
+                                            <div class="p-4 rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/60">
+                                                <p class="text-sm text-gray-600 dark:text-slate-300 mb-2">Resumo final</p>
+                                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
+                                                    <div class="text-gray-700 dark:text-slate-300">Peças: <span id="fullpage-total-qty-review" class="font-semibold text-gray-900 dark:text-white">0</span></div>
+                                                    <div class="text-gray-700 dark:text-slate-300">Unitário: <span id="fullpage-unit-price-review" class="font-semibold text-gray-900 dark:text-white">R$ 0,00</span></div>
+                                                    <div class="text-gray-700 dark:text-slate-300">Total: <span id="fullpage-total-price-review" class="font-semibold text-gray-900 dark:text-white">R$ 0,00</span></div>
                                                 </div>
-                                                <div class="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700 text-center">
-                                                    <span class="block text-xs text-gray-500 dark:text-slate-400 mb-0.5">Preço Unitário</span>
-                                                    <span class="text-xl font-bold text-gray-900 dark:text-white" id="fullpage-unit-price">R$ 0,00</span>
-                                                </div>
+                                                <p id="fullpage-price-breakdown-review" class="text-xs text-gray-500 dark:text-slate-400 mt-2">Base R$ 0,00 + Adicionais R$ 0,00 + Tecido R$ 0,00</p>
                                             </div>
+                                        </div>
+                                    </div>
 
-                                            <!-- Total Final -->
-                                            <div class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg text-center border border-gray-200 dark:border-slate-700">
-                                                <span class="block text-sm text-gray-600 dark:text-slate-400 mb-1">Total do Item</span>
-                                                <span class="text-3xl font-bold text-gray-900 dark:text-white" id="fullpage-total-price">R$ 0,00</span>
-                                            </div>
+                                    <!-- Footer Nav -->
+                                    <div class="mt-6 pt-4 border-t border-gray-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                        <button id="fullpage-step-prev" type="button" onclick="goToPrevFullpageSubStep()" class="hidden w-full sm:w-auto px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
+                                            <i class="fa-solid fa-arrow-left mr-1"></i>
+                                            Voltar
+                                        </button>
 
+                                        <div class="w-full sm:w-auto sm:ml-auto flex gap-2">
+                                            <button id="fullpage-step-next" type="button" onclick="goToNextFullpageSubStep()" class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-[#7c3aed] text-white font-semibold hover:bg-[#6d28d9] transition-colors">
+                                                Próxima
+                                                <i class="fa-solid fa-arrow-right ml-1"></i>
+                                            </button>
 
-                                            <!-- Botão Adicionar -->
-                                            <button type="button" onclick="submitFullpageSubItem()" class="w-full py-3 bg-white hover:bg-gray-50 border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                                            <button id="fullpage-step-submit" type="button" onclick="submitFullpageSubItem()" class="hidden w-full sm:w-auto px-5 py-2.5 rounded-lg bg-white hover:bg-gray-50 border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 font-semibold transition-colors flex items-center justify-center gap-2">
                                                 <i class="fa-solid fa-plus"></i>
                                                 Adicionar Item
                                             </button>
-
-
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
 
-                            <div id="sewing-wizard-modal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
+                            <div id="sewing-wizard-modal" class="fixed inset-0 z-[10000] hidden" role="dialog" aria-modal="true">
 
                                 <!-- Backdrop -->
-                                <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
+                                <div class="wizard-overlay bg-black/60 backdrop-blur-sm transition-opacity" 
                                      onclick="closeSewingWizard()"></div>
 
                                 <!-- Modal Panel -->
-                                <div class="absolute inset-0 flex items-center justify-center p-2 sm:p-4">
-                                    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-5xl max-h-[88vh] flex flex-col overflow-hidden transform transition-all animate-fade-in-up border border-gray-200 dark:border-slate-700">
+                                <div class="wizard-frame">
+                                    <div class="sewing-wizard-panel bg-white dark:bg-slate-900 rounded-none shadow-xl w-full h-full max-w-none max-h-none overflow-hidden transition-all animate-fade-in-up border border-gray-200 dark:border-slate-700">
                                         
                                         <!-- Header -->
-                                        <div class="px-6 py-3 flex-none border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-gray-50/50 dark:bg-slate-800/50">
+                                        <div class="wizard-head px-5 sm:px-6 lg:px-8 py-3 sm:py-4 flex-none border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-gray-50/50 dark:bg-slate-800/50">
                                             <div>
                                                 <h3 class="text-lg font-black text-gray-900 dark:text-white leading-tight">Configurar Modelo</h3>
                                                 <p class="text-[10px] text-gray-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5" id="wizard-step-title">Etapa 1 de 5</p>
@@ -346,25 +561,25 @@
                                         </div>
 
                                         <!-- Progress Bar -->
-                                        <div class="w-full bg-gray-100 dark:bg-slate-800 h-1 flex-none">
+                                        <div class="wizard-bar-track w-full bg-gray-100 dark:bg-slate-800 h-1 flex-none">
                                             <div id="wizard-progress" class="bg-[#7c3aed] h-full transition-all duration-300" style="width: 20%"></div>
                                         </div>
 
                                         <!-- Steps Content -->
-                                        <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-5 custom-scrollbar" id="wizard-content">
+                                        <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6 lg:p-7 custom-scrollbar" id="wizard-content">
                                             
-                                            <!-- Step 1: Personalização -->
+                                            <!-- Step 1: PersonalizaÃ§Ã£o -->
                                             <div id="step-1" class="wizard-step">
-                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Selecione a Personalização</h4>
-                                                <p class="text-xs text-gray-500 mb-4">Você pode selecionar múltiplas opções.</p>
-                                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="wizard-options-personalizacao">
+                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Selecione a PersonalizaÃ§Ã£o</h4>
+                                                <p class="text-xs text-gray-500 mb-4">VocÃª pode selecionar mÃºltiplas opÃ§Ãµes.</p>
+                                                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4" id="wizard-options-personalizacao">
                                                     <!-- Filled by JS -->
                                                 </div>
                                             </div>
 
-                                            <!-- Step SUB: Sublimação Total (shown when SUB.TOTAL is selected) -->
+                                            <!-- Step SUB: SublimaÃ§Ã£o Total (shown when SUB.TOTAL is selected) -->
                                             <div id="step-sub" class="wizard-step hidden">
-                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Configurar Sublimação Total</h4>
+                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Configurar SublimaÃ§Ã£o Total</h4>
                                                 
                                                 <div class="space-y-5">
                                                     <!-- Tipo de Produto SUB.TOTAL -->
@@ -397,7 +612,7 @@
                                                     <!-- Tamanhos e Quantidades -->
                                                     <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
                                                         <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Tamanhos e Quantidades</label>
-                                                        <div class="grid grid-cols-5 gap-3 mb-3">
+                                                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 mb-3">
                                                             <div>
                                                                 <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">PP</label>
                                                                 <input type="number" data-size="PP" min="0" value="0" onchange="calculateSubWizardTotal()" class="sub-wizard-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
@@ -419,7 +634,7 @@
                                                                 <input type="number" data-size="GG" min="0" value="0" onchange="calculateSubWizardTotal()" class="sub-wizard-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
                                                             </div>
                                                         </div>
-                                                        <div class="grid grid-cols-5 gap-3">
+                                                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
                                                             <div>
                                                                 <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">EXG</label>
                                                                 <input type="number" data-size="EXG" min="0" value="0" onchange="calculateSubWizardTotal()" class="sub-wizard-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
@@ -442,14 +657,14 @@
                                                             </div>
                                                         </div>
                                                         
-                                                        <!-- Total de Peças e Preço -->
-                                                        <div class="mt-4 grid grid-cols-2 gap-4">
+                                                        <!-- Total de PeÃ§as e PreÃ§o -->
+                                                        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                             <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-center">
-                                                                <span class="block text-xs text-gray-600 dark:text-slate-400 mb-1">Total de Peças</span>
+                                                                <span class="block text-xs text-gray-600 dark:text-slate-400 mb-1">Total de PeÃ§as</span>
                                                                 <span class="text-2xl font-black text-purple-600 dark:text-purple-400" id="sub-wizard-total-qty">0</span>
                                                             </div>
                                                             <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg text-center">
-                                                                <span class="block text-xs text-gray-600 dark:text-slate-400 mb-1">Preço Unitário</span>
+                                                                <span class="block text-xs text-gray-600 dark:text-slate-400 mb-1">PreÃ§o UnitÃ¡rio</span>
                                                                 <span class="text-2xl font-black text-green-600 dark:text-green-400" id="sub-wizard-unit-price">R$ 0,00</span>
                                                             </div>
                                                         </div>
@@ -475,10 +690,10 @@
                                                         </div>
                                                     </div>
 
-                                                    <!-- Observações -->
+                                                    <!-- ObservaÃ§Ãµes -->
                                                     <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
-                                                        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Observações</label>
-                                                        <textarea id="sub_wizard_notes" rows="2" placeholder="Observações importantes para a produção..." class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm"></textarea>
+                                                        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">ObservaÃ§Ãµes</label>
+                                                        <textarea id="sub_wizard_notes" rows="2" placeholder="ObservaÃ§Ãµes importantes para a produÃ§Ã£o..." class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm"></textarea>
                                                     </div>
 
                                                     <!-- Total Final -->
@@ -525,14 +740,14 @@
                                             <div id="step-4" class="wizard-step hidden">
                                                 <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Selecione o Tipo de Corte</h4>
                                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="wizard-options-corte">
-                                                    <div class="p-8 text-center text-gray-500">Carregando opções...</div>
+                                                    <div class="p-8 text-center text-gray-500">Carregando opÃ§Ãµes...</div>
                                                 </div>
                                             </div>
 
                                             <!-- Step 5: Detalhe -->
                                             <div id="step-5" class="wizard-step hidden">
                                                 <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-2">Selecione o(s) Detalhe(s)</h4>
-                                                <p class="text-[10px] text-gray-500 mb-3">Você pode selecionar múltiplos detalhes.</p>
+                                                <p class="text-[10px] text-gray-500 mb-3">VocÃª pode selecionar mÃºltiplos detalhes.</p>
                                                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 mb-4" id="wizard-options-detalhe">
                                                     <!-- Filled by JS -->
                                                 </div>
@@ -587,7 +802,7 @@
                                             <!-- Step 9: Tamanhos -->
                                             <div id="step-9" class="wizard-step hidden">
                                                 <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Defina os Tamanhos e Quantidades</h4>
-                                                <div class="grid grid-cols-5 gap-2 mb-4" id="wizard-sizes-grid">
+                                                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-4" id="wizard-sizes-grid">
                                                     <!-- Standard Sizes -->
                                                     @foreach(['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3', 'Especial'] as $size)
                                                     <div>
@@ -597,11 +812,11 @@
                                                     @endforeach
                                                 </div>
                                                 
-                                                 <!-- Checkbox para acréscimo independente (apenas para Infantil/Baby look) -->
+                                                 <!-- Checkbox para acrÃ©scimo independente (apenas para Infantil/Baby look) -->
                                                 <div id="wizard-surcharge-container" class="hidden mb-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                                                     <label class="flex items-center cursor-pointer">
                                                         <input type="checkbox" id="wizard_apply_surcharge" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]">
-                                                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Aplicar acréscimo de tamanho especial</span>
+                                                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Aplicar acrÃ©scimo de tamanho especial</span>
                                                     </label>
                                                 </div>
 
@@ -609,19 +824,19 @@
                                                 <div id="wizard-modeling-container" class="hidden mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                                                     <label class="flex items-center cursor-pointer">
                                                         <input type="checkbox" id="wizard_is_client_modeling" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]">
-                                                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Tamanho especial é pela modelagem do cliente?</span>
+                                                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Tamanho especial Ã© pela modelagem do cliente?</span>
                                                     </label>
                                                 </div>
                                                 
                                                 <div class="flex justify-between items-center bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl border border-purple-100 dark:border-purple-800/50">
-                                                    <span class="text-sm font-bold text-gray-700 dark:text-slate-300">Total de Peças:</span>
+                                                    <span class="text-sm font-bold text-gray-700 dark:text-slate-300">Total de PeÃ§as:</span>
                                                     <span class="text-2xl font-black text-[#7c3aed]" id="wizard-total-pieces">0</span>
                                                 </div>
                                             </div>
 
                                             <!-- Step 10: Imagem e Obs -->
                                             <div id="step-10" class="wizard-step hidden">
-                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Personalização e Detalhes Finais</h4>
+                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">PersonalizaÃ§Ã£o e Detalhes Finais</h4>
                                                 
                                                 <div class="space-y-5">
                                                     <!-- Image Upload -->
@@ -641,15 +856,15 @@
 
                                                     <!-- Notes -->
                                                     <div>
-                                                        <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">Observações</label>
-                                                        <textarea id="wizard_notes" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed]" placeholder="Alguma observação importante para a produção?"></textarea>
+                                                        <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">ObservaÃ§Ãµes</label>
+                                                        <textarea id="wizard_notes" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed]" placeholder="Alguma observaÃ§Ã£o importante para a produÃ§Ã£o?"></textarea>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <!-- Step 11: Resumo Final -->
                                             <div id="step-11" class="wizard-step hidden">
-                                                <h4 class="text-sm font-bold text-center text-gray-900 dark:text-white mb-6">Conferência Final</h4>
+                                                <h4 class="text-sm font-bold text-center text-gray-900 dark:text-white mb-6">ConferÃªncia Final</h4>
                                                 
                                                 <div class="bg-gray-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-gray-200 dark:border-slate-700 space-y-4">
                                                     <!-- Dynamic Summary List -->
@@ -667,7 +882,7 @@
                                                             <span class="font-bold text-gray-900 dark:text-white text-right" id="summary-modelo-val">-</span>
                                                         </div>
                                                          <div class="flex justify-between border-b border-gray-200 dark:border-slate-700 pb-2">
-                                                            <span class="text-gray-500 dark:text-slate-400">Peças:</span>
+                                                            <span class="text-gray-500 dark:text-slate-400">PeÃ§as:</span>
                                                             <span class="font-bold text-gray-900 dark:text-white text-right" id="summary-pecas-val">0</span>
                                                         </div>
                                                     </div>
@@ -679,7 +894,7 @@
                                                         <!-- Admin Only Unit Cost -->
                                                         <div class="flex justify-between items-center p-3 bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/30 rounded-lg mb-3" 
                                                              style="display: {{ auth()->user()->isAdmin() ? 'flex' : 'none' }}">
-                                                            <span class="text-red-600 dark:text-red-400 font-bold text-sm">Custo Unitário:</span>
+                                                            <span class="text-red-600 dark:text-red-400 font-bold text-sm">Custo UnitÃ¡rio:</span>
                                                             <div class="flex items-center">
                                                                 <span class="text-red-600 dark:text-red-400 font-bold mr-1">R$</span>
                                                                 <input type="number" id="wizard_unit_cost" class="w-20 bg-transparent text-right font-bold text-red-600 dark:text-red-400 border-none p-0 focus:ring-0" value="0.00" step="0.01">
@@ -687,7 +902,7 @@
                                                         </div>
 
                                                         <div class="flex justify-between items-center p-4 bg-white dark:bg-slate-900 border border-purple-200 dark:border-purple-900/30 rounded-xl shadow-sm">
-                                                            <span class="text-[#7c3aed] dark:text-purple-400 font-bold">Valor Unitário:</span>
+                                                            <span class="text-[#7c3aed] dark:text-purple-400 font-bold">Valor UnitÃ¡rio:</span>
                                                             <span class="text-2xl font-black text-[#7c3aed] dark:text-purple-400" id="wizard-final-price">R$ 0,00</span>
                                                         </div>
                                                     </div>
@@ -701,13 +916,13 @@
                                         </div>
 
                                         <!-- Footer -->
-                                        <div class="px-6 py-3 flex-none border-t border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/50 rounded-b-2xl">
+                                        <div class="wizard-foot px-5 sm:px-6 lg:px-8 py-3 sm:py-4 flex-none border-t border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/50 rounded-none">
                                             <button type="button" id="wizard-prev-btn" onclick="wizardPrevStep()" class="px-4 py-2 text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed">
-                                                ← Voltar
+                                                â† Voltar
                                             </button>
                                             <div class="flex gap-2">
                                                 <button type="button" id="wizard-next-btn" onclick="wizardNextStep()" class="px-6 py-2 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white text-sm font-bold rounded-lg transition-all shadow-md shadow-purple-500/20">
-                                                    Próximo
+                                                    PrÃ³ximo
                                                 </button>
                                             </div>
                                         </div>
@@ -717,7 +932,7 @@
 
                             <!-- Tamanhos (Moved above) -->
 
-                            <!-- <!-- Botões (Removido - controllado pelo Wizard) -->
+                            <!-- <!-- BotÃµes (Removido - controllado pelo Wizard) -->
                             <!-- <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-slate-700"> ... </div> -->
                         </form>
                     </div>
@@ -730,7 +945,7 @@
             </div>
         </div>
     </div>
-    <!-- Modal de Confirmação de Exclusão -->
+    <!-- Modal de ConfirmaÃ§Ã£o de ExclusÃ£o -->
     <div id="delete-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl max-w-md w-full border border-gray-200 dark:border-slate-700 transform transition-all scale-100 opacity-100">
             <div class="p-6 text-center">
@@ -740,7 +955,7 @@
                     </svg>
                 </div>
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Remover Item?</h3>
-                <p class="text-sm text-gray-500 dark:text-slate-400 mb-6">Esta ação não pode ser desfeita. O item será removido permanentemente do pedido.</p>
+                <p class="text-sm text-gray-500 dark:text-slate-400 mb-6">Esta aÃ§Ã£o nÃ£o pode ser desfeita. O item serÃ¡ removido permanentemente do pedido.</p>
                 <div class="flex justify-center space-x-3">
                     <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 font-medium transition-colors">
                         Cancelar
@@ -772,7 +987,7 @@
     };
     window.options = options;
 
-    // Ícones e cores específicos por tipo de personalização
+    // Ãcones e cores especÃ­ficos por tipo de personalizaÃ§Ã£o
     const personalizationIconMap = {
         dtf:            { icon: 'fa-print',        bubble: 'bg-orange-100 dark:bg-orange-900/30',  color: 'text-orange-600 dark:text-orange-400' },
         serigrafia:     { icon: 'fa-fill-drip',    bubble: 'bg-indigo-100 dark:bg-indigo-900/30',  color: 'text-indigo-600 dark:text-indigo-400' },
@@ -785,20 +1000,44 @@
     };
     window.personalizationIconMap = personalizationIconMap;
 
+    function normalizePersonalizationKey(value) {
+        return (value || '')
+            .toString()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .replace(/[^\w]+/g, '_')
+            .replace(/^_+|_+$/g, '');
+    }
+    window.normalizePersonalizationKey = normalizePersonalizationKey;
+
+    function getPersonalizationSortWeight(item) {
+        const key = normalizePersonalizationKey(item?.slug || item?.name || '');
+        if (key.includes('dtf')) return 10;
+        if (key.includes('serigraf')) return 20;
+        if (key.includes('bordad')) return 30;
+        if (key.includes('emborrach')) return 40;
+        if (key.includes('sub_local') || (key.includes('sub') && key.includes('local'))) return 50;
+        if (key.includes('sub_total') || (key.includes('sub') && key.includes('total'))) return 60;
+        if (key.includes('lisa')) return 70;
+        return 900;
+    }
+    window.getPersonalizationSortWeight = getPersonalizationSortWeight;
+
     // Mapa de cores conhecidas por nome
     const colorNameToHex = {
         'preto': '#000000', 'black': '#000000',
         'branco': '#FFFFFF', 'white': '#FFFFFF',
         'azul': '#2563EB', 'blue': '#2563EB', 'azul marinho': '#1E3A5F', 'azul royal': '#4169E1', 'azul celeste': '#87CEEB', 'azul turquesa': '#40E0D0',
-        'vermelho': '#DC2626', 'red': '#DC2626', 'vermelho escuro': '#8B0000', 'bordô': '#800020', 'vinho': '#722F37',
-        'verde': '#16A34A', 'green': '#16A34A', 'verde limão': '#32CD32', 'verde escuro': '#006400', 'verde musgo': '#8A9A5B', 'verde militar': '#4B5320', 'verde água': '#66CDAA',
+        'vermelho': '#DC2626', 'red': '#DC2626', 'vermelho escuro': '#8B0000', 'bordÃ´': '#800020', 'vinho': '#722F37',
+        'verde': '#16A34A', 'green': '#16A34A', 'verde limÃ£o': '#32CD32', 'verde escuro': '#006400', 'verde musgo': '#8A9A5B', 'verde militar': '#4B5320', 'verde Ã¡gua': '#66CDAA',
         'amarelo': '#F59E0B', 'yellow': '#F59E0B', 'amarelo ouro': '#FFD700', 'mostarda': '#FFDB58',
         'laranja': '#EA580C', 'orange': '#EA580C',
-        'rosa': '#EC4899', 'pink': '#EC4899', 'rosa claro': '#FFB6C1', 'rosa pink': '#FF69B4', 'rosa bebê': '#F4C2C2',
-        'roxo': '#7C3AED', 'purple': '#7C3AED', 'violeta': '#8B5CF6', 'lilás': '#C8A2C8',
+        'rosa': '#EC4899', 'pink': '#EC4899', 'rosa claro': '#FFB6C1', 'rosa pink': '#FF69B4', 'rosa bebÃª': '#F4C2C2',
+        'roxo': '#7C3AED', 'purple': '#7C3AED', 'violeta': '#8B5CF6', 'lilÃ¡s': '#C8A2C8',
         'cinza': '#6B7280', 'gray': '#6B7280', 'grey': '#6B7280', 'cinza claro': '#D1D5DB', 'cinza escuro': '#374151', 'cinza mescla': '#9CA3AF', 'mescla': '#9CA3AF', 'chumbo': '#36454F',
-        'marrom': '#92400E', 'brown': '#92400E', 'café': '#6F4E37', 'chocolate': '#7B3F00', 'caramelo': '#FFD59A', 'bege': '#F5F5DC',
-        'nude': '#E3BC9A', 'salmão': '#FA8072', 'coral': '#FF7F50', 'creme': '#FFFDD0', 'off-white': '#FAF9F6',
+        'marrom': '#92400E', 'brown': '#92400E', 'cafÃ©': '#6F4E37', 'chocolate': '#7B3F00', 'caramelo': '#FFD59A', 'bege': '#F5F5DC',
+        'nude': '#E3BC9A', 'salmÃ£o': '#FA8072', 'coral': '#FF7F50', 'creme': '#FFFDD0', 'off-white': '#FAF9F6',
         'dourado': '#FFD700', 'gold': '#FFD700', 'prata': '#C0C0C0', 'silver': '#C0C0C0',
         'cyan': '#06B6D4', 'ciano': '#06B6D4', 'magenta': '#D946EF', 'fucsia': '#FF00FF'
     };
@@ -818,7 +1057,7 @@
         $safePreselectedTypes = $preselectedTypes ?? [];
     @endphp
 
-    // SUB. TOTAL - Dados e Configurações
+    // SUB. TOTAL - Dados e ConfiguraÃ§Ãµes
     const sublimationEnabled = {{ isset($sublimationEnabled) && $sublimationEnabled ? 'true' : 'false' }};
     window.sublimationEnabled = sublimationEnabled;
     const sublimationTypes = @json($safeSublimationTypes);
@@ -826,7 +1065,7 @@
     let sublimationAddonsCache = {};
     window.sublimationAddonsCache = sublimationAddonsCache;
     
-    // Tipos de personalização pré-selecionados na etapa anterior
+    // Tipos de personalizaÃ§Ã£o prÃ©-selecionados na etapa anterior
     const preselectedPersonalizationTypes = @json($safePreselectedTypes);
     window.preselectedPersonalizationTypes = preselectedPersonalizationTypes;
 
@@ -848,7 +1087,7 @@
     }
     window.closeDeleteModal = closeDeleteModal;
 
-    // Variável global para dados dos itens
+    // VariÃ¡vel global para dados dos itens
     let itemsData = {!! json_encode($order->items->toArray()) !!};
     window.itemsData = itemsData;
 
@@ -903,8 +1142,8 @@
                 alert('Erro ao remover item: ' + (data.message || 'Erro desconhecido'));
             }
         } catch (error) {
-            console.error('Erro na exclusão:', error);
-            alert('Erro ao processar a exclusão.');
+            console.error('Erro na exclusÃ£o:', error);
+            alert('Erro ao processar a exclusÃ£o.');
         } finally {
             if (btn) {
                 btn.innerText = originalText;
@@ -920,13 +1159,13 @@
         const form = document.getElementById('sewing-form');
         if (!form || form.dataset.submitting === 'true') return;
 
-        // Validação atualizada para o Wizard
+        // ValidaÃ§Ã£o atualizada para o Wizard
         const personalizacaoInputs = document.querySelectorAll('input[name="personalizacao[]"]');
         
         if (personalizacaoInputs.length === 0) {
              const preselected = document.querySelectorAll('.preselected-personalization');
              if (preselected.length === 0) {
-                 alert('Por favor, selecione pelo menos uma personalização.');
+                 alert('Por favor, selecione pelo menos uma personalizaÃ§Ã£o.');
                  return;
              }
         }
@@ -939,7 +1178,7 @@
                  if(parseInt(i.value) > 0) hasSize = true;
              });
              if (!hasSize) {
-                 alert('Por favor, adicione pelo menos uma peça nos tamanhos.');
+                 alert('Por favor, adicione pelo menos uma peÃ§a nos tamanhos.');
                  return;
              }
         }
@@ -975,7 +1214,7 @@
 
             if (!response.ok) {
                 const text = await response.text();
-                console.error('Erro HTTP na submissão:', response.status, text);
+                console.error('Erro HTTP na submissÃ£o:', response.status, text);
                 alert('Erro ao salvar item: ' + (response.statusText || 'erro HTTP'));
                 return;
             }
@@ -1008,7 +1247,7 @@
                 
             } else {
                  if (data.errors) {
-                     let msg = 'Erros de validação:\n';
+                     let msg = 'Erros de validaÃ§Ã£o:\n';
                      for (let field in data.errors) {
                          msg += `- ${data.errors[field].join(', ')}\n`;
                      }
@@ -1020,11 +1259,11 @@
 
         } catch (error) {
             console.error('Erro no envio:', error);
-            alert('Ocorreu um erro ao processar sua solicitação.');
+            alert('Ocorreu um erro ao processar sua solicitaÃ§Ã£o.');
         } finally {
             if (submitBtn) {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = document.getElementById('form-action').value === 'update_item' ? 'Salvar Alterações' : 'Adicionar Item';
+                submitBtn.innerHTML = document.getElementById('form-action').value === 'update_item' ? 'Salvar AlteraÃ§Ãµes' : 'Adicionar Item';
             }
             if (form) form.dataset.submitting = 'false';
         }
@@ -1088,7 +1327,7 @@
                 }
             })
             .catch(error => {
-                console.error('Erro ao carregar opções:', error);
+                console.error('Erro ao carregar opÃ§Ãµes:', error);
             });
     }
     window.loadOptions = loadOptions;
@@ -1218,8 +1457,26 @@
     let selectedPersonalizacoes = [];
     window.selectedPersonalizacoes = selectedPersonalizacoes;
 
+    function ensureSewingWizardPortal() {
+        const sewingForm = document.getElementById('sewing-form');
+        const modalInsideForm = sewingForm ? sewingForm.querySelector('#sewing-wizard-modal') : null;
+        const modal = modalInsideForm || document.getElementById('sewing-wizard-modal');
+        if (!modal) return null;
+
+        document.querySelectorAll('#sewing-wizard-modal').forEach(existingModal => {
+            if (existingModal !== modal) existingModal.remove();
+        });
+
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+
+        return modal;
+    }
+    window.ensureSewingWizardPortal = ensureSewingWizardPortal;
+
     function openSewingWizard() {
-        const modal = document.getElementById('sewing-wizard-modal');
+        const modal = ensureSewingWizardPortal();
         if (modal) {
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
@@ -1230,13 +1487,15 @@
     window.openSewingWizard = openSewingWizard;
 
     function closeSewingWizard() {
-        const modal = document.getElementById('sewing-wizard-modal');
+        const modal = ensureSewingWizardPortal();
         if (modal) {
             modal.classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
     }
     window.closeSewingWizard = closeSewingWizard;
+
+    ensureSewingWizardPortal();
     
     // Track if we're in sublimation mode
     let isInSublimationMode = false;
@@ -1353,7 +1612,7 @@
     function validateStep(step) {
         if (step === 1) {
              if (!wizardData.personalizacao || wizardData.personalizacao.length === 0) {
-                 alert('Selecione pelo menos uma personalização.');
+                 alert('Selecione pelo menos uma personalizaÃ§Ã£o.');
                  return false;
              }
         }
@@ -1378,7 +1637,7 @@
         if (step === 9) {
             const total = calculateWizardTotal();
             if (total <= 0) {
-                alert('Informe a quantidade de peças (pelo menos 1).');
+                alert('Informe a quantidade de peÃ§as (pelo menos 1).');
                 return false;
             }
             wizardData.sizes = {};
@@ -1393,7 +1652,7 @@
 
     function updateWizardUI() {
         const titles = [
-            "Personalização", "Tecido", "Cor do Tecido", "Modelo", "Detalhe", "Cor do Detalhe", 
+            "PersonalizaÃ§Ã£o", "Tecido", "Cor do Tecido", "Modelo", "Detalhe", "Cor do Detalhe", 
             "Gola", "Cor da Gola", "Tamanhos", "Imagem / Obs", "Resumo"
         ];
         const titleEl = document.getElementById('wizard-step-title');
@@ -1490,7 +1749,7 @@
         }
 
         if (!items || items.length === 0) {
-            container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Nenhuma opção disponível.</div>';
+            container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Nenhuma opÃ§Ã£o disponÃ­vel.</div>';
             return;
         }
 
@@ -1543,7 +1802,7 @@
 
         let items = getOptionList(['detalhe', 'detail']);
         if (!items || items.length === 0) {
-            container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Nenhuma opção disponível.</div>';
+            container.innerHTML = '<div class="col-span-full text-center text-sm text-gray-500">Nenhuma opÃ§Ã£o disponÃ­vel.</div>';
             return;
         }
 
@@ -1713,30 +1972,37 @@
     }
     window.selectWizardOption = selectWizardOption;
 
-    // --- Step 1: Personalização ---
+    // --- Step 1: PersonalizaÃ§Ã£o ---
     function renderWizardPersonalizacao() {
         const container = document.getElementById('wizard-options-personalizacao');
         if(!container) return;
         
-        if (!options.personalizacao || options.personalizacao.length === 0) {
-            container.innerHTML = '<p class="col-span-full text-center text-gray-500">Nenhuma opção disponível.</p>';
+        const personalizacaoList = Array.isArray(options.personalizacao) ? [...options.personalizacao] : [];
+        personalizacaoList.sort((a, b) => {
+            const weightDiff = getPersonalizationSortWeight(a) - getPersonalizationSortWeight(b);
+            if (weightDiff !== 0) return weightDiff;
+            return (a?.name || '').localeCompare((b?.name || ''), 'pt-BR', { sensitivity: 'base' });
+        });
+
+        if (personalizacaoList.length === 0) {
+            container.innerHTML = '<p class="col-span-full text-center text-gray-500">Nenhuma opÃ§Ã£o disponÃ­vel.</p>';
             return;
         }
 
-        container.innerHTML = options.personalizacao.map(item => {
+        container.innerHTML = personalizacaoList.map(item => {
             const isSelected = wizardData.personalizacao.includes(item.id.toString()) || wizardData.personalizacao.includes(item.id);
             const activeClass = isSelected ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : '';
-            const key = (item.slug || item.name || '').toString().trim().toLowerCase().replace(/\s+/g, '_');
+            const key = normalizePersonalizationKey(item.slug || item.name || '');
             const style = personalizationIconMap[key] || personalizationIconMap.default;
             
             return `
-            <label class="wizard-option-card group cursor-pointer p-2.5 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center gap-1.5 ${activeClass}"
+            <label class="wizard-option-card wizard-personalization-card group cursor-pointer p-3 sm:p-3.5 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center justify-center gap-2 ${activeClass}"
                    data-id="${item.id ?? ''}">
                 <input type="checkbox" class="personalizacao-checkbox hidden" value="${item.id ?? ''}" ${isSelected ? 'checked' : ''} onchange="syncWizardPersonalizacaoUI()">
-                <div class="w-10 h-10 rounded-full ${style.bubble} flex items-center justify-center ${style.color}">
-                     <i class="fa-solid ${style.icon}"></i>
+                <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full ${style.bubble} flex items-center justify-center ${style.color}">
+                     <i class="fa-solid ${style.icon} text-base"></i>
                 </div>
-                <span class="text-xs font-bold text-center text-gray-700 dark:text-slate-300 group-hover:text-[#7c3aed]">${item.name}</span>
+                <span class="text-[11px] sm:text-xs font-bold text-center leading-tight text-gray-700 dark:text-slate-300 group-hover:text-[#7c3aed]">${item.name}</span>
             </label>
             `;
         }).join('');
@@ -1805,7 +2071,7 @@
                     const parentIds = Array.isArray(tecido.parent_ids) ? tecido.parent_ids.map(id => id.toString()) : [];
                     if (parentIds.length === 0) return true;
                     if (parentIds.some(pid => selectedIds.includes(pid))) return true;
-                    // Se não houver no tecido, checar nos tipos de tecido vinculados
+                    // Se nÃ£o houver no tecido, checar nos tipos de tecido vinculados
                     const hasTypeMatch = tipoTecidoItems.some(tipo => {
                         const tipoParentId = (tipo.parent_id || '').toString();
                         if (tipoParentId !== tecido.id.toString()) return false;
@@ -1909,7 +2175,7 @@
          });
          
          const isSublimacaoSelected = selectedPersonalizacoesNames.some(name => 
-             name.includes('SUB') || name.includes('SUBLIMACAO') || name.includes('SUBLIMAÇÃO')
+             name.includes('SUB') || name.includes('SUBLIMACAO') || name.includes('SUBLIMAÃ‡ÃƒO')
          );
          
          if (isSublimacaoSelected) {
@@ -2275,7 +2541,7 @@
     async function populateWizardFromItem(itemId, isDuplicate) {
         const item = itemsData.find(i => i.id == itemId);
         if (!item) {
-            alert('Item não encontrado.');
+            alert('Item nÃ£o encontrado.');
             return;
         }
 
@@ -2283,7 +2549,7 @@
              console.log('Waiting for options to load...');
              await new Promise(resolve => setTimeout(resolve, 800));
              if (Object.keys(optionsWithParents).length === 0) {
-                 alert('As opções de produtos ainda estão carregando. Por favor, aguarde um segundo e tente novamente.');
+                 alert('As opÃ§Ãµes de produtos ainda estÃ£o carregando. Por favor, aguarde um segundo e tente novamente.');
                  return;
              }
         }
@@ -2579,7 +2845,7 @@
             }
         } catch (error) {
             console.error('Erro:', error);
-            alert('Erro ao processar solicitação');
+            alert('Erro ao processar solicitaÃ§Ã£o');
         }
     }
     window.togglePin = togglePin;
@@ -2647,7 +2913,7 @@
         if (!container) return;
         
         if (!addons || addons.length === 0) {
-            container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Nenhum adicional disponível</p>';
+            container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Nenhum adicional disponÃ­vel</p>';
             return;
         }
         
@@ -2698,7 +2964,7 @@
                 updateSublimationPreview();
             }
         } catch (error) {
-            console.error('Erro ao buscar preço:', error);
+            console.error('Erro ao buscar preÃ§o:', error);
         }
     }
     window.calculateSublimationPrice = calculateSublimationPrice;
@@ -2719,7 +2985,7 @@
                 e.preventDefault();
                 const quantity = parseInt(document.getElementById('sub_quantity')?.value) || 0;
                 if (quantity === 0) {
-                    alert('Adicione pelo menos uma peça nos tamanhos.');
+                    alert('Adicione pelo menos uma peÃ§a nos tamanhos.');
                     return;
                 }
                 const artName = document.getElementById('sub_art_name')?.value.trim();
@@ -2748,7 +3014,7 @@
                     }
                 } catch (error) {
                     console.error('Erro:', error);
-                    alert('Erro ao processar solicitação.');
+                    alert('Erro ao processar solicitaÃ§Ã£o.');
                 } finally {
                     btn.disabled = false;
                     btn.innerHTML = originalHtml;
@@ -2817,7 +3083,7 @@
                     `;
                 }).join('');
             } else {
-                container.innerHTML = '<p class="text-sm text-gray-500 col-span-full">Nenhum adicional disponível</p>';
+                container.innerHTML = '<p class="text-sm text-gray-500 col-span-full">Nenhum adicional disponÃ­vel</p>';
                 subWizardAddons = [];
             }
         } catch (error) {
@@ -2909,7 +3175,7 @@
         });
         
         if (totalQty === 0) {
-            alert('Adicione pelo menos uma peça.');
+            alert('Adicione pelo menos uma peÃ§a.');
             return false;
         }
         
@@ -2956,7 +3222,7 @@
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Erro ao processar solicitação.');
+            alert('Erro ao processar solicitaÃ§Ã£o.');
             return false;
         }
     }
@@ -2993,6 +3259,10 @@
     
     let fullpageSubAddons = [];
     let fullpageSubUnitPrice = 0;
+    let fullpageSubBaseUnitPrice = 0;
+    let fullpageSubAddonsAdjustment = 0;
+    let fullpageSubFabricSurcharge = 0;
+    let fullpageSubCurrentStep = 1;
     
     // Show fullpage sublimation form
     function showSubFullpageForm() {
@@ -3005,6 +3275,8 @@
         if (sewingWizardModal) sewingWizardModal.classList.add('hidden');
         
         document.body.style.overflow = 'auto';
+        setFullpageSubStep(1);
+        calculateFullpageSubTotal();
     }
     window.showSubFullpageForm = showSubFullpageForm;
     
@@ -3019,269 +3291,561 @@
         // Reset form
         resetFullpageSubForm();
     }
-    window.hideSubFullpageForm = hideSubFullpageForm;
-    
-    // Load addons for fullpage form
+    window.hideSubFullpageForm = hideSubFullpageForm;
+    function getFullpageSubTotalQty() {
+        let totalQty = 0;
+        document.querySelectorAll('.fullpage-sub-size').forEach(input => {
+            totalQty += parseInt(input.value, 10) || 0;
+        });
+        return totalQty;
+    }
+
+    function validateFullpageSubStep(step) {
+        if (step === 1) {
+            const typeSlug = document.getElementById('fullpage_sub_type')?.value || '';
+            const artName = document.getElementById('fullpage_art_name')?.value?.trim() || '';
+            const fabricType = document.getElementById('fullpage_sub_fabric_type')?.value || '';
+            const modelType = document.getElementById('fullpage_sub_model')?.value || '';
+            const fabricCustom = document.getElementById('fullpage_sub_fabric_custom')?.value?.trim() || '';
+
+            if (!typeSlug) {
+                alert('Selecione o tipo de produto.');
+                return false;
+            }
+            if (!artName) {
+                alert('Informe o nome da arte.');
+                return false;
+            }
+            if (!fabricType) {
+                alert('Selecione o tecido.');
+                return false;
+            }
+            if (fabricType === 'OUTRO' && !fabricCustom) {
+                alert('Informe o nome do tecido especial.');
+                return false;
+            }
+            if (!modelType) {
+                alert('Selecione o modelo.');
+                return false;
+            }
+        }
+
+        if (step === 2) {
+            if (getFullpageSubTotalQty() <= 0) {
+                alert('Informe ao menos uma peça nos tamanhos.');
+                return false;
+            }
+
+            const hasAddonColors = !!document.getElementById('fullpage_has_addon_colors')?.checked;
+            if (hasAddonColors) {
+                const selectedAddons = getSelectedFullpageAddonIds();
+                if (!selectedAddons.length) {
+                    alert('Marque ao menos um adicional para informar cor.');
+                    return false;
+                }
+
+                for (const addonId of selectedAddons) {
+                    const input = document.querySelector(`#fullpage-addon-color-fields input[data-addon-color-id="${addonId}"]`);
+                    if (!input || !input.value.trim()) {
+                        alert('Preencha a cor de todos os adicionais selecionados.');
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    function setFullpageSubStep(step) {
+        const safeStep = Math.min(3, Math.max(1, parseInt(step, 10) || 1));
+        fullpageSubCurrentStep = safeStep;
+
+        const titles = {
+            1: 'Etapa 1 de 3 · Configuração',
+            2: 'Etapa 2 de 3 · Produção',
+            3: 'Etapa 3 de 3 · Revisão'
+        };
+        const subtitle = document.getElementById('fullpage-step-subtitle');
+        if (subtitle) subtitle.textContent = titles[safeStep];
+
+        document.querySelectorAll('#sublimation-fullpage-form .fullpage-sub-step').forEach((section, idx) => {
+            section.classList.toggle('hidden', (idx + 1) !== safeStep);
+        });
+
+        document.querySelectorAll('#fullpage-step-indicator .fullpage-step-chip').forEach(chip => {
+            const chipStep = parseInt(chip.dataset.step, 10);
+            const bubble = chip.querySelector('span');
+
+            chip.classList.remove(
+                'border-[#7c3aed]/40', 'bg-[#7c3aed]/10', 'text-[#7c3aed]',
+                'border-purple-200', 'dark:border-purple-700', 'text-purple-600', 'dark:text-purple-300',
+                'border-gray-200', 'dark:border-slate-700', 'text-gray-500', 'dark:text-slate-400'
+            );
+            if (bubble) {
+                bubble.classList.remove(
+                    'bg-[#7c3aed]', 'text-white',
+                    'bg-purple-100', 'dark:bg-purple-900/40', 'text-purple-700', 'dark:text-purple-300',
+                    'bg-gray-200', 'dark:bg-slate-700'
+                );
+            }
+
+            if (chipStep === safeStep) {
+                chip.classList.add('border-[#7c3aed]/40', 'bg-[#7c3aed]/10', 'text-[#7c3aed]');
+                if (bubble) bubble.classList.add('bg-[#7c3aed]', 'text-white');
+            } else if (chipStep < safeStep) {
+                chip.classList.add('border-purple-200', 'dark:border-purple-700', 'text-purple-600', 'dark:text-purple-300');
+                if (bubble) bubble.classList.add('bg-purple-100', 'dark:bg-purple-900/40', 'text-purple-700', 'dark:text-purple-300');
+            } else {
+                chip.classList.add('border-gray-200', 'dark:border-slate-700', 'text-gray-500', 'dark:text-slate-400');
+                if (bubble) bubble.classList.add('bg-gray-200', 'dark:bg-slate-700');
+            }
+        });
+
+        const prevBtn = document.getElementById('fullpage-step-prev');
+        const nextBtn = document.getElementById('fullpage-step-next');
+        const submitBtn = document.getElementById('fullpage-step-submit');
+
+        if (prevBtn) prevBtn.classList.toggle('hidden', safeStep === 1);
+        if (nextBtn) nextBtn.classList.toggle('hidden', safeStep === 3);
+        if (submitBtn) submitBtn.classList.toggle('hidden', safeStep !== 3);
+    }
+    window.setFullpageSubStep = setFullpageSubStep;
+
+    function goToNextFullpageSubStep() {
+        if (!validateFullpageSubStep(fullpageSubCurrentStep)) return;
+        setFullpageSubStep(fullpageSubCurrentStep + 1);
+    }
+    window.goToNextFullpageSubStep = goToNextFullpageSubStep;
+
+    function goToPrevFullpageSubStep() {
+        setFullpageSubStep(fullpageSubCurrentStep - 1);
+    }
+    window.goToPrevFullpageSubStep = goToPrevFullpageSubStep;
+    // Legacy SUB.TOTAL block replaced by overrides below.
+    let isSubmittingFullpage = false;
+
+    // --- SUB.TOTAL fullpage overrides ---
+    function toggleFullpageSpecialFabric() {
+        const fabricType = document.getElementById('fullpage_sub_fabric_type')?.value || '';
+        const wrapper = document.getElementById('fullpage-special-fabric-fields');
+        const customInput = document.getElementById('fullpage_sub_fabric_custom');
+        const surchargeInput = document.getElementById('fullpage_sub_fabric_surcharge');
+        if (!wrapper || !customInput || !surchargeInput) return;
+
+        if (fabricType === 'OUTRO') {
+            wrapper.classList.remove('hidden');
+            customInput.required = true;
+            if ((parseFloat(surchargeInput.value || '0') || 0) <= 0) surchargeInput.value = '10.00';
+        } else {
+            wrapper.classList.add('hidden');
+            customInput.required = false;
+            customInput.value = '';
+            surchargeInput.value = '0.00';
+        }
+    }
+    window.toggleFullpageSpecialFabric = toggleFullpageSpecialFabric;
+
+    function getSelectedFullpageAddonIds() {
+        const ids = [];
+        document.querySelectorAll('#fullpage-sub-addons input[type="checkbox"]:checked').forEach(cb => {
+            ids.push(parseInt(cb.value, 10));
+        });
+        return ids;
+    }
+
+    function getFullpageFabricSurcharge() {
+        const fabricType = document.getElementById('fullpage_sub_fabric_type')?.value || '';
+        if (fabricType !== 'OUTRO') return 0;
+        const inputValue = parseFloat(document.getElementById('fullpage_sub_fabric_surcharge')?.value || '0');
+        return Number.isFinite(inputValue) ? Math.max(0, inputValue) : 0;
+    }
+
+    function renderFullpageAddonColorFields() {
+        const wrapper = document.getElementById('fullpage-addon-color-fields');
+        const hasColors = document.getElementById('fullpage_has_addon_colors')?.checked;
+        if (!wrapper) return;
+
+        if (!hasColors) {
+            wrapper.classList.add('hidden');
+            wrapper.innerHTML = '';
+            return;
+        }
+
+        const currentValues = {};
+        wrapper.querySelectorAll('input[data-addon-color-id]').forEach(input => {
+            currentValues[input.dataset.addonColorId] = input.value;
+        });
+
+        const selectedIds = getSelectedFullpageAddonIds();
+        if (!selectedIds.length) {
+            wrapper.classList.remove('hidden');
+            wrapper.innerHTML = '<p class="text-xs text-gray-500 dark:text-slate-400">Selecione pelo menos um adicional para informar a cor.</p>';
+            return;
+        }
+
+        wrapper.innerHTML = '';
+        selectedIds.forEach(addonId => {
+            const addon = fullpageSubAddons.find(a => parseInt(a.id, 10) === addonId);
+            if (!addon) return;
+
+            const row = document.createElement('div');
+
+            const label = document.createElement('label');
+            label.className = 'block text-xs font-medium text-gray-600 dark:text-slate-300 mb-1';
+            label.textContent = addon.name;
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.dataset.addonColorId = addon.id;
+            input.placeholder = `Cor para ${addon.name}`;
+            input.className = 'w-full px-2.5 py-2 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-900 dark:text-white text-xs focus:ring-1 focus:ring-purple-500';
+            input.value = currentValues[String(addon.id)] || '';
+
+            row.appendChild(label);
+            row.appendChild(input);
+            wrapper.appendChild(row);
+        });
+
+        wrapper.classList.remove('hidden');
+    }
+    window.renderFullpageAddonColorFields = renderFullpageAddonColorFields;
+
     async function loadFullpageSubAddons() {
         const typeSlug = document.getElementById('fullpage_sub_type')?.value;
         const container = document.getElementById('fullpage-sub-addons');
         if (!container) return;
-        
+
         if (!typeSlug) {
             container.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center py-4">Selecione um tipo primeiro</p>';
             fullpageSubAddons = [];
+            renderFullpageAddonColorFields();
+            calculateFullpageSubTotal();
             return;
         }
-        
+
         container.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center py-4"><i class="fa-solid fa-spinner animate-spin mr-2"></i>Carregando...</p>';
-        
+
         try {
             const response = await fetch(`/api/sublimation-total/addons/${typeSlug}`);
-            const data = await response.json();
-            
-            if (data.success && data.addons && data.addons.length > 0) {
-                fullpageSubAddons = data.addons;
-                container.innerHTML = data.addons.map(addon => {
-                    const priceText = addon.price > 0 ? `+R$${parseFloat(addon.price).toFixed(2).replace('.', ',')}` : 
-                                      addon.price < 0 ? `-R$${Math.abs(parseFloat(addon.price)).toFixed(2).replace('.', ',')}` : '';
+            const payload = await response.json();
+            const addons = Array.isArray(payload?.addons) ? payload.addons : (Array.isArray(payload?.data) ? payload.data : []);
+
+            if (payload?.success && addons.length > 0) {
+                fullpageSubAddons = addons;
+                container.innerHTML = addons.map(addon => {
+                    const addonPrice = parseFloat(addon.price) || 0;
+                    const priceText = addonPrice > 0
+                        ? `+R$${addonPrice.toFixed(2).replace('.', ',')}`
+                        : addonPrice < 0
+                            ? `-R$${Math.abs(addonPrice).toFixed(2).replace('.', ',')}`
+                            : '';
                     return `
                     <label class="flex items-center gap-2 p-2.5 bg-gray-50 dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-700 cursor-pointer hover:border-purple-400 transition-colors">
-                        <input type="checkbox" name="fullpage_addons[]" value="${addon.id}" onchange="calculateFullpageSubTotal()" class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500">
+                        <input type="checkbox" name="fullpage_addons[]" value="${addon.id}" onchange="calculateFullpageSubTotal(); renderFullpageAddonColorFields();" class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500">
                         <span class="text-sm text-gray-700 dark:text-slate-300 flex-1">${addon.name}</span>
-                        ${priceText ? `<span class="text-xs font-bold ${addon.price > 0 ? 'text-green-600' : 'text-red-500'}">${priceText}</span>` : ''}
+                        ${priceText ? `<span class="text-xs font-bold ${addonPrice > 0 ? 'text-green-600' : 'text-red-500'}">${priceText}</span>` : ''}
                     </label>
                     `;
                 }).join('');
             } else {
-                container.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center py-4">Nenhum adicional disponível</p>';
                 fullpageSubAddons = [];
+                container.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center py-4">Nenhum adicional disponivel</p>';
             }
         } catch (error) {
             console.error('Error loading addons:', error);
+            fullpageSubAddons = [];
             container.innerHTML = '<p class="text-sm text-red-500 col-span-full text-center py-4">Erro ao carregar adicionais</p>';
         }
-        
+
+        renderFullpageAddonColorFields();
         calculateFullpageSubTotal();
     }
     window.loadFullpageSubAddons = loadFullpageSubAddons;
-    
-    // Calculate total for fullpage form
+
     async function calculateFullpageSubTotal() {
         const typeSlug = document.getElementById('fullpage_sub_type')?.value;
         const sizeInputs = document.querySelectorAll('.fullpage-sub-size');
-        
         let totalQty = 0;
+
         sizeInputs.forEach(input => {
-            totalQty += parseInt(input.value) || 0;
+            totalQty += parseInt(input.value, 10) || 0;
         });
-        
-        // Update quantity display
+
         const qtyEl = document.getElementById('fullpage-total-qty');
         if (qtyEl) qtyEl.textContent = totalQty;
-        
-        // Get selected addons price adjustment
-        let addonsAdjustment = 0;
-        const selectedAddonCheckboxes = document.querySelectorAll('#fullpage-sub-addons input[type="checkbox"]:checked');
-        selectedAddonCheckboxes.forEach(cb => {
-            const addonId = parseInt(cb.value);
-            const addon = fullpageSubAddons.find(a => a.id === addonId);
-            if (addon) addonsAdjustment += parseFloat(addon.price) || 0;
-        });
-        
-        // Fetch base price from API
-        let baseUnitPrice = 0;
+        const qtyReviewEl = document.getElementById('fullpage-total-qty-review');
+        if (qtyReviewEl) qtyReviewEl.textContent = totalQty;
+
+        const selectedAddonIds = getSelectedFullpageAddonIds();
+        fullpageSubAddonsAdjustment = selectedAddonIds.reduce((sum, addonId) => {
+            const addon = fullpageSubAddons.find(a => parseInt(a.id, 10) === addonId);
+            return sum + (addon ? (parseFloat(addon.price) || 0) : 0);
+        }, 0);
+
+        fullpageSubFabricSurcharge = getFullpageFabricSurcharge();
+        fullpageSubBaseUnitPrice = 0;
+
         if (typeSlug && totalQty > 0) {
             try {
                 const response = await fetch(`/api/sublimation-total/price/${typeSlug}/${totalQty}`);
-                const data = await response.json();
-                if (data.success && data.price) {
-                    baseUnitPrice = parseFloat(data.price);
+                const payload = await response.json();
+                if (payload?.success) {
+                    fullpageSubBaseUnitPrice = parseFloat(payload.price) || 0;
                 }
             } catch (error) {
                 console.error('Error fetching price:', error);
             }
         }
-        
-        // Calculate final unit price with addons
-        fullpageSubUnitPrice = baseUnitPrice + addonsAdjustment;
+
+        fullpageSubUnitPrice = fullpageSubBaseUnitPrice + fullpageSubAddonsAdjustment + fullpageSubFabricSurcharge;
+        if (fullpageSubUnitPrice < 0) fullpageSubUnitPrice = 0;
+
         const totalPrice = fullpageSubUnitPrice * totalQty;
-        
-        // Update displays
+        const formatMoney = value => `R$ ${Number(value || 0).toFixed(2).replace('.', ',')}`;
+        const addonSign = fullpageSubAddonsAdjustment < 0 ? '-' : '+';
+        const fabricSign = fullpageSubFabricSurcharge < 0 ? '-' : '+';
+
         const unitPriceEl = document.getElementById('fullpage-unit-price');
-        if (unitPriceEl) unitPriceEl.textContent = 'R$ ' + fullpageSubUnitPrice.toFixed(2).replace('.', ',');
-        
+        if (unitPriceEl) unitPriceEl.textContent = formatMoney(fullpageSubUnitPrice);
+        const unitPriceReviewEl = document.getElementById('fullpage-unit-price-review');
+        if (unitPriceReviewEl) unitPriceReviewEl.textContent = formatMoney(fullpageSubUnitPrice);
+
         const totalPriceEl = document.getElementById('fullpage-total-price');
-        if (totalPriceEl) totalPriceEl.textContent = 'R$ ' + totalPrice.toFixed(2).replace('.', ',');
+        if (totalPriceEl) totalPriceEl.textContent = formatMoney(totalPrice);
+        const totalPriceReviewEl = document.getElementById('fullpage-total-price-review');
+        if (totalPriceReviewEl) totalPriceReviewEl.textContent = formatMoney(totalPrice);
+
+        const breakdownEl = document.getElementById('fullpage-price-breakdown');
+        if (breakdownEl) {
+            const breakdownText = `Base ${formatMoney(fullpageSubBaseUnitPrice)} ${addonSign} Adicionais ${formatMoney(Math.abs(fullpageSubAddonsAdjustment))} ${fabricSign} Tecido ${formatMoney(Math.abs(fullpageSubFabricSurcharge))}`;
+            breakdownEl.textContent = breakdownText;
+            const breakdownReviewEl = document.getElementById('fullpage-price-breakdown-review');
+            if (breakdownReviewEl) breakdownReviewEl.textContent = breakdownText;
+        }
     }
     window.calculateFullpageSubTotal = calculateFullpageSubTotal;
-    
-    // Submit sublimation item from fullpage form
-    let isSubmittingFullpage = false;
-    
+
     async function submitFullpageSubItem() {
-        // Prevent multiple submissions
         if (isSubmittingFullpage) return false;
-        
+
         const submitBtn = document.querySelector('#sublimation-fullpage-form button[onclick*="submitFullpageSubItem"]');
-        const typeSlug = document.getElementById('fullpage_sub_type')?.value;
-        const artName = document.getElementById('fullpage_art_name')?.value?.trim();
-        
+        const idleHtml = '<i class="fa-solid fa-plus"></i> Adicionar Item';
+        const loadingHtml = '<i class="fa-solid fa-spinner animate-spin"></i> Adicionando...';
+        const setSubmittingState = (loading) => {
+            isSubmittingFullpage = loading;
+            if (!submitBtn) return;
+            submitBtn.disabled = loading;
+            submitBtn.innerHTML = loading ? loadingHtml : idleHtml;
+        };
+
+        const typeSlug = document.getElementById('fullpage_sub_type')?.value || '';
+        const artName = document.getElementById('fullpage_art_name')?.value?.trim() || '';
+        const fabricType = document.getElementById('fullpage_sub_fabric_type')?.value || '';
+        const modelType = document.getElementById('fullpage_sub_model')?.value || '';
+        const fabricCustom = document.getElementById('fullpage_sub_fabric_custom')?.value?.trim() || '';
+        const fabricColor = document.getElementById('fullpage_sub_fabric_color')?.value || 'BRANCO';
+        const baseCollar = document.getElementById('fullpage_sub_base_collar')?.value || 'REDONDA';
+        const hasAddonColors = !!document.getElementById('fullpage_has_addon_colors')?.checked;
+
         if (!typeSlug) {
             alert('Selecione o tipo de produto.');
             return false;
         }
-        
         if (!artName) {
             alert('Informe o nome da arte.');
             return false;
         }
-        
-        // Set loading state
-        isSubmittingFullpage = true;
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Adicionando...';
+        if (!fabricType) {
+            alert('Selecione o tecido.');
+            return false;
+        }
+        if (fabricType === 'OUTRO' && !fabricCustom) {
+            alert('Informe o nome do tecido especial.');
+            return false;
+        }
+        if (!modelType) {
+            alert('Selecione o modelo.');
+            return false;
         }
 
-        
-        // Get sizes
+        setSubmittingState(true);
+
         const sizeInputs = document.querySelectorAll('.fullpage-sub-size');
         const tamanhos = {};
         let totalQty = 0;
         sizeInputs.forEach(input => {
-            const qty = parseInt(input.value) || 0;
+            const qty = parseInt(input.value, 10) || 0;
             if (qty > 0) {
                 tamanhos[input.dataset.size] = qty;
                 totalQty += qty;
             }
         });
-        
+
         if (totalQty === 0) {
-            alert('Adicione pelo menos uma peça.');
+            alert('Adicione pelo menos uma peca.');
+            setSubmittingState(false);
             return false;
         }
-        
-        // Get selected addons
-        const selectedAddons = [];
-        document.querySelectorAll('#fullpage-sub-addons input[type="checkbox"]:checked').forEach(cb => {
-            selectedAddons.push(parseInt(cb.value));
-        });
-        
-        // Build form data
+
+        await calculateFullpageSubTotal();
+
+        const selectedAddons = getSelectedFullpageAddonIds();
+        const addonColorMap = {};
+        if (hasAddonColors) {
+            selectedAddons.forEach(addonId => {
+                const input = document.querySelector(`#fullpage-addon-color-fields input[data-addon-color-id="${addonId}"]`);
+                if (input && input.value.trim()) {
+                    addonColorMap[String(addonId)] = input.value.trim();
+                }
+            });
+        }
+
         const formData = new FormData();
         formData.append('action', 'add_sublimation_item');
         formData.append('sublimation_type', typeSlug);
         formData.append('art_name', artName);
-        
-        // Send tamanhos as array entries
+
+        formData.append('fabric_type', fabricType);
+        formData.append('fabric_custom', fabricCustom);
+        formData.append('fabric_color', fabricColor);
+        formData.append('model_type', modelType);
+        formData.append('base_collar', baseCollar);
+        formData.append('fabric_surcharge', String(getFullpageFabricSurcharge()));
+        formData.append('has_addon_colors', hasAddonColors ? '1' : '0');
+        formData.append('addon_color_map', JSON.stringify(addonColorMap));
+
         Object.keys(tamanhos).forEach(size => {
             formData.append(`tamanhos[${size}]`, tamanhos[size]);
         });
-        
-        formData.append('quantity', totalQty);
 
-        formData.append('unit_price', fullpageSubUnitPrice);
+        formData.append('quantity', String(totalQty));
+        formData.append('unit_price', Number(fullpageSubUnitPrice || 0).toFixed(2));
         formData.append('art_notes', document.getElementById('fullpage_notes')?.value || '');
-        formData.append('_token', document.querySelector('input[name="_token"]')?.value);
-        
-        selectedAddons.forEach(id => formData.append('sublimation_addons[]', id));
-        
+        formData.append('_token', document.querySelector('input[name="_token"]')?.value || '');
+
+        selectedAddons.forEach(id => formData.append('sublimation_addons[]', String(id)));
+
         const coverFile = document.getElementById('fullpage_cover_image')?.files?.[0];
         if (coverFile) formData.append('item_cover_image', coverFile);
-        
+
         const corelFile = document.getElementById('fullpage_corel_file')?.files?.[0];
         if (corelFile) formData.append('corel_file', corelFile);
-        
+
         try {
             const response = await fetch('{{ isset($editData) ? route("orders.edit.sewing") : route("orders.wizard.sewing") }}', {
                 method: 'POST',
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                 body: formData
             });
-            
+
             const data = await response.json();
-            if (data.success) {
-                // Update sidebar HTML
-                const sidebar = document.getElementById('items-sidebar-container');
-                if (sidebar && data.html) {
-                    sidebar.innerHTML = data.html;
-                }
-
-                // Update itemsData global
-                if (data.items_data) {
-                    itemsData = data.items_data;
-                    window.itemsData = itemsData;
-                }
-
-                // Reset state
-                hideSubFullpageForm();
-                resetFullpageSubForm();
-                
-                isSubmittingFullpage = false;
-                if (submitBtn) {
-                  submitBtn.disabled = false;
-                  submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Adicionar Item';
-                }
-
-                if (window.showToast) window.showToast('Item SUB. TOTAL adicionado!', 'success');
-
-                return true;
-            } else {
-                // Reset loading state on error
-                isSubmittingFullpage = false;
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Adicionar Item';
-                }
+            if (!data.success) {
                 alert(data.message || 'Erro ao adicionar item.');
                 return false;
             }
+
+            const sidebar = document.getElementById('items-sidebar-container');
+            if (sidebar && data.html) sidebar.innerHTML = data.html;
+
+            if (data.items_data) {
+                itemsData = data.items_data;
+                window.itemsData = itemsData;
+            }
+
+            hideSubFullpageForm();
+            resetFullpageSubForm();
+
+            if (window.showToast) window.showToast('Item SUB. TOTAL adicionado!', 'success');
+            return true;
         } catch (error) {
             console.error('Error:', error);
-            // Reset loading state on error
-            isSubmittingFullpage = false;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Adicionar Item';
-            }
-            alert('Erro ao processar solicitação.');
+            alert('Erro ao processar solicitacao.');
             return false;
+        } finally {
+            setSubmittingState(false);
         }
-
     }
     window.submitFullpageSubItem = submitFullpageSubItem;
-    
-    // Reset fullpage sublimation form
+
     function resetFullpageSubForm() {
         const typeSelect = document.getElementById('fullpage_sub_type');
         if (typeSelect) typeSelect.value = '';
-        
+
         const artInput = document.getElementById('fullpage_art_name');
         if (artInput) artInput.value = '';
-        
-        document.querySelectorAll('.fullpage-sub-size').forEach(input => input.value = 0);
-        
+
+        const fabricTypeSelect = document.getElementById('fullpage_sub_fabric_type');
+        if (fabricTypeSelect) fabricTypeSelect.value = '';
+
+        const modelSelect = document.getElementById('fullpage_sub_model');
+        if (modelSelect) modelSelect.value = '';
+
+        const fabricCustomInput = document.getElementById('fullpage_sub_fabric_custom');
+        if (fabricCustomInput) fabricCustomInput.value = '';
+
+        const fabricSurchargeInput = document.getElementById('fullpage_sub_fabric_surcharge');
+        if (fabricSurchargeInput) fabricSurchargeInput.value = '10.00';
+
+        const hasAddonColors = document.getElementById('fullpage_has_addon_colors');
+        if (hasAddonColors) hasAddonColors.checked = false;
+
+        const addonColorFields = document.getElementById('fullpage-addon-color-fields');
+        if (addonColorFields) {
+            addonColorFields.innerHTML = '';
+            addonColorFields.classList.add('hidden');
+        }
+
+        document.querySelectorAll('.fullpage-sub-size').forEach(input => {
+            input.value = 0;
+        });
+
         const notesInput = document.getElementById('fullpage_notes');
         if (notesInput) notesInput.value = '';
-        
+
+        const coverInput = document.getElementById('fullpage_cover_image');
+        if (coverInput) coverInput.value = '';
+
+        const corelInput = document.getElementById('fullpage_corel_file');
+        if (corelInput) corelInput.value = '';
+
         const addonsContainer = document.getElementById('fullpage-sub-addons');
         if (addonsContainer) addonsContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center py-4">Selecione um tipo primeiro</p>';
-        
+
         fullpageSubAddons = [];
         fullpageSubUnitPrice = 0;
-        
+        fullpageSubBaseUnitPrice = 0;
+        fullpageSubAddonsAdjustment = 0;
+        fullpageSubFabricSurcharge = 0;
+
         const qtyEl = document.getElementById('fullpage-total-qty');
         if (qtyEl) qtyEl.textContent = '0';
+        const qtyReviewEl = document.getElementById('fullpage-total-qty-review');
+        if (qtyReviewEl) qtyReviewEl.textContent = '0';
+
         const unitPriceEl = document.getElementById('fullpage-unit-price');
         if (unitPriceEl) unitPriceEl.textContent = 'R$ 0,00';
+        const unitPriceReviewEl = document.getElementById('fullpage-unit-price-review');
+        if (unitPriceReviewEl) unitPriceReviewEl.textContent = 'R$ 0,00';
+
         const totalPriceEl = document.getElementById('fullpage-total-price');
         if (totalPriceEl) totalPriceEl.textContent = 'R$ 0,00';
+        const totalPriceReviewEl = document.getElementById('fullpage-total-price-review');
+        if (totalPriceReviewEl) totalPriceReviewEl.textContent = 'R$ 0,00';
+
+        const breakdownEl = document.getElementById('fullpage-price-breakdown');
+        if (breakdownEl) breakdownEl.textContent = 'Base R$ 0,00 + Adicionais R$ 0,00 + Tecido R$ 0,00';
+        const breakdownReviewEl = document.getElementById('fullpage-price-breakdown-review');
+        if (breakdownReviewEl) breakdownReviewEl.textContent = 'Base R$ 0,00 + Adicionais R$ 0,00 + Tecido R$ 0,00';
+
+        toggleFullpageSpecialFabric();
+        setFullpageSubStep(1);
     }
     window.resetFullpageSubForm = resetFullpageSubForm;
 
     // --- Clipboard Paste Listener ---
     document.addEventListener('paste', function(e) {
-        // Encontrar se algum modal relevante está aberto
+        // Encontrar se algum modal relevante estÃ¡ aberto
         const wizardModal = document.getElementById('sewing-wizard-modal');
         const subModal = document.getElementById('sublimation-modal');
 
@@ -3309,7 +3873,7 @@
                 // Criar arquivo fake do blob
                 const file = new File([blob], "pasted-image-" + Date.now() + ".png", { type: "image/png" });
 
-                // Usar DataTransfer para simular seleção de arquivo
+                // Usar DataTransfer para simular seleÃ§Ã£o de arquivo
                 const dataTransfer = new DataTransfer();
                 dataTransfer.items.add(file);
                 targetInput.files = dataTransfer.files;
@@ -3317,7 +3881,7 @@
                 // Disparar preview
                 if (previewFn) previewFn(targetInput);
                 
-                // Mostrar notificação se disponível
+                // Mostrar notificaÃ§Ã£o se disponÃ­vel
                 if (window.showToast) {
                     window.showToast('Imagem colada com sucesso!', 'success');
                 } else if (typeof showNotification === 'function') {
@@ -3335,3 +3899,7 @@
 </script>
 @endpush
 @endsection
+
+
+
+

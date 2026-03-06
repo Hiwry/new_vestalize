@@ -297,8 +297,16 @@ class OrderWizardController extends Controller
         $validated = $request->validate([
             'sublimation_type' => 'required|string|max:50',
             'sublimation_addons' => 'nullable|array',
-            'sublimation_addons.*' => 'integer',
+            'sublimation_addons.*' => 'integer|exists:sublimation_product_addons,id',
             'art_name' => 'required|string|max:255',
+            'fabric_type' => 'required|string|in:PP,CACHARREL,OUTRO',
+            'fabric_custom' => 'nullable|string|max:120|required_if:fabric_type,OUTRO',
+            'fabric_color' => 'nullable|string|max:50',
+            'model_type' => 'required|string|in:BASICA,BABYLOOK,INFANTIL',
+            'base_collar' => 'nullable|string|max:50',
+            'fabric_surcharge' => 'nullable|numeric|min:0',
+            'has_addon_colors' => 'nullable|boolean',
+            'addon_color_map' => 'nullable|string',
             'tamanhos' => 'required|array',
             'quantity' => 'required|integer|min:1',
             'unit_price' => 'required|numeric|min:0',
@@ -782,9 +790,15 @@ class OrderWizardController extends Controller
             $locations = \App\Models\SublimationLocation::where('active', true)
                 ->orderBy('order')
                 ->get();
+
+            $specialOptions = \App\Models\PersonalizationSpecialOption::where('active', true)
+                ->orderBy('order')
+                ->get();
+
+            $personalizationSettings = \App\Models\PersonalizationSetting::all()->keyBy('personalization_type');
             
             // Retornar apenas a seção de conteúdo
-            return view('orders.wizard.customization-multiple', compact('order', 'itemPersonalizations', 'personalizationData', 'locations'))
+            return view('orders.wizard.customization-multiple', compact('order', 'itemPersonalizations', 'personalizationData', 'locations', 'specialOptions', 'personalizationSettings', 'personalizationLookup'))
                 ->render();
                 
         } catch (\Exception $e) {

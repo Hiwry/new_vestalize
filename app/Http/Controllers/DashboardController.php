@@ -131,6 +131,32 @@ class DashboardController extends Controller
         }
     }
 
+    /**
+     * Aplica filtro de situação de pagamento na query de pedidos.
+     * Valores aceitos: all | paid | pending
+     */
+    private function applyPaymentStatusFilter($query, string $paymentStatus): void
+    {
+        if ($paymentStatus === 'paid') {
+            $query->whereHas('payment', function ($q) {
+                $q->where('cash_approved', true)
+                    ->where('remaining_amount', 0);
+            });
+            return;
+        }
+
+        if ($paymentStatus === 'pending') {
+            $query->where(function ($pendingQuery) {
+                $pendingQuery
+                    ->whereDoesntHave('payment')
+                    ->orWhereHas('payment', function ($q) {
+                        $q->where('remaining_amount', '>', 0)
+                            ->orWhere('cash_approved', false);
+                    });
+            });
+        }
+    }
+
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -151,11 +177,18 @@ class DashboardController extends Controller
 
         // Filtros avançados
         $vendorId = $request->get('vendor_id');
+        $paymentStatusFilter = strtolower((string) $request->get('payment_status', 'all'));
+        if (!in_array($paymentStatusFilter, ['all', 'paid', 'pending'], true)) {
+            $paymentStatusFilter = 'all';
+        }
 
         // Se for vendedor, forçar o filtro de vendor_id para ele mesmo
         if ($user->isVendedor()) {
             $vendorId = $user->id;
         }
+        $sellerInsightsEnabled = $user->isVendedor() || !empty($vendorId);
+        $effectivePaymentStatusFilter = $sellerInsightsEnabled ? $paymentStatusFilter : 'all';
+
         // Calcular datas baseado no período
         $dateRange = $this->getDateRange($period, $startDateInput, $endDateInput);
         $startDate = $dateRange['start'];
@@ -175,6 +208,10 @@ class DashboardController extends Controller
             ->whereBetween('created_at', [$startDate, $endDate]);
         $this->applyFilters($baseQuery, $selectedStoreId);
         $this->applyAdvancedFilters($baseQuery, $request);
+
+        // Aplica filtro de pagamento no dashboard quando selecionado.
+        $this->applyPaymentStatusFilter($baseQuery, $effectivePaymentStatusFilter);
+        $this->applyPaymentStatusFilter($previousBaseQuery, $effectivePaymentStatusFilter);
         
         // Estatísticas gerais
         $totalPedidos = (clone $baseQuery)->count();
@@ -186,6 +223,16 @@ class DashboardController extends Controller
                   ->where('remaining_amount', 0);
             })
             ->sum('total');
+
+        // Série mensal da visão geral de receita (respeita período e filtros atuais)
+        $receitaPorMes = (clone $baseQuery)
+            ->select(
+                DB::raw('DATE_FORMAT(orders.created_at, "%Y-%m") as mes'),
+                DB::raw('SUM(orders.total) as faturamento')
+            )
+            ->groupBy(DB::raw('DATE_FORMAT(orders.created_at, "%Y-%m")'))
+            ->orderBy('mes', 'asc')
+            ->get();
         
         $pedidosHoje = (clone $baseQuery)->whereDate('created_at', Carbon::today())->count();
         
@@ -429,6 +476,78 @@ class DashboardController extends Controller
             ->whereHas('order', $paymentQuery)
             ->sum('remaining_amount');
 
+        // Dados específicos para vendedor: pagos/pendentes e onde estão os pedidos.
+        $sellerPaymentSummary = [
+            'paid' => 0,
+            'pending' => 0,
+            'total' => 0,
+        ];
+        $sellerOrderLocation = collect();
+
+        if ($sellerInsightsEnabled) {
+            $sellerOrdersBase = Order::where('is_draft', false)
+                ->whereBetween('orders.created_at', [$startDate, $endDate]);
+            $this->applyFilters($sellerOrdersBase, $selectedStoreId);
+            $this->applyAdvancedFilters($sellerOrdersBase, $request);
+
+            $paidCount = (clone $sellerOrdersBase)
+                ->whereHas('payment', function ($q) {
+                    $q->where('cash_approved', true)
+                        ->where('remaining_amount', 0);
+                })
+                ->count();
+
+            $pendingCount = (clone $sellerOrdersBase)
+                ->where(function ($pendingQuery) {
+                    $pendingQuery
+                        ->whereDoesntHave('payment')
+                        ->orWhereHas('payment', function ($q) {
+                            $q->where('remaining_amount', '>', 0)
+                                ->orWhere('cash_approved', false);
+                        });
+                })
+                ->count();
+
+            $sellerPaymentSummary = [
+                'paid' => $paidCount,
+                'pending' => $pendingCount,
+                'total' => $paidCount + $pendingCount,
+            ];
+
+            $sellerOrdersForLocation = clone $sellerOrdersBase;
+            $this->applyPaymentStatusFilter($sellerOrdersForLocation, $effectivePaymentStatusFilter);
+
+            $sellerOrderLocation = (clone $sellerOrdersForLocation)
+                ->leftJoin('statuses', 'orders.status_id', '=', 'statuses.id')
+                ->selectRaw("COALESCE(statuses.name, 'Sem status') as label, COUNT(*) as total")
+                ->groupBy('label')
+                ->orderByDesc('total')
+                ->limit(6)
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'label' => $item->label,
+                        'total' => (int) $item->total,
+                    ];
+                })
+                ->values();
+
+            if ($sellerOrderLocation->isEmpty()) {
+                $sellerOrderLocation = (clone $sellerOrdersForLocation)
+                    ->selectRaw("CASE WHEN orders.is_pdv = 1 THEN 'PDV' ELSE 'Online' END as label, COUNT(*) as total")
+                    ->groupBy('label')
+                    ->orderByDesc('total')
+                    ->get()
+                    ->map(function ($item) {
+                        return [
+                            'label' => $item->label,
+                            'total' => (int) $item->total,
+                        ];
+                    })
+                    ->values();
+            }
+        }
+
         // Pedidos por mês (últimos 12 meses) - faturamento apenas de aprovados pelo caixa
         $pedidosPorMesBase = Order::where('is_draft', false)
             ->where('created_at', '>=', Carbon::now()->subMonths(12));
@@ -664,6 +783,7 @@ class DashboardController extends Controller
             'solicitacoesPendentesCount',
             'pedidosPorStatus',
             'faturamentoDiario',
+            'receitaPorMes',
             'pedidosRecentes',
             'topClientes',
             'pagamentosPendentes',
@@ -685,6 +805,10 @@ class DashboardController extends Controller
             'produtosMaisVendidos',
             'clientesAtendidos',
             'vendedores',
+            'sellerPaymentSummary',
+            'sellerOrderLocation',
+            'effectivePaymentStatusFilter',
+            'sellerInsightsEnabled',
 
             'period',
             'startDate',

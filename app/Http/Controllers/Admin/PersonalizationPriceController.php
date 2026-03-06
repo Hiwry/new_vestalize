@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PersonalizationPrice;
 use App\Models\SublimationLocation;
+use App\Models\SublimationProductType;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -146,26 +147,30 @@ class PersonalizationPriceController extends Controller
         }
 
         if ($type === 'SUB. TOTAL') {
-            // Carregar preços base (CACHARREL)
+            $tenantId = auth()->user()->tenant_id;
+
+            // Carregar precos base (CACHARREL)
             $sizes = PersonalizationPrice::where('personalization_type', $type)
                 ->select('size_name')
                 ->distinct()
                 ->orderBy('size_name')
                 ->get()
                 ->pluck('size_name');
-                
+
             $prices = PersonalizationPrice::where('personalization_type', $type)
                 ->orderBy('size_name')
                 ->orderBy('quantity_from')
                 ->get()
                 ->groupBy('size_name');
-            
+
             // Carregar adicionais
             $addons = \App\Models\SublimationAddon::getActiveAddons();
 
-            return view('admin.personalization-prices.edit-sub-total', compact('type', 'types', 'sizes', 'prices', 'addons'));
-        }
+            // Carregar tipos de produto de SUB. TOTAL (camisa, conjunto, bandeira, etc.)
+            $productTypes = SublimationProductType::getForTenant($tenantId);
 
+            return view('admin.personalization-prices.edit-sub-total', compact('type', 'types', 'sizes', 'prices', 'addons', 'productTypes'));
+        }
         $sizes = PersonalizationPrice::getSizesForType($type);
         $prices = PersonalizationPrice::where('personalization_type', $type)
             ->orderBy('quantity_from')

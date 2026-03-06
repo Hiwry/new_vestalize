@@ -6,6 +6,14 @@
     <title>@yield('title', 'Marketplace') | Vestalize</title>
     <meta name="description" content="@yield('description', 'Marketplace de design da Vestalize — serviços, ferramentas e designers para sua confecção.')">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>
+        (function() {
+            const html = document.documentElement;
+            const isDarkMode = localStorage.getItem('dark') === 'true';
+            html.classList.toggle('dark', isDarkMode);
+            html.style.colorScheme = isDarkMode ? 'dark' : 'light';
+        })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="{{ asset('vestalize.svg') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +37,8 @@
             </a>
 
             <nav class="hidden lg:flex items-center gap-1 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <a href="{{ route('marketplace.home') }}" class="text-sm {{ request()->routeIs('marketplace.home') ? 'text-foreground font-semibold' : 'text-muted' }} hover:text-foreground font-medium transition-colors px-3 py-1.5">
+                <a href="{{ route('marketplace.home') }}" class="text-sm {{ request()->routeIs('marketplace.home') ? 'text-foreground font-semibold' : 'text-muted' }} hover:text-foreground font-medium transition-colors px-3 py-1.5 flex items-center gap-2">
+                    <i class="fa-solid fa-store {{ request()->routeIs('marketplace.home') ? 'text-primary' : 'text-muted' }} text-xs"></i>
                     Marketplace
                 </a>
                 <a href="{{ route('marketplace.services.index') }}" class="text-sm {{ request()->routeIs('marketplace.services.*') ? 'text-foreground font-semibold' : 'text-muted' }} hover:text-foreground font-medium transition-colors px-3 py-1.5">

@@ -198,8 +198,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const themeToggle = document.getElementById('theme-toggle');
     const html = document.documentElement;
     const body = document.body;
-    const sunIcon = document.getElementById('sun-icon');
-    const moonIcon = document.getElementById('moon-icon');
+    const iconPairs = [
+        {
+            sun: document.getElementById('sun-icon'),
+            moon: document.getElementById('moon-icon')
+        },
+        {
+            sun: document.getElementById('sun-icon-mkt'),
+            moon: document.getElementById('moon-icon-mkt')
+        }
+    ];
 
     // DO NOT override theme if we are in the admin dashboard (avento-theme)
     // The admin area has its own dark-mode.js and state management
@@ -209,14 +217,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateIcons(isLight) {
-        if (!sunIcon || !moonIcon) return;
-        if (isLight) {
-            sunIcon.classList.add('hidden');
-            moonIcon.classList.remove('hidden');
-        } else {
-            sunIcon.classList.remove('hidden');
-            moonIcon.classList.add('hidden');
-        }
+        iconPairs.forEach(({ sun, moon }) => {
+            if (!sun || !moon) return;
+            if (isLight) {
+                sun.classList.add('hidden');
+                moon.classList.remove('hidden');
+            } else {
+                sun.classList.remove('hidden');
+                moon.classList.add('hidden');
+            }
+        });
     }
 
     // Check for saved theme preference (Unified with admin key 'dark')

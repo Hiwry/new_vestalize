@@ -16,44 +16,9 @@ class SublimationProductController extends Controller
     /**
      * Lista todos os tipos de produto com cards
      */
-    public function index(): View
+    public function index(): RedirectResponse
     {
-        $tenantId = auth()->user()->tenant_id;
-        $tenant = auth()->user()->tenant;
-        
-        // Super Admin
-        if (!$tenant) {
-            $tenant = (object) [
-                'sublimation_total_enabled' => false,
-                'id' => null,
-            ];
-        }
-        
-        // Buscar tipos dinâmicos
-        $types = SublimationProductType::getForTenant($tenantId);
-        
-        // Montar dados para cada tipo
-        $productTypes = [];
-        foreach ($types as $type) {
-            $prices = SublimationProductPrice::where('tenant_id', $tenantId)
-                ->where('product_type', $type->slug)
-                ->get();
-            
-            $addonsCount = SublimationProductAddon::where('tenant_id', $tenantId)
-                ->where('product_type', $type->slug)
-                ->count();
-            
-            $productTypes[] = [
-                'slug' => $type->slug,
-                'label' => $type->name,
-                'icon' => $type->icon,
-                'prices_count' => $prices->count(),
-                'addons_count' => $addonsCount,
-                'min_price' => $prices->min('price'),
-            ];
-        }
-
-        return view('admin.sublimation-products.index', compact('productTypes', 'tenant'));
+        return redirect()->route('admin.personalization-prices.edit', ['type' => 'SUB. TOTAL']);
     }
 
     /**
@@ -93,7 +58,7 @@ class SublimationProductController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.sublimation-products.index')
+            ->back()
             ->with('success', "Tipo '{$validated['name']}' adicionado!");
     }
 
@@ -124,7 +89,7 @@ class SublimationProductController extends Controller
         $type->delete();
 
         return redirect()
-            ->route('admin.sublimation-products.index')
+            ->back()
             ->with('success', "Tipo '{$name}' removido!");
     }
 

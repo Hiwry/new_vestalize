@@ -1,15 +1,458 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 animate-fade-in-blur">
-    <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Lista de Pedidos</h1>
-        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Gerencie e acompanhe todas as ordens de serviço</p>
+@php
+    $formatOrderNumber = static function ($id): string {
+        $id = (int) $id;
+        return $id < 100 ? '0' . $id : (string) $id;
+    };
+
+    $resolveStatusColor = static function ($status): string {
+        $color = trim((string) ($status->color ?? ''));
+        if ($color !== '') {
+            return $color;
+        }
+
+        $name = strtolower(trim((string) ($status->name ?? '')));
+
+        return match (true) {
+            str_contains($name, 'cancel') => '#ef4444',
+            str_contains($name, 'entreg'), str_contains($name, 'conclu'), str_contains($name, 'finaliz') => '#10b981',
+            str_contains($name, 'produ'), str_contains($name, 'costur'), str_contains($name, 'fila') => '#3b82f6',
+            str_contains($name, 'aguard'), str_contains($name, 'pend') => '#f59e0b',
+            str_contains($name, 'assin') => '#ec4899',
+            default => '#7c3aed',
+        };
+    };
+@endphp
+<style>
+    .orders-ft {
+        --of-surface-from: #f3f4f8;
+        --of-surface-to: #eceff4;
+        --of-surface-border: #d8dce6;
+        --of-text-primary: #0f172a;
+        --of-text-secondary: #64748b;
+        --of-tab-text: #4b5563;
+        --of-card-bg: #ffffff;
+        --of-card-border: #dde2ea;
+        --of-card-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        --of-input-bg: #ffffff;
+        --of-input-border: #d6d9e2;
+        --of-input-text: #334155;
+        --of-table-head: #e5e9f1;
+        --of-table-row: #eef1f6;
+        background: linear-gradient(180deg, var(--of-surface-from) 0%, var(--of-surface-to) 100%);
+        border: 1px solid var(--of-surface-border);
+        border-radius: 20px;
+        padding: 20px;
+        color: var(--of-text-primary);
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+    }
+
+    .dark .orders-ft {
+        --of-surface-from: #0f172a;
+        --of-surface-to: #0b1322;
+        --of-surface-border: rgba(148, 163, 184, 0.25);
+        --of-text-primary: #e2e8f0;
+        --of-text-secondary: #94a3b8;
+        --of-tab-text: #94a3b8;
+        --of-card-bg: #111827;
+        --of-card-border: rgba(148, 163, 184, 0.22);
+        --of-card-shadow: 0 18px 38px rgba(2, 6, 23, 0.55);
+        --of-input-bg: #0b1322;
+        --of-input-border: rgba(148, 163, 184, 0.3);
+        --of-input-text: #e2e8f0;
+        --of-table-head: rgba(148, 163, 184, 0.25);
+        --of-table-row: rgba(148, 163, 184, 0.16);
+    }
+
+    .orders-ft-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+    }
+
+    .orders-ft-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+        flex: 1 1 320px;
+    }
+
+    .orders-ft-logo {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #6d28d9, #8b5cf6);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .orders-ft-title {
+        font-size: 24px;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--of-text-primary) !important;
+    }
+
+    .orders-ft-subtitle {
+        margin-top: 3px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--of-text-secondary) !important;
+    }
+
+    .orders-ft-btn {
+        height: 38px;
+        border-radius: 12px;
+        padding: 0 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        color: #fff !important;
+        background: linear-gradient(135deg, #6d28d9, #7c3aed);
+        box-shadow: 0 10px 20px rgba(109, 40, 217, 0.25);
+        transition: transform .18s ease, filter .18s ease, box-shadow .2s ease;
+    }
+
+    .orders-ft-btn,
+    .orders-ft-btn span,
+    .orders-ft-btn i,
+    .orders-ft-btn svg,
+    .orders-ft-btn svg * {
+        color: #fff !important;
+        fill: currentColor !important;
+        stroke: currentColor !important;
+        -webkit-text-fill-color: #ffffff !important;
+    }
+
+    .orders-ft-btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.03);
+    }
+
+    .orders-ft .landing-card {
+        background: var(--of-card-bg) !important;
+        border: 1px solid var(--of-card-border) !important;
+        border-radius: 14px !important;
+        box-shadow: var(--of-card-shadow) !important;
+    }
+
+    .orders-ft .orders-ft-filter-card {
+        margin-bottom: 14px !important;
+        border-radius: 14px !important;
+        overflow: hidden;
+    }
+
+    .orders-ft .orders-ft-filter-head {
+        background: var(--of-card-bg) !important;
+        border-bottom: 1px solid var(--of-card-border) !important;
+        padding: 14px 16px !important;
+    }
+
+    .orders-ft .orders-ft-filter-head h3 {
+        color: var(--of-text-primary) !important;
+        font-size: 20px;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+    }
+
+    .orders-ft .orders-ft-filter-head .w-8.h-8 {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+    }
+
+    .orders-ft .orders-ft-filter-body {
+        background: var(--of-card-bg) !important;
+        padding: 16px !important;
+    }
+
+    .orders-ft .orders-ft-filter-body form {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .orders-ft .orders-ft-filter-body .grid {
+        gap: 12px !important;
+    }
+
+    .orders-ft .orders-ft-filter-body .border-t {
+        border-color: var(--of-table-row) !important;
+    }
+
+    .orders-ft .orders-ft-filter-body label {
+        color: var(--of-text-secondary) !important;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .08em;
+    }
+
+    .orders-ft .orders-ft-input,
+    .orders-ft input.orders-ft-input,
+    .orders-ft select.orders-ft-input,
+    .orders-ft textarea.orders-ft-input {
+        box-sizing: border-box;
+        height: 44px !important;
+        min-height: 44px !important;
+        border-radius: 10px !important;
+        border: 1px solid var(--of-input-border) !important;
+        background: var(--of-input-bg) !important;
+        color: var(--of-input-text) !important;
+        padding: 0 12px !important;
+        font-size: 13px !important;
+        line-height: 1.2 !important;
+        transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .orders-ft select.orders-ft-input {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        padding-right: 34px !important;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    .orders-ft input.orders-ft-input[type="date"] {
+        padding-right: 10px !important;
+    }
+
+    .orders-ft .orders-ft-input:focus {
+        outline: none !important;
+        border-color: #7c3aed !important;
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15) !important;
+    }
+
+    .orders-ft .orders-ft-input::placeholder {
+        color: var(--of-text-secondary) !important;
+    }
+
+    .orders-ft .orders-ft-filter-btn {
+        height: 44px;
+        border-radius: 10px !important;
+        padding: 0 14px !important;
+        border: 0 !important;
+        background: linear-gradient(135deg, #6d28d9, #7c3aed) !important;
+        color: #fff !important;
+        box-shadow: 0 10px 20px rgba(109, 40, 217, 0.25) !important;
+        font-size: 13px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: transform .18s ease, box-shadow .2s ease, filter .2s ease;
+    }
+
+    .orders-ft .orders-ft-filter-btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.03);
+    }
+
+    .orders-ft .orders-ft-filter-btn,
+    .orders-ft .orders-ft-filter-btn span,
+    .orders-ft .orders-ft-filter-btn i,
+    .orders-ft .orders-ft-filter-btn svg,
+    .orders-ft .orders-ft-filter-btn svg * {
+        color: #ffffff !important;
+        fill: currentColor !important;
+        stroke: currentColor !important;
+        -webkit-text-fill-color: #ffffff !important;
+    }
+
+    .orders-ft .orders-ft-clear-btn {
+        width: 44px;
+        min-width: 44px;
+        height: 44px;
+        border-radius: 10px !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--of-input-bg) !important;
+        border: 1px solid var(--of-input-border) !important;
+        color: var(--of-text-secondary) !important;
+    }
+
+    .orders-ft .orders-ft-clear-btn:hover {
+        border-color: #7c3aed !important;
+        color: #7c3aed !important;
+        background: rgba(124, 58, 237, 0.06) !important;
+    }
+
+    .orders-ft .orders-ft-table-card {
+        border-radius: 14px !important;
+        overflow: hidden;
+    }
+
+    .orders-ft .orders-ft-scroll-top-wrap {
+        padding: 10px 12px 0;
+        background: var(--of-card-bg);
+        border-bottom: 1px solid var(--of-table-head);
+    }
+
+    .orders-ft .orders-ft-scroll-hint {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--of-text-secondary);
+        margin-bottom: 8px;
+        letter-spacing: .01em;
+    }
+
+    .orders-ft .orders-ft-scroll-top {
+        overflow-x: auto;
+        overflow-y: hidden;
+        height: 12px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--of-table-head) 70%, transparent);
+        scrollbar-width: thin;
+        scrollbar-color: #7c3aed color-mix(in srgb, var(--of-table-head) 70%, transparent);
+    }
+
+    .orders-ft .orders-ft-scroll-top-track {
+        height: 1px;
+        min-width: 100%;
+    }
+
+    .orders-ft .orders-ft-scroll-top::-webkit-scrollbar {
+        height: 10px;
+    }
+
+    .orders-ft .orders-ft-scroll-top::-webkit-scrollbar-track {
+        background: color-mix(in srgb, var(--of-table-head) 70%, transparent);
+        border-radius: 999px;
+    }
+
+    .orders-ft .orders-ft-scroll-top::-webkit-scrollbar-thumb {
+        background: #7c3aed;
+        border-radius: 999px;
+    }
+
+    .orders-ft .table-sticky-wrapper {
+        border-radius: 12px;
+        border: 1px solid var(--of-table-head);
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        background: var(--of-card-bg);
+    }
+
+    .orders-ft .orders-ft-table {
+        width: 100%;
+        min-width: 1200px;
+        border-collapse: collapse;
+    }
+
+    .orders-ft .orders-ft-table thead {
+        background: transparent !important;
+    }
+
+    .orders-ft .orders-ft-table thead th {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .07em;
+        color: var(--of-text-secondary) !important;
+        border-bottom: 1px solid var(--of-table-head);
+        background: transparent !important;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    .orders-ft .orders-ft-table tbody td {
+        border-color: var(--of-table-row) !important;
+        color: var(--of-text-primary) !important;
+    }
+
+    .orders-ft .orders-ft-table tbody tr {
+        border-color: var(--of-table-row) !important;
+        transition: background .16s ease;
+    }
+
+    .orders-ft .orders-ft-table tbody tr:hover {
+        background: rgba(124, 58, 237, 0.08) !important;
+    }
+
+    .orders-ft .orders-ft-mobile-card {
+        border-radius: 14px !important;
+    }
+
+    .orders-ft .orders-ft-mini-btn {
+        height: 40px;
+        border-radius: 10px !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .orders-ft .text-gray-900,
+    .orders-ft .text-gray-800,
+    .orders-ft .text-gray-700 {
+        color: var(--of-text-primary) !important;
+    }
+
+    .orders-ft .text-gray-600,
+    .orders-ft .text-gray-500,
+    .orders-ft .text-gray-400 {
+        color: var(--of-text-secondary) !important;
+    }
+
+    @media (max-width: 768px) {
+        .orders-ft {
+            padding: 14px;
+            border-radius: 16px;
+        }
+
+        .orders-ft-title {
+            font-size: 24px;
+        }
+
+        .orders-ft .orders-ft-filter-head h3 {
+            font-size: 18px;
+        }
+
+        .orders-ft .orders-ft-filter-body {
+            padding: 12px !important;
+        }
+
+        .orders-ft-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6">
+<section class="orders-ft">
+<div class="orders-ft-topbar animate-fade-in-blur">
+    <div class="orders-ft-brand">
+        <span class="orders-ft-logo"><i class="fa-solid fa-receipt"></i></span>
+        <div>
+            <h1 class="orders-ft-title">Lista de Pedidos</h1>
+            <p class="orders-ft-subtitle">Gerencie e acompanhe todas as ordens de serviço</p>
+        </div>
     </div>
-    <a href="{{ route('orders.wizard.start') }}" 
-       style="color: white !important;"
-       class="w-full md:w-auto px-6 py-3 bg-[#7c3aed] text-white font-bold rounded-xl transition-all text-center shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 group">
-        <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <a href="{{ route('orders.wizard.start') }}" class="orders-ft-btn">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
         </svg>
         Novo Pedido
@@ -17,8 +460,8 @@
 </div>
 
 <!-- Filtros Premium -->
-<div class="w-full landing-card mb-8 p-0 overflow-hidden animate-fade-in-up" x-data="{ filtersOpen: window.innerWidth >= 768 }">
-    <div class="p-4 md:p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center cursor-pointer md:cursor-default" @click="filtersOpen = window.innerWidth < 768 ? !filtersOpen : true">
+<div class="w-full landing-card orders-ft-filter-card mb-8 p-0 overflow-hidden animate-fade-in-up" x-data="{ filtersOpen: window.innerWidth >= 768 }">
+    <div class="p-4 md:p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center cursor-pointer md:cursor-default orders-ft-filter-head" @click="filtersOpen = window.innerWidth < 768 ? !filtersOpen : true">
         <h3 class="font-bold text-gray-800 dark:text-gray-200 flex items-center gap-3">
             <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-600">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
@@ -30,7 +473,7 @@
         </button>
     </div>
     
-    <div x-show="filtersOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="p-6">
+    <div x-show="filtersOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="p-6 orders-ft-filter-body">
         <form method="GET" action="{{ route('orders.index') }}" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
                 <div class="md:col-span-8">
@@ -44,13 +487,13 @@
                                value="{{ $search }}"
                                placeholder="Nº do pedido, cliente, telefone ou nome da arte..."
                                style="padding-left: 3.25rem !important;"
-                               class="w-full pr-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium">
+                               class="w-full pr-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium orders-ft-input">
                     </div>
                 </div>
 
                 <div class="md:col-span-4">
                     <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Status</label>
-                    <select name="status" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium">
+                    <select name="status" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium orders-ft-input">
                         <option value="">Todos os Status</option>
                         @foreach($statuses as $s)
                             <option value="{{ $s->id }}" {{ $status == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
@@ -62,7 +505,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end border-t border-gray-100 dark:border-white/5 pt-6">
                 <div>
                     <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Tipo de Data</label>
-                    <select name="date_type" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium">
+                    <select name="date_type" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium orders-ft-input">
                         <option value="created" {{ ($dateType ?? 'created') == 'created' ? 'selected' : '' }}>Data de Criação</option>
                         <option value="delivery" {{ ($dateType ?? 'created') == 'delivery' ? 'selected' : '' }}>Data de Entrega</option>
                     </select>
@@ -70,20 +513,20 @@
 
                 <div>
                     <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Início</label>
-                    <input type="date" name="start_date" value="{{ $startDate }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium">
+                    <input type="date" name="start_date" value="{{ $startDate }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium orders-ft-input">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Fim</label>
-                    <input type="date" name="end_date" value="{{ $endDate }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium">
+                    <input type="date" name="end_date" value="{{ $endDate }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium orders-ft-input">
                 </div>
 
                 <div class="flex gap-2">
-                    <button type="submit" style="color: white !important;" class="flex-1 px-6 py-3 bg-gradient-to-br from-[#7c3aed] to-[#6d28d9] text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
+                    <button type="submit" class="flex-1 px-6 py-3 bg-gradient-to-br from-[#7c3aed] to-[#6d28d9] text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 orders-ft-filter-btn">
                         <svg class="w-4 h-4 text-white" style="color: white !important;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
                         <span style="color: white !important;">Filtrar</span>
                     </button>
-                    <a href="{{ route('orders.index') }}" class="p-3 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition-colors" title="Limpar Filtros">
+                    <a href="{{ route('orders.index') }}" class="p-3 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition-colors orders-ft-clear-btn" title="Limpar Filtros">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                     </a>
                 </div>
@@ -95,18 +538,22 @@
 <!-- Lista de Pedidos Mobile -->
 <div class="space-y-4 md:hidden animate-fade-in-up">
     @forelse($orders as $order)
-    <div class="landing-card p-5 relative overflow-hidden group">
+    @php
+        $statusColor = $resolveStatusColor($order->status);
+        $orderNumber = $formatOrderNumber($order->id);
+    @endphp
+    <div class="landing-card orders-ft-mobile-card p-5 relative overflow-hidden group">
         <!-- Barra Lateral de Status -->
-        <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background-color: {{ $order->status->color ?? '#6b7280' }}"></div>
+        <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background-color: {{ $statusColor }}"></div>
         
         <div class="flex justify-between items-start mb-4">
             <div>
-                <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Pedido #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</span>
+                <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Pedido #{{ $orderNumber }}</span>
                 <h3 class="font-bold text-gray-900 dark:text-white leading-tight mt-1">{{ $order->client ? $order->client->name : 'Sem cliente' }}</h3>
             </div>
             <div class="text-right">
                 <span class="px-2 py-0.5 inline-flex text-[10px] font-bold rounded-md uppercase tracking-wider" 
-                      style="background-color: {{ ($order->status->color ?? '#6b7280') }}20; color: {{ $order->status->color ?? '#6b7280' }}">
+                      style="background-color: {{ $statusColor }}20; color: {{ $statusColor }}">
                     {{ $order->status->name ?? 'Pendente' }}
                 </span>
                 <div class="text-[10px] text-gray-400 mt-1 font-medium">{{ \Carbon\Carbon::parse($order->created_at)->format('d/m/Y') }}</div>
@@ -128,7 +575,7 @@
         </div>
         
         <div class="flex items-center gap-2">
-            <a href="{{ route('orders.show', $order->id) }}" style="color: white !important;" class="flex-1 py-2.5 bg-[#7c3aed] text-white text-xs font-bold rounded-xl text-center shadow-lg shadow-purple-500/20 transition-all">
+            <a href="{{ route('orders.show', $order->id) }}" class="flex-1 py-2.5 bg-[#7c3aed] text-white text-xs font-bold rounded-xl text-center shadow-lg shadow-purple-500/20 transition-all orders-ft-filter-btn orders-ft-mini-btn">
                 Ver Detalhes
             </a>
             <button onclick="openCancellationModal({{ $order->id }})" class="p-2.5 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-xl">
@@ -144,9 +591,18 @@
 </div>
 
 <!-- Lista de Pedidos Desktop -->
-<div class="hidden md:block landing-card p-0 overflow-hidden animate-fade-in-up delay-100">
-    <div class="table-sticky-wrapper overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-100 dark:divide-white/5 sticky-table">
+<div class="hidden md:block landing-card orders-ft-table-card p-0 overflow-hidden animate-fade-in-up delay-100">
+    <div class="orders-ft-scroll-top-wrap" id="ordersTableScrollTopWrap">
+        <div class="orders-ft-scroll-hint">
+            <i class="fa-solid fa-arrows-left-right-to-line"></i>
+            <span>Arraste para o lado para ver Total e Ações</span>
+        </div>
+        <div class="orders-ft-scroll-top" id="ordersTopScroll">
+            <div class="orders-ft-scroll-top-track" id="ordersTopScrollTrack"></div>
+        </div>
+    </div>
+    <div class="table-sticky-wrapper overflow-x-auto" id="ordersTableScroll">
+        <table class="min-w-full divide-y divide-gray-100 dark:divide-white/5 sticky-table orders-ft-table">
             <thead class="bg-gray-50/50 dark:bg-white/5">
                 <tr>
                     <th data-sticky class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Pedido</th>
@@ -162,12 +618,16 @@
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-white/5">
                 @forelse($orders as $order)
+                @php
+                    $statusColor = $resolveStatusColor($order->status);
+                    $orderNumber = $formatOrderNumber($order->id);
+                @endphp
                 <tr class="group hover:bg-gray-50/80 dark:hover:bg-white/[0.02] transition-all duration-200 {{ $order->is_cancelled ? 'opacity-60 bg-red-50/30 dark:bg-red-900/10' : '' }}">
                     <td class="px-6 py-5 whitespace-nowrap">
                         <div class="flex items-center gap-3">
-                            <div class="w-2 h-2 rounded-full" style="background-color: {{ $order->status->color ?? '#6b7280' }}"></div>
+                            <div class="w-2 h-2 rounded-full" style="background-color: {{ $statusColor }}"></div>
                             <div class="text-sm font-bold {{ $order->is_cancelled ? 'text-red-500 line-through' : 'text-gray-900 dark:text-white' }}">
-                                #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
+                                #{{ $orderNumber }}
                             </div>
                         </div>
                         @if($order->is_cancelled)
@@ -221,7 +681,7 @@
                     <td class="px-6 py-5 whitespace-nowrap">
                         <div class="flex flex-col gap-1">
                             <span class="px-3 py-1 inline-flex text-[11px] leading-4 font-bold rounded-lg uppercase tracking-wider" 
-                                  style="background-color: {{ ($order->status->color ?? '#6b7280') }}15; color: {{ $order->status->color ?? '#6b7280' }}">
+                                  style="background-color: {{ $statusColor }}15; color: {{ $statusColor }}">
                                 {{ $order->status->name ?? 'Indefinido' }}
                             </span>
                             @if($order->has_pending_cancellation)
@@ -322,6 +782,8 @@
     {{ $orders->onEachSide(1)->links() }}
 </div>
 @endif
+</section>
+</div>
 
 <!-- Modal de Cancelamento -->
 <div id="cancellationModal" class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 transition-all duration-300">
@@ -444,6 +906,52 @@
     let currentOrderId = null;
     let currentEditOrderId = null;
 
+    function formatOrderCode(orderId) {
+        const id = Number(orderId) || 0;
+        return id < 100 ? `0${id}` : String(id);
+    }
+
+    function initOrdersHorizontalScroll() {
+        const topWrap = document.getElementById('ordersTableScrollTopWrap');
+        const topScroll = document.getElementById('ordersTopScroll');
+        const topTrack = document.getElementById('ordersTopScrollTrack');
+        const tableScroll = document.getElementById('ordersTableScroll');
+
+        if (!topWrap || !topScroll || !topTrack || !tableScroll) {
+            return;
+        }
+
+        const syncMetrics = () => {
+            const hasOverflow = tableScroll.scrollWidth > tableScroll.clientWidth + 1;
+            topWrap.style.display = hasOverflow ? '' : 'none';
+            topTrack.style.width = `${tableScroll.scrollWidth}px`;
+            topScroll.scrollLeft = tableScroll.scrollLeft;
+        };
+
+        if (!topScroll.dataset.bound) {
+            let syncing = false;
+
+            topScroll.addEventListener('scroll', function () {
+                if (syncing) return;
+                syncing = true;
+                tableScroll.scrollLeft = topScroll.scrollLeft;
+                syncing = false;
+            });
+
+            tableScroll.addEventListener('scroll', function () {
+                if (syncing) return;
+                syncing = true;
+                topScroll.scrollLeft = tableScroll.scrollLeft;
+                syncing = false;
+            });
+
+            topScroll.dataset.bound = '1';
+        }
+
+        syncMetrics();
+        requestAnimationFrame(syncMetrics);
+    }
+
     // Expor funções globalmente para garantir que estejam disponíveis
     window.openCancellationModal = function(orderId) {
         currentOrderId = orderId;
@@ -453,7 +961,7 @@
         const cancellationModalEl = document.getElementById('cancellationModal');
         
         if (modalOrderIdEl) {
-            modalOrderIdEl.textContent = '#' + String(orderId).padStart(6, '0');
+            modalOrderIdEl.textContent = '#' + formatOrderCode(orderId);
         }
         if (cancellationReasonEl) {
             cancellationReasonEl.value = '';
@@ -577,7 +1085,7 @@
         const editRequestModalEl = document.getElementById('editRequestModal');
         
         if (modalEditOrderIdEl) {
-            modalEditOrderIdEl.textContent = '#' + String(orderId).padStart(6, '0');
+            modalEditOrderIdEl.textContent = '#' + formatOrderCode(orderId);
         }
         if (editRequestReasonEl) {
             editRequestReasonEl.value = '';
@@ -708,6 +1216,10 @@
 
     // Inicializar event listeners quando o DOM estiver pronto
     document.addEventListener('DOMContentLoaded', function() {
+        initOrdersHorizontalScroll();
+        setTimeout(initOrdersHorizontalScroll, 120);
+        window.addEventListener('resize', initOrdersHorizontalScroll);
+
         // Fechar modais ao clicar fora deles
         const cancellationModalEl = document.getElementById('cancellationModal');
         if (cancellationModalEl) {

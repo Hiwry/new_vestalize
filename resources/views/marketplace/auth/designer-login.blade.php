@@ -26,7 +26,10 @@
                 <img src="{{ asset('vestalize.svg') }}" alt="Vestalize" class="h-8 w-auto transition-transform group-hover:scale-105">
             </a>
             <nav class="hidden lg:flex items-center gap-1 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <a href="{{ route('marketplace.home') }}" class="text-sm text-muted hover:text-foreground font-medium transition-colors px-3 py-1.5">Marketplace</a>
+                <a href="{{ route('marketplace.home') }}" class="text-sm text-muted hover:text-foreground font-medium transition-colors px-3 py-1.5 flex items-center gap-2">
+                    <i class="fa-solid fa-store text-primary text-xs"></i>
+                    Marketplace
+                </a>
             </nav>
             <div class="flex items-center gap-3">
                 <a href="{{ route('designer.register') }}" class="btn-primary text-sm py-2 px-4">

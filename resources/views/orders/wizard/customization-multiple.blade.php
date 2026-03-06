@@ -150,7 +150,7 @@
                 @endif
 
                 <!-- Resumo -->
-                <div class="bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700 p-5 mb-6">
+                <div id="customization-summary" class="bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700 p-5 mb-6">
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         <div class="bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/10 rounded-xl p-4 border border-blue-100 dark:border-blue-800/50">
                             <div class="flex items-center gap-3 mb-2">
@@ -213,7 +213,7 @@
                 </div>
 
                 <!-- Lista de Itens -->
-                <div class="space-y-6">
+                <div id="customization-items-container" class="space-y-6">
                     @foreach($itemPersonalizations as $itemData)
                         @php
                             $item = $itemData['item'];
@@ -429,7 +429,7 @@
 
     <!-- Modal de Adicionar Personalização -->
     <div id="personalizationModal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-slate-700/50 animate-slideUp">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-gray-200 dark:border-slate-700/50 animate-slideUp flex flex-col">
             
             <!-- Modal Header com gradiente e ícone -->
             <div class="px-6 py-5 border-b border-gray-200 dark:border-slate-700/50 flex items-center justify-between sticky top-0 bg-white dark:bg-gradient-to-r dark:from-purple-600/20 dark:via-slate-900 dark:to-slate-900 z-10 backdrop-blur-sm">
@@ -452,7 +452,7 @@
             </div>
             
             <!-- Modal Body -->
-            <form id="personalizationForm" action="{{ $customizationAction }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6">
+            <form id="personalizationForm" action="{{ $customizationAction }}" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
                 @csrf
                 <input type="hidden" id="modal_item_id" name="item_id">
                 <input type="hidden" id="modal_personalization_type" name="personalization_type">
@@ -536,7 +536,7 @@
 
 
                 <!-- Adicionais (Opções Especiais) -->
-                <div id="addonsField" class="hidden">
+                <div id="addonsField">
                     <div class="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/10 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800/50">
                         <label class="flex items-center gap-2 text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-3">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -544,6 +544,9 @@
                             </svg>
                             Adicionais (Opções Especiais)
                         </label>
+                        <p id="addonsAvailability" class="mb-3 text-xs text-emerald-700 dark:text-emerald-400">
+                            Carregando adicionais disponíveis...
+                        </p>
                         
                         <!-- Lista de adicionais adicionados -->
                         <div id="addonsList" class="space-y-2 mb-3">
@@ -772,7 +775,18 @@
 
         // Dados de tamanhos por tipo
         const personalizationSizes = @json($personalizationData);
-        const normalizeTypeKey = (type) => type && type.trim().toUpperCase();
+        const normalizeTypeKey = (type) => {
+            if (!type) return '';
+
+            return type
+                .toString()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[._-]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .toUpperCase();
+        };
         window.normalizeTypeKey = normalizeTypeKey;
         const orderArtData = @json($orderArtData);
         const personalizationLookup = @json($personalizationLookup->map->id); // Mapeamento de Nome -> ID
@@ -902,8 +916,19 @@
                 colorCountInput.addEventListener('input', calculatePrice);
                 colorCountInput.addEventListener('change', calculatePrice);
             }
+
+            updateAvailableAddonsState();
         }
         window.loadAddons = loadAddons;
+
+        function showAddonsField() {
+            const addonsField = document.getElementById('addonsField');
+            if (!addonsField) return;
+
+            addonsField.classList.remove('hidden');
+            addonsField.style.display = 'block';
+        }
+        window.showAddonsField = showAddonsField;
 
 
         function openPersonalizationModal(itemId, persType, persId) {
@@ -960,7 +985,7 @@
                 document.getElementById('sizeField').classList.add('hidden');
                 document.getElementById('quantityField').classList.remove('hidden');
                 document.getElementById('colorDetailsField').classList.add('hidden');
-                document.getElementById('addonsField').classList.remove('hidden');
+                showAddonsField();
                 
                 // Preencher quantidade automaticamente com a quantidade do item clicado
                 const itemQty = itemQuantitiesMap[itemId] || 1;
@@ -973,7 +998,7 @@
                 document.getElementById('sizeField').classList.remove('hidden');
                 document.getElementById('quantityField').classList.remove('hidden');
                 document.getElementById('colorDetailsField').classList.add('hidden');
-                document.getElementById('addonsField').classList.remove('hidden');
+                showAddonsField();
 
                 // Preencher quantidade automaticamente com a quantidade do item clicado
                 const itemQty = itemQuantitiesMap[itemId] || 1;
@@ -986,7 +1011,7 @@
                 document.getElementById('sizeField').classList.remove('hidden');
                 document.getElementById('quantityField').classList.remove('hidden');
                 document.getElementById('colorDetailsField').classList.add('hidden');
-                document.getElementById('addonsField').classList.remove('hidden');
+                showAddonsField();
 
                 // Preencher quantidade automaticamente com a quantidade do item clicado
                 const itemQty = itemQuantitiesMap[itemId] || 1;
@@ -999,7 +1024,7 @@
                 document.getElementById('sizeField').classList.remove('hidden');
                 document.getElementById('quantityField').classList.remove('hidden');
                 document.getElementById('colorDetailsField').classList.remove('hidden');
-                document.getElementById('addonsField').classList.remove('hidden');
+                showAddonsField();
 
                 // Preencher quantidade automaticamente com a quantidade do item clicado
                 const itemQty = itemQuantitiesMap[itemId] || 1;
@@ -1050,6 +1075,7 @@
             
             // Mostrar modal
             document.getElementById('personalizationModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
         }
         window.openPersonalizationModal = openPersonalizationModal;
 
@@ -1368,6 +1394,7 @@
         function closePersonalizationModal() {
             const modal = document.getElementById('personalizationModal');
             if (modal) modal.classList.add('hidden');
+            document.body.style.overflow = '';
             currentItemId = '';
             currentPersonalizationType = '';
             currentPersonalizationId = '';
@@ -1512,6 +1539,106 @@
         @endphp
         const availableAddons = @json($addonsData);
 
+        function getAvailableAddonsForType(type = currentPersonalizationType) {
+            const normalizedCurrentType = normalizeTypeKey(type);
+
+            return availableAddons.filter((addon) => {
+                const addonType = normalizeTypeKey(addon.personalization_type);
+                return addonType === normalizedCurrentType;
+            });
+        }
+        window.getAvailableAddonsForType = getAvailableAddonsForType;
+
+        function updateAvailableAddonsState(type = currentPersonalizationType) {
+            const availability = document.getElementById('addonsAvailability');
+            const addBtn = document.getElementById('addAddonBtn');
+            const filteredAddons = getAvailableAddonsForType(type);
+
+            showAddonsField();
+
+            if (availability) {
+                if (filteredAddons.length === 0) {
+                    availability.textContent = 'Nenhum adicional ativo para este tipo no momento.';
+                } else if (filteredAddons.length === 1) {
+                    availability.textContent = '1 adicional disponível para esta personalização.';
+                } else {
+                    availability.textContent = `${filteredAddons.length} adicionais disponíveis para esta personalização.`;
+                }
+            }
+
+            if (addBtn) {
+                addBtn.disabled = filteredAddons.length === 0;
+                addBtn.classList.toggle('opacity-50', filteredAddons.length === 0);
+                addBtn.classList.toggle('cursor-not-allowed', filteredAddons.length === 0);
+                addBtn.classList.toggle('hover:bg-emerald-50', filteredAddons.length > 0);
+                addBtn.classList.toggle('dark:hover:bg-emerald-900/30', filteredAddons.length > 0);
+            }
+        }
+        window.updateAvailableAddonsState = updateAvailableAddonsState;
+
+        function appendAddonToSelection(addonData) {
+            const addonsList = document.getElementById('addonsList');
+            const addonsSelect = document.getElementById('addons');
+
+            if (!addonsList || !addonsSelect || !addonData) {
+                return;
+            }
+
+            if (document.querySelector(`[data-addon-id="${addonData.id}"]`)) {
+                return;
+            }
+
+            const addonPrice = parseFloat(addonData.price_adjustment ?? 0);
+            const addonPercentage = parseFloat(addonData.percentage ?? 0);
+            const chargeType = addonData.charge_type;
+
+            let priceDisplay = '<span class="text-gray-500 dark:text-slate-400 font-semibold">Grátis</span>';
+            if (chargeType === 'percentage' && addonPercentage > 0) {
+                priceDisplay = `<span class="text-emerald-600 dark:text-emerald-400 font-semibold">+${addonPercentage}%</span>`;
+            } else if (addonPrice > 0) {
+                priceDisplay = `<span class="text-[#7c3aed] font-semibold">+R$ ${addonPrice.toFixed(2).replace('.', ',')}</span>`;
+            } else if (addonPrice < 0) {
+                priceDisplay = `<span class="text-green-600 dark:text-green-400 font-semibold">-R$ ${Math.abs(addonPrice).toFixed(2).replace('.', ',')}</span>`;
+            }
+
+            const addonElement = document.createElement('div');
+            addonElement.className = 'flex items-center justify-between p-3 bg-white hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-slate-700/50 rounded-lg border border-emerald-200/70 dark:border-slate-600/50 transition-all group';
+            addonElement.setAttribute('data-addon-id', addonData.id);
+            addonElement.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/15 dark:bg-emerald-500/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-900 dark:text-white">${addonData.name}</span>
+                        <div class="text-sm">${priceDisplay}</div>
+                    </div>
+                </div>
+                <button type="button" class="remove-addon p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100" data-addon-id="${addonData.id}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            `;
+
+            addonsList.appendChild(addonElement);
+
+            const option = document.createElement('option');
+            option.value = addonData.id;
+            option.selected = true;
+            option.textContent = addonData.name;
+            addonsSelect.appendChild(option);
+
+            addonElement.querySelector('.remove-addon').addEventListener('click', function() {
+                addonElement.remove();
+                option.remove();
+                updateAddonsPrices();
+            });
+        }
+        window.appendAddonToSelection = appendAddonToSelection;
+
 
 
 
@@ -1521,11 +1648,7 @@
             if (oldModal) oldModal.remove();
 
             // Filtrar adicionais pelo tipo de personalização atual
-            const normalizedCurrentType = normalizeTypeKey(currentPersonalizationType);
-            const filteredAddons = availableAddons.filter(addon => {
-                const addonType = normalizeTypeKey(addon.personalization_type);
-                return addonType === normalizedCurrentType;
-            });
+            const filteredAddons = getAvailableAddonsForType();
             
             // Função auxiliar para formatar o valor do adicional
             const formatAddonPrice = (addon) => {
@@ -1666,69 +1789,15 @@
 
         function confirmAddAddon() {
             const checkboxes = document.querySelectorAll('.addon-checkbox:checked');
-            const addonsList = document.getElementById('addonsList');
-            const addonsSelect = document.getElementById('addons');
             
             checkboxes.forEach(checkbox => {
-                const addonId = checkbox.value;
-                const addonName = checkbox.dataset.name;
-                const addonPrice = parseFloat(checkbox.dataset.price);
-                const addonPercentage = parseFloat(checkbox.dataset.percentage) || 0;
-                const chargeType = checkbox.dataset.chargeType;
-                const addonDescription = checkbox.dataset.description;
-                
-                // Verificar se já foi adicionado
-                if (document.querySelector(`[data-addon-id="${addonId}"]`)) {
-                    return; // Já existe, pular
-                }
-                
-                // Formatar exibição do preço
-                let priceDisplay = '';
-                if (chargeType === 'percentage' && addonPercentage > 0) {
-                    priceDisplay = `<span class="text-emerald-600 dark:text-emerald-400 font-semibold">+${addonPercentage}%</span>`;
-                } else if (addonPrice > 0) {
-                    priceDisplay = `<span class="text-[#7c3aed] font-semibold">+R$ ${addonPrice.toFixed(2).replace('.', ',')}</span>`;
-                } else if (addonPrice < 0) {
-                    priceDisplay = `<span class="text-green-600 dark:text-green-400 font-semibold">-R$ ${Math.abs(addonPrice).toFixed(2).replace('.', ',')}</span>`;
-                }
-                
-                // Criar elemento visual com estilo moderno
-                const addonElement = document.createElement('div');
-                addonElement.className = 'flex items-center justify-between p-3 bg-white hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-slate-700/50 rounded-lg border border-emerald-200/70 dark:border-slate-600/50 transition-all group';
-                addonElement.setAttribute('data-addon-id', addonId);
-                addonElement.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-500/15 dark:bg-emerald-500/20 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <span class="font-medium text-gray-900 dark:text-white">${addonName}</span>
-                            <div class="text-sm">${priceDisplay}</div>
-                        </div>
-                    </div>
-                    <button type="button" class="remove-addon p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100" data-addon-id="${addonId}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                `;
-                
-                addonsList.appendChild(addonElement);
-                
-                // Adicionar ao select oculto
-                const option = document.createElement('option');
-                option.value = addonId;
-                option.selected = true;
-                option.textContent = addonName;
-                addonsSelect.appendChild(option);
-                
-                // Evento para remover
-                addonElement.querySelector('.remove-addon').addEventListener('click', function() {
-                    addonElement.remove();
-                    option.remove();
-                    updateAddonsPrices();
+                appendAddonToSelection({
+                    id: checkbox.value,
+                    name: checkbox.dataset.name,
+                    price_adjustment: checkbox.dataset.price,
+                    percentage: checkbox.dataset.percentage || 0,
+                    charge_type: checkbox.dataset.chargeType,
+                    description: checkbox.dataset.description,
                 });
             });
             
@@ -2083,15 +2152,15 @@
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = html;
                     
-                    const newSummary = tempDiv.querySelector('.bg-gray-50.dark:bg-slate-800\\/50.rounded-lg.border.border-gray-200.dark:border-slate-700.p-5.mb-6');
+                    const newSummary = tempDiv.querySelector('#customization-summary');
                     if (newSummary) {
-                        const currentSummary = document.querySelector('.bg-gray-50.dark:bg-slate-800\\/50.rounded-lg.border.border-gray-200.dark:border-slate-700.p-5.mb-6');
+                        const currentSummary = document.querySelector('#customization-summary');
                         if (currentSummary) currentSummary.innerHTML = newSummary.innerHTML;
                     }
                     
-                    const newItemsContainer = tempDiv.querySelector('.space-y-6');
+                    const newItemsContainer = tempDiv.querySelector('#customization-items-container');
                     if (newItemsContainer) {
-                        const currentItemsContainer = document.querySelector('.space-y-6');
+                        const currentItemsContainer = document.querySelector('#customization-items-container');
                         if (currentItemsContainer) currentItemsContainer.innerHTML = newItemsContainer.innerHTML;
                     }
                     
@@ -2215,11 +2284,21 @@
                 const persType = pers.application_type;
                 const itemId = pers.order_item_id;
                 const normalizedType = normalizeTypeKey(persType);
+                currentItemId = itemId;
+                currentPersonalizationType = persType;
+                currentPersonalizationId = id;
 
                 document.getElementById('modal_item_id').value = itemId;
                 document.getElementById('modal_personalization_type').value = persType;
                 document.getElementById('modal_personalization_id').value = '';
                 document.getElementById('editing_personalization_id').value = id;
+
+                const addonsList = document.getElementById('addonsList');
+                if (addonsList) addonsList.innerHTML = '';
+                const addonsSelect = document.getElementById('addons');
+                if (addonsSelect) addonsSelect.innerHTML = '';
+                const addonsPrices = document.getElementById('addons-prices');
+                if (addonsPrices) addonsPrices.innerHTML = '';
                 
                 const typeSetting = personalizationSettings[normalizedType] || personalizationSettings[persType];
                 const useColorCharge = typeSetting && typeSetting.charge_by_color;
@@ -2245,13 +2324,14 @@
                     document.getElementById('locationField').classList.add('hidden');
                     document.getElementById('sizeField').classList.add('hidden');
                     document.getElementById('colorDetailsField').classList.add('hidden');
-                    document.getElementById('addonsField').classList.remove('hidden');
+                    showAddonsField();
                     loadAddons();
                 } else {
                     document.getElementById('locationField').classList.remove('hidden');
                     document.getElementById('sizeField').classList.remove('hidden');
                     document.getElementById('colorDetailsField').classList.remove('hidden');
-                    document.getElementById('addonsField').classList.add('hidden');
+                    showAddonsField();
+                    loadAddons();
                 }
                 
                 loadSizes(normalizedType);
@@ -2263,6 +2343,13 @@
                 if (pers.color_count !== null && pers.color_count !== undefined) document.getElementById('color_count').value = pers.color_count;
                 if (pers.color_details) document.getElementById('color_details').value = pers.color_details;
                 if (pers.seller_notes) document.getElementById('seller_notes').value = pers.seller_notes;
+                if (Array.isArray(pers.addons)) {
+                    pers.addons
+                        .map((addonId) => availableAddons.find((addon) => String(addon.id) === String(addonId)))
+                        .filter(Boolean)
+                        .forEach((addon) => appendAddonToSelection(addon));
+                    updateAddonsPrices();
+                }
 
                 const unitPriceVal = parseFloat(pers.unit_price ?? 0) || 0;
                 const totalPriceVal = parseFloat(pers.final_price ?? 0) || 0;
@@ -2284,6 +2371,7 @@
                 
                 document.getElementById('modalTitle').textContent = `Editar ${persType}`;
                 document.getElementById('personalizationModal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
                 
             } catch (error) {
                 console.error('Erro ao editar:', error);

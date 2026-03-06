@@ -3729,8 +3729,16 @@
     
     // Garantir que as funções estão disponíveis globalmente
     window.openRequestTransferModal = openRequestTransferModal;
+    window.closeRequestTransferModal = closeRequestTransferModal;
+    window.submitRequestTransfer = submitRequestTransfer;
+
     window.openRequestOrderModal = openRequestOrderModal;
+    window.closeRequestOrderModal = closeRequestOrderModal;
+    window.submitRequestOrder = submitRequestOrder;
+
     window.openRequestDecrementModal = openRequestDecrementModal;
+    window.closeRequestDecrementModal = closeRequestDecrementModal;
+    window.submitRequestDecrement = submitRequestDecrement;
     
     function submitComplete(event) {
         event.preventDefault();

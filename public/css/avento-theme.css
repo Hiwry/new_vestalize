@@ -39,7 +39,13 @@
     --avento-text-muted: #94a3b8;
 
     /* Utilities for light mode dashboard */
+    --avento-sidebar-bg: #ffffff;
     --avento-sidebar-item-hover: rgba(124, 58, 237, 0.05);
+    --avento-shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.06);
+    --avento-shadow-md: 0 12px 28px rgba(15, 23, 42, 0.1);
+    --avento-shadow-lg: 0 20px 40px rgba(15, 23, 42, 0.14);
+    --avento-shadow-glow: 0 0 0 1px rgba(124, 58, 237, 0.24), 0 14px 34px rgba(124, 58, 237, 0.2);
+    --avento-accent-orange: #f59e0b;
 }
 
 /* DEEP DARK THEME (The true Dark Mode) */
@@ -60,7 +66,21 @@ html.dark {
     --avento-text-secondary: #94a3b8;
     --avento-text-muted: #4b5563;
 
+    --avento-sidebar-bg: #000000;
     --avento-sidebar-item-hover: rgba(255, 255, 255, 0.05);
+    --avento-shadow-sm: 0 10px 24px rgba(0, 0, 0, 0.45);
+    --avento-shadow-md: 0 16px 34px rgba(0, 0, 0, 0.55);
+    --avento-shadow-lg: 0 24px 50px rgba(0, 0, 0, 0.7);
+    --avento-shadow-glow: 0 0 0 1px rgba(124, 58, 237, 0.32), 0 14px 36px rgba(124, 58, 237, 0.26);
+    --avento-accent-orange: #fbbf24;
+}
+
+html.avento-theme {
+    color-scheme: light;
+}
+
+html.avento-theme.dark {
+    color-scheme: dark;
 }
 
 /* ============================================
@@ -505,6 +525,43 @@ html:not(.dark) .avento-theme .bg-emerald-600 .text-white,
 html:not(.dark) .avento-theme .bg-orange-600 .text-white,
 html:not(.dark) .avento-theme .bg-\[#7c3aed\] .text-white {
     color: #ffffff !important;
+}
+
+/* CTA buttons/links: force white label + icon color consistently */
+.avento-theme :is(a, button, [role="button"]).ft-action,
+.avento-theme :is(a, button, [role="button"]).sh-action,
+.avento-theme :is(a, button, [role="button"]).btn-primary,
+.avento-theme :is(a, button, [role="button"]).btn-primary-gradient,
+.avento-theme :is(a, button, [role="button"]).bg-indigo-600,
+.avento-theme :is(a, button, [role="button"]).bg-indigo-500,
+.avento-theme :is(a, button, [role="button"]).bg-purple-600,
+.avento-theme :is(a, button, [role="button"]).bg-purple-500,
+.avento-theme :is(a, button, [role="button"]).bg-blue-600,
+.avento-theme :is(a, button, [role="button"]).bg-green-600,
+.avento-theme :is(a, button, [role="button"]).bg-green-500,
+.avento-theme :is(a, button, [role="button"]).bg-emerald-600,
+.avento-theme :is(a, button, [role="button"]).bg-red-600,
+.avento-theme :is(a, button, [role="button"]).bg-orange-600 {
+    color: #ffffff !important;
+}
+
+.avento-theme :is(a, button, [role="button"]).ft-action *,
+.avento-theme :is(a, button, [role="button"]).sh-action *,
+.avento-theme :is(a, button, [role="button"]).btn-primary *,
+.avento-theme :is(a, button, [role="button"]).btn-primary-gradient *,
+.avento-theme :is(a, button, [role="button"]).bg-indigo-600 *,
+.avento-theme :is(a, button, [role="button"]).bg-indigo-500 *,
+.avento-theme :is(a, button, [role="button"]).bg-purple-600 *,
+.avento-theme :is(a, button, [role="button"]).bg-purple-500 *,
+.avento-theme :is(a, button, [role="button"]).bg-blue-600 *,
+.avento-theme :is(a, button, [role="button"]).bg-green-600 *,
+.avento-theme :is(a, button, [role="button"]).bg-green-500 *,
+.avento-theme :is(a, button, [role="button"]).bg-emerald-600 *,
+.avento-theme :is(a, button, [role="button"]).bg-red-600 *,
+.avento-theme :is(a, button, [role="button"]).bg-orange-600 * {
+    color: #ffffff !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
 }
 
 html:not(.dark) .avento-theme .bg-white\/5 {
@@ -1137,10 +1194,9 @@ html:not(.dark) .avento-theme .border-white\/10 {
    Sidebar Footer & Theme Toggle (Premium Style)
    ============================================ */
 .sidebar-footer-custom {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    position: relative;
+    margin-top: auto;
+    flex-shrink: 0;
     padding: 1.25rem 0.75rem;
     background: #ffffff !important;
     border-top: 1px solid rgba(0, 0, 0, 0.05) !important;

@@ -10,9 +10,14 @@
         <!--  Dark Mode Script INLINE - Executar ANTES de qualquer renderização -->
         <script>
             (function() {
+                const html = document.documentElement;
                 const isDarkMode = localStorage.getItem('dark') === 'true';
                 if (isDarkMode) {
-                    document.documentElement.classList.add('dark');
+                    html.classList.add('dark');
+                    html.style.colorScheme = 'dark';
+                } else {
+                    html.classList.remove('dark');
+                    html.style.colorScheme = 'light';
                 }
             })();
         </script>
