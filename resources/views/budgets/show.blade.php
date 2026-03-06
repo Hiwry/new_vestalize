@@ -162,7 +162,42 @@
                             <p class="font-semibold text-gray-900 dark:text-gray-100 text-lg">{{ $budget->deadline_days }} dias</p>
                         </div>
                     </div>
-                    @if($budget->product_internal)
+                    @if($budget->items->isNotEmpty())
+                    <div class="mt-4 space-y-3">
+                        @foreach($budget->items as $quickItem)
+                            @php
+                                $quickMeta = json_decode($quickItem->personalization_types, true) ?? [];
+                                $quickUnit = (float) ($quickMeta['unit_price'] ?? ($quickItem->quantity > 0 ? $quickItem->item_total / $quickItem->quantity : 0));
+                            @endphp
+                            <div class="bg-white dark:bg-gray-800/50 rounded-lg p-4 border border-emerald-100 dark:border-emerald-900/40">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-900 dark:text-gray-100">{{ $quickMeta['model'] ?? $quickItem->fabric ?? 'Item rápido' }}</p>
+                                        <p class="text-sm text-emerald-700 dark:text-emerald-300">{{ $quickMeta['print_type'] ?? $budget->technique }}</p>
+                                        @if(!empty($quickMeta['notes']))
+                                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $quickMeta['notes'] }}</p>
+                                        @endif
+                                    </div>
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">R$ {{ number_format($quickItem->item_total, 2, ',', '.') }}</span>
+                                </div>
+                                <div class="mt-3 grid grid-cols-3 gap-3 text-sm">
+                                    <div>
+                                        <span class="text-gray-500 dark:text-gray-400 text-xs">Qtd</span>
+                                        <p class="font-medium text-gray-900 dark:text-gray-100">{{ $quickItem->quantity }}</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500 dark:text-gray-400 text-xs">Unitário</span>
+                                        <p class="font-medium text-gray-900 dark:text-gray-100">R$ {{ number_format($quickUnit, 2, ',', '.') }}</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500 dark:text-gray-400 text-xs">Aplicação</span>
+                                        <p class="font-medium text-gray-900 dark:text-gray-100">{{ $quickMeta['application_size'] ?? '-' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    @elseif($budget->product_internal)
                     <div class="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-700">
                         <span class="text-gray-600 dark:text-gray-400 text-xs">Produto (interno)</span>
                         <p class="font-medium text-gray-900 dark:text-gray-100">{{ $budget->product_internal }}</p>

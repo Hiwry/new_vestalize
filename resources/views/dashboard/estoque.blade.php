@@ -2,6 +2,123 @@
 
 @section('content')
 <style>
+    .stock-main-dashboard {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 1.5rem;
+        background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, 0.10), transparent), var(--background);
+        border: 1px solid var(--border);
+        border-radius: 2rem;
+        box-shadow: var(--shadow);
+    }
+
+    .stock-main-dashboard .glass-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        padding-bottom: 0.5rem;
+    }
+
+    .stock-main-dashboard .glass-filter {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .dark .stock-main-dashboard {
+        background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, 0.14), transparent), var(--background);
+    }
+
+    .stock-main-dashboard .bg-white {
+        background: var(--card-bg) !important;
+    }
+
+    .stock-main-dashboard .dark\:bg-gray-800,
+    .stock-main-dashboard .dark\:bg-gray-900 {
+        background: var(--card-bg) !important;
+    }
+
+    .stock-main-dashboard .shadow,
+    .stock-main-dashboard .dark\:shadow-gray-900\/25 {
+        box-shadow: var(--shadow) !important;
+        border: 1px solid var(--border);
+        border-radius: 1.5rem !important;
+    }
+
+    .stock-main-dashboard .bg-gray-50 {
+        background: var(--input-bg) !important;
+    }
+
+    .stock-main-dashboard tbody.bg-white {
+        background: transparent !important;
+    }
+
+    .stock-main-dashboard .rounded-lg,
+    .stock-main-dashboard .rounded-xl,
+    .stock-main-dashboard .rounded-2xl {
+        border-radius: 1.5rem !important;
+    }
+
+    .stock-main-dashboard .text-gray-900,
+    .stock-main-dashboard .dark\:text-gray-100 {
+        color: var(--foreground) !important;
+    }
+
+    .stock-main-dashboard .text-gray-700,
+    .stock-main-dashboard .text-gray-600,
+    .stock-main-dashboard .text-gray-500,
+    .stock-main-dashboard .dark\:text-gray-300,
+    .stock-main-dashboard .dark\:text-gray-400 {
+        color: var(--muted) !important;
+    }
+
+    .stock-main-dashboard .divide-gray-200 > :not([hidden]) ~ :not([hidden]),
+    .stock-main-dashboard .dark\:divide-gray-700 > :not([hidden]) ~ :not([hidden]) {
+        border-color: var(--border) !important;
+    }
+
+    .stock-main-dashboard thead.bg-gray-50,
+    .stock-main-dashboard thead.dark\:bg-gray-800 {
+        background: var(--input-bg) !important;
+    }
+
+    .stock-main-dashboard select {
+        background: var(--input-bg) !important;
+        color: var(--foreground) !important;
+        border-color: var(--border) !important;
+        color-scheme: light;
+    }
+
+    .stock-main-dashboard table tr:hover td {
+        background: color-mix(in srgb, var(--card-bg) 88%, var(--foreground) 12%);
+    }
+
+    .dark .stock-main-dashboard select {
+        color-scheme: dark;
+    }
+
+    .stock-main-dashboard canvas {
+        filter: saturate(1.05);
+    }
+
+    @media (max-width: 768px) {
+        .stock-main-dashboard {
+            padding: 1rem;
+            border-radius: 1.5rem;
+        }
+
+        .stock-main-dashboard .glass-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .stock-main-dashboard .glass-filter {
+            width: 100%;
+        }
+    }
     /* Evita borda global em bolhas de ícone (regra do tema pega .rounded-full + .bg-*) */
     .estoque-icon-badge {
         border-radius: 9999px;
@@ -26,11 +143,15 @@
     .dark .estoque-icon-yellow { background-color: rgba(113, 63, 18, 0.3); }
     .dark .estoque-icon-indigo { background-color: rgba(55, 48, 163, 0.3); }
 </style>
-<div class="flex justify-between items-center mb-8">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Dashboard de Estoque</h1>
+<div class="stock-main-dashboard">
+<div class="glass-header">
+    <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Dashboard <span class="text-purple-500">Estoque</span></h1>
+        <p class="mt-2 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-500">Visão geral estratégica e controle de inventário</p>
+    </div>
     
     @if(isset($stores) && $stores->count() > 0)
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-4 glass-filter">
         <label for="store_filter" class="text-sm font-medium text-gray-700 dark:text-gray-300">Filtrar por Loja:</label>
         <form method="GET" action="{{ route('stocks.dashboard') }}" id="storeFilterForm" class="inline">
             <select name="store_id" id="store_filter" 
@@ -370,6 +491,8 @@
             </tbody>
         </table>
     </div>
+</div>
+
 </div>
 
 @push('scripts')

@@ -317,7 +317,28 @@
             </tr>
         </thead>
         <tbody>
-            @if($budget->is_quick)
+            @if($budget->is_quick && $budget->items->isNotEmpty())
+                @foreach($budget->items as $quickItem)
+                    @php
+                        $quickMeta = json_decode($quickItem->personalization_types, true) ?? [];
+                        $quickUnit = (float) ($quickMeta['unit_price'] ?? ($quickItem->quantity > 0 ? $quickItem->item_total / $quickItem->quantity : 0));
+                    @endphp
+                    <tr>
+                        <td style="text-align: center;">{{ $loop->iteration }}</td>
+                        <td>
+                            <div class="item-desc-title">{{ $quickMeta['model'] ?? $quickItem->fabric ?? 'Item rápido' }}</div>
+                            <div class="item-desc-meta">
+                                Serviço: {{ $quickMeta['print_type'] ?? $budget->technique }}
+                                {{ !empty($quickMeta['application_size']) ? '| Aplicação: ' . $quickMeta['application_size'] : '' }}
+                                {{ !empty($quickMeta['notes']) ? '| Obs: ' . $quickMeta['notes'] : '' }}
+                            </div>
+                        </td>
+                        <td style="text-align: center;">{{ $quickItem->quantity }}</td>
+                        <td style="text-align: right;">R$ {{ number_format($quickUnit, 2, ',', '.') }}</td>
+                        <td style="text-align: right; font-weight: bold;">R$ {{ number_format($quickItem->item_total, 2, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+            @elseif($budget->is_quick)
                 <!-- Quick Budget Single Item Logic -->
                 <tr>
                     <td style="text-align: center;">1</td>

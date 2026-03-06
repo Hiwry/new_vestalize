@@ -2,147 +2,184 @@
 
 @section('content')
 
-@if(request('view') === 'table')
-    @include('stocks.table')
-@else
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12 animate-fade-in-up">
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div class="space-y-2">
-            <span class="inline-block px-3 py-1 rounded-full bg-primary-light text-primary text-xs font-bold tracking-widest uppercase mb-2">
-                Gestão de Estoques
-            </span>
-            <h1 class="text-4xl md:text-5xl font-black tracking-tight text-white leading-none">
-                Central de <span class="text-gradient">Estoque</span>
-            </h1>
-            <p class="text-muted text-lg max-w-2xl font-medium">
-                Controle total de insumos, maquinário e solicitações em um único lugar.
-            </p>
-        </div>
-        
-        <div class="hidden md:flex items-center gap-4 px-6 py-4 rounded-2xl bg-white dark:bg-card-bg border border-gray-100 dark:border-border shadow-xl backdrop-blur-md">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/30">
-                <i class="fa-solid fa-boxes-stacked text-lg text-white" style="color: #ffffff !important;"></i>
-            </div>
-            <div>
-                <p class="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-400 font-bold">Resumo Rápido</p>
-                <p class="text-sm font-bold text-gray-900 dark:text-white tracking-tight capitalize">{{ now()->translatedFormat('l, d \d\e F') }}</p>
-            </div>
-        </div>
-    </div>
-
-    @php
-        $cards = [
-            [
-                'title' => 'Dashboard',
-                'desc' => 'Visão geral com gráficos e indicadores de desempenho do estoque.',
-                'route' => route('stocks.dashboard'),
-                'accent' => '#0ea5e9', // Sky
-                'icon' => 'fa-chart-pie',
-                'delay' => 'delay-100'
-            ],
-            [
-                'title' => 'Inventário Geral',
-                'desc' => 'Lista completa de tecidos, cortes e materiais com gestão de quantidade.',
-                'route' => route('stocks.index', ['view' => 'table']),
-                'accent' => '#10b981', // Emerald
-                'icon' => 'fa-clipboard-list',
-                'delay' => 'delay-200'
-            ],
-            [
-                'title' => 'Solicitações',
-                'desc' => 'Central de aprovação para pedidos de insumos e materiais.',
-                'route' => route('stock-requests.index'),
-                'accent' => '#f59e0b', // Amber
-                'icon' => 'fa-file-invoice',
-                'delay' => 'delay-300'
-            ],
-            [
-                'title' => 'Histórico',
-                'desc' => 'Log completo de todas as movimentações de entrada e saída.',
-                'route' => route('stocks.history'),
-                'accent' => '#64748b', // Slate
-                'icon' => 'fa-clock-rotate-left',
-                'delay' => 'delay-400'
-            ],
-            [
-                'title' => 'Máquinas',
-                'desc' => 'Cadastro e manutenção de máquinas de costura e equipamentos.',
-                'route' => route('sewing-machines.index'),
-                'accent' => '#8b5cf6', // Violet
-                'icon' => 'fa-scissors',
-                'delay' => 'delay-500'
-            ],
-            [
-                'title' => 'Suprimentos',
-                'desc' => 'Gerencie linhas, agulhas, aviamentos e tintas de produção.',
-                'route' => route('production-supplies.index'),
-                'accent' => '#ec4899', // Pink
-                'icon' => 'fa-spool-of-thread', // Alternativo se fa-thread não existir
-                'delay' => 'delay-500'
-            ],
-            [
-                'title' => 'Uniformes e EPI',
-                'desc' => 'Controle de entrega e estoque de uniformes para colaboradores.',
-                'route' => route('uniforms.index'), // Ajustar se rota diferir
-                'accent' => '#f43f5e', // Rose
-                'icon' => 'fa-shirt',
-                'delay' => 'delay-500'
-            ],
-        ];
-    @endphp
-
-    <!-- Grid Layout -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
-        @foreach($cards as $card)
-            <a href="{{ $card['route'] }}" 
-               class="group relative h-64 rounded-3xl bg-card-bg border border-border p-8 transition-all duration-300 hover:border-emerald-500/50 hover:bg-card-hover hover-lift shadow-2xl overflow-hidden {{ $card['delay'] }}">
-                
-                <!-- Decoration -->
-                <div class="absolute -right-8 -top-8 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-colors"></div>
-                <div class="absolute top-0 left-0 w-1.5 h-full opacity-0 group-hover:opacity-100 transition-opacity" style="background: {{ $card['accent'] }}"></div>
-
-                <div class="relative h-full flex flex-col justify-between">
-                    <div class="flex items-start justify-between">
-                        <div class="w-14 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-500/10 group-hover:border-emerald-500/20" style="color: {{ $card['accent'] }}">
-                            <i class="fa-solid {{ $card['icon'] }} text-2xl"></i>
-                        </div>
-                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
-                            <span class="text-[10px] uppercase tracking-tighter font-black text-emerald-500">Acessar</span>
-                            <i class="fa-solid fa-arrow-right text-[10px] text-emerald-500"></i>
-                        </div>
-                    </div>
-
-                    <div class="space-y-2 mt-4">
-                        <h3 class="text-2xl font-bold text-white tracking-tight group-hover:text-emerald-400 transition-colors">
-                            {{ $card['title'] }}
-                        </h3>
-                        <p class="text-muted text-sm leading-relaxed line-clamp-2">
-                            {{ $card['desc'] }}
-                        </p>
-                    </div>
-
-                    <div class="pt-4 border-t border-white/5 flex items-center justify-between">
-                        <span class="text-xs font-bold text-muted transition-colors group-hover:text-white">Gerenciar</span>
-                        <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-all duration-300 group-hover:bg-emerald-500 group-hover:text-white">
-                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        @endforeach
-    </div>
-</div>
+@if(request('view') === 'hub')
+@php
+    $cards = [
+        [
+            'title' => 'Inventario Geral',
+            'desc' => 'Consulta completa de tecidos, cortes, cores e quantidades disponiveis.',
+            'route' => route('stocks.index'),
+            'accent' => '#10b981',
+            'icon' => 'fa-clipboard-list',
+        ],
+        [
+            'title' => 'Dashboard',
+            'desc' => 'Visao consolidada com indicadores e graficos do estoque.',
+            'route' => route('stocks.dashboard'),
+            'accent' => '#3b82f6',
+            'icon' => 'fa-chart-pie',
+        ],
+        [
+            'title' => 'Solicitacoes',
+            'desc' => 'Acompanhe pedidos internos e fluxo de aprovacao de materiais.',
+            'route' => route('stock-requests.index'),
+            'accent' => '#f59e0b',
+            'icon' => 'fa-file-invoice',
+        ],
+        [
+            'title' => 'Historico',
+            'desc' => 'Consulte entradas, saidas e movimentacoes registradas no modulo.',
+            'route' => route('stocks.history'),
+            'accent' => '#64748b',
+            'icon' => 'fa-clock-rotate-left',
+        ],
+        [
+            'title' => 'Maquinas',
+            'desc' => 'Gerencie maquinas de costura e equipamentos vinculados ao estoque.',
+            'route' => route('sewing-machines.index'),
+            'accent' => '#8b5cf6',
+            'icon' => 'fa-scissors',
+        ],
+        [
+            'title' => 'Suprimentos',
+            'desc' => 'Controle linhas, agulhas, insumos e materiais auxiliares de producao.',
+            'route' => route('production-supplies.index'),
+            'accent' => '#ec4899',
+            'icon' => 'fa-spool-of-thread',
+        ],
+        [
+            'title' => 'Uniformes e EPI',
+            'desc' => 'Acesse o controle de entrega e disponibilidade de uniformes e EPI.',
+            'route' => route('uniforms.index'),
+            'accent' => '#f43f5e',
+            'icon' => 'fa-shirt',
+        ],
+    ];
+@endphp
 
 <style>
-    /* Custom Clamp if tailwind line-clamp plugin is missing */
-    .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+    .stocks-hub {
+        --sh-surface-from: #f3f4f8;
+        --sh-surface-to: #eceff4;
+        --sh-surface-border: #d8dce6;
+        --sh-text-primary: #0f172a;
+        --sh-text-secondary: #64748b;
+        --sh-card-bg: #ffffff;
+        --sh-card-border: #dde2ea;
+        --sh-card-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        --sh-action-primary: #6d28d9;
+        --sh-action-primary-hover: #7c3aed;
+        --sh-action-success: #059669;
+        --sh-action-success-hover: #10b981;
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%);
+        border: 1px solid var(--sh-surface-border);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+        color: var(--sh-text-primary);
+    }
+
+    .dark .stocks-hub {
+        --sh-surface-from: #0f172a;
+        --sh-surface-to: #0b1322;
+        --sh-surface-border: rgba(148, 163, 184, 0.25);
+        --sh-text-primary: #e2e8f0;
+        --sh-text-secondary: #94a3b8;
+        --sh-card-bg: #111827;
+        --sh-card-border: rgba(148, 163, 184, 0.22);
+        --sh-card-shadow: 0 18px 38px rgba(2, 6, 23, 0.55);
+        box-shadow: 0 18px 38px rgba(2, 6, 23, 0.55);
+    }
+
+    .sh-topbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+    .sh-brand { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 320px; }
+    .sh-logo { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #6d28d9, #8b5cf6); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .sh-title { font-size: 24px; line-height: 1.1; font-weight: 800; letter-spacing: -0.02em; }
+    .sh-subtitle { margin-top: 3px; font-size: 13px; color: var(--sh-text-secondary); font-weight: 600; }
+    .sh-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .sh-action { height: 38px; border-radius: 12px; padding: 0 14px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; text-decoration: none; color: #fff !important; transition: transform .18s ease, box-shadow .2s ease, filter .2s ease; white-space: nowrap; }
+    .sh-action:hover { transform: translateY(-1px); filter: brightness(1.03); }
+    .sh-action-primary { background: linear-gradient(135deg, var(--sh-action-primary), var(--sh-action-primary-hover)); box-shadow: 0 10px 20px rgba(109, 40, 217, 0.25); }
+    .sh-action-success { background: linear-gradient(135deg, var(--sh-action-success), var(--sh-action-success-hover)); box-shadow: 0 10px 20px rgba(5, 150, 105, 0.25); }
+    .sh-intro { background: var(--sh-card-bg); border: 1px solid var(--sh-card-border); border-radius: 14px; box-shadow: var(--sh-card-shadow); padding: 14px 16px; margin-bottom: 14px; }
+    .sh-intro p { font-size: 14px; color: var(--sh-text-secondary); font-weight: 600; }
+    .sh-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .sh-card { display: flex; flex-direction: column; gap: 12px; min-height: 190px; background: var(--sh-card-bg); border: 1px solid var(--sh-card-border); border-radius: 14px; box-shadow: var(--sh-card-shadow); padding: 16px; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+    .sh-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--sh-accent) 40%, var(--sh-card-border)); box-shadow: 0 16px 28px rgba(15, 23, 42, 0.1); }
+    .sh-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .sh-icon { width: 42px; height: 42px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--sh-accent) 35%, transparent); background: color-mix(in srgb, var(--sh-accent) 14%, transparent); color: var(--sh-accent); display: inline-flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .sh-card-title { font-size: 20px; line-height: 1.1; font-weight: 800; letter-spacing: -0.02em; color: var(--sh-text-primary); }
+    .sh-card-desc { font-size: 13px; line-height: 1.45; color: var(--sh-text-secondary); font-weight: 600; }
+    .sh-card-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--sh-card-border); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .sh-card-link { font-size: 12px; font-weight: 700; color: var(--sh-text-secondary); }
+    .sh-card-arrow { width: 30px; height: 30px; border-radius: 999px; border: 1px solid var(--sh-card-border); display: inline-flex; align-items: center; justify-content: center; color: var(--sh-text-secondary); }
+    .sh-card:hover .sh-card-link, .sh-card:hover .sh-card-arrow { color: var(--sh-accent); border-color: color-mix(in srgb, var(--sh-accent) 40%, var(--sh-card-border)); }
+
+    @media (max-width: 1200px) {
+        .sh-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 760px) {
+        .stocks-hub { padding: 14px; border-radius: 16px; }
+        .sh-title { font-size: 20px; }
+        .sh-actions { width: 100%; }
+        .sh-action { width: 100%; justify-content: center; }
+        .sh-grid { grid-template-columns: 1fr; }
     }
 </style>
+
+<div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6">
+    <section class="stocks-hub">
+        <div class="sh-topbar">
+            <div class="sh-brand">
+                <span class="sh-logo"><i class="fa-solid fa-boxes-stacked"></i></span>
+                <div>
+                    <h1 class="sh-title">Central de Estoque</h1>
+                    <p class="sh-subtitle">Escolha a operacao e acesse rapidamente os fluxos mais usados do modulo</p>
+                </div>
+            </div>
+
+            <div class="sh-actions">
+                <a href="{{ route('stocks.index') }}" class="sh-action sh-action-success">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    <span>Abrir Estoque</span>
+                </a>
+                <a href="{{ route('stocks.create') }}" class="sh-action sh-action-primary">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Novo Item</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="sh-intro">
+            <p>Todos os fluxos de estoque foram reunidos em uma navegacao unica para facilitar consulta, movimentacao e gestao operacional no dia a dia.</p>
+        </div>
+
+        <div class="sh-grid">
+            @foreach($cards as $card)
+                <a href="{{ $card['route'] }}" class="sh-card" style="--sh-accent: {{ $card['accent'] }}">
+                    <div class="sh-card-head">
+                        <span class="sh-icon">
+                            <i class="fa-solid {{ $card['icon'] }}"></i>
+                        </span>
+                    </div>
+
+                    <div>
+                        <h2 class="sh-card-title">{{ $card['title'] }}</h2>
+                        <p class="sh-card-desc">{{ $card['desc'] }}</p>
+                    </div>
+
+                    <div class="sh-card-foot">
+                        <span class="sh-card-link">Ir agora</span>
+                        <span class="sh-card-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </a>
+            @endforeach
+        </div>
+    </section>
+</div>
+@else
+    @include('stocks.table')
 @endif
 
 @endsection

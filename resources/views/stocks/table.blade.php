@@ -2,6 +2,10 @@
 
 @section('content')
 <style>
+.stock-summary-card {
+    min-height: 96px;
+}
+
 .stock-table {
     font-size: 11px;
     border-collapse: collapse;
@@ -40,13 +44,36 @@
 .dark .stock-zero { background: #1f2937 !important; color: #6b7280; }
 </style>
 
+@php
+    $totalGroups = count($groupedStocks ?? []);
+    $totalAvailable = collect($groupedStocks ?? [])->sum('total_available');
+    $criticalGroups = collect($groupedStocks ?? [])->filter(function ($group) use ($sizes) {
+        foreach ($sizes as $size) {
+            if (!isset($group['sizes'][$size])) {
+                continue;
+            }
+
+            $sizeData = $group['sizes'][$size];
+            $qty = (int) ($sizeData['available_quantity'] ?? 0);
+            $minStock = (int) ($sizeData['min_stock'] ?? 5);
+
+            if ($qty < $minStock) {
+                return true;
+            }
+        }
+
+        return false;
+    })->count();
+    $reservedTotal = collect($groupedStocks ?? [])->sum('total_reserved');
+@endphp
+
 <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-4">
     {{-- Success message is shown in layout --}}
 
-    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 mb-6">
         <div>
-            <h1 class="text-lg font-bold text-gray-900 dark:text-gray-100">Consulta de Estoque</h1>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Gerenciamento completo de inventario e insumos.</p>
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Estoque</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Gerenciamento completo de inventario e insumos.</p>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
@@ -69,11 +96,28 @@
         </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 p-3">
-        <form method="GET" action="{{ route('stocks.index') }}" class="space-y-2">
-            <input type="hidden" name="view" value="table">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="stock-summary-card bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-4">
+            <div class="text-sm text-gray-600 dark:text-gray-400">Grupos de Estoque</div>
+            <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ number_format($totalGroups, 0, ',', '.') }}</div>
+        </div>
+        <div class="stock-summary-card bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-4">
+            <div class="text-sm text-gray-600 dark:text-gray-400">Disponível</div>
+            <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ number_format($totalAvailable, 0, ',', '.') }}</div>
+        </div>
+        <div class="stock-summary-card bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-4">
+            <div class="text-sm text-gray-600 dark:text-gray-400">Reservado</div>
+            <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ number_format($reservedTotal, 0, ',', '.') }}</div>
+        </div>
+        <div class="stock-summary-card bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-4">
+            <div class="text-sm text-gray-600 dark:text-gray-400">Estoque Crítico</div>
+            <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ number_format($criticalGroups, 0, ',', '.') }}</div>
+        </div>
+    </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6 mb-6">
+        <form method="GET" action="{{ route('stocks.index') }}" class="space-y-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
                         <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
@@ -82,38 +126,38 @@
                            name="search_id"
                            value="{{ request('search_id') }}"
                            placeholder="Buscar por ID..."
-                           class="w-full text-xs pl-8 pr-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                           class="w-full text-sm pl-8 pr-2 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                 </div>
 
-                <select name="store_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                <select name="store_id" class="w-full text-sm px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     <option value="">Todas Lojas</option>
                     @foreach($stores as $store)
                         <option value="{{ $store->id }}" {{ $storeId == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
                     @endforeach
                 </select>
 
-                <select name="fabric_type_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                <select name="fabric_type_id" class="w-full text-sm px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     <option value="">Todos Tecidos</option>
                     @foreach($fabricTypes as $fabricType)
                         <option value="{{ $fabricType->id }}" {{ request('fabric_type_id') == $fabricType->id ? 'selected' : '' }}>{{ $fabricType->name }}</option>
                     @endforeach
                 </select>
 
-                <select name="color_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                <select name="color_id" class="w-full text-sm px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     <option value="">Todas Cores</option>
                     @foreach($colors as $color)
                         <option value="{{ $color->id }}" {{ $colorId == $color->id ? 'selected' : '' }}>{{ $color->name }}</option>
                     @endforeach
                 </select>
 
-                <select name="cut_type_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                <select name="cut_type_id" class="w-full text-sm px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     <option value="">Todos Tipos</option>
                     @foreach($cutTypes as $cutType)
                         <option value="{{ $cutType->id }}" {{ $cutTypeId == $cutType->id ? 'selected' : '' }}>{{ $cutType->name }}</option>
                     @endforeach
                 </select>
 
-                <select name="size" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                <select name="size" class="w-full text-sm px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     <option value="">Todos Tamanhos</option>
                     @foreach($sizes as $size)
                         <option value="{{ $size }}" {{ $size == request('size') ? 'selected' : '' }}>{{ $size }}</option>
@@ -121,17 +165,17 @@
                 </select>
             </div>
 
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <label class="inline-flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                     <input type="checkbox" name="low_stock" value="1" {{ $lowStock ? 'checked' : '' }} class="rounded border-gray-300 dark:border-gray-600">
                     Apenas estoque critico
                 </label>
 
-                <div class="flex gap-1">
-                    <a href="{{ route('stocks.index', ['view' => 'table']) }}" class="px-2 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs font-semibold hover:bg-gray-300 dark:hover:bg-gray-600">
+                <div class="flex gap-2">
+                    <a href="{{ route('stocks.index') }}" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md text-sm font-semibold hover:bg-gray-300 dark:hover:bg-gray-600">
                         Limpar
                     </a>
-                    <button type="submit" class="px-2 py-1.5 bg-indigo-600 text-white rounded text-xs font-semibold hover:bg-indigo-700">
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-semibold hover:bg-indigo-700">
                         Filtrar
                     </button>
                 </div>
@@ -139,7 +183,7 @@
         </form>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 overflow-hidden">
         <div class="overflow-x-auto">
             @forelse($groupedStocks as $key => $group)
             <div class="border-b-2 border-gray-300 dark:border-gray-600">

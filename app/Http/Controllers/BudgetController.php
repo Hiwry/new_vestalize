@@ -1658,12 +1658,20 @@ class BudgetController extends Controller
         $validated = $request->validate([
             'contact_name' => 'required|string|max:255',
             'contact_phone' => 'required|string|max:255',
-            'technique' => 'required|string|max:100',
-            'quantity' => 'required|integer|min:1',
-            'unit_price' => 'required|numeric|min:0.01',
             'deadline_days' => 'nullable|integer|min:1|max:365',
-            'product_internal' => 'nullable|string|max:255',
             'observations' => 'nullable|string|max:2000',
+            'items' => 'nullable|array|min:1',
+            'items.*.product_internal' => 'nullable|string|max:255',
+            'items.*.technique' => 'required_with:items|string|max:100',
+            'items.*.quantity' => 'required_with:items|integer|min:1',
+            'items.*.unit_price' => 'required_with:items|numeric|min:0.01',
+            'items.*.application_size' => 'nullable|string|max:50',
+            'items.*.technique_type' => 'nullable|string|max:100',
+            'items.*.notes' => 'nullable|string|max:1000',
+            'technique' => 'nullable|string|max:100',
+            'quantity' => 'nullable|integer|min:1',
+            'unit_price' => 'nullable|numeric|min:0.01',
+            'product_internal' => 'nullable|string|max:255',
         ]);
 
         try {
@@ -1683,10 +1691,25 @@ class BudgetController extends Controller
                 }
             }
 
-            $quantity = $validated['quantity'];
-            $unitPrice = $validated['unit_price'];
-            $total = $quantity * $unitPrice;
+            $items = $this->normalizeQuickBudgetItems($validated);
+            if (empty($items)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Adicione pelo menos um item ao orçamento rápido.',
+                ], 422);
+            }
+
+            $quantity = array_sum(array_column($items, 'quantity'));
+            $total = array_reduce($items, function ($carry, $item) {
+                return $carry + ($item['quantity'] * $item['unit_price']);
+            }, 0);
+            $unitPrice = $quantity > 0 ? round($total / $quantity, 2) : 0;
             $deadlineDays = $validated['deadline_days'] ?? 15;
+            $firstItem = $items[0];
+            $summaryTechnique = count($items) === 1 ? $firstItem['technique'] : 'Múltiplos itens';
+            $summaryProduct = count($items) === 1
+                ? ($firstItem['product_internal'] ?: 'Item rápido')
+                : count($items) . ' itens rápidos';
 
             $budget = Budget::createWithUniqueNumber([
                 'client_id' => null, // Quick budgets don't require a client
@@ -1705,11 +1728,32 @@ class BudgetController extends Controller
                 'contact_name' => $validated['contact_name'],
                 'contact_phone' => $validated['contact_phone'],
                 'deadline_days' => $deadlineDays,
-                'product_internal' => $validated['product_internal'] ?? null,
-                'technique' => $validated['technique'],
+                'product_internal' => $summaryProduct,
+                'technique' => $summaryTechnique,
                 'quantity' => $quantity,
                 'unit_price' => $unitPrice,
             ]);
+
+            foreach ($items as $index => $item) {
+                BudgetItem::create([
+                    'budget_id' => $budget->id,
+                    'item_number' => $index + 1,
+                    'fabric' => $item['product_internal'] ?: 'Item rápido',
+                    'fabric_type' => null,
+                    'color' => null,
+                    'quantity' => $item['quantity'],
+                    'personalization_types' => json_encode([
+                        'print_type' => $item['technique'],
+                        'model' => $item['product_internal'] ?: 'Item rápido',
+                        'unit_price' => $item['unit_price'],
+                        'notes' => $item['notes'] ?? '',
+                        'application_size' => $item['application_size'] ?? '',
+                        'technique_type' => $item['technique_type'] ?? '',
+                        'quick_item' => true,
+                    ]),
+                    'item_total' => $item['quantity'] * $item['unit_price'],
+                ]);
+            }
 
             // For AJAX requests (save with actions)
             if ($request->ajax() || $request->expectsJson()) {
@@ -1744,6 +1788,47 @@ class BudgetController extends Controller
         }
     }
 
+    private function normalizeQuickBudgetItems(array $validated): array
+    {
+        $items = $validated['items'] ?? [];
+
+        if (empty($items) && !empty($validated['technique']) && !empty($validated['quantity']) && !empty($validated['unit_price'])) {
+            $items[] = [
+                'product_internal' => $validated['product_internal'] ?? null,
+                'technique' => $validated['technique'],
+                'quantity' => (int) $validated['quantity'],
+                'unit_price' => (float) $validated['unit_price'],
+                'application_size' => null,
+                'technique_type' => null,
+                'notes' => null,
+            ];
+        }
+
+        return array_values(array_filter(array_map(function ($item) {
+            if (!is_array($item)) {
+                return null;
+            }
+
+            $technique = trim((string) ($item['technique'] ?? ''));
+            $quantity = (int) ($item['quantity'] ?? 0);
+            $unitPrice = (float) ($item['unit_price'] ?? 0);
+
+            if ($technique === '' || $quantity < 1 || $unitPrice <= 0) {
+                return null;
+            }
+
+            return [
+                'product_internal' => trim((string) ($item['product_internal'] ?? '')),
+                'technique' => $technique,
+                'quantity' => $quantity,
+                'unit_price' => $unitPrice,
+                'application_size' => trim((string) ($item['application_size'] ?? '')),
+                'technique_type' => trim((string) ($item['technique_type'] ?? '')),
+                'notes' => trim((string) ($item['notes'] ?? '')),
+            ];
+        }, $items)));
+    }
+
     /**
      * Share budget via WhatsApp
      */
@@ -1772,7 +1857,27 @@ class BudgetController extends Controller
 
         $message = "*Orçamento #{$budget->budget_number} (Validade {$daysValid} dias)*\n\n";
         
-        if ($budget->isQuick()) {
+        if ($budget->isQuick() && $budget->items->isNotEmpty()) {
+            foreach ($budget->items as $index => $item) {
+                $itemMeta = json_decode($item->personalization_types, true) ?? [];
+                $model = $itemMeta['model'] ?? $item->fabric ?? 'Item rápido';
+                $service = $itemMeta['print_type'] ?? $budget->technique;
+                $itemUnitPrice = (float) ($itemMeta['unit_price'] ?? ($item->quantity > 0 ? $item->item_total / $item->quantity : 0));
+                $pixPrice = $itemUnitPrice * 0.95;
+
+                if ($index > 0) {
+                    $message .= "--------------------------------\n\n";
+                }
+
+                $message .= "Modelo: {$model}\n";
+                $message .= "Cor: -\n";
+                $message .= "Tecido/ Malha: -\n";
+                $message .= "Serviço: {$service}\n";
+                $message .= "Tabela de quantidade: {$item->quantity} unidades\n";
+                $message .= "Valor unitário (CARTÃO/BOLETO*) R$ " . number_format($itemUnitPrice, 2, ',', '.') . "\n";
+                $message .= "Valor unitário (PIX/DINHEIRO) R$ " . number_format($pixPrice, 2, ',', '.') . "\n\n";
+            }
+        } elseif ($budget->isQuick()) {
             $message .= "Modelo: " . ($budget->product_internal ?? 'Personalizado') . "\n";
             $message .= "Cor: -\n";
             $message .= "Tecido/ Malha: -\n";

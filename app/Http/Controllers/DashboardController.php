@@ -612,6 +612,111 @@ class DashboardController extends Controller
                     ];
                 });
         }
+
+        $showNetworkInsights = $user->isAdminGeral() && !$this->isSuperAdmin();
+        $networkInsights = [];
+        $storePerformanceRanking = collect();
+
+        if ($showNetworkInsights && $user->tenant_id) {
+            $tenantStoreIds = Store::active()
+                ->where('tenant_id', $user->tenant_id)
+                ->pluck('id');
+
+            if ($tenantStoreIds->isNotEmpty()) {
+                $orderMetricsByStore = Order::query()
+                    ->leftJoin('payments', 'orders.id', '=', 'payments.order_id')
+                    ->where('orders.is_draft', false)
+                    ->whereIn('orders.store_id', $tenantStoreIds)
+                    ->whereBetween('orders.created_at', [$startDate, $endDate])
+                    ->groupBy('orders.store_id')
+                    ->selectRaw('orders.store_id')
+                    ->selectRaw('COUNT(DISTINCT orders.id) as total_pedidos')
+                    ->selectRaw('SUM(CASE WHEN payments.cash_approved = 1 AND payments.remaining_amount = 0 THEN orders.total ELSE 0 END) as total_faturamento')
+                    ->selectRaw('COUNT(DISTINCT CASE WHEN payments.cash_approved = 1 AND payments.remaining_amount = 0 THEN orders.id END) as pedidos_quitados')
+                    ->selectRaw('COUNT(DISTINCT CASE WHEN orders.user_id IS NOT NULL THEN orders.user_id END) as vendedores_ativos')
+                    ->get()
+                    ->keyBy('store_id');
+
+                $pendingLogisticsByStore = StockRequest::query()
+                    ->where('status', 'pendente')
+                    ->whereIn('requesting_store_id', $tenantStoreIds)
+                    ->selectRaw('requesting_store_id as store_id, COUNT(*) as pendencias_logisticas')
+                    ->groupBy('requesting_store_id')
+                    ->get()
+                    ->keyBy('store_id');
+
+                $storePerformanceRanking = Store::active()
+                    ->whereIn('id', $tenantStoreIds)
+                    ->orderBy('is_main', 'desc')
+                    ->orderBy('name')
+                    ->get()
+                    ->map(function ($store) use ($orderMetricsByStore, $pendingLogisticsByStore) {
+                        $orderMetrics = $orderMetricsByStore->get($store->id);
+                        $logisticsMetrics = $pendingLogisticsByStore->get($store->id);
+
+                        $totalPedidos = (int) ($orderMetrics->total_pedidos ?? 0);
+                        $totalFaturamento = (float) ($orderMetrics->total_faturamento ?? 0);
+
+                        return [
+                            'store_id' => $store->id,
+                            'name' => $store->name,
+                            'is_main' => (bool) $store->is_main,
+                            'total_pedidos' => $totalPedidos,
+                            'total_faturamento' => $totalFaturamento,
+                            'ticket_medio' => $totalPedidos > 0 ? $totalFaturamento / $totalPedidos : 0,
+                            'pedidos_quitados' => (int) ($orderMetrics->pedidos_quitados ?? 0),
+                            'vendedores_ativos' => (int) ($orderMetrics->vendedores_ativos ?? 0),
+                            'pendencias_logisticas' => (int) ($logisticsMetrics->pendencias_logisticas ?? 0),
+                        ];
+                    })
+                    ->sortByDesc('total_faturamento')
+                    ->values();
+
+                $networkTotalPedidos = (int) $storePerformanceRanking->sum('total_pedidos');
+                $networkPedidosQuitados = (int) $storePerformanceRanking->sum('pedidos_quitados');
+                $networkTotalFaturamento = (float) $storePerformanceRanking->sum('total_faturamento');
+                $totalActiveStores = (int) $storePerformanceRanking->count();
+                $storesWithSales = (int) $storePerformanceRanking->where('total_pedidos', '>', 0)->count();
+                $activeVendorsAcrossNetwork = Order::query()
+                    ->where('is_draft', false)
+                    ->whereIn('store_id', $tenantStoreIds)
+                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->whereNotNull('user_id')
+                    ->distinct('user_id')
+                    ->count('user_id');
+
+                $pendingReceivablesAcrossNetwork = Payment::query()
+                    ->where('remaining_amount', '>', 0)
+                    ->whereHas('order', function ($query) use ($tenantStoreIds) {
+                        $query->where('is_draft', false)
+                            ->whereIn('store_id', $tenantStoreIds);
+                    })
+                    ->sum('remaining_amount');
+
+                $topStore = $storePerformanceRanking->first(function ($storeData) {
+                    return ($storeData['total_pedidos'] ?? 0) > 0;
+                });
+
+                $networkInsights = [
+                    'total_active_stores' => $totalActiveStores,
+                    'stores_with_sales' => $storesWithSales,
+                    'active_vendors' => (int) $activeVendorsAcrossNetwork,
+                    'approval_rate' => $networkTotalPedidos > 0
+                        ? round(($networkPedidosQuitados / $networkTotalPedidos) * 100, 1)
+                        : 0,
+                    'stores_needing_attention' => (int) $storePerformanceRanking->filter(function ($storeData) {
+                        return ($storeData['pendencias_logisticas'] ?? 0) > 0
+                            || ($storeData['total_pedidos'] ?? 0) === 0;
+                    })->count(),
+                    'pending_logistics_total' => (int) $storePerformanceRanking->sum('pendencias_logisticas'),
+                    'avg_revenue_per_store' => $totalActiveStores > 0
+                        ? $networkTotalFaturamento / $totalActiveStores
+                        : 0,
+                    'pending_receivables' => (float) $pendingReceivablesAcrossNetwork,
+                    'top_store' => $topStore,
+                ];
+            }
+        }
         
         // Distribuição por forma de pagamento
         $paymentStoreIds = $this->getStoreIds($selectedStoreId);
@@ -805,6 +910,9 @@ class DashboardController extends Controller
             'produtosMaisVendidos',
             'clientesAtendidos',
             'vendedores',
+            'showNetworkInsights',
+            'networkInsights',
+            'storePerformanceRanking',
             'sellerPaymentSummary',
             'sellerOrderLocation',
             'effectivePaymentStatusFilter',

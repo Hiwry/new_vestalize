@@ -1,339 +1,428 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="max-w-4xl mx-auto py-6 px-4">
-    {{-- Header --}}
-    <div class="mb-6">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center shadow-lg">
-                    <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white !important;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
+<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6" x-data="quickBudgetBuilder()">
+    <div class="overflow-hidden rounded-[28px] border border-slate-200 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.14),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(249,115,22,0.16),_transparent_26%),linear-gradient(135deg,_#fffaf3,_#ffffff_48%,_#f3fbff)] p-6 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.35)] dark:border-slate-700 dark:bg-[linear-gradient(135deg,_#0f172a,_#111827_48%,_#172554)] sm:p-8">
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div class="max-w-2xl">
+                <span class="inline-flex rounded-full border border-sky-200 bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-sky-700 dark:border-sky-800 dark:bg-slate-900/70 dark:text-sky-300">Orçamento rápido</span>
+                <h1 class="mt-4 text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">Fluxo rápido, mas com vários itens no mesmo orçamento.</h1>
+                <p class="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300 sm:text-base">Preencha contato, adicione peças em sequência e acompanhe o total sem sair da tela.</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div class="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/70">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Itens</p>
+                    <p class="mt-2 text-2xl font-black text-slate-900 dark:text-white" x-text="items.length"></p>
                 </div>
-                <div>
-                    <h1 class="text-xl font-bold text-gray-900 dark:text-white">Orçamento Rápido</h1>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Crie um orçamento em segundos</p>
+                <div class="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/70">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Peças</p>
+                    <p class="mt-2 text-2xl font-black text-slate-900 dark:text-white" x-text="totalQuantity"></p>
+                </div>
+                <div class="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/70">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Prazo</p>
+                    <p class="mt-2 text-2xl font-black text-slate-900 dark:text-white"><span x-text="form.deadline_days"></span>d</p>
+                </div>
+                <div class="rounded-2xl border border-cyan-200 bg-[linear-gradient(135deg,_#ecfeff,_#f0fdfa_52%,_#f8fafc)] p-4 text-slate-900 dark:border-slate-600 dark:bg-slate-950 dark:text-white">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-700 dark:text-slate-400">Total</p>
+                    <p class="mt-2 text-lg font-black text-slate-900 dark:text-white sm:text-xl" x-text="formatCurrency(grandTotal)"></p>
                 </div>
             </div>
-            <a href="{{ route('budget.index') }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
-                ← Voltar
-            </a>
         </div>
     </div>
 
-    <form id="quickBudgetForm" method="POST" action="{{ route('budget.quick-store') }}" 
-          x-data="quickBudgetForm()" @submit.prevent="submitForm">
-        @csrf
+    <div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div class="space-y-6">
+            <template x-if="serverError">
+                <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-200" x-text="serverError"></div>
+            </template>
 
-        {{-- BLOCO 1 - Contato --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-4 overflow-hidden">
-            <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
-                    <h2 class="font-semibold text-gray-900 dark:text-white">Contato</h2>
-                    <span class="text-xs text-red-500 font-medium ml-2">obrigatório</span>
-                </div>
-            </div>
-            <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome do contato *</label>
-                    <input type="text" name="contact_name" x-model="form.contact_name" required
-                           class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm"
-                           placeholder="Ex: Maria Oliveira">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">WhatsApp *</label>
-                    <input type="text" name="contact_phone" x-model="form.contact_phone" required
-                           class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm"
-                           placeholder="(00) 00000-0000"
-                           x-mask="(99) 99999-9999">
-                </div>
-            </div>
-        </div>
+            <div class="grid gap-6 lg:grid-cols-2">
+                <section class="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">1. Contato</p>
+                            <h2 class="mt-2 text-xl font-bold text-slate-900 dark:text-white">Dados essenciais</h2>
+                            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Só o que precisa para sair rápido.</p>
+                        </div>
+                        <a href="{{ route('budget.index') }}" class="inline-flex items-center rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white">Voltar</a>
+                    </div>
 
-        {{-- BLOCO 2 - Item Resumido --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-4 overflow-hidden">
-            <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                    </svg>
-                    <h2 class="font-semibold text-gray-900 dark:text-white">Item</h2>
-                    <span class="text-xs text-gray-400 ml-2">(uso interno, cliente não vê o produto)</span>
-                </div>
-            </div>
-            <div class="p-5 space-y-4">
-                {{-- Produto interno --}}
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Produto (interno)</label>
-                    <input type="text" name="product_internal" x-model="form.product_internal"
-                           class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm"
-                           placeholder="Ex: Camiseta Básica, Camisa Polo, etc">
-                </div>
+                    <div class="mt-6 grid gap-4">
+                        <label class="block">
+                            <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Nome do contato</span>
+                            <input type="text" x-model="form.contact_name" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:bg-slate-900 dark:focus:ring-sky-900/50" placeholder="Ex: Maria Oliveira">
+                        </label>
+                        <label class="block">
+                            <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">WhatsApp</span>
+                            <input type="text" x-model="form.contact_phone" x-mask="(99) 99999-9999" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:bg-slate-900 dark:focus:ring-sky-900/50" placeholder="(00) 00000-0000">
+                        </label>
+                        <div>
+                            <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Prazo estimado</span>
+                            <div class="grid grid-cols-4 gap-2">
+                                <template x-for="day in quickDeadlines" :key="day">
+                                    <button type="button" @click="form.deadline_days = day" :class="form.deadline_days === day ? 'border-cyan-300 bg-cyan-50 text-cyan-900 ring-2 ring-cyan-100 dark:border-sky-400 dark:bg-sky-500 dark:text-slate-950 dark:ring-0' : 'border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'" class="rounded-2xl border px-3 py-2 text-sm font-semibold transition hover:border-slate-400">
+                                        <span x-text="day + ' dias'"></span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-                {{-- Personalização --}}
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Personalização *</label>
-                    <div class="flex flex-wrap gap-2 mb-3">
-                        <template x-for="tech in techniques" :key="tech">
-                            <button type="button" 
-                                    @click="setTechnique(tech)"
-                                    :class="form.technique_type === tech 
-                                        ? 'bg-indigo-600 text-white border-indigo-600' 
-                                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-indigo-400'"
-                                    class="px-4 py-2 rounded-lg border text-sm font-medium transition-all">
-                                <span x-text="tech"></span>
+                <section class="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">2. Observações</p>
+                    <h2 class="mt-2 text-xl font-bold text-slate-900 dark:text-white">Recados rápidos</h2>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Use sugestões prontas e complemente se quiser.</p>
+
+                    <div class="mt-6 flex flex-wrap gap-2">
+                        <template x-for="opt in observationOptions" :key="opt">
+                            <button type="button" @click="toggleObservation(opt)" :class="form.observations.includes(opt) ? 'border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-200' : 'border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'" class="rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:border-amber-400">
+                                <span x-text="opt"></span>
                             </button>
                         </template>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Tamanho da aplicação</p>
-                    <div class="flex flex-wrap gap-2 mb-3">
-                        <template x-for="size in applicationSizes" :key="size">
-                            <button type="button" 
-                                    @click="setSize(size)"
-                                    :class="form.application_size === size 
-                                        ? 'bg-indigo-600 text-white border-indigo-600' 
-                                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-indigo-400'"
-                                    class="px-4 py-2 rounded-lg border text-sm font-medium transition-all">
-                                <span x-text="size"></span>
+
+                    <label class="mt-5 block">
+                        <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Observações gerais</span>
+                        <textarea x-model="form.observations" rows="8" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-amber-500 dark:focus:bg-slate-900 dark:focus:ring-amber-900/50" placeholder="Ex: valores válidos para tamanhos padrão, prazo sujeito à aprovação..."></textarea>
+                    </label>
+                </section>
+            </div>
+
+            <section class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">3. Itens</p>
+                        <h2 class="mt-2 text-xl font-bold text-slate-900 dark:text-white">Mais de um item no mesmo orçamento</h2>
+                        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Adicione um item, confirme e siga para o próximo.</p>
+                    </div>
+                    <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200">
+                        <span class="font-semibold">Resumo em tempo real:</span> quantidade, prazo e total já consolidados.
+                    </div>
+                </div>
+
+                <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+                    <div class="rounded-[24px] border border-dashed border-slate-300 bg-slate-50/80 p-5 dark:border-slate-700 dark:bg-slate-800/50">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white" x-text="editingIndex === null ? 'Novo item rápido' : 'Editar item'"></h3>
+                            <template x-if="editingIndex !== null">
+                                <button type="button" @click="cancelEdit()" class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 transition hover:text-slate-900 dark:hover:text-white">Cancelar</button>
+                            </template>
+                        </div>
+
+                        <div class="mt-5 space-y-4">
+                            <label class="block">
+                                <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Produto interno</span>
+                                <input type="text" x-model="draft.product_internal" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/50" placeholder="Ex: Camiseta básica">
+                            </label>
+
+                            <div>
+                                <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Técnica</span>
+                                <div class="flex flex-wrap gap-2">
+                                    <template x-for="tech in techniques" :key="tech">
+                                        <button type="button" @click="setTechnique(tech)" :class="draft.technique_type === tech ? 'border-cyan-300 bg-cyan-50 text-cyan-900 ring-2 ring-cyan-100 dark:border-sky-400 dark:bg-sky-500 dark:text-slate-950 dark:ring-0' : 'border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'" class="rounded-full border px-3 py-2 text-xs font-semibold transition hover:border-slate-400">
+                                            <span x-text="tech"></span>
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Tamanho da aplicação</span>
+                                <div class="flex flex-wrap gap-2">
+                                    <template x-for="size in applicationSizes" :key="size">
+                                        <button type="button" @click="setSize(size)" :class="draft.application_size === size ? 'border-amber-300 bg-amber-50 text-amber-900 ring-2 ring-amber-100 dark:border-amber-500 dark:bg-amber-400 dark:text-slate-950 dark:ring-0' : 'border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'" class="rounded-full border px-3 py-2 text-xs font-semibold transition hover:border-amber-300">
+                                            <span x-text="size"></span>
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <label class="block">
+                                <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Descrição da personalização</span>
+                                <input type="text" x-model="draft.technique" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/50" placeholder="Ex: Serigrafia - A4">
+                            </label>
+
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <label class="block">
+                                    <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Quantidade</span>
+                                    <input type="number" min="1" x-model.number="draft.quantity" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/50">
+                                </label>
+                                <label class="block">
+                                    <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Valor unitário</span>
+                                    <input type="number" min="0.01" step="0.01" x-model.number="draft.unit_price" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/50">
+                                </label>
+                            </div>
+
+                            <label class="block">
+                                <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Notas do item</span>
+                                <textarea x-model="draft.notes" rows="3" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/50" placeholder="Ex: frente e costas, ajuste de arte..."></textarea>
+                            </label>
+                        </div>
+
+                        <template x-if="draftError">
+                            <div class="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-200" x-text="draftError"></div>
+                        </template>
+
+                        <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="rounded-2xl border border-cyan-200 bg-[linear-gradient(135deg,_#ecfeff,_#f0fdfa)] px-4 py-3 text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                                <p class="text-[11px] uppercase tracking-[0.24em] text-cyan-700 dark:text-slate-400">Total do item</p>
+                                <p class="mt-1 text-2xl font-black text-slate-900 dark:text-white" x-text="formatCurrency(draftTotal)"></p>
+                            </div>
+                            <button type="button" @click="saveDraft()" class="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-sky-500/20 transition hover:translate-y-[-1px] hover:shadow-sky-500/30">
+                                <span x-text="editingIndex === null ? 'Adicionar item' : 'Atualizar item'"></span>
                             </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <template x-if="items.length === 0">
+                            <div class="flex min-h-[280px] flex-col items-center justify-center rounded-[24px] border border-slate-200 bg-[linear-gradient(180deg,_#fff,_#f8fafc)] p-6 text-center dark:border-slate-700 dark:bg-[linear-gradient(180deg,_#0f172a,_#111827)]">
+                                <div class="flex h-16 w-16 items-center justify-center rounded-full bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-300">
+                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" /></svg>
+                                </div>
+                                <h3 class="mt-4 text-lg font-bold text-slate-900 dark:text-white">Nenhum item adicionado</h3>
+                                <p class="mt-2 max-w-sm text-sm text-slate-500 dark:text-slate-400">Comece por uma peça. Depois você segue empilhando os demais itens aqui mesmo.</p>
+                            </div>
+                        </template>
+
+                        <template x-for="(item, index) in items" :key="item.uid">
+                            <article class="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
+                                <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-100 text-xs font-bold text-cyan-900 dark:bg-sky-500 dark:text-slate-950" x-text="index + 1"></span>
+                                            <h3 class="text-lg font-bold text-slate-900 dark:text-white" x-text="item.product_internal || 'Item rápido'"></h3>
+                                        </div>
+                                        <p class="mt-2 text-sm font-medium text-sky-700 dark:text-sky-300" x-text="item.technique"></p>
+                                        <template x-if="item.notes">
+                                            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400" x-text="item.notes"></p>
+                                        </template>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button type="button" @click="editItem(index)" class="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white">Editar</button>
+                                        <button type="button" @click="removeItem(index)" class="rounded-full border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:border-rose-300 dark:border-rose-900/60 dark:text-rose-300">Remover</button>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                    <div class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
+                                        <p class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Qtd</p>
+                                        <p class="mt-1 text-lg font-black text-slate-900 dark:text-white" x-text="item.quantity"></p>
+                                    </div>
+                                    <div class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
+                                        <p class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Unitário</p>
+                                        <p class="mt-1 text-lg font-black text-slate-900 dark:text-white" x-text="formatCurrency(item.unit_price)"></p>
+                                    </div>
+                                    <div class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
+                                        <p class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Aplicação</p>
+                                        <p class="mt-1 text-lg font-black text-slate-900 dark:text-white" x-text="item.application_size || '-'"></p>
+                                    </div>
+                                    <div class="rounded-2xl border border-cyan-200 bg-[linear-gradient(135deg,_#ecfeff,_#f0fdfa)] px-4 py-3 text-slate-900 dark:border-sky-400 dark:bg-sky-500 dark:text-slate-950">
+                                        <p class="text-[11px] uppercase tracking-[0.2em] text-cyan-700 dark:text-slate-900/70">Total</p>
+                                        <p class="mt-1 text-lg font-black" x-text="formatCurrency(itemTotal(item))"></p>
+                                    </div>
+                                </div>
+                            </article>
                         </template>
                     </div>
-                    <input type="text" name="technique" x-model="form.technique" required
-                           class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm"
-                           placeholder="Ou digite a personalização...">
                 </div>
-
-                {{-- Quantidade e Valor --}}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantidade *</label>
-                        <input type="number" name="quantity" x-model.number="form.quantity" required min="1"
-                               class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm"
-                               placeholder="100">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Valor unitário (R$) *</label>
-                        <input type="number" name="unit_price" x-model.number="form.unit_price" required min="0.01" step="0.01"
-                               class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm"
-                               placeholder="26.00">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prazo (dias)</label>
-                        <input type="number" name="deadline_days" x-model.number="form.deadline_days" min="1" max="365"
-                               class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm"
-                               placeholder="15">
-                    </div>
-                </div>
-            </div>
+            </section>
         </div>
 
-        {{-- BLOCO 3 - Observação --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-4 overflow-hidden">
-            <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                    </svg>
-                    <h2 class="font-semibold text-gray-900 dark:text-white">Observação</h2>
-                    <span class="text-xs text-gray-400 ml-2">(opcional)</span>
+        <aside class="xl:sticky xl:top-6 xl:self-start">
+            <section class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <div class="border-b border-cyan-100 bg-[linear-gradient(135deg,_#ecfeff,_#ccfbf1_55%,_#f0fdfa)] px-6 py-5 text-slate-900 dark:border-slate-700 dark:bg-[linear-gradient(135deg,_#082f49,_#0f766e)] dark:text-white">
+                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-700 dark:text-cyan-200">Resumo</p>
+                    <h2 class="mt-2 text-2xl font-black">Fechamento rápido</h2>
+                    <p class="mt-1 text-sm text-slate-600 dark:text-cyan-100/80">Tudo pronto para salvar, enviar ou gerar PDF.</p>
                 </div>
-            </div>
-            <div class="p-5 space-y-3">
-                <div class="flex flex-wrap gap-2">
-                    <template x-for="opt in observationOptions" :key="opt">
-                        <button type="button" 
-                                @click="toggleObservation(opt)"
-                                :class="form.observations.includes(opt) 
-                                    ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-600' 
-                                    : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-600 hover:border-indigo-300'"
-                                class="px-3 py-1.5 rounded-full border text-xs font-medium transition-all">
-                            <span x-text="opt"></span>
+
+                <div class="space-y-5 p-6">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
+                            <p class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Itens</p>
+                            <p class="mt-1 text-xl font-black text-slate-900 dark:text-white" x-text="items.length"></p>
+                        </div>
+                        <div class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
+                            <p class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Peças</p>
+                            <p class="mt-1 text-xl font-black text-slate-900 dark:text-white" x-text="totalQuantity"></p>
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl border border-cyan-200 bg-[linear-gradient(145deg,_#ecfeff,_#f0fdfa_52%,_#ffffff)] px-5 py-5 text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                        <p class="text-xs uppercase tracking-[0.24em] text-cyan-700 dark:text-slate-400">Total do orçamento</p>
+                        <p class="mt-2 text-4xl font-black text-slate-900 dark:text-white" x-text="formatCurrency(grandTotal)"></p>
+                        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Prazo estimado: <span class="font-semibold text-slate-900 dark:text-white" x-text="form.deadline_days + ' dias'"></span></p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button type="button" @click="submitForm('save')" :disabled="!canSubmit || loading" class="inline-flex w-full items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700">
+                            <span x-text="loadingAction === 'save' ? 'Salvando...' : 'Salvar orçamento'"></span>
                         </button>
-                    </template>
-                </div>
-                {{-- Campo de texto --}}
-                <textarea name="observations" x-model="form.observations" rows="2"
-                          class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm resize-none"
-                          placeholder="Ou digite uma observação personalizada..."></textarea>
-            </div>
-        </div>
+                        <button type="button" @click="submitForm('pdf')" :disabled="!canSubmit || loading" class="inline-flex w-full items-center justify-center rounded-2xl bg-sky-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700">
+                            <span x-text="loadingAction === 'pdf' ? 'Gerando...' : 'Salvar e gerar PDF'"></span>
+                        </button>
+                        <button type="button" @click="submitForm('copy')" :disabled="!canSubmit || loading" class="inline-flex w-full items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-transparent dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white">
+                            <span x-text="loadingAction === 'copy' ? 'Copiando...' : 'Salvar e copiar texto'"></span>
+                        </button>
+                        <button type="button" @click="submitForm('whatsapp')" :disabled="!canSubmit || loading" class="inline-flex w-full items-center justify-center rounded-2xl bg-[#25D366] px-5 py-3 text-sm font-bold text-slate-950 transition hover:brightness-95 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700">
+                            <span x-text="loadingAction === 'whatsapp' ? 'Abrindo...' : 'Salvar e abrir WhatsApp'"></span>
+                        </button>
+                    </div>
 
-        {{-- BLOCO 4 - Detalhes Avançados (Colapsado) --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-4 overflow-hidden" x-data="{ open: false }">
-            <button type="button" @click="open = !open" 
-                    class="w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
-                    </svg>
-                    <h2 class="font-semibold text-gray-900 dark:text-white">Detalhes técnicos</h2>
-                    <span class="text-xs text-gray-400 ml-2">(opcional)</span>
-                </div>
-                <svg class="w-5 h-5 text-gray-400 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-            <div x-show="open" x-collapse class="border-t border-gray-200 dark:border-gray-700">
-                <div class="p-5 text-sm text-gray-500 dark:text-gray-400">
-                    <p class="italic">Para detalhes como cores, gola, tamanhos e acréscimos, use o orçamento completo ou converta este orçamento em pedido após aprovação.</p>
-                </div>
-            </div>
-        </div>
-
-        {{-- BLOCO 5 - Resumo --}}
-        <div class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl shadow-lg mb-6 overflow-hidden">
-            <div class="px-5 py-4 border-b border-white/10">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white !important;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg>
-                    <h2 class="font-semibold text-white stay-white" style="color: white !important;">Resumo do Orçamento</h2>
-                </div>
-            </div>
-            <div class="p-5 text-white" style="color: white !important;">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    <div class="bg-white/10 rounded-lg p-3">
-                        <p class="text-xs text-white/60 mb-1" style="color: rgba(255,255,255,0.6) !important;">Quantidade</p>
-                        <p class="text-lg font-bold" style="color: white !important;" x-text="(form.quantity || 0) + ' peças'"></p>
-                    </div>
-                    <div class="bg-white/10 rounded-lg p-3">
-                        <p class="text-xs text-white/60 mb-1" style="color: rgba(255,255,255,0.6) !important;">Personalização</p>
-                        <p class="text-lg font-bold" style="color: white !important;" x-text="form.technique || '-'"></p>
-                    </div>
-                    <div class="bg-white/10 rounded-lg p-3">
-                        <p class="text-xs text-white/60 mb-1" style="color: rgba(255,255,255,0.6) !important;">Valor unitário</p>
-                        <p class="text-lg font-bold" style="color: white !important;" x-text="formatCurrency(form.unit_price || 0)"></p>
-                    </div>
-                    <div class="bg-white/10 rounded-lg p-3">
-                        <p class="text-xs text-white/60 mb-1" style="color: rgba(255,255,255,0.6) !important;">Prazo</p>
-                        <p class="text-lg font-bold" style="color: white !important;" x-text="(form.deadline_days || 15) + ' dias'"></p>
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                        <p class="font-semibold text-slate-900 dark:text-white">Checklist</p>
+                        <ul class="mt-2 space-y-1.5">
+                            <li :class="form.contact_name.trim() ? 'text-emerald-600 dark:text-emerald-300' : ''">Contato preenchido</li>
+                            <li :class="form.contact_phone.trim() ? 'text-emerald-600 dark:text-emerald-300' : ''">WhatsApp informado</li>
+                            <li :class="items.length ? 'text-emerald-600 dark:text-emerald-300' : ''">Ao menos um item adicionado</li>
+                        </ul>
                     </div>
                 </div>
-                <div class="bg-white/20 rounded-lg p-4 text-center">
-                    <p class="text-sm text-white/80 mb-1" style="color: rgba(255,255,255,0.8) !important;">Total do Orçamento</p>
-                    <p class="text-3xl font-bold" style="color: white !important;" x-text="formatCurrency(total)"></p>
-                </div>
-            </div>
-        </div>
-
-        {{-- CTA Buttons --}}
-        <div class="flex flex-wrap gap-3 justify-center">
-            <button type="submit" name="action" value="save" :disabled="!isValid || loading"
-                    style="color: white !important;"
-                    class="flex items-center space-x-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white rounded-lg font-medium shadow-lg transition-all disabled:cursor-not-allowed">
-                <svg x-show="!loading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white !important;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <svg x-show="loading" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24" style="color: white !important;">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                </svg>
-                <span style="color: white !important;">Salvar Orçamento</span>
-            </button>
-            <button type="button" @click="saveAndPdf()" :disabled="!isValid || loading"
-                    style="color: white !important;"
-                    class="flex items-center space-x-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white rounded-lg font-medium shadow-lg transition-all disabled:cursor-not-allowed">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white !important;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                <span style="color: white !important;">Gerar PDF</span>
-            </button>
-            <button type="button" @click="saveAndCopy()" :disabled="!isValid || loading"
-                    style="color: white !important;"
-                    class="flex items-center space-x-2 px-6 py-3 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white rounded-lg font-medium shadow-lg transition-all disabled:cursor-not-allowed">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white !important;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                </svg>
-                <span style="color: white !important;">Copiar</span>
-            </button>
-            <button type="button" @click="saveAndWhatsApp()" :disabled="!isValid || loading"
-                    style="color: white !important;"
-                    class="flex items-center space-x-2 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg font-medium shadow-lg transition-all disabled:cursor-not-allowed">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" style="color: white !important;">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
-                <span style="color: white !important;">Enviar WhatsApp</span>
-            </button>
-        </div>
-    </form>
+            </section>
+        </aside>
+    </div>
 </div>
 
 @push('scripts')
 <script>
-function quickBudgetForm() {
+function quickBudgetBuilder() {
     return {
-        form: {
-            contact_name: '',
-            contact_phone: '',
-            product_internal: '',
-            technique: '',
-            technique_type: '',
-            application_size: '',
-            quantity: null,
-            unit_price: null,
-            deadline_days: 15,
-            observations: ''
-        },
+        form: { contact_name: '', contact_phone: '', deadline_days: 15, observations: '' },
+        draft: { product_internal: '', technique: '', technique_type: '', application_size: '', quantity: 1, unit_price: null, notes: '' },
+        items: [],
+        editingIndex: null,
+        loading: false,
+        loadingAction: '',
+        draftError: '',
+        serverError: '',
         techniques: ['Serigrafia', 'Bordado', 'Sublimação', 'Sublimação Local', 'Sublimação Total', 'DTF'],
         applicationSizes: ['ESCUDO', 'A5', 'A4', 'A3', 'A2'],
-        loading: false,
-        savedBudget: null,
+        quickDeadlines: [7, 10, 15, 20],
         observationOptions: @json($observationOptions),
 
-        get total() {
-            return (this.form.quantity || 0) * (this.form.unit_price || 0);
-        },
-
-        get isValid() {
-            return this.form.contact_name.trim() !== '' &&
-                   this.form.contact_phone.trim() !== '' &&
-                   this.form.technique !== '' &&
-                   this.form.quantity > 0 &&
-                   this.form.unit_price > 0;
-        },
+        get draftTotal() { return (this.draft.quantity || 0) * (this.draft.unit_price || 0); },
+        get totalQuantity() { return this.items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0); },
+        get grandTotal() { return this.items.reduce((sum, item) => sum + this.itemTotal(item), 0); },
+        get canSubmit() { return this.form.contact_name.trim() !== '' && this.form.contact_phone.trim() !== '' && this.items.length > 0; },
 
         formatCurrency(value) {
-            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value || 0));
+        },
+
+        itemTotal(item) {
+            return (Number(item.quantity) || 0) * (Number(item.unit_price) || 0);
         },
 
         toggleObservation(opt) {
-            const current = this.form.observations;
-            if (current.includes(opt)) {
-                // Remove the option
-                this.form.observations = current.replace(opt, '').replace(/\n+/g, '\n').replace(/^\n|\n$/g, '').trim();
-            } else {
-                // Add the option
-                this.form.observations = current ? current + '\n' + opt : opt;
-            }
+            const lines = this.form.observations ? this.form.observations.split('\n') : [];
+            if (lines.includes(opt)) this.form.observations = lines.filter(line => line !== opt).join('\n');
+            else this.form.observations = [...lines.filter(Boolean), opt].join('\n');
         },
 
         setTechnique(tech) {
-            this.form.technique_type = tech;
-            this.updateTechnique();
+            this.draft.technique_type = tech;
+            this.syncDraftTechnique();
         },
 
         setSize(size) {
-            this.form.application_size = size;
-            this.updateTechnique();
+            this.draft.application_size = size;
+            this.syncDraftTechnique();
         },
 
-        updateTechnique() {
+        syncDraftTechnique() {
             const parts = [];
-            if (this.form.technique_type) parts.push(this.form.technique_type);
-            if (this.form.application_size) parts.push(this.form.application_size);
-            if (parts.length) {
-                this.form.technique = parts.join(' - ');
-            }
+            if (this.draft.technique_type) parts.push(this.draft.technique_type);
+            if (this.draft.application_size) parts.push(this.draft.application_size);
+            if (parts.length) this.draft.technique = parts.join(' - ');
         },
 
-        async submitForm() {
-            if (!this.isValid) return;
-            
+        validateDraft() {
+            if (!this.draft.technique.trim()) return 'Informe a personalização do item.';
+            if (!this.draft.quantity || Number(this.draft.quantity) < 1) return 'Defina uma quantidade válida.';
+            if (!this.draft.unit_price || Number(this.draft.unit_price) <= 0) return 'Defina um valor unitário válido.';
+            return '';
+        },
+
+        saveDraft() {
+            this.draftError = this.validateDraft();
+            if (this.draftError) return;
+
+            const item = {
+                uid: this.editingIndex === null ? `${Date.now()}-${Math.random()}` : this.items[this.editingIndex].uid,
+                product_internal: this.draft.product_internal.trim(),
+                technique: this.draft.technique.trim(),
+                technique_type: this.draft.technique_type.trim(),
+                application_size: this.draft.application_size.trim(),
+                quantity: Number(this.draft.quantity),
+                unit_price: Number(this.draft.unit_price),
+                notes: this.draft.notes.trim()
+            };
+
+            if (this.editingIndex === null) this.items.unshift(item);
+            else this.items.splice(this.editingIndex, 1, item);
+
+            this.cancelEdit();
+        },
+
+        editItem(index) {
+            const item = this.items[index];
+            this.editingIndex = index;
+            this.draft = {
+                product_internal: item.product_internal || '',
+                technique: item.technique || '',
+                technique_type: item.technique_type || '',
+                application_size: item.application_size || '',
+                quantity: item.quantity || 1,
+                unit_price: item.unit_price || null,
+                notes: item.notes || ''
+            };
+            this.draftError = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        cancelEdit() {
+            this.editingIndex = null;
+            this.draftError = '';
+            this.draft = { product_internal: '', technique: '', technique_type: '', application_size: '', quantity: 1, unit_price: null, notes: '' };
+        },
+
+        removeItem(index) {
+            this.items.splice(index, 1);
+            if (this.editingIndex === index) this.cancelEdit();
+            else if (this.editingIndex !== null && this.editingIndex > index) this.editingIndex -= 1;
+        },
+
+        buildPayload() {
+            return {
+                contact_name: this.form.contact_name.trim(),
+                contact_phone: this.form.contact_phone.trim(),
+                deadline_days: Number(this.form.deadline_days) || 15,
+                observations: this.form.observations.trim(),
+                items: this.items.map(item => ({
+                    product_internal: item.product_internal,
+                    technique: item.technique,
+                    technique_type: item.technique_type,
+                    application_size: item.application_size,
+                    quantity: item.quantity,
+                    unit_price: item.unit_price,
+                    notes: item.notes
+                }))
+            };
+        },
+
+        async submitForm(action) {
+            this.serverError = '';
+            if (!this.canSubmit) {
+                this.serverError = 'Preencha contato, WhatsApp e adicione pelo menos um item.';
+                return;
+            }
+
             this.loading = true;
+            this.loadingAction = action;
+
             try {
                 const response = await fetch('{{ route("budget.quick-store") }}', {
                     method: 'POST',
@@ -342,140 +431,52 @@ function quickBudgetForm() {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify(this.form)
+                    body: JSON.stringify(this.buildPayload())
                 });
 
                 const data = await response.json();
-                
-                if (data.success) {
-                    this.savedBudget = data;
-                    alert('Orçamento salvo com sucesso!');
-                    window.location.href = data.redirect_url;
-                } else {
-                    alert('Erro: ' + (data.message || 'Erro ao salvar orçamento'));
+                if (!response.ok || !data.success) {
+                    if (data.errors) {
+                        const firstField = Object.keys(data.errors)[0];
+                        this.serverError = data.errors[firstField][0];
+                    } else {
+                        this.serverError = data.message || 'Erro ao salvar orçamento rápido.';
+                    }
+                    return;
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Erro ao salvar orçamento. Tente novamente.');
-            } finally {
-                this.loading = false;
-            }
-        },
 
-        async saveAndPdf() {
-            if (!this.isValid) return;
-            
-            this.loading = true;
-            try {
-                const response = await fetch('{{ route("budget.quick-store") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(this.form)
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    this.savedBudget = data;
-                    // Open PDF in new tab
+                if (action === 'pdf') {
                     window.open(data.pdf_url, '_blank');
-                    // Redirect to detail page
                     window.location.href = data.redirect_url;
-                } else {
-                    alert('Erro: ' + (data.message || 'Erro ao salvar orçamento'));
+                    return;
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Erro ao salvar orçamento. Tente novamente.');
-            } finally {
-                this.loading = false;
-            }
-        },
-        
-        async saveAndCopy() {
-            if (!this.isValid) return;
-            
-            this.loading = true;
-            try {
-                const response = await fetch('{{ route("budget.quick-store") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(this.form)
-                });
 
-                const data = await response.json();
-                
-                if (data.success) {
-                    this.savedBudget = data;
-                    
-                    // Fetch message text
+                if (action === 'copy') {
                     const msgResponse = await fetch(data.whatsapp_url, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
                     });
                     const msgData = await msgResponse.json();
-
-                    if (msgData.message) {
-                        await navigator.clipboard.writeText(msgData.message);
-                        alert('Informações copiadas! Redirecionando...');
-                    }
-                    
+                    if (msgData.message) await navigator.clipboard.writeText(msgData.message);
                     window.location.href = data.redirect_url;
-                } else {
-                    alert('Erro: ' + (data.message || 'Erro ao salvar orçamento'));
+                    return;
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Erro ao salvar orçamento. Tente novamente.');
-            } finally {
-                this.loading = false;
-            }
-        },
 
-        async saveAndWhatsApp() {
-            if (!this.isValid) return;
-            
-            this.loading = true;
-            try {
-                const response = await fetch('{{ route("budget.quick-store") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(this.form)
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    this.savedBudget = data;
-                    // Open WhatsApp in new tab
+                if (action === 'whatsapp') {
                     window.open(data.whatsapp_url, '_blank');
-                    // Redirect to detail page
                     window.location.href = data.redirect_url;
-                } else {
-                    alert('Erro: ' + (data.message || 'Erro ao salvar orçamento'));
+                    return;
                 }
+
+                window.location.href = data.redirect_url;
             } catch (error) {
-                console.error('Error:', error);
-                alert('Erro ao salvar orçamento. Tente novamente.');
+                console.error(error);
+                this.serverError = 'Erro ao salvar orçamento rápido. Tente novamente.';
             } finally {
                 this.loading = false;
+                this.loadingAction = '';
             }
         }
-    }
+    };
 }
 </script>
 @endpush
