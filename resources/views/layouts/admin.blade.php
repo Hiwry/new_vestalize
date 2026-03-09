@@ -97,16 +97,16 @@
             --primary-hover: #8b5cf6;
             --primary-light: rgba(124, 58, 237, 0.18);
 
-            --background: #000000;
-            --foreground: #fafafa;
-            --muted: #a1a1aa;
-            --border: #1a1a1a;
-            --card-bg: #030303;
-            --card-hover: #080808;
-            --input-bg: #050505;
-            --navbar-bg: rgba(0, 0, 0, 0.8);
+            --background: #0f172a; /* slate-900 */
+            --foreground: #f8fafc; /* slate-50 */
+            --muted: #94a3b8; /* slate-400 */
+            --border: #1e293b; /* slate-800 */
+            --card-bg: #1e293b; /* slate-800 */
+            --card-hover: #334155; /* slate-700 */
+            --input-bg: #0f172a; /* slate-900 */
+            --navbar-bg: rgba(15, 23, 42, 0.8);
             --glow-opacity: 0.12;
-            --shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
         }
 
         /* Alinha dashboard ao design system da landing */
@@ -302,7 +302,7 @@
         }
         
         .dark #sidebar {
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+            background: #0f172a !important; /* Force slate-900 to ensure perfect match */
             border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
         }
 

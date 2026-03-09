@@ -195,6 +195,35 @@
             </a>
         </div>
 
+        <div class="mt-2 text-nowrap">
+            <a href="{{ route('orders.index') }}" 
+               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('orders.index') ? 'active-link' : 'text-muted hover:bg-white/10 hover:text-white' }}"
+               :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+               title="Pedidos">
+                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <i class="fa-solid fa-shopping-bag text-lg"></i>
+                </div>
+                <span class="ml-4 whitespace-nowrap overflow-hidden transition-all duration-300" x-show="expanded">
+                    Pedidos
+                </span>
+            </a>
+        </div>
+
+        <div class="mt-2 text-nowrap">
+            <a href="{{ route('budget.index') }}" 
+               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('budget.index') ? 'active-link' : 'text-muted hover:bg-white/10 hover:text-white' }}"
+               :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+               title="Orçamentos">
+                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <i class="fa-solid fa-calculator text-lg"></i>
+                </div>
+                <span class="ml-4 whitespace-nowrap overflow-hidden transition-all duration-300" x-show="expanded">
+                    Orçamentos
+                </span>
+            </a>
+        </div>
+
+
         @if(auth()->user()->affiliate)
         <div class="mt-2 text-nowrap">
             <a href="{{ route('affiliate.dashboard') }}"
