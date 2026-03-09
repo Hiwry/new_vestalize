@@ -184,25 +184,25 @@
     
     /* Dark Mode (Forced Overrides) */
     .dark .glass-panel {
-        background: rgba(15, 23, 42, 0.6) !important;
+        background: rgba(255, 255, 255, 0.05) !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        box-shadow: 0 18px 38px rgba(0, 0, 0, 0.35) !important;
+        box-shadow: 0 18px 38px rgba(0, 0, 0, 0.25) !important;
         backdrop-filter: blur(16px) !important;
         -webkit-backdrop-filter: blur(16px) !important;
     }
     .dark .glass-card {
-        background: rgba(255, 255, 255, 0.05) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
         color: #f8fafc !important;
     }
     .dark .glass-card-hover:hover {
-        background: rgba(255, 255, 255, 0.08) !important;
-        border-color: rgba(255, 255, 255, 0.15) !important;
+        background: rgba(255, 255, 255, 0.12) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
     }
     .dark .glass-input {
-        background: rgba(0, 0, 0, 0.3) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background: rgba(255, 255, 255, 0.12) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
         color: #f8fafc !important;
     }
     /* ----------------------------------- */
