@@ -33,11 +33,14 @@
         --pdv-surface-from: #0f172a;
         --pdv-surface-to: #0b1322;
         --pdv-surface-border: rgba(148, 163, 184, 0.25);
-        --pdv-text-primary: #e2e8f0;
+        --pdv-text-primary: #f8fafc;
         --pdv-text-secondary: #94a3b8;
-        --pdv-card-bg: #111827;
-        --pdv-card-border: rgba(148, 163, 184, 0.22);
-        --pdv-card-shadow: 0 18px 38px rgba(2, 6, 23, 0.55);
+        --pdv-card-bg: rgba(255, 255, 255, 0.03);
+        --pdv-card-border: rgba(255, 255, 255, 0.08);
+        --pdv-card-shadow: 0 18px 38px rgba(0, 0, 0, 0.35);
+        --pdv-input-bg: rgba(0, 0, 0, 0.25);
+        --pdv-input-border: rgba(255, 255, 255, 0.1);
+        --pdv-input-text: #e2e8f0;
     }
 
     .pdv-ft-topbar {
@@ -275,7 +278,8 @@
                                id="product-search"
                                value="{{ $search ?? '' }}"
                                placeholder="Buscar produto, tecido, máquina ou suprimento..." 
-                               class="pdv-search-input block w-full pl-10 md:pl-12 pr-4 py-3 md:py-4 rounded-xl md:rounded-2xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/20 text-sm md:text-lg transition-all">
+                               class="pdv-search-input block w-full pr-4 py-3 md:py-4 rounded-xl md:rounded-2xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/20 text-sm md:text-lg transition-all"
+                               style="padding-left: 3rem !important;">
                     </div>
 
                     {{-- Products Grid Container (AJAX Target) --}}
@@ -395,16 +399,16 @@
                             
                             <!-- Payment Details (Combined Section) -->
                             <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-3 mb-4 space-y-3 border border-gray-100 dark:border-gray-700">
-                                <div class="grid grid-cols-2 gap-3">
+                                <div class="flex flex-col gap-3">
                                     <!-- Discount -->
                                     <div>
                                         <label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1 block pl-1">Desconto</label>
                                         <div class="flex shadow-sm rounded-lg">
-                                            <select id="discount-type" class="px-2 py-1.5 pdv-card bg-white border border-gray-200 dark:border-gray-600 rounded-l-lg text-xs focus:ring-1 focus:ring-gray-900 border-r-0 text-gray-700 dark:text-gray-200">
+                                            <select id="discount-type" class="px-2 py-1.5 pdv-input bg-white border border-gray-200 dark:border-gray-600 rounded-l-lg text-xs focus:ring-1 focus:ring-gray-900 border-r-0 text-gray-700 dark:text-[var(--pdv-text-primary)]">
                                                 <option value="fixed">R$</option>
                                                 <option value="percent">%</option>
                                             </select>
-                                            <input type="number" id="discount-input" placeholder="0,00" step="0.01" min="0" class="flex-1 w-full px-2 py-1.5 pdv-card bg-white border border-gray-200 dark:border-gray-600 rounded-r-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-white placeholder-gray-400">
+                                            <input type="number" id="discount-input" placeholder="0,00" step="0.01" min="0" class="flex-1 w-full px-2 py-1.5 pdv-input bg-white border border-gray-200 dark:border-gray-600 rounded-r-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-[var(--pdv-text-primary)] placeholder-gray-400">
                                         </div>
                                     </div>
                                     <!-- Delivery -->
@@ -414,7 +418,7 @@
                                             <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
                                                 <span class="text-gray-400 text-xs">R$</span>
                                             </div>
-                                            <input type="number" id="delivery-fee-input" placeholder="0,00" class="w-full pl-6 pr-2 py-1.5 pdv-card bg-white border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-white placeholder-gray-400">
+                                            <input type="number" id="delivery-fee-input" placeholder="0,00" class="w-full pl-6 pr-2 py-1.5 pdv-input bg-white border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-[var(--pdv-text-primary)] placeholder-gray-400">
                                         </div>
                                     </div>
                                 </div>
