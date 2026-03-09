@@ -282,10 +282,27 @@
         #sidebar {
             background: var(--background) !important;
             border-right: 1px solid var(--border) !important;
+            width: 280px !important;
+        }
+        
+        #sidebar.sidebar-collapsed {
+            width: 80px !important;
+        }
+
+        .active-link {
+            background: rgba(124, 58, 237, 0.15) !important;
+            color: #ffffff !important;
+            border-left: 3px solid #7c3aed !important;
+            box-shadow: inset 0 0 20px rgba(124, 58, 237, 0.05);
+        }
+
+        .dark .active-link {
+            background: rgba(139, 92, 246, 0.2) !important;
+            border-left: 3px solid #8b5cf6 !important;
         }
         
         .dark #sidebar {
-            background: linear-gradient(180deg, rgba(18, 14, 34, 0.96) 0%, #080612 60%, #030204 100%) !important;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
             border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
         }
 

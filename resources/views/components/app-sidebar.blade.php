@@ -145,6 +145,153 @@
             </div>
         </div>
     </div>
+<!-- Wrapper para Sidebar e Modal -->
+<div x-data="{
+        expanded: localStorage.getItem('sidebarExpanded') === 'true',
+        mobileOpen: false,
+        isDark: localStorage.getItem('dark') === 'true',
+        openGroups: {
+            'vendas': localStorage.getItem('sidebarGroupVendas') === 'true',
+            'estoque': localStorage.getItem('sidebarGroupEstoque') === 'true',
+            'producao': localStorage.getItem('sidebarGroupProducao') === 'true',
+            'financeiro': localStorage.getItem('sidebarGroupFinanceiro') === 'true',
+            'assinaturas': localStorage.getItem('sidebarGroupAssinaturas') === 'true',
+            'sistema': localStorage.getItem('sidebarGroupSistema') === 'true',
+            'catalogo': localStorage.getItem('sidebarGroupCatalogo') === 'true',
+            'tutoriais': localStorage.getItem('sidebarGroupTutoriais') === 'true'
+        },
+        isMobile() { return window.innerWidth < 768; },
+        updateLayout() {
+            if (this.isMobile()) {
+                document.documentElement.classList.remove('sidebar-expanded');
+            } else {
+                if (this.expanded) {
+                    document.documentElement.classList.add('sidebar-expanded');
+                } else {
+                    document.documentElement.classList.remove('sidebar-expanded');
+                }
+            }
+        },
+        toggle() {
+            if (this.isMobile()) {
+                this.mobileOpen = !this.mobileOpen;
+                this.expanded = true; // garantir menu expandido no mobile
+                this.mobileOpen ? this.lockScroll() : this.unlockScroll();
+                return;
+            }
+            this.expanded = !this.expanded;
+            localStorage.setItem('sidebarExpanded', this.expanded);
+            this.updateLayout();
+        },
+        openMobile() { 
+            this.mobileOpen = true; 
+            this.expanded = true; // sempre expandido no mobile para mostrar grupos
+            this.lockScroll();
+        },
+        closeMobile() { 
+            this.mobileOpen = false; 
+            this.unlockScroll();
+        },
+        toggleGroup(group) {
+            if (!this.expanded && !this.isMobile()) {
+                this.toggle(); // Expandir sidebar se estiver fechada ao abrir um grupo
+                setTimeout(() => {
+                    this.openGroups[group] = !this.openGroups[group];
+                    localStorage.setItem('sidebarGroup' + group.charAt(0).toUpperCase() + group.slice(1), this.openGroups[group]);
+                }, 150);
+            } else {
+                this.openGroups[group] = !this.openGroups[group];
+                localStorage.setItem('sidebarGroup' + group.charAt(0).toUpperCase() + group.slice(1), this.openGroups[group]);
+            }
+        },
+        showProfileModal: false,
+        lockScroll() { document.body.style.overflow = 'hidden'; },
+        unlockScroll() { document.body.style.overflow = ''; },
+        init() {
+            this.updateLayout();
+            window.addEventListener('resize', () => {
+                this.updateLayout();
+                if (!this.isMobile()) {
+                    this.mobileOpen = false;
+                    this.unlockScroll();
+                }
+            });
+        }
+    }"
+    @keydown.escape.window="showProfileModal = false; mobileOpen = false"
+    @toggle-sidebar.window="toggle()"
+    @dark-mode-toggled.window="isDark = $event.detail.dark">
+
+
+<!-- Barra Mobile Superior com botão único -->
+<!-- Barra Mobile Superior Suave (Neutral BG + Indigo Button) -->
+<div class="md:hidden fixed top-0 inset-x-0 h-16 bg-background/80 backdrop-blur-lg border-b border-border z-50 flex items-center justify-between px-4 transition-all duration-300">
+    <button @click.stop="toggle()"
+            class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary hover:bg-primary-hover text-white focus:outline-none transition-all duration-200 shadow-lg shadow-primary/20 active:scale-95">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+    </button>
+    
+    <!-- Mobile Notification Bell -->
+    <div x-data="notificationBell()" x-init="init()" class="relative">
+        <button @click="togglePanel()" class="relative p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+            <svg class="w-6 h-6 transition-transform" :class="{ 'animate-bounce': hasNew }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+            <!-- Badge -->
+            <span x-show="unreadCount > 0" 
+                  x-text="unreadCount > 99 ? '99+' : unreadCount"
+                  class="absolute top-1 right-1 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+            </span>
+        </button>
+
+        <!-- Mobile Notification Panel -->
+        <div x-show="showPanel" 
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="transform opacity-0 scale-95 -translate-y-2"
+             x-transition:enter-end="transform opacity-100 scale-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="transform opacity-100 scale-100"
+             x-transition:leave-end="transform opacity-0 scale-95"
+             @click.away="showPanel = false"
+             class="absolute top-12 right-0 w-80 max-h-[80vh] bg-card-bg backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden flex flex-col z-[100]">
+            
+             <!-- Header -->
+            <div class="px-4 py-3 bg-white/5 border-b border-white/10 flex items-center justify-between">
+                <h3 class="text-sm font-bold text-white flex items-center">
+                    Notificações
+                    <span x-show="unreadCount > 0" x-text="'(' + unreadCount + ')'" class="ml-1 text-xs text-primary"></span>
+                </h3>
+                 <button @click="markAllAsRead()" x-show="unreadCount > 0" class="text-[10px] text-primary font-bold uppercase tracking-widest">Lidas</button>
+            </div>
+
+            <!-- List -->
+            <div class="flex-1 overflow-y-auto">
+                 <template x-if="loading"><div class="p-4 text-center text-xs text-gray-500">Carregando...</div></template>
+                 <template x-if="!loading && notifications.length === 0">
+                    <div class="p-8 text-center text-gray-500 text-xs">Nenhuma notificação</div>
+                 </template>
+                 <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                    <template x-for="notification in notifications" :key="notification.id">
+                        <div @click="handleNotificationClick(notification)" :class="{ 'bg-indigo-50 dark:bg-indigo-900/10': !notification.read }" class="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-semibold text-gray-900 dark:text-gray-100 truncate" x-text="notification.title"></p>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400 line-clamp-2" x-text="notification.message"></p>
+                                    <p class="text-[10px] text-gray-400 mt-1" x-text="formatDate(notification.created_at)"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                 </div>
+            </div>
+            
+             <div x-show="notifications.length > 0" class="p-2 border-t border-gray-200 dark:border-gray-600 text-center bg-gray-50 dark:bg-gray-800">
+                <button @click="clearAll()" class="text-xs text-red-500 hover:text-red-700">Limpar tudo</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Overlay Mobile -->
@@ -156,10 +303,10 @@
             isMobile() ? 'w-full max-w-full sidebar-expanded' : (expanded ? 'sidebar-expanded' : 'sidebar-collapsed'),
             (mobileOpen || !isMobile()) ? 'translate-x-0' : '-translate-x-full'
         ]"
-       class="fixed top-0 left-0 z-[60] h-screen bg-card-bg border-r border-border overflow-hidden transition-all duration-300 ease-in-out transform md:translate-x-0 shadow-2xl flex flex-col">
+       class="fixed top-0 left-0 z-[60] h-screen bg-slate-900 border-r border-white/5 overflow-hidden transition-all duration-300 ease-in-out transform md:translate-x-0 shadow-2xl flex flex-col">
     
     <!-- Header do Sidebar com Botão Toggle -->
-    <div class="flex items-center h-20 border-b border-border bg-card-bg transition-all duration-300 relative"
+    <div class="flex items-center h-20 border-b border-white/5 bg-slate-900/50 backdrop-blur-xl transition-all duration-300 relative"
          :class="expanded ? 'justify-between px-4' : 'justify-center'">
         <div class="flex items-center overflow-hidden" x-show="expanded">
             <img src="{{ asset('vestalize.svg') }}"
@@ -168,7 +315,7 @@
         </div>
         <div class="flex items-center" :class="expanded ? 'gap-2' : ''">
             <button @click="toggle()" 
-                    class="flex items-center justify-center p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all duration-200"
+                    class="flex items-center justify-center p-2 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white active:scale-95 transition-all duration-200"
                     :class="expanded ? '' : 'mx-auto'">
                 <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
                     <svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
@@ -361,176 +508,6 @@
                         <i class="fa-solid fa-industry text-lg"></i>
                     </div>
                     <span class="ml-4" x-show="expanded">Produ&ccedil;&atilde;o</span>
-                </a>
-            </div>
-            @endif
-
-             @if((Auth::user()->isAdmin() || Auth::user()->isCaixa()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('financial')))
-            <div class="mt-1">
-                <button @click="toggleGroup('financeiro')"
-                        class="flex items-center w-full text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
-                        :class="expanded ? 'px-4 py-3.5 justify-between' : 'justify-center p-3.5 mx-auto'"
-                        title="Financeiro">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                            <i class="fa-solid fa-coins text-lg group-hover:text-primary transition-colors"></i>
-                        </div>
-                        <span class="ml-4" x-show="expanded">Financeiro</span>
-                    </div>
-                    <i x-show="expanded" class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" :class="openGroups.financeiro ? 'rotate-90 text-primary' : ''"></i>
-                </button>
-                
-                <div x-show="openGroups.financeiro && expanded" x-collapse x-cloak class="space-y-1 my-1 px-2">
-                    <a href="{{ route('financial.dashboard') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('financial.dashboard') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Dashboard
-                    </a>
-                    <a href="{{ route('cash.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('cash.index') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Caixa
-                    </a>
-                    <a href="{{ route('cash.approvals.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('cash.approvals.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Aprovações PDV
-                    </a>
-                    @if(Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('invoices'))
-                    <a href="{{ route('admin.invoices.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.invoices.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Notas Fiscais
-                    </a>
-                    <a href="{{ route('admin.invoice-config.edit') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.invoice-config.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Configuração NF-e
-                    </a>
-                    @endif
-                </div>
-            </div>
-            @endif
-
-            @if(Auth::user()->tenant_id !== null && Auth::user()->isAdminGeral() && auth()->user()->tenant?->canAccess('subscription_module'))
-            <div class="mt-2 text-nowrap">
-                <a href="{{ route('subscription.index') }}"
-                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->is('subscription*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
-                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
-                   title="Minha Assinatura">
-                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                        <i class="fa-solid fa-credit-card text-lg"></i>
-                    </div>
-                    <span class="ml-4" x-show="expanded">Minha Assinatura</span>
-                </a>
-            </div>
-            @endif
-
-
-
-            <!-- ASSINATURAS (Super Admin apenas - sem dropdown) -->
-            @if(Auth::user()->isAdmin() && Auth::user()->tenant_id === null)
-            <div class="mt-1">
-                <a href="{{ route('admin.tenants.index') }}"
-                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->routeIs('admin.tenants.*') || request()->routeIs('admin.plans.*') || request()->routeIs('admin.subscription-payments.*') || request()->routeIs('admin.affiliates.*') || request()->routeIs('admin.leads.*')) ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
-                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
-                   title="Assinaturas">
-                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                        <i class="fa-solid fa-users-gear text-lg"></i>
-                    </div>
-                    <span class="ml-4" x-show="expanded">Assinaturas</span>
-                </a>
-            </div>
-
-            <!-- MARKETPLACE ADMIN (Super Admin apenas) -->
-            <div class="mt-1">
-                <a href="{{ route('admin.marketplace.index') }}"
-                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('admin.marketplace.*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
-                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
-                   title="Marketplace Admin">
-                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                        <i class="fa-solid fa-store text-lg"></i>
-                    </div>
-                    <span class="ml-4" x-show="expanded">Marketplace Admin</span>
-                </a>
-            </div>
-            @endif
-
-            <!-- LINK: TUTORIAIS -->
-            <div class="mt-1">
-                <a href="{{ route('tutorials.index') }}"
-                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('tutorials.*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
-                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
-                   title="Tutoriais">
-                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                        <i class="fa-solid fa-graduation-cap text-lg"></i>
-                    </div>
-                    <span class="ml-4" x-show="expanded">Tutoriais</span>
-                </a>
-            </div>
-
-
-            <!-- LINK: CONFIGURAÇÕES (Singular) -->
-            <div class="mt-1">
-                @if(!Auth::user()->isVendedor())
-                <a href="{{ route('settings.index') }}" 
-                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('settings.*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
-                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
-                   title="Configurações">
-                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                        <i class="fa-solid fa-gears text-lg"></i>
-                    </div>
-                    <span class="ml-4" x-show="expanded">Configurações</span>
-                </a>
-                @endif
-            </div>
-
-        @endif
-        
-    </nav>
-    
-    <!-- Botão de Tema (Floating or Fixed at bottom right of nav in expanded?) -->
-    <!-- Put it in Footer actually for unified interactions or keep it floating -->
-    
-    <!-- Footer do Sidebar (Perfil e Tema) -->
-    <div class="sidebar-footer-custom">
-         
-         <!-- Theme Toggle Pill -->
-         <div class="mb-4 px-1" x-show="expanded">
-             <div class="theme-toggle-track-custom" @click="window.toggleDarkMode(); isDark = document.documentElement.classList.contains('dark');">
-                <div class="theme-toggle-pill-custom" :class="{ 'dark': isDark }"></div>
-                
-                <div class="theme-toggle-btn-custom" :class="!isDark ? 'active' : ''" title="Modo Claro">
-                    <i class="fa-solid fa-sun text-lg"></i>
-                </div>
-                
-                <div class="theme-toggle-btn-custom" :class="isDark ? 'active' : ''" title="Modo Escuro">
-                    <i class="fa-solid fa-moon text-lg"></i>
-                </div>
-             </div>
-         </div>
-
-         <!-- Mini Toggle (Collapsed Sidebar) -->
-         <button x-show="!expanded" @click="window.toggleDarkMode(); isDark = document.documentElement.classList.contains('dark');"
-                 class="w-11 h-11 flex items-center justify-center mx-auto mb-4 rounded-xl transition-all group text-primary bg-primary/10 hover:bg-primary/20"
-                 title="Mudar Tema">
-             <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-               <i class="fa-solid text-lg transition-transform group-hover:rotate-12" :class="isDark ? 'fa-moon' : 'fa-sun'"></i>
-             </div>
-         </button>
-
-        <button @click="showProfileModal = true" 
-                class="flex items-center rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all group w-full"
-                :class="expanded ? 'p-2 justify-start' : 'justify-center mx-auto py-2'"
-                title="Meu Perfil">
-            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white stay-white font-black text-xs shadow-lg group-hover:scale-105 transition-transform">
-                {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-            </div>
-            <div class="flex flex-col items-start ml-3 overflow-hidden text-nowrap" x-show="expanded">
-                <span class="text-xs font-black text-white truncate w-full max-w-[140px] tracking-tight">
-                    {{ auth()->user()->name }}
-                </span>
-                <span class="text-[9px] font-bold text-muted uppercase tracking-widest">
-                    Meu Perfil
-                </span>
-            </div>
-        </button>
-    </div>
-</aside>
-
-<!-- Modal Profile (Mantido igual basicamente, só small tweaks) -->
-<div x-show="showProfileModal" 
-    @click.self="showProfileModal = false"
     style="display: none;"
     x-cloak
     class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm transition-opacity duration-300"
