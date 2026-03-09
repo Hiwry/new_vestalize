@@ -421,6 +421,19 @@
         background-color: var(--of-card-bg) !important;
     }
 
+    /* Remover sombra/quebra da coluna fixa */
+    .orders-ft .sticky-column[data-sticky-last]::after,
+    .dark .orders-ft .sticky-column[data-sticky-last]::after {
+        display: none !important;
+        opacity: 0 !important;
+    }
+
+    .orders-ft .table-sticky-wrapper::after,
+    .dark .orders-ft .table-sticky-wrapper::after {
+        display: none !important;
+        opacity: 0 !important;
+    }
+
     .orders-ft .orders-ft-mobile-card {
         border-radius: 14px !important;
     }

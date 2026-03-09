@@ -340,6 +340,32 @@
         background-color: var(--of-card-bg) !important;
     }
 
+    /* Colunas Sticky Budgets */
+    .dark .budgets-ft .sticky-column {
+        background-color: var(--of-card-bg) !important;
+    }
+
+    .dark .budgets-ft .sticky-table thead .sticky-column {
+        background-color: var(--of-table-head) !important;
+    }
+
+    .dark .budgets-ft .sticky-table tbody tr:hover .sticky-column {
+        background-color: var(--of-card-bg) !important;
+    }
+
+    /* Remover sombra/quebra da coluna fixa */
+    .budgets-ft .sticky-column[data-sticky-last]::after,
+    .dark .budgets-ft .sticky-column[data-sticky-last]::after {
+        display: none !important;
+        opacity: 0 !important;
+    }
+
+    .budgets-ft .table-sticky-wrapper::after,
+    .dark .budgets-ft .table-sticky-wrapper::after {
+        display: none !important;
+        opacity: 0 !important;
+    }
+
     .budgets-ft .budgets-ft-mobile-card {
         border-radius: 14px !important;
     }
