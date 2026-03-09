@@ -3,13 +3,13 @@
         @if($type == 'products')
             @if($item instanceof \App\Models\Product)
                 {{-- Product Card --}}
-                <div class="group bg-white dark:bg-[#111827] rounded-xl md:rounded-2xl p-3 md:p-5 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-white/5 flex flex-col h-full">
+                <div class="group bg-white dark:bg-gray-900 rounded-xl md:rounded-2xl p-3 md:p-5 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-800 flex flex-col h-full">
                     {{-- Product Image (if exists) --}}
                     @php
                         $productImage = $item->primary_image_url ?? ($item->image_path ? Storage::url($item->image_path) : null);
                     @endphp
                     @if($productImage)
-                    <div class="aspect-square rounded-lg overflow-hidden mb-2 md:mb-3 bg-gray-100 dark:bg-[#111827]">
+                    <div class="aspect-square rounded-lg overflow-hidden mb-2 md:mb-3 bg-gray-100 dark:bg-gray-900">
                         <img src="{{ $productImage }}" alt="{{ $item->title }}" class="w-full h-full object-cover">
                     </div>
                     @endif
@@ -20,7 +20,7 @@
                         </h3>
                         <div class="mt-1 flex flex-wrap items-center gap-1.5">
                             @if($item->category)
-                                <span class="hidden md:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-[#111827] text-gray-800 dark:text-gray-300">
+                                <span class="hidden md:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-300">
                                     {{ $item->category->name }}
                                 </span>
                             @endif
@@ -51,7 +51,7 @@
                 </div>
             @else
                 {{-- Product Option Card --}}
-                <div class="group bg-white dark:bg-[#111827] rounded-xl md:rounded-2xl p-3 md:p-5 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-white/5 flex flex-col h-full border-l-4 border-l-purple-500">
+                <div class="group bg-white dark:bg-gray-900 rounded-xl md:rounded-2xl p-3 md:p-5 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-800 flex flex-col h-full border-l-4 border-l-purple-500">
                     <div class="flex-1 mb-2 md:mb-4">
                         <h3 class="font-bold text-gray-900 dark:text-gray-100 text-sm md:text-lg leading-tight mb-0.5 line-clamp-2">{{ $item->name }}</h3>
                         <p class="text-xs text-purple-600 dark:text-purple-400 font-medium mb-2">Tipo de Corte</p>
@@ -72,7 +72,7 @@
             @endif
         @else
             {{-- Generic Stock Item Card --}}
-            <div class="group bg-white dark:bg-[#111827] rounded-xl md:rounded-2xl p-3 md:p-5 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-white/5 flex flex-col h-full">
+            <div class="group bg-white dark:bg-gray-900 rounded-xl md:rounded-2xl p-3 md:p-5 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-800 flex flex-col h-full">
                 <div class="flex-1 mb-2 md:mb-4">
                     <div class="flex justify-between items-start gap-2">
                         <div class="flex-1 min-w-0">
@@ -108,7 +108,7 @@
         @endif
     @empty
         <div class="col-span-full flex flex-col items-center justify-center py-12 md:py-16 text-center">
-            <div class="bg-gray-100 dark:bg-[#111827] p-3 md:p-4 rounded-full mb-3 md:mb-4">
+            <div class="bg-gray-100 dark:bg-gray-900 p-3 md:p-4 rounded-full mb-3 md:mb-4">
                 <svg class="w-6 h-6 md:w-8 md:h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
@@ -127,7 +127,7 @@
     <div class="flex gap-2">
         @if($paginatedItems->previousPageUrl())
             <a href="{{ $paginatedItems->previousPageUrl() }}&type={{ $type ?? 'products' }}&search={{ $search ?? '' }}" 
-               class="px-3 py-1.5 md:px-4 md:py-2 bg-white dark:bg-[#111827] border border-gray-300 dark:border-white/5 rounded-lg text-xs md:text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+               class="px-3 py-1.5 md:px-4 md:py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-800 rounded-lg text-xs md:text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
                 ← Ant.
             </a>
         @endif

@@ -281,7 +281,7 @@
                     <div class="pdv-ft-shell-card pdv-cart-panel rounded-3xl overflow-hidden flex flex-col h-[calc(100vh-6rem)]">
                         
                         <!-- 1. Header & Client Selection -->
-                        <div class="p-5 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-[#111827]/50">
+                        <div class="p-5 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
                             <!-- Selected Client Display -->
                             <div id="selected-client-display" class="hidden animate-fade-in-down">
                                 <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-xl p-3 border border-indigo-100 dark:border-indigo-800 flex justify-between items-center group">
@@ -309,7 +309,7 @@
                                 <div class="relative">
                                     <input type="text" id="search-client" placeholder="Buscar cliente (opcional)..." 
                                            onkeydown="if(event.key === 'Enter') window.searchClient()"
-                                           class="w-full pl-16 pr-4 py-3 bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/5 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-shadow" style="padding-left: 3.5rem !important;">
+                                           class="w-full pl-16 pr-4 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-shadow" style="padding-left: 3.5rem !important;">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center cursor-pointer" onclick="window.searchClient()">
                                         <svg class="w-5 h-5 text-gray-400 hover:text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -319,7 +319,7 @@
                                         + Novo
                                     </a>
                                 </div>
-                                <div id="search-results" class="absolute w-full mt-1 bg-white dark:bg-[#111827] rounded-xl shadow-xl border border-gray-100 dark:border-white/5 z-50 max-h-60 overflow-y-auto hidden"></div>
+                                <div id="search-results" class="absolute w-full mt-1 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 z-50 max-h-60 overflow-y-auto hidden"></div>
                                 <input type="hidden" id="client_id" name="client_id" value="">
                             </div>
                         </div>
@@ -337,7 +337,7 @@
                                 @else
                                     @foreach($cart as $item)
                                     <!-- Simplified Cart Item -->
-                                    <div class="cart-item group bg-white dark:bg-[#111827] rounded-xl p-3 shadow-sm border border-gray-100 dark:border-white/5 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors" data-item-id="{{ $item['id'] }}">
+                                    <div class="cart-item group bg-white dark:bg-gray-900 rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-800 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors" data-item-id="{{ $item['id'] }}">
                                         <div class="flex justify-between items-start mb-2">
                                             <div class="flex-1 pr-2">
                                                 <p class="font-medium text-gray-900 dark:text-gray-100 text-sm leading-tight">{{ $item['product_title'] }}</p>
@@ -356,7 +356,7 @@
                                         </div>
                                         
                                         <div class="flex items-end justify-between">
-                                            <div class="flex items-center bg-gray-50 dark:bg-[#111827] rounded-lg p-1 border border-gray-200 dark:border-white/5">
+                                            <div class="flex items-center bg-gray-50 dark:bg-gray-900 rounded-lg p-1 border border-gray-200 dark:border-gray-800">
                                                 <input type="number" 
                                                        value="{{ $item['quantity'] }}" 
                                                        step="{{ isset($item['sale_type']) && $item['sale_type'] != 'unidade' ? '0.01' : '1' }}"
@@ -381,20 +381,20 @@
                         </div>
 
                         <!-- 3. Footer (Totals & Actions) -->
-                        <div class="bg-white dark:bg-[#111827] p-5 border-t border-gray-100 dark:border-white/5 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
+                        <div class="bg-white dark:bg-gray-900 p-5 border-t border-gray-100 dark:border-gray-800 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
                             
                             <!-- Payment Details (Combined Section) -->
-                            <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-3 mb-4 space-y-3 border border-gray-100 dark:border-white/5">
+                            <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-3 mb-4 space-y-3 border border-gray-100 dark:border-gray-800">
                                 <div class="grid grid-cols-2 gap-3">
                                     <!-- Discount -->
                                     <div>
                                         <label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1 block pl-1">Desconto</label>
                                         <div class="flex shadow-sm rounded-lg">
-                                            <select id="discount-type" class="px-2 py-1.5 bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/5 rounded-l-lg text-xs focus:ring-1 focus:ring-gray-900 border-r-0 text-gray-700 dark:text-gray-200">
+                                            <select id="discount-type" class="px-2 py-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-l-lg text-xs focus:ring-1 focus:ring-gray-900 border-r-0 text-gray-700 dark:text-gray-200">
                                                 <option value="fixed">R$</option>
                                                 <option value="percent">%</option>
                                             </select>
-                                            <input type="number" id="discount-input" placeholder="0,00" step="0.01" min="0" class="flex-1 w-full px-2 py-1.5 bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/5 rounded-r-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-white placeholder-gray-400">
+                                            <input type="number" id="discount-input" placeholder="0,00" step="0.01" min="0" class="flex-1 w-full px-2 py-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-r-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-white placeholder-gray-400">
                                         </div>
                                     </div>
                                     <!-- Delivery -->
@@ -404,19 +404,19 @@
                                             <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
                                                 <span class="text-gray-400 text-xs">R$</span>
                                             </div>
-                                            <input type="number" id="delivery-fee-input" placeholder="0,00" class="w-full pl-6 pr-2 py-1.5 bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/5 rounded-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-white placeholder-gray-400">
+                                            <input type="number" id="delivery-fee-input" placeholder="0,00" class="w-full pl-6 pr-2 py-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-white placeholder-gray-400">
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <!-- Notes -->
                                 <div>
-                                    <input type="text" id="notes-input" placeholder="Adicionar observações..." class="w-full px-3 py-2 bg-white dark:bg-[#111827] border border-gray-200 dark:border-white/5 rounded-lg text-xs focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-white placeholder-gray-400 transition-colors hover:border-gray-300">
+                                    <input type="text" id="notes-input" placeholder="Adicionar observações..." class="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg text-xs focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-white placeholder-gray-400 transition-colors hover:border-gray-300">
                                 </div>
                             </div>
 
                             <!-- Total Display -->
-                            <div class="flex justify-between items-center mb-5 pb-4 border-b border-dashed border-gray-200 dark:border-white/5">
+                            <div class="flex justify-between items-center mb-5 pb-4 border-b border-dashed border-gray-200 dark:border-gray-800">
                                 <div class="flex flex-col">
                                     <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total a Pagar</span>
                                     <span id="cart-total-items-badge" class="text-[10px] text-gray-400 mt-0.5 hidden">0 itens</span>
@@ -437,7 +437,7 @@
                                 </button>
                                 
                                 <div class="grid grid-cols-2 gap-3">
-                                    <button onclick="window.checkoutWithoutClient()" id="checkout-without-client-btn" class="w-full py-2.5 bg-white dark:bg-[#111827] text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-lg font-semibold text-xs transition-all flex items-center justify-center gap-1.5">
+                                    <button onclick="window.checkoutWithoutClient()" id="checkout-without-client-btn" class="w-full py-2.5 bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-lg font-semibold text-xs transition-all flex items-center justify-center gap-1.5">
                                         <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                                         Sem Cliente
                                     </button>
@@ -479,14 +479,14 @@
         <div onclick="toggleMobileCart()" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
         
         {{-- Drawer Content --}}
-        <div class="absolute bottom-0 left-0 right-0 bg-white dark:bg-[#111827] rounded-t-3xl max-h-[85vh] overflow-hidden transform transition-transform duration-300 translate-y-full" id="mobile-cart-content">
+        <div class="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-3xl max-h-[85vh] overflow-hidden transform transition-transform duration-300 translate-y-full" id="mobile-cart-content">
             {{-- Handle bar --}}
             <div class="flex justify-center py-2">
                 <div class="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
             </div>
             
             {{-- Header --}}
-            <div class="flex items-center justify-between px-4 pb-3 border-b border-gray-200 dark:border-white/5">
+            <div class="flex items-center justify-between px-4 pb-3 border-b border-gray-200 dark:border-gray-800">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <svg class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -506,7 +506,7 @@
                     <p class="text-center text-gray-500 py-8">Carrinho vazio</p>
                 @else
                     @foreach($cart as $item)
-                    <div class="bg-gray-50 dark:bg-[#111827] rounded-lg p-3 flex justify-between items-center">
+                    <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 flex justify-between items-center">
                         <div>
                             <p class="font-medium text-gray-900 dark:text-white text-sm">{{ $item['product_title'] }}</p>
                             @if(!empty($item['color_name']) || !empty($item['size']))
@@ -523,7 +523,7 @@
             </div>
             
             {{-- Footer with Total and Actions --}}
-            <div class="p-4 border-t border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-[#111827]/50 space-y-3">
+            <div class="p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 space-y-3">
                 <div class="flex justify-between items-end">
                     <span class="text-sm text-gray-500">Total</span>
                     <span class="text-2xl font-bold text-gray-900 dark:text-white" id="mobile-cart-total">
@@ -565,8 +565,8 @@ function toggleMobileCart() {
 
 <!-- Modal Adicionar Produto -->
 <div id="add-product-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-[#111827] rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all">
-        <div class="px-6 py-4 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-[#111827]/50">
+    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all">
+        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/50">
             <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100" id="modal-title-dynamic">Adicionar Produto</h3>
             <button onclick="closeAddProductModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -583,7 +583,7 @@ function toggleMobileCart() {
 
 <!-- Modal de Confirmação para Limpar Carrinho -->
 <div id="clear-cart-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center" onclick="if(event.target === this) closeClearCartModal()">
-    <div class="bg-white dark:bg-[#111827] rounded-lg shadow-xl p-6 max-w-md w-full mx-4" onclick="event.stopPropagation()">
+    <div class="bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 max-w-md w-full mx-4" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Limpar Carrinho</h3>
             <button onclick="closeClearCartModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
@@ -601,7 +601,7 @@ function toggleMobileCart() {
         
         <div class="flex gap-3 justify-end">
             <button onclick="closeClearCartModal()" 
-                    class="px-4 py-2 bg-gray-200 dark:bg-[#111827] text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                    class="px-4 py-2 bg-gray-200 dark:bg-gray-900 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                 Cancelar
             </button>
             <button onclick="confirmClearCart()" 
@@ -614,9 +614,9 @@ function toggleMobileCart() {
 
 <!-- Modal de Personalização SUB.LOCAL -->
 <div id="sublocal-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4" onclick="if(event.target === this) closeSublocalModal()">
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-slate-800" onclick="event.stopPropagation()">
+    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-800" onclick="event.stopPropagation()">
         <!-- Modal Header -->
-        <div class="px-6 py-5 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-10">
+        <div class="px-6 py-5 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-900 z-10">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white">Adicionar Personalização SUB.LOCAL</h3>
             <button type="button" onclick="closeSublocalModal()" class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -671,7 +671,7 @@ function toggleMobileCart() {
             <input type="hidden" id="sublocal-modal-final-price-value" value="0">
 
             <!-- Botões -->
-            <div class="flex gap-3 pt-4 border-t border-gray-200 dark:border-slate-800">
+            <div class="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
                 <button type="button" onclick="closeSublocalModal()" 
                         class="flex-1 px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
                     Cancelar
@@ -692,7 +692,7 @@ function toggleMobileCart() {
 @push('scripts')
 <!-- Modal Formas de Pagamento (OUTSIDE main content) -->
 <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center" style="display: none;">
-    <div class="bg-white dark:bg-[#111827] rounded-lg shadow-xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Formas de Pagamento</h3>
             <button onclick="closePaymentModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
@@ -714,7 +714,7 @@ function toggleMobileCart() {
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Adicionar Forma de Pagamento:</label>
             <div class="flex gap-2">
-                <select id="new-payment-method" class="flex-1 px-3 py-2 border border-gray-300 dark:border-white/5 rounded-lg bg-white dark:bg-[#111827] text-gray-900 dark:text-gray-100">
+                <select id="new-payment-method" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-800 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
                     <option value="">Selecione...</option>
                     <option value="dinheiro">Dinheiro</option>
                     <option value="pix">PIX</option>
@@ -727,7 +727,7 @@ function toggleMobileCart() {
                        step="0.01"
                        min="0.01"
                        placeholder="Valor"
-                       class="w-32 px-3 py-2 border border-gray-300 dark:border-white/5 rounded-lg bg-white dark:bg-[#111827] text-gray-900 dark:text-gray-100">
+                       class="w-32 px-3 py-2 border border-gray-300 dark:border-gray-800 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
                 <button type="button" onclick="addPaymentMethod()" 
                         class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" style="color: white !important;">
                     Adicionar
@@ -739,7 +739,7 @@ function toggleMobileCart() {
             <p class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">Nenhuma forma de pagamento adicionada</p>
         </div>
         
-        <div class="border-t border-gray-200 dark:border-white/5 pt-4 mb-4">
+        <div class="border-t border-gray-200 dark:border-gray-800 pt-4 mb-4">
             <div class="flex justify-between items-center">
                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Total Pago:</span>
                 <span class="text-lg font-semibold text-green-600 dark:text-green-400" id="payment-total-paid">R$ 0,00</span>
@@ -752,7 +752,7 @@ function toggleMobileCart() {
         
         <div class="flex gap-3">
             <button onclick="closePaymentModal()" 
-                    class="flex-1 px-4 py-2 border border-gray-300 dark:border-white/5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-800 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
                 Cancelar
             </button>
             <button onclick="confirmPayment()" 
@@ -1002,7 +1002,7 @@ function renderVariantColorOptions(colors, selectedColorId = null) {
             return `
                 <button type="button"
                         onclick="selectModalColor('${color.id}')"
-                        class="flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${isSelected ? 'border-purple-500 bg-purple-50 text-purple-700 dark:border-purple-400 dark:bg-purple-900/30 dark:text-purple-200 shadow-sm' : 'border-gray-200 bg-white text-gray-700 hover:border-purple-300 dark:border-white/5 dark:bg-[#111827] dark:text-gray-200 dark:hover:border-purple-500'}">
+                        class="flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${isSelected ? 'border-purple-500 bg-purple-50 text-purple-700 dark:border-purple-400 dark:bg-purple-900/30 dark:text-purple-200 shadow-sm' : 'border-gray-200 bg-white text-gray-700 hover:border-purple-300 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200 dark:hover:border-purple-500'}">
                     <span class="w-4 h-4 rounded-full border border-white/30 shadow-sm" style="background-color: ${color.hex || '#666666'}"></span>
                     <span>${color.name}</span>
                     ${color.available !== null ? `<span class="text-[10px] opacity-70">${color.available}</span>` : ''}
@@ -1171,7 +1171,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
         applicationHtml = `
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Aplicação:</label>
-                <select id="modal-application-type" class="w-full px-3 py-2 border border-gray-300 dark:border-white/5 rounded-lg bg-white dark:bg-[#111827] text-gray-900 dark:text-gray-100">
+                <select id="modal-application-type" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-800 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
                     <option value="">Sem aplicação</option>
                     ${product.application_types.includes('sublimacao_local') ? '<option value="sublimacao_local">Sublimação Local</option>' : ''}
                     ${product.application_types.includes('dtf') ? '<option value="dtf">DTF</option>' : ''}
@@ -1184,7 +1184,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
     let sublocalHtml = '';
     if (isProductOption && product.allows_sublocal) {
         sublocalHtml = `
-            <div class="mb-4 border-t border-gray-200 dark:border-white/5 pt-4">
+            <div class="mb-4 border-t border-gray-200 dark:border-gray-800 pt-4">
                 <div class="flex justify-between items-center mb-3">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Personalizações SUB.LOCAL:</label>
                     <button type="button" onclick="openSublocalModal()" class="px-3 py-1 text-xs bg-gray-900 text-white rounded hover:bg-black transition-colors">
@@ -1208,7 +1208,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
     content.innerHTML = `
         <div>
             <!-- Header Info (Price & Type) -->
-            <div class="mb-5 flex items-center justify-between bg-gray-50 dark:bg-[#111827]/50 p-4 rounded-xl border border-gray-100 dark:border-white/5">
+            <div class="mb-5 flex items-center justify-between bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
                 <div class="flex flex-col">
                     ${isFabricPiece ? `
                         <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Preço por ${getFabricPieceUnitLabel(product)}</span>
@@ -1221,7 +1221,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                             Saldo disponível: <span class="font-semibold text-gray-700 dark:text-gray-300">${formatFabricPieceQuantity(product.available_quantity || 0, product)} ${getFabricPieceUnitSuffix(product)}</span>
                             | Valor estimado: <span class="font-semibold text-gray-700 dark:text-gray-300">R$ ${parseFloat(product.sale_price || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </span>
-                        <div class="mt-2 text-[10px] space-y-0.5 border-t border-gray-100 dark:border-white/5 pt-1">
+                        <div class="mt-2 text-[10px] space-y-0.5 border-t border-gray-100 dark:border-gray-800 pt-1">
                             <span class="block text-gray-900 dark:text-gray-100 font-bold uppercase">${product.fabric_type_name || 'Tecido'}</span>
                             ${product.supplier_name ? `<span class="block text-gray-500 font-medium">Fornecedor: ${product.supplier_name}</span>` : ''}
                         </div>
@@ -1248,7 +1248,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                        value="${quantityValue}"
                        ${isFabricPiece ? `max="${product.available_quantity || 999}" onchange="calculateFabricPiecePrice()"` : ''}
                        ${isQuantityReadonly ? 'readonly disabled' : ''}
-                       class="w-full px-3 py-2.5 border border-gray-200 dark:border-white/5 rounded-lg bg-gray-50 dark:bg-[#111827] text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-indigo-500 transition-shadow ${isQuantityReadonly ? 'cursor-not-allowed opacity-75' : ''}">
+                       class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-800 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-indigo-500 transition-shadow ${isQuantityReadonly ? 'cursor-not-allowed opacity-75' : ''}">
                 ${isFabricPiece ? `<p class="text-xs text-gray-500 mt-1">Máximo disponível: ${formatFabricPieceQuantity(product.available_quantity || 0, product)} ${getFabricPieceUnitSuffix(product)}</p>` : ''}
             </div>
             ` : ''}
@@ -1267,7 +1267,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                            step="0.01"
                            min="0.00"
                            value="${isFabricPiece ? (product.price_per_unit || product.price || 0) : (product.price || 0)}"
-                           class="w-full pl-9 pr-4 py-2.5 border border-gray-200 dark:border-white/5 rounded-lg bg-gray-50 dark:bg-[#111827] text-gray-900 dark:text-gray-100 font-medium focus:ring-1 focus:ring-indigo-500 transition-shadow">
+                           class="w-full pl-9 pr-4 py-2.5 border border-gray-200 dark:border-gray-800 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-medium focus:ring-1 focus:ring-indigo-500 transition-shadow">
                 </div>
                 ${isFabricPiece ? `<p class="text-xs text-gray-500 mt-1">Total calculado: <span id="fabric-piece-total-preview" class="font-semibold text-gray-700 dark:text-gray-300">R$ 0,00</span></p>` : ''}
             </div>
@@ -1283,20 +1283,20 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
             <div class="mb-5">
                 <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Cor <span class="text-red-500">*</span></label>
                 <select id="modal-color-select" required
-                        class="w-full px-3 py-2.5 border border-gray-200 dark:border-white/5 rounded-lg bg-gray-50 dark:bg-[#111827] text-gray-700 dark:text-gray-200 focus:ring-1 focus:ring-indigo-500 text-sm transition-shadow">
+                        class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-800 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 focus:ring-1 focus:ring-indigo-500 text-sm transition-shadow">
                     <option value="">Carregando cores...</option>
                 </select>
                 <div id="modal-color-swatches" class="mt-3 flex flex-wrap gap-2"></div>
             </div>
             
             <div class="mb-5">
-                <div class="flex items-center justify-between mb-3 bg-gray-50 dark:bg-[#111827]/50 p-2 rounded-lg border border-gray-100 dark:border-white/5">
+                <div class="flex items-center justify-between mb-3 bg-gray-50 dark:bg-gray-900/50 p-2 rounded-lg border border-gray-100 dark:border-gray-800">
                     <label class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide ml-2">Tamanhos</label>
                     <div class="flex items-center gap-4 text-xs pr-2">
-                        <div class="text-gray-500 dark:text-gray-400 bg-white dark:bg-[#111827] px-2 py-1 rounded border border-gray-200 dark:border-white/5 shadow-sm">
+                        <div class="text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 px-2 py-1 rounded border border-gray-200 dark:border-gray-800 shadow-sm">
                             Qtd: <span id="total-quantity-display" class="font-bold text-gray-900 dark:text-gray-100 text-sm ml-1">0</span>
                         </div>
-                        <div class="text-gray-500 dark:text-gray-400 bg-white dark:bg-[#111827] px-2 py-1 rounded border border-gray-200 dark:border-white/5 shadow-sm">
+                        <div class="text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 px-2 py-1 rounded border border-gray-200 dark:border-gray-800 shadow-sm">
                             Total: <span id="total-surcharges-modal" class="font-bold text-gray-900 dark:text-gray-100 text-sm ml-1">R$ 0,00</span>
                         </div>
                     </div>
@@ -1309,7 +1309,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                             <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">${s}</label>
                             <input type="number" id="modal-size-${s.toLowerCase()}" min="0" value="" placeholder="0"
                                    onchange="checkStockForSizes(); ${s === 'GG' ? 'calculateSizeSurcharges();' : ''} updateTotalQuantity();" 
-                                   class="w-full h-10 border border-gray-200 dark:border-white/5 rounded-lg text-center text-base font-bold bg-white dark:bg-[#111827] text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 focus:border-gray-900 placeholder-gray-300 dark:placeholder-gray-600 transition-all hover:border-gray-400 relative z-0">
+                                   class="w-full h-10 border border-gray-200 dark:border-gray-800 rounded-lg text-center text-base font-bold bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 focus:border-gray-900 placeholder-gray-300 dark:placeholder-gray-600 transition-all hover:border-gray-400 relative z-0">
                              <span id="stock-badge-${s.toLowerCase()}" class="pointer-events-none"></span>
                              ${s === 'GG' ? `<p class="hidden text-[9px] font-bold text-orange-500 text-center absolute w-full -bottom-5" id="surcharge-gg"></p>` : ''}
                             <div id="stock-${s.toLowerCase()}" class="hidden absolute z-50 top-full left-0 w-32 bg-white shadow-xl rounded-lg p-3 text-xs border border-gray-100"></div>
@@ -1323,7 +1323,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                             <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">${s}</label>
                             <input type="number" id="modal-size-${s.toLowerCase()}" min="0" value="" placeholder="0"
                                    onchange="checkStockForSizes(); calculateSizeSurcharges(); updateTotalQuantity();" 
-                                   class="w-full h-10 border border-gray-200 dark:border-white/5 rounded-lg text-center text-base font-bold bg-white dark:bg-[#111827] text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 focus:border-gray-900 placeholder-gray-300 dark:placeholder-gray-600 transition-all hover:border-gray-400 relative z-0">
+                                   class="w-full h-10 border border-gray-200 dark:border-gray-800 rounded-lg text-center text-base font-bold bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 focus:border-gray-900 placeholder-gray-300 dark:placeholder-gray-600 transition-all hover:border-gray-400 relative z-0">
                              <span id="stock-badge-${s.toLowerCase()}" class="pointer-events-none"></span>
                             <p class="hidden text-[9px] font-bold text-orange-500 text-center absolute w-full -bottom-5" id="surcharge-${s.toLowerCase()}"></p>
                         </div>
@@ -1337,7 +1337,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                     <span class="text-[11px] text-gray-400">Selecione a cor para priorizar a disponibilidade</span>
                 </div>
                 <div id="stock-by-size-list" class="space-y-3">
-                    <div class="text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-[#111827]/50 rounded-xl border border-dashed border-gray-200 dark:border-white/5 p-4">
+                    <div class="text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 p-4">
                         Carregando disponibilidade por tamanho...
                     </div>
                 </div>
@@ -1347,7 +1347,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
             ${sublocalHtml}
             
             <div class="pt-4 mt-2 grid grid-cols-2 gap-3">
-                <button onclick="closeAddProductModal()" class="w-full py-3.5 text-sm font-bold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-[#111827] hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors">
+                <button onclick="closeAddProductModal()" class="w-full py-3.5 text-sm font-bold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors">
                     Cancelar
                 </button>
                 <button onclick="confirmAddProduct()" class="w-full py-3.5 text-sm font-bold text-white bg-gray-900 hover:bg-black rounded-xl shadow-lg shadow-gray-200 dark:shadow-none transition-all active:scale-[0.98] flex items-center justify-center gap-2" style="color: white !important;">
@@ -1576,7 +1576,7 @@ async function loadStockByCutType(cutTypeId) {
             
             data.stock_by_size.forEach(item => {
                 const hasStock = item.available > 0;
-                const bgColor = hasStock ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700' : 'bg-gray-50 dark:bg-[#111827] border-gray-300 dark:border-white/5';
+                const bgColor = hasStock ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700' : 'bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-800';
                 const textColor = hasStock ? 'text-green-800 dark:text-green-200' : 'text-gray-500 dark:text-gray-400';
                 
                 html += `
@@ -1607,7 +1607,7 @@ async function loadStockByCutType(cutTypeId) {
                         </div>
                         
                         ${item.stores && item.stores.length > 0 ? `
-                            <div class="mt-3 pt-3 border-t border-gray-200 dark:border-white/5">
+                            <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-800">
                                 <div class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Por Loja:</div>
                                 <div class="space-y-1.5">
                                     ${item.stores.map(store => `
@@ -1635,7 +1635,7 @@ async function loadStockByCutType(cutTypeId) {
             stockList.innerHTML = html;
         } else {
             stockList.innerHTML = `
-                <div class="text-center py-8 bg-white dark:bg-[#111827] rounded-xl border-2 border-dashed border-yellow-300 dark:border-yellow-700">
+                <div class="text-center py-8 bg-white dark:bg-gray-900 rounded-xl border-2 border-dashed border-yellow-300 dark:border-yellow-700">
                     <svg class="w-16 h-16 mx-auto mb-4 text-yellow-500 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
                     </svg>
@@ -1963,7 +1963,7 @@ window.confirmSublocalPersonalization = function confirmSublocalPersonalization(
     
     const id = sublocalCounter++;
     const personalizationHtml = `
-        <div class="border border-gray-200 dark:border-white/5 rounded-lg p-3 bg-gray-50 dark:bg-[#111827]" data-sublocal-id="${id}">
+        <div class="border border-gray-200 dark:border-gray-800 rounded-lg p-3 bg-gray-50 dark:bg-gray-900" data-sublocal-id="${id}">
             <div class="flex justify-between items-center mb-2">
                 <div class="flex-1">
                     <p class="text-sm font-medium text-gray-700 dark:text-gray-300">${locationName}</p>
@@ -2051,7 +2051,7 @@ window.closeAddProductModal = function closeAddProductModal() {
     const stockList = document.getElementById('stock-by-size-list');
     if (stockList) {
         stockList.innerHTML = `
-            <div class="text-sm text-gray-600 dark:text-gray-400 text-center py-4 bg-white dark:bg-[#111827] rounded-lg border border-dashed border-gray-300 dark:border-white/5">
+            <div class="text-sm text-gray-600 dark:text-gray-400 text-center py-4 bg-white dark:bg-gray-900 rounded-lg border border-dashed border-gray-300 dark:border-gray-800">
                 <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
@@ -2513,7 +2513,7 @@ function updateCartDisplay(cart, cartTotal) {
         cartItemsContainer.innerHTML = cart.map(item => {
             let surchargesHtml = '';
             if (item.size_surcharges && Object.keys(item.size_surcharges).length > 0) {
-                surchargesHtml = '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-white/5">';
+                surchargesHtml = '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-800">';
                 surchargesHtml += '<p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Adicionais:</p>';
                 for (const [size, data] of Object.entries(item.size_surcharges)) {
                     if (data.quantity > 0) {
@@ -2525,7 +2525,7 @@ function updateCartDisplay(cart, cartTotal) {
             
             let sublocalHtml = '';
             if (item.sublocal_personalizations && item.sublocal_personalizations.length > 0) {
-                sublocalHtml = '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-white/5">';
+                sublocalHtml = '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-800">';
                 sublocalHtml += '<p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Personalizações SUB.LOCAL:</p>';
                 item.sublocal_personalizations.forEach((personalization, index) => {
                     const locationName = personalization.location_name || 'Local não informado';
@@ -2536,7 +2536,7 @@ function updateCartDisplay(cart, cartTotal) {
             }
             
             return `
-            <div class="cart-item group bg-white dark:bg-[#111827] rounded-xl p-3 shadow-sm border border-gray-100 dark:border-white/5 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors" data-item-id="${item.id}">
+            <div class="cart-item group bg-white dark:bg-gray-900 rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-800 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors" data-item-id="${item.id}">
                 <div class="flex justify-between items-start mb-2">
                     <div class="flex-1 pr-2">
                         <p class="font-medium text-gray-900 dark:text-gray-100 text-sm leading-tight">${item.product_title}${item.size ? ` - ${item.size}` : ''}</p>
@@ -2559,7 +2559,7 @@ function updateCartDisplay(cart, cartTotal) {
                 </div>
                 
                 <div class="flex items-end justify-between">
-                    <div class="flex items-center bg-gray-50 dark:bg-[#111827] rounded-lg p-1 border border-gray-200 dark:border-white/5">
+                    <div class="flex items-center bg-gray-50 dark:bg-gray-900 rounded-lg p-1 border border-gray-200 dark:border-gray-800">
                         <input type="number" 
                                value="${item.quantity}" 
                                step="${item.type === 'fabric_piece' ? (item.control_unit === 'metros' ? '0.01' : '0.001') : (item.sale_type && item.sale_type !== 'unidade' ? '0.01' : '1')}"
@@ -2580,10 +2580,10 @@ function updateCartDisplay(cart, cartTotal) {
                 </div>
                 
                 <!-- Per-Item Discount -->
-                <div class="mt-2 pt-2 border-t border-gray-100 dark:border-white/5 flex items-center gap-1.5">
+                <div class="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 flex items-center gap-1.5">
                     <span class="text-[10px] text-gray-400">Desc:</span>
                     <select id="item-discount-type-${item.id}" 
-                            class="px-1 py-0.5 bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-white/5 rounded text-[10px] focus:ring-1 focus:ring-indigo-500"
+                            class="px-1 py-0.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded text-[10px] focus:ring-1 focus:ring-indigo-500"
                             onchange="updateItemDiscount('${item.id}')">
                         <option value="fixed" ${(item.discount_type || 'fixed') === 'fixed' ? 'selected' : ''}>R$</option>
                         <option value="percent" ${item.discount_type === 'percent' ? 'selected' : ''}>%</option>
@@ -2594,7 +2594,7 @@ function updateCartDisplay(cart, cartTotal) {
                            min="0"
                            value="${item.discount_value || 0}"
                            onchange="updateItemDiscount('${item.id}')"
-                           class="w-14 px-1 py-0.5 text-right text-[10px] bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-white/5 rounded focus:ring-1 focus:ring-indigo-500">
+                           class="w-14 px-1 py-0.5 text-right text-[10px] bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded focus:ring-1 focus:ring-indigo-500">
                     ${(item.item_discount || 0) > 0 ? `<span class="text-[10px] text-red-500 font-medium">-R$ ${parseFloat(item.item_discount).toFixed(2).replace('.', ',')}</span>` : ''}
                 </div>
             </div>
@@ -2994,7 +2994,7 @@ function renderPaymentMethods() {
     }
     
     container.innerHTML = paymentMethods.map(pm => `
-        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#111827] rounded-lg">
+        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
             <div>
                 <span class="font-medium text-gray-900 dark:text-gray-100 capitalize">${pm.method}</span>
                 <span class="text-sm text-gray-600 dark:text-gray-400 ml-2">R$ ${pm.amount.toFixed(2).replace('.', ',')}</span>
