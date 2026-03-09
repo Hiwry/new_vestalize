@@ -1,13 +1,18 @@
 @extends('layouts.admin')
 
+@push('styles')
+    @include('budgets.wizard.partials.order-theme')
+@endpush
+
 @section('content')
-<div class="max-w-7xl mx-auto">
+<div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6">
+    <section class="bw-shell">
     
         <!-- Progress Bar -->
-        <div class="mb-8">
+        <div class="bw-progress mb-8">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 dark:from-indigo-600 dark:to-indigo-700 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-500/20 dark:shadow-indigo-600/20" style="color: white !important;">3</div>
+                    <div class="w-10 h-10 bw-step-badge rounded-xl flex items-center justify-center text-sm font-bold" style="color: white !important;">3</div>
                     <div>
                         <span class="text-lg font-bold text-gray-900 dark:text-white">Personalização</span>
                         <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa 3 de 4</p>
@@ -15,21 +20,21 @@
                 </div>
                 <div class="text-right">
                     <div class="text-xs text-gray-500 dark:text-slate-400 font-medium">Progresso</div>
-                    <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">75%</div>
+                    <div class="text-2xl font-bold text-[#7c3aed] dark:text-[#a78bfa]">75%</div>
                 </div>
             </div>
-            <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-2.5 shadow-inner">
-                <div class="bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-500 dark:to-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out shadow-lg shadow-indigo-500/30 dark:shadow-indigo-600/30" style="width: 75%"></div>
+            <div class="w-full h-2.5 bw-progress-track">
+                <div class="h-2.5 bw-progress-fill transition-all duration-500 ease-out" style="width: 75%"></div>
             </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-slate-800">
+        <div class="bw-card">
             
             <!-- Header -->
-            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-gray-50 to-white dark:from-slate-800/50 dark:to-slate-900/50">
+            <div class="px-6 py-5 bw-card-header">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 dark:from-indigo-600 dark:to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20 dark:shadow-indigo-600/20">
+                        <div class="w-12 h-12 bg-[#7c3aed] rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25">
                             <svg class="w-6 h-6 text-white" style="color: white !important;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                             </svg>
@@ -374,7 +379,8 @@
 
             </div>
         </div>
-    </div>
+    </section>
+</div>
 
     <!-- Modal de Adicionar Personalização -->
     <div id="personalizationModal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">

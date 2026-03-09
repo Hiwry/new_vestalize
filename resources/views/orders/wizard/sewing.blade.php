@@ -1047,17 +1047,20 @@
         personalizacao: @json($personalizationOptions ?? [])
     };
     window.options = options;
-    const fabricPiecesData = @json(
-        collect($fabricPieces ?? [])->map(fn($piece) => [
-            'id' => $piece->id,
-            'label' => $piece->display_name,
-            'unit' => $piece->control_unit,
-            'unit_label' => $piece->control_unit === 'metros' ? 'Metros' : 'Kg',
-            'unit_suffix' => $piece->control_unit === 'metros' ? 'm' : 'kg',
-            'available_quantity' => (float) $piece->available_quantity,
-            'store_name' => $piece->store?->name,
-        ])->values()
-    );
+    @php
+        $fabricPiecesJson = collect($fabricPieces ?? [])->map(function($piece) {
+            return [
+                'id' => $piece->id,
+                'label' => $piece->display_name,
+                'unit' => $piece->control_unit,
+                'unit_label' => $piece->control_unit === 'metros' ? 'Metros' : 'Kg',
+                'unit_suffix' => $piece->control_unit === 'metros' ? 'm' : 'kg',
+                'available_quantity' => (float) $piece->available_quantity,
+                'store_name' => $piece->store?->name,
+            ];
+        })->values();
+    @endphp
+    const fabricPiecesData = @json($fabricPiecesJson);
     window.fabricPiecesData = fabricPiecesData;
 
     function resetFabricPieceSelection() {
@@ -3405,7 +3408,8 @@
         // Reset form
         resetFullpageSubForm();
     }
-    window.hideSubFullpageForm = hideSubFullpageForm;
+    window.hideSubFullpageForm = hideSubFullpageForm;
+
     function getFullpageSubTotalQty() {
         let totalQty = 0;
         document.querySelectorAll('.fullpage-sub-size').forEach(input => {

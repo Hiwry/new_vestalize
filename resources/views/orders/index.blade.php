@@ -56,14 +56,14 @@
         --of-text-primary: #e2e8f0;
         --of-text-secondary: #94a3b8;
         --of-tab-text: #94a3b8;
-        --of-card-bg: #111827;
-        --of-card-border: rgba(148, 163, 184, 0.22);
-        --of-card-shadow: 0 18px 38px rgba(2, 6, 23, 0.55);
-        --of-input-bg: #0b1322;
-        --of-input-border: rgba(148, 163, 184, 0.3);
+        --of-card-bg: #1e293b;
+        --of-card-border: rgba(148, 163, 184, 0.15);
+        --of-card-shadow: 0 18px 38px rgba(2, 6, 23, 0.35);
+        --of-input-bg: #334155;
+        --of-input-border: rgba(148, 163, 184, 0.2);
         --of-input-text: #e2e8f0;
-        --of-table-head: rgba(148, 163, 184, 0.25);
-        --of-table-row: rgba(148, 163, 184, 0.16);
+        --of-table-head: rgba(148, 163, 184, 0.12);
+        --of-table-row: rgba(148, 163, 184, 0.08);
     }
 
     .orders-ft-topbar {
@@ -207,14 +207,15 @@
     .orders-ft select.orders-ft-input,
     .orders-ft textarea.orders-ft-input {
         box-sizing: border-box;
-        height: 44px !important;
-        min-height: 44px !important;
+        height: 40px !important;
+        min-height: 40px !important;
         border-radius: 10px !important;
         border: 1px solid var(--of-input-border) !important;
         background: var(--of-input-bg) !important;
         color: var(--of-input-text) !important;
-        padding: 0 12px !important;
+        padding: 0 14px !important;
         font-size: 13px !important;
+        font-weight: 500 !important;
         line-height: 1.2 !important;
         transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
     }
@@ -487,13 +488,13 @@
                                value="{{ $search }}"
                                placeholder="Nº do pedido, cliente, telefone ou nome da arte..."
                                style="padding-left: 3.25rem !important;"
-                               class="w-full pr-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium orders-ft-input">
+                               class="w-full pr-4 py-3 rounded-xl border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium orders-ft-input">
                     </div>
                 </div>
 
                 <div class="md:col-span-4">
                     <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Status</label>
-                    <select name="status" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium orders-ft-input">
+                    <select name="status" class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium orders-ft-input">
                         <option value="">Todos os Status</option>
                         @foreach($statuses as $s)
                             <option value="{{ $s->id }}" {{ $status == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
@@ -505,7 +506,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end border-t border-gray-100 dark:border-white/5 pt-6">
                 <div>
                     <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Tipo de Data</label>
-                    <select name="date_type" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium orders-ft-input">
+                    <select name="date_type" class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium orders-ft-input">
                         <option value="created" {{ ($dateType ?? 'created') == 'created' ? 'selected' : '' }}>Data de Criação</option>
                         <option value="delivery" {{ ($dateType ?? 'created') == 'delivery' ? 'selected' : '' }}>Data de Entrega</option>
                     </select>
@@ -513,12 +514,12 @@
 
                 <div>
                     <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Início</label>
-                    <input type="date" name="start_date" value="{{ $startDate }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium orders-ft-input">
+                    <input type="date" name="start_date" value="{{ $startDate }}" class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium orders-ft-input">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Fim</label>
-                    <input type="date" name="end_date" value="{{ $endDate }}" class="w-full px-4 py-3 rounded-xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium orders-ft-input">
+                    <input type="date" name="end_date" value="{{ $endDate }}" class="w-full px-4 py-3 rounded-xl border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium orders-ft-input">
                 </div>
 
                 <div class="flex gap-2">
