@@ -392,16 +392,16 @@
         background: #3e4c5f !important;
     }
 
-    .dark .orders-ft .sticky-column {
+    .dark .orders-ft .orders-ft-table thead th {
+        background-color: var(--of-table-head) !important;
+    }
+
+    .dark .orders-ft .orders-ft-table tbody td {
         background-color: var(--of-card-bg) !important;
     }
 
-    .dark .orders-ft .sticky-table tbody tr:hover .sticky-column {
+    .dark .orders-ft .orders-ft-table tbody tr:hover td {
         background-color: #3e4c5f !important;
-    }
-
-    .dark .orders-ft .sticky-table thead .sticky-column {
-        background-color: var(--of-table-head) !important;
     }
 
     .orders-ft .orders-ft-mobile-card {

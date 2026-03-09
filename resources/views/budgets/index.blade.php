@@ -323,16 +323,16 @@
         background: #3e4c5f !important;
     }
 
-    .dark .budgets-ft .sticky-column {
+    .dark .budgets-ft .budgets-ft-table thead th {
+        background-color: var(--of-table-head) !important;
+    }
+
+    .dark .budgets-ft .budgets-ft-table tbody td {
         background-color: var(--of-card-bg) !important;
     }
 
-    .dark .budgets-ft .sticky-table tbody tr:hover .sticky-column {
+    .dark .budgets-ft .budgets-ft-table tbody tr:hover td {
         background-color: #3e4c5f !important;
-    }
-
-    .dark .budgets-ft .sticky-table thead .sticky-column {
-        background-color: var(--of-table-head) !important;
     }
 
     .budgets-ft .budgets-ft-mobile-card {
