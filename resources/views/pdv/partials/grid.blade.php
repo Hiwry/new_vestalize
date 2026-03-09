@@ -1,26 +1,26 @@
-<div id="products-grid" class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
+<div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6">
     @forelse($paginatedItems as $item)
         @if($type == 'products')
             @if($item instanceof \App\Models\Product)
                 {{-- Product Card --}}
-                <div class="group bg-white dark:bg-gray-900 rounded-xl md:rounded-2xl p-3 md:p-5 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-800 flex flex-col h-full">
+                <div class="group pdv-card bg-white rounded-xl md:rounded-2xl p-3 md:p-5 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-700 flex flex-col h-full">
                     {{-- Product Image (if exists) --}}
                     @php
                         $productImage = $item->primary_image_url ?? ($item->image_path ? Storage::url($item->image_path) : null);
                     @endphp
                     @if($productImage)
-                    <div class="aspect-square rounded-lg overflow-hidden mb-2 md:mb-3 bg-gray-100 dark:bg-gray-900">
+                    <div class="aspect-square rounded-lg overflow-hidden mb-2 md:mb-3 pdv-input bg-gray-100">
                         <img src="{{ $productImage }}" alt="{{ $item->title }}" class="w-full h-full object-cover">
                     </div>
                     @endif
                     
                     <div class="flex-1 mb-2 md:mb-4">
-                        <h3 class="font-bold text-gray-900 dark:text-gray-100 text-sm md:text-lg leading-tight mb-0.5 md:mb-1 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                        <h3 class="font-bold text-gray-900 dark:text-[var(--pdv-text-primary)] text-sm md:text-lg leading-tight mb-0.5 md:mb-1 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                             {{ $item->title }}
                         </h3>
                         <div class="mt-1 flex flex-wrap items-center gap-1.5">
                             @if($item->category)
-                                <span class="hidden md:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-300">
+                                <span class="hidden md:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium pdv-input bg-gray-100 text-gray-800 dark:text-gray-300">
                                     {{ $item->category->name }}
                                 </span>
                             @endif
@@ -51,9 +51,9 @@
                 </div>
             @else
                 {{-- Product Option Card --}}
-                <div class="group bg-white dark:bg-gray-900 rounded-xl md:rounded-2xl p-3 md:p-5 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-800 flex flex-col h-full border-l-4 border-l-purple-500">
+                <div class="group pdv-card bg-white rounded-xl md:rounded-2xl p-3 md:p-5 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-700 flex flex-col h-full border-l-4 border-l-purple-500">
                     <div class="flex-1 mb-2 md:mb-4">
-                        <h3 class="font-bold text-gray-900 dark:text-gray-100 text-sm md:text-lg leading-tight mb-0.5 line-clamp-2">{{ $item->name }}</h3>
+                        <h3 class="font-bold text-gray-900 dark:text-[var(--pdv-text-primary)] text-sm md:text-lg leading-tight mb-0.5 line-clamp-2">{{ $item->name }}</h3>
                         <p class="text-xs text-purple-600 dark:text-purple-400 font-medium mb-2">Tipo de Corte</p>
                         
                         <p class="text-base md:text-2xl font-bold text-purple-600 dark:text-purple-400">
@@ -72,12 +72,12 @@
             @endif
         @else
             {{-- Generic Stock Item Card --}}
-            <div class="group bg-white dark:bg-gray-900 rounded-xl md:rounded-2xl p-3 md:p-5 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-800 flex flex-col h-full">
+            <div class="group pdv-card bg-white rounded-xl md:rounded-2xl p-3 md:p-5 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-700 flex flex-col h-full">
                 <div class="flex-1 mb-2 md:mb-4">
                     <div class="flex justify-between items-start gap-2">
                         <div class="flex-1 min-w-0">
-                            <h3 class="font-bold text-gray-900 dark:text-gray-100 text-sm md:text-lg leading-tight mb-0.5 line-clamp-2">{{ $item->title }}</h3>
-                            <p class="text-[10px] md:text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{{ $item->type_label ?? 'Item' }}</p>
+                            <h3 class="font-bold text-gray-900 dark:text-[var(--pdv-text-primary)] text-sm md:text-lg leading-tight mb-0.5 line-clamp-2">{{ $item->title }}</h3>
+                            <p class="text-[10px] md:text-xs font-medium text-gray-500 dark:text-[var(--pdv-text-secondary)] uppercase tracking-wide">{{ $item->type_label ?? 'Item' }}</p>
                         </div>
                         @if(isset($item->stock_quantity))
                             <span class="shrink-0 inline-flex items-center px-1.5 py-0.5 md:px-2 md:py-1 rounded-lg text-[10px] md:text-xs font-bold {{ $item->stock_quantity > 0 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' }}">
@@ -108,26 +108,26 @@
         @endif
     @empty
         <div class="col-span-full flex flex-col items-center justify-center py-12 md:py-16 text-center">
-            <div class="bg-gray-100 dark:bg-gray-900 p-3 md:p-4 rounded-full mb-3 md:mb-4">
+            <div class="bg-gray-100 dark:bg-gray-800 p-3 md:p-4 rounded-full mb-3 md:mb-4">
                 <svg class="w-6 h-6 md:w-8 md:h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
             </div>
-            <h3 class="text-base md:text-lg font-medium text-gray-900 dark:text-gray-100">Nenhum item encontrado</h3>
-            <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Tente outra busca.</p>
+            <h3 class="text-base md:text-lg font-medium text-gray-900 dark:text-[var(--pdv-text-primary)]">Nenhum item encontrado</h3>
+            <p class="text-gray-500 dark:text-[var(--pdv-text-secondary)] mt-1 text-sm">Tente outra busca.</p>
         </div>
     @endforelse
 </div>
 
 {{-- Pagination (Mobile optimized) --}}
 <div class="mt-6 md:mt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-    <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">
+    <p class="text-xs md:text-sm text-gray-600 dark:text-[var(--pdv-text-secondary)]">
         {{ $paginatedItems->firstItem() ?? 0 }}-{{ $paginatedItems->lastItem() ?? 0 }} de {{ $paginatedItems->total() }}
     </p>
     <div class="flex gap-2">
         @if($paginatedItems->previousPageUrl())
             <a href="{{ $paginatedItems->previousPageUrl() }}&type={{ $type ?? 'products' }}&search={{ $search ?? '' }}" 
-               class="px-3 py-1.5 md:px-4 md:py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-800 rounded-lg text-xs md:text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+               class="px-3 py-1.5 md:px-4 md:py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-xs md:text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
                 ← Ant.
             </a>
         @endif
