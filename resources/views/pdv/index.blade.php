@@ -35,11 +35,12 @@
         --pdv-surface-border: rgba(148, 163, 184, 0.25);
         --pdv-text-primary: #f8fafc;
         --pdv-text-secondary: #94a3b8;
-        --pdv-card-bg: rgba(255, 255, 255, 0.03);
-        --pdv-card-border: rgba(255, 255, 255, 0.08);
+        --pdv-panel-bg: rgba(15, 23, 42, 0.6);
+        --pdv-card-bg: rgba(255, 255, 255, 0.05);
+        --pdv-card-border: rgba(255, 255, 255, 0.1);
         --pdv-card-shadow: 0 18px 38px rgba(0, 0, 0, 0.35);
-        --pdv-input-bg: rgba(0, 0, 0, 0.25);
-        --pdv-input-border: rgba(255, 255, 255, 0.1);
+        --pdv-input-bg: rgba(0, 0, 0, 0.3);
+        --pdv-input-border: rgba(255, 255, 255, 0.15);
         --pdv-input-text: #e2e8f0;
     }
 
@@ -170,9 +171,11 @@
 
     .pdv-ft .pdv-catalog-panel,
     .pdv-ft .pdv-cart-panel {
-        background: var(--pdv-card-bg) !important;
+        background: var(--pdv-panel-bg) !important;
         border: 1px solid var(--pdv-card-border) !important;
         box-shadow: var(--pdv-card-shadow) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
     }
 
     .pdv-ft .text-gray-900,
@@ -398,7 +401,7 @@
                         <div class="pdv-card bg-white p-5 border-t border-gray-100 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
                             
                             <!-- Payment Details (Combined Section) -->
-                            <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-3 mb-4 space-y-3 border border-gray-100 dark:border-gray-700">
+                            <div class="pdv-input bg-gray-50 rounded-xl p-3 mb-4 space-y-3 border border-gray-100 dark:border-gray-700">
                                 <div class="flex flex-col gap-3">
                                     <!-- Discount -->
                                     <div>
