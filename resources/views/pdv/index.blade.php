@@ -149,34 +149,6 @@
         box-shadow: 0 10px 20px rgba(109, 40, 217, 0.22);
     }
 
-    .pdv-ft .pdv-card {
-        background: var(--pdv-card-bg) !important;
-        border: 1px solid var(--pdv-card-border) !important;
-        box-shadow: var(--pdv-card-shadow) !important;
-        color: var(--pdv-text-primary) !important;
-    }
-
-    .pdv-ft .pdv-input {
-        background: var(--pdv-input-bg) !important;
-        border: 1px solid var(--pdv-input-border) !important;
-        color: var(--pdv-input-text) !important;
-    }
-
-    .pdv-ft .pdv-search-input {
-        background: var(--pdv-input-bg) !important;
-        border: 1px solid var(--pdv-input-border) !important;
-        color: var(--pdv-input-text) !important;
-        box-shadow: var(--pdv-card-shadow) !important;
-    }
-
-    .pdv-ft .pdv-catalog-panel,
-    .pdv-ft .pdv-cart-panel {
-        background: var(--pdv-panel-bg) !important;
-        border: 1px solid var(--pdv-card-border) !important;
-        box-shadow: var(--pdv-card-shadow) !important;
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-    }
 
     .pdv-ft .text-gray-900,
     .pdv-ft .text-gray-800,
@@ -235,7 +207,7 @@
             </div>
         </div>
 
-        <div class="pdv-ft-shell-card pdv-ft-tabs">
+        <div class="bg-white dark:bg-slate-900/50 backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-2xl pdv-ft-tabs">
             <div class="flex items-center gap-2 overflow-x-auto">
                 <a href="{{ route('pdv.index', ['type' => 'products']) }}" data-type="products"
                    class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'products' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}"
@@ -269,7 +241,7 @@
             {{-- Left Column: Products (full on mobile, 8 cols on desktop) --}}
             <div class="col-span-12 lg:col-span-8 space-y-4 md:space-y-6">
 
-                <div class="pdv-ft-shell-card pdv-catalog-panel p-4 md:p-5 space-y-4 md:space-y-6">
+                <div class="pdv-ft-shell-card bg-white dark:bg-slate-900/50 backdrop-blur-xl border-gray-100 dark:border-white/10 shadow-lg p-4 md:p-5 space-y-4 md:space-y-6">
                     {{-- Search Bar (Instant) - Compact on mobile --}}
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
@@ -281,7 +253,7 @@
                                id="product-search"
                                value="{{ $search ?? '' }}"
                                placeholder="Buscar produto, tecido, máquina ou suprimento..." 
-                               class="pdv-search-input block w-full pr-4 py-3 md:py-4 rounded-xl md:rounded-2xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/20 text-sm md:text-lg transition-all"
+                               class="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 block w-full pr-4 py-3 md:py-4 rounded-xl md:rounded-2xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/20 text-sm md:text-lg transition-all"
                                style="padding-left: 3rem !important;">
                     </div>
 
@@ -295,7 +267,7 @@
             {{-- Right Column: Cart & Client (4 cols - hidden on mobile, full on lg) --}}
             <div class="hidden lg:block col-span-12 lg:col-span-4 relative">
                 <div class="sticky top-6">
-                    <div class="pdv-ft-shell-card pdv-cart-panel rounded-3xl overflow-hidden flex flex-col h-[calc(100vh-6rem)]">
+                    <div class="pdv-ft-shell-card bg-white dark:bg-slate-900/50 backdrop-blur-xl border-gray-100 dark:border-white/10 shadow-lg rounded-3xl overflow-hidden flex flex-col h-[calc(100vh-6rem)]">
                         
                         <!-- 1. Header & Client Selection -->
                         <div class="p-5 border-b border-gray-100 dark:border-gray-700 pdv-card bg-gray-50/50">
@@ -401,17 +373,17 @@
                         <div class="pdv-card bg-white p-5 border-t border-gray-100 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
                             
                             <!-- Payment Details (Combined Section) -->
-                            <div class="pdv-input bg-gray-50 rounded-xl p-3 mb-4 space-y-3 border border-gray-100 dark:border-gray-700">
+                            <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3 mb-4 space-y-3 border border-gray-100 dark:border-gray-700">
                                 <div class="flex flex-col gap-3">
                                     <!-- Discount -->
                                     <div>
                                         <label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1 block pl-1">Desconto</label>
                                         <div class="flex shadow-sm rounded-lg">
-                                            <select id="discount-type" class="px-2 py-1.5 pdv-input bg-white border border-gray-200 dark:border-gray-600 rounded-l-lg text-xs focus:ring-1 focus:ring-gray-900 border-r-0 text-gray-700 dark:text-[var(--pdv-text-primary)]">
+                                            <select id="discount-type" class="px-2 py-1.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-l-lg text-xs focus:ring-1 focus:ring-gray-900 border-r-0 text-gray-700 dark:text-[var(--pdv-text-primary)]">
                                                 <option value="fixed">R$</option>
                                                 <option value="percent">%</option>
                                             </select>
-                                            <input type="number" id="discount-input" placeholder="0,00" step="0.01" min="0" class="flex-1 w-full px-2 py-1.5 pdv-input bg-white border border-gray-200 dark:border-gray-600 rounded-r-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-[var(--pdv-text-primary)] placeholder-gray-400">
+                                            <input type="number" id="discount-input" placeholder="0,00" step="0.01" min="0" class="flex-1 w-full px-2 py-1.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-r-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-[var(--pdv-text-primary)] placeholder-gray-400">
                                         </div>
                                     </div>
                                     <!-- Delivery -->
@@ -421,7 +393,7 @@
                                             <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
                                                 <span class="text-gray-400 text-xs">R$</span>
                                             </div>
-                                            <input type="number" id="delivery-fee-input" placeholder="0,00" class="w-full pl-6 pr-2 py-1.5 pdv-input bg-white border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-[var(--pdv-text-primary)] placeholder-gray-400">
+                                            <input type="number" id="delivery-fee-input" placeholder="0,00" class="w-full pl-6 pr-2 py-1.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-[var(--pdv-text-primary)] placeholder-gray-400">
                                         </div>
                                     </div>
                                 </div>
