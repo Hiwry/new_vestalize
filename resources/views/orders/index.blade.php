@@ -392,6 +392,18 @@
         background: #3e4c5f !important;
     }
 
+    .dark .orders-ft .sticky-column {
+        background-color: var(--of-card-bg) !important;
+    }
+
+    .dark .orders-ft .sticky-table tbody tr:hover .sticky-column {
+        background-color: #3e4c5f !important;
+    }
+
+    .dark .orders-ft .sticky-table thead .sticky-column {
+        background-color: var(--of-table-head) !important;
+    }
+
     .orders-ft .orders-ft-mobile-card {
         border-radius: 14px !important;
     }
