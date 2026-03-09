@@ -5,9 +5,12 @@
                 {{-- Product Card --}}
                 <div class="group bg-white dark:bg-gray-800 rounded-xl md:rounded-2xl p-3 md:p-5 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-700 flex flex-col h-full">
                     {{-- Product Image (if exists) --}}
-                    @if($item->image_path)
+                    @php
+                        $productImage = $item->primary_image_url ?? ($item->image_path ? Storage::url($item->image_path) : null);
+                    @endphp
+                    @if($productImage)
                     <div class="aspect-square rounded-lg overflow-hidden mb-2 md:mb-3 bg-gray-100 dark:bg-gray-700">
-                        <img src="{{ Storage::url($item->image_path) }}" alt="{{ $item->title }}" class="w-full h-full object-cover">
+                        <img src="{{ $productImage }}" alt="{{ $item->title }}" class="w-full h-full object-cover">
                     </div>
                     @endif
                     
@@ -15,11 +18,18 @@
                         <h3 class="font-bold text-gray-900 dark:text-gray-100 text-sm md:text-lg leading-tight mb-0.5 md:mb-1 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                             {{ $item->title }}
                         </h3>
-                        @if($item->category)
-                            <span class="hidden md:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
-                                {{ $item->category->name }}
-                            </span>
-                        @endif
+                        <div class="mt-1 flex flex-wrap items-center gap-1.5">
+                            @if($item->category)
+                                <span class="hidden md:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
+                                    {{ $item->category->name }}
+                                </span>
+                            @endif
+                            @if($item->cut_type_id)
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-semibold bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                                    Cor + tamanho
+                                </span>
+                            @endif
+                        </div>
                         
                         <div class="mt-2 md:mt-4">
                             @if($item->price)
@@ -71,7 +81,7 @@
                         </div>
                         @if(isset($item->stock_quantity))
                             <span class="shrink-0 inline-flex items-center px-1.5 py-0.5 md:px-2 md:py-1 rounded-lg text-[10px] md:text-xs font-bold {{ $item->stock_quantity > 0 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' }}">
-                                {{ $item->stock_quantity }}
+                                {{ $item->stock_label ?? $item->stock_quantity }}
                             </span>
                         @endif
                     </div>

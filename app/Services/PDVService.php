@@ -33,6 +33,11 @@ use Carbon\Carbon;
 
 class PDVService
 {
+    public function __construct(
+        private readonly FabricPieceInventoryService $fabricPieceInventoryService
+    ) {
+    }
+
     /**
      * Obter ID da loja atual do usuário
      */
@@ -201,23 +206,28 @@ class PDVService
      */
     public function createFabricPieceCartItem($piece, array $data): array
     {
-        $weightSold = (float)$data['quantity'];
-        $totalCalculatedPrice = (float)$data['unit_price'];
-        $pricePerKg = $piece->sale_price ?? ($weightSold > 0 ? $totalCalculatedPrice / $weightSold : 0);
+        $soldQuantity = (float) $data['quantity'];
+        $controlUnit = $piece->control_unit ?? 'kg';
+        $pricePerUnit = (float) ($data['unit_price'] ?? $piece->sale_price ?? 0);
+        $totalCalculatedPrice = round($soldQuantity * $pricePerUnit, 2);
 
         return [
             'id' => uniqid(),
             'type' => 'fabric_piece',
             'item_id' => $piece->id,
-            'product_title' => ($piece->fabric->name ?? 'Tecido') . ' - ' . ($piece->color->name ?? 'Cor'),
+            'product_title' => $piece->display_name ?? (($piece->fabric->name ?? 'Tecido') . ' - ' . ($piece->color->name ?? 'Cor')),
             'category' => 'Peça de Tecido',
             'subcategory' => null,
-            'sale_type' => 'kg',
-            'quantity' => $weightSold,
-            'unit_price' => $pricePerKg,
+            'sale_type' => $controlUnit === 'metros' ? 'metro' : 'kg',
+            'control_unit' => $controlUnit,
+            'quantity' => $soldQuantity,
+            'fabric_piece_quantity' => $soldQuantity,
+            'unit_price' => $pricePerUnit,
+            'price_per_unit' => $pricePerUnit,
             'total_price' => $totalCalculatedPrice,
             'supplier_name' => $piece->supplier,
             'fabric_type_name' => $piece->fabricType->name ?? ($piece->fabric->name ?? 'Tecido'),
+            'available_quantity' => $piece->available_quantity,
         ];
     }
 
@@ -482,7 +492,11 @@ class PDVService
                 'discount' => $discount,
                 'delivery_fee' => $deliveryFee,
                 'total' => max(0, $total),
-                'total_items' => array_sum(array_column($cart, 'quantity')),
+                'total_items' => collect($cart)->sum(function ($item) {
+                    return ($item['type'] ?? 'product') === 'fabric_piece'
+                        ? 1
+                        : (int) ($item['quantity'] ?? 0);
+                }),
                 'tenant_id' => $user->tenant_id,
                 'notes' => $validated['notes'] ?? null,
             ]);
@@ -509,7 +523,41 @@ class PDVService
                     if ($piece) {
                         $orderItemData['fabric'] = $piece->fabric->name ?? 'Tecido';
                         $orderItemData['color'] = $piece->color->name ?? 'Cor';
-                        $piece->recordSale($cartItem['quantity'], $order->id);
+                        $soldQuantity = (float) ($cartItem['fabric_piece_quantity'] ?? $cartItem['quantity'] ?? 0);
+                        $controlUnit = $cartItem['control_unit'] ?? (($cartItem['sale_type'] ?? 'kg') === 'metro' ? 'metros' : 'kg');
+
+                        $orderItemData['model'] = 'Peça de tecido';
+                        $orderItemData['detail'] = $piece->invoice_number ? 'NF ' . $piece->invoice_number : null;
+                        $orderItemData['print_type'] = 'Venda de tecido';
+                        $orderItemData['quantity'] = 1;
+                        $orderItemData['unit_price'] = $cartItem['total_price'];
+                        $orderItemData['total_price'] = $cartItem['total_price'];
+                        $orderItemData['print_desc'] = json_encode([
+                            'fabric_piece_sale' => [
+                                'piece_id' => $piece->id,
+                                'piece_label' => $piece->display_name,
+                                'quantity' => $soldQuantity,
+                                'unit' => $controlUnit,
+                                'unit_price' => (float) ($cartItem['price_per_unit'] ?? $cartItem['unit_price'] ?? 0),
+                                'line_total' => (float) ($cartItem['total_price'] ?? 0),
+                                'channel' => 'pdv',
+                            ],
+                        ]);
+
+                        $orderItem = OrderItem::create($orderItemData);
+
+                        $this->fabricPieceInventoryService->sell($piece, [
+                            'quantity' => $soldQuantity,
+                            'unit' => $controlUnit,
+                            'unit_price' => (float) ($cartItem['price_per_unit'] ?? $cartItem['unit_price'] ?? 0),
+                            'order_id' => $order->id,
+                            'order_item_id' => $orderItem->id,
+                            'channel' => 'pdv',
+                            'sold_by' => $user->id,
+                            'notes' => 'Venda PDV #' . str_pad((string) $order->id, 6, '0', STR_PAD_LEFT),
+                        ]);
+
+                        continue;
                     }
                 } elseif ($itemType == 'machine') {
                     $machine = SewingMachine::find($cartItem['item_id']);

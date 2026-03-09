@@ -305,6 +305,10 @@
 
                 <!-- Itens do Pedido -->
                 @foreach($order->items as $item)
+                @php
+                    $itemPrintDesc = is_array($item->print_desc) ? $item->print_desc : (is_string($item->print_desc) ? json_decode($item->print_desc, true) : []);
+                    $itemFabricPiece = $itemPrintDesc['fabric_piece'] ?? ($itemPrintDesc['fabric_piece_sale'] ?? null);
+                @endphp
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-gray-700 p-6 mb-6">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-3 border-b border-gray-200 dark:border-slate-800">Item {{ $loop->iteration }}</h2>
                     
@@ -364,7 +368,20 @@
                             <p class="text-xs text-gray-600 dark:text-slate-400">Personalização</p>
                             <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->print_type }}</p>
                         </div>
+                        @if(is_array($itemFabricPiece))
+                        <div>
+                            <p class="text-xs text-gray-600 dark:text-slate-400">Peça de tecido</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $itemFabricPiece['quantity_label'] ?? (($itemFabricPiece['quantity'] ?? 0) . ' ' . ($itemFabricPiece['unit'] ?? '')) }}</p>
+                        </div>
+                        @endif
                     </div>
+
+                    @if(is_array($itemFabricPiece))
+                    <div class="mb-4 rounded-lg border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-900/10 px-4 py-3">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300 mb-1">Peça vinculada ao item</p>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $itemFabricPiece['label'] ?? ('Peça #' . ($itemFabricPiece['id'] ?? '')) }}</p>
+                    </div>
+                    @endif
 
                     <!-- Tamanhos -->
                     <div class="mb-4">

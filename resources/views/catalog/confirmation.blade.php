@@ -302,8 +302,18 @@
             @foreach($catalogOrder->items as $item)
                 <div class="order-item-row">
                     <span class="order-item-name">
-                        {{ $item['quantity'] }}x {{ $item['title'] }}
-                        @if(!empty($item['size']) || !empty($item['color']))
+                        {{ $item['quantity_label'] ?? (($item['quantity'] ?? 0) . ' un') }} · {{ $item['title'] }}
+                        @if(($item['item_type'] ?? 'product') === 'fabric_piece')
+                            @php
+                                $fabricMeta = array_filter([
+                                    $item['fabric_type_name'] ?? null,
+                                    $item['color'] ?? null,
+                                ]);
+                            @endphp
+                            @if(!empty($fabricMeta))
+                                ({{ implode(', ', $fabricMeta) }})
+                            @endif
+                        @elseif(!empty($item['size']) || !empty($item['color']))
                             ({{ implode(', ', array_filter([$item['size'] ?? null, $item['color'] ?? null])) }})
                         @endif
                     </span>
@@ -334,8 +344,13 @@
             @php
                 $waMessage = "Olá! Fiz o pedido *{$catalogOrder->order_code}* pelo catálogo.\n\n*Itens:*";
                 foreach($catalogOrder->items as $item) {
-                    $waMessage .= "\n- {$item['quantity']}x {$item['title']}";
-                    if (!empty($item['size']) || !empty($item['color'])) {
+                    $waMessage .= "\n- " . ($item['quantity_label'] ?? ($item['quantity'] . ' un')) . " - {$item['title']}";
+                    if (($item['item_type'] ?? 'product') === 'fabric_piece') {
+                        $fabricMeta = array_filter([$item['fabric_type_name'] ?? null, $item['color'] ?? null]);
+                        if (!empty($fabricMeta)) {
+                            $waMessage .= " (" . implode(', ', $fabricMeta) . ")";
+                        }
+                    } elseif (!empty($item['size']) || !empty($item['color'])) {
                         $waMessage .= " (" . implode(', ', array_filter([$item['size'] ?? null, $item['color'] ?? null])) . ")";
                     }
                 }

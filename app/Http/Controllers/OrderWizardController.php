@@ -180,6 +180,18 @@ class OrderWizardController extends Controller
                 $mainStore = Store::where('is_main', true)->first();
                 $currentStoreId = $mainStore ? $mainStore->id : null;
             }
+
+            $fabricPieces = \App\Models\FabricPiece::with(['store', 'fabric', 'fabricType', 'color'])
+                ->availableForChannel('orders')
+                ->whereIn('status', ['aberta', 'fechada'])
+                ->hasAvailableQuantity()
+                ->whereHas('store', function ($query) use ($user) {
+                    if ($user->tenant_id) {
+                        $query->withoutGlobalScopes()->where('tenant_id', $user->tenant_id);
+                    }
+                })
+                ->orderByDesc('updated_at')
+                ->get();
             
             \Log::info('=== SEWING VIEW RENDERING ===', [
                 'order_id' => $order->id,
@@ -195,7 +207,7 @@ class OrderWizardController extends Controller
             $preselectedTypes = [];
             $preselectedIds = [];
             
-            return view('orders.wizard.sewing', compact('order', 'fabrics', 'colors', 'personalizationOptions', 'currentStoreId', 'sublimationTypes', 'sublimationEnabled', 'preselectedTypes', 'preselectedIds'));
+            return view('orders.wizard.sewing', compact('order', 'fabrics', 'colors', 'personalizationOptions', 'currentStoreId', 'sublimationTypes', 'sublimationEnabled', 'preselectedTypes', 'preselectedIds', 'fabricPieces'));
         }
 
         $action = $request->input('action', 'add');
@@ -256,6 +268,9 @@ class OrderWizardController extends Controller
             'collar_color' => 'nullable|string|max:100',
             'detail_color' => 'nullable|string|max:100',
             'detail_color_map' => 'nullable|array',
+            'fabric_piece_id' => 'nullable|exists:fabric_pieces,id',
+            'fabric_piece_quantity' => 'nullable|numeric|min:0.001|required_with:fabric_piece_id',
+            'fabric_piece_unit' => 'nullable|in:kg,metros|required_with:fabric_piece_id',
             'individual_detail_colors' => 'nullable|boolean',
             'apply_surcharge' => 'nullable|boolean',
             'is_client_modeling' => 'nullable|boolean',
@@ -374,6 +389,9 @@ class OrderWizardController extends Controller
             'collar_color' => 'nullable|string|max:100',
             'detail_color' => 'nullable|string|max:100',
             'detail_color_map' => 'nullable|array',
+            'fabric_piece_id' => 'nullable|exists:fabric_pieces,id',
+            'fabric_piece_quantity' => 'nullable|numeric|min:0.001|required_with:fabric_piece_id',
+            'fabric_piece_unit' => 'nullable|in:kg,metros|required_with:fabric_piece_id',
             'individual_detail_colors' => 'nullable|boolean',
             'apply_surcharge' => 'nullable|boolean',
             'is_client_modeling' => 'nullable|boolean',

@@ -16,8 +16,10 @@ use App\Models\Stock;
 use App\Models\StockRequest;
 use App\Models\StockMovement;
 use App\Models\User;
+use App\Models\FabricPieceSale;
 use App\Helpers\StoreHelper;
 use App\Services\PDVService;
+use App\Services\FabricPieceInventoryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -76,7 +78,7 @@ class PDVController extends Controller
             // Produtos normais + Tipos de Corte (mantém lógica existente)
             if (Schema::hasTable('products')) {
                 try {
-                    $query = Product::with(['category', 'subcategory', 'tecido', 'personalizacao', 'modelo', 'images'])
+                    $query = Product::with(['category', 'subcategory', 'tecido', 'cutType', 'personalizacao', 'modelo', 'images'])
                         ->where('active', true)
                         ->where('title', 'not like', '%Linha de Costura%'); // Excluir Linha de Costura do PDV
                     
@@ -104,13 +106,9 @@ class PDVController extends Controller
         elseif ($type === 'fabric_pieces') {
             if (Schema::hasTable('fabric_pieces')) {
                 $query = \App\Models\FabricPiece::with(['fabric', 'fabricType', 'color'])
-                    ->where(function($q) {
-                        $q->whereIn('status', ['aberta', 'fechada'])
-                          ->orWhere(function($sq) {
-                              $sq->where('status', 'vendida')
-                                 ->where('weight_current', '>', 0.001);
-                          });
-                    });
+                    ->availableForChannel('pdv')
+                    ->whereIn('status', ['aberta', 'fechada'])
+                    ->hasAvailableQuantity();
                 
                 // Filtrar por loja apenas para usuários não-admin
                 if ($currentStoreId && !$user->isAdmin() && !$user->isAdminGeral()) {
@@ -127,13 +125,15 @@ class PDVController extends Controller
                     });
                 }
                 $items = $query->get()->map(function($piece) {
-                    $fabricName = $piece->fabricType->name ?? ($piece->fabric->name ?? 'Tecido');
-                    $piece->title = $fabricName . ' - ' . ($piece->color->name ?? 'Cor');
+                    $piece->title = $piece->display_name;
                     $piece->price = $piece->sale_price > 0 ? $piece->sale_price : 0;
                     $piece->type_label = 'Peça de Tecido';
                     $piece->supplier_name = $piece->supplier;
                     $piece->fabric_type_name = $piece->fabricType->name ?? null;
-                    $piece->stock_quantity = 1;
+                    $piece->stock_quantity = $piece->available_quantity;
+                    $piece->stock_label = number_format((float) $piece->available_quantity, $piece->control_unit === 'metros' ? 2 : 3, ',', '.')
+                        . ' '
+                        . ($piece->control_unit === 'metros' ? 'm' : 'kg');
                     return $piece;
                 });
             }
@@ -292,18 +292,23 @@ class PDVController extends Controller
                 $data['allow_application'] = (bool)($item->allow_application ?? false);
                 $data['application_types'] = $item->application_types ?? [];
                 $data['category_id'] = $item->category_id ?? null;
+                $data['cut_type_id'] = $item->cut_type_id ?? null;
+                $data['fabric_id'] = $item->tecido_id ?? null;
+                $data['available_sizes'] = array_values(array_filter((array) ($item->available_sizes ?? [])));
+                $data['available_colors'] = array_values(array_filter((array) ($item->available_colors ?? [])));
+                $data['requires_variant_selection'] = !empty($item->cut_type_id);
+                $data['track_stock'] = (bool) ($item->track_stock ?? false);
             } elseif ($itemType == 'product_option') {
                 $sublocalInfo = isset($productOptionsWithSublocal) ? $productOptionsWithSublocal->get($item->id) : null;
                 $data['allows_sublocal'] = $sublocalInfo ? ($sublocalInfo['allows_sublocal'] ?? false) : false;
                 $data['fabric_id'] = $sublocalInfo ? ($sublocalInfo['fabric_id'] ?? null) : null;
             } elseif ($itemType == 'fabric_piece') {
                 // Propriedades específicas de peça de tecido
-                $data['sale_type'] = 'kg';
-                $data['price_per_kg'] = $item->sale_price ?? 0; // sale_price é o preço por kg
-                $data['meters'] = $item->meters ?? 0;
-                $data['weight_kg'] = $item->weight_current ?? $item->weight ?? 0; // Usar peso atual
-                // O preço total da peça agora é baseado no que restou dela
-                $data['sale_price'] = $data['weight_kg'] * $data['price_per_kg']; 
+                $data['sale_type'] = ($item->control_unit ?? 'kg') === 'metros' ? 'metro' : 'kg';
+                $data['control_unit'] = $item->control_unit ?? 'kg';
+                $data['price_per_unit'] = $item->sale_price ?? 0;
+                $data['available_quantity'] = $item->available_quantity;
+                $data['sale_price'] = $data['available_quantity'] * $data['price_per_unit'];
                 $data['store_id'] = $item->store_id ?? null;
                 $data['supplier_name'] = $item->supplier ?? 'N/A';
                 $data['fabric_type_name'] = $item->fabricType->name ?? ($item->fabric->name ?? 'Tecido');
@@ -396,7 +401,23 @@ class PDVController extends Controller
             $productId = $validated['product_id'] ?? $validated['item_id'];
             if (!Schema::hasTable('products')) return response()->json(['success' => false, 'message' => 'Tabela de produtos não existe'], 400);
             
-            $product = Product::with(['category', 'subcategory', 'tecido', 'personalizacao', 'modelo'])->findOrFail($productId);
+            $product = Product::with(['category', 'subcategory', 'tecido', 'cutType', 'personalizacao', 'modelo'])->findOrFail($productId);
+
+            $selectedSize = $validated['size'] ?? null;
+            $selectedColorId = $validated['color_id'] ?? null;
+            $selectedCutTypeId = $validated['cut_type_id'] ?? $product->cut_type_id;
+            $selectedFabricId = $validated['fabric_id'] ?? $product->tecido_id ?? null;
+
+            if ($product->cut_type_id && (!$selectedSize || !$selectedColorId || !$selectedCutTypeId)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Selecione a cor e o tamanho disponíveis em estoque para este produto.',
+                ], 422);
+            }
+
+            $selectedColor = $selectedColorId ? ProductOption::find($selectedColorId) : null;
+            $selectedCutType = $selectedCutTypeId ? ProductOption::find($selectedCutTypeId) : null;
+            $selectedFabric = $selectedFabricId ? ProductOption::find($selectedFabricId) : null;
             $unitPrice = $validated['unit_price'] ?? $product->price ?? 0;
             $baseTotal = $unitPrice * $validated['quantity'];
             
@@ -434,6 +455,13 @@ class PDVController extends Controller
                 'size_surcharges' => $sizeSurcharges,
                 'total_surcharges' => $totalSurcharges,
                 'application_type' => $validated['application_type'] ?? null,
+                'fabric_id' => $selectedFabricId,
+                'fabric_name' => $selectedFabric?->name ?? $product->tecido?->name,
+                'size' => $selectedSize,
+                'color_id' => $selectedColorId,
+                'color_name' => $selectedColor?->name,
+                'cut_type_id' => $selectedCutTypeId,
+                'cut_type_name' => $selectedCutType?->name ?? $product->cutType?->name,
             ];
         }
         // Lógica de Product Options (Tipos de Corte)
@@ -456,6 +484,9 @@ class PDVController extends Controller
              if ($fabricId && $fabric = ProductOption::find($fabricId)) {
                  $fabricName = $fabric->name;
              }
+
+            $selectedColorId = $validated['color_id'] ?? null;
+            $selectedColor = $selectedColorId ? ProductOption::find($selectedColorId) : null;
 
             $unitPrice = $productOption->price ?? 0;
             if ($unitPrice <= 0) return response()->json(['success' => false, 'message' => 'Preço não configurado'], 400);
@@ -518,36 +549,37 @@ class PDVController extends Controller
                 'application_type' => null,
                 'sublocal_personalizations' => $sublocalPersonalizations,
                 'size' => $validated['size'] ?? null,
-                'color_id' => $validated['color_id'] ?? null,
+                'color_id' => $selectedColorId,
+                'color_name' => $selectedColor?->name,
                 'cut_type_id' => $validated['cut_type_id'] ?? $productOption->id,
+                'cut_type_name' => $productOption->name,
             ];
         }
         // NOVOS TIPOS DE ESTOQUE
         elseif ($itemType === 'fabric_piece') {
-            $item = \App\Models\FabricPiece::with(['fabric', 'fabricType', 'color'])->findOrFail($validated['item_id']);
-            
-            // Para peças de tecido, a quantidade enviada pelo frontend é o peso (kg)
-            // O unit_price enviado pelo frontend é o preço TOTAL calculado (kg * preço_por_kg)
-            // Queremos salvar no carrinho: quantity = kg, unit_price = preço_por_kg
-            $weightSold = (float)$validated['quantity'];
-            $totalCalculatedPrice = (float)$validated['unit_price'];
-            
-            $pricePerKg = $item->sale_price ?? ($weightSold > 0 ? $totalCalculatedPrice / $weightSold : 0);
+            $item = \App\Models\FabricPiece::with(['fabric', 'fabricType', 'color'])
+                ->availableForChannel('pdv')
+                ->findOrFail($validated['item_id']);
 
-            $cartItem = [
-                'id' => uniqid(),
-                'type' => 'fabric_piece',
-                'item_id' => $item->id,
-                'product_title' => ($item->fabric->name ?? 'Tecido') . ' - ' . ($item->color->name ?? 'Cor'),
-                'category' => 'Peça de Tecido',
-                'subcategory' => null,
-                'sale_type' => 'kg', // Vende por peso
-                'quantity' => $weightSold,
-                'unit_price' => $pricePerKg,
-                'total_price' => $totalCalculatedPrice,
-                'supplier_name' => $item->supplier,
-                'fabric_type_name' => $item->fabricType->name ?? ($item->fabric->name ?? 'Tecido'),
-            ];
+            $requestedQuantity = (float) $validated['quantity'];
+            $currentCartQuantity = collect($cart)
+                ->filter(fn ($cartItem) => ($cartItem['type'] ?? null) === 'fabric_piece' && (int) ($cartItem['item_id'] ?? 0) === (int) $item->id)
+                ->sum(fn ($cartItem) => (float) ($cartItem['fabric_piece_quantity'] ?? $cartItem['quantity'] ?? 0));
+
+            $remainingCartCapacity = max(0, (float) $item->available_quantity - $currentCartQuantity);
+
+            if ($requestedQuantity > $remainingCartCapacity + 0.0001) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Quantidade indisponível para esta peça. Saldo restante no carrinho: '
+                        . number_format($remainingCartCapacity, $item->control_unit === 'metros' ? 2 : 3, ',', '.')
+                        . ' '
+                        . ($item->control_unit === 'metros' ? 'm' : 'kg')
+                        . '.',
+                ], 422);
+            }
+
+            $cartItem = $this->pdvService->createFabricPieceCartItem($item, $validated);
         }
         elseif ($itemType === 'machine') {
             $item = \App\Models\SewingMachine::findOrFail($validated['item_id']);
@@ -849,10 +881,39 @@ class PDVController extends Controller
         foreach ($cart as $index => $item) {
             if ($item['id'] === $validated['item_id']) {
                 if (isset($validated['quantity'])) {
+                    if (($item['type'] ?? null) === 'fabric_piece') {
+                        $piece = \App\Models\FabricPiece::find($item['item_id'] ?? null);
+
+                        if (!$piece) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'Peça de tecido não encontrada.',
+                            ], 404);
+                        }
+
+                        $otherCartQuantity = collect($cart)
+                            ->reject(fn ($cartItem, $cartIndex) => $cartIndex === $index)
+                            ->filter(fn ($cartItem) => ($cartItem['type'] ?? null) === 'fabric_piece' && (int) ($cartItem['item_id'] ?? 0) === (int) $piece->id)
+                            ->sum(fn ($cartItem) => (float) ($cartItem['fabric_piece_quantity'] ?? $cartItem['quantity'] ?? 0));
+
+                        if ((float) $validated['quantity'] > ((float) $piece->available_quantity - $otherCartQuantity) + 0.0001) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'A quantidade informada excede o saldo disponível da peça.',
+                            ], 422);
+                        }
+                    }
+
                     $cart[$index]['quantity'] = $validated['quantity'];
+                    if (($item['type'] ?? null) === 'fabric_piece') {
+                        $cart[$index]['fabric_piece_quantity'] = $validated['quantity'];
+                    }
                 }
                 if (isset($validated['unit_price'])) {
                     $cart[$index]['unit_price'] = $validated['unit_price'];
+                    if (($item['type'] ?? null) === 'fabric_piece') {
+                        $cart[$index]['price_per_unit'] = $validated['unit_price'];
+                    }
                 }
                 
                 // Handle per-item discount
@@ -1308,6 +1369,19 @@ class PDVController extends Controller
                 'cancelled_at' => Carbon::now('America/Sao_Paulo'),
                 'cancellation_reason' => $validated['cancellation_reason'],
             ]);
+
+            $fabricInventory = app(FabricPieceInventoryService::class);
+            $fabricSales = FabricPieceSale::where('order_id', $sale->id)
+                ->whereNull('reverted_at')
+                ->get();
+
+            foreach ($fabricSales as $fabricSale) {
+                $fabricInventory->restoreSale(
+                    $fabricSale,
+                    'Cancelamento de venda PDV #' . str_pad((string) $sale->id, 6, '0', STR_PAD_LEFT),
+                    Auth::id()
+                );
+            }
 
             // Reverter transações de caixa criando transações de saída
             $user = Auth::user();

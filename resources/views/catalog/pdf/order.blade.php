@@ -147,14 +147,21 @@
                 <tr>
                     <td>{{ $item['title'] }}</td>
                     <td>
-                        @if(!empty($item['size']))
+                        @if(($item['item_type'] ?? 'product') === 'fabric_piece')
+                            @if(!empty($item['fabric_type_name']))
+                                <div>{{ $item['fabric_type_name'] }}</div>
+                            @endif
+                            @if(!empty($item['color']))
+                                <div>Cor: {{ $item['color'] }}</div>
+                            @endif
+                        @elseif(!empty($item['size']))
                             <div>Tam: {{ $item['size'] }}</div>
                         @endif
-                        @if(!empty($item['color']))
+                        @if(($item['item_type'] ?? 'product') !== 'fabric_piece' && !empty($item['color']))
                             <div>Cor: {{ $item['color'] }}</div>
                         @endif
                     </td>
-                    <td style="text-align: center;">{{ $item['quantity'] }}</td>
+                    <td style="text-align: center;">{{ $item['quantity_label'] ?? $item['quantity'] }}</td>
                     <td style="text-align: right;">R$ {{ number_format($item['total'] ?? 0, 2, ',', '.') }}</td>
                 </tr>
             @endforeach

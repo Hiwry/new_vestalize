@@ -11,17 +11,212 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20"> <!-- Full background -->
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8"> <!-- Wider container -->
+<style>
+    .pdv-ft {
+        --pdv-surface-from: #f3f4f8;
+        --pdv-surface-to: #eceff4;
+        --pdv-surface-border: #d8dce6;
+        --pdv-text-primary: #0f172a;
+        --pdv-text-secondary: #64748b;
+        --pdv-card-bg: #ffffff;
+        --pdv-card-border: #dde2ea;
+        --pdv-card-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        background: linear-gradient(180deg, var(--pdv-surface-from) 0%, var(--pdv-surface-to) 100%);
+        border: 1px solid var(--pdv-surface-border);
+        border-radius: 20px;
+        padding: 20px;
+        color: var(--pdv-text-primary);
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+    }
+
+    .dark .pdv-ft {
+        --pdv-surface-from: #0f172a;
+        --pdv-surface-to: #0b1322;
+        --pdv-surface-border: rgba(148, 163, 184, 0.25);
+        --pdv-text-primary: #e2e8f0;
+        --pdv-text-secondary: #94a3b8;
+        --pdv-card-bg: #111827;
+        --pdv-card-border: rgba(148, 163, 184, 0.22);
+        --pdv-card-shadow: 0 18px 38px rgba(2, 6, 23, 0.55);
+    }
+
+    .pdv-ft-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+    }
+
+    .pdv-ft-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+        flex: 1 1 320px;
+    }
+
+    .pdv-ft-logo {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #6d28d9, #8b5cf6);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .pdv-ft-title {
+        font-size: 24px;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--pdv-text-primary);
+    }
+
+    .pdv-ft-subtitle {
+        margin-top: 3px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-ft-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .pdv-ft-btn {
+        height: 38px;
+        border-radius: 12px;
+        padding: 0 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: transform .18s ease, box-shadow .2s ease, filter .2s ease;
+        white-space: nowrap;
+    }
+
+    .pdv-ft-btn-primary {
+        color: #fff !important;
+        background: linear-gradient(135deg, #6d28d9, #7c3aed);
+        box-shadow: 0 10px 20px rgba(109, 40, 217, 0.25);
+    }
+
+    .pdv-ft-btn-secondary {
+        color: var(--pdv-text-primary) !important;
+        background: var(--pdv-card-bg);
+        border: 1px solid var(--pdv-card-border);
+        box-shadow: var(--pdv-card-shadow);
+    }
+
+    .pdv-ft-btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.03);
+    }
+
+    .pdv-ft-shell-card {
+        background: var(--pdv-card-bg);
+        border: 1px solid var(--pdv-card-border);
+        border-radius: 16px;
+        box-shadow: var(--pdv-card-shadow);
+    }
+
+    .pdv-ft-tabs {
+        margin-bottom: 18px;
+        padding: 8px;
+    }
+
+    .pdv-ft .pdv-tab-link {
+        border-radius: 12px;
+    }
+
+    .pdv-ft .pdv-tab-link.bg-indigo-600 {
+        background: linear-gradient(135deg, #6d28d9, #7c3aed) !important;
+        box-shadow: 0 10px 20px rgba(109, 40, 217, 0.22);
+    }
+
+    .pdv-ft .pdv-search-input {
+        background: var(--pdv-card-bg) !important;
+        border: 1px solid var(--pdv-card-border) !important;
+        box-shadow: var(--pdv-card-shadow) !important;
+    }
+
+    .pdv-ft .pdv-catalog-panel,
+    .pdv-ft .pdv-cart-panel {
+        background: var(--pdv-card-bg) !important;
+        border: 1px solid var(--pdv-card-border) !important;
+        box-shadow: var(--pdv-card-shadow) !important;
+    }
+
+    .pdv-ft .text-gray-900,
+    .pdv-ft .text-gray-800,
+    .pdv-ft .text-gray-700 {
+        color: var(--pdv-text-primary) !important;
+    }
+
+    .pdv-ft .text-gray-600,
+    .pdv-ft .text-gray-500,
+    .pdv-ft .text-gray-400 {
+        color: var(--pdv-text-secondary) !important;
+    }
+
+    @media (max-width: 768px) {
+        .pdv-ft {
+            padding: 14px;
+            border-radius: 16px;
+        }
+
+        .pdv-ft-title {
+            font-size: 24px;
+        }
+
+        .pdv-ft-actions {
+            width: 100%;
+        }
+
+        .pdv-ft-btn {
+            flex: 1 1 0;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-2 md:pt-3 pb-20">
+    <div class="pdv-ft">
         
-        <!-- Header & Controls -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Ponto de Venda</h1>
-                <p class="text-gray-500 dark:text-gray-400 mt-1">Gerencie suas vendas de forma rápida e eficiente.</p>
+        <div class="pdv-ft-topbar">
+            <div class="pdv-ft-brand">
+                <span class="pdv-ft-logo"><i class="fa-solid fa-cash-register"></i></span>
+                <div>
+                    <h1 class="pdv-ft-title">Ponto de Venda</h1>
+                    <p class="pdv-ft-subtitle">Fluxo de venda rápida com a mesma linguagem visual de vendas e pedidos.</p>
+                </div>
             </div>
-            
-            <div class="flex items-center gap-2 bg-white dark:bg-gray-800 p-1 rounded-xl border border-gray-200 dark:border-gray-700 overflow-x-auto">
+
+            <div class="pdv-ft-actions">
+                <a href="{{ route('sales.index') }}" class="pdv-ft-btn pdv-ft-btn-secondary">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>Vendas</span>
+                </a>
+                <a href="{{ route('pdv.sales') }}" class="pdv-ft-btn pdv-ft-btn-primary">
+                    <i class="fa-solid fa-receipt"></i>
+                    <span>Histórico PDV</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="pdv-ft-shell-card pdv-ft-tabs">
+            <div class="flex items-center gap-2 overflow-x-auto">
                 <a href="{{ route('pdv.index', ['type' => 'products']) }}" data-type="products"
                    class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'products' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}"
                    style="{{ $type == 'products' ? 'color: white !important;' : '' }}">
@@ -53,31 +248,33 @@
         <div class="grid grid-cols-12 gap-4 md:gap-8 items-start">
             {{-- Left Column: Products (full on mobile, 8 cols on desktop) --}}
             <div class="col-span-12 lg:col-span-8 space-y-4 md:space-y-6">
-                
-                {{-- Search Bar (Instant) - Compact on mobile --}}
-                <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
-                        <svg class="h-4 w-4 md:h-5 md:w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </div>
-                    <input type="text" 
-                           id="product-search"
-                           value="{{ $search ?? '' }}"
-                           placeholder="Buscar produto..." 
-                           class="block w-full pl-10 md:pl-12 pr-4 py-3 md:py-4 border-none rounded-xl md:rounded-2xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/20 shadow-sm dark:shadow-gray-900/50 text-sm md:text-lg transition-all">
-                </div>
 
-                {{-- Products Grid Container (AJAX Target) --}}
-                <div id="products-grid-container">
-                    @include('pdv.partials.grid')
+                <div class="pdv-ft-shell-card pdv-catalog-panel p-4 md:p-5 space-y-4 md:space-y-6">
+                    {{-- Search Bar (Instant) - Compact on mobile --}}
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 md:h-5 md:w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input type="text" 
+                               id="product-search"
+                               value="{{ $search ?? '' }}"
+                               placeholder="Buscar produto, tecido, máquina ou suprimento..." 
+                               class="pdv-search-input block w-full pl-10 md:pl-12 pr-4 py-3 md:py-4 rounded-xl md:rounded-2xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/20 text-sm md:text-lg transition-all">
+                    </div>
+
+                    {{-- Products Grid Container (AJAX Target) --}}
+                    <div id="products-grid-container">
+                        @include('pdv.partials.grid')
+                    </div>
                 </div>
             </div> {{-- End Left Column --}}
 
             {{-- Right Column: Cart & Client (4 cols - hidden on mobile, full on lg) --}}
             <div class="hidden lg:block col-span-12 lg:col-span-4 relative">
                 <div class="sticky top-6">
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col h-[calc(100vh-6rem)]">
+                    <div class="pdv-ft-shell-card pdv-cart-panel rounded-3xl overflow-hidden flex flex-col h-[calc(100vh-6rem)]">
                         
                         <!-- 1. Header & Client Selection -->
                         <div class="p-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
@@ -140,6 +337,11 @@
                                         <div class="flex justify-between items-start mb-2">
                                             <div class="flex-1 pr-2">
                                                 <p class="font-medium text-gray-900 dark:text-gray-100 text-sm leading-tight">{{ $item['product_title'] }}</p>
+                                                @if(!empty($item['color_name']) || !empty($item['size']))
+                                                    <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+                                                        {{ $item['color_name'] ?? 'Cor não informada' }}@if(!empty($item['size'])) • {{ $item['size'] }} @endif
+                                                    </p>
+                                                @endif
                                                 @if(isset($item['sale_type']) && $item['sale_type'] != 'unidade')
                                                     <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">Venda por {{ $item['sale_type'] == 'kg' ? 'Kg' : 'Metro' }}</p>
                                                 @endif
@@ -246,7 +448,7 @@
                 </div>
             </div>
         </div> <!-- End Grid -->
-    </div> <!-- End Main Container -->
+    </div>
 
     {{-- Mobile Cart FAB (Floating Action Button) --}}
     <div id="mobile-cart-fab" class="lg:hidden fixed bottom-20 right-4 z-40">
@@ -303,6 +505,11 @@
                     <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 flex justify-between items-center">
                         <div>
                             <p class="font-medium text-gray-900 dark:text-white text-sm">{{ $item['product_title'] }}</p>
+                            @if(!empty($item['color_name']) || !empty($item['size']))
+                                <p class="text-[10px] text-gray-500 dark:text-gray-400">
+                                    {{ $item['color_name'] ?? 'Cor não informada' }}@if(!empty($item['size'])) • {{ $item['size'] }} @endif
+                                </p>
+                            @endif
                             <p class="text-xs text-gray-500">{{ $item['quantity'] }} × R$ {{ number_format($item['unit_price'], 2, ',', '.') }}</p>
                         </div>
                         <p class="font-bold text-indigo-600 dark:text-indigo-400">R$ {{ number_format($item['total_price'], 2, ',', '.') }}</p>
@@ -697,28 +904,203 @@ const sizesList = window.sizesList;
 let currentProductId = null;
 let currentProductType = 'product';
 
-// Calcular preço de peça de tecido baseado em kg
+function getFabricPieceControlUnit(product) {
+    return product?.control_unit === 'metros' ? 'metros' : 'kg';
+}
+
+function getFabricPieceUnitLabel(product) {
+    return getFabricPieceControlUnit(product) === 'metros' ? 'Metro' : 'Kg';
+}
+
+function getFabricPieceUnitSuffix(product) {
+    return getFabricPieceControlUnit(product) === 'metros' ? 'm' : 'kg';
+}
+
+function getFabricPieceStep(product) {
+    return getFabricPieceControlUnit(product) === 'metros' ? '0.01' : '0.001';
+}
+
+function formatFabricPieceQuantity(value, product) {
+    const decimals = getFabricPieceControlUnit(product) === 'metros' ? 2 : 3;
+    return Number(value || 0).toLocaleString('pt-BR', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+    });
+}
+
+function normalizeConfiguredColors(rawColors) {
+    if (!Array.isArray(rawColors)) {
+        return [];
+    }
+
+    return rawColors
+        .map((item) => {
+            const name = String(item?.name ?? '').trim();
+            if (!name) {
+                return null;
+            }
+
+            const matchedColor = (window.colorsData || []).find((color) =>
+                String(color.name ?? '').trim().toLowerCase() === name.toLowerCase()
+            );
+
+            return {
+                id: matchedColor?.id ?? null,
+                name,
+                hex: item?.hex ?? item?.color_hex ?? matchedColor?.color_hex ?? '#666666',
+                available: item?.available ?? null,
+            };
+        })
+        .filter((item) => item && item.id);
+}
+
+function getFallbackVariantColors(product) {
+    const configuredColors = normalizeConfiguredColors(product?.available_colors ?? []);
+    return configuredColors;
+}
+
+function renderVariantColorOptions(colors, selectedColorId = null) {
+    const select = document.getElementById('modal-color-select');
+    const swatches = document.getElementById('modal-color-swatches');
+
+    if (!select) {
+        return;
+    }
+
+    const normalizedColors = (colors || [])
+        .filter((color) => color && color.id)
+        .sort((left, right) => String(left.name || '').localeCompare(String(right.name || ''), 'pt-BR'));
+
+    window.currentVariantColors = normalizedColors;
+
+    if (normalizedColors.length === 0) {
+        select.innerHTML = '<option value="">Nenhuma cor em estoque</option>';
+        select.disabled = true;
+        if (swatches) {
+            swatches.innerHTML = '<p class="text-xs text-gray-500 dark:text-gray-400">Nenhuma cor disponível para este corte no estoque.</p>';
+        }
+        return;
+    }
+
+    select.disabled = false;
+    select.innerHTML = `
+        <option value="">Selecione a cor...</option>
+        ${normalizedColors.map((color) => `
+            <option value="${color.id}" ${String(selectedColorId ?? '') === String(color.id) ? 'selected' : ''}>
+                ${color.name}${color.available !== null ? ` (${color.available})` : ''}
+            </option>
+        `).join('')}
+    `;
+
+    if (swatches) {
+        swatches.innerHTML = normalizedColors.map((color) => {
+            const isSelected = String(selectedColorId ?? '') === String(color.id);
+            return `
+                <button type="button"
+                        onclick="selectModalColor('${color.id}')"
+                        class="flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${isSelected ? 'border-purple-500 bg-purple-50 text-purple-700 dark:border-purple-400 dark:bg-purple-900/30 dark:text-purple-200 shadow-sm' : 'border-gray-200 bg-white text-gray-700 hover:border-purple-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-purple-500'}">
+                    <span class="w-4 h-4 rounded-full border border-white/30 shadow-sm" style="background-color: ${color.hex || '#666666'}"></span>
+                    <span>${color.name}</span>
+                    ${color.available !== null ? `<span class="text-[10px] opacity-70">${color.available}</span>` : ''}
+                </button>
+            `;
+        }).join('');
+    }
+}
+
+window.selectModalColor = function selectModalColor(colorId) {
+    const select = document.getElementById('modal-color-select');
+    const cutTypeId = document.getElementById('modal-cut-type-id')?.value;
+
+    if (!select) {
+        return;
+    }
+
+    select.value = String(colorId);
+    renderVariantColorOptions(window.currentVariantColors || [], colorId);
+
+    if (cutTypeId) {
+        loadStockByCutType(cutTypeId);
+    }
+
+    if (typeof window.checkStockForSizes === 'function') {
+        window.checkStockForSizes();
+    }
+};
+
+async function loadColorOptionsForCutType(cutTypeId, product, selectedColorId = null) {
+    const select = document.getElementById('modal-color-select');
+
+    if (!select || !cutTypeId) {
+        return;
+    }
+
+    select.disabled = true;
+    select.innerHTML = '<option value="">Carregando cores...</option>';
+
+    try {
+        const params = new URLSearchParams({ cut_type_id: cutTypeId });
+        const response = await fetch(`/api/stocks/by-cut-type?${params}`);
+        const data = await response.json();
+
+        const colorsFromStock = Array.isArray(data?.available_colors)
+            ? data.available_colors.map((color) => ({
+                id: color.id,
+                name: color.name,
+                hex: color.hex || color.color_hex || '#666666',
+                available: color.available ?? null,
+            }))
+            : [];
+
+        const availableColors = colorsFromStock.length > 0 ? colorsFromStock : getFallbackVariantColors(product);
+
+        let nextSelectedColorId = selectedColorId;
+        if (!nextSelectedColorId && availableColors.length === 1) {
+            nextSelectedColorId = availableColors[0].id;
+        }
+
+        renderVariantColorOptions(availableColors, nextSelectedColorId);
+
+        if (nextSelectedColorId) {
+            select.value = String(nextSelectedColorId);
+        }
+
+        await loadStockByCutType(cutTypeId);
+
+        if (select.value && typeof window.checkStockForSizes === 'function') {
+            await window.checkStockForSizes();
+        }
+    } catch (error) {
+        console.error('Erro ao carregar cores disponíveis:', error);
+        renderVariantColorOptions(getFallbackVariantColors(product), selectedColorId);
+    }
+}
+
+// Calcular preço de peça de tecido respeitando a unidade de controle
 window.calculateFabricPiecePrice = function() {
     const product = window.pageItems.find(p => p.id == currentProductId && p.type == currentProductType);
     if (!product || currentProductType !== 'fabric_piece') return;
     
     const quantityInput = document.getElementById('modal-quantity');
     const priceInput = document.getElementById('modal-unit-price');
+    const totalPreview = document.getElementById('fabric-piece-total-preview');
     
     if (quantityInput && priceInput) {
-        const kg = parseFloat(quantityInput.value) || 0;
-        const pricePerKg = parseFloat(product.price_per_kg) || 0;
-        const maxKg = parseFloat(product.weight_kg) || 999;
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const pricePerUnit = parseFloat(priceInput.value) || parseFloat(product.price_per_unit || product.price || 0);
+        const maxQuantity = parseFloat(product.available_quantity) || 0;
         
         // Validar que não excede o máximo disponível
-        if (kg > maxKg) {
-            quantityInput.value = maxKg;
-            alert(`Quantidade máxima disponível: ${maxKg.toFixed(2)} kg`);
+        if (maxQuantity > 0 && quantity > maxQuantity) {
+            quantityInput.value = maxQuantity;
+            alert(`Quantidade máxima disponível: ${formatFabricPieceQuantity(maxQuantity, product)} ${getFabricPieceUnitSuffix(product)}`);
         }
         
-        // Calcular preço total: kg * preço por kg
-        const totalPrice = (parseFloat(quantityInput.value) || 0) * pricePerKg;
-        priceInput.value = totalPrice.toFixed(2);
+        const totalPrice = (parseFloat(quantityInput.value) || 0) * pricePerUnit;
+
+        if (totalPreview) {
+            totalPreview.textContent = `R$ ${totalPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
     }
 };
 
@@ -747,6 +1129,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
     const isProductOption = type === 'product_option';
     const isFabricPiece = type === 'fabric_piece';
     const isStockItem = !isProduct && !isProductOption; // fabric_piece, machine, supply, uniform
+    const variantCutTypeId = isProductOption ? product.id : (product.cut_type_id || null);
     
     // Configurações de Quantidade
     let quantityLabel = 'Quantidade';
@@ -762,11 +1145,12 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
     }
     
     if (isFabricPiece) {
-        quantityLabel = 'Quantidade (Kg)';
-        quantityValue = product.weight_kg || '1'; // Valor padrão é o peso total
-        quantityStep = '0.01';
-        quantityMin = '0.01';
-        isQuantityReadonly = false; // Permitir edição para venda por kg
+        const availableQuantity = parseFloat(product.available_quantity || 0);
+        quantityLabel = `Quantidade (${getFabricPieceUnitLabel(product)})`;
+        quantityValue = availableQuantity > 0 && availableQuantity < 1 ? availableQuantity : '1';
+        quantityStep = getFabricPieceStep(product);
+        quantityMin = getFabricPieceStep(product);
+        isQuantityReadonly = false;
     }
     
     // Configurações de Exibição
@@ -775,17 +1159,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
     // A lógica original mostrava tamanhos para produtos também se não fosse tecido e nao fosse quick.
     // Vamos manter compatibilidade:
     const isFabric = isProduct && (product.sale_type === 'kg' || product.sale_type === 'metro');
-    const isQuickProduct = isProduct && !product.category_id;
-    const shouldShowSizes = !isStockItem && !isFabric && !isQuickProduct && !isProduct; // Simplificando: Apenas ProductOption mostra grade completa
-    // Espere, a lógica original era: const shouldShowSizes = !isFabric && !isQuickProduct; 
-    // Isso incluía Produtos e Options.
-    // Mas NOVO layout de grid genericizado:
-    // Produtos Normais -> Input Unico de Qtd (se não tiver grade específica, assumimos simples)
-    // ProductOptions -> Grade de Tamanhos
-    // StockItems -> Input Unico
-    
-    // Forçando apenas ProductOption a ter Grade por enquanto para evitar complexidade
-    const shouldShowStockFields = isProductOption; 
+    const shouldShowStockFields = Boolean(variantCutTypeId) && !isStockItem && !isFabric;
 
     // HTML da Aplicação (produtos apenas)
     let applicationHtml = '';
@@ -833,15 +1207,15 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
             <div class="mb-5 flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
                 <div class="flex flex-col">
                     ${isFabricPiece ? `
-                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Valor da Peça</span>
+                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Preço por ${getFabricPieceUnitLabel(product)}</span>
                         <div class="flex items-center gap-2">
                             <span class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                R$ ${parseFloat(product.sale_price || product.price || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                R$ ${parseFloat(product.price_per_unit || product.price || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </span>
                         </div>
                         <span class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            Preço por Kg (Venda): <span class="font-semibold text-gray-700 dark:text-gray-300">R$ ${parseFloat(product.price_per_kg || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                            | Peso: <span class="font-semibold text-gray-700 dark:text-gray-300">${parseFloat(product.weight_kg || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kg</span>
+                            Saldo disponível: <span class="font-semibold text-gray-700 dark:text-gray-300">${formatFabricPieceQuantity(product.available_quantity || 0, product)} ${getFabricPieceUnitSuffix(product)}</span>
+                            | Valor estimado: <span class="font-semibold text-gray-700 dark:text-gray-300">R$ ${parseFloat(product.sale_price || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </span>
                         <div class="mt-2 text-[10px] space-y-0.5 border-t border-gray-100 dark:border-gray-700 pt-1">
                             <span class="block text-gray-900 dark:text-gray-100 font-bold uppercase">${product.fabric_type_name || 'Tecido'}</span>
@@ -857,7 +1231,7 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                         </div>
                     `}
                 </div>
-                 ${isFabricPiece ? `<span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold">Venda por Kg (máx: ${parseFloat(product.weight_kg || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} kg)</span>` : ''}
+                 ${isFabricPiece ? `<span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold">Venda por ${getFabricPieceUnitLabel(product)} (máx: ${formatFabricPieceQuantity(product.available_quantity || 0, product)} ${getFabricPieceUnitSuffix(product)})</span>` : ''}
             </div>
             
             ${!shouldShowStockFields ? `
@@ -868,17 +1242,17 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                        step="${quantityStep}"
                        min="${quantityMin}"
                        value="${quantityValue}"
-                       ${isFabricPiece ? `max="${product.weight_kg || 999}" onchange="calculateFabricPiecePrice()"` : ''}
+                       ${isFabricPiece ? `max="${product.available_quantity || 999}" onchange="calculateFabricPiecePrice()"` : ''}
                        ${isQuantityReadonly ? 'readonly disabled' : ''}
                        class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-indigo-500 transition-shadow ${isQuantityReadonly ? 'cursor-not-allowed opacity-75' : ''}">
-                ${isFabricPiece ? `<p class="text-xs text-gray-500 mt-1">Máximo disponível: ${parseFloat(product.weight_kg || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} kg</p>` : ''}
+                ${isFabricPiece ? `<p class="text-xs text-gray-500 mt-1">Máximo disponível: ${formatFabricPieceQuantity(product.available_quantity || 0, product)} ${getFabricPieceUnitSuffix(product)}</p>` : ''}
             </div>
             ` : ''}
             
             ${showUnitPrice ? `
             <div class="mb-5">
                 <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-                    ${isFabricPiece ? 'Valor Total da Peça' : (isProduct && product.sale_type === 'kg' ? 'Preço por Kg (Venda)' : 'Valor Unitário')} 
+                    ${isFabricPiece ? `Preço por ${getFabricPieceUnitLabel(product)}` : (isProduct && product.sale_type === 'kg' ? 'Preço por Kg (Venda)' : 'Valor Unitário')} 
                     <span class="text-red-500">*</span>
                 </label>
                 <div class="relative">
@@ -888,9 +1262,10 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                            required
                            step="0.01"
                            min="0.00"
-                           value="${product.price || 0}"
+                           value="${isFabricPiece ? (product.price_per_unit || product.price || 0) : (product.price || 0)}"
                            class="w-full pl-9 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium focus:ring-1 focus:ring-indigo-500 transition-shadow">
                 </div>
+                ${isFabricPiece ? `<p class="text-xs text-gray-500 mt-1">Total calculado: <span id="fabric-piece-total-preview" class="font-semibold text-gray-700 dark:text-gray-300">R$ 0,00</span></p>` : ''}
             </div>
             ` : `<input type="hidden" id="modal-unit-price" value="${product.price || 0}">`}
             
@@ -898,15 +1273,16 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
             
             ${shouldShowStockFields ? `
             <!-- Hidden field para o ID do tipo de corte -->
-            <input type="hidden" id="modal-cut-type-id" value="${product.id}">
+            <input type="hidden" id="modal-cut-type-id" value="${variantCutTypeId}">
+            <input type="hidden" id="modal-fabric-id" value="${product.fabric_id || ''}">
             
             <div class="mb-5">
                 <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Cor <span class="text-red-500">*</span></label>
                 <select id="modal-color-select" required
                         class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:ring-1 focus:ring-indigo-500 text-sm transition-shadow">
-                    <option value="">Selecione a cor...</option>
-                    ${window.colorsData.map(color => `<option value="${color.id}">${color.name}</option>`).join('')}
+                    <option value="">Carregando cores...</option>
                 </select>
+                <div id="modal-color-swatches" class="mt-3 flex flex-wrap gap-2"></div>
             </div>
             
             <div class="mb-5">
@@ -950,6 +1326,18 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                     </div>`).join('')}
                 </div>
             </div>
+
+            <div class="mb-5">
+                <div class="flex items-center justify-between mb-2">
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Estoque por tamanho</label>
+                    <span class="text-[11px] text-gray-400">Selecione a cor para priorizar a disponibilidade</span>
+                </div>
+                <div id="stock-by-size-list" class="space-y-3">
+                    <div class="text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-600 p-4">
+                        Carregando disponibilidade por tamanho...
+                    </div>
+                </div>
+            </div>
             ` : ''}
             
             ${sublocalHtml}
@@ -967,6 +1355,14 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
     `;
     
     modal.classList.remove('hidden');
+
+    if (isFabricPiece) {
+        setTimeout(() => {
+            calculateFabricPiecePrice();
+            document.getElementById('modal-unit-price')?.addEventListener('input', calculateFabricPiecePrice);
+            document.getElementById('modal-quantity')?.addEventListener('input', calculateFabricPiecePrice);
+        }, 50);
+    }
     
     if (shouldShowStockFields) {
         setTimeout(() => calculateSizeSurcharges(), 100);
@@ -974,10 +1370,13 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
         const colorSelect = document.getElementById('modal-color-select');
         if (colorSelect) {
             colorSelect.addEventListener('change', function() {
-                loadStockByCutType(product.id);
+                renderVariantColorOptions(window.currentVariantColors || [], this.value);
+                loadStockByCutType(variantCutTypeId);
                 checkStockForSizes();
             });
         }
+
+        loadColorOptionsForCutType(variantCutTypeId, product);
     }
 }
 
@@ -1640,6 +2039,9 @@ window.closeAddProductModal = function closeAddProductModal() {
     // Limpar seleção de cor
     const colorSelect = document.getElementById('modal-color-select');
     if (colorSelect) colorSelect.value = '';
+    const colorSwatches = document.getElementById('modal-color-swatches');
+    if (colorSwatches) colorSwatches.innerHTML = '';
+    window.currentVariantColors = [];
     
     // Limpar informações de estoque
     const stockList = document.getElementById('stock-by-size-list');
@@ -1705,14 +2107,15 @@ window.confirmAddProduct = async function confirmAddProduct() {
     
     const applicationType = document.getElementById('modal-application-type')?.value || null;
     
-    // Coletar cor se for product_option
+    // Coletar cor/tipo para itens com grade de estoque
     const colorSelect = document.getElementById('modal-color-select');
     const selectedColorId = colorSelect?.value || null;
     const cutTypeId = document.getElementById('modal-cut-type-id')?.value || null;
     const fabricId = document.getElementById('modal-fabric-id')?.value || null;
     
-    // Validar cor para product_option
-    if (currentProductType === 'product_option') {
+    const hasVariantSelection = Boolean(cutTypeId);
+
+    if (hasVariantSelection) {
         if (!selectedColorId) {
             showNotification('Selecione a cor', 'error');
             return;
@@ -1760,8 +2163,8 @@ window.confirmAddProduct = async function confirmAddProduct() {
         final_price: p.final_price
     }));
     
-    // Para product_option, adicionar cada tamanho como item separado ou enviar todos juntos
-    if (currentProductType === 'product_option') {
+    // Para itens com grade de tamanhos/estoque, adicionar cada tamanho como item separado
+    if (hasSizeInputs && hasVariantSelection) {
         // Adicionar cada tamanho que tiver quantidade > 0 (sequencialmente para evitar problemas de sincronização)
         let itemsAdded = 0;
         let lastError = null;
@@ -1915,6 +2318,12 @@ window.addProductToCart = async function addProductToCart(itemId, type, productT
         if (type === 'product') {
             body.product_id = itemId;
             body.application_type = applicationType;
+            if (selectedSize) {
+                body.size = selectedSize;
+                body.color_id = selectedColorId;
+                body.cut_type_id = cutTypeId;
+                body.fabric_id = fabricId;
+            }
         } else if (type === 'product_option') {
             body.product_option_id = itemId;
             body.size = selectedSize;
@@ -2127,10 +2536,12 @@ function updateCartDisplay(cart, cartTotal) {
                 <div class="flex justify-between items-start mb-2">
                     <div class="flex-1 pr-2">
                         <p class="font-medium text-gray-900 dark:text-gray-100 text-sm leading-tight">${item.product_title}${item.size ? ` - ${item.size}` : ''}</p>
+                        ${(item.color_name && !item.type?.includes('fabric_piece')) ? `<p class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">Cor: ${item.color_name}</p>` : ''}
                         ${item.type === 'fabric_piece' ? `
                             <div class="mt-1 flex flex-col gap-0.5">
                                 <span class="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50 bg-indigo-50 dark:bg-indigo-900/20 px-1.5 rounded w-fit uppercase">${item.fabric_type_name || 'Tecido'}</span>
                                 ${item.supplier_name ? `<span class="text-[9px] text-gray-500 dark:text-gray-400 font-medium ml-0.5">Forn: ${item.supplier_name}</span>` : ''}
+                                ${item.available_quantity ? `<span class="text-[9px] text-gray-500 dark:text-gray-400 font-medium ml-0.5">Saldo: ${Number(item.available_quantity).toLocaleString('pt-BR', { minimumFractionDigits: item.control_unit === 'metros' ? 2 : 3, maximumFractionDigits: item.control_unit === 'metros' ? 2 : 3 })} ${item.control_unit === 'metros' ? 'm' : 'kg'}</span>` : ''}
                             </div>
                         ` : ''}
                         ${item.sale_type && item.sale_type !== 'unidade' ? `<p class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">Venda por ${item.sale_type === 'kg' ? 'Kg' : 'Metro'}</p>` : ''}
@@ -2147,8 +2558,8 @@ function updateCartDisplay(cart, cartTotal) {
                     <div class="flex items-center bg-gray-50 dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-600">
                         <input type="number" 
                                value="${item.quantity}" 
-                               step="${item.sale_type && item.sale_type !== 'unidade' ? '0.01' : '1'}"
-                               min="${item.sale_type && item.sale_type !== 'unidade' ? '0.01' : '1'}"
+                               step="${item.type === 'fabric_piece' ? (item.control_unit === 'metros' ? '0.01' : '0.001') : (item.sale_type && item.sale_type !== 'unidade' ? '0.01' : '1')}"
+                               min="${item.type === 'fabric_piece' ? (item.control_unit === 'metros' ? '0.01' : '0.001') : (item.sale_type && item.sale_type !== 'unidade' ? '0.01' : '1')}"
                                onchange="updateCartItem('${item.id}', this.value, null)"
                                class="w-20 p-0 text-center text-xs bg-transparent border-none text-gray-900 dark:text-gray-100 focus:ring-0">
                         <span class="text-xs text-gray-400 px-1">×</span>

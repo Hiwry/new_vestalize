@@ -19,6 +19,8 @@ class FabricPiece extends Model
         'weight',
         'weight_current',
         'meters',
+        'meters_current',
+        'control_unit',
         'barcode',
         'shelf',
         'origin',
@@ -32,6 +34,10 @@ class FabricPiece extends Model
         'sold_at',
         'purchase_price',
         'sale_price',
+        'min_quantity_alert',
+        'available_in_pdv',
+        'available_in_catalog',
+        'available_in_orders',
         'order_id',
         'sold_by',
         'notes',
@@ -41,14 +47,27 @@ class FabricPiece extends Model
         'weight' => 'decimal:3',
         'weight_current' => 'decimal:3',
         'meters' => 'decimal:2',
+        'meters_current' => 'decimal:2',
         'purchase_price' => 'decimal:2',
         'sale_price' => 'decimal:2',
+        'min_quantity_alert' => 'decimal:3',
+        'available_in_pdv' => 'boolean',
+        'available_in_catalog' => 'boolean',
+        'available_in_orders' => 'boolean',
         'received_at' => 'datetime',
         'opened_at' => 'datetime',
         'sold_at' => 'datetime',
     ];
 
-    protected $appends = ['status_label', 'status_color'];
+    protected $appends = [
+        'status_label',
+        'status_color',
+        'available_quantity',
+        'initial_quantity',
+        'control_unit_label',
+        'display_name',
+        'is_below_alert',
+    ];
 
     /**
      * Status labels em português
@@ -76,6 +95,51 @@ class FabricPiece extends Model
             'em_transferencia' => 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
             default => 'bg-gray-100 text-gray-800',
         };
+    }
+
+    public function getAvailableQuantityAttribute(): float
+    {
+        if ($this->control_unit === 'metros') {
+            return (float) ($this->meters_current ?? $this->meters ?? 0);
+        }
+
+        return (float) ($this->weight_current ?? $this->weight ?? 0);
+    }
+
+    public function getInitialQuantityAttribute(): float
+    {
+        if ($this->control_unit === 'metros') {
+            return (float) ($this->meters ?? 0);
+        }
+
+        return (float) ($this->weight ?? 0);
+    }
+
+    public function getControlUnitLabelAttribute(): string
+    {
+        return $this->control_unit === 'metros' ? 'Metros' : 'Kg';
+    }
+
+    public function getDisplayNameAttribute(): string
+    {
+        $name = $this->fabricType?->name ?? $this->fabric?->name ?? 'Tecido';
+        $color = $this->color?->name ? ' - ' . $this->color->name : '';
+        $reference = $this->invoice_number ?: ('Peça #' . $this->id);
+
+        return trim($reference . ' - ' . $name . $color);
+    }
+
+    public function getIsBelowAlertAttribute(): bool
+    {
+        if ((float) $this->min_quantity_alert <= 0) {
+            return false;
+        }
+
+        if ($this->status === 'vendida') {
+            return false;
+        }
+
+        return $this->available_quantity <= (float) $this->min_quantity_alert;
     }
 
     // Relacionamentos
@@ -122,11 +186,15 @@ class FabricPiece extends Model
      */
     public function markAsOpened(?float $currentWeight = null): bool
     {
-        $this->update([
-            'status' => 'aberta',
-            'opened_at' => now(),
-            'weight_current' => $currentWeight ?? $this->weight,
-        ]);
+        if ($this->control_unit === 'metros') {
+            $this->meters_current = $currentWeight ?? $this->meters;
+        } else {
+            $this->weight_current = $currentWeight ?? $this->weight;
+        }
+
+        $this->status = 'aberta';
+        $this->opened_at = now();
+        $this->save();
 
         return true;
     }
@@ -136,20 +204,24 @@ class FabricPiece extends Model
      */
     public function recordSale(float $soldWeight, ?int $orderId = null, ?int $soldBy = null): bool
     {
-        $newWeight = max(0, $this->weight_current - $soldWeight);
-        
+        $currentQuantity = $this->available_quantity;
+        $newQuantity = max(0, $currentQuantity - $soldWeight);
+
         $data = [
-            'weight_current' => $newWeight,
             'sold_at' => now(),
             'sold_by' => $soldBy ?? auth()->id(),
         ];
 
-        // Se o peso zerou, marca como vendida
-        if ($newWeight <= 0.001) {
-            $data['status'] = 'vendida';
-            $data['order_id'] = $orderId; // Salva o order_id apenas se a peça foi "finalizada"
+        if ($this->control_unit === 'metros') {
+            $data['meters_current'] = $newQuantity;
         } else {
-            // Se ainda tem peso, garante que está "aberta"
+            $data['weight_current'] = $newQuantity;
+        }
+
+        if ($newQuantity <= 0.001) {
+            $data['status'] = 'vendida';
+            $data['order_id'] = $orderId;
+        } else {
             $data['status'] = 'aberta';
         }
 
@@ -161,13 +233,20 @@ class FabricPiece extends Model
      */
     public function markAsSold(?int $orderId = null, ?int $soldBy = null): bool
     {
-        return $this->update([
+        $data = [
             'status' => 'vendida',
             'sold_at' => now(),
             'order_id' => $orderId,
             'sold_by' => $soldBy ?? auth()->id(),
-            'weight_current' => 0, // Zera o peso ao marcar como vendida
-        ]);
+        ];
+
+        if ($this->control_unit === 'metros') {
+            $data['meters_current'] = 0;
+        } else {
+            $data['weight_current'] = 0;
+        }
+
+        return $this->update($data);
     }
 
     /**
@@ -193,6 +272,30 @@ class FabricPiece extends Model
     public function scopeActive($query)
     {
         return $query->whereIn('status', ['fechada', 'aberta']);
+    }
+
+    public function scopeHasAvailableQuantity($query)
+    {
+        return $query->where(function ($builder) {
+            $builder->where(function ($subQuery) {
+                $subQuery->where('control_unit', 'kg')
+                    ->whereRaw('COALESCE(weight_current, weight, 0) > 0');
+            })->orWhere(function ($subQuery) {
+                $subQuery->where('control_unit', 'metros')
+                    ->whereRaw('COALESCE(meters_current, meters, 0) > 0');
+            });
+        });
+    }
+
+    public function scopeAvailableForChannel($query, string $channel)
+    {
+        $column = match ($channel) {
+            'catalog' => 'available_in_catalog',
+            'orders' => 'available_in_orders',
+            default => 'available_in_pdv',
+        };
+
+        return $query->where($column, true);
     }
 
     public function scopeByStore($query, $storeId)

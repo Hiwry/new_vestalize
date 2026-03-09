@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CatalogOrder;
+use App\Models\FabricPieceSale;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Status;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +15,7 @@ use App\Models\StockRequest;
 use App\Models\Stock;
 use App\Models\ProductOption;
 use App\Models\Product;
+use App\Services\FabricPieceInventoryService;
 use App\Services\CatalogGatewaySettingsService;
 use Illuminate\Support\Str;
 
@@ -102,18 +105,26 @@ class CatalogOrderController extends Controller
             return back()->with('error', 'Este pedido só pode ser aprovado após pagamento confirmado.');
         }
 
-        // If approved, create stock requests
-        if ($newStatus === 'approved' && $oldStatus !== 'approved') {
-            $this->createStockRequests($catalogOrder);
-        } elseif ($oldStatus === 'approved' && $newStatus !== 'approved' && $newStatus !== 'converted') {
-            // Se estava aprovado e mudou para algo que não seja aprovado ou convertido, libera estoque
-            $this->releaseStockRequests($catalogOrder);
-        }
+        try {
+            DB::transaction(function () use ($catalogOrder, $oldStatus, $newStatus, $request) {
+                if ($newStatus === 'approved' && $oldStatus !== 'approved') {
+                    $this->createStockRequests($catalogOrder);
+                    $this->reserveFabricPieces($catalogOrder);
+                } elseif ($oldStatus === 'approved' && $newStatus !== 'approved' && $newStatus !== 'converted') {
+                    $this->releaseStockRequests($catalogOrder);
+                    $this->restoreFabricPieceSales($catalogOrder);
+                }
 
-        $catalogOrder->update([
-            'status' => $newStatus,
-            'admin_notes' => $request->admin_notes,
-        ]);
+                $catalogOrder->update([
+                    'status' => $newStatus,
+                    'admin_notes' => $request->admin_notes,
+                ]);
+            });
+        } catch (\Throwable $e) {
+            report($e);
+
+            return back()->with('error', 'Não foi possível atualizar o pedido: ' . $e->getMessage());
+        }
 
         $statusMessages = [
             'approved' => 'Pedido aprovado e solicitações de estoque geradas!',
@@ -199,6 +210,10 @@ class CatalogOrderController extends Controller
         // Group items by unique product combination to decide which store to request from
         $groupedItems = [];
         foreach ($catalogOrder->items as $item) {
+            if (($item['item_type'] ?? 'product') === 'fabric_piece') {
+                continue;
+            }
+
             $productId = isset($item['product_id']) ? (int) $item['product_id'] : null;
             $product = $productId ? $productsById->get($productId) : null;
 
@@ -410,6 +425,68 @@ class CatalogOrderController extends Controller
         return (int) $parent->id;
     }
 
+    private function reserveFabricPieces(CatalogOrder $catalogOrder): void
+    {
+        /** @var FabricPieceInventoryService $inventory */
+        $inventory = app(FabricPieceInventoryService::class);
+
+        foreach (($catalogOrder->items ?? []) as $item) {
+            if (($item['item_type'] ?? 'product') !== 'fabric_piece') {
+                continue;
+            }
+
+            $pieceId = (int) ($item['fabric_piece_id'] ?? 0);
+            $quantity = (float) ($item['quantity'] ?? 0);
+            $unit = (string) ($item['control_unit'] ?? 'kg');
+
+            if ($pieceId <= 0 || $quantity <= 0) {
+                continue;
+            }
+
+            $existingSale = FabricPieceSale::active()
+                ->where('catalog_order_id', $catalogOrder->id)
+                ->where('fabric_piece_id', $pieceId)
+                ->first();
+
+            if ($existingSale) {
+                continue;
+            }
+
+            $piece = \App\Models\FabricPiece::find($pieceId);
+            if (!$piece) {
+                continue;
+            }
+
+            $inventory->sell($piece, [
+                'quantity' => $quantity,
+                'unit' => $unit,
+                'unit_price' => (float) ($item['unit_price'] ?? 0),
+                'catalog_order_id' => $catalogOrder->id,
+                'channel' => 'catalog',
+                'sold_by' => Auth::id(),
+                'notes' => 'Pedido catálogo ' . $catalogOrder->order_code,
+            ]);
+        }
+    }
+
+    private function restoreFabricPieceSales(CatalogOrder $catalogOrder): void
+    {
+        /** @var FabricPieceInventoryService $inventory */
+        $inventory = app(FabricPieceInventoryService::class);
+
+        $sales = FabricPieceSale::active()
+            ->where('catalog_order_id', $catalogOrder->id)
+            ->get();
+
+        foreach ($sales as $sale) {
+            $inventory->restoreSale(
+                $sale,
+                'Reversão do pedido catálogo ' . $catalogOrder->order_code,
+                Auth::id()
+            );
+        }
+    }
+
     /**
      * Convert catalog order to internal Order
      */
@@ -435,35 +512,87 @@ class CatalogOrderController extends Controller
         try {
             DB::beginTransaction();
 
+            $status = Status::withoutGlobalScopes()
+                ->where('tenant_id', $catalogOrder->tenant_id)
+                ->orderBy('position')
+                ->first()
+                ?? Status::withoutGlobalScopes()->orderBy('position')->first();
+
             // Create internal order
             $order = Order::create([
                 'tenant_id' => $catalogOrder->tenant_id,
                 'store_id' => $catalogOrder->store_id,
                 'client_id' => null,
                 'user_id' => Auth::id(),
-                'status_id' => 1, // Default initial status
+                'status_id' => $status?->id,
+                'order_date' => now(),
+                'delivery_date' => now()->addDays(15),
+                'is_draft' => false,
                 'origin' => 'catalogo',
                 'notes' => "Pedido do catálogo: {$catalogOrder->order_code}\n"
                          . "Cliente: {$catalogOrder->customer_name}\n"
                          . "Telefone: {$catalogOrder->customer_phone}\n"
-                         . ($catalogOrder->notes ? "Obs: {$catalogOrder->notes}" : ''),
+                         . ($catalogOrder->notes ? "\nObs: {$catalogOrder->notes}" : ''),
+                'subtotal' => $catalogOrder->subtotal,
+                'discount' => $catalogOrder->discount,
+                'delivery_fee' => $catalogOrder->delivery_fee,
                 'total' => $catalogOrder->total,
+                'total_items' => $catalogOrder->total_items,
             ]);
 
             // Create order items
+            $itemNumber = 1;
             foreach ($catalogOrder->items as $item) {
-                OrderItem::create([
+                $itemType = $item['item_type'] ?? 'product';
+                $quantity = (float) ($item['quantity'] ?? 0);
+                $lineTotal = (float) ($item['total'] ?? 0);
+                $metadata = [
+                    'catalog_order_item' => [
+                        'catalog_order_id' => $catalogOrder->id,
+                        'catalog_order_code' => $catalogOrder->order_code,
+                        'item_type' => $itemType,
+                        'product_id' => $item['product_id'] ?? null,
+                        'fabric_piece_id' => $item['fabric_piece_id'] ?? null,
+                        'quantity' => $quantity,
+                        'quantity_label' => $item['quantity_label'] ?? null,
+                        'control_unit' => $item['control_unit'] ?? null,
+                    ],
+                ];
+
+                $orderItem = OrderItem::create([
                     'order_id' => $order->id,
-                    'product_id' => $item['product_id'] ?? null,
-                    'quantity' => $item['quantity'],
-                    'price' => $item['unit_price'],
-                    'total' => $item['total'],
-                    'notes' => implode(' | ', array_filter([
-                        $item['title'] ?? null,
-                        isset($item['size']) ? "Tam: {$item['size']}" : null,
-                        isset($item['color']) ? "Cor: {$item['color']}" : null,
-                    ])),
+                    'item_number' => $itemNumber++,
+                    'fabric' => ($itemType === 'fabric_piece')
+                        ? ($item['fabric_type_name'] ?? $item['title'] ?? 'Peça de tecido')
+                        : ($item['sku'] ?? $item['title'] ?? 'Produto catálogo'),
+                    'color' => $item['color'] ?? '',
+                    'collar' => '-',
+                    'model' => $itemType === 'fabric_piece' ? 'Peça de tecido' : ($item['title'] ?? 'Produto catálogo'),
+                    'detail' => implode(' | ', array_filter([
+                        !empty($item['size']) ? 'Tam: ' . $item['size'] : null,
+                        !empty($item['supplier_name']) ? 'Fornecedor: ' . $item['supplier_name'] : null,
+                    ])) ?: null,
+                    'print_type' => $itemType === 'fabric_piece' ? 'Venda de tecido' : 'Catálogo',
+                    'print_desc' => json_encode($metadata),
+                    'sizes' => $itemType === 'fabric_piece' ? [] : array_filter([
+                        $item['size'] ?? null => ($item['size'] ?? null) ? (int) $quantity : null,
+                    ]),
+                    'quantity' => $itemType === 'fabric_piece' ? 1 : (int) $quantity,
+                    'unit_price' => $itemType === 'fabric_piece' ? $lineTotal : (float) ($item['unit_price'] ?? 0),
+                    'total_price' => $lineTotal,
+                    'unit_cost' => 0,
+                    'total_cost' => 0,
                 ]);
+
+                if ($itemType === 'fabric_piece' && !empty($item['fabric_piece_id'])) {
+                    FabricPieceSale::active()
+                        ->where('catalog_order_id', $catalogOrder->id)
+                        ->where('fabric_piece_id', (int) $item['fabric_piece_id'])
+                        ->update([
+                            'order_id' => $order->id,
+                            'order_item_id' => $orderItem->id,
+                        ]);
+                }
             }
 
             // Link and update status
@@ -533,6 +662,9 @@ class CatalogOrderController extends Controller
         $total = array_sum($counts);
         $separatedCount = $counts['aprovado'] + $counts['em_transferencia'] + $counts['concluido'];
         $isOrderApproved = in_array($catalogOrder->status, ['approved', 'converted'], true);
+        $fabricPieceSalesCount = FabricPieceSale::active()
+            ->where('catalog_order_id', $catalogOrder->id)
+            ->count();
 
         $summary = [
             'label' => 'Aguardando envio ao estoque',
@@ -544,6 +676,14 @@ class CatalogOrderController extends Controller
         ];
 
         if (!$isOrderApproved && $total === 0) {
+            return $summary;
+        }
+
+        if ($total === 0 && $fabricPieceSalesCount > 0) {
+            $summary['label'] = 'Tecido reservado';
+            $summary['description'] = 'As peças de tecido deste pedido já foram vinculadas e baixadas no estoque.';
+            $summary['tone'] = 'emerald';
+            $summary['is_fully_separated'] = true;
             return $summary;
         }
 

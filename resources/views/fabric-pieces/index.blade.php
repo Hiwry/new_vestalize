@@ -43,7 +43,7 @@
     @endif
 
     {{-- Stats Cards --}}
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
             <div class="text-sm text-gray-500 dark:text-gray-400">Total Ativas</div>
             <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $stats['total'] }}</div>
@@ -63,6 +63,10 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
             <div class="text-sm text-gray-500 dark:text-gray-400">Vendidas</div>
             <div class="text-2xl font-bold text-gray-500 dark:text-gray-400">{{ $stats['vendidas'] }}</div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-amber-200 dark:border-amber-800">
+            <div class="text-sm text-gray-500 dark:text-gray-400">Abaixo do Mínimo</div>
+            <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ $stats['estoque_baixo'] }}</div>
         </div>
     </div>
 
@@ -131,6 +135,13 @@
                     @endforeach
                 </select>
             </div>
+            <div class="col-span-2 md:col-span-2 lg:col-span-6">
+                <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                    <input type="checkbox" name="alert_only" value="1" {{ request()->boolean('alert_only') ? 'checked' : '' }}
+                           class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    Mostrar apenas peças abaixo do mínimo informado
+                </label>
+            </div>
             <div class="col-span-2 md:col-span-4 lg:col-span-6 flex gap-2 justify-end">
                 <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm">Filtrar</button>
                 <a href="{{ route('fabric-pieces.index') }}" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm">Limpar</a>
@@ -148,7 +159,8 @@
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Tecido/Cor</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Fornecedor</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">NF</th>
-                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Peso</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Saldo</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Canais</th>
                         <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Prateleira</th>
                         <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
                         <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Ações</th>
@@ -176,10 +188,30 @@
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-center">
-                                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $piece->weight ? number_format($piece->weight, 2, ',', '.') . ' kg' : '-' }}</div>
-                                @if($piece->weight_current && $piece->weight_current != $piece->weight)
-                                    <div class="text-xs text-green-600 dark:text-green-400">Atual: {{ number_format($piece->weight_current, 2, ',', '.') }} kg</div>
+                                <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                    {{ number_format($piece->available_quantity, $piece->control_unit === 'metros' ? 2 : 3, ',', '.') }} {{ $piece->control_unit === 'metros' ? 'm' : 'kg' }}
+                                </div>
+                                <div class="text-[11px] text-gray-500 dark:text-gray-400">
+                                    Inicial: {{ number_format($piece->initial_quantity, $piece->control_unit === 'metros' ? 2 : 3, ',', '.') }} {{ $piece->control_unit === 'metros' ? 'm' : 'kg' }}
+                                </div>
+                                @if($piece->min_quantity_alert > 0)
+                                    <div class="text-[11px] {{ $piece->is_below_alert ? 'text-amber-600 dark:text-amber-400 font-semibold' : 'text-gray-400' }}">
+                                        Mín.: {{ number_format($piece->min_quantity_alert, $piece->control_unit === 'metros' ? 2 : 3, ',', '.') }} {{ $piece->control_unit === 'metros' ? 'm' : 'kg' }}
+                                    </div>
                                 @endif
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <div class="flex flex-wrap items-center justify-center gap-1">
+                                    @if($piece->available_in_pdv)
+                                        <span class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 text-[10px] font-bold">PDV</span>
+                                    @endif
+                                    @if($piece->available_in_catalog)
+                                        <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 text-[10px] font-bold">CAT</span>
+                                    @endif
+                                    @if($piece->available_in_orders)
+                                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200 text-[10px] font-bold">PED</span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-4 py-3 text-center text-sm text-gray-900 dark:text-gray-100">
                                 {{ $piece->shelf ?? '-' }}
@@ -188,12 +220,36 @@
                                 <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $piece->status_color }}">
                                     {{ $piece->status_label }}
                                 </span>
+                                @if($piece->is_below_alert)
+                                    <div class="mt-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">Abaixo do mínimo</div>
+                                @endif
                             </td>
                             <td class="px-4 py-3 text-center">
+                                @php
+                                    $openPiecePayload = [
+                                        'id' => $piece->id,
+                                        'unit' => $piece->control_unit,
+                                        'available' => (float) $piece->initial_quantity,
+                                    ];
+
+                                    $partialSalePayload = [
+                                        'id' => $piece->id,
+                                        'available' => (float) $piece->available_quantity,
+                                        'unit' => $piece->control_unit,
+                                        'salePrice' => (float) $piece->sale_price,
+                                        'label' => $piece->display_name,
+                                    ];
+
+                                    $sellPiecePayload = [
+                                        'id' => $piece->id,
+                                        'available' => (float) $piece->available_quantity,
+                                        'unit' => $piece->control_unit,
+                                    ];
+                                @endphp
                                 <div class="flex justify-center gap-1">
                                     @if(!Auth::user()->isVendedor())
                                         @if($piece->status === 'fechada')
-                                            <button onclick="openPiece({{ $piece->id }})" title="Abrir Peça"
+                                            <button onclick='openPiece(@json($openPiecePayload))' title="Abrir Peça"
                                                     class="p-1.5 bg-green-100 text-green-700 hover:bg-green-200 rounded transition">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
@@ -201,7 +257,7 @@
                                             </button>
                                         @endif
                                         @if($piece->status === 'aberta')
-                                            <button onclick="sellPartial({{ $piece->id }}, {{ $piece->weight_current ?? $piece->weight ?? 0 }})" title="Vender Metros/Kg"
+                                            <button onclick='sellPartial(@json($partialSalePayload))' title="Vender Quantidade"
                                                     class="p-1.5 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 rounded transition">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -234,7 +290,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
                                                 </svg>
                                             </button>
-                                            <button onclick="sellPiece({{ $piece->id }})" title="Vender Peça Inteira"
+                                            <button onclick='sellPiece(@json($sellPiecePayload))' title="Vender Peça Inteira"
                                                     class="p-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded transition">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
@@ -266,7 +322,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
+                            <td colspan="9" class="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
                                 <svg class="w-12 h-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                                 </svg>
@@ -294,10 +350,10 @@
         <form id="open-form">
             <input type="hidden" id="open-piece-id">
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Peso Atual (kg)</label>
+                <label id="open-current-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantidade Atual (kg)</label>
                 <input type="number" step="0.001" id="open-weight" placeholder="Ex: 25.500"
                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg">
-                <p class="text-xs text-gray-500 mt-1">Deixe em branco para manter o peso original</p>
+                <p class="text-xs text-gray-500 mt-1">Deixe em branco para manter a quantidade original da peça</p>
             </div>
             <div class="flex justify-end gap-2">
                 <button type="button" onclick="closeOpenModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg">Cancelar</button>
@@ -342,25 +398,23 @@
         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Vender Quantidade</h3>
         <form id="sell-partial-form">
             <input type="hidden" id="sell-partial-piece-id">
+            <input type="hidden" id="sell-partial-unit">
             <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                <p class="text-sm text-gray-600 dark:text-gray-400">Disponível: <span id="sell-partial-available" class="font-bold text-gray-900 dark:text-gray-100">0</span> kg</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Disponível: <span id="sell-partial-available" class="font-bold text-gray-900 dark:text-gray-100">0</span></p>
             </div>
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantidade *</label>
+                    <label id="sell-partial-quantity-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantidade *</label>
                     <input type="number" step="0.001" id="sell-partial-quantity" required placeholder="Ex: 5.500"
                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unidade</label>
-                    <select id="sell-partial-unit" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg">
-                        <option value="kg">Quilos (kg)</option>
-                        <option value="metros">Metros (m)</option>
-                    </select>
+                    <div id="sell-partial-unit-label" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg bg-gray-50 dark:bg-gray-700/50">Kg</div>
                 </div>
             </div>
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Preço por Kg (Venda)</label>
+                <label id="sell-partial-price-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Preço por Kg (Venda)</label>
                 <input type="number" step="0.01" id="sell-partial-price" placeholder="Ex: 35.00"
                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg">
             </div>
@@ -545,9 +599,14 @@
     });
 
     // === Abrir Peça ===
-    function openPiece(id) {
-        document.getElementById('open-piece-id').value = id;
+    function formatControlUnit(unit) {
+        return unit === 'metros' ? 'm' : 'kg';
+    }
+
+    function openPiece(piece) {
+        document.getElementById('open-piece-id').value = piece.id;
         document.getElementById('open-weight').value = '';
+        document.getElementById('open-current-label').textContent = `Quantidade Atual (${formatControlUnit(piece.unit)})`;
         document.getElementById('open-modal').classList.remove('hidden');
     }
 
@@ -566,7 +625,7 @@
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             },
-            body: JSON.stringify({ weight_current: weight || null })
+            body: JSON.stringify({ current_quantity: weight || null })
         })
         .then(r => r.json())
         .then(data => {
@@ -637,12 +696,12 @@
     }
 
     // === Vender Peça Inteira ===
-    function sellPiece(id) {
+    function sellPiece(piece) {
         showConfirm(
             'Vender Peça Inteira',
-            'Tem certeza que deseja marcar esta peça INTEIRA como vendida?',
+            `Tem certeza que deseja vender toda a peça (${parseFloat(piece.available || 0).toLocaleString('pt-BR', { minimumFractionDigits: piece.unit === 'metros' ? 2 : 3 })} ${formatControlUnit(piece.unit)})?`,
             () => {
-                fetch(`/fabric-pieces/${id}/sell`, {
+                fetch(`/fabric-pieces/${piece.id}/sell`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -666,11 +725,16 @@
     }
 
     // === Venda Parcial ===
-    function sellPartial(id, available) {
-        document.getElementById('sell-partial-piece-id').value = id;
-        document.getElementById('sell-partial-available').textContent = available.toFixed(3);
+    function sellPartial(piece) {
+        const unitLabel = formatControlUnit(piece.unit);
+        document.getElementById('sell-partial-piece-id').value = piece.id;
+        document.getElementById('sell-partial-unit').value = piece.unit;
+        document.getElementById('sell-partial-available').textContent = `${parseFloat(piece.available || 0).toLocaleString('pt-BR', { minimumFractionDigits: piece.unit === 'metros' ? 2 : 3 })} ${unitLabel}`;
         document.getElementById('sell-partial-quantity').value = '';
-        document.getElementById('sell-partial-price').value = '';
+        document.getElementById('sell-partial-price').value = piece.salePrice || '';
+        document.getElementById('sell-partial-unit-label').textContent = piece.unit === 'metros' ? 'Metros (m)' : 'Quilos (kg)';
+        document.getElementById('sell-partial-quantity-label').textContent = `Quantidade (${unitLabel}) *`;
+        document.getElementById('sell-partial-price-label').textContent = piece.unit === 'metros' ? 'Preço por Metro (Venda)' : 'Preço por Kg (Venda)';
         document.getElementById('sell-partial-order').value = '';
         document.getElementById('sell-partial-notes').value = '';
         document.getElementById('sell-partial-modal').classList.remove('hidden');
@@ -712,7 +776,8 @@
         .then(data => {
             closeSellPartialModal();
             if (data.success) {
-                showToast(`${data.message} Restante: ${data.remaining.toFixed(3)} ${unit}`, 'success');
+                const decimals = unit === 'metros' ? 2 : 3;
+                showToast(`${data.message} Restante: ${parseFloat(data.remaining || 0).toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })} ${formatControlUnit(unit)}`, 'success');
                 setTimeout(() => location.reload(), 1500);
             } else {
                 showToast(data.message || 'Erro ao vender', 'error');

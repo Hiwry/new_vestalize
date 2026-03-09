@@ -143,6 +143,7 @@
                     <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Produto</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tipo</th>
                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cor</th>
                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tam.</th>
                             <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Qtd</th>
@@ -154,9 +155,21 @@
                         @foreach(($catalogOrder->items ?? []) as $item)
                             <tr>
                                 <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{{ $item['title'] ?? 'N/A' }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                    @if(($item['item_type'] ?? 'product') === 'fabric_piece')
+                                        Peça de tecido
+                                        @if(!empty($item['fabric_type_name']))
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">{{ $item['fabric_type_name'] }}</div>
+                                        @endif
+                                    @else
+                                        Produto
+                                    @endif
+                                </td>
                                 <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $item['color'] ?? 'N/A' }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $item['size'] ?? 'N/A' }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 text-right">{{ (int) ($item['quantity'] ?? 0) }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                    {{ ($item['item_type'] ?? 'product') === 'fabric_piece' ? (($item['control_unit'] ?? 'kg') === 'metros' ? 'metro' : 'kg') : ($item['size'] ?? 'N/A') }}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 text-right">{{ $item['quantity_label'] ?? ($item['quantity'] ?? 0) }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 text-right">R$ {{ number_format((float) ($item['unit_price'] ?? 0), 2, ',', '.') }}</td>
                                 <td class="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-gray-100 text-right">R$ {{ number_format((float) ($item['total'] ?? 0), 2, ',', '.') }}</td>
                             </tr>

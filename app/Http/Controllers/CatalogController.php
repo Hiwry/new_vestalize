@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\CatalogOrder;
+use App\Models\FabricPiece;
 use App\Models\Product;
 use App\Models\Store;
 use App\Models\Tenant;
@@ -51,28 +52,91 @@ class CatalogController extends Controller
             ->orderBy('order')
             ->get();
 
+        $categorySlug = request('category');
+        $activeCategory = null;
+        $showOnlyFabricPieces = $categorySlug === 'tecidos';
+
         $query = Product::where('tenant_id', $tenant->id)
             ->catalogVisible()
             ->with(['images', 'category']);
 
-        // Filter by category if provided
-        $categorySlug = request('category');
-        $activeCategory = null;
-        if ($categorySlug) {
+        if ($categorySlug && !$showOnlyFabricPieces) {
             $activeCategory = $categories->firstWhere('slug', $categorySlug);
             if ($activeCategory) {
                 $query->where('category_id', $activeCategory->id);
             }
         }
 
-        $products = $query->orderBy('order')->paginate(24);
+        $products = $showOnlyFabricPieces
+            ? $query->whereRaw('1 = 0')->paginate(24)
+            : $query->orderBy('order')->paginate(24);
+
+        $fabricPieces = collect();
+        if (!$activeCategory) {
+            $fabricPieces = FabricPiece::with(['fabric', 'fabricType', 'color', 'store'])
+                ->availableForChannel('catalog')
+                ->whereIn('status', ['aberta', 'fechada'])
+                ->hasAvailableQuantity()
+                ->whereHas('store', function ($query) use ($tenant) {
+                    $query->withoutGlobalScopes()->where('tenant_id', $tenant->id);
+                })
+                ->orderByDesc('updated_at')
+                ->get();
+        }
 
         // Get cart from session
         $cart = $this->getSessionCart($storeCode);
 
         return view('catalog.show', compact(
-            'tenant', 'store', 'categories', 'products',
-            'activeCategory', 'cart', 'storeCode'
+            'tenant', 'store', 'categories', 'products', 'fabricPieces',
+            'activeCategory', 'cart', 'storeCode', 'showOnlyFabricPieces'
+        ));
+    }
+
+    /**
+     * Fabric piece detail page
+     */
+    public function fabricPieceDetail(string $storeCode, int $pieceId)
+    {
+        $tenant = Tenant::byCode($storeCode)->firstOrFail();
+        $store = Store::withoutGlobalScopes()
+            ->where('tenant_id', $tenant->id)
+            ->where('is_main', true)
+            ->first()
+            ?? Store::withoutGlobalScopes()
+                ->where('tenant_id', $tenant->id)
+                ->first();
+
+        $fabricPiece = FabricPiece::with(['fabric', 'fabricType', 'color', 'store'])
+            ->availableForChannel('catalog')
+            ->whereIn('status', ['aberta', 'fechada'])
+            ->hasAvailableQuantity()
+            ->whereHas('store', function ($query) use ($tenant) {
+                $query->withoutGlobalScopes()->where('tenant_id', $tenant->id);
+            })
+            ->findOrFail($pieceId);
+
+        $relatedPieces = FabricPiece::with(['fabric', 'fabricType', 'color'])
+            ->availableForChannel('catalog')
+            ->whereIn('status', ['aberta', 'fechada'])
+            ->hasAvailableQuantity()
+            ->whereHas('store', function ($query) use ($tenant) {
+                $query->withoutGlobalScopes()->where('tenant_id', $tenant->id);
+            })
+            ->where('id', '!=', $fabricPiece->id)
+            ->when($fabricPiece->fabric_type_id, fn ($query) => $query->where('fabric_type_id', $fabricPiece->fabric_type_id))
+            ->limit(4)
+            ->get();
+
+        $cart = $this->getSessionCart($storeCode);
+
+        return view('catalog.fabric-piece', compact(
+            'tenant',
+            'store',
+            'fabricPiece',
+            'relatedPieces',
+            'cart',
+            'storeCode'
         ));
     }
 
@@ -205,9 +269,11 @@ class CatalogController extends Controller
     {
         try {
             $request->validate([
-                'product_id' => 'required|integer',
+                'item_type' => 'nullable|in:product,fabric_piece',
+                'product_id' => 'nullable|integer',
+                'fabric_piece_id' => 'nullable|integer',
                 'items' => 'nullable|array',
-                'quantity' => 'nullable|integer|min:1',
+                'quantity' => 'nullable|numeric|min:0.001',
                 'size' => 'nullable|string',
                 'color' => 'nullable|string',
             ]);
@@ -220,6 +286,71 @@ class CatalogController extends Controller
         }
 
         $tenant = Tenant::byCode($storeCode)->firstOrFail();
+        $itemType = $request->input('item_type', 'product');
+        $cart = $this->getSessionCart($storeCode);
+
+        if ($itemType === 'fabric_piece') {
+            $fabricPiece = FabricPiece::with(['fabric', 'fabricType', 'color', 'store'])
+                ->availableForChannel('catalog')
+                ->whereIn('status', ['aberta', 'fechada'])
+                ->hasAvailableQuantity()
+                ->whereHas('store', function ($query) use ($tenant) {
+                    $query->withoutGlobalScopes()->where('tenant_id', $tenant->id);
+                })
+                ->findOrFail($request->fabric_piece_id);
+
+            $requestedQuantity = (float) ($request->quantity ?? 0);
+            if ($requestedQuantity <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Informe uma quantidade válida para o tecido.',
+                ], 422);
+            }
+
+            $cartKey = 'fabric-piece-' . $fabricPiece->id;
+            $currentQuantity = (float) ($cart[$cartKey]['quantity'] ?? 0);
+            $newQuantity = $currentQuantity + $requestedQuantity;
+
+            if ($newQuantity > (float) $fabricPiece->available_quantity + 0.0001) {
+                $decimals = $fabricPiece->control_unit === 'metros' ? 2 : 3;
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Quantidade indisponível. Saldo atual: '
+                        . number_format((float) $fabricPiece->available_quantity, $decimals, ',', '.')
+                        . ' '
+                        . ($fabricPiece->control_unit === 'metros' ? 'm' : 'kg')
+                        . '.',
+                ], 422);
+            }
+
+            $cart[$cartKey] = [
+                'item_type' => 'fabric_piece',
+                'fabric_piece_id' => $fabricPiece->id,
+                'product_id' => null,
+                'title' => $fabricPiece->display_name,
+                'image' => null,
+                'size' => null,
+                'color' => $fabricPiece->color?->name,
+                'quantity' => $newQuantity,
+                'retail_price' => (float) $fabricPiece->sale_price,
+                'wholesale_price' => null,
+                'wholesale_min_qty' => null,
+                'sku' => $fabricPiece->invoice_number ?: ('TEC-' . $fabricPiece->id),
+                'control_unit' => $fabricPiece->control_unit,
+                'fabric_type_name' => $fabricPiece->fabricType?->name ?? $fabricPiece->fabric?->name,
+                'supplier_name' => $fabricPiece->supplier,
+                'available_quantity' => (float) $fabricPiece->available_quantity,
+            ];
+
+            $this->saveSessionCart($storeCode, $cart);
+
+            return response()->json([
+                'success' => true,
+                'cart' => $this->buildCartSummary($cart),
+                'message' => 'Tecido adicionado ao carrinho!',
+            ]);
+        }
+
         $product = Product::where('tenant_id', $tenant->id)
             ->catalogVisible()
             ->findOrFail($request->product_id);
@@ -234,7 +365,6 @@ class CatalogController extends Controller
             ], 422);
         }
 
-        $cart = $this->getSessionCart($storeCode);
         $primaryImage = $product->primary_image_url;
 
         // Process bulk items if present
@@ -308,7 +438,7 @@ class CatalogController extends Controller
     {
         $request->validate([
             'cart_key' => 'required|string',
-            'quantity' => 'required|integer|min:0',
+            'quantity' => 'required|numeric|min:0',
         ]);
 
         $cart = $this->getSessionCart($storeCode);
@@ -316,6 +446,27 @@ class CatalogController extends Controller
         if ($request->quantity <= 0) {
             unset($cart[$request->cart_key]);
         } elseif (isset($cart[$request->cart_key])) {
+            if (($cart[$request->cart_key]['item_type'] ?? 'product') === 'fabric_piece') {
+                $pieceId = $cart[$request->cart_key]['fabric_piece_id'] ?? null;
+                $piece = $pieceId ? FabricPiece::find($pieceId) : null;
+
+                if (!$piece) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Peça de tecido não encontrada.',
+                    ], 404);
+                }
+
+                if ((float) $request->quantity > (float) $piece->available_quantity + 0.0001) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'A quantidade informada excede o saldo disponível.',
+                    ], 422);
+                }
+
+                $cart[$request->cart_key]['available_quantity'] = (float) $piece->available_quantity;
+            }
+
             $cart[$request->cart_key]['quantity'] = $request->quantity;
         }
 
@@ -414,15 +565,21 @@ class CatalogController extends Controller
         $items = [];
         foreach ($cartSummary['items'] as $key => $item) {
             $items[] = [
-                'product_id' => $item['product_id'],
+                'item_type' => $item['item_type'] ?? 'product',
+                'product_id' => $item['product_id'] ?? null,
+                'fabric_piece_id' => $item['fabric_piece_id'] ?? null,
                 'title' => $item['title'],
                 'sku' => $item['sku'] ?? null,
-                'size' => $item['size'],
-                'color' => $item['color'],
+                'size' => $item['size'] ?? null,
+                'color' => $item['color'] ?? null,
                 'quantity' => $item['quantity'],
+                'quantity_label' => $item['quantity_label'] ?? null,
+                'control_unit' => $item['control_unit'] ?? null,
                 'unit_price' => $item['effective_price'],
                 'total' => $item['line_total'],
-                'image' => $item['image'],
+                'image' => $item['image'] ?? null,
+                'fabric_type_name' => $item['fabric_type_name'] ?? null,
+                'supplier_name' => $item['supplier_name'] ?? null,
             ];
         }
 
@@ -803,7 +960,47 @@ class CatalogController extends Controller
         $items = [];
 
         foreach ($cart as $key => $item) {
-            $qty = $item['quantity'];
+            $itemType = $item['item_type'] ?? 'product';
+            $qty = (float) ($item['quantity'] ?? 0);
+
+            if ($itemType === 'fabric_piece') {
+                $piece = !empty($item['fabric_piece_id'])
+                    ? FabricPiece::with(['color', 'fabric', 'fabricType'])->find($item['fabric_piece_id'])
+                    : null;
+
+                if ($piece) {
+                    $item['title'] = $piece->display_name;
+                    $item['color'] = $piece->color?->name;
+                    $item['fabric_type_name'] = $piece->fabricType?->name ?? $piece->fabric?->name;
+                    $item['available_quantity'] = (float) $piece->available_quantity;
+                    $item['retail_price'] = (float) $piece->sale_price;
+                }
+
+                $effectivePrice = (float) ($item['retail_price'] ?? 0);
+                $lineTotal = round($effectivePrice * $qty, 2);
+                $subtotalRetail += $lineTotal;
+                $subtotalWholesale += $lineTotal;
+                $totalItems += 1;
+
+                $decimals = ($item['control_unit'] ?? 'kg') === 'metros' ? 2 : 3;
+                $unitSuffix = ($item['control_unit'] ?? 'kg') === 'metros' ? 'm' : 'kg';
+
+                $items[$key] = array_merge($item, [
+                    'effective_price' => $effectivePrice,
+                    'line_total' => $lineTotal,
+                    'is_wholesale' => false,
+                    'requires_variants' => false,
+                    'is_incomplete' => false,
+                    'quantity_label' => number_format($qty, $decimals, ',', '.') . ' ' . $unitSuffix,
+                    'quantity_decimals' => $decimals,
+                    'step_quantity' => ($item['control_unit'] ?? 'kg') === 'metros' ? 0.01 : 0.001,
+                    'display_type' => 'Peça de tecido',
+                ]);
+
+                continue;
+            }
+
+            $qty = (int) $qty;
             $totalItems += $qty;
 
             $retailTotal = $item['retail_price'] * $qty;
@@ -832,6 +1029,10 @@ class CatalogController extends Controller
                 'is_wholesale' => $itemIsWholesale,
                 'requires_variants' => $requiresVariants,
                 'is_incomplete' => $isIncomplete,
+                'quantity_label' => $qty . ' un',
+                'quantity_decimals' => 0,
+                'step_quantity' => 1,
+                'display_type' => 'Produto',
             ]);
 
             if ($itemIsWholesale) {

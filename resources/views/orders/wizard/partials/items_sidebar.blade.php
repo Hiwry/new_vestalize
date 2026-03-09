@@ -8,6 +8,10 @@
         @if($order->items->count() > 0)
             <div class="space-y-3">
                 @foreach($order->items as $index => $item)
+                @php
+                    $itemPrintDesc = is_array($item->print_desc) ? $item->print_desc : (is_string($item->print_desc) ? json_decode($item->print_desc, true) : []);
+                    $itemFabricPiece = $itemPrintDesc['fabric_piece'] ?? null;
+                @endphp
                 <div id="sidebar-item-{{ $item->id }}" class="p-4 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-colors">
                     <div class="flex justify-between items-start mb-3">
                         <span class="text-sm font-semibold text-gray-900 dark:text-white">Item {{ $index + 1 }}</span>
@@ -54,6 +58,11 @@
                         
                         @if($item->collar_color)
                         <div class="flex justify-between"><span>Cor Gola:</span><span class="font-medium text-gray-900 dark:text-white">{{ $item->collar_color }}</span></div>
+                        @endif
+
+                        @if(is_array($itemFabricPiece))
+                        <div class="flex justify-between"><span>Peça estoque:</span><span class="font-medium text-gray-900 dark:text-white">{{ $itemFabricPiece['quantity_label'] ?? (($itemFabricPiece['quantity'] ?? 0) . ' ' . ($itemFabricPiece['unit'] ?? '')) }}</span></div>
+                        <div class="flex justify-between"><span>Origem:</span><span class="font-medium text-gray-900 dark:text-white">{{ $itemFabricPiece['label'] ?? ('Peça #' . ($itemFabricPiece['id'] ?? '')) }}</span></div>
                         @endif
 
                         <div class="flex justify-between"><span>Quantidade:</span><span class="font-medium text-gray-900 dark:text-white">{{ $item->quantity }} pç</span></div>

@@ -60,6 +60,7 @@ class StockController extends Controller
 
         $storeId = $request->get('store_id');
         $fabricId = $request->get('fabric_id');
+        $fabricTypeId = $request->get('fabric_type_id');
         $colorId = $request->get('color_id');
         $cutTypeId = $request->get('cut_type_id');
         $size = $request->get('size');
@@ -198,7 +199,7 @@ class StockController extends Controller
 
         // Dados para filtros
         $stores = StoreHelper::getAvailableStores();
-        // $fabrics = ProductOption::where('type', 'tecido')->where('active', true)->orderBy('name')->get(); // Antigo
+        $fabrics = ProductOption::where('type', 'tecido')->where('active', true)->orderBy('name')->get();
         $fabricTypes = ProductOption::where('type', 'tipo_tecido')->where('active', true)->orderBy('name')->get();
         $colors = ProductOption::where('type', 'cor')->where('active', true)->orderBy('name')->get();
         $cutTypes = ProductOption::where('type', 'tipo_corte')->where('active', true)->orderBy('name')->get();
@@ -206,6 +207,7 @@ class StockController extends Controller
         return view('stocks.index', compact(
             'groupedStocks',
             'stores',
+            'fabrics',
             'fabricTypes',
             'colors',
             'cutTypes',
@@ -230,6 +232,7 @@ class StockController extends Controller
         
         $storeId = $request->get('store_id');
         $fabricId = $request->get('fabric_id');
+        $fabricTypeId = $request->get('fabric_type_id');
         $colorId = $request->get('color_id');
         $cutTypeId = $request->get('cut_type_id');
         $size = $request->get('size');
@@ -243,6 +246,18 @@ class StockController extends Controller
 
         if ($fabricId) {
             $query->where('fabric_id', $fabricId);
+        }
+
+        if ($fabricTypeId) {
+            $query->where(function($q) use ($fabricTypeId) {
+                $q->where('fabric_type_id', $fabricTypeId)
+                  ->orWhere(function($q2) use ($fabricTypeId) {
+                      $q2->whereNull('fabric_type_id')
+                         ->whereHas('cutType', function($q3) use ($fabricTypeId) {
+                             $q3->where('parent_id', $fabricTypeId);
+                         });
+                  });
+            });
         }
 
         if ($colorId) {
@@ -327,6 +342,7 @@ class StockController extends Controller
 
         // Dados para filtros
         $stores = StoreHelper::getAvailableStores();
+        $fabrics = ProductOption::where('type', 'tecido')->where('active', true)->orderBy('name')->get();
         $fabricTypes = ProductOption::where('type', 'tipo_tecido')->where('active', true)->orderBy('name')->get();
         $colors = ProductOption::where('type', 'cor')->where('active', true)->orderBy('name')->get();
         $cutTypes = ProductOption::where('type', 'tipo_corte')->where('active', true)->orderBy('name')->get();
@@ -334,12 +350,14 @@ class StockController extends Controller
         return view('stocks.index-readonly', compact(
             'groupedStocks',
             'stores',
+            'fabrics',
             'fabricTypes',
             'colors',
             'cutTypes',
             'sizes',
             'storeId',
             'fabricId',
+            'fabricTypeId',
             'colorId',
             'cutTypeId',
             'size'
@@ -592,22 +610,51 @@ class StockController extends Controller
                 ], 400);
             }
 
-            // Buscar todos os estoques que têm este tipo de corte (de todas as lojas se não especificar)
-            // Agora que a rota está em web.php com auth, podemos usar o escopo de tenant normal
-            $query = Stock::where('cut_type_id', $cutTypeId)
+            $baseQuery = Stock::where('cut_type_id', $cutTypeId)
                 ->with(['store', 'fabric', 'color', 'cutType']);
-            
-            if ($storeId) {
-                $query->where('store_id', $storeId);
-            }
-            
-            if ($colorId) {
-                $query->where('color_id', $colorId);
-            }
-            
-            $stocks = $query->get();
 
-            // Agrupar por tamanho e loja
+            if ($storeId) {
+                $baseQuery->where('store_id', $storeId);
+            }
+
+            $allStocks = $baseQuery->get();
+            $stocks = $colorId
+                ? $allStocks->where('color_id', (int) $colorId)->values()
+                : $allStocks->values();
+
+            $availableColors = $allStocks
+                ->map(function ($stock) {
+                    $available = (int) $stock->available_quantity;
+                    $color = $stock->color;
+                    $name = trim((string) ($color->name ?? ''));
+
+                    if ($available <= 0 || $name === '' || !$stock->color_id) {
+                        return null;
+                    }
+
+                    return [
+                        'id' => (int) $stock->color_id,
+                        'name' => $name,
+                        'hex' => $color->color_hex ?: '#666666',
+                        'available' => $available,
+                    ];
+                })
+                ->filter()
+                ->groupBy('id')
+                ->map(function ($items) {
+                    $first = $items->first();
+
+                    return [
+                        'id' => $first['id'],
+                        'name' => $first['name'],
+                        'hex' => $first['hex'],
+                        'available' => $items->sum('available'),
+                    ];
+                })
+                ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)
+                ->values()
+                ->all();
+
             $stockBySize = [];
             foreach ($stocks as $stock) {
                 $size = $stock->size ?? 'N/A';
@@ -667,10 +714,22 @@ class StockController extends Controller
                 $data['stores'] = array_values($data['stores']);
             }
 
+            $sizeOrder = array_flip(['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3', 'ESPECIAL']);
+            $stockBySize = array_values($stockBySize);
+
+            usort($stockBySize, static function (array $left, array $right) use ($sizeOrder): int {
+                $leftKey = strtoupper(trim((string) ($left['size'] ?? '')));
+                $rightKey = strtoupper(trim((string) ($right['size'] ?? '')));
+
+                return ($sizeOrder[$leftKey] ?? 999) <=> ($sizeOrder[$rightKey] ?? 999);
+            });
+
             return response()->json([
                 'success' => true,
                 'cut_type' => $cutType->name,
-                'stock_by_size' => array_values($stockBySize),
+                'stock_by_size' => $stockBySize,
+                'available_colors' => $availableColors,
+                'available_sizes' => array_values(array_map(static fn (array $item) => $item['size'], $stockBySize)),
                 'total_combinations' => $stocks->count(),
             ]);
         } catch (\Exception $e) {

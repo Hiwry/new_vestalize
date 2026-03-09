@@ -881,6 +881,7 @@ Route::get('/catalogo/pagamento/webhook/mercadopago', function () {
 // ─── Catálogo Público (sem autenticação) ───
 Route::prefix('catalogo/{storeCode}')->name('catalog.')->group(function () {
     Route::get('/', [\App\Http\Controllers\CatalogController::class, 'show'])->name('show');
+    Route::get('/tecido/{piece}', [\App\Http\Controllers\CatalogController::class, 'fabricPieceDetail'])->name('fabric-piece');
     Route::get('/produto/{product}', [\App\Http\Controllers\CatalogController::class, 'productDetail'])->name('product');
     Route::post('/carrinho/adicionar', [\App\Http\Controllers\CatalogController::class, 'addToCart'])->name('cart.add');
     Route::post('/carrinho/atualizar', [\App\Http\Controllers\CatalogController::class, 'updateCart'])->name('cart.update');

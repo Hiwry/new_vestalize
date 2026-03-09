@@ -871,6 +871,26 @@
             return 'R$ ' + Number(value).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         }
 
+        function formatCartQuantity(item) {
+            if ((item.item_type || 'product') === 'fabric_piece') {
+                return item.quantity_label || `${Number(item.quantity || 0).toLocaleString('pt-BR', {
+                    minimumFractionDigits: item.quantity_decimals ?? 2,
+                    maximumFractionDigits: item.quantity_decimals ?? 2
+                })} ${item.control_unit === 'metros' ? 'm' : 'kg'}`;
+            }
+
+            return `${parseInt(item.quantity || 0, 10)} un`;
+        }
+
+        function getCartStepQuantity(item) {
+            return Number(item.step_quantity || 1);
+        }
+
+        function normalizeCartQuantityValue(item, quantity) {
+            const decimals = item.quantity_decimals ?? 0;
+            return Number(Math.max(0, quantity)).toFixed(decimals);
+        }
+
         // ─── Toggle Cart ───
         function toggleCart() {
             document.getElementById('cart-overlay').classList.toggle('open');
@@ -907,25 +927,35 @@
 
             let html = '';
             for (const [key, item] of Object.entries(data.items)) {
-                const variant = [item.size, item.color].filter(Boolean).join(' · ') || '';
+                const isFabricPiece = (item.item_type || 'product') === 'fabric_piece';
+                const variant = isFabricPiece
+                    ? [
+                        item.fabric_type_name || item.display_type,
+                        item.color || null,
+                        item.supplier_name ? `Forn. ${item.supplier_name}` : null
+                    ].filter(Boolean).join(' · ')
+                    : [item.size, item.color].filter(Boolean).join(' · ');
+                const previousQty = normalizeCartQuantityValue(item, Number(item.quantity || 0) - getCartStepQuantity(item));
+                const nextQty = normalizeCartQuantityValue(item, Number(item.quantity || 0) + getCartStepQuantity(item));
                 html += `
                     <div class="cart-item" style="${item.is_incomplete ? 'border-left: 3px solid #ef4444; background: #fff1f2;' : ''}">
                         <div class="cart-item-image">
-                            ${item.image ? `<img src="${item.image}" alt="">` : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#cbd5e1;"><i class="fas fa-image"></i></div>`}
+                            ${item.image ? `<img src="${item.image}" alt="">` : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#cbd5e1;"><i class="fas ${isFabricPiece ? 'fa-ruler-combined' : 'fa-image'}"></i></div>`}
                         </div>
                         <div class="cart-item-info">
                             <div class="cart-item-title">${item.title}</div>
                             ${variant ? `<div class="cart-item-variant">${variant}</div>` : ''}
                             ${item.is_incomplete ? `<div style="font-size:10px; color:#ef4444; font-weight:700; margin-bottom:4px;"><i class="fas fa-exclamation-triangle"></i> Seleção incompleta</div><a href="/catalogo/${STORE_CODE}/produto/${item.product_id}" style="font-size:10px; color:var(--primary); font-weight:700; text-decoration:underline;">Escolher tamanho/cor</a>` : ''}
                             <div class="cart-item-qty">
-                                <button onclick="updateCartQty('${key}', ${item.quantity - 1})"><i class="fas fa-minus" style="font-size:10px;"></i></button>
-                                <span>${item.quantity}</span>
-                                <button onclick="updateCartQty('${key}', ${item.quantity + 1})"><i class="fas fa-plus" style="font-size:10px;"></i></button>
+                                <button onclick="updateCartQty('${key}', '${previousQty}')"><i class="fas fa-minus" style="font-size:10px;"></i></button>
+                                <span>${formatCartQuantity(item)}</span>
+                                <button onclick="updateCartQty('${key}', '${nextQty}')"><i class="fas fa-plus" style="font-size:10px;"></i></button>
                             </div>
                         </div>
                         <div style="text-align: right;">
                             <div class="cart-item-price">${formatMoney(item.line_total)}</div>
                             ${item.is_wholesale ? '<div style="font-size:10px;color:#10b981;font-weight:600;">Atacado</div>' : ''}
+                            ${isFabricPiece ? `<div style="font-size:10px;color:#64748b;font-weight:600;">${formatMoney(item.effective_price)} / ${item.control_unit === 'metros' ? 'm' : 'kg'}</div>` : ''}
                             <button class="cart-item-remove" onclick="removeCartItem('${key}')"><i class="fas fa-trash-alt"></i></button>
                         </div>
                     </div>
@@ -946,15 +976,20 @@
         }
 
         // ─── Add to Cart ───
-        async function addToCart(productId, size, color, qty, items = null) {
+        async function addToCart(productId, size, color, qty, items = null, itemType = 'product', extra = {}) {
             try {
                 const body = {
-                    product_id: productId,
+                    item_type: itemType,
                 };
 
-                if (items && items.length > 0) {
+                if (itemType === 'fabric_piece') {
+                    body.fabric_piece_id = extra.fabric_piece_id;
+                    body.quantity = qty || 0;
+                } else if (items && items.length > 0) {
+                    body.product_id = productId;
                     body.items = items;
                 } else {
+                    body.product_id = productId;
                     body.quantity = qty || 1;
                     body.size = size || null;
                     body.color = color || null;
@@ -997,7 +1032,11 @@
                     body: JSON.stringify({ cart_key: cartKey, quantity: qty }),
                 });
                 const data = await res.json();
-                if (data.success) updateCartUI(data.cart);
+                if (data.success) {
+                    updateCartUI(data.cart);
+                } else if (data.message) {
+                    showToast(data.message, 'error');
+                }
             } catch (e) {
                 console.error('Erro ao atualizar carrinho:', e);
             }

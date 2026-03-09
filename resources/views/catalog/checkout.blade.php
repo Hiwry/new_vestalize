@@ -258,8 +258,13 @@
                         <div class="summary-item-info">
                             <div class="summary-item-title">{{ $item['title'] }}</div>
                             <div class="summary-item-variant">
-                                {{ $item['quantity'] }}x R$ {{ number_format($item['effective_price'], 2, ',', '.') }}
-                                @if($item['size'] || $item['color'])
+                                {{ $item['quantity_label'] ?? ($item['quantity'] . ' un') }} · R$ {{ number_format($item['effective_price'], 2, ',', '.') }}
+                                @if(($item['item_type'] ?? 'product') === 'fabric_piece')
+                                    · {{ $item['control_unit'] === 'metros' ? 'por metro' : 'por kg' }}
+                                    @if(!empty($item['fabric_type_name']))
+                                        · {{ $item['fabric_type_name'] }}
+                                    @endif
+                                @elseif($item['size'] || $item['color'])
                                     · {{ implode(' · ', array_filter([$item['size'], $item['color']])) }}
                                 @endif
                             </div>

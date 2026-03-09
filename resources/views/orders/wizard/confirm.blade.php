@@ -65,6 +65,8 @@
                         $isSubLocal = $item->print_type === 'Sublimação Local';
                         $itemSizes = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) ? json_decode($item->sizes, true) : []);
                         $itemSizes = $itemSizes ?? [];
+                        $itemPrintDesc = is_array($item->print_desc) ? $item->print_desc : (is_string($item->print_desc) ? json_decode($item->print_desc, true) : []);
+                        $itemFabricPiece = $itemPrintDesc['fabric_piece'] ?? null;
                         $personalizacaoSubtotal = $item->sublimations->sum('final_price');
                         $itemTotal = ($item->unit_price * $item->quantity) + $personalizacaoSubtotal;
                     @endphp
@@ -98,7 +100,20 @@
                                 <span class="text-gray-500 dark:text-gray-400 text-xs block">Quantidade</span>
                                 <span class="text-gray-900 dark:text-white font-medium">{{ $item->quantity }} un</span>
                             </div>
+                            @if(is_array($itemFabricPiece))
+                            <div>
+                                <span class="text-gray-500 dark:text-gray-400 text-xs block">Peça vinculada</span>
+                                <span class="text-gray-900 dark:text-white font-medium">{{ $itemFabricPiece['quantity_label'] ?? (($itemFabricPiece['quantity'] ?? 0) . ' ' . ($itemFabricPiece['unit'] ?? '')) }}</span>
+                            </div>
+                            @endif
                         </div>
+
+                        @if(is_array($itemFabricPiece))
+                        <div class="mb-3 rounded-lg border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-900/10 px-3 py-2">
+                            <span class="text-[11px] uppercase tracking-wide font-semibold text-emerald-700 dark:text-emerald-300">Peça de tecido do estoque</span>
+                            <p class="text-sm text-gray-900 dark:text-white font-medium mt-1">{{ $itemFabricPiece['label'] ?? ('Peça #' . ($itemFabricPiece['id'] ?? '')) }}</p>
+                        </div>
+                        @endif
 
                         <!-- Tamanhos -->
                         <div class="flex flex-wrap gap-2">

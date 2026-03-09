@@ -13,6 +13,13 @@
             'icon' => 'fa-clipboard-list',
         ],
         [
+            'title' => 'Estoque de Tecidos',
+            'desc' => 'Acompanhe rolos e pecas de tecido com peso, metragem e status.',
+            'route' => route('fabric-pieces.index'),
+            'accent' => '#14b8a6',
+            'icon' => 'fa-ruler-combined',
+        ],
+        [
             'title' => 'Dashboard',
             'desc' => 'Visao consolidada com indicadores e graficos do estoque.',
             'route' => route('stocks.dashboard'),
@@ -55,6 +62,7 @@
             'icon' => 'fa-shirt',
         ],
     ];
+
 @endphp
 
 <style>
@@ -114,7 +122,6 @@
     .sh-card-link { font-size: 12px; font-weight: 700; color: var(--sh-text-secondary); }
     .sh-card-arrow { width: 30px; height: 30px; border-radius: 999px; border: 1px solid var(--sh-card-border); display: inline-flex; align-items: center; justify-content: center; color: var(--sh-text-secondary); }
     .sh-card:hover .sh-card-link, .sh-card:hover .sh-card-arrow { color: var(--sh-accent); border-color: color-mix(in srgb, var(--sh-accent) 40%, var(--sh-card-border)); }
-
     @media (max-width: 1200px) {
         .sh-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
@@ -176,6 +183,7 @@
                 </a>
             @endforeach
         </div>
+
     </section>
 </div>
 @else

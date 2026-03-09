@@ -44,6 +44,12 @@ class FabricPiecesImport implements ToModel, WithHeadingRow
             'invoice_key' => $row['chave_de_acesso'] ?? null,
             'invoice_number' => $invoiceNumber,
             'purchase_price' => $row['valor'] ?? 0,
+            'control_unit' => 'kg',
+            'meters_current' => 0,
+            'min_quantity_alert' => 0,
+            'available_in_pdv' => true,
+            'available_in_catalog' => true,
+            'available_in_orders' => true,
             
             // Extra info in notes
             'notes' => 'Importado via Excel. Comprador: ' . ($row['comprador'] ?? 'N/A') . '. Origem: ' . ($row['razao_social_emissor'] ?? 'N/A'),

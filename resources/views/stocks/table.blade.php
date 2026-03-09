@@ -1,372 +1,371 @@
-@extends('layouts.admin')
-
-@section('content')
-<style>
-.stock-summary-card {
-    min-height: 96px;
-}
-
-.stock-table {
-    font-size: 11px;
-    border-collapse: collapse;
-}
-.stock-table th {
-    background: #f8f9fa;
-    font-weight: 700;
-    text-transform: uppercase;
-    padding: 6px 8px;
-    border: 1px solid #dee2e6;
-    font-size: 10px;
-}
-.dark .stock-table th {
-    background: #1f2937;
-    border-color: #374151;
-}
-.stock-table td {
-    padding: 4px 6px;
-    border: 1px solid #e9ecef;
-    text-align: center;
-}
-.dark .stock-table td {
-    border-color: #374151;
-}
-.stock-cell {
-    min-width: 35px;
-    font-weight: 600;
-}
-.stock-high { background: #d4edda !important; color: #155724; }
-.stock-medium { background: #fff3cd !important; color: #856404; }
-.stock-low { background: #f8d7da !important; color: #721c24; }
-.stock-zero { background: #f8f9fa !important; color: #6c757d; }
-.dark .stock-high { background: #064e3b !important; color: #6ee7b7; }
-.dark .stock-medium { background: #78350f !important; color: #fcd34d; }
-.dark .stock-low { background: #7f1d1d !important; color: #fca5a5; }
-.dark .stock-zero { background: #1f2937 !important; color: #6b7280; }
-</style>
-
 @php
-    $totalGroups = count($groupedStocks ?? []);
-    $totalAvailable = collect($groupedStocks ?? [])->sum('total_available');
-    $criticalGroups = collect($groupedStocks ?? [])->filter(function ($group) use ($sizes) {
-        foreach ($sizes as $size) {
-            if (!isset($group['sizes'][$size])) {
-                continue;
-            }
+$groupCollection = collect($groupedStocks ?? []);
+$totalGroups = $groupCollection->count();
+$totalAvailable = (int) $groupCollection->sum('total_available');
+$reservedTotal = (int) $groupCollection->sum('total_reserved');
+$statusStats = ['in_stock' => 0, 'low_stock' => 0, 'out_stock' => 0];
 
-            $sizeData = $group['sizes'][$size];
-            $qty = (int) ($sizeData['available_quantity'] ?? 0);
-            $minStock = (int) ($sizeData['min_stock'] ?? 5);
+foreach ($groupCollection as $group) {
+    $minStockTotal = collect($group['sizes'] ?? [])->sum(function ($sizeData) {
+        return max(1, (int) ($sizeData['min_stock'] ?? 5));
+    });
 
-            if ($qty < $minStock) {
-                return true;
-            }
-        }
+    if ($minStockTotal <= 0) {
+        $minStockTotal = 5;
+    }
 
-        return false;
-    })->count();
-    $reservedTotal = collect($groupedStocks ?? [])->sum('total_reserved');
+    $available = (int) ($group['total_available'] ?? 0);
+
+    if ($available <= 0) {
+        $statusStats['out_stock']++;
+    } elseif ($available < $minStockTotal) {
+        $statusStats['low_stock']++;
+    } else {
+        $statusStats['in_stock']++;
+    }
+}
+
+$criticalGroups = $statusStats['low_stock'] + $statusStats['out_stock'];
 @endphp
 
-<div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-4">
-    {{-- Success message is shown in layout --}}
+<style>
+.fsb-shell{position:relative;overflow:hidden;border-radius:26px;padding:22px;border:1px solid #d6dde8;background:radial-gradient(950px 360px at 110% 120%,rgba(105,63,222,.16),transparent 52%),radial-gradient(500px 240px at -12% -24%,rgba(59,130,246,.14),transparent 66%),linear-gradient(180deg,#f6f8fc 0%,#eef2f8 100%);box-shadow:0 28px 60px rgba(15,23,42,.12)}
+.dark .fsb-shell{border-color:rgba(148,163,184,.24);background:radial-gradient(950px 360px at 110% 120%,rgba(124,58,237,.22),transparent 52%),radial-gradient(500px 240px at -12% -24%,rgba(37,99,235,.2),transparent 66%),linear-gradient(180deg,#0d1424 0%,#0b1220 100%);box-shadow:0 28px 60px rgba(2,6,23,.6)}
+.fsb-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.fsb-kicker{margin:0;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#6366f1}
+.fsb-title{margin-top:8px;font-size:clamp(1.65rem,1.3rem + 1vw,2.2rem);line-height:1.05;letter-spacing:-.03em;font-weight:800;color:#0f172a}
+.dark .fsb-title{color:#e2e8f0}
+.fsb-subtitle{margin-top:8px;font-size:13px;font-weight:600;color:#64748b}
+.dark .fsb-subtitle{color:#93a4bd}
+.fsb-actions,.fsb-filter-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fsb-btn{height:40px;border-radius:12px;padding:0 14px;display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;text-decoration:none;transition:transform .18s ease,filter .2s ease;white-space:nowrap}
+.fsb-btn:hover{transform:translateY(-1px);filter:brightness(1.03)}
+.fsb-btn-soft{color:#334155;border:1px solid #cfd7e6;background:#fff}
+.dark .fsb-btn-soft{color:#cbd5e1;border-color:rgba(148,163,184,.3);background:rgba(15,23,42,.75)}
+.fsb-btn-primary{color:#fff !important;border:1px solid transparent;background:linear-gradient(135deg,#6d28d9,#7c3aed);box-shadow:0 14px 24px rgba(109,40,217,.28)}
+.fsb-metrics{margin-top:18px;display:grid;gap:12px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.fsb-metric{border-radius:16px;padding:14px;border:1px solid #d4dceb;background:rgba(255,255,255,.85);backdrop-filter:blur(8px)}
+.dark .fsb-metric{border-color:rgba(148,163,184,.24);background:rgba(15,23,42,.7)}
+.fsb-metric-label{margin:0;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#64748b}
+.dark .fsb-metric-label{color:#94a3b8}
+.fsb-metric-value{margin-top:8px;font-size:28px;line-height:1;letter-spacing:-.02em;font-weight:800;color:#111827}
+.dark .fsb-metric-value{color:#f1f5f9}
+.fsb-toolbar{margin-top:14px;border-radius:18px;border:1px solid #d6deea;padding:14px;background:rgba(255,255,255,.9);box-shadow:0 16px 34px rgba(15,23,42,.06)}
+.dark .fsb-toolbar{border-color:rgba(148,163,184,.22);background:rgba(15,23,42,.74);box-shadow:none}
+.fsb-fields{display:grid;grid-template-columns:minmax(240px,1.35fr) repeat(5,minmax(130px,1fr));gap:10px}
+.fsb-input,.fsb-select{height:42px;width:100%;border-radius:12px;border:1px solid #cfd8e6;background:#fff;padding:0 12px;font-size:13px;font-weight:600;color:#0f172a}
+.dark .fsb-input,.dark .fsb-select{border-color:rgba(148,163,184,.28);background:rgba(15,23,42,.86);color:#e2e8f0}
+.fsb-search{position:relative}
+.fsb-search .fa-magnifying-glass{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:13px}
+.fsb-search .fsb-input{padding-left:34px}
+.fsb-toolbar-foot{margin-top:12px;padding-top:12px;border-top:1px dashed #d7dfeb;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.dark .fsb-toolbar-foot{border-color:rgba(148,163,184,.25)}
+.fsb-checkbox{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#334155}
+.dark .fsb-checkbox{color:#cbd5e1}
+.fsb-filter-btn{height:38px;border-radius:10px;padding:0 12px;font-size:12px;font-weight:800;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center}
+.fsb-filter-btn-light{border-color:#cfd8e6;background:#fff;color:#334155}
+.dark .fsb-filter-btn-light{border-color:rgba(148,163,184,.28);background:rgba(15,23,42,.7);color:#cbd5e1}
+.fsb-filter-btn-primary{background:#4f46e5;color:#fff}
+.fsb-table-card{margin-top:14px;border-radius:20px;border:1px solid #d4dceb;overflow:hidden;background:#fff;box-shadow:0 22px 42px rgba(15,23,42,.09)}
+.dark .fsb-table-card{border-color:rgba(148,163,184,.22);background:rgba(15,23,42,.78);box-shadow:none}
+.fsb-table-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 18px;border-bottom:1px solid #dbe3ef;background:linear-gradient(180deg,#f8fafe 0%,#f0f4fb 100%)}
+.dark .fsb-table-head{border-bottom-color:rgba(148,163,184,.2);background:rgba(30,41,59,.6)}
+.fsb-table-head h2{margin:0;font-size:22px;line-height:1;font-weight:800;letter-spacing:-.02em;color:#111827}
+.dark .fsb-table-head h2{color:#f1f5f9}
+.fsb-table-head p{margin:0;font-size:12px;font-weight:700;color:#64748b}
+.dark .fsb-table-head p{color:#94a3b8}
+.fsb-table-wrap{overflow-x:auto}
+.fsb-table{width:100%;min-width:1120px;border-collapse:separate;border-spacing:0;font-size:12px}
+.fsb-table thead th{padding:10px 12px;border-bottom:1px solid #dde5f1;background:#f8fafd;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#475569;white-space:nowrap;text-align:left}
+.dark .fsb-table thead th{border-bottom-color:rgba(148,163,184,.24);background:#172131;color:#a8bacf}
+.fsb-table tbody td{padding:12px;border-bottom:1px solid #edf2f8;color:#1f2937;vertical-align:middle}
+.dark .fsb-table tbody td{border-bottom-color:rgba(148,163,184,.12);color:#dbe5f2}
+.fsb-table tbody tr:hover{background:#f7faff}
+.dark .fsb-table tbody tr:hover{background:rgba(59,130,246,.08)}
+.fsb-sku{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:11px;font-weight:700;letter-spacing:.05em;color:#4b5563}
+.dark .fsb-sku{color:#b8c4d5}
+.fsb-product{display:flex;align-items:center;gap:10px;min-width:220px}
+.fsb-swatch{width:18px;height:18px;border-radius:999px;border:2px solid rgba(255,255,255,.8);box-shadow:0 0 0 1px rgba(15,23,42,.16);flex-shrink:0}
+.dark .fsb-swatch{border-color:rgba(15,23,42,.8);box-shadow:0 0 0 1px rgba(148,163,184,.3)}
+.fsb-product-name{font-size:13px;font-weight:800;color:#0f172a;line-height:1.25}
+.dark .fsb-product-name{color:#e2e8f0}
+.fsb-product-meta,.fsb-level-meta,.fsb-qty-sub{margin-top:2px;font-size:11px;font-weight:600;color:#64748b}
+.dark .fsb-product-meta,.dark .fsb-level-meta,.dark .fsb-qty-sub{color:#9bb0ca}
+.fsb-chip{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;border:1px solid;font-size:11px;font-weight:800;white-space:nowrap}
+.fsb-chip-ok{color:#166534;background:#dcfce7;border-color:#86efac}
+.fsb-chip-low{color:#92400e;background:#fef3c7;border-color:#fcd34d}
+.fsb-chip-out{color:#991b1b;background:#fee2e2;border-color:#fca5a5}
+.dark .fsb-chip-ok{color:#6ee7b7;background:rgba(6,78,59,.55);border-color:rgba(16,185,129,.6)}
+.dark .fsb-chip-low{color:#fcd34d;background:rgba(120,53,15,.55);border-color:rgba(245,158,11,.6)}
+.dark .fsb-chip-out{color:#fca5a5;background:rgba(127,29,29,.55);border-color:rgba(239,68,68,.6)}
+.fsb-qty{font-size:14px;font-weight:800;color:#0f172a;line-height:1.1}
+.dark .fsb-qty{color:#e2e8f0}
+.fsb-level-wrap{min-width:124px}
+.fsb-level-track{width:100%;height:7px;border-radius:999px;background:#e2e8f0;overflow:hidden}
+.dark .fsb-level-track{background:#1e293b}
+.fsb-level-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#34d399,#16a34a)}
+.fsb-level-fill.low{background:linear-gradient(90deg,#f59e0b,#f97316)}
+.fsb-level-fill.out{background:linear-gradient(90deg,#f43f5e,#dc2626)}
+.fsb-location{font-size:12px;font-weight:700;color:#334155;line-height:1.35;min-width:160px}
+.dark .fsb-location{color:#c8d6e8}
+.fsb-row-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap}
+.fsb-row-btn{width:30px;height:30px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;color:#fff !important;font-size:11px;border:0;cursor:pointer}
+.fsb-row-btn.edit{background:#6366f1}.fsb-row-btn.transfer{background:#10b981}.fsb-row-btn.delete{background:#ef4444}
+.fsb-empty{text-align:center;padding:32px 16px;color:#64748b;font-size:13px;font-weight:600}
+.dark .fsb-empty{color:#94a3b8}
+.fsb-legend{margin-top:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fsb-legend-text{font-size:12px;font-weight:700;color:#64748b}
+.dark .fsb-legend-text{color:#94a3b8}
+.fsb-modal-mask{z-index:70}
+@media (max-width:1320px){.fsb-fields{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:860px){.fsb-shell{border-radius:20px;padding:14px}.fsb-actions,.fsb-filter-actions{width:100%}.fsb-btn,.fsb-filter-btn{width:100%;justify-content:center}.fsb-fields{grid-template-columns:1fr}.fsb-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
 
-    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 mb-6">
-        <div>
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Estoque</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Gerenciamento completo de inventario e insumos.</p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2">
-            <a href="{{ route('stocks.dashboard') }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-gray-300 dark:border-gray-700 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">
-                <i class="fa-solid fa-chart-pie text-indigo-500"></i>
-                Dashboard
-            </a>
-            <a href="{{ route('stocks.history') }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-gray-300 dark:border-gray-700 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">
-                <i class="fa-solid fa-clock-rotate-left text-gray-500"></i>
-                Historico
-            </a>
-            <a href="{{ route('stock-requests.index') }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-amber-300 text-xs font-semibold text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:border-amber-700 dark:hover:bg-amber-900/20">
-                <i class="fa-solid fa-file-invoice"></i>
-                Solicitacoes
-            </a>
-            <a href="{{ route('stocks.create') }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-emerald-300 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:border-emerald-700 dark:hover:bg-emerald-900/20">
-                <i class="fa-solid fa-plus"></i>
-                Novo Item
-            </a>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div class="stock-summary-card bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-4">
-            <div class="text-sm text-gray-600 dark:text-gray-400">Grupos de Estoque</div>
-            <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ number_format($totalGroups, 0, ',', '.') }}</div>
-        </div>
-        <div class="stock-summary-card bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-4">
-            <div class="text-sm text-gray-600 dark:text-gray-400">Disponível</div>
-            <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ number_format($totalAvailable, 0, ',', '.') }}</div>
-        </div>
-        <div class="stock-summary-card bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-4">
-            <div class="text-sm text-gray-600 dark:text-gray-400">Reservado</div>
-            <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ number_format($reservedTotal, 0, ',', '.') }}</div>
-        </div>
-        <div class="stock-summary-card bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-4">
-            <div class="text-sm text-gray-600 dark:text-gray-400">Estoque Crítico</div>
-            <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ number_format($criticalGroups, 0, ',', '.') }}</div>
-        </div>
-    </div>
-
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 p-6 mb-6">
-        <form method="GET" action="{{ route('stocks.index') }}" class="space-y-2">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-                        <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
-                    </div>
-                    <input type="text"
-                           name="search_id"
-                           value="{{ request('search_id') }}"
-                           placeholder="Buscar por ID..."
-                           class="w-full text-sm pl-8 pr-2 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                </div>
-
-                <select name="store_id" class="w-full text-sm px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                    <option value="">Todas Lojas</option>
-                    @foreach($stores as $store)
-                        <option value="{{ $store->id }}" {{ $storeId == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
-                    @endforeach
-                </select>
-
-                <select name="fabric_type_id" class="w-full text-sm px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                    <option value="">Todos Tecidos</option>
-                    @foreach($fabricTypes as $fabricType)
-                        <option value="{{ $fabricType->id }}" {{ request('fabric_type_id') == $fabricType->id ? 'selected' : '' }}>{{ $fabricType->name }}</option>
-                    @endforeach
-                </select>
-
-                <select name="color_id" class="w-full text-sm px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                    <option value="">Todas Cores</option>
-                    @foreach($colors as $color)
-                        <option value="{{ $color->id }}" {{ $colorId == $color->id ? 'selected' : '' }}>{{ $color->name }}</option>
-                    @endforeach
-                </select>
-
-                <select name="cut_type_id" class="w-full text-sm px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                    <option value="">Todos Tipos</option>
-                    @foreach($cutTypes as $cutType)
-                        <option value="{{ $cutType->id }}" {{ $cutTypeId == $cutType->id ? 'selected' : '' }}>{{ $cutType->name }}</option>
-                    @endforeach
-                </select>
-
-                <select name="size" class="w-full text-sm px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                    <option value="">Todos Tamanhos</option>
-                    @foreach($sizes as $size)
-                        <option value="{{ $size }}" {{ $size == request('size') ? 'selected' : '' }}>{{ $size }}</option>
-                    @endforeach
-                </select>
+<div class="max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <section class="fsb-shell">
+        <div class="fsb-top">
+            <div>
+                <p class="fsb-kicker">StockFlow / Tecidos</p>
+                <h1 class="fsb-title">Inventory Management</h1>
+                <p class="fsb-subtitle">Total itens: {{ number_format($totalGroups, 0, ',', '.') }} <span class="mx-1">|</span> Alertas: {{ number_format($criticalGroups, 0, ',', '.') }}</p>
             </div>
 
-            <div class="border-t border-gray-200 dark:border-gray-700 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                    <input type="checkbox" name="low_stock" value="1" {{ $lowStock ? 'checked' : '' }} class="rounded border-gray-300 dark:border-gray-600">
-                    Apenas estoque critico
-                </label>
-
-                <div class="flex gap-2">
-                    <a href="{{ route('stocks.index') }}" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md text-sm font-semibold hover:bg-gray-300 dark:hover:bg-gray-600">
-                        Limpar
-                    </a>
-                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-semibold hover:bg-indigo-700">
-                        Filtrar
-                    </button>
-                </div>
+            <div class="fsb-actions">
+                <a href="{{ route('stocks.dashboard') }}" class="fsb-btn fsb-btn-soft"><i class="fa-solid fa-chart-pie"></i>Dashboard</a>
+                <a href="{{ route('stocks.history') }}" class="fsb-btn fsb-btn-soft"><i class="fa-solid fa-clock-rotate-left"></i>Historico</a>
+                <a href="{{ route('stock-requests.index') }}" class="fsb-btn fsb-btn-soft"><i class="fa-solid fa-file-invoice"></i>Solicitacoes</a>
+                <a href="{{ route('stocks.create') }}" class="fsb-btn fsb-btn-primary"><i class="fa-solid fa-plus"></i>Adicionar Item</a>
             </div>
-        </form>
-    </div>
+        </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 overflow-hidden">
-        <div class="overflow-x-auto">
-            @forelse($groupedStocks as $key => $group)
-            <div class="border-b-2 border-gray-300 dark:border-gray-600">
-                <div class="bg-gray-100 dark:bg-gray-700 px-3 py-2 flex flex-col md:flex-row md:items-center justify-between gap-2 text-xs font-bold">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="text-indigo-700 dark:text-indigo-400">{{ $group['store']['name'] }}</span>
-                        <span class="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 rounded-full font-semibold border border-amber-300 dark:border-amber-700">
-                            {{ $group['fabric_type']['name'] ?? $group['fabric']['name'] ?? '-' }}
-                        </span>
+        <div class="fsb-metrics">
+            <article class="fsb-metric"><p class="fsb-metric-label">Disponivel</p><div class="fsb-metric-value">{{ number_format($totalAvailable, 0, ',', '.') }}</div></article>
+            <article class="fsb-metric"><p class="fsb-metric-label">Reservado</p><div class="fsb-metric-value">{{ number_format($reservedTotal, 0, ',', '.') }}</div></article>
+            <article class="fsb-metric"><p class="fsb-metric-label">Em Estoque</p><div class="fsb-metric-value">{{ number_format($statusStats['in_stock'], 0, ',', '.') }}</div></article>
+            <article class="fsb-metric"><p class="fsb-metric-label">Baixo / Zerado</p><div class="fsb-metric-value">{{ number_format($criticalGroups, 0, ',', '.') }}</div></article>
+        </div>
 
-                        @if($group['cut_type']['name'] ?? null)
-                        <span class="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 rounded-full font-semibold border border-purple-300 dark:border-purple-700">
-                            {{ $group['cut_type']['name'] }}
-                        </span>
-                        @endif
-
-                        @php
-                            $shelf = null;
-                            foreach($sizes as $size) {
-                                if(isset($group['sizes'][$size]['shelf']) && $group['sizes'][$size]['shelf']) {
-                                    $shelf = $group['sizes'][$size]['shelf'];
-                                    break;
-                                }
-                            }
-                        @endphp
-
-                        @if($shelf)
-                        <span class="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded">
-                            {{ $shelf }}
-                        </span>
-                        @endif
+        <div class="fsb-toolbar">
+            <form method="GET" action="{{ route('stocks.index') }}">
+                <div class="fsb-fields">
+                    <div class="fsb-search">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" name="search_id" value="{{ request('search_id') }}" placeholder="Buscar por ID do estoque..." class="fsb-input">
                     </div>
 
-                    <div class="text-[11px] text-gray-500 dark:text-gray-400 font-semibold">
-                        Atualizado em {{ \Carbon\Carbon::parse($group['last_updated'])->format('d/m/Y') }}
-                    </div>
+                    <select name="store_id" class="fsb-select">
+                        <option value="">Todas Lojas</option>
+                        @foreach($stores as $store)
+                            <option value="{{ $store->id }}" {{ $storeId == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
+                        @endforeach
+                    </select>
+
+                    <select name="fabric_type_id" class="fsb-select">
+                        <option value="">Todos Tipos de Tecido</option>
+                        @foreach($fabricTypes as $fabricType)
+                            <option value="{{ $fabricType->id }}" {{ request('fabric_type_id') == $fabricType->id ? 'selected' : '' }}>{{ $fabricType->name }}</option>
+                        @endforeach
+                    </select>
+
+                    <select name="color_id" class="fsb-select">
+                        <option value="">Todas Cores</option>
+                        @foreach($colors as $color)
+                            <option value="{{ $color->id }}" {{ $colorId == $color->id ? 'selected' : '' }}>{{ $color->name }}</option>
+                        @endforeach
+                    </select>
+
+                    <select name="cut_type_id" class="fsb-select">
+                        <option value="">Todos Tipos</option>
+                        @foreach($cutTypes as $cutType)
+                            <option value="{{ $cutType->id }}" {{ $cutTypeId == $cutType->id ? 'selected' : '' }}>{{ $cutType->name }}</option>
+                        @endforeach
+                    </select>
+
+                    <select name="size" class="fsb-select">
+                        <option value="">Todos Tamanhos</option>
+                        @foreach($sizes as $sizeOption)
+                            <option value="{{ $sizeOption }}" {{ $sizeOption == request('size') ? 'selected' : '' }}>{{ $sizeOption }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
-                <table class="w-full stock-table">
+                <div class="fsb-toolbar-foot">
+                    <label class="fsb-checkbox">
+                        <input type="checkbox" name="low_stock" value="1" {{ $lowStock ? 'checked' : '' }} class="rounded border-gray-300 dark:border-gray-600">
+                        Apenas estoque critico
+                    </label>
+
+                    <div class="fsb-filter-actions">
+                        <a href="{{ route('stocks.index') }}" class="fsb-filter-btn fsb-filter-btn-light">Limpar</a>
+                        <button type="submit" class="fsb-filter-btn fsb-filter-btn-primary">Filtrar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="fsb-table-card">
+            <div class="fsb-table-head">
+                <div>
+                    <h2>Fabric Rolls Inventory</h2>
+                    <p>Visualizacao de tecidos por loja, cor e categoria.</p>
+                </div>
+                <p>Registros: {{ number_format($totalGroups, 0, ',', '.') }}</p>
+            </div>
+
+            <div class="fsb-table-wrap">
+                <table class="fsb-table">
                     <thead>
                         <tr>
-                            <th class="text-left">COR</th>
-                            @foreach($sizes as $size)
-                            <th>{{ $size }}</th>
-                            @endforeach
-                            <th class="bg-indigo-50 dark:bg-indigo-900/30">TOTAL</th>
-                            <th class="text-right">ACOES</th>
+                            <th>SKU</th>
+                            <th>Produto</th>
+                            <th>Categoria</th>
+                            <th>Quantidade</th>
+                            <th>Nivel</th>
+                            <th>Status</th>
+                            <th>Localizacao</th>
+                            <th>Atualizado</th>
+                            <th class="text-right">Acoes</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                            <td class="text-left font-semibold text-gray-900 dark:text-gray-100">
-                                @php
-                                    $colorHex = $group['color']['hex'] ?? null;
-                                    $colorSwatch = (is_string($colorHex) && preg_match('/^#?[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/', trim($colorHex)))
-                                        ? ('#' . ltrim(trim($colorHex), '#'))
-                                        : '#6b7280';
-                                @endphp
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-block w-3.5 h-3.5 rounded-full border border-white/30 dark:border-gray-500 shadow-sm"
-                                          style="background-color: {{ $colorSwatch }};"
-                                          title="{{ $group['color']['name'] ?? '-' }}"></span>
-                                    <span>{{ $group['color']['name'] ?? '-' }}</span>
-                                </div>
-                            </td>
+                        @forelse($groupedStocks as $key => $group)
+                            @php
+                                $fabricName = $group['fabric']['name'] ?? null;
+                                $fabricTypeName = $group['fabric_type']['name'] ?? null;
+                                $productName = $fabricName ?? $fabricTypeName ?? 'Sem tecido';
+                                $categoryName = $group['cut_type']['name'] ?? 'Tecido';
+                                $colorName = $group['color']['name'] ?? 'Sem cor';
+                                $productMeta = $fabricTypeName ? ('Tipo: ' . $fabricTypeName . ' - ' . $colorName) : $colorName;
+                                $displayFabricName = $fabricName && $fabricTypeName
+                                    ? ($fabricName . ' - ' . $fabricTypeName)
+                                    : ($fabricName ?? $fabricTypeName ?? '');
+                                $colorHex = $group['color']['hex'] ?? null;
+                                $colorSwatch = (is_string($colorHex) && preg_match('/^#?[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/', trim($colorHex))) ? ('#' . ltrim(trim($colorHex), '#')) : '#6b7280';
+                                $totalAvailableRow = (int) ($group['total_available'] ?? 0);
+                                $totalReservedRow = (int) ($group['total_reserved'] ?? 0);
 
-                            @foreach($sizes as $size)
-                            <td class="stock-cell">
-                                @if(isset($group['sizes'][$size]))
-                                @php
-                                    $sizeData = $group['sizes'][$size];
-                                    $qty = (int)($sizeData['available_quantity'] ?? 0);
-                                    $reserved = (int)($sizeData['reserved_quantity'] ?? 0);
-                                    $minStock = (int)($sizeData['min_stock'] ?? 5);
+                                $minStockTotal = collect($group['sizes'] ?? [])->sum(function ($sizeData) {
+                                    return max(1, (int) ($sizeData['min_stock'] ?? 5));
+                                });
 
-                                    if ($qty == 0) $class = 'stock-zero';
-                                    elseif ($qty < $minStock) $class = 'stock-low';
-                                    elseif ($qty < $minStock * 2) $class = 'stock-medium';
-                                    else $class = 'stock-high';
-                                @endphp
-                                <div class="{{ $class }} rounded px-1 py-0.5">
-                                    <span class="block">
-                                        {{ $qty }}
-                                        @if($reserved > 0)
-                                        <span class="text-orange-600 dark:text-orange-400 font-bold">({{ $reserved }})</span>
-                                        @endif
-                                    </span>
-                                </div>
-                                @else
-                                <span class="text-gray-300 dark:text-gray-600">-</span>
-                                @endif
-                            </td>
-                            @endforeach
+                                if ($minStockTotal <= 0) {
+                                    $minStockTotal = 5;
+                                }
 
-                            <td class="bg-indigo-50 dark:bg-indigo-900/30 font-bold text-indigo-700 dark:text-indigo-300">
-                                {{ $group['total_available'] }}
-                            </td>
+                                $levelTarget = max(1, $minStockTotal * 2);
+                                $levelPercent = (int) min(100, round(($totalAvailableRow / $levelTarget) * 100));
 
-                            <td class="text-right">
-                                @php
-                                    $firstStockId = null;
-                                    if(isset($group['sizes']) && is_array($group['sizes'])) {
-                                        foreach($sizes as $size) {
-                                            if(isset($group['sizes'][$size]) && isset($group['sizes'][$size]['id']) && $group['sizes'][$size]['id'] > 0) {
-                                                $firstStockId = (int)$group['sizes'][$size]['id'];
-                                                break;
-                                            }
+                                if ($totalAvailableRow <= 0) {
+                                    $statusText = 'Sem estoque';
+                                    $statusClass = 'fsb-chip-out';
+                                    $levelClass = 'out';
+                                } elseif ($totalAvailableRow < $minStockTotal) {
+                                    $statusText = 'Baixo estoque';
+                                    $statusClass = 'fsb-chip-low';
+                                    $levelClass = 'low';
+                                } else {
+                                    $statusText = 'Em estoque';
+                                    $statusClass = 'fsb-chip-ok';
+                                    $levelClass = '';
+                                }
+
+                                $shelf = null;
+                                if (isset($group['sizes']) && is_array($group['sizes'])) {
+                                    foreach ($sizes as $sizeOption) {
+                                        if (!empty($group['sizes'][$sizeOption]['shelf'])) {
+                                            $shelf = $group['sizes'][$sizeOption]['shelf'];
+                                            break;
                                         }
                                     }
-                                @endphp
+                                }
 
-                                <div class="flex items-center justify-end gap-1">
-                                    @if($firstStockId && $firstStockId > 0)
-                                    <a href="{{ route('stocks.edit', [
-                                        'store_id' => $group['store']['id'] ?? null,
-                                        'fabric_id' => $group['fabric']['id'] ?? null,
-                                        'fabric_type_id' => $group['fabric_type']['id'] ?? null,
-                                        'color_id' => $group['color']['id'] ?? null,
-                                        'cut_type_id' => $group['cut_type']['id'] ?? null
-                                    ]) }}"
-                                       class="inline-flex items-center justify-center w-7 h-7 rounded bg-purple-600 hover:bg-purple-700 text-white"
-                                       title="Editar">
-                                        <i class="fa-solid fa-pen text-[11px]"></i>
-                                    </a>
+                                $firstStockId = null;
+                                if (isset($group['sizes']) && is_array($group['sizes'])) {
+                                    foreach ($sizes as $sizeOption) {
+                                        if (!empty($group['sizes'][$sizeOption]['id'])) {
+                                            $firstStockId = (int) $group['sizes'][$sizeOption]['id'];
+                                            break;
+                                        }
+                                    }
+                                }
 
-                                    <button type="button"
-                                            onclick="openTransferModal({{ $firstStockId }}, '{{ addslashes($group['store']['name'] ?? '') }}', '{{ addslashes($group['fabric_type']['name'] ?? $group['fabric']['name'] ?? '') }}', '{{ addslashes($group['color']['name'] ?? '') }}', {{ json_encode($group['sizes']) }})"
-                                            class="inline-flex items-center justify-center w-7 h-7 rounded bg-emerald-600 hover:bg-emerald-700 text-white"
-                                            title="Transferir">
-                                        <i class="fa-solid fa-arrow-right-arrow-left text-[11px]"></i>
-                                    </button>
+                                $skuNumber = $firstStockId ?: ($loop->iteration);
+                                $skuCode = 'TX-' . str_pad((string) $skuNumber, 4, '0', STR_PAD_LEFT);
+                            @endphp
 
-                                    <button type="button"
-                                            onclick="openDeleteModal({{ $firstStockId }}, '{{ addslashes($group['fabric_type']['name'] ?? $group['fabric']['name'] ?? '') }}', '{{ addslashes($group['color']['name'] ?? '') }}')"
-                                            class="inline-flex items-center justify-center w-7 h-7 rounded bg-red-600 hover:bg-red-700 text-white"
-                                            title="Excluir">
-                                        <i class="fa-solid fa-trash text-[11px]"></i>
-                                    </button>
-                                    @else
-                                    <span class="text-[11px] text-gray-500 italic">Indisponivel</span>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td><span class="fsb-sku">{{ $skuCode }}</span></td>
+
+                                <td>
+                                    <div class="fsb-product">
+                                        <span class="fsb-swatch" style="background-color: {{ $colorSwatch }};"></span>
+                                        <div>
+                                            <div class="fsb-product-name">{{ $productName }}</div>
+                                            <div class="fsb-product-meta">{{ $productMeta }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td><span class="fsb-chip fsb-chip-low" style="border-color:#dbeafe;background:#eff6ff;color:#1d4ed8;">{{ $categoryName }}</span></td>
+
+                                <td>
+                                    <div class="fsb-qty">{{ number_format($totalAvailableRow, 0, ',', '.') }}</div>
+                                    <div class="fsb-qty-sub">{{ $totalReservedRow > 0 ? 'Reservado: '.number_format($totalReservedRow, 0, ',', '.') : 'Sem reserva' }}</div>
+                                </td>
+
+                                <td>
+                                    <div class="fsb-level-wrap">
+                                        <div class="fsb-level-track">
+                                            <div class="fsb-level-fill {{ $levelClass }}" style="width: {{ max(0, min(100, $levelPercent)) }}%;"></div>
+                                        </div>
+                                        <div class="fsb-level-meta">{{ $levelPercent }}%</div>
+                                    </div>
+                                </td>
+
+                                <td><span class="fsb-chip {{ $statusClass }}">{{ $statusText }}</span></td>
+
+                                <td>
+                                    <div class="fsb-location">{{ $group['store']['name'] ?? '-' }}<br><span class="text-[11px] text-gray-500 dark:text-gray-400">{{ $shelf ?: 'Sem prateleira' }}</span></div>
+                                </td>
+
+                                <td class="text-[11px] font-semibold text-gray-600 dark:text-gray-300">{{ \Carbon\Carbon::parse($group['last_updated'])->format('d/m/Y H:i') }}</td>
+
+                                <td>
+                                    <div class="fsb-row-actions">
+                                        @if($firstStockId)
+                                            <a href="{{ route('stocks.edit', ['store_id' => $group['store']['id'] ?? null, 'fabric_id' => $group['fabric']['id'] ?? null, 'fabric_type_id' => $group['fabric_type']['id'] ?? null, 'color_id' => $group['color']['id'] ?? null, 'cut_type_id' => $group['cut_type']['id'] ?? null]) }}" class="fsb-row-btn edit" title="Editar"><i class="fa-solid fa-pen"></i></a>
+
+                                            <button type="button" onclick="openTransferModal({{ $firstStockId }}, '{{ addslashes($group['store']['name'] ?? '') }}', '{{ addslashes($displayFabricName) }}', '{{ addslashes($group['color']['name'] ?? '') }}', {{ json_encode($group['sizes'] ?? []) }})" class="fsb-row-btn transfer" title="Transferir"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>
+
+                                            <button type="button" onclick="openDeleteModal({{ $firstStockId }}, '{{ addslashes($displayFabricName) }}', '{{ addslashes($group['color']['name'] ?? '') }}')" class="fsb-row-btn delete" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                                        @else
+                                            <span class="text-[11px] text-gray-500 italic">Indisponivel</span>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="fsb-empty">Nenhum estoque encontrado para os filtros aplicados.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
-            @empty
-            <div class="p-8 text-center text-gray-500 dark:text-gray-400">
-                <svg class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                </svg>
-                <p class="font-medium">Nenhum estoque encontrado</p>
-                <p class="text-sm mt-1">Tente ajustar os filtros</p>
-            </div>
-            @endforelse
         </div>
-    </div>
 
-    <div class="mt-1 flex flex-wrap items-center gap-4 text-xs text-gray-600 dark:text-gray-400">
-        <span class="font-semibold">Legenda:</span>
-        <div class="flex items-center gap-1">
-            <div class="w-4 h-4 stock-high rounded"></div>
-            <span>Alto</span>
+        <div class="fsb-legend">
+            <span class="fsb-legend-text">Status:</span>
+            <span class="fsb-chip fsb-chip-ok">Em estoque</span>
+            <span class="fsb-chip fsb-chip-low">Baixo estoque</span>
+            <span class="fsb-chip fsb-chip-out">Sem estoque</span>
+            <span class="fsb-legend-text">Niveis calculados com base no estoque minimo.</span>
         </div>
-        <div class="flex items-center gap-1">
-            <div class="w-4 h-4 stock-medium rounded"></div>
-            <span>Medio</span>
-        </div>
-        <div class="flex items-center gap-1">
-            <div class="w-4 h-4 stock-low rounded"></div>
-            <span>Baixo</span>
-        </div>
-        <div class="flex items-center gap-1">
-            <div class="w-4 h-4 stock-zero rounded"></div>
-            <span>Zerado</span>
-        </div>
-        <span class="text-orange-600 dark:text-orange-400">(N) = Reservado</span>
-    </div>
+    </section>
 </div>
 
 <!-- Modal de Transferencia -->
-<div id="transfer-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+<div id="transfer-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm fsb-modal-mask flex items-center justify-center p-4">
     <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all scale-100">
         <div class="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex items-center justify-between">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -417,26 +416,20 @@
 </div>
 
 <!-- Modal de Exclusao -->
-<div id="delete-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+<div id="delete-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm fsb-modal-mask flex items-center justify-center p-4">
     <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center">
         <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-2xl flex items-center justify-center mx-auto mb-6 text-red-500">
             <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
         </div>
 
         <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2">Excluir Item?</h3>
-        <p id="delete-message" class="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
-            Esta acao removera permanentemente o estoque selecionado.
-        </p>
+        <p id="delete-message" class="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">Esta acao removera permanentemente o estoque selecionado.</p>
 
         <form id="delete-form" method="POST" class="flex gap-3">
             @csrf
             @method('DELETE')
-            <button type="button" onclick="closeDeleteModal()" class="flex-1 px-4 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-bold text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                Cancelar
-            </button>
-            <button type="submit" class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 shadow-lg shadow-red-200 dark:shadow-none transition-colors" style="color: #ffffff !important;">
-                Sim, excluir
-            </button>
+            <button type="button" onclick="closeDeleteModal()" class="flex-1 px-4 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-bold text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Cancelar</button>
+            <button type="submit" class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 shadow-lg shadow-red-200 dark:shadow-none transition-colors" style="color: #ffffff !important;">Sim, excluir</button>
         </form>
     </div>
 </div>
@@ -481,38 +474,23 @@ function openTransferModal(stockId, storeName, fabric, color, sizes) {
     });
 
     if (!hasAvailable) {
-        container.innerHTML = `
-            <div class="text-center py-4">
-                <p class="text-sm font-bold text-gray-400">Nenhum item disponivel para transferencia.</p>
-            </div>
-        `;
+        container.innerHTML = `<div class="text-center py-4"><p class="text-sm font-bold text-gray-400">Nenhum item disponivel para transferencia.</p></div>`;
     }
 
     document.getElementById('transfer-modal').classList.remove('hidden');
 }
 
-function closeTransferModal() {
-    document.getElementById('transfer-modal').classList.add('hidden');
-}
+function closeTransferModal() { document.getElementById('transfer-modal').classList.add('hidden'); }
+function closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); }
 
-document.getElementById('transfer-modal')?.addEventListener('click', function(e) {
-    if (e.target === this) closeTransferModal();
-});
+document.getElementById('transfer-modal')?.addEventListener('click', function(e) { if (e.target === this) closeTransferModal(); });
+
+document.getElementById('delete-modal')?.addEventListener('click', function(e) { if (e.target === this) closeDeleteModal(); });
 
 function openDeleteModal(stockId, fabric, color) {
     document.getElementById('delete-message').innerHTML = `Tem certeza que deseja excluir o estoque de <br><strong class="text-gray-900 dark:text-white">${fabric} - ${color}</strong>?`;
     document.getElementById('delete-form').action = `/stocks/${stockId}`;
     document.getElementById('delete-modal').classList.remove('hidden');
 }
-
-function closeDeleteModal() {
-    document.getElementById('delete-modal').classList.add('hidden');
-}
-
-document.getElementById('delete-modal')?.addEventListener('click', function(e) {
-    if (e.target === this) closeDeleteModal();
-});
 </script>
 @endpush
-
-@endsection

@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Client;
+use App\Models\FabricPiece;
+use App\Models\FabricPieceSale;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
@@ -21,7 +23,8 @@ use Carbon\Carbon;
 class OrderWizardService
 {
     public function __construct(
-        private readonly ImageProcessor $imageProcessor
+        private readonly ImageProcessor $imageProcessor,
+        private readonly FabricPieceInventoryService $fabricPieceInventoryService
     ) {}
 
     /**
@@ -261,6 +264,7 @@ class OrderWizardService
         $unitPrice = $validated['unit_price'] ?? (
             ($tipoCorte->price ?? 0) + $detailsPrice + ($gola->price ?? 0)
         );
+        $fabricPieceSelection = $this->buildSelectedFabricPiece($validated);
 
         $item->update([
             'fabric' => $tecido->name . ($tipoTecido ? ' - ' . $tipoTecido->name : ''),
@@ -282,6 +286,7 @@ class OrderWizardService
             'print_desc' => json_encode([
                 'apply_surcharge' => (bool)($validated['apply_surcharge'] ?? false),
                 'is_client_modeling' => (bool)($validated['is_client_modeling'] ?? false),
+                'fabric_piece' => $fabricPieceSelection,
                 'wizard_ids' => [
                     'tecido' => $validated['tecido'],
                     'tipo_tecido' => $validated['tipo_tecido'] ?? null,
@@ -752,6 +757,7 @@ class OrderWizardService
         }
 
         $itemNumber = $order->items()->count() + 1;
+        $fabricPieceSelection = $this->buildSelectedFabricPiece($validated);
 
         $item = new OrderItem([
             'item_number' => $itemNumber,
@@ -774,6 +780,7 @@ class OrderWizardService
             'print_desc' => json_encode([
                 'apply_surcharge' => (bool)($validated['apply_surcharge'] ?? false),
                 'is_client_modeling' => (bool)($validated['is_client_modeling'] ?? false),
+                'fabric_piece' => $fabricPieceSelection,
                 'wizard_ids' => [
                     'tecido' => $validated['tecido'],
                     'tipo_tecido' => $validated['tipo_tecido'] ?? null,
@@ -972,6 +979,42 @@ class OrderWizardService
         return ($basePrice * $totalQuantity) + $totalSurcharge;
     }
 
+    private function buildSelectedFabricPiece(array $validated): ?array
+    {
+        $pieceId = (int) ($validated['fabric_piece_id'] ?? 0);
+        $quantity = (float) ($validated['fabric_piece_quantity'] ?? 0);
+
+        if ($pieceId <= 0 || $quantity <= 0) {
+            return null;
+        }
+
+        $piece = FabricPiece::with(['store', 'color', 'fabric', 'fabricType'])->find($pieceId);
+        if (!$piece) {
+            throw new \RuntimeException('Peça de tecido não encontrada.');
+        }
+
+        $unit = (string) ($validated['fabric_piece_unit'] ?? $piece->control_unit);
+        if ($unit !== $piece->control_unit) {
+            throw new \RuntimeException('A unidade da peça de tecido não confere.');
+        }
+
+        if ($quantity > (float) $piece->available_quantity + 0.0001) {
+            throw new \RuntimeException('A quantidade informada excede o saldo disponível da peça.');
+        }
+
+        $payload = $this->fabricPieceInventoryService->buildOrderItemPayload($piece, $quantity);
+        $decimals = $unit === 'metros' ? 2 : 3;
+
+        $payload['quantity_label'] = number_format($quantity, $decimals, ',', '.')
+            . ' '
+            . ($unit === 'metros' ? 'm' : 'kg');
+        $payload['color_name'] = $piece->color?->name;
+        $payload['fabric_type_name'] = $piece->fabricType?->name ?? $piece->fabric?->name;
+        $payload['invoice_number'] = $piece->invoice_number;
+
+        return $payload;
+    }
+
     /**
      * Finaliza o pedido com toda a lógica de negócio (termos, logs, estoque)
      */
@@ -1047,6 +1090,39 @@ class OrderWizardService
             }
             
             $order->update($updateData);
+
+            foreach ($order->items as $item) {
+                $printDesc = is_string($item->print_desc) ? json_decode($item->print_desc, true) : $item->print_desc;
+                $fabricPiece = is_array($printDesc) ? ($printDesc['fabric_piece'] ?? null) : null;
+
+                if (!is_array($fabricPiece) || empty($fabricPiece['id']) || empty($fabricPiece['quantity'])) {
+                    continue;
+                }
+
+                $existingSale = FabricPieceSale::active()
+                    ->where('order_item_id', $item->id)
+                    ->first();
+
+                if ($existingSale) {
+                    continue;
+                }
+
+                $piece = FabricPiece::find($fabricPiece['id']);
+                if (!$piece) {
+                    throw new \RuntimeException('A peça de tecido vinculada ao item #' . $item->item_number . ' não foi encontrada.');
+                }
+
+                $this->fabricPieceInventoryService->sell($piece, [
+                    'quantity' => (float) $fabricPiece['quantity'],
+                    'unit' => (string) ($fabricPiece['unit'] ?? $piece->control_unit),
+                    'unit_price' => 0,
+                    'order_id' => $order->id,
+                    'order_item_id' => $item->id,
+                    'channel' => 'order',
+                    'sold_by' => $userId,
+                    'notes' => 'Pedido interno #' . str_pad((string) $order->id, 6, '0', STR_PAD_LEFT),
+                ]);
+            }
             
             // Registrar históricos e logs
             \App\Models\SalesHistory::recordSale($order);

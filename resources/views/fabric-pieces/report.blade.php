@@ -6,7 +6,7 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
             <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Relatório de Peças de Tecido</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Resumo e estatísticas do estoque</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Resumo, alertas e vendas das peças de tecido</p>
         </div>
         <a href="{{ route('fabric-pieces.index') }}" 
            class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition flex items-center gap-2 text-sm">
@@ -44,7 +44,7 @@
     </div>
 
     {{-- Cards de Resumo --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
             <div class="text-sm text-gray-500 dark:text-gray-400">Total Cadastradas</div>
             <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $totals['total'] }}</div>
@@ -53,13 +53,21 @@
             <div class="text-sm text-gray-500 dark:text-gray-400">Ativas</div>
             <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ $totals['ativas'] }}</div>
         </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-amber-200 dark:border-amber-800">
+            <div class="text-sm text-gray-500 dark:text-gray-400">Abaixo do Mínimo</div>
+            <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ $totals['estoque_baixo'] }}</div>
+        </div>
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
             <div class="text-sm text-gray-500 dark:text-gray-400">Vendidas</div>
             <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ $totals['vendidas'] }}</div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
-            <div class="text-sm text-gray-500 dark:text-gray-400">Peso Total (kg)</div>
-            <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ number_format($totals['peso_total'], 2, ',', '.') }}</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Saldo em Kg</div>
+            <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ number_format($totals['kg_ativo'], 3, ',', '.') }}</div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
+            <div class="text-sm text-gray-500 dark:text-gray-400">Saldo em Metros</div>
+            <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ number_format($totals['metros_ativo'], 2, ',', '.') }}</div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
             <div class="text-sm text-gray-500 dark:text-gray-400">Valor em Estoque</div>
@@ -71,12 +79,57 @@
         </div>
     </div>
 
+    {{-- Alertas de Estoque --}}
+    <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4 mt-8 flex items-center gap-2">
+        <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-7.938 4h15.876c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L2.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        Alerta de Quantidade Mínima
+    </h2>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold text-gray-900 dark:text-gray-100">Peças abaixo do mínimo</h3>
+                <span class="text-xs text-gray-500 uppercase">Atual x mínimo</span>
+            </div>
+            @if(count($lowStockChart['labels']) > 0)
+                <canvas id="lowStockChart" height="140"></canvas>
+            @else
+                <div class="py-10 text-center text-sm text-gray-500 dark:text-gray-400">Nenhuma peça abaixo do mínimo informado.</div>
+            @endif
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="font-semibold text-gray-900 dark:text-gray-100">Lista crítica</h3>
+            </div>
+            <div class="p-4 space-y-3">
+                @forelse($lowStockPieces as $piece)
+                    <div class="rounded-lg border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-900/10 p-3">
+                        <a href="{{ route('fabric-pieces.edit', $piece->id) }}" class="font-semibold text-gray-900 dark:text-gray-100 hover:underline">
+                            {{ $piece->display_name }}
+                        </a>
+                        <div class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                            Atual: {{ number_format($piece->available_quantity, $piece->control_unit === 'metros' ? 2 : 3, ',', '.') }} {{ $piece->control_unit === 'metros' ? 'm' : 'kg' }}
+                        </div>
+                        <div class="text-sm text-amber-700 dark:text-amber-300">
+                            Mínimo: {{ number_format($piece->min_quantity_alert, $piece->control_unit === 'metros' ? 2 : 3, ',', '.') }} {{ $piece->control_unit === 'metros' ? 'm' : 'kg' }}
+                        </div>
+                    </div>
+                @empty
+                    <div class="py-6 text-center text-sm text-gray-500 dark:text-gray-400">Sem peças críticas no período.</div>
+                @endforelse
+            </div>
+        </div>
+    </div>
+
     {{-- Histórico e Vendas --}}
     <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4 mt-8 flex items-center gap-2">
         <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
         </svg>
-        Desempenho de Vendas (kg / R$)
+        Desempenho de Vendas
     </h2>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -84,14 +137,14 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
             <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <h3 class="font-semibold text-gray-900 dark:text-gray-100">Vendas por Tipo de Tecido</h3>
-                <span class="text-xs text-gray-500 uppercase">Resumo kg</span>
+                <span class="text-xs text-gray-500 uppercase">Resumo por unidade</span>
             </div>
             <div class="p-4">
                 <table class="min-w-full text-sm">
                     <thead>
                         <tr class="text-left text-gray-500 dark:text-gray-400">
                             <th class="pb-2">Tecido</th>
-                            <th class="pb-2 text-center">Peso Vendido</th>
+                            <th class="pb-2 text-center">Quantidade Vendida</th>
                             <th class="pb-2 text-right">Valor Total</th>
                         </tr>
                     </thead>
@@ -99,7 +152,7 @@
                         @forelse($salesByFabricType as $row)
                         <tr>
                             <td class="py-2 text-gray-900 dark:text-gray-100">{{ $row['name'] }}</td>
-                            <td class="py-2 text-center font-semibold text-indigo-600 dark:text-indigo-400">{{ number_format($row['kg'], 2, ',', '.') }} kg</td>
+                            <td class="py-2 text-center font-semibold text-indigo-600 dark:text-indigo-400">{{ $row['quantity_label'] }}</td>
                             <td class="py-2 text-right text-gray-900 dark:text-gray-100 font-medium">R$ {{ number_format($row['value'], 2, ',', '.') }}</td>
                         </tr>
                         @empty
@@ -125,7 +178,7 @@
                             <th class="pb-2">NF</th>
                             <th class="pb-2">Fornecedor</th>
                             <th class="pb-2">Tecido/Cor</th>
-                            <th class="pb-2 text-center">Peso Vendido</th>
+                            <th class="pb-2 text-center">Quantidade Vendida</th>
                             <th class="pb-2 text-right">Valor Total</th>
                         </tr>
                     </thead>
@@ -141,7 +194,7 @@
                             </td>
                             <td class="py-2 text-gray-600 dark:text-gray-400">{{ $row['supplier'] ?? '-' }}</td>
                             <td class="py-2 text-gray-900 dark:text-gray-100">{{ $row['fabric'] }} / {{ $row['color'] }}</td>
-                            <td class="py-2 text-center text-gray-900 dark:text-gray-100 font-medium">{{ number_format($row['kg'], 2, ',', '.') }} kg</td>
+                            <td class="py-2 text-center text-gray-900 dark:text-gray-100 font-medium">{{ number_format($row['quantity'], $row['unit'] === 'metros' ? 2 : 3, ',', '.') }} {{ $row['unit'] === 'metros' ? 'm' : 'kg' }}</td>
                             <td class="py-2 text-right text-green-600 dark:text-green-400 font-semibold">R$ {{ number_format($row['value'], 2, ',', '.') }}</td>
                         </tr>
                         @empty
@@ -172,6 +225,7 @@
                         <th class="px-4 py-3 uppercase tracking-wider font-bold text-center">Quantidade</th>
                         <th class="px-4 py-3 uppercase tracking-wider font-bold text-right">Unitário</th>
                         <th class="px-4 py-3 uppercase tracking-wider font-bold text-right">Total</th>
+                        <th class="px-4 py-3 uppercase tracking-wider font-bold">Canal</th>
                         <th class="px-4 py-3 uppercase tracking-wider font-bold">Venda</th>
                         <th class="px-4 py-3 uppercase tracking-wider font-bold">Loja</th>
                         <th class="px-4 py-3 uppercase tracking-wider font-bold">Vendedor</th>
@@ -197,13 +251,23 @@
                             {{ $sale->fabricPiece->fabricType->name ?? 'N/A' }} / {{ $sale->fabricPiece->color->name ?? 'N/A' }}
                         </td>
                         <td class="px-4 py-3 text-center font-bold text-gray-900 dark:text-gray-100">
-                            {{ number_format($sale->quantity, 2, ',', '.') }} {{ $sale->unit }}
+                            {{ number_format($sale->quantity, $sale->unit === 'metros' ? 2 : 3, ',', '.') }} {{ $sale->unit === 'metros' ? 'm' : 'kg' }}
                         </td>
                         <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400">
                             R$ {{ number_format($sale->unit_price, 2, ',', '.') }}
                         </td>
                         <td class="px-4 py-3 text-right font-bold text-green-600 dark:text-green-400">
                             R$ {{ number_format($sale->total_price, 2, ',', '.') }}
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 rounded-full text-[10px] font-bold
+                                @if($sale->channel === 'pdv') bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300
+                                @elseif($sale->channel === 'catalog') bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300
+                                @elseif($sale->channel === 'order') bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200
+                                @else bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300
+                                @endif">
+                                {{ strtoupper($sale->channel ?? 'manual') }}
+                            </span>
                         </td>
                         <td class="px-4 py-3">
                             @if($sale->order_id && $sale->order)
@@ -220,6 +284,12 @@
                                         <span class="text-xs bg-indigo-100 dark:bg-indigo-900/30 px-1 rounded mr-1">PED</span>#{{ str_pad($sale->order_id, 6, '0', STR_PAD_LEFT) }}
                                     </a>
                                 @endif
+                            @elseif($sale->catalog_order_id && $sale->catalogOrder)
+                                <a href="{{ route('admin.catalog-orders.show', $sale->catalogOrder) }}"
+                                   class="text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
+                                   title="Ver pedido do catálogo">
+                                    <span class="text-xs bg-emerald-100 dark:bg-emerald-900/30 px-1 rounded mr-1">CAT</span>{{ $sale->catalogOrder->order_code }}
+                                </a>
                             @else
                                 <span class="text-gray-400">-</span>
                             @endif
@@ -233,7 +303,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="10" class="px-4 py-8 text-center text-gray-500 italic">
+                        <td colspan="11" class="px-4 py-8 text-center text-gray-500 italic">
                             Nenhuma venda registrada no período selecionado.
                         </td>
                     </tr>
@@ -264,7 +334,8 @@
                             <th class="pb-2">Loja</th>
                             <th class="pb-2 text-center">Ativas</th>
                             <th class="pb-2 text-center">Vendidas</th>
-                            <th class="pb-2 text-right">Peso (kg)</th>
+                            <th class="pb-2 text-right">Kg</th>
+                            <th class="pb-2 text-right">Metros</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -273,7 +344,8 @@
                             <td class="py-2 text-gray-900 dark:text-gray-100">{{ $row['name'] }}</td>
                             <td class="py-2 text-center text-green-600 dark:text-green-400">{{ $row['ativas'] }}</td>
                             <td class="py-2 text-center text-blue-600 dark:text-blue-400">{{ $row['vendidas'] }}</td>
-                            <td class="py-2 text-right text-gray-900 dark:text-gray-100 font-medium">{{ number_format($row['peso'], 2, ',', '.') }} kg</td>
+                            <td class="py-2 text-right text-gray-900 dark:text-gray-100 font-medium">{{ number_format($row['kg'], 3, ',', '.') }}</td>
+                            <td class="py-2 text-right text-gray-900 dark:text-gray-100 font-medium">{{ number_format($row['metros'], 2, ',', '.') }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -292,7 +364,8 @@
                         <tr class="text-left text-gray-500 dark:text-gray-400">
                             <th class="pb-2">Tipo</th>
                             <th class="pb-2 text-center">Peças</th>
-                            <th class="pb-2 text-right">Peso Total (kg)</th>
+                            <th class="pb-2 text-right">Kg Disponível</th>
+                            <th class="pb-2 text-right">Metros Disponíveis</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -300,7 +373,8 @@
                         <tr>
                             <td class="py-2 text-gray-900 dark:text-gray-100">{{ $row['name'] ?? 'Não definido' }}</td>
                             <td class="py-2 text-center text-gray-900 dark:text-gray-100">{{ $row['count'] }}</td>
-                            <td class="py-2 text-right text-gray-900 dark:text-gray-100 font-medium">{{ number_format($row['peso'], 2, ',', '.') }} kg</td>
+                            <td class="py-2 text-right text-gray-900 dark:text-gray-100 font-medium">{{ number_format($row['kg'], 3, ',', '.') }}</td>
+                            <td class="py-2 text-right text-gray-900 dark:text-gray-100 font-medium">{{ number_format($row['metros'], 2, ',', '.') }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -337,3 +411,60 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="{{ asset('js/chart.umd.min.js') }}"></script>
+<script>
+    const lowStockLabels = @json($lowStockChart['labels']);
+    const lowStockCurrent = @json($lowStockChart['current']);
+    const lowStockMinimum = @json($lowStockChart['minimum']);
+
+    if (document.getElementById('lowStockChart') && lowStockLabels.length > 0 && window.Chart) {
+        new Chart(document.getElementById('lowStockChart'), {
+            type: 'bar',
+            data: {
+                labels: lowStockLabels,
+                datasets: [
+                    {
+                        label: 'Atual',
+                        data: lowStockCurrent,
+                        backgroundColor: 'rgba(245, 158, 11, 0.55)',
+                        borderColor: 'rgba(217, 119, 6, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                    },
+                    {
+                        label: 'Mínimo',
+                        data: lowStockMinimum,
+                        type: 'line',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                        tension: 0.35,
+                        fill: false,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            maxRotation: 0,
+                            minRotation: 0
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+</script>
+@endpush

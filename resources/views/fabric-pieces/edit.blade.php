@@ -73,7 +73,15 @@
                 </div>
 
                 {{-- Características Físicas --}}
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Controle *</label>
+                        <select name="control_unit" id="control_unit" onchange="toggleControlUnitFields()"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg">
+                            <option value="kg" {{ old('control_unit', $piece->control_unit) === 'kg' ? 'selected' : '' }}>Kg</option>
+                            <option value="metros" {{ old('control_unit', $piece->control_unit) === 'metros' ? 'selected' : '' }}>Metros</option>
+                        </select>
+                    </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Peso Original (kg)</label>
                         <input type="number" step="0.001" name="weight" value="{{ old('weight', $piece->weight) }}"
@@ -87,6 +95,11 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Metragem (m)</label>
                         <input type="number" step="0.01" name="meters" value="{{ old('meters', $piece->meters) }}"
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Metragem Atual (m)</label>
+                        <input type="number" step="0.01" name="meters_current" value="{{ old('meters_current', $piece->meters_current) }}"
                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg">
                     </div>
                     <div>
@@ -152,16 +165,43 @@
                 </div>
 
                 {{-- Preços --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Preço por Kg (Venda)</label>
+                        <label id="sale-price-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Preço por Kg (Venda)</label>
                         <input type="number" step="0.01" name="sale_price" value="{{ old('sale_price', $piece->sale_price) }}"
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg">
+                    </div>
+                    <div>
+                        <label id="alert-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Alerta mínimo (kg)</label>
+                        <input type="number" step="0.001" name="min_quantity_alert" value="{{ old('min_quantity_alert', $piece->min_quantity_alert) }}"
                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Data Recebimento</label>
                         <input type="date" name="received_at" value="{{ old('received_at', $piece->received_at?->format('Y-m-d')) }}"
                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg">
+                    </div>
+                </div>
+
+                {{-- Canais de Venda --}}
+                <div class="bg-gray-50 dark:bg-gray-900/40 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                    <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Disponibilidade</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <label class="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
+                            <input type="checkbox" name="available_in_pdv" value="1" {{ old('available_in_pdv', $piece->available_in_pdv) ? 'checked' : '' }}
+                                   class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            Liberar no PDV
+                        </label>
+                        <label class="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
+                            <input type="checkbox" name="available_in_catalog" value="1" {{ old('available_in_catalog', $piece->available_in_catalog) ? 'checked' : '' }}
+                                   class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            Liberar no catálogo
+                        </label>
+                        <label class="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
+                            <input type="checkbox" name="available_in_orders" value="1" {{ old('available_in_orders', $piece->available_in_orders) ? 'checked' : '' }}
+                                   class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            Permitir em pedidos
+                        </label>
                     </div>
                 </div>
 
@@ -207,6 +247,20 @@
 
 @push('scripts')
 <script>
+    function toggleControlUnitFields() {
+        const unit = document.getElementById('control_unit')?.value || 'kg';
+        const salePriceLabel = document.getElementById('sale-price-label');
+        const alertLabel = document.getElementById('alert-label');
+
+        if (salePriceLabel) {
+            salePriceLabel.textContent = unit === 'metros' ? 'Preço por Metro (Venda)' : 'Preço por Kg (Venda)';
+        }
+
+        if (alertLabel) {
+            alertLabel.textContent = unit === 'metros' ? 'Alerta mínimo (m)' : 'Alerta mínimo (kg)';
+        }
+    }
+
     function toggleStoreSelectors() {
         const checkbox = document.getElementById('between_stores');
         const textFields = document.getElementById('text_origin_destination');
@@ -224,6 +278,7 @@
     // Inicializar estado ao carregar a página
     document.addEventListener('DOMContentLoaded', function() {
         toggleStoreSelectors();
+        toggleControlUnitFields();
     });
 </script>
 @endpush

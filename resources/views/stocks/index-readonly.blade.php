@@ -60,10 +60,10 @@
                 @endforeach
             </select>
 
-            <select name="fabric_type_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                <option value="">Todos Tipos de Tecido</option>
-                @foreach($fabricTypes as $fabricType)
-                    <option value="{{ $fabricType->id }}" {{ request('fabric_type_id') == $fabricType->id ? 'selected' : '' }}>{{ $fabricType->name }}</option>
+            <select name="fabric_id" class="text-xs px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                <option value="">Todos Tecidos</option>
+                @foreach($fabrics as $fabric)
+                    <option value="{{ $fabric->id }}" {{ request('fabric_id') == $fabric->id ? 'selected' : '' }}>{{ $fabric->name }}</option>
                 @endforeach
             </select>
 
@@ -110,8 +110,13 @@
                 <div class="flex items-center gap-3">
                     <span class="text-indigo-700 dark:text-indigo-400">{{ $group['store']['name'] }}</span>
                     <span class="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 rounded-full font-semibold border border-amber-300 dark:border-amber-700">
-                         {{ $group['fabric_type']['name'] ?? $group['fabric']['name'] ?? '-' }}
+                         {{ $group['fabric']['name'] ?? $group['fabric_type']['name'] ?? '-' }}
                     </span>
+                    @if($group['fabric_type']['name'] ?? null)
+                    <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-900/50 text-slate-700 dark:text-slate-300 rounded-full font-semibold border border-slate-300 dark:border-slate-700">
+                         Tipo: {{ $group['fabric_type']['name'] }}
+                    </span>
+                    @endif
                     @if($group['cut_type']['name'] ?? null)
                     <span class="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 rounded-full font-semibold border border-purple-300 dark:border-purple-700">
                          {{ $group['cut_type']['name'] }}

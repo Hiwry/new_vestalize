@@ -36,6 +36,10 @@
                 }
             });
         });
+
+        if (typeof window.updateFabricPieceSelection === 'function') {
+            window.updateFabricPieceSelection();
+        }
     }
 
     // Expose initialization for AJAX loading
@@ -319,6 +323,63 @@
                                           So yes, existing modal IS inside the form. 
                                           We can just place the actual inputs inside the modal steps!
                                       -->
+                                </div>
+                            </div>
+
+                            <div class="p-5 sewing-ui-surface rounded-lg border border-gray-200 dark:border-slate-700 space-y-4">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-ui-primary">Peça de Tecido do Estoque</label>
+                                        <p class="text-xs text-ui-muted mt-1">Opcional. Vincule uma peça para consumir saldo automaticamente ao confirmar o pedido.</p>
+                                    </div>
+                                    <span id="fabric-piece-current-badge" class="hidden px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                                        Peça vinculada
+                                    </span>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Selecionar peça</label>
+                                        <select name="fabric_piece_id" id="fabric_piece_id"
+                                                onchange="updateFabricPieceSelection()"
+                                                class="w-full px-3 py-2.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm">
+                                            <option value="">Não usar peça de tecido</option>
+                                            @foreach(($fabricPieces ?? []) as $piece)
+                                                <option value="{{ $piece->id }}">
+                                                    {{ $piece->display_name }} | Saldo {{ number_format($piece->available_quantity, $piece->control_unit === 'metros' ? 2 : 3, ',', '.') }} {{ $piece->control_unit === 'metros' ? 'm' : 'kg' }} | {{ $piece->store?->name ?? 'Loja' }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Quantidade da peça</label>
+                                        <input type="number"
+                                               name="fabric_piece_quantity"
+                                               id="fabric_piece_quantity"
+                                               min="0.001"
+                                               step="0.001"
+                                               placeholder="0,000"
+                                               class="w-full px-3 py-2.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm">
+                                    </div>
+                                </div>
+
+                                <input type="hidden" name="fabric_piece_unit" id="fabric_piece_unit">
+
+                                <div id="fabric-piece-selection-info" class="hidden rounded-xl border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-900/10 px-4 py-3">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                                        <div>
+                                            <span class="block text-emerald-700 dark:text-emerald-300 font-semibold uppercase tracking-wide">Unidade</span>
+                                            <span id="fabric-piece-unit-label" class="text-gray-900 dark:text-white font-bold">-</span>
+                                        </div>
+                                        <div>
+                                            <span class="block text-emerald-700 dark:text-emerald-300 font-semibold uppercase tracking-wide">Saldo disponível</span>
+                                            <span id="fabric-piece-available-label" class="text-gray-900 dark:text-white font-bold">-</span>
+                                        </div>
+                                        <div>
+                                            <span class="block text-emerald-700 dark:text-emerald-300 font-semibold uppercase tracking-wide">Loja</span>
+                                            <span id="fabric-piece-store-label" class="text-gray-900 dark:text-white font-bold">-</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -986,6 +1047,79 @@
         personalizacao: @json($personalizationOptions ?? [])
     };
     window.options = options;
+    const fabricPiecesData = @json(
+        collect($fabricPieces ?? [])->map(fn($piece) => [
+            'id' => $piece->id,
+            'label' => $piece->display_name,
+            'unit' => $piece->control_unit,
+            'unit_label' => $piece->control_unit === 'metros' ? 'Metros' : 'Kg',
+            'unit_suffix' => $piece->control_unit === 'metros' ? 'm' : 'kg',
+            'available_quantity' => (float) $piece->available_quantity,
+            'store_name' => $piece->store?->name,
+        ])->values()
+    );
+    window.fabricPiecesData = fabricPiecesData;
+
+    function resetFabricPieceSelection() {
+        const select = document.getElementById('fabric_piece_id');
+        const qtyInput = document.getElementById('fabric_piece_quantity');
+        const unitInput = document.getElementById('fabric_piece_unit');
+        const info = document.getElementById('fabric-piece-selection-info');
+        const badge = document.getElementById('fabric-piece-current-badge');
+
+        if (select) select.value = '';
+        if (qtyInput) {
+            qtyInput.value = '';
+            qtyInput.removeAttribute('max');
+            qtyInput.step = '0.001';
+        }
+        if (unitInput) unitInput.value = '';
+        if (info) info.classList.add('hidden');
+        if (badge) badge.classList.add('hidden');
+    }
+    window.resetFabricPieceSelection = resetFabricPieceSelection;
+
+    function updateFabricPieceSelection() {
+        const select = document.getElementById('fabric_piece_id');
+        const qtyInput = document.getElementById('fabric_piece_quantity');
+        const unitInput = document.getElementById('fabric_piece_unit');
+        const info = document.getElementById('fabric-piece-selection-info');
+        const badge = document.getElementById('fabric-piece-current-badge');
+        const unitLabel = document.getElementById('fabric-piece-unit-label');
+        const availableLabel = document.getElementById('fabric-piece-available-label');
+        const storeLabel = document.getElementById('fabric-piece-store-label');
+
+        if (!select || !qtyInput || !unitInput) return;
+
+        const piece = fabricPiecesData.find(item => String(item.id) === String(select.value));
+        if (!piece) {
+            resetFabricPieceSelection();
+            return;
+        }
+
+        unitInput.value = piece.unit;
+        qtyInput.step = piece.unit === 'metros' ? '0.01' : '0.001';
+        qtyInput.min = piece.unit === 'metros' ? '0.01' : '0.001';
+        qtyInput.max = piece.available_quantity;
+
+        if (!qtyInput.value) {
+            qtyInput.value = piece.available_quantity < 1
+                ? piece.available_quantity
+                : (piece.unit === 'metros' ? '1.00' : '1.000');
+        }
+
+        if (unitLabel) unitLabel.textContent = piece.unit_label;
+        if (availableLabel) {
+            availableLabel.textContent = `${Number(piece.available_quantity).toLocaleString('pt-BR', {
+                minimumFractionDigits: piece.unit === 'metros' ? 2 : 3,
+                maximumFractionDigits: piece.unit === 'metros' ? 2 : 3
+            })} ${piece.unit_suffix}`;
+        }
+        if (storeLabel) storeLabel.textContent = piece.store_name || 'N/A';
+        if (info) info.classList.remove('hidden');
+        if (badge) badge.classList.remove('hidden');
+    }
+    window.updateFabricPieceSelection = updateFabricPieceSelection;
 
     // Ãcones e cores especÃ­ficos por tipo de personalizaÃ§Ã£o
     const personalizationIconMap = {
@@ -1300,6 +1434,8 @@
             if (typeof window.goToWizardStep === 'function') {
                 window.goToWizardStep(1);
             }
+
+            resetFabricPieceSelection();
         }
     }
     window.resetForm = resetForm;
@@ -2269,6 +2405,7 @@
         } catch(e) { console.error('Erro ao parsear print_desc', e); }
 
         const wIds = printDesc.wizard_ids || {};
+        const fabricPiece = printDesc.fabric_piece || null;
         
         const findOptionByName = (listKey, name) => {
             const list = getOptionList([listKey]);
@@ -2378,6 +2515,18 @@
         const isClientModeling = document.getElementById('wizard_is_client_modeling');
         if (isClientModeling) isClientModeling.checked = !!printDesc.is_client_modeling;
 
+        const fabricPieceSelect = document.getElementById('fabric_piece_id');
+        const fabricPieceQty = document.getElementById('fabric_piece_quantity');
+        const fabricPieceUnit = document.getElementById('fabric_piece_unit');
+        if (fabricPiece && fabricPieceSelect && fabricPieceQty) {
+            fabricPieceSelect.value = fabricPiece.id || '';
+            fabricPieceQty.value = fabricPiece.quantity || '';
+            if (fabricPieceUnit) fabricPieceUnit.value = fabricPiece.unit || '';
+            updateFabricPieceSelection();
+        } else {
+            resetFabricPieceSelection();
+        }
+
         document.querySelectorAll('.wizard-size-input').forEach(input => {
             const s = input.dataset.size;
             input.value = wizardData.sizes[s] || 0;
@@ -2467,6 +2616,7 @@
         window.selectedPersonalizacoes = selectedPersonalizacoes;
         wizardCurrentStep = 1;
         window.wizardCurrentStep = wizardCurrentStep;
+        resetFabricPieceSelection();
         closeSewingWizard();
     }
     window.cancelEdit = cancelEdit;
