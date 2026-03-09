@@ -3,13 +3,13 @@
         @if($type == 'products')
             @if($item instanceof \App\Models\Product)
                 {{-- Product Card --}}
-                <div class="group glass-card glass-card-hover rounded-xl md:rounded-2xl p-3 md:p-5 transition-all flex flex-col h-full">
+                <div class="group pdv-neo-card pdv-neo-card-hover rounded-xl md:rounded-2xl p-3 md:p-5 transition-all flex flex-col h-full">
                     {{-- Product Image (if exists) --}}
                     @php
                         $productImage = $item->primary_image_url ?? ($item->image_path ? Storage::url($item->image_path) : null);
                     @endphp
                     @if($productImage)
-                    <div class="aspect-square rounded-lg overflow-hidden mb-2 md:mb-3 glass-input">
+                    <div class="aspect-square rounded-lg overflow-hidden mb-2 md:mb-3 pdv-neo-input">
                         <img src="{{ $productImage }}" alt="{{ $item->title }}" class="w-full h-full object-cover">
                     </div>
                     @endif
@@ -20,7 +20,7 @@
                         </h3>
                         <div class="mt-1 flex flex-wrap items-center gap-1.5">
                             @if($item->category)
-                                <span class="hidden md:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium glass-input text-gray-800 dark:text-gray-300">
+                                <span class="hidden md:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium pdv-neo-input text-gray-800 dark:text-gray-300">
                                     {{ $item->category->name }}
                                 </span>
                             @endif
@@ -51,7 +51,7 @@
                 </div>
             @else
                 {{-- Product Option Card --}}
-                <div class="group glass-card glass-card-hover rounded-xl md:rounded-2xl p-3 md:p-5 transition-all flex flex-col h-full border-l-4 border-l-purple-500">
+                <div class="group pdv-neo-card pdv-neo-card-hover rounded-xl md:rounded-2xl p-3 md:p-5 transition-all flex flex-col h-full border-l-4 border-l-purple-500">
                     <div class="flex-1 mb-2 md:mb-4">
                         <h3 class="font-bold text-gray-900 dark:text-[var(--pdv-text-primary)] text-sm md:text-lg leading-tight mb-0.5 line-clamp-2">{{ $item->name }}</h3>
                         <p class="text-xs text-purple-600 dark:text-purple-400 font-medium mb-2">Tipo de Corte</p>
@@ -72,7 +72,7 @@
             @endif
         @else
             {{-- Generic Stock Item Card --}}
-            <div class="group glass-card glass-card-hover rounded-xl md:rounded-2xl p-3 md:p-5 transition-all flex flex-col h-full">
+            <div class="group pdv-neo-card pdv-neo-card-hover rounded-xl md:rounded-2xl p-3 md:p-5 transition-all flex flex-col h-full">
                 <div class="flex-1 mb-2 md:mb-4">
                     <div class="flex justify-between items-start gap-2">
                         <div class="flex-1 min-w-0">

@@ -162,47 +162,49 @@
         color: var(--pdv-text-secondary) !important;
     }
 
-    /* ---- BULLETPROOF GLASSMORPHISM ---- */
+    /* ---- BULLETPROOF GLASSMORPHISM (Neo Edition) ---- */
     /* Light Mode */
-    .glass-panel {
+    .pdv-neo-panel {
         background: #ffffff;
         border: 1px solid #dde2ea;
         box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
     }
-    .glass-card {
+    .pdv-neo-card {
         background: #ffffff;
         border: 1px solid #dde2ea;
         box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
     }
-    .glass-card-hover:hover {
+    .pdv-neo-card-hover:hover {
         box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
     }
-    .glass-input {
+    .pdv-neo-input {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
     }
     
-    /* Dark Mode (Forced Overrides) */
-    .dark .glass-panel {
-        background: rgba(255, 255, 255, 0.05) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        box-shadow: 0 18px 38px rgba(0, 0, 0, 0.25) !important;
+    /* Dark Mode (Forced Overrides with Explicit Hex) */
+    .dark .pdv-neo-panel {
+        background-color: #1e293b !important; /* slate-800 - Impossible to be black */
+        border: 1px solid #334155 !important; /* slate-700 */
+        box-shadow: none !important;
         backdrop-filter: blur(16px) !important;
         -webkit-backdrop-filter: blur(16px) !important;
     }
-    .dark .glass-card {
-        background: rgba(255, 255, 255, 0.08) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+    .dark .pdv-neo-card {
+        background-color: #334155 !important; /* slate-700 - Highly visible gray */
+        border: 1px solid #475569 !important; /* slate-600 */
+        box-shadow: none !important;
         color: #f8fafc !important;
     }
-    .dark .glass-card-hover:hover {
-        background: rgba(255, 255, 255, 0.12) !important;
-        border-color: rgba(255, 255, 255, 0.2) !important;
+    .dark .pdv-neo-card-hover:hover {
+        background-color: #475569 !important; /* slate-600 */
+        border-color: #64748b !important; /* slate-500 */
+        box-shadow: none !important;
     }
-    .dark .glass-input {
-        background: rgba(255, 255, 255, 0.12) !important;
-        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    .dark .pdv-neo-input {
+        background-color: #0f172a !important; /* slate-900 - Dark blue background */
+        border: 1px solid #334155 !important; /* slate-700 */
+        box-shadow: none !important;
         color: #f8fafc !important;
     }
     /* ----------------------------------- */
@@ -252,7 +254,7 @@
             </div>
         </div>
 
-        <div class="glass-panel rounded-2xl pdv-ft-tabs">
+        <div class="pdv-neo-panel rounded-2xl pdv-ft-tabs">
             <div class="flex items-center gap-2 overflow-x-auto">
                 <a href="{{ route('pdv.index', ['type' => 'products']) }}" data-type="products"
                    class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'products' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}"
@@ -286,7 +288,7 @@
             {{-- Left Column: Products (full on mobile, 8 cols on desktop) --}}
             <div class="col-span-12 lg:col-span-8 space-y-4 md:space-y-6">
 
-                <div class="glass-panel rounded-3xl p-4 md:p-5 space-y-4 md:space-y-6">
+                <div class="pdv-neo-panel rounded-3xl p-4 md:p-5 space-y-4 md:space-y-6">
                     {{-- Search Bar (Instant) - Compact on mobile --}}
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
@@ -298,7 +300,7 @@
                                id="product-search"
                                value="{{ $search ?? '' }}"
                                placeholder="Buscar produto, tecido, máquina ou suprimento..." 
-                               class="glass-input block w-full pr-4 py-3 md:py-4 rounded-xl md:rounded-2xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/20 text-sm md:text-lg transition-all"
+                               class="pdv-neo-input block w-full pr-4 py-3 md:py-4 rounded-xl md:rounded-2xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/20 text-sm md:text-lg transition-all"
                                style="padding-left: 3rem !important;">
                     </div>
 
@@ -312,7 +314,7 @@
             {{-- Right Column: Cart & Client (4 cols - hidden on mobile, full on lg) --}}
             <div class="hidden lg:block col-span-12 lg:col-span-4 relative">
                 <div class="sticky top-6">
-                    <div class="glass-panel rounded-3xl overflow-hidden flex flex-col h-[calc(100vh-6rem)]">
+                    <div class="pdv-neo-panel rounded-3xl overflow-hidden flex flex-col h-[calc(100vh-6rem)]">
                         
                         <!-- 1. Header & Client Selection -->
                         <div class="p-5 border-b border-gray-100 dark:border-gray-700 pdv-card bg-gray-50/50">
@@ -424,11 +426,11 @@
                                     <div>
                                         <label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1 block pl-1">Desconto</label>
                                         <div class="flex shadow-sm rounded-lg">
-                                            <select id="discount-type" class="px-2 py-1.5 glass-input rounded-l-lg text-xs focus:ring-1 focus:ring-gray-900 border-r-0 text-gray-700 dark:text-[var(--pdv-text-primary)]">
+                                            <select id="discount-type" class="px-2 py-1.5 pdv-neo-input rounded-l-lg text-xs focus:ring-1 focus:ring-gray-900 border-r-0 text-gray-700 dark:text-[var(--pdv-text-primary)]">
                                                 <option value="fixed">R$</option>
                                                 <option value="percent">%</option>
                                             </select>
-                                            <input type="number" id="discount-input" placeholder="0,00" step="0.01" min="0" class="flex-1 w-full px-2 py-1.5 glass-input rounded-r-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-[var(--pdv-text-primary)] placeholder-gray-400">
+                                            <input type="number" id="discount-input" placeholder="0,00" step="0.01" min="0" class="flex-1 w-full px-2 py-1.5 pdv-neo-input rounded-r-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-[var(--pdv-text-primary)] placeholder-gray-400">
                                         </div>
                                     </div>
                                     <!-- Delivery -->
@@ -438,7 +440,7 @@
                                             <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
                                                 <span class="text-gray-400 text-xs">R$</span>
                                             </div>
-                                            <input type="number" id="delivery-fee-input" placeholder="0,00" class="w-full pl-6 pr-2 py-1.5 glass-input rounded-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-[var(--pdv-text-primary)] placeholder-gray-400">
+                                            <input type="number" id="delivery-fee-input" placeholder="0,00" class="w-full pl-6 pr-2 py-1.5 pdv-neo-input rounded-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-[var(--pdv-text-primary)] placeholder-gray-400">
                                         </div>
                                     </div>
                                 </div>
