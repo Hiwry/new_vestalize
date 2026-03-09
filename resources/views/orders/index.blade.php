@@ -385,23 +385,40 @@
     .orders-ft .orders-ft-table tbody tr {
         background: var(--of-card-bg) !important;
         border-color: var(--of-table-row) !important;
-        transition: background .16s ease;
     }
 
     .orders-ft .orders-ft-table tbody tr:hover {
-        background: #3e4c5f !important;
+        background: var(--of-card-bg) !important;
+    }
+
+    .dark .orders-ft .orders-ft-table {
+        background-color: var(--of-card-bg) !important;
     }
 
     .dark .orders-ft .orders-ft-table thead th {
         background-color: var(--of-table-head) !important;
+        border-color: var(--of-table-head) !important;
     }
 
     .dark .orders-ft .orders-ft-table tbody td {
         background-color: var(--of-card-bg) !important;
+        border-color: var(--of-table-row) !important;
     }
 
     .dark .orders-ft .orders-ft-table tbody tr:hover td {
-        background-color: #3e4c5f !important;
+        background-color: var(--of-card-bg) !important;
+    }
+
+    .dark .orders-ft .sticky-column {
+        background-color: var(--of-card-bg) !important;
+    }
+
+    .dark .orders-ft .sticky-table thead .sticky-column {
+        background-color: var(--of-table-head) !important;
+    }
+
+    .dark .orders-ft .sticky-table tbody tr:hover .sticky-column {
+        background-color: var(--of-card-bg) !important;
     }
 
     .orders-ft .orders-ft-mobile-card {
@@ -616,8 +633,8 @@
         </div>
     </div>
     <div class="table-sticky-wrapper overflow-x-auto" id="ordersTableScroll">
-        <table class="min-w-full divide-y divide-gray-100 dark:divide-white/5 sticky-table orders-ft-table">
-            <thead class="bg-gray-50/50 dark:bg-white/5">
+        <table class="min-w-full sticky-table orders-ft-table">
+            <thead>
                 <tr>
                     <th data-sticky class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Pedido</th>
                     <th data-sticky class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Cliente</th>
@@ -630,7 +647,7 @@
                     <th class="px-6 py-4 text-center text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Ações</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-white/5">
+            <tbody>
                 @forelse($orders as $order)
                 @php
                     $statusColor = $resolveStatusColor($order->status);
@@ -753,9 +770,9 @@
                                 
                                     @if(Auth::user()->isAdmin() || $approvedEditRequest)
                                         <a href="{{ route('orders.edit.start', $order->id) }}" 
-                                           class="p-2 {{ $approvedEditRequest ? 'bg-gradient-to-br from-green-500 to-green-600 shadow-green-200/50 hover:shadow-green-300/50' : 'bg-gradient-to-br from-[#7c3aed] to-[#6d28d9] shadow-purple-200/50 hover:shadow-purple-300/50' }} text-white rounded-xl transition-all shadow-md hover:-translate-y-0.5 hover:shadow-lg flex items-center justify-center"
+                                           class="p-2 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-lg transition-colors"
                                            title="Editar Pedido">
-                                            <svg class="w-5 h-5 text-white" style="color: #ffffff !important;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                         </a>
                                     @elseif($pendingEditRequest)
                                         <div class="p-2 text-yellow-500 opacity-50 cursor-wait" title="Edição Pendente">

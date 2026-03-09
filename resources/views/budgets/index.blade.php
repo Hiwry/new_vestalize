@@ -316,23 +316,28 @@
     .budgets-ft .budgets-ft-table tbody tr {
         background: var(--of-card-bg) !important;
         border-color: var(--of-table-row) !important;
-        transition: background .16s ease;
     }
 
     .budgets-ft .budgets-ft-table tbody tr:hover {
-        background: #3e4c5f !important;
+        background: var(--of-card-bg) !important;
+    }
+
+    .dark .budgets-ft .budgets-ft-table {
+        background-color: var(--of-card-bg) !important;
     }
 
     .dark .budgets-ft .budgets-ft-table thead th {
         background-color: var(--of-table-head) !important;
+        border-color: var(--of-table-head) !important;
     }
 
     .dark .budgets-ft .budgets-ft-table tbody td {
         background-color: var(--of-card-bg) !important;
+        border-color: var(--of-table-row) !important;
     }
 
     .dark .budgets-ft .budgets-ft-table tbody tr:hover td {
-        background-color: #3e4c5f !important;
+        background-color: var(--of-card-bg) !important;
     }
 
     .budgets-ft .budgets-ft-mobile-card {
@@ -744,8 +749,8 @@
 <!-- Lista Desktop -->
 <div class="hidden md:block landing-card budgets-ft-table-card p-0 overflow-hidden animate-fade-in-up delay-100">
     <div class="table-sticky-wrapper overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-100 dark:divide-white/5 budgets-ft-table">
-            <thead class="bg-gray-50/50 dark:bg-white/5">
+        <table class="min-w-full budgets-ft-table">
+            <thead>
                 <tr>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Número</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Cliente</th>
@@ -807,6 +812,13 @@
                     </td>
                     <td class="px-6 py-5 whitespace-nowrap">
                         <div class="flex items-center justify-center gap-1">
+                            {{-- Editar --}}
+                            <a href="{{ route('budget.edit', $budget->id) }}" 
+                               class="p-2 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-lg transition-colors"
+                               title="Editar Orçamento">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            </a>
+
                             {{-- Ver --}}
                             <a href="{{ route('budget.show', $budget->id) }}"
                                class="p-2 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-lg transition-colors"
