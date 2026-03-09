@@ -152,10 +152,10 @@
             isMobile() ? 'w-full max-w-full sidebar-expanded' : (expanded ? 'sidebar-expanded' : 'sidebar-collapsed'),
             (mobileOpen || !isMobile()) ? 'translate-x-0' : '-translate-x-full'
         ]"
-       class="fixed top-0 left-0 z-[60] h-screen bg-slate-900 border-r border-white/5 overflow-hidden transition-all duration-300 ease-in-out transform md:translate-x-0 shadow-2xl flex flex-col">
+       class="fixed top-0 left-0 z-[60] h-screen bg-black border-r border-white/5 overflow-hidden transition-all duration-300 ease-in-out transform md:translate-x-0 shadow-2xl flex flex-col">
     
     <!-- Header do Sidebar -->
-    <div class="flex items-center h-20 border-b border-white/5 bg-slate-900/50 backdrop-blur-xl transition-all duration-300 relative"
+    <div class="flex items-center h-20 border-b border-white/5 bg-[#0a0a0a] transition-all duration-300 relative"
          :class="expanded ? 'justify-between px-4' : 'justify-center'">
         <div class="flex items-center overflow-hidden" x-show="expanded">
             <img src="{{ asset('vestalize.svg') }}"
@@ -181,7 +181,7 @@
         
         <div class="text-nowrap">
             <a href="{{ route('dashboard') }}" 
-               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->routeIs('dashboard') || request()->is('/')) ? 'active-link' : 'text-muted hover:bg-white/10 hover:text-white' }}"
+               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->routeIs('dashboard') || request()->is('/')) ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
                :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
                title="Tela Inicial">
                 <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
@@ -197,7 +197,7 @@
 
         <div class="mt-2 text-nowrap">
             <a href="{{ route('orders.index') }}" 
-               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('orders.index') ? 'active-link' : 'text-muted hover:bg-white/10 hover:text-white' }}"
+               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('orders.index') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
                :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
                title="Pedidos">
                 <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
@@ -211,7 +211,7 @@
 
         <div class="mt-2 text-nowrap">
             <a href="{{ route('budget.index') }}" 
-               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('budget.index') ? 'active-link' : 'text-muted hover:bg-white/10 hover:text-white' }}"
+               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('budget.index') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
                :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
                title="Orçamentos">
                 <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
@@ -227,7 +227,7 @@
         @if(auth()->user()->affiliate)
         <div class="mt-2 text-nowrap">
             <a href="{{ route('affiliate.dashboard') }}"
-               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('affiliate.*') ? 'active-link' : 'text-muted hover:bg-white/10 hover:text-white' }}"
+               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('affiliate.*') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
                :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
                title="Afiliado">
                 <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
@@ -242,7 +242,7 @@
 
         @if(Auth::user()->isEstoque() && !Auth::user()->isAdmin())
             <a href="{{ route('stocks.index', ['view' => 'hub']) }}" 
-               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->is('stocks*') ? 'active-link' : 'text-muted hover:bg-white/10 hover:text-white' }}"
+               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->is('stocks*') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
                :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
                title="Estoque">
                 <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
@@ -251,7 +251,7 @@
                 <span class="ml-4" x-show="expanded">Estoque</span>
             </a>
              <a href="{{ route('stock-requests.index') }}" 
-                class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('stock-requests.*') ? 'active-link' : 'text-muted hover:bg-white/10 hover:text-white' }}"
+                class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('stock-requests.*') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
                 :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
                 title="Solicitações">
                 <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
@@ -262,7 +262,7 @@
         @else
             <div class="mt-2 text-nowrap">
                 <a href="{{ route('sales.index') }}"
-                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->is('vendas*') || request()->routeIs('sales.*')) ? 'active-link' : 'text-muted hover:bg-white/10 hover:text-white' }}"
+                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->is('vendas*') || request()->routeIs('sales.*')) ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
                    :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
                    title="Vendas">
                     <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
@@ -276,7 +276,7 @@
             @if($canStock && (Auth::user()->isAdminGeral() || Auth::user()->isAdmin() || Auth::user()->isEstoque() || Auth::user()->isVendedor()))
              <div class="mt-1">
                 <a href="{{ Auth::user()->isVendedor() ? route('stocks.view') : route('stocks.index', ['view' => 'hub']) }}"
-                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->routeIs('stocks.*') || request()->routeIs('fabric-pieces.*') || request()->routeIs('sewing-machines.*') || request()->routeIs('production-supplies.*') || request()->routeIs('uniforms.*') || request()->routeIs('stock-requests.*')) ? 'active-link' : 'text-muted hover:bg-white/10 hover:text-white' }}"
+                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->routeIs('stocks.*') || request()->routeIs('fabric-pieces.*') || request()->routeIs('sewing-machines.*') || request()->routeIs('production-supplies.*') || request()->routeIs('uniforms.*') || request()->routeIs('stock-requests.*')) ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
                    :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
                    title="Estoque">
                     <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
@@ -303,7 +303,7 @@
                     @endphp
                     <div class="mt-1">
                         <a href="{{ route('admin.catalog.index') }}"
-                           class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ $isCatalogActive ? 'active-link' : 'text-muted hover:bg-white/10 hover:text-white' }}"
+                           class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ $isCatalogActive ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
                            :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
                            title="Catálogo">
                             <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
@@ -314,6 +314,22 @@
                     </div>
                 @endif
             @endif
+                       <!-- New Catalog Button for Non-Admins -->
+            @php $canOrders = Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('orders'); @endphp
+            @if($canOrders && (!Auth::user()->isAdmin() && !Auth::user()->isAdminGeral() && !Auth::user()->isEstoque()))
+            <div class="mt-1">
+                <a href="{{ route('public.catalog.index', ['tenant' => auth()->user()->tenant->slug]) }}" target="_blank"
+                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 text-muted hover:bg-white/10 hover:text-white"
+                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   title="Catálogo">
+                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                        <i class="fa-solid fa-list-ul text-lg"></i>
+                    </div>
+                    <span class="ml-4" x-show="expanded">Catálogo</span>
+                    <i class="fa-solid fa-external-link-alt ml-auto text-xs opacity-50" x-show="expanded"></i>
+                </a>
+            </div>
+            @endif
 
             @php
                 $canProduction = Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('production');
@@ -322,7 +338,7 @@
             @if($canPersonalized && !$canProduction && (Auth::user()->isProducao() || Auth::user()->isAdmin()))
                 <div class="mt-1">
                     <a href="{{ route('personalized.orders.index') }}"
-                       class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('personalized.orders.*') || (request()->routeIs('kanban.index') && request()->get('type') == 'personalized') ? 'active-link' : 'text-muted hover:bg-white/10 hover:text-white' }}"
+                       class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('personalized.orders.*') || (request()->routeIs('kanban.index') && request()->get('type') == 'personalized') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
                        :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
                        title="Personalizados">
                         <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
@@ -336,7 +352,7 @@
             @if($canProduction && (Auth::user()->isProducao() || Auth::user()->isAdmin()))
                 <div class="mt-1">
                     <a href="{{ route('production.hub') }}"
-                       class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('production.*') || (request()->routeIs('kanban.index') && request()->get('type') != 'personalized') ? 'active-link' : 'text-muted hover:bg-white/10 hover:text-white' }}"
+                       class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('production.*') || (request()->routeIs('kanban.index') && request()->get('type') != 'personalized') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
                        :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
                        title="Produção">
                         <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
@@ -362,9 +378,9 @@
                         <i x-show="expanded" class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" :class="openGroups.financeiro ? 'rotate-90 text-primary' : ''"></i>
                     </button>
                     <div x-show="openGroups.financeiro && expanded" x-collapse x-cloak class="space-y-1 my-1 px-2">
-                        <a href="{{ route('financial.dashboard') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('financial.dashboard') ? 'active-link' : 'text-muted hover:text-white hover:bg-white/5' }}">Dashboard</a>
-                        <a href="{{ route('cash.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('cash.index') ? 'active-link' : 'text-muted hover:text-white hover:bg-white/5' }}">Caixa</a>
-                        <a href="{{ route('cash.approvals.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('cash.approvals.*') ? 'active-link' : 'text-muted hover:text-white hover:bg-white/5' }}">Aprovações PDV</a>
+                        <a href="{{ route('financial.dashboard') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('financial.dashboard') ? 'bg-[#8252ed]/10 text-[#8252ed]' : 'text-slate-500 hover:text-white hover:bg-white/5' }}">Dashboard</a>
+                        <a href="{{ route('cash.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('cash.index') ? 'bg-[#8252ed]/10 text-[#8252ed]' : 'text-slate-500 hover:text-white hover:bg-white/5' }}">Caixa</a>
+                        <a href="{{ route('cash.approvals.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('cash.approvals.*') ? 'bg-[#8252ed]/10 text-[#8252ed]' : 'text-slate-500 hover:text-white hover:bg-white/5' }}">Aprovações PDV</a>
                     </div>
                 </div>
             @endif
@@ -372,7 +388,7 @@
             <!-- Links finais -->
             <div class="mt-1">
                 <a href="{{ route('tutorials.index') }}"
-                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('tutorials.*') ? 'active-link' : 'text-muted hover:bg-white/10 hover:text-white' }}"
+                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('tutorials.*') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
                    :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
                    title="Tutoriais">
                     <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
@@ -384,7 +400,7 @@
             <div class="mt-1">
                 @if(!Auth::user()->isVendedor())
                 <a href="{{ route('settings.index') }}" 
-                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('settings.*') ? 'active-link' : 'text-muted hover:bg-white/10 hover:text-white' }}"
+                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('settings.*') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
                    :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
                    title="Configurações">
                     <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
@@ -398,36 +414,37 @@
     </nav>
     
     <!-- Footer do Sidebar -->
-    <div class="p-4 mt-auto border-t border-white/5 bg-slate-900/50 backdrop-blur-xl">
+    <div class="p-4 mt-auto border-t border-white/5 bg-black">
          <!-- Theme Toggle Pill -->
          <div class="mb-4 px-1" x-show="expanded">
-             <div class="flex items-center p-1 bg-slate-800 rounded-2xl cursor-pointer hover:bg-slate-700 transition-all border border-white/5" @click="window.toggleDarkMode(); isDark = document.documentElement.classList.contains('dark');">
-                <div class="flex-1 flex items-center justify-center py-2 rounded-xl transition-all" :class="!isDark ? 'bg-primary text-white shadow-lg' : 'text-slate-400'">
-                    <i class="fa-solid fa-sun text-sm mr-2"></i>
-                    <span class="text-[10px] font-black uppercase tracking-widest">Claro</span>
+             <div class="flex items-center p-1 bg-[#1a1c23] rounded-[20px] cursor-pointer border border-white/5" @click="window.toggleDarkMode(); isDark = document.documentElement.classList.contains('dark');">
+                <div class="flex-1 flex items-center justify-center py-2.5 rounded-[16px] transition-all" :class="!isDark ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white'">
+                    <i class="fa-solid fa-sun text-[14px]"></i>
+                    <span x-show="!isDark" class="ml-2 text-[10px] font-bold uppercase tracking-wider">Claro</span>
                 </div>
-                <div class="flex-1 flex items-center justify-center py-2 rounded-xl transition-all" :class="isDark ? 'bg-primary text-white shadow-lg' : 'text-slate-400'">
-                    <i class="fa-solid fa-moon text-sm mr-2"></i>
-                    <span class="text-[10px] font-black uppercase tracking-widest">Escuro</span>
+                <div class="flex-1 flex items-center justify-center py-2.5 rounded-[16px] transition-all" :class="isDark ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white'">
+                    <i class="fa-solid fa-moon text-[14px]"></i>
+                    <span x-show="isDark" class="ml-2 text-[10px] font-bold uppercase tracking-wider">Escuro</span>
                 </div>
              </div>
          </div>
 
          <!-- Mini Toggle (Collapsed) -->
          <button x-show="!expanded" @click="window.toggleDarkMode(); isDark = document.documentElement.classList.contains('dark');"
-                 class="w-11 h-11 flex items-center justify-center mx-auto mb-4 rounded-xl transition-all group text-primary bg-primary/10 hover:bg-primary/20 border border-primary/20">
-             <i class="fa-solid text-lg transition-transform group-hover:rotate-12" :class="isDark ? 'fa-moon' : 'fa-sun'"></i>
+                 class="w-11 h-11 flex items-center justify-center mx-auto mb-4 rounded-[16px] transition-all group text-white bg-[#8252ed] hover:bg-[#9366f0] border border-white/10 shadow-lg">
+             <i class="fa-solid text-sm transition-transform group-hover:rotate-12" :class="isDark ? 'fa-moon' : 'fa-sun'"></i>
          </button>
 
+         <!-- Profile -->
         <button @click="showProfileModal = true" 
-                class="flex items-center rounded-2xl bg-slate-800/50 border border-white/5 hover:bg-slate-700/50 transition-all group w-full"
+                class="flex items-center rounded-2xl bg-[#0a0a0a] border border-white/5 hover:bg-[#1a1c23] transition-all group w-full"
                 :class="expanded ? 'p-2 justify-start' : 'justify-center mx-auto py-2'">
-            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white stay-white font-black text-xs shadow-lg group-hover:scale-105 transition-transform border border-white/10">
+            <div class="flex-shrink-0 w-11 h-11 rounded-[16px] bg-[#8252ed] flex items-center justify-center text-white stay-white font-black text-sm shadow-lg group-hover:scale-105 transition-transform">
                 {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
             </div>
             <div class="flex flex-col items-start ml-3 overflow-hidden text-nowrap" x-show="expanded">
-                <span class="text-xs font-black text-slate-100 truncate w-full max-w-[140px] tracking-tight">{{ auth()->user()->name }}</span>
-                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Meu Perfil</span>
+                <span class="text-[13px] font-black text-white truncate w-full max-w-[140px] tracking-tight">{{ auth()->user()->name }}</span>
+                <span class="text-[9px] font-bold text-[#38bdf8] uppercase tracking-widest mt-0.5">Meu Perfil</span>
             </div>
         </button>
     </div>
