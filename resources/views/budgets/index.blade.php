@@ -29,16 +29,16 @@
         --of-surface-from: #1e293b;
         --of-surface-to: #0f172a;
         --of-surface-border: rgba(148, 163, 184, 0.25);
-        --of-text-primary: #f1f5f9;
-        --of-text-secondary: #94a3b8;
+        --of-text-primary: #f8fafc;
+        --of-text-secondary: #cbd5e1;
         --of-tab-text: #94a3b8;
         --of-card-bg: #334155;
-        --of-card-border: rgba(148, 163, 184, 0.15);
-        --of-card-shadow: 0 18px 38px rgba(2, 6, 23, 0.35);
+        --of-card-border: rgba(148, 163, 184, 0.2);
+        --of-card-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
         --of-input-bg: #475569;
-        --of-input-border: rgba(148, 163, 184, 0.2);
-        --of-input-text: #f1f5f9;
-        --of-table-head: rgba(148, 163, 184, 0.15);
+        --of-input-border: rgba(148, 163, 184, 0.25);
+        --of-input-text: #f8fafc;
+        --of-table-head: rgba(255, 255, 255, 0.1);
         --of-table-row: rgba(255, 255, 255, 0.03);
     }
 
