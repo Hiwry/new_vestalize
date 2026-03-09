@@ -143,6 +143,44 @@
     </div>
 </div>
 
+<style>
+    /* Image 2 Exact Sidebar Styling */
+    .sidebar-img2-bg {
+        background-color: #050505 !important;
+    }
+    
+    .active-link-img2 {
+        background: rgba(130, 82, 237, 0.08) !important;
+        color: #ffffff !important;
+        border-left: 4px solid #8252ed !important;
+        border-radius: 0 12px 12px 0 !important;
+        margin-left: 0 !important;
+    }
+    
+    .active-link-img2 .img2-icon {
+        color: #ffffff !important;
+    }
+
+    .inactive-link-img2 {
+        color: #64748b !important;
+        border-left: 4px solid transparent !important;
+        border-radius: 0 12px 12px 0 !important;
+    }
+
+    .inactive-link-img2:hover {
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+    }
+
+    .inactive-link-img2 .img2-icon {
+        color: #475569 !important; /* darker gray for icons */
+    }
+    
+    .inactive-link-img2:hover .img2-icon {
+        color: #94a3b8 !important;
+    }
+</style>
+
 <!-- Overlay Mobile -->
 <div x-show="mobileOpen && isMobile()" x-cloak @click="closeMobile()" class="fixed inset-0 bg-neutral-900/50 z-30 md:hidden"></div>
 
@@ -152,10 +190,10 @@
             isMobile() ? 'w-full max-w-full sidebar-expanded' : (expanded ? 'sidebar-expanded' : 'sidebar-collapsed'),
             (mobileOpen || !isMobile()) ? 'translate-x-0' : '-translate-x-full'
         ]"
-       class="fixed top-0 left-0 z-[60] h-screen bg-black border-r border-white/5 overflow-hidden transition-all duration-300 ease-in-out transform md:translate-x-0 shadow-2xl flex flex-col">
+       class="fixed top-0 left-0 z-[60] h-screen sidebar-img2-bg border-r border-[#1e1e1e] overflow-hidden transition-all duration-300 ease-in-out transform md:translate-x-0 flex flex-col">
     
     <!-- Header do Sidebar -->
-    <div class="flex items-center h-20 border-b border-white/5 bg-[#0a0a0a] transition-all duration-300 relative"
+    <div class="flex items-center h-20 sidebar-img2-bg transition-all duration-300 relative"
          :class="expanded ? 'justify-between px-4' : 'justify-center'">
         <div class="flex items-center overflow-hidden" x-show="expanded">
             <img src="{{ asset('vestalize.svg') }}"
@@ -179,45 +217,43 @@
     <!-- Menu Items -->
     <nav class="flex-1 min-h-0 flex flex-col px-2 py-4 space-y-1 overflow-y-auto scrollbar-thin">
         
-        <div class="text-nowrap">
+        <div class="text-nowrap mt-2">
             <a href="{{ route('dashboard') }}" 
-               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->routeIs('dashboard') || request()->is('/')) ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
-               :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+               class="flex items-center w-full text-[13px] font-bold transition-all duration-200 {{ (request()->routeIs('dashboard') || request()->is('/')) ? 'active-link-img2' : 'inactive-link-img2' }}"
+               :class="expanded ? 'py-3.5 justify-start' : 'justify-center mx-auto'"
                title="Tela Inicial">
-                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
+                <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center ml-2">
+                    <i class="fa-solid fa-house text-base img2-icon"></i>
                 </div>
-                <span class="ml-4 whitespace-nowrap overflow-hidden transition-all duration-300" x-show="expanded">
+                <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300" x-show="expanded">
                     Tela Inicial
                 </span>
             </a>
         </div>
 
-        <div class="mt-2 text-nowrap">
+        <div class="mt-1 text-nowrap">
             <a href="{{ route('orders.index') }}" 
-               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('orders.index') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
-               :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+               class="flex items-center w-full text-[13px] font-bold transition-all duration-200 {{ request()->routeIs('orders.index') ? 'active-link-img2' : 'inactive-link-img2' }}"
+               :class="expanded ? 'py-3.5 justify-start' : 'justify-center mx-auto'"
                title="Pedidos">
-                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                    <i class="fa-solid fa-shopping-bag text-lg"></i>
+                <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center ml-2">
+                    <i class="fa-solid fa-shopping-bag text-base img2-icon"></i>
                 </div>
-                <span class="ml-4 whitespace-nowrap overflow-hidden transition-all duration-300" x-show="expanded">
+                <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300" x-show="expanded">
                     Pedidos
                 </span>
             </a>
         </div>
 
-        <div class="mt-2 text-nowrap">
+        <div class="mt-1 text-nowrap">
             <a href="{{ route('budget.index') }}" 
-               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('budget.index') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
-               :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+               class="flex items-center w-full text-[13px] font-bold transition-all duration-200 {{ request()->routeIs('budget.index') ? 'active-link-img2' : 'inactive-link-img2' }}"
+               :class="expanded ? 'py-3.5 justify-start' : 'justify-center mx-auto'"
                title="Orçamentos">
-                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                    <i class="fa-solid fa-calculator text-lg"></i>
+                <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center ml-2">
+                    <i class="fa-solid fa-calculator text-base img2-icon"></i>
                 </div>
-                <span class="ml-4 whitespace-nowrap overflow-hidden transition-all duration-300" x-show="expanded">
+                <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300" x-show="expanded">
                     Orçamentos
                 </span>
             </a>
@@ -225,15 +261,15 @@
 
 
         @if(auth()->user()->affiliate)
-        <div class="mt-2 text-nowrap">
+        <div class="mt-1 text-nowrap">
             <a href="{{ route('affiliate.dashboard') }}"
-               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('affiliate.*') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
-               :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+               class="flex items-center w-full text-[13px] font-bold transition-all duration-200 {{ request()->routeIs('affiliate.*') ? 'active-link-img2' : 'inactive-link-img2' }}"
+               :class="expanded ? 'py-3.5 justify-start' : 'justify-center mx-auto'"
                title="Afiliado">
-                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                    <i class="fa-solid fa-user-group text-lg"></i>
+                <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center ml-2">
+                    <i class="fa-solid fa-user-group text-base img2-icon"></i>
                 </div>
-                <span class="ml-4 whitespace-nowrap overflow-hidden transition-all duration-300" x-show="expanded">
+                <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300" x-show="expanded">
                     Afiliado
                 </span>
             </a>
@@ -242,33 +278,33 @@
 
         @if(Auth::user()->isEstoque() && !Auth::user()->isAdmin())
             <a href="{{ route('stocks.index', ['view' => 'hub']) }}" 
-               class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->is('stocks*') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
-               :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+               class="flex items-center w-full text-[13px] font-bold transition-all duration-200 {{ request()->is('stocks*') ? 'active-link-img2' : 'inactive-link-img2' }}"
+               :class="expanded ? 'py-3.5 justify-start' : 'justify-center mx-auto'"
                title="Estoque">
-                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                    <i class="fa-solid fa-boxes-stacked text-lg"></i>
+                <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center ml-2">
+                    <i class="fa-solid fa-boxes-stacked text-base img2-icon"></i>
                 </div>
-                <span class="ml-4" x-show="expanded">Estoque</span>
+                <span class="ml-3" x-show="expanded">Estoque</span>
             </a>
              <a href="{{ route('stock-requests.index') }}" 
-                class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('stock-requests.*') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
-                :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                class="flex items-center w-full text-[13px] font-bold transition-all duration-200 {{ request()->routeIs('stock-requests.*') ? 'active-link-img2' : 'inactive-link-img2' }}"
+                :class="expanded ? 'py-3.5 justify-start' : 'justify-center mx-auto'"
                 title="Solicitações">
-                <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                    <i class="fa-solid fa-file-invoice text-lg"></i>
+                <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center ml-2">
+                    <i class="fa-solid fa-file-invoice text-base img2-icon"></i>
                 </div>
-                <span class="ml-4" x-show="expanded">Solicitações</span>
+                <span class="ml-3" x-show="expanded">Solicitações</span>
              </a>
         @else
-            <div class="mt-2 text-nowrap">
+            <div class="mt-1 text-nowrap">
                 <a href="{{ route('sales.index') }}"
-                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->is('vendas*') || request()->routeIs('sales.*')) ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
-                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   class="flex items-center w-full text-[13px] font-bold transition-all duration-200 {{ (request()->is('vendas*') || request()->routeIs('sales.*')) ? 'active-link-img2' : 'inactive-link-img2' }}"
+                   :class="expanded ? 'py-3.5 justify-start' : 'justify-center mx-auto'"
                    title="Vendas">
-                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                        <i class="fa-solid fa-cart-shopping text-lg"></i>
+                    <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center ml-2">
+                        <i class="fa-solid fa-cart-shopping text-base img2-icon"></i>
                     </div>
-                    <span class="ml-4" x-show="expanded">Vendas</span>
+                    <span class="ml-3" x-show="expanded">Vendas</span>
                 </a>
             </div>
 
@@ -276,13 +312,13 @@
             @if($canStock && (Auth::user()->isAdminGeral() || Auth::user()->isAdmin() || Auth::user()->isEstoque() || Auth::user()->isVendedor()))
              <div class="mt-1">
                 <a href="{{ Auth::user()->isVendedor() ? route('stocks.view') : route('stocks.index', ['view' => 'hub']) }}"
-                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ (request()->routeIs('stocks.*') || request()->routeIs('fabric-pieces.*') || request()->routeIs('sewing-machines.*') || request()->routeIs('production-supplies.*') || request()->routeIs('uniforms.*') || request()->routeIs('stock-requests.*')) ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
-                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   class="flex items-center w-full text-[13px] font-bold transition-all duration-200 {{ (request()->routeIs('stocks.*') || request()->routeIs('fabric-pieces.*') || request()->routeIs('sewing-machines.*') || request()->routeIs('production-supplies.*') || request()->routeIs('uniforms.*') || request()->routeIs('stock-requests.*')) ? 'active-link-img2' : 'inactive-link-img2' }}"
+                   :class="expanded ? 'py-3.5 justify-start' : 'justify-center mx-auto'"
                    title="Estoque">
-                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                        <i class="fa-solid fa-boxes-stacked text-lg"></i>
+                    <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center ml-2">
+                        <i class="fa-solid fa-boxes-stacked text-base img2-icon"></i>
                     </div>
-                    <span class="ml-4" x-show="expanded">Estoque</span>
+                    <span class="ml-3" x-show="expanded">Estoque</span>
                 </a>
             </div>
             @endif
@@ -303,13 +339,13 @@
                     @endphp
                     <div class="mt-1">
                         <a href="{{ route('admin.catalog.index') }}"
-                           class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ $isCatalogActive ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
-                           :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                           class="flex items-center w-full text-[13px] font-bold transition-all duration-200 {{ $isCatalogActive ? 'active-link-img2' : 'inactive-link-img2' }}"
+                           :class="expanded ? 'py-3.5 justify-start' : 'justify-center mx-auto'"
                            title="Catálogo">
-                            <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                                <i class="fa-solid fa-list-ul text-lg"></i>
+                            <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center ml-2">
+                                <i class="fa-solid fa-list-ul text-base img2-icon"></i>
                             </div>
-                            <span class="ml-4" x-show="expanded">Catálogo</span>
+                            <span class="ml-3" x-show="expanded">Catálogo</span>
                         </a>
                     </div>
                 @endif
@@ -319,14 +355,14 @@
             @if($canOrders && (!Auth::user()->isAdmin() && !Auth::user()->isAdminGeral() && !Auth::user()->isEstoque()))
             <div class="mt-1">
                 <a href="{{ route('public.catalog.index', ['tenant' => auth()->user()->tenant->slug]) }}" target="_blank"
-                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 text-muted hover:bg-white/10 hover:text-white"
-                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   class="flex items-center w-full text-[13px] font-bold transition-all duration-200 inactive-link-img2"
+                   :class="expanded ? 'py-3.5 justify-start' : 'justify-center mx-auto'"
                    title="Catálogo">
-                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                        <i class="fa-solid fa-list-ul text-lg"></i>
+                    <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center ml-2">
+                        <i class="fa-solid fa-list-ul text-base img2-icon"></i>
                     </div>
-                    <span class="ml-4" x-show="expanded">Catálogo</span>
-                    <i class="fa-solid fa-external-link-alt ml-auto text-xs opacity-50" x-show="expanded"></i>
+                    <span class="ml-3" x-show="expanded">Catálogo</span>
+                    <i class="fa-solid fa-external-link-alt ml-auto text-[10px] opacity-40 mr-4" x-show="expanded"></i>
                 </a>
             </div>
             @endif
@@ -338,13 +374,13 @@
             @if($canPersonalized && !$canProduction && (Auth::user()->isProducao() || Auth::user()->isAdmin()))
                 <div class="mt-1">
                     <a href="{{ route('personalized.orders.index') }}"
-                       class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('personalized.orders.*') || (request()->routeIs('kanban.index') && request()->get('type') == 'personalized') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
-                       :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                       class="flex items-center w-full text-[13px] font-bold transition-all duration-200 {{ request()->routeIs('personalized.orders.*') || (request()->routeIs('kanban.index') && request()->get('type') == 'personalized') ? 'active-link-img2' : 'inactive-link-img2' }}"
+                       :class="expanded ? 'py-3.5 justify-start' : 'justify-center mx-auto'"
                        title="Personalizados">
-                        <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                            <i class="fa-solid fa-palette text-lg"></i>
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center ml-2">
+                            <i class="fa-solid fa-pen-ruler text-base img2-icon"></i>
                         </div>
-                        <span class="ml-4" x-show="expanded">Personalizados</span>
+                        <span class="ml-3" x-show="expanded">Personalizados</span>
                     </a>
                 </div>
             @endif
@@ -352,13 +388,13 @@
             @if($canProduction && (Auth::user()->isProducao() || Auth::user()->isAdmin()))
                 <div class="mt-1">
                     <a href="{{ route('production.hub') }}"
-                       class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('production.*') || (request()->routeIs('kanban.index') && request()->get('type') != 'personalized') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
-                       :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                       class="flex items-center w-full text-[13px] font-bold transition-all duration-200 {{ request()->routeIs('production.*') || (request()->routeIs('kanban.index') && request()->get('type') != 'personalized') ? 'active-link-img2' : 'inactive-link-img2' }}"
+                       :class="expanded ? 'py-3.5 justify-start' : 'justify-center mx-auto'"
                        title="Produção">
-                        <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                            <i class="fa-solid fa-industry text-lg"></i>
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center ml-2">
+                            <i class="fa-solid fa-industry text-base img2-icon"></i>
                         </div>
-                        <span class="ml-4" x-show="expanded">Produção</span>
+                        <span class="ml-3" x-show="expanded">Produção</span>
                     </a>
                 </div>
             @endif
@@ -388,25 +424,25 @@
             <!-- Links finais -->
             <div class="mt-1">
                 <a href="{{ route('tutorials.index') }}"
-                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('tutorials.*') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
-                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   class="flex items-center w-full text-[13px] font-bold transition-all duration-200 {{ request()->routeIs('tutorials.*') ? 'active-link-img2' : 'inactive-link-img2' }}"
+                   :class="expanded ? 'py-3.5 justify-start' : 'justify-center mx-auto'"
                    title="Tutoriais">
-                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                        <i class="fa-solid fa-graduation-cap text-lg"></i>
+                    <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center ml-2">
+                        <i class="fa-solid fa-graduation-cap text-base img2-icon"></i>
                     </div>
-                    <span class="ml-4" x-show="expanded">Tutoriais</span>
+                    <span class="ml-3" x-show="expanded">Tutoriais</span>
                 </a>
             </div>
             <div class="mt-1">
                 @if(!Auth::user()->isVendedor())
                 <a href="{{ route('settings.index') }}" 
-                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('settings.*') ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white' }}"
-                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   class="flex items-center w-full text-[13px] font-bold transition-all duration-200 {{ request()->routeIs('settings.*') ? 'active-link-img2' : 'inactive-link-img2' }}"
+                   :class="expanded ? 'py-3.5 justify-start' : 'justify-center mx-auto'"
                    title="Configurações">
-                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                        <i class="fa-solid fa-gears text-lg"></i>
+                    <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center ml-2">
+                        <i class="fa-solid fa-cog text-base img2-icon"></i>
                     </div>
-                    <span class="ml-4" x-show="expanded">Configurações</span>
+                    <span class="ml-3" x-show="expanded">Configurações</span>
                 </a>
                 @endif
             </div>
@@ -414,15 +450,15 @@
     </nav>
     
     <!-- Footer do Sidebar -->
-    <div class="p-4 mt-auto border-t border-white/5 bg-black">
+    <div class="p-4 mt-auto border-t border-[#1e1e1e] sidebar-img2-bg">
          <!-- Theme Toggle Pill -->
          <div class="mb-4 px-1" x-show="expanded">
-             <div class="flex items-center p-1 bg-[#1a1c23] rounded-[20px] cursor-pointer border border-white/5" @click="window.toggleDarkMode(); isDark = document.documentElement.classList.contains('dark');">
-                <div class="flex-1 flex items-center justify-center py-2.5 rounded-[16px] transition-all" :class="!isDark ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white'">
+             <div class="flex items-center p-1 bg-[#111111] rounded-[20px] cursor-pointer border border-[#262626]" @click="window.toggleDarkMode(); isDark = document.documentElement.classList.contains('dark');">
+                <div class="flex-1 flex items-center justify-center py-2.5 rounded-[16px] transition-all" :class="!isDark ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-500 hover:text-white'">
                     <i class="fa-solid fa-sun text-[14px]"></i>
                     <span x-show="!isDark" class="ml-2 text-[10px] font-bold uppercase tracking-wider">Claro</span>
                 </div>
-                <div class="flex-1 flex items-center justify-center py-2.5 rounded-[16px] transition-all" :class="isDark ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-400 hover:text-white'">
+                <div class="flex-1 flex items-center justify-center py-2.5 rounded-[16px] transition-all" :class="isDark ? 'bg-[#8252ed] text-white shadow-lg' : 'text-slate-500 hover:text-white'">
                     <i class="fa-solid fa-moon text-[14px]"></i>
                     <span x-show="isDark" class="ml-2 text-[10px] font-bold uppercase tracking-wider">Escuro</span>
                 </div>
@@ -437,14 +473,14 @@
 
          <!-- Profile -->
         <button @click="showProfileModal = true" 
-                class="flex items-center rounded-2xl bg-[#0a0a0a] border border-white/5 hover:bg-[#1a1c23] transition-all group w-full"
-                :class="expanded ? 'p-2 justify-start' : 'justify-center mx-auto py-2'">
-            <div class="flex-shrink-0 w-11 h-11 rounded-[16px] bg-[#8252ed] flex items-center justify-center text-white stay-white font-black text-sm shadow-lg group-hover:scale-105 transition-transform">
+                class="flex items-center rounded-3xl bg-[#0a0a0a] border border-[#1e1e1e] hover:border-[#333333] transition-all group w-full p-2"
+                :class="expanded ? 'justify-start' : 'justify-center mx-auto'">
+            <div class="flex-shrink-0 w-[42px] h-[42px] rounded-2xl bg-[#8252ed] flex items-center justify-center text-white stay-white font-black text-[15px] shadow-lg group-hover:scale-105 transition-transform">
                 {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
             </div>
             <div class="flex flex-col items-start ml-3 overflow-hidden text-nowrap" x-show="expanded">
-                <span class="text-[13px] font-black text-white truncate w-full max-w-[140px] tracking-tight">{{ auth()->user()->name }}</span>
-                <span class="text-[9px] font-bold text-[#38bdf8] uppercase tracking-widest mt-0.5">Meu Perfil</span>
+                <span class="text-[14px] font-bold text-white truncate w-full max-w-[140px] tracking-tight">{{ auth()->user()->name }}</span>
+                <span class="text-[10px] font-bold text-[#38bdf8] uppercase tracking-widest mt-0.5">Meu Perfil</span>
             </div>
         </button>
     </div>
