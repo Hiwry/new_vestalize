@@ -307,7 +307,7 @@
                                 <input type="hidden" name="tipo_tecido" id="tipo_tecido_hidden">
                                 <input type="hidden" name="cor" id="cor_hidden">
                                 <input type="hidden" name="tipo_corte" id="tipo_corte_hidden">
-                                <input type="hidden" name="detalhe" id="detalhe_hidden">
+                                <input type="hidden" id="detalhe_hidden">
                                 <input type="hidden" name="detail_color" id="detail_color_hidden">
                                 <input type="hidden" name="gola" id="gola_hidden">
                                 <input type="hidden" name="collar_color" id="collar_color_hidden">
@@ -1647,8 +1647,7 @@
             // Skip logic for Detail Color
             if (wizardCurrentStep === 5) {
                 const isDifferentDetail = document.getElementById('different_detail_color_cb')?.checked;
-                const detail = wizardData.detalhe;
-                if (!detail || !detail.name || detail.name.toLowerCase().includes('sem') || !isDifferentDetail) {
+                if (!hasWizardRealDetail() || !isDifferentDetail) {
                     wizardData.detail_color = wizardData.cor;
                     wizardCurrentStep += 2;
                     window.wizardCurrentStep = wizardCurrentStep;
@@ -1708,8 +1707,7 @@
             // Skip logic backward for Detail Color
             if (wizardCurrentStep === 7) {
                 const isDifferentDetail = document.getElementById('different_detail_color_cb')?.checked;
-                const detail = wizardData.detalhe;
-                if (!detail || !detail.name || detail.name.toLowerCase().includes('sem') || !isDifferentDetail) {
+                if (!hasWizardRealDetail() || !isDifferentDetail) {
                     wizardCurrentStep -= 2;
                     window.wizardCurrentStep = wizardCurrentStep;
                     updateWizardUI();
@@ -1845,28 +1843,50 @@
     }
     window.getOptionList = getOptionList;
 
+    function getWizardDetalhes() {
+        if (Array.isArray(wizardData.detalhe)) return wizardData.detalhe.filter(Boolean);
+        if (wizardData.detalhe) return [wizardData.detalhe];
+        return [];
+    }
+    window.getWizardDetalhes = getWizardDetalhes;
+
+    function getWizardPrimaryDetalhe() {
+        return getWizardDetalhes()[0] || null;
+    }
+    window.getWizardPrimaryDetalhe = getWizardPrimaryDetalhe;
+
+    function hasWizardRealDetail() {
+        return getWizardDetalhes().some(detail => {
+            const name = (detail?.name || '').toLowerCase();
+            return name && !name.includes('sem');
+        });
+    }
+    window.hasWizardRealDetail = hasWizardRealDetail;
+
     function filterByParent(items, parentId) {
         if (!parentId) return items;
-        
-        // Convert to array if not already
-        const parentIds = Array.isArray(parentId) ? parentId : [parentId];
-        
+
+        const parentIds = (Array.isArray(parentId) ? parentId : [parentId]).map(id => id?.toString());
+
         return items.filter(item => {
-            // Check item.parent_ids array
             if (Array.isArray(item.parent_ids)) {
-                return item.parent_ids.some(pid => 
-                    parentIds.includes(parseInt(pid)) || parentIds.includes(pid.toString()) || parentIds.includes(pid)
-                );
+                return item.parent_ids.some(pid => parentIds.includes(pid?.toString()));
             }
-            // Check item.parent_id single value
             if (item.parent_id !== undefined && item.parent_id !== null) {
-                return parentIds.includes(parseInt(item.parent_id)) || parentIds.includes(item.parent_id.toString()) || parentIds.includes(item.parent_id);
+                return parentIds.includes(item.parent_id?.toString());
             }
             return true;
         });
+    }
+    window.filterByParent = filterByParent;
 
+    function renderWizardPersonalizacao() {
+        const container = document.getElementById('wizard-options-personalizacao');
+        if (!container) return;
+
+        const personalizacaoList = getOptionList(['personalizacao']);
         if (personalizacaoList.length === 0) {
-            container.innerHTML = '<p class="col-span-full text-center text-gray-500">Nenhuma opÃ§Ã£o disponÃ­vel.</p>';
+            container.innerHTML = '<p class="col-span-full text-center text-gray-500">Nenhuma opção disponível.</p>';
             return;
         }
 
@@ -1875,10 +1895,9 @@
             const activeClass = isSelected ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : '';
             const key = normalizePersonalizationKey(item.slug || item.name || '');
             const style = personalizationIconMap[key] || personalizationIconMap.default;
-            
+
             return `
-            <label class="wizard-option-card wizard-personalization-card group cursor-pointer p-3 sm:p-3.5 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center justify-center gap-2 ${activeClass}"
-                   data-id="${item.id ?? ''}">
+            <label class="wizard-option-card wizard-personalization-card group cursor-pointer p-3 sm:p-3.5 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center justify-center gap-2 ${activeClass}">
                 <input type="checkbox" class="personalizacao-checkbox hidden" value="${item.id ?? ''}" ${isSelected ? 'checked' : ''} onchange="syncWizardPersonalizacaoUI()">
                 <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full ${style.bubble} flex items-center justify-center ${style.color}">
                      <i class="fa-solid ${style.icon} text-base"></i>
@@ -2025,6 +2044,242 @@
          }
     }
     window.onWizardTipoTecidoChange = onWizardTipoTecidoChange;
+
+    function renderSelectableOptionCards(containerId, items, selectedId, onClickName) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        if (!items.length) {
+            container.innerHTML = '<p class="col-span-full text-center text-gray-500">Nenhuma opção disponível.</p>';
+            return;
+        }
+
+        container.innerHTML = items.map(item => {
+            const isActive = selectedId && selectedId.toString() === item.id.toString();
+            const activeClass = isActive ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : '';
+            const price = parseFloat(item.price || 0);
+            return `
+                <button type="button" class="wizard-option-card text-left p-3 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] transition-all ${activeClass}"
+                    onclick="${onClickName}('${item.id}')">
+                    <div class="text-sm font-bold text-gray-900 dark:text-white">${item.name}</div>
+                    <div class="text-xs text-gray-500 mt-1">${price > 0 ? `+ R$ ${price.toFixed(2).replace('.', ',')}` : 'Sem acréscimo'}</div>
+                </button>
+            `;
+        }).join('');
+    }
+
+    function renderWizardCortes() {
+        const items = filterByParent(getOptionList(['tipo_corte', 'corte']), selectedPersonalizacoes);
+        renderSelectableOptionCards('wizard-options-corte', items, wizardData.tipo_corte?.id, 'selectWizardCorte');
+    }
+    window.renderWizardCortes = renderWizardCortes;
+
+    function selectWizardCorte(id) {
+        const cut = getOptionList(['tipo_corte', 'corte']).find(item => item.id == id);
+        if (!cut) return;
+        wizardData.tipo_corte = { id: cut.id, name: cut.name, price: parseFloat(cut.price || 0) };
+        wizardData.detalhe = [];
+        wizardData.detail_color = null;
+        wizardData.detail_colors = {};
+        updateWizardUI();
+        wizardNextStep();
+    }
+    window.selectWizardCorte = selectWizardCorte;
+
+    function renderWizardDetalhes() {
+        const container = document.getElementById('wizard-options-detalhe');
+        if (!container) return;
+
+        const items = filterByParent(getOptionList(['detalhe']), wizardData.tipo_corte?.id || null);
+        if (!items.length) {
+            container.innerHTML = '<p class="col-span-full text-center text-gray-500">Nenhum detalhe disponível.</p>';
+            return;
+        }
+
+        const selectedIds = getWizardDetalhes().map(detail => detail.id.toString());
+        container.innerHTML = items.map(item => {
+            const isActive = selectedIds.includes(item.id.toString());
+            const activeClass = isActive ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : '';
+            const price = parseFloat(item.price || 0);
+            return `
+                <button type="button" class="wizard-option-card text-left p-3 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] transition-all ${activeClass}"
+                    onclick="toggleWizardDetalhe('${item.id}')">
+                    <div class="text-sm font-bold text-gray-900 dark:text-white">${item.name}</div>
+                    <div class="text-xs text-gray-500 mt-1">${price > 0 ? `+ R$ ${price.toFixed(2).replace('.', ',')}` : 'Sem acréscimo'}</div>
+                </button>
+            `;
+        }).join('');
+
+        toggleDetailColorUI();
+    }
+    window.renderWizardDetalhes = renderWizardDetalhes;
+
+    function toggleWizardDetalhe(id) {
+        const detail = getOptionList(['detalhe']).find(item => item.id == id);
+        if (!detail) return;
+
+        const details = getWizardDetalhes();
+        const detailId = detail.id.toString();
+        const index = details.findIndex(item => item.id.toString() === detailId);
+
+        if (index >= 0) {
+            details.splice(index, 1);
+            delete wizardData.detail_colors[detailId];
+        } else {
+            details.push({ id: detail.id, name: detail.name, price: parseFloat(detail.price || 0) });
+        }
+
+        wizardData.detalhe = details;
+        if (!hasWizardRealDetail()) {
+            wizardData.detail_color = wizardData.cor;
+            wizardData.detail_colors = {};
+            wizardData.individual_detail_colors = false;
+        }
+
+        renderWizardDetalhes();
+        renderWizardDetailColorOptions();
+    }
+    window.toggleWizardDetalhe = toggleWizardDetalhe;
+
+    function toggleDetailColorUI() {
+        const hasDifferentColor = !!document.getElementById('different_detail_color_cb')?.checked && hasWizardRealDetail();
+        const individualContainer = document.getElementById('individual-colors-toggle-container');
+        const individualCheckbox = document.getElementById('individual_detail_colors_cb');
+
+        if (individualContainer) individualContainer.classList.toggle('hidden', !hasDifferentColor);
+
+        if (!hasDifferentColor) {
+            wizardData.individual_detail_colors = false;
+            wizardData.detail_colors = {};
+            wizardData.detail_color = wizardData.cor;
+            if (individualCheckbox) individualCheckbox.checked = false;
+        } else if (individualCheckbox) {
+            wizardData.individual_detail_colors = !!individualCheckbox.checked;
+        }
+
+        renderWizardDetailColorOptions();
+    }
+    window.toggleDetailColorUI = toggleDetailColorUI;
+
+    function renderWizardDetailColorOptions() {
+        const container = document.getElementById('wizard-options-cor-detalhe');
+        if (!container) return;
+
+        const colors = getOptionList(['cor']);
+        if (!document.getElementById('different_detail_color_cb')?.checked || !hasWizardRealDetail()) {
+            container.innerHTML = '<p class="col-span-full text-center text-gray-500">Os detalhes usarão a mesma cor do tecido.</p>';
+            return;
+        }
+
+        if (!colors.length) {
+            container.innerHTML = '<p class="col-span-full text-center text-gray-500">Nenhuma cor disponível.</p>';
+            return;
+        }
+
+        const details = getWizardDetalhes();
+        if (wizardData.individual_detail_colors && details.length > 1) {
+            container.innerHTML = details.map(detail => {
+                const detailId = detail.id.toString();
+                const selectedColorId = (wizardData.detail_colors[detailId] || '').toString();
+                return `
+                    <div class="col-span-full border border-gray-200 dark:border-slate-700 rounded-xl p-3">
+                        <div class="text-sm font-bold text-gray-900 dark:text-white mb-3">${detail.name}</div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            ${colors.map(color => {
+                                const activeClass = selectedColorId === color.id.toString() ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : '';
+                                return `
+                                    <button type="button" class="wizard-option-card p-3 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] transition-all ${activeClass}"
+                                        onclick="selectWizardDetailColor('${detailId}', '${color.id}')">
+                                        <div class="w-8 h-8 mx-auto rounded-full shadow-sm ring-2 ring-gray-100 dark:ring-slate-800" style="background-color: ${color.color_hex || color.hex_code || getColorHex(color.name)}"></div>
+                                        <div class="mt-2 text-xs font-bold text-center text-gray-700 dark:text-slate-300">${color.name}</div>
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            return;
+        }
+
+        const selectedColorId = (wizardData.detail_color?.id || '').toString();
+        container.innerHTML = colors.map(color => {
+            const activeClass = selectedColorId === color.id.toString() ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : '';
+            return `
+                <button type="button" class="wizard-option-card p-3 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] transition-all ${activeClass}"
+                    onclick="selectWizardDetailColor('', '${color.id}')">
+                    <div class="w-8 h-8 mx-auto rounded-full shadow-sm ring-2 ring-gray-100 dark:ring-slate-800" style="background-color: ${color.color_hex || color.hex_code || getColorHex(color.name)}"></div>
+                    <div class="mt-2 text-xs font-bold text-center text-gray-700 dark:text-slate-300">${color.name}</div>
+                </button>
+            `;
+        }).join('');
+    }
+    window.renderWizardDetailColorOptions = renderWizardDetailColorOptions;
+
+    function selectWizardDetailColor(detailId, colorId) {
+        const color = getOptionList(['cor']).find(item => item.id == colorId);
+        if (!color) return;
+
+        if (detailId) {
+            wizardData.detail_colors[detailId.toString()] = color.id.toString();
+        } else {
+            wizardData.detail_color = { id: color.id, name: color.name, price: 0 };
+        }
+
+        renderWizardDetailColorOptions();
+    }
+    window.selectWizardDetailColor = selectWizardDetailColor;
+
+    function renderWizardGolas() {
+        const items = filterByParent(getOptionList(['gola']), wizardData.tipo_corte?.id || null);
+        renderSelectableOptionCards('wizard-options-gola', items, wizardData.gola?.id, 'selectWizardGola');
+    }
+    window.renderWizardGolas = renderWizardGolas;
+
+    function selectWizardGola(id) {
+        const collar = getOptionList(['gola']).find(item => item.id == id);
+        if (!collar) return;
+        wizardData.gola = { id: collar.id, name: collar.name, price: parseFloat(collar.price || 0) };
+        updateWizardUI();
+        wizardNextStep();
+    }
+    window.selectWizardGola = selectWizardGola;
+
+    function loadWizardOptionsForStep(step) {
+        switch (step) {
+            case 1:
+                renderWizardPersonalizacao();
+                break;
+            case 2:
+                loadWizardTecidos();
+                break;
+            case 3:
+                loadWizardCores();
+                break;
+            case 4:
+                renderWizardCortes();
+                break;
+            case 5:
+                renderWizardDetalhes();
+                break;
+            case 6:
+                renderWizardDetailColorOptions();
+                break;
+            case 7:
+                renderWizardGolas();
+                break;
+            default:
+                break;
+        }
+    }
+    window.loadWizardOptionsForStep = loadWizardOptionsForStep;
+
+    function goToWizardStep(step) {
+        wizardCurrentStep = Math.min(Math.max(parseInt(step, 10) || 1, 1), wizardTotalSteps);
+        window.wizardCurrentStep = wizardCurrentStep;
+        updateWizardUI();
+    }
+    window.goToWizardStep = goToWizardStep;
 
     // --- Step 3: Cores ---
     function loadWizardCores() {
@@ -2219,9 +2474,9 @@
         if (summaryModelo) summaryModelo.textContent = wizardData.tipo_corte ? wizardData.tipo_corte.name : '-';
         
         let unitPrice = 0;
-        if(wizardData.tipo_corte) unitPrice += wizardData.tipo_corte.price;
-        if(wizardData.detalhe) unitPrice += wizardData.detalhe.price;
-        if(wizardData.gola) unitPrice += wizardData.gola.price;
+        if(wizardData.tipo_corte) unitPrice += parseFloat(wizardData.tipo_corte.price || 0);
+        unitPrice += getWizardDetalhes().reduce((sum, detail) => sum + parseFloat(detail.price || 0), 0);
+        if(wizardData.gola) unitPrice += parseFloat(wizardData.gola.price || 0);
         
         const finalPriceEl = document.getElementById('wizard-final-price');
         if (finalPriceEl) finalPriceEl.textContent = 'R$ ' + unitPrice.toFixed(2).replace('.', ',');
@@ -2245,7 +2500,10 @@
         if (tipoCorteHidden) tipoCorteHidden.value = wizardData.tipo_corte ? wizardData.tipo_corte.id : '';
         
         const detalheHidden = document.getElementById('detalhe_hidden');
-        if (detalheHidden) detalheHidden.value = wizardData.detalhe ? wizardData.detalhe.id : '';
+        if (detalheHidden) {
+            detalheHidden.value = '';
+            detalheHidden.disabled = true;
+        }
         
         const detailColorHidden = document.getElementById('detail_color_hidden');
         if (detailColorHidden) detailColorHidden.value = wizardData.detail_color ? wizardData.detail_color.id : '';
@@ -2278,6 +2536,25 @@
         const sizeContainer = document.getElementById('hidden-sizes-container');
         if (sizeContainer) {
             sizeContainer.innerHTML = '';
+            getWizardDetalhes().forEach(detail => {
+                const detailInput = document.createElement('input');
+                detailInput.type = 'hidden';
+                detailInput.name = 'detalhe[]';
+                detailInput.value = detail.id;
+                sizeContainer.appendChild(detailInput);
+            });
+
+            if (wizardData.individual_detail_colors) {
+                Object.entries(wizardData.detail_colors || {}).forEach(([detailId, colorId]) => {
+                    if (!colorId) return;
+                    const colorInput = document.createElement('input');
+                    colorInput.type = 'hidden';
+                    colorInput.name = `detail_color_map[${detailId}]`;
+                    colorInput.value = colorId;
+                    sizeContainer.appendChild(colorInput);
+                });
+            }
+
             let totalQty = 0;
             for (const [size, qty] of Object.entries(wizardData.sizes)) {
                 if(qty > 0) {
@@ -2318,6 +2595,16 @@
         if (unitPriceInput) {
             const finalPrice = wizardData.unit_price || parseFloat((document.getElementById('wizard-final-price')?.textContent || '0').replace(/[R$\s\.]/g,'').replace(',','.')) || 0;
             unitPriceInput.value = finalPrice;
+        }
+
+        const formActionInput = document.getElementById('form-action');
+        const editingItemIdInput = document.getElementById('editing-item-id');
+        if (formActionInput?.value === 'update_item') {
+            const validEditingItem = itemsData.some(item => item.id?.toString() === editingItemIdInput?.value?.toString());
+            if (!validEditingItem) {
+                formActionInput.value = 'add_item';
+                if (editingItemIdInput) editingItemIdInput.value = '';
+            }
         }
         
         const personalizacaoContainer = document.getElementById('hidden-personalizacao-container');
@@ -2377,8 +2664,10 @@
             tipo_tecido: null,
             cor: null,
             tipo_corte: null,
-            detalhe: null,
+            detalhe: [],
             detail_color: null,
+            detail_colors: {},
+            individual_detail_colors: false,
             gola: null,
             collar_color: null,
             personalizacao: [],
@@ -2443,12 +2732,20 @@
              if(opt) wizardData.tipo_corte = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
         }
 
-        if (wIds.detalhe) {
+        if (Array.isArray(wIds.detalhe)) {
+            wizardData.detalhe = wIds.detalhe
+                .map(detailId => getOptionList(['detalhe']).find(o => o.id == detailId))
+                .filter(Boolean)
+                .map(detail => ({ id: detail.id, name: detail.name, price: parseFloat(detail.price || 0) }));
+        } else if (wIds.detalhe) {
             const detail = getOptionList(['detalhe']).find(o => o.id == wIds.detalhe);
-            if (detail) wizardData.detalhe = { id: detail.id, name: detail.name, price: parseFloat(detail.price || 0) };
-        } else {
-             const opt = findOptionByName('detalhe', item.detail);
-             if(opt) wizardData.detalhe = { id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) };
+            if (detail) wizardData.detalhe = [{ id: detail.id, name: detail.name, price: parseFloat(detail.price || 0) }];
+        } else if (item.detail) {
+            wizardData.detalhe = item.detail
+                .split(',')
+                .map(name => findOptionByName('detalhe', name.trim()))
+                .filter(Boolean)
+                .map(opt => ({ id: opt.id, name: opt.name, price: parseFloat(opt.price || 0) }));
         }
 
         if (wIds.detail_color) {
@@ -2458,6 +2755,13 @@
              const opt = findOptionByName('cor', item.detail_color);
              if(opt) wizardData.detail_color = { id: opt.id, name: opt.name, price: 0 };
         }
+
+        if (wIds.detail_color_map && typeof wIds.detail_color_map === 'object') {
+            wizardData.detail_colors = Object.fromEntries(
+                Object.entries(wIds.detail_color_map).map(([detailId, colorId]) => [detailId.toString(), colorId?.toString()])
+            );
+        }
+        wizardData.individual_detail_colors = !!wIds.individual_detail_colors;
 
         if (wIds.gola) {
             const collar = getOptionList(['gola']).find(o => o.id == wIds.gola);
@@ -2495,7 +2799,11 @@
 
         const diffDetailCb = document.getElementById('different_detail_color_cb');
         if (diffDetailCb) {
-            diffDetailCb.checked = (wizardData.detail_color && wizardData.cor && wizardData.detail_color.id != wizardData.cor.id);
+            diffDetailCb.checked = !!wizardData.individual_detail_colors || (wizardData.detail_color && wizardData.cor && wizardData.detail_color.id != wizardData.cor.id);
+        }
+        const individualDetailColorsCb = document.getElementById('individual_detail_colors_cb');
+        if (individualDetailColorsCb) {
+            individualDetailColorsCb.checked = !!wizardData.individual_detail_colors;
         }
         
         const diffCollarCb = document.getElementById('different_collar_color_cb');
@@ -2608,8 +2916,8 @@
         
         wizardData = {
             tecido: null, tipo_tecido: null, cor: null, tipo_corte: null,
-            detalhe: null, detail_color: null, gola: null, collar_color: null,
-            personalizacao: [], image: null, imageUrl: null, notes: '', sizes: {}, unit_cost: 0
+            detalhe: [], detail_color: null, detail_colors: {}, individual_detail_colors: false,
+            gola: null, collar_color: null, personalizacao: [], image: null, imageUrl: null, notes: '', sizes: {}, unit_cost: 0
         };
         window.wizardData = wizardData;
         selectedPersonalizacoes = [];
