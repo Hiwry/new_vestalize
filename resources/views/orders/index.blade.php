@@ -50,20 +50,20 @@
     }
 
     .dark .orders-ft {
-        --of-surface-from: #1e293b;
-        --of-surface-to: #0f172a;
+        --of-surface-from: #0f172a;
+        --of-surface-to: #0b1322;
         --of-surface-border: rgba(148, 163, 184, 0.25);
-        --of-text-primary: #f8fafc;
-        --of-text-secondary: #cbd5e1;
+        --of-text-primary: #e2e8f0;
+        --of-text-secondary: #94a3b8;
         --of-tab-text: #94a3b8;
-        --of-card-bg: #334155;
-        --of-card-border: rgba(148, 163, 184, 0.2);
-        --of-card-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-        --of-input-bg: #475569;
+        --of-card-bg: #111827;
+        --of-card-border: rgba(148, 163, 184, 0.22);
+        --of-card-shadow: 0 18px 38px rgba(2, 6, 23, 0.55);
+        --of-input-bg: #0f172a;
         --of-input-border: rgba(148, 163, 184, 0.25);
-        --of-input-text: #f8fafc;
-        --of-table-head: rgba(255, 255, 255, 0.1);
-        --of-table-row: rgba(255, 255, 255, 0.03);
+        --of-input-text: #e2e8f0;
+        --of-table-head: rgba(255, 255, 255, 0.05);
+        --of-table-row: rgba(255, 255, 255, 0.02);
     }
 
     .orders-ft-topbar {
