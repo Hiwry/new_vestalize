@@ -12,36 +12,52 @@
 
 @section('content')
 <style>
-    .pdv-ft {
-        --pdv-surface-from: #f3f4f8;
-        --pdv-surface-to: #eceff4;
-        --pdv-surface-border: #d8dce6;
-        --pdv-text-primary: #0f172a;
-        --pdv-text-secondary: #64748b;
+    :root {
+        --pdv-shell-bg: #f4f7fb;
+        --pdv-shell-border: #d6deea;
+        --pdv-text-primary: #10203b;
+        --pdv-text-secondary: #5f7088;
+        --pdv-tab-text: #5f7088;
         --pdv-card-bg: #ffffff;
-        --pdv-card-border: #dde2ea;
-        --pdv-card-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
-        background: linear-gradient(180deg, var(--pdv-surface-from) 0%, var(--pdv-surface-to) 100%);
-        border: 1px solid var(--pdv-surface-border);
-        border-radius: 20px;
-        padding: 20px;
-        color: var(--pdv-text-primary);
-        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+        --pdv-card-border: #dce5ef;
+        --pdv-card-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+        --pdv-soft-bg: #f6f8fc;
+        --pdv-soft-border: #e3ebf4;
+        --pdv-input-bg: #f8fbff;
+        --pdv-input-border: #d9e3ef;
+        --pdv-input-text: #24344f;
+        --pdv-accent: #7c3aed;
+        --pdv-accent-hover: #6d28d9;
+        --pdv-accent-soft: rgba(124, 58, 237, 0.14);
+        --pdv-danger-bg: rgba(239, 68, 68, 0.08);
+        --pdv-danger-border: rgba(239, 68, 68, 0.16);
     }
 
-    .dark .pdv-ft {
-        --pdv-surface-from: #0f172a;
-        --pdv-surface-to: #0b1322;
-        --pdv-surface-border: rgba(148, 163, 184, 0.25);
-        --pdv-text-primary: #f8fafc;
-        --pdv-text-secondary: #94a3b8;
-        --pdv-panel-bg: rgba(15, 23, 42, 0.6);
-        --pdv-card-bg: rgba(255, 255, 255, 0.05);
-        --pdv-card-border: rgba(255, 255, 255, 0.1);
-        --pdv-card-shadow: 0 18px 38px rgba(0, 0, 0, 0.35);
-        --pdv-input-bg: rgba(0, 0, 0, 0.3);
-        --pdv-input-border: rgba(255, 255, 255, 0.15);
-        --pdv-input-text: #e2e8f0;
+    .dark {
+        --pdv-shell-bg: #0d1830;
+        --pdv-shell-border: rgba(148, 163, 184, 0.16);
+        --pdv-text-primary: #e5edf8;
+        --pdv-text-secondary: #91a4c0;
+        --pdv-tab-text: #9eb1cc;
+        --pdv-card-bg: #10203a;
+        --pdv-card-border: rgba(148, 163, 184, 0.12);
+        --pdv-card-shadow: 0 18px 30px rgba(2, 6, 23, 0.14);
+        --pdv-soft-bg: #142543;
+        --pdv-soft-border: rgba(148, 163, 184, 0.1);
+        --pdv-input-bg: #162847;
+        --pdv-input-border: rgba(148, 163, 184, 0.18);
+        --pdv-input-text: #e5edf8;
+        --pdv-accent-soft: rgba(124, 58, 237, 0.16);
+        --pdv-danger-bg: rgba(239, 68, 68, 0.12);
+        --pdv-danger-border: rgba(239, 68, 68, 0.18);
+    }
+
+    .pdv-ft {
+        background: var(--pdv-shell-bg);
+        border: 1px solid var(--pdv-shell-border);
+        border-radius: 24px;
+        padding: 24px;
+        color: var(--pdv-text-primary);
     }
 
     .pdv-ft-topbar {
@@ -50,7 +66,7 @@
         justify-content: space-between;
         gap: 14px;
         flex-wrap: wrap;
-        margin-bottom: 14px;
+        margin-bottom: 16px;
     }
 
     .pdv-ft-brand {
@@ -62,10 +78,10 @@
     }
 
     .pdv-ft-logo {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        background: linear-gradient(135deg, #6d28d9, #8b5cf6);
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: var(--pdv-accent);
         color: #fff;
         display: inline-flex;
         align-items: center;
@@ -106,33 +122,64 @@
         font-size: 13px;
         font-weight: 700;
         text-decoration: none;
-        transition: transform .18s ease, box-shadow .2s ease, filter .2s ease;
+        transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
         white-space: nowrap;
     }
 
+    .pdv-ft-btn:hover,
+    .pdv-primary-action:hover,
+    .pdv-grid-action:hover,
+    .pdv-fab:hover {
+        transform: translateY(-1px);
+    }
+
     .pdv-ft-btn-primary {
+        background: var(--pdv-accent);
+        border: 1px solid var(--pdv-accent);
         color: #fff !important;
-        background: linear-gradient(135deg, #6d28d9, #7c3aed);
-        box-shadow: 0 10px 20px rgba(109, 40, 217, 0.25);
+    }
+
+    .pdv-ft-btn-primary:hover {
+        background: var(--pdv-accent-hover);
+        border-color: var(--pdv-accent-hover);
     }
 
     .pdv-ft-btn-secondary {
         color: var(--pdv-text-primary) !important;
+        background: var(--pdv-soft-bg);
+        border: 1px solid var(--pdv-soft-border);
+    }
+
+    .pdv-ft-btn-secondary:hover {
+        color: var(--pdv-accent) !important;
         background: var(--pdv-card-bg);
-        border: 1px solid var(--pdv-card-border);
-        box-shadow: var(--pdv-card-shadow);
+        border-color: rgba(124, 58, 237, 0.3);
     }
 
-    .pdv-ft-btn:hover {
-        transform: translateY(-1px);
-        filter: brightness(1.03);
-    }
-
+    .pdv-card,
+    .pdv-neo-card,
     .pdv-ft-shell-card {
-        background: var(--pdv-card-bg);
-        border: 1px solid var(--pdv-card-border);
-        border-radius: 16px;
-        box-shadow: var(--pdv-card-shadow);
+        background: var(--pdv-card-bg) !important;
+        border: 1px solid var(--pdv-card-border) !important;
+        box-shadow: var(--pdv-card-shadow) !important;
+        color: var(--pdv-text-primary) !important;
+    }
+
+    .pdv-muted-surface,
+    .pdv-summary-box {
+        background: var(--pdv-soft-bg) !important;
+        border: 1px solid var(--pdv-soft-border) !important;
+        box-shadow: none !important;
+    }
+
+    .pdv-search-results {
+        background: var(--pdv-card-bg) !important;
+        border: 1px solid var(--pdv-card-border) !important;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08) !important;
+    }
+
+    .pdv-panel-divider {
+        border-color: var(--pdv-soft-border) !important;
     }
 
     .pdv-ft-tabs {
@@ -140,15 +187,1408 @@
         padding: 8px;
     }
 
-    .pdv-ft .pdv-tab-link {
+    .pdv-tab-link {
+        appearance: none;
+        cursor: pointer;
         border-radius: 12px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--pdv-tab-text);
+        transition: background .18s ease, border-color .18s ease, color .18s ease;
     }
 
-    .pdv-ft .pdv-tab-link.bg-indigo-600 {
-        background: linear-gradient(135deg, #6d28d9, #7c3aed) !important;
-        box-shadow: 0 10px 20px rgba(109, 40, 217, 0.22);
+    .pdv-tab-link:hover {
+        background: var(--pdv-soft-bg);
+        border-color: var(--pdv-soft-border);
     }
 
+    .pdv-tab-link.bg-indigo-600 {
+        background: var(--pdv-accent) !important;
+        border-color: var(--pdv-accent) !important;
+        color: #fff !important;
+        box-shadow: none !important;
+    }
+
+    .pdv-neo-panel {
+        background: transparent !important;
+    }
+
+    .pdv-neo-card-hover {
+        transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+    }
+
+    .pdv-neo-card-hover:hover {
+        border-color: rgba(124, 58, 237, 0.3) !important;
+        box-shadow: var(--pdv-card-shadow) !important;
+    }
+
+    .pdv-neo-input,
+    input.pdv-neo-input,
+    select.pdv-neo-input,
+    textarea.pdv-neo-input,
+    input.pdv-card,
+    select.pdv-card,
+    textarea.pdv-card {
+        background: var(--pdv-input-bg) !important;
+        background-color: var(--pdv-input-bg) !important;
+        border: 1px solid var(--pdv-input-border) !important;
+        color: var(--pdv-input-text) !important;
+        -webkit-text-fill-color: var(--pdv-input-text) !important;
+        -webkit-box-shadow: 0 0 0 1000px var(--pdv-input-bg) inset !important;
+        box-shadow: none !important;
+        caret-color: var(--pdv-input-text);
+        transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .pdv-neo-input:focus,
+    input.pdv-neo-input:focus,
+    select.pdv-neo-input:focus,
+    textarea.pdv-neo-input:focus,
+    input.pdv-card:focus,
+    select.pdv-card:focus,
+    textarea.pdv-card:focus {
+        outline: none !important;
+        border-color: var(--pdv-accent) !important;
+        -webkit-box-shadow: 0 0 0 1000px var(--pdv-input-bg) inset, 0 0 0 3px var(--pdv-accent-soft) !important;
+        box-shadow: 0 0 0 3px var(--pdv-accent-soft) !important;
+    }
+
+    .pdv-neo-input::placeholder,
+    input.pdv-card::placeholder,
+    textarea.pdv-card::placeholder {
+        color: var(--pdv-text-secondary) !important;
+    }
+
+    .pdv-primary-action,
+    .pdv-grid-action,
+    button.bg-gray-900,
+    a.bg-gray-900,
+    button.bg-indigo-600,
+    a.bg-indigo-600,
+    button.bg-purple-600,
+    a.bg-purple-600 {
+        background: var(--pdv-accent) !important;
+        border: 1px solid var(--pdv-accent) !important;
+        color: #fff !important;
+        box-shadow: none !important;
+    }
+
+    .pdv-primary-action,
+    .pdv-primary-action span,
+    .pdv-primary-action i,
+    .pdv-primary-action svg,
+    .pdv-primary-action svg *,
+    .pdv-grid-action,
+    .pdv-grid-action span,
+    .pdv-grid-action i,
+    .pdv-grid-action svg,
+    .pdv-grid-action svg *,
+    .pdv-ft-btn-primary,
+    .pdv-ft-btn-primary span,
+    .pdv-ft-btn-primary i,
+    .pdv-ft-btn-primary svg,
+    .pdv-ft-btn-primary svg *,
+    button.bg-gray-900 *,
+    a.bg-gray-900 *,
+    button.bg-indigo-600 *,
+    a.bg-indigo-600 *,
+    button.bg-purple-600 *,
+    a.bg-purple-600 * {
+        color: #fff !important;
+        fill: currentColor !important;
+        stroke: currentColor !important;
+        -webkit-text-fill-color: #ffffff !important;
+    }
+
+    .pdv-primary-action:hover,
+    .pdv-grid-action:hover,
+    button.hover\:bg-black:hover,
+    a.hover\:bg-black:hover,
+    button.hover\:bg-indigo-700:hover,
+    a.hover\:bg-indigo-700:hover,
+    button.hover\:bg-purple-700:hover,
+    a.hover\:bg-purple-700:hover {
+        background: var(--pdv-accent-hover) !important;
+        border-color: var(--pdv-accent-hover) !important;
+    }
+
+    .pdv-primary-action:disabled,
+    button.bg-gray-900:disabled,
+    button.bg-indigo-600:disabled,
+    button.bg-purple-600:disabled {
+        background: #94a3b8 !important;
+        border-color: #94a3b8 !important;
+        box-shadow: none !important;
+        opacity: 0.55;
+    }
+
+    .pdv-secondary-action {
+        background: var(--pdv-soft-bg) !important;
+        color: var(--pdv-text-primary) !important;
+        border: 1px solid var(--pdv-soft-border) !important;
+        box-shadow: none !important;
+    }
+
+    .pdv-secondary-action:hover {
+        color: var(--pdv-accent) !important;
+        background: var(--pdv-card-bg) !important;
+        border-color: rgba(124, 58, 237, 0.3) !important;
+    }
+
+    .pdv-danger-action {
+        background: var(--pdv-danger-bg) !important;
+        color: #ef4444 !important;
+        border: 1px solid var(--pdv-danger-border) !important;
+        box-shadow: none !important;
+    }
+
+    .pdv-danger-action:hover {
+        background: rgba(239, 68, 68, 0.16) !important;
+    }
+
+    .pdv-total-preview {
+        background: var(--pdv-card-bg) !important;
+        color: var(--pdv-text-primary) !important;
+        border: 1px solid var(--pdv-card-border) !important;
+        box-shadow: var(--pdv-card-shadow) !important;
+    }
+
+    .pdv-fab {
+        background: var(--pdv-accent) !important;
+        border: 1px solid var(--pdv-accent) !important;
+        color: #fff !important;
+        box-shadow: none !important;
+    }
+
+    .pdv-fab,
+    .pdv-fab svg,
+    .pdv-fab svg * {
+        color: #fff !important;
+        fill: currentColor !important;
+        stroke: currentColor !important;
+    }
+
+    .pdv-overlay,
+    #add-product-modal,
+    #clear-cart-modal,
+    #sublocal-modal,
+    #payment-modal {
+        background: rgba(2, 6, 23, 0.64) !important;
+        backdrop-filter: blur(6px);
+    }
+
+    #add-product-modal > div,
+    #clear-cart-modal > div,
+    #sublocal-modal > div,
+    #payment-modal > div {
+        background: var(--pdv-card-bg) !important;
+        border: 1px solid var(--pdv-card-border) !important;
+        box-shadow: 0 16px 40px rgba(2, 6, 23, 0.2) !important;
+    }
+
+    .pdv-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.65fr) minmax(320px, 380px);
+        gap: 18px;
+        align-items: start;
+    }
+
+    .pdv-main-stack,
+    .pdv-sidebar-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .pdv-toolbar-card,
+    .pdv-catalog-card,
+    .pdv-section-card {
+        background: var(--pdv-card-bg);
+        border: 1px solid var(--pdv-card-border);
+        border-radius: 20px;
+        box-shadow: var(--pdv-card-shadow);
+    }
+
+    .pdv-toolbar-card {
+        padding: 20px;
+    }
+
+    .pdv-toolbar-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .pdv-toolbar-copy h2 {
+        font-size: 18px;
+        line-height: 1.15;
+        font-weight: 800;
+        color: var(--pdv-text-primary);
+    }
+
+    .pdv-toolbar-copy p {
+        margin-top: 4px;
+        font-size: 13px;
+        color: var(--pdv-text-secondary);
+        font-weight: 500;
+    }
+
+    .pdv-filter-field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    .pdv-filter-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-tabs-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 6px;
+        border-radius: 16px;
+        background: var(--pdv-soft-bg);
+        border: 1px solid var(--pdv-soft-border);
+    }
+
+    .pdv-search-field {
+        display: grid;
+        grid-template-columns: 20px minmax(0, 1fr);
+        align-items: center;
+        gap: 12px;
+        min-height: 44px;
+        padding: 0 16px;
+        border-radius: 12px;
+        border: 1px solid var(--pdv-input-border);
+        background: var(--pdv-input-bg);
+        background-color: var(--pdv-input-bg);
+        transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .pdv-search-field.pdv-search-field-with-action {
+        grid-template-columns: 20px minmax(0, 1fr) auto;
+    }
+
+    .pdv-search-field-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        pointer-events: none;
+        color: var(--pdv-text-secondary);
+        transition: color .2s ease;
+    }
+
+    .pdv-search-field:focus-within .pdv-search-field-icon {
+        color: var(--pdv-accent);
+    }
+
+    .pdv-search-field:focus-within {
+        border-color: var(--pdv-accent) !important;
+        box-shadow: 0 0 0 3px var(--pdv-accent-soft) !important;
+    }
+
+    .pdv-search-field-input {
+        box-sizing: border-box;
+        width: 100%;
+        min-width: 0;
+        height: 42px !important;
+        min-height: 42px !important;
+        border-radius: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        color: var(--pdv-input-text) !important;
+        -webkit-text-fill-color: var(--pdv-input-text) !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        line-height: 1.2 !important;
+        caret-color: var(--pdv-input-text);
+        text-indent: 0 !important;
+        appearance: none;
+        -webkit-appearance: none;
+    }
+
+    .pdv-search-field-input:focus {
+        outline: none !important;
+        border-color: transparent !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+    }
+
+    .pdv-search-field-input::placeholder {
+        color: var(--pdv-text-secondary) !important;
+    }
+
+    .pdv-search-field-input.has-action {
+        padding-right: 8px !important;
+    }
+
+    .pdv-search-field-action {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        align-self: stretch;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--pdv-accent);
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .pdv-search-field-action:hover {
+        color: var(--pdv-accent-hover);
+    }
+
+    .pdv-ft input.pdv-search-field-input {
+        background: transparent !important;
+        background-color: transparent !important;
+        border-color: transparent !important;
+        color: var(--pdv-input-text) !important;
+        -webkit-text-fill-color: var(--pdv-input-text) !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+    }
+
+    .pdv-ft input.pdv-search-field-input:focus {
+        border-color: transparent !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+    }
+
+    .dark .pdv-ft input.pdv-search-field-input,
+    .dark .pdv-ft input.pdv-search-field-input:-webkit-autofill,
+    .dark .pdv-ft input.pdv-search-field-input:-webkit-autofill:hover,
+    .dark .pdv-ft input.pdv-search-field-input:-webkit-autofill:focus {
+        background: transparent !important;
+        background-color: transparent !important;
+        color: var(--pdv-input-text) !important;
+        -webkit-text-fill-color: var(--pdv-input-text) !important;
+        -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+    }
+
+    .pdv-catalog-card {
+        overflow: hidden;
+    }
+
+    .pdv-catalog-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--pdv-soft-border);
+    }
+
+    .pdv-catalog-head span {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-catalog-head h3 {
+        margin-top: 4px;
+        font-size: 20px;
+        line-height: 1.15;
+        font-weight: 800;
+        color: var(--pdv-text-primary);
+    }
+
+    .pdv-catalog-note {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--pdv-text-secondary);
+        max-width: 260px;
+        text-align: right;
+    }
+
+    .pdv-catalog-body {
+        padding: 18px 20px 20px;
+    }
+
+    .pdv-section-card {
+        padding: 20px;
+    }
+
+    .pdv-section-head {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .pdv-section-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--pdv-soft-bg);
+        border: 1px solid var(--pdv-soft-border);
+        color: var(--pdv-accent);
+        flex-shrink: 0;
+    }
+
+    .pdv-section-head h3 {
+        font-size: 16px;
+        line-height: 1.15;
+        font-weight: 800;
+        color: var(--pdv-text-primary);
+    }
+
+    .pdv-section-head p {
+        margin-top: 3px;
+        font-size: 12px;
+        line-height: 1.45;
+        color: var(--pdv-text-secondary);
+        font-weight: 500;
+    }
+
+    .pdv-client-display {
+        margin-bottom: 12px;
+    }
+
+    .pdv-client-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px;
+        border-radius: 14px;
+        background: var(--pdv-soft-bg);
+        border: 1px solid var(--pdv-soft-border);
+    }
+
+    .pdv-client-card button {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .pdv-client-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(124, 58, 237, 0.12);
+        color: var(--pdv-accent);
+        flex-shrink: 0;
+    }
+
+    .pdv-client-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .pdv-cart-shell {
+        max-height: min(48vh, 520px);
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+
+    .pdv-cart-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .pdv-empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 220px;
+        padding: 24px;
+        text-align: center;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-empty-state svg {
+        opacity: .35;
+    }
+
+    .pdv-cart-item {
+        padding: 14px;
+        border-radius: 16px;
+        background: var(--pdv-soft-bg);
+        border: 1px solid var(--pdv-soft-border);
+    }
+
+    .pdv-cart-item-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .pdv-cart-item-title {
+        font-size: 14px;
+        line-height: 1.4;
+        font-weight: 700;
+        color: var(--pdv-text-primary);
+    }
+
+    .pdv-cart-item-meta {
+        margin-top: 4px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .pdv-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 24px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: var(--pdv-soft-bg);
+        border: 1px solid var(--pdv-soft-border);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-chip-accent {
+        color: var(--pdv-accent);
+        border-color: rgba(124, 58, 237, 0.2);
+        background: rgba(124, 58, 237, 0.08);
+    }
+
+    .pdv-chip-success {
+        color: #16a34a;
+        border-color: rgba(34, 197, 94, 0.22);
+        background: rgba(34, 197, 94, 0.08);
+    }
+
+    .pdv-chip-danger {
+        color: #dc2626;
+        border-color: rgba(239, 68, 68, 0.2);
+        background: rgba(239, 68, 68, 0.08);
+    }
+
+    .pdv-cart-remove {
+        width: 30px;
+        height: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        color: #ef4444;
+        opacity: .72;
+        transition: background .18s ease, opacity .18s ease;
+    }
+
+    .pdv-cart-remove:hover {
+        background: rgba(239, 68, 68, 0.08);
+        opacity: 1;
+    }
+
+    .pdv-cart-item-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .pdv-cart-controls {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 40px;
+        padding: 0 10px;
+        border-radius: 12px;
+        background: var(--pdv-card-bg);
+        border: 1px solid var(--pdv-input-border);
+    }
+
+    .pdv-cart-controls input {
+        background: transparent !important;
+        border: none;
+        box-shadow: none;
+    }
+
+    .pdv-cart-controls input:focus {
+        box-shadow: none !important;
+    }
+
+    .pdv-cart-price {
+        font-size: 16px;
+        font-weight: 800;
+        color: var(--pdv-text-primary);
+        white-space: nowrap;
+    }
+
+    .pdv-cart-discount-row {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed var(--pdv-soft-border);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .pdv-cart-discount-row label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--pdv-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+
+    .pdv-summary-grid {
+        display: grid;
+        gap: 12px;
+    }
+
+    .pdv-summary-breakdown {
+        margin-top: 16px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: var(--pdv-soft-bg);
+        border: 1px solid var(--pdv-soft-border);
+        display: grid;
+        gap: 10px;
+    }
+
+    .pdv-summary-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-summary-row strong {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--pdv-text-primary);
+    }
+
+    .pdv-summary-field label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-summary-inline {
+        display: grid;
+        grid-template-columns: 84px minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .pdv-summary-input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        min-height: 46px;
+        border-radius: 14px;
+        border: 1px solid var(--pdv-input-border);
+        background: var(--pdv-input-bg);
+        background-color: var(--pdv-input-bg);
+        overflow: hidden;
+        transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .pdv-summary-input-wrap:focus-within {
+        border-color: var(--pdv-accent) !important;
+        box-shadow: 0 0 0 3px var(--pdv-accent-soft) !important;
+    }
+
+    .pdv-summary-select-wrap::after {
+        content: '';
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid var(--pdv-text-secondary);
+        border-bottom: 2px solid var(--pdv-text-secondary);
+        transform: translateY(-65%) rotate(45deg);
+        pointer-events: none;
+    }
+
+    .pdv-summary-prefix {
+        padding-left: 14px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--pdv-text-secondary);
+        white-space: nowrap;
+    }
+
+    .pdv-summary-input,
+    .pdv-summary-select {
+        width: 100%;
+        min-width: 0;
+        min-height: 46px;
+        border: 0 !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        color: var(--pdv-input-text) !important;
+        -webkit-text-fill-color: var(--pdv-input-text) !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+        padding: 0 14px;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.2;
+        appearance: none;
+        -webkit-appearance: none;
+        outline: none !important;
+    }
+
+    .pdv-ft .pdv-summary-input-wrap input.pdv-summary-input,
+    .pdv-ft .pdv-summary-input-wrap select.pdv-summary-select,
+    .dark .pdv-ft .pdv-summary-input-wrap input.pdv-summary-input,
+    .dark .pdv-ft .pdv-summary-input-wrap select.pdv-summary-select {
+        background: transparent !important;
+        background-color: transparent !important;
+        border: 0 !important;
+        border-color: transparent !important;
+        color: var(--pdv-input-text) !important;
+        -webkit-text-fill-color: var(--pdv-input-text) !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+    }
+
+    .pdv-ft .pdv-summary-input-wrap,
+    .dark .pdv-ft .pdv-summary-input-wrap {
+        background: var(--pdv-input-bg) !important;
+        background-color: var(--pdv-input-bg) !important;
+        border-color: var(--pdv-input-border) !important;
+    }
+
+    .pdv-summary-select {
+        cursor: pointer;
+        padding-right: 34px;
+    }
+
+    .pdv-summary-input::placeholder {
+        color: var(--pdv-text-secondary) !important;
+    }
+
+    .pdv-summary-input::-webkit-outer-spin-button,
+    .pdv-summary-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .pdv-summary-input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    .pdv-summary-notes {
+        min-height: 52px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    .dark .pdv-summary-input:-webkit-autofill,
+    .dark .pdv-summary-input:-webkit-autofill:hover,
+    .dark .pdv-summary-input:-webkit-autofill:focus {
+        -webkit-text-fill-color: var(--pdv-input-text) !important;
+        -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+    }
+
+    .pdv-summary-total {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--pdv-soft-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .pdv-summary-total span {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-summary-total strong {
+        font-size: 28px;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--pdv-text-primary);
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .pdv-mobile-drawer-head {
+        padding: 12px 16px 14px;
+        border-bottom: 1px solid var(--pdv-soft-border);
+    }
+
+    .pdv-mobile-total {
+        font-size: 30px;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+    }
+
+    .pdv-products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+        gap: 16px;
+    }
+
+    .pdv-product-card {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+        min-width: 0;
+        gap: 14px;
+        padding: 16px;
+        border-radius: 18px;
+        background: var(--pdv-card-bg);
+        border: 1px solid var(--pdv-card-border);
+        box-shadow: var(--pdv-card-shadow);
+        transition: border-color .18s ease, transform .18s ease;
+    }
+
+    .pdv-product-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(124, 58, 237, 0.3);
+    }
+
+    .pdv-product-media {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .pdv-product-thumb {
+        aspect-ratio: 1 / 1;
+        width: 88px;
+        overflow: hidden;
+        border-radius: 16px;
+        background: var(--pdv-soft-bg);
+        border: 1px solid var(--pdv-soft-border);
+        flex-shrink: 0;
+    }
+
+    .pdv-product-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .pdv-product-thumb-placeholder {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--pdv-text-secondary);
+        font-size: 20px;
+    }
+
+    .pdv-product-summary {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .pdv-product-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .pdv-product-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-product-title {
+        margin-top: 4px;
+        font-size: 18px;
+        line-height: 1.25;
+        font-weight: 800;
+        color: var(--pdv-text-primary);
+    }
+
+    .pdv-product-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 18px;
+    }
+
+    .pdv-product-footer {
+        margin-top: auto;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .pdv-product-footer > :first-child {
+        min-width: 0;
+        flex: 1 1 120px;
+    }
+
+    .pdv-product-footer .pdv-grid-action,
+    .pdv-product-action {
+        flex: 0 1 auto;
+        width: auto !important;
+        min-width: 132px !important;
+        max-width: 100%;
+        margin-left: auto;
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+        white-space: nowrap;
+    }
+
+    .pdv-product-price-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-product-price {
+        margin-top: 4px;
+        font-size: clamp(24px, 2vw, 28px);
+        line-height: 1.02;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: var(--pdv-text-primary);
+        overflow-wrap: anywhere;
+    }
+
+    .pdv-modal-stack {
+        display: grid;
+        gap: 18px;
+    }
+
+    .pdv-modal-card {
+        background: var(--pdv-soft-bg) !important;
+        border: 1px solid var(--pdv-soft-border) !important;
+        border-radius: 18px;
+        padding: 16px;
+    }
+
+    .pdv-modal-header-card {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .pdv-modal-kpi-label,
+    .pdv-modal-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-modal-kpi-value {
+        margin-top: 6px;
+        font-size: 20px;
+        line-height: 1.05;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: var(--pdv-text-primary);
+    }
+
+    .pdv-modal-kpi-meta {
+        margin-top: 8px;
+        font-size: 12px;
+        line-height: 1.45;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-modal-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 30px;
+        padding: 0 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(34, 197, 94, 0.22);
+        background: rgba(34, 197, 94, 0.08);
+        color: #16a34a;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .pdv-modal-field {
+        display: grid;
+        gap: 8px;
+    }
+
+    .pdv-modal-label .required {
+        color: #ef4444;
+    }
+
+    .pdv-modal-helper {
+        font-size: 12px;
+        line-height: 1.45;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-modal-input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        min-height: 48px;
+        border-radius: 14px;
+        border: 1px solid var(--pdv-input-border);
+        background: var(--pdv-input-bg);
+        background-color: var(--pdv-input-bg);
+        overflow: hidden;
+        transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .pdv-modal-input-wrap:focus-within {
+        border-color: var(--pdv-accent) !important;
+        box-shadow: 0 0 0 3px var(--pdv-accent-soft) !important;
+    }
+
+    .pdv-modal-input-wrap.is-disabled {
+        opacity: .65;
+    }
+
+    .pdv-modal-prefix {
+        padding-left: 14px;
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--pdv-text-secondary);
+        white-space: nowrap;
+    }
+
+    .pdv-modal-select-wrap::after {
+        content: '';
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid var(--pdv-text-secondary);
+        border-bottom: 2px solid var(--pdv-text-secondary);
+        transform: translateY(-65%) rotate(45deg);
+        pointer-events: none;
+    }
+
+    .pdv-modal-input,
+    .pdv-modal-select,
+    .pdv-modal-textarea {
+        width: 100%;
+        min-width: 0;
+        min-height: 48px;
+        border: 0 !important;
+        background: var(--pdv-input-bg) !important;
+        background-color: var(--pdv-input-bg) !important;
+        color: var(--pdv-input-text) !important;
+        -webkit-text-fill-color: var(--pdv-input-text) !important;
+        -webkit-box-shadow: 0 0 0 1000px var(--pdv-input-bg) inset !important;
+        box-shadow: none !important;
+        caret-color: var(--pdv-input-text);
+        padding: 0 14px;
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1.2;
+        appearance: none;
+        -webkit-appearance: none;
+        outline: none !important;
+    }
+
+    .pdv-modal-select {
+        cursor: pointer;
+        padding-right: 36px;
+    }
+
+    .pdv-modal-textarea {
+        min-height: 112px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+        resize: vertical;
+    }
+
+    .pdv-modal-input.with-prefix {
+        padding-left: 10px;
+    }
+
+    .pdv-modal-input::placeholder {
+        color: var(--pdv-text-secondary) !important;
+        opacity: 1;
+    }
+
+    .pdv-modal-input::-webkit-outer-spin-button,
+    .pdv-modal-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .pdv-modal-input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    #add-product-modal .pdv-modal-input-wrap input.pdv-modal-input,
+    #add-product-modal .pdv-modal-input-wrap select.pdv-modal-select,
+    #add-product-modal .pdv-modal-input-wrap textarea.pdv-modal-textarea,
+    .dark #add-product-modal .pdv-modal-input-wrap input.pdv-modal-input,
+    .dark #add-product-modal .pdv-modal-input-wrap select.pdv-modal-select,
+    .dark #add-product-modal .pdv-modal-input-wrap textarea.pdv-modal-textarea {
+        background: var(--pdv-input-bg) !important;
+        background-color: var(--pdv-input-bg) !important;
+        border: 0 !important;
+        border-color: transparent !important;
+        color: var(--pdv-input-text) !important;
+        -webkit-text-fill-color: var(--pdv-input-text) !important;
+        -webkit-box-shadow: 0 0 0 1000px var(--pdv-input-bg) inset !important;
+        box-shadow: none !important;
+    }
+
+    #add-product-modal .pdv-modal-input-wrap,
+    .dark #add-product-modal .pdv-modal-input-wrap {
+        background: var(--pdv-input-bg) !important;
+        background-color: var(--pdv-input-bg) !important;
+        border-color: var(--pdv-input-border) !important;
+    }
+
+    .pdv-modal-inline-metrics {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .pdv-modal-mini-kpi {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 34px;
+        padding: 0 12px;
+        border-radius: 999px;
+        background: var(--pdv-card-bg);
+        border: 1px solid var(--pdv-card-border);
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-modal-mini-kpi strong {
+        color: var(--pdv-text-primary);
+    }
+
+    .pdv-modal-swatches {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .pdv-modal-swatch {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 38px;
+        padding: 0 12px;
+        border-radius: 999px;
+        border: 1px solid var(--pdv-soft-border);
+        background: var(--pdv-card-bg);
+        color: var(--pdv-text-primary);
+        font-size: 12px;
+        font-weight: 700;
+        transition: border-color .18s ease, transform .18s ease, background .18s ease, color .18s ease;
+    }
+
+    .pdv-modal-swatch:hover {
+        transform: translateY(-1px);
+        border-color: rgba(124, 58, 237, 0.28);
+    }
+
+    .pdv-modal-swatch.is-selected {
+        border-color: rgba(124, 58, 237, 0.35);
+        background: rgba(124, 58, 237, 0.12);
+        color: var(--pdv-accent);
+    }
+
+    .pdv-modal-swatch-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.18);
+        flex-shrink: 0;
+    }
+
+    .pdv-modal-swatch-stock {
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-modal-section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .pdv-modal-section-title {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--pdv-text-secondary);
+    }
+
+    .pdv-modal-size-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .pdv-modal-size-card {
+        position: relative;
+        display: grid;
+        gap: 8px;
+    }
+
+    .pdv-modal-size-card label {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--pdv-text-secondary);
+        text-align: center;
+    }
+
+    .pdv-modal-size-input {
+        width: 100%;
+        min-width: 0;
+        height: 44px;
+        border-radius: 14px;
+        border: 1px solid var(--pdv-input-border) !important;
+        background: var(--pdv-input-bg) !important;
+        background-color: var(--pdv-input-bg) !important;
+        color: var(--pdv-input-text) !important;
+        -webkit-text-fill-color: var(--pdv-input-text) !important;
+        -webkit-box-shadow: 0 0 0 1000px var(--pdv-input-bg) inset !important;
+        box-shadow: none !important;
+        text-align: center;
+        font-size: 16px;
+        font-weight: 800;
+        transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    }
+
+    .pdv-modal-size-input:focus {
+        outline: none;
+        border-color: var(--pdv-accent);
+        box-shadow: 0 0 0 3px var(--pdv-accent-soft);
+    }
+
+    .pdv-modal-stock-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .pdv-modal-stock-empty {
+        padding: 14px;
+        border-radius: 16px;
+        background: var(--pdv-soft-bg);
+        border: 1px dashed var(--pdv-soft-border);
+        font-size: 13px;
+        color: var(--pdv-text-secondary);
+    }
+
+    @media (max-width: 768px) {
+        .pdv-modal-header-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .pdv-modal-size-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    .pdv-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 22px;
+    }
+
+    .pdv-pagination-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .pdv-pagination-btn {
+        appearance: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 0 14px;
+        border-radius: 12px;
+        border: 1px solid var(--pdv-soft-border);
+        background: var(--pdv-soft-bg);
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--pdv-text-primary);
+        transition: background .18s ease, border-color .18s ease, color .18s ease;
+    }
+
+    .pdv-pagination-btn:hover {
+        border-color: rgba(124, 58, 237, 0.3);
+        color: var(--pdv-accent);
+    }
+
+    @media (max-width: 1200px) {
+        .pdv-layout {
+            grid-template-columns: 1fr;
+        }
+    }
 
     .pdv-ft .text-gray-900,
     .pdv-ft .text-gray-800,
@@ -161,53 +1601,6 @@
     .pdv-ft .text-gray-400 {
         color: var(--pdv-text-secondary) !important;
     }
-
-    /* ---- BULLETPROOF GLASSMORPHISM (Neo Edition) ---- */
-    /* Light Mode */
-    .pdv-neo-panel {
-        background: #ffffff;
-        border: 1px solid #dde2ea;
-        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
-    }
-    .pdv-neo-card {
-        background: #ffffff;
-        border: 1px solid #dde2ea;
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
-    }
-    .pdv-neo-card-hover:hover {
-        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
-    }
-    .pdv-neo-input {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-    }
-    
-    /* Dark Mode (Forced Overrides with Explicit Hex) */
-    .dark .pdv-neo-panel {
-        background-color: #1e293b !important; /* slate-800 - Impossible to be black */
-        border: 1px solid #334155 !important; /* slate-700 */
-        box-shadow: none !important;
-        backdrop-filter: blur(16px) !important;
-        -webkit-backdrop-filter: blur(16px) !important;
-    }
-    .dark .pdv-neo-card {
-        background-color: #334155 !important; /* slate-700 - Highly visible gray */
-        border: 1px solid #475569 !important; /* slate-600 */
-        box-shadow: none !important;
-        color: #f8fafc !important;
-    }
-    .dark .pdv-neo-card-hover:hover {
-        background-color: #475569 !important; /* slate-600 */
-        border-color: #64748b !important; /* slate-500 */
-        box-shadow: none !important;
-    }
-    .dark .pdv-neo-input {
-        background-color: #0f172a !important; /* slate-900 - Dark blue background */
-        border: 1px solid #334155 !important; /* slate-700 */
-        box-shadow: none !important;
-        color: #f8fafc !important;
-    }
-    /* ----------------------------------- */
 
     @media (max-width: 768px) {
         .pdv-ft {
@@ -227,18 +1620,68 @@
             flex: 1 1 0;
             justify-content: center;
         }
+
+        .pdv-toolbar-row,
+        .pdv-catalog-head,
+        .pdv-summary-total {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .pdv-tabs-wrap {
+            justify-content: flex-start;
+        }
+
+        .pdv-section-card,
+        .pdv-toolbar-card,
+        .pdv-catalog-body,
+        .pdv-catalog-head {
+            padding-left: 14px;
+            padding-right: 14px;
+        }
+
+        .pdv-summary-total strong {
+            font-size: 32px;
+            text-align: left;
+        }
+
+        .pdv-pagination {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .pdv-product-media,
+        .pdv-product-footer {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .pdv-product-footer .pdv-grid-action {
+            width: 100% !important;
+        }
+
+        .pdv-product-thumb {
+            width: 100%;
+            max-width: 120px;
+        }
     }
 </style>
 
-<div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-2 md:pt-3 pb-20">
-    <div class="pdv-ft">
-        
+@php
+    $cartSubtotal = !empty($cart) ? array_sum(array_column($cart, 'total_price')) : 0;
+    $cartItemsCount = !empty($cart)
+        ? array_sum(array_map(static fn ($item) => (float) ($item['quantity'] ?? 0), $cart))
+        : 0;
+@endphp
+
+<div class="max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8 pt-2 md:pt-3 pb-20">
+    <section class="pdv-ft">
         <div class="pdv-ft-topbar">
             <div class="pdv-ft-brand">
                 <span class="pdv-ft-logo"><i class="fa-solid fa-cash-register"></i></span>
                 <div>
                     <h1 class="pdv-ft-title">Ponto de Venda</h1>
-                    <p class="pdv-ft-subtitle">Fluxo de venda rápida com a mesma linguagem visual de vendas e pedidos.</p>
+                    <p class="pdv-ft-subtitle">Fluxo rapido de venda com a mesma linguagem visual de vendas e pedidos.</p>
                 </div>
             </div>
 
@@ -249,334 +1692,390 @@
                 </a>
                 <a href="{{ route('pdv.sales') }}" class="pdv-ft-btn pdv-ft-btn-primary">
                     <i class="fa-solid fa-receipt"></i>
-                    <span>Histórico PDV</span>
+                    <span>Historico PDV</span>
                 </a>
             </div>
         </div>
 
-        <div class="pdv-neo-panel rounded-2xl pdv-ft-tabs">
-            <div class="flex items-center gap-2 overflow-x-auto">
-                <a href="{{ route('pdv.index', ['type' => 'products']) }}" data-type="products"
-                   class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'products' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}"
-                   style="{{ $type == 'products' ? 'color: white !important;' : '' }}">
-                    Produtos
-                </a>
-                <a href="{{ route('pdv.index', ['type' => 'fabric_pieces']) }}" data-type="fabric_pieces"
-                   class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'fabric_pieces' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}"
-                   style="{{ $type == 'fabric_pieces' ? 'color: white !important;' : '' }}">
-                    Tecidos
-                </a>
-                <a href="{{ route('pdv.index', ['type' => 'machines']) }}" data-type="machines"
-                   class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'machines' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}"
-                   style="{{ $type == 'machines' ? 'color: white !important;' : '' }}">
-                    Máquinas
-                </a>
-                <a href="{{ route('pdv.index', ['type' => 'supplies']) }}" data-type="supplies"
-                   class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'supplies' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}"
-                   style="{{ $type == 'supplies' ? 'color: white !important;' : '' }}">
-                    Suprimentos
-                </a>
-                <a href="{{ route('pdv.index', ['type' => 'uniforms']) }}" data-type="uniforms"
-                   class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'uniforms' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}"
-                   style="{{ $type == 'uniforms' ? 'color: white !important;' : '' }}">
-                    Uniformes
-                </a>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-12 gap-4 md:gap-8 items-start">
-            {{-- Left Column: Products (full on mobile, 8 cols on desktop) --}}
-            <div class="col-span-12 lg:col-span-8 space-y-4 md:space-y-6">
-
-                <div class="pdv-neo-panel rounded-3xl p-4 md:p-5 space-y-4 md:space-y-6">
-                    {{-- Search Bar (Instant) - Compact on mobile --}}
-                    <div class="relative group">
-                        <div class="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
-                            <svg class="h-4 w-4 md:h-5 md:w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
+        <div class="pdv-layout">
+            <div class="pdv-main-stack">
+                <div class="pdv-toolbar-card">
+                    <div class="pdv-toolbar-row">
+                        <div class="pdv-toolbar-copy">
+                            <h2>Catalogo PDV</h2>
+                            <p>Escolha a categoria, pesquise pelo nome e abra a configuracao do item sem trocar de tela.</p>
                         </div>
-                        <input type="text" 
-                               id="product-search"
-                               value="{{ $search ?? '' }}"
-                               placeholder="Buscar produto, tecido, máquina ou suprimento..." 
-                               class="pdv-neo-input block w-full pr-4 py-3 md:py-4 rounded-xl md:rounded-2xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/20 text-sm md:text-lg transition-all"
-                               style="padding-left: 3rem !important;">
                     </div>
 
-                    {{-- Products Grid Container (AJAX Target) --}}
-                    <div id="products-grid-container">
-                        @include('pdv.partials.grid')
+                    <div class="pdv-tabs-wrap">
+                            <button type="button"
+                               data-url="{{ route('pdv.index', ['type' => 'products']) }}"
+                               data-type="products"
+                               class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'products' ? 'bg-indigo-600 !text-white' : '' }}">
+                                Produtos
+                            </button>
+                            <button type="button"
+                               data-url="{{ route('pdv.index', ['type' => 'fabric_pieces']) }}"
+                               data-type="fabric_pieces"
+                               class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'fabric_pieces' ? 'bg-indigo-600 !text-white' : '' }}">
+                                Tecidos
+                            </button>
+                            <button type="button"
+                               data-url="{{ route('pdv.index', ['type' => 'machines']) }}"
+                               data-type="machines"
+                               class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'machines' ? 'bg-indigo-600 !text-white' : '' }}">
+                                Maquinas
+                            </button>
+                            <button type="button"
+                               data-url="{{ route('pdv.index', ['type' => 'supplies']) }}"
+                               data-type="supplies"
+                               class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'supplies' ? 'bg-indigo-600 !text-white' : '' }}">
+                                Suprimentos
+                            </button>
+                            <button type="button"
+                               data-url="{{ route('pdv.index', ['type' => 'uniforms']) }}"
+                               data-type="uniforms"
+                               class="pdv-tab-link px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap {{ $type == 'uniforms' ? 'bg-indigo-600 !text-white' : '' }}">
+                                Uniformes
+                            </button>
+                    </div>
+
+                    <div class="pdv-filter-field">
+                        <label for="product-search" class="pdv-filter-label">Buscar item</label>
+                        <div class="pdv-search-field">
+                            <div class="pdv-search-field-icon">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input type="text"
+                                   id="product-search"
+                                   value="{{ $search ?? '' }}"
+                                   placeholder="Buscar produto, tecido, maquina ou suprimento..."
+                                   autocomplete="off"
+                                   spellcheck="false"
+                                   class="pdv-search-field-input">
+                        </div>
                     </div>
                 </div>
-            </div> {{-- End Left Column --}}
 
-            {{-- Right Column: Cart & Client (4 cols - hidden on mobile, full on lg) --}}
-            <div class="hidden lg:block col-span-12 lg:col-span-4 relative">
-                <div class="sticky top-6">
-                    <div class="pdv-neo-panel rounded-3xl overflow-hidden flex flex-col h-[calc(100vh-6rem)]">
-                        
-                        <!-- 1. Header & Client Selection -->
-                        <div class="p-5 border-b border-gray-100 dark:border-gray-700 pdv-card bg-gray-50/50">
-                            <!-- Selected Client Display -->
-                            <div id="selected-client-display" class="hidden animate-fade-in-down">
-                                <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-xl p-3 border border-indigo-100 dark:border-indigo-800 flex justify-between items-center group">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-sm">
-                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p class="font-bold text-gray-900 dark:text-gray-100 text-sm leading-tight" id="selected-client-name"></p>
-                                            <p class="text-xs text-indigo-600 dark:text-indigo-400" id="selected-client-info"></p>
-                                        </div>
-                                    </div>
-                                    <button onclick="clearSelectedClient()" class="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
-                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
+                <div class="pdv-catalog-card">
+                    <div id="pdv-catalog-content">
+                        @include('pdv.partials.catalog')
+                    </div>
+                </div>
+            </div>
+
+            <aside class="hidden lg:block">
+                <div class="pdv-sidebar-stack sticky top-6">
+                    <div class="pdv-section-card">
+                        <div class="pdv-section-head">
+                            <span class="pdv-section-icon"><i class="fa-solid fa-user"></i></span>
+                            <div>
+                                <h3>Cliente da venda</h3>
+                                <p>Associe um cliente para historico, relacionamento e recorrencia. Opcional.</p>
                             </div>
+                        </div>
 
-                            <!-- Client Search Input -->
-                            <div id="client-search-container" class="relative">
-                                <div class="relative">
-                                    <input type="text" id="search-client" placeholder="Buscar cliente (opcional)..." 
-                                           onkeydown="if(event.key === 'Enter') window.searchClient()"
-                                           class="w-full pl-16 pr-4 py-3 pdv-card bg-white border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-shadow" style="padding-left: 3.5rem !important;">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center cursor-pointer" onclick="window.searchClient()">
-                                        <svg class="w-5 h-5 text-gray-400 hover:text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div id="selected-client-display" class="pdv-client-display hidden animate-fade-in-down">
+                            <div class="pdv-client-card">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="pdv-client-avatar">
+                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-sm leading-tight truncate" id="selected-client-name"></p>
+                                        <p class="text-xs text-indigo-600 dark:text-indigo-400 truncate" id="selected-client-info"></p>
+                                    </div>
+                                </div>
+                                <button onclick="clearSelectedClient()" class="text-gray-400 hover:text-red-500 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="client-search-container" class="relative">
+                            <div class="pdv-filter-field">
+                                <label for="search-client" class="pdv-filter-label">Buscar cliente</label>
+                                <div class="pdv-search-field pdv-search-field-with-action">
+                                    <div class="pdv-search-field-icon">
+                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                         </svg>
                                     </div>
-                                    <a href="{{ route('clients.create') }}" target="_blank" class="absolute inset-y-0 right-0 pr-3 flex items-center text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 hover:underline">
+                                    <input type="text" id="search-client" placeholder="Buscar cliente (opcional)..."
+                                           onkeydown="if(event.key === 'Enter') window.searchClient()"
+                                           autocomplete="off"
+                                           spellcheck="false"
+                                           class="pdv-search-field-input has-action">
+                                    <a href="{{ route('clients.create') }}" target="_blank" class="pdv-search-field-action">
                                         + Novo
                                     </a>
                                 </div>
-                                <div id="search-results" class="absolute w-full mt-1 pdv-card bg-white rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 z-50 max-h-60 overflow-y-auto hidden"></div>
-                                <input type="hidden" id="client_id" name="client_id" value="">
                             </div>
+                            <div id="search-results" class="absolute w-full mt-2 pdv-card pdv-search-results rounded-xl z-50 max-h-60 overflow-y-auto hidden"></div>
+                            <input type="hidden" id="client_id" name="client_id" value="">
+                        </div>
+                    </div>
+
+                    <div class="pdv-section-card">
+                        <div class="pdv-section-head">
+                            <span class="pdv-section-icon"><i class="fa-solid fa-cart-shopping"></i></span>
+                            <div class="flex-1 min-w-0">
+                                <h3>Carrinho da venda</h3>
+                                <p>Itens selecionados com quantidade, preco e desconto individual.</p>
+                            </div>
+                            <span id="cart-total-items-badge" class="pdv-chip">{{ $cartItemsCount }} itens</span>
                         </div>
 
-                        <!-- 2. Cart Items (Scrollable) -->
-                        <div class="flex-1 overflow-y-auto p-2 space-y-2 pdv-card bg-gray-50/30" id="cart-items-container">
-                            <div id="cart-items" class="p-2 space-y-3">
+                        <div class="pdv-cart-shell" id="cart-items-container">
+                            <div id="cart-items" class="pdv-cart-list">
                                 @if(empty($cart))
-                                    <div class="flex flex-col items-center justify-center h-48 text-gray-400 dark:text-gray-500">
-                                        <svg class="w-12 h-12 mb-3 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <div class="pdv-empty-state">
+                                        <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
-                                        <p class="text-sm">Seu carrinho está vazio</p>
+                                        <div>
+                                            <p class="font-semibold text-sm">Seu carrinho esta vazio</p>
+                                            <p class="text-xs mt-1">Adicione itens do catalogo para iniciar a venda.</p>
+                                        </div>
                                     </div>
                                 @else
                                     @foreach($cart as $item)
-                                    <!-- Simplified Cart Item -->
-                                    <div class="cart-item group pdv-card bg-white rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-600 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors" data-item-id="{{ $item['id'] }}">
-                                        <div class="flex justify-between items-start mb-2">
-                                            <div class="flex-1 pr-2">
-                                                <p class="font-medium text-gray-900 dark:text-gray-100 text-sm leading-tight">{{ $item['product_title'] }}</p>
-                                                @if(!empty($item['color_name']) || !empty($item['size']))
-                                                    <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
-                                                        {{ $item['color_name'] ?? 'Cor não informada' }}@if(!empty($item['size'])) • {{ $item['size'] }} @endif
-                                                    </p>
-                                                @endif
-                                                @if(isset($item['sale_type']) && $item['sale_type'] != 'unidade')
-                                                    <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">Venda por {{ $item['sale_type'] == 'kg' ? 'Kg' : 'Metro' }}</p>
+                                        <div class="cart-item pdv-cart-item" data-item-id="{{ $item['id'] }}">
+                                            <div class="pdv-cart-item-head">
+                                                <div class="min-w-0 flex-1">
+                                                    <p class="pdv-cart-item-title">{{ $item['product_title'] }}</p>
+                                                    <div class="pdv-cart-item-meta">
+                                                        @if(!empty($item['color_name']))
+                                                            <span class="pdv-chip">{{ $item['color_name'] }}</span>
+                                                        @endif
+                                                        @if(!empty($item['size']))
+                                                            <span class="pdv-chip">{{ $item['size'] }}</span>
+                                                        @endif
+                                                        @if(isset($item['sale_type']) && $item['sale_type'] != 'unidade')
+                                                            <span class="pdv-chip pdv-chip-accent">{{ $item['sale_type'] == 'kg' ? 'Venda por Kg' : 'Venda por Metro' }}</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <button onclick="removeCartItem('{{ $item['id'] }}')" class="pdv-cart-remove">
+                                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+
+                                            <div class="pdv-cart-item-foot">
+                                                <div class="pdv-cart-controls">
+                                                    <input type="number"
+                                                           value="{{ $item['quantity'] }}"
+                                                           step="{{ isset($item['sale_type']) && $item['sale_type'] != 'unidade' ? '0.01' : '1' }}"
+                                                           min="{{ isset($item['sale_type']) && $item['sale_type'] != 'unidade' ? '0.01' : '1' }}"
+                                                           onchange="updateCartItem('{{ $item['id'] }}', this.value, null)"
+                                                           class="w-16 p-0 text-center text-xs bg-transparent dark:bg-transparent text-gray-900 dark:text-gray-100 focus:ring-0" style="background-color: transparent !important;">
+                                                    <span class="text-xs text-gray-400">x</span>
+                                                    <input type="number"
+                                                           value="{{ number_format($item['unit_price'], 2, '.', '') }}"
+                                                           step="0.01" min="0"
+                                                           onchange="updateCartItem('{{ $item['id'] }}', null, this.value)"
+                                                           class="w-20 p-0 text-right text-xs bg-transparent dark:bg-transparent text-gray-900 dark:text-gray-100 font-medium focus:ring-0" style="background-color: transparent !important;">
+                                                </div>
+                                                <p class="pdv-cart-price">R$ {{ number_format($item['total_price'], 2, ',', '.') }}</p>
+                                            </div>
+
+                                            <div class="pdv-cart-discount-row mt-2 pt-2 border-t border-dashed border-gray-200 dark:border-gray-700">
+                                                <label class="text-xs font-semibold text-gray-500">Desconto</label>
+                                                <select id="item-discount-type-{{ $item['id'] }}"
+                                                        class="px-2 py-1 text-[11px] rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-transparent text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-indigo-500"
+                                                        style="background-color: transparent !important;"
+                                                        onchange="updateItemDiscount('{{ $item['id'] }}')">
+                                                    <option value="fixed" {{ ($item['discount_type'] ?? 'fixed') === 'fixed' ? 'selected' : '' }} class="dark:bg-gray-800">R$</option>
+                                                    <option value="percent" {{ ($item['discount_type'] ?? '') === 'percent' ? 'selected' : '' }} class="dark:bg-gray-800">%</option>
+                                                </select>
+                                                <input type="number"
+                                                       id="item-discount-value-{{ $item['id'] }}"
+                                                       step="0.01"
+                                                       min="0"
+                                                       value="{{ $item['discount_value'] ?? 0 }}"
+                                                       onchange="updateItemDiscount('{{ $item['id'] }}')"
+                                                       class="w-20 px-2 py-1 text-right text-[11px] rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-transparent text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-indigo-500"
+                                                       style="background-color: transparent !important;">
+                                                @if(($item['item_discount'] ?? 0) > 0)
+                                                    <span class="pdv-chip pdv-chip-danger">-R$ {{ number_format($item['item_discount'], 2, ',', '.') }}</span>
                                                 @endif
                                             </div>
-                                            <button onclick="removeCartItem('{{ $item['id'] }}')" class="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 transition-opacity">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                            </button>
                                         </div>
-                                        
-                                        <div class="flex items-end justify-between">
-                                            <div class="flex items-center pdv-card bg-gray-50 rounded-lg p-1 border border-gray-200 dark:border-gray-600">
-                                                <input type="number" 
-                                                       value="{{ $item['quantity'] }}" 
-                                                       step="{{ isset($item['sale_type']) && $item['sale_type'] != 'unidade' ? '0.01' : '1' }}"
-                                                       min="{{ isset($item['sale_type']) && $item['sale_type'] != 'unidade' ? '0.01' : '1' }}"
-                                                       onchange="updateCartItem('{{ $item['id'] }}', this.value, null)"
-                                                       class="w-20 p-0 text-center text-xs bg-transparent border-none text-gray-900 dark:text-gray-100 focus:ring-0">
-                                                <span class="text-xs text-gray-400 px-1">×</span>
-                                                <input type="number" 
-                                                       value="{{ number_format($item['unit_price'], 2, '.', '') }}" 
-                                                       step="0.01" min="0"
-                                                       onchange="updateCartItem('{{ $item['id'] }}', null, this.value)"
-                                                       class="w-24 p-0 text-right text-xs bg-transparent border-none text-gray-900 dark:text-gray-100 font-medium focus:ring-0">
-                                            </div>
-                                            <p class="font-bold text-gray-900 dark:text-white text-sm">
-                                                R$ {{ number_format($item['total_price'], 2, ',', '.') }}
-                                            </p>
-                                        </div>
-                                    </div>
                                     @endforeach
                                 @endif
                             </div>
                         </div>
+                    </div>
 
-                        <!-- 3. Footer (Totals & Actions) -->
-                        <div class="pdv-card bg-white p-5 border-t border-gray-100 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
-                            
-                            <!-- Payment Details (Combined Section) -->
-                            <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-3 mb-4 space-y-3 border border-gray-100 dark:border-gray-700">
-                                <div class="flex flex-col gap-3">
-                                    <!-- Discount -->
-                                    <div>
-                                        <label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1 block pl-1">Desconto</label>
-                                        <div class="flex shadow-sm rounded-lg">
-                                            <select id="discount-type" class="px-2 py-1.5 pdv-neo-input rounded-l-lg text-xs focus:ring-1 focus:ring-gray-900 border-r-0 text-gray-700 dark:text-[var(--pdv-text-primary)]">
-                                                <option value="fixed">R$</option>
-                                                <option value="percent">%</option>
-                                            </select>
-                                            <input type="number" id="discount-input" placeholder="0,00" step="0.01" min="0" class="flex-1 w-full px-2 py-1.5 pdv-neo-input rounded-r-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-[var(--pdv-text-primary)] placeholder-gray-400">
-                                        </div>
+                    <div class="pdv-section-card">
+                        <div class="pdv-section-head">
+                            <span class="pdv-section-icon"><i class="fa-solid fa-credit-card"></i></span>
+                            <div>
+                                <h3>Resumo e finalizacao</h3>
+                                <p>Configure desconto, entrega e observacoes antes de concluir.</p>
+                            </div>
+                        </div>
+
+                        <div class="pdv-summary-grid">
+                            <div class="pdv-summary-field">
+                                <label>Desconto</label>
+                                <div class="pdv-summary-inline">
+                                    <div class="pdv-summary-input-wrap pdv-summary-select-wrap">
+                                        <select id="discount-type" class="pdv-summary-select dark:text-gray-100">
+                                            <option value="fixed" class="dark:bg-[#10203a] dark:text-gray-100">R$</option>
+                                            <option value="percent" class="dark:bg-[#10203a] dark:text-gray-100">%</option>
+                                        </select>
                                     </div>
-                                    <!-- Delivery -->
-                                    <div>
-                                        <label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1 block pl-1">Entrega</label>
-                                        <div class="relative shadow-sm rounded-lg">
-                                            <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                                                <span class="text-gray-400 text-xs">R$</span>
-                                            </div>
-                                            <input type="number" id="delivery-fee-input" placeholder="0,00" class="w-full pl-6 pr-2 py-1.5 pdv-neo-input rounded-lg text-sm text-right focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-[var(--pdv-text-primary)] placeholder-gray-400">
-                                        </div>
+                                    <div class="pdv-summary-input-wrap">
+                                        <input type="number" id="discount-input" placeholder="0,00" step="0.01" min="0" inputmode="decimal" class="pdv-summary-input text-right">
                                     </div>
-                                </div>
-                                
-                                <!-- Notes -->
-                                <div>
-                                    <input type="text" id="notes-input" placeholder="Adicionar observações..." class="w-full px-3 py-2 pdv-card bg-white border border-gray-200 dark:border-gray-600 rounded-lg text-xs focus:ring-1 focus:ring-gray-900 text-gray-900 dark:text-white placeholder-gray-400 transition-colors hover:border-gray-300">
                                 </div>
                             </div>
 
-                            <!-- Total Display -->
-                            <div class="flex justify-between items-center mb-5 pb-4 border-b border-dashed border-gray-200 dark:border-gray-700">
-                                <div class="flex flex-col">
-                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total a Pagar</span>
-                                    <span id="cart-total-items-badge" class="text-[10px] text-gray-400 mt-0.5 hidden">0 itens</span>
+                            <div class="pdv-summary-field">
+                                <label>Entrega</label>
+                                <div class="pdv-summary-input-wrap">
+                                    <span class="pdv-summary-prefix">R$</span>
+                                    <input type="number" id="delivery-fee-input" placeholder="0,00" inputmode="decimal" class="pdv-summary-input text-right">
                                 </div>
-                                <span class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight" id="cart-total">
-                                    @php
-                                        $subtotal = !empty($cart) ? array_sum(array_column($cart, 'total_price')) : 0;
-                                    @endphp
-                                    R$ {{ number_format($subtotal, 2, ',', '.') }}
-                                </span>
                             </div>
 
-                            <!-- Action Buttons -->
-                            <div class="space-y-3">
-                                <button onclick="window.checkout()" id="checkout-btn" class="group w-full py-4 bg-gray-900 hover:bg-black text-white rounded-xl font-bold shadow-lg shadow-gray-200 dark:shadow-none transition-all active:scale-[0.99] flex justify-center items-center gap-3 text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none" disabled style="color: white !important;">
-                                    <span style="color: white !important;">FINALIZAR VENDA</span>
-                                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: white !important;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                            <div class="pdv-summary-field">
+                                <label>Observacoes</label>
+                                <div class="pdv-summary-input-wrap">
+                                    <input type="text" id="notes-input" placeholder="Adicionar observacoes..." class="pdv-summary-input pdv-summary-notes">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pdv-summary-breakdown">
+                            <div class="pdv-summary-row">
+                                <span>Subtotal</span>
+                                <strong id="cart-subtotal">R$ {{ number_format($cartSubtotal, 2, ',', '.') }}</strong>
+                            </div>
+                            <div class="pdv-summary-row">
+                                <span>Desconto aplicado</span>
+                                <strong id="cart-discount-total">R$ 0,00</strong>
+                            </div>
+                            <div class="pdv-summary-row">
+                                <span>Entrega</span>
+                                <strong id="cart-delivery-fee">R$ 0,00</strong>
+                            </div>
+                        </div>
+
+                        <div class="pdv-summary-total">
+                            <div>
+                                <span>Total a pagar</span>
+                                <p class="text-sm mt-2 text-gray-500 dark:text-gray-400">Checkout rapido com cliente opcional.</p>
+                            </div>
+                            <strong id="cart-total">R$ {{ number_format($cartSubtotal, 2, ',', '.') }}</strong>
+                        </div>
+
+                        <div class="space-y-3 mt-5">
+                            <button onclick="window.checkout()" id="checkout-btn" class="pdv-primary-action group w-full py-4 rounded-xl font-bold transition-all active:scale-[0.99] flex justify-center items-center gap-3 text-base disabled:cursor-not-allowed" disabled style="color: white !important;">
+                                <span style="color: white !important;">Finalizar venda</span>
+                                <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: white !important;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                            </button>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <button onclick="window.checkoutWithoutClient()" id="checkout-without-client-btn" class="pdv-secondary-action w-full py-2.5 rounded-xl font-semibold text-xs transition-all flex items-center justify-center gap-1.5">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                    Sem cliente
                                 </button>
-                                
-                                <div class="grid grid-cols-2 gap-3">
-                                    <button onclick="window.checkoutWithoutClient()" id="checkout-without-client-btn" class="w-full py-2.5 pdv-card bg-white text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-lg font-semibold text-xs transition-all flex items-center justify-center gap-1.5">
-                                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                        Sem Cliente
-                                    </button>
-                                    <button onclick="window.clearCart()" class="w-full py-2.5 text-xs font-semibold text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-transparent hover:border-red-100 flex items-center justify-center gap-1.5">
-                                        <svg class="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                        Limpar
-                                    </button>
-                                </div>
+                                <button onclick="window.clearCart()" class="pdv-danger-action w-full py-2.5 text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5">
+                                    <svg class="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    Limpar
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div> <!-- End Grid -->
-    </div>
-
-    {{-- Mobile Cart FAB (Floating Action Button) --}}
-    <div id="mobile-cart-fab" class="lg:hidden fixed bottom-20 right-4 z-40">
-        <button onclick="toggleMobileCart()" 
-                class="relative w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg shadow-indigo-500/30 flex items-center justify-center hover:bg-indigo-700 active:scale-95 transition-all">
-            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-            </svg>
-            {{-- Cart count badge --}}
-            <span id="mobile-cart-count" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center {{ empty($cart) ? 'hidden' : '' }}">
-                {{ count($cart ?? []) }}
-            </span>
-        </button>
-        {{-- Total preview --}}
-        <div class="absolute -left-20 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded font-bold whitespace-nowrap {{ empty($cart) ? 'hidden' : '' }}" id="mobile-cart-total-preview">
-            @php $subtotal = !empty($cart) ? array_sum(array_column($cart, 'total_price')) : 0; @endphp
-            R$ {{ number_format($subtotal, 2, ',', '.') }}
+            </aside>
         </div>
-    </div>
 
-    {{-- Mobile Cart Drawer --}}
-    <div id="mobile-cart-drawer" class="lg:hidden fixed inset-0 z-50 hidden">
-        {{-- Backdrop --}}
-        <div onclick="toggleMobileCart()" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-        
-        {{-- Drawer Content --}}
-        <div class="absolute bottom-0 left-0 right-0 pdv-card bg-white rounded-t-3xl max-h-[85vh] overflow-hidden transform transition-transform duration-300 translate-y-full" id="mobile-cart-content">
-            {{-- Handle bar --}}
-            <div class="flex justify-center py-2">
-                <div class="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+        <div id="mobile-cart-fab" class="lg:hidden fixed bottom-20 right-4 z-40">
+            <button onclick="toggleMobileCart()" class="pdv-fab relative w-14 h-14 rounded-full flex items-center justify-center active:scale-95 transition-all">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                <span id="mobile-cart-count" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center {{ empty($cart) ? 'hidden' : '' }}">
+                    {{ count($cart ?? []) }}
+                </span>
+            </button>
+            <div class="pdv-total-preview absolute -left-24 top-1/2 -translate-y-1/2 text-xs px-3 py-1.5 rounded-full font-bold whitespace-nowrap {{ empty($cart) ? 'hidden' : '' }}" id="mobile-cart-total-preview">
+                R$ {{ number_format($cartSubtotal, 2, ',', '.') }}
             </div>
-            
-            {{-- Header --}}
-            <div class="flex items-center justify-between px-4 pb-3 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <svg class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                    Carrinho
-                </h3>
-                <button onclick="toggleMobileCart()" class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-            
-            {{-- Cart Items --}}
-            <div class="max-h-[40vh] overflow-y-auto p-4 space-y-3" id="mobile-cart-items">
-                @if(empty($cart))
-                    <p class="text-center text-gray-500 py-8">Carrinho vazio</p>
-                @else
-                    @foreach($cart as $item)
-                    <div class="pdv-card bg-gray-50 rounded-lg p-3 flex justify-between items-center">
-                        <div>
-                            <p class="font-medium text-gray-900 dark:text-white text-sm">{{ $item['product_title'] }}</p>
-                            @if(!empty($item['color_name']) || !empty($item['size']))
-                                <p class="text-[10px] text-gray-500 dark:text-gray-400">
-                                    {{ $item['color_name'] ?? 'Cor não informada' }}@if(!empty($item['size'])) • {{ $item['size'] }} @endif
-                                </p>
-                            @endif
-                            <p class="text-xs text-gray-500">{{ $item['quantity'] }} × R$ {{ number_format($item['unit_price'], 2, ',', '.') }}</p>
-                        </div>
-                        <p class="font-bold text-indigo-600 dark:text-indigo-400">R$ {{ number_format($item['total_price'], 2, ',', '.') }}</p>
-                    </div>
-                    @endforeach
-                @endif
-            </div>
-            
-            {{-- Footer with Total and Actions --}}
-            <div class="p-4 border-t border-gray-200 dark:border-gray-700 pdv-card bg-gray-50/50 space-y-3">
-                <div class="flex justify-between items-end">
-                    <span class="text-sm text-gray-500">Total</span>
-                    <span class="text-2xl font-bold text-gray-900 dark:text-white" id="mobile-cart-total">
-                        R$ {{ number_format($subtotal, 2, ',', '.') }}
-                    </span>
+        </div>
+
+        <div id="mobile-cart-drawer" class="lg:hidden fixed inset-0 z-50 hidden">
+            <div onclick="toggleMobileCart()" class="pdv-overlay absolute inset-0"></div>
+
+            <div class="absolute bottom-0 left-0 right-0 pdv-card rounded-t-[28px] max-h-[88vh] overflow-hidden transform transition-transform duration-300 translate-y-full" id="mobile-cart-content">
+                <div class="flex justify-center pt-3">
+                    <div class="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-600"></div>
                 </div>
-                <button onclick="window.checkoutWithoutClient(); toggleMobileCart();" 
-                        class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors">
-                    Finalizar Venda
-                </button>
-                <button onclick="window.clearCart(); toggleMobileCart();" 
-                        class="w-full py-2 text-red-500 text-xs hover:underline">
-                    Limpar Carrinho
-                </button>
+
+                <div class="pdv-mobile-drawer-head">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Carrinho</p>
+                            <p class="pdv-mobile-total text-gray-900 dark:text-white" id="mobile-cart-total">R$ {{ number_format($cartSubtotal, 2, ',', '.') }}</p>
+                        </div>
+                        <button onclick="toggleMobileCart()" class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="max-h-[42vh] overflow-y-auto p-4" id="mobile-cart-items">
+                    @if(empty($cart))
+                        <div class="pdv-empty-state min-h-[180px]">
+                            <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            <div>
+                                <p class="font-semibold text-sm">Carrinho vazio</p>
+                                <p class="text-xs mt-1">Adicione itens para visualizar o resumo.</p>
+                            </div>
+                        </div>
+                    @else
+                        <div class="pdv-cart-list">
+                            @foreach($cart as $item)
+                                <div class="pdv-cart-item">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="min-w-0">
+                                            <p class="pdv-cart-item-title">{{ $item['product_title'] }}</p>
+                                            <p class="text-xs text-gray-500 mt-1">{{ $item['quantity'] }} x R$ {{ number_format($item['unit_price'], 2, ',', '.') }}</p>
+                                        </div>
+                                        <p class="pdv-cart-price">R$ {{ number_format($item['total_price'], 2, ',', '.') }}</p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
+                <div class="p-4 border-t pdv-panel-divider pdv-muted-surface space-y-3">
+                    <button onclick="window.checkout(); toggleMobileCart();" class="pdv-primary-action w-full py-3 rounded-xl font-bold text-sm transition-colors">
+                        Finalizar venda
+                    </button>
+                    <button onclick="window.clearCart(); toggleMobileCart();" class="pdv-danger-action w-full py-2.5 text-xs rounded-xl">
+                        Limpar carrinho
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 </div> <!-- End Min-H-Screen -->
 
 <script>
@@ -1017,7 +2516,8 @@ function renderVariantColorOptions(colors, selectedColorId = null) {
         select.innerHTML = '<option value="">Nenhuma cor em estoque</option>';
         select.disabled = true;
         if (swatches) {
-            swatches.innerHTML = '<p class="text-xs text-gray-500 dark:text-gray-400">Nenhuma cor disponível para este corte no estoque.</p>';
+            swatches.className = 'pdv-modal-swatches';
+            swatches.innerHTML = '<p class="pdv-modal-stock-empty">Nenhuma cor disponível para este corte no estoque.</p>';
         }
         return;
     }
@@ -1033,15 +2533,16 @@ function renderVariantColorOptions(colors, selectedColorId = null) {
     `;
 
     if (swatches) {
+        swatches.className = 'pdv-modal-swatches';
         swatches.innerHTML = normalizedColors.map((color) => {
             const isSelected = String(selectedColorId ?? '') === String(color.id);
             return `
                 <button type="button"
                         onclick="selectModalColor('${color.id}')"
-                        class="flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${isSelected ? 'border-purple-500 bg-purple-50 text-purple-700 dark:border-purple-400 dark:bg-purple-900/30 dark:text-purple-200 shadow-sm' : 'border-gray-200 bg-white text-gray-700 hover:border-purple-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-purple-500'}">
-                    <span class="w-4 h-4 rounded-full border border-white/30 shadow-sm" style="background-color: ${color.hex || '#666666'}"></span>
+                        class="pdv-modal-swatch ${isSelected ? 'is-selected' : ''}">
+                    <span class="pdv-modal-swatch-dot" style="background-color: ${color.hex || '#666666'}"></span>
                     <span>${color.name}</span>
-                    ${color.available !== null ? `<span class="text-[10px] opacity-70">${color.available}</span>` : ''}
+                    ${color.available !== null ? `<span class="pdv-modal-swatch-stock">${color.available}</span>` : ''}
                 </button>
             `;
         }).join('');
@@ -1144,6 +2645,179 @@ window.calculateFabricPiecePrice = function() {
     }
 };
 
+function upgradeModalControl(control, options = {}) {
+    if (!control || control.type === 'hidden') {
+        return null;
+    }
+
+    const {
+        isSelect = false,
+        prefixText = '',
+        disabled = false,
+        inputClass = '',
+    } = options;
+    const tagName = control.tagName.toLowerCase();
+    const isTextarea = tagName === 'textarea';
+
+    let wrapper = control.parentElement;
+    if (!wrapper || !wrapper.classList.contains('pdv-modal-input-wrap')) {
+        wrapper = document.createElement('div');
+        wrapper.className = `pdv-modal-input-wrap${isSelect ? ' pdv-modal-select-wrap' : ''}`;
+        control.parentNode.insertBefore(wrapper, control);
+        wrapper.appendChild(control);
+    } else {
+        wrapper.className = `pdv-modal-input-wrap${isSelect ? ' pdv-modal-select-wrap' : ''}`;
+    }
+
+    let prefix = wrapper.querySelector('.pdv-modal-prefix');
+    if (prefixText) {
+        if (!prefix) {
+            prefix = wrapper.querySelector('span') || document.createElement('span');
+            if (!prefix.parentElement) {
+                wrapper.insertBefore(prefix, control);
+            }
+        }
+        prefix.className = 'pdv-modal-prefix';
+        prefix.textContent = prefixText;
+    } else if (prefix) {
+        prefix.remove();
+    }
+
+    wrapper.style.setProperty('background', 'var(--pdv-input-bg)', 'important');
+    wrapper.style.setProperty('background-color', 'var(--pdv-input-bg)', 'important');
+    wrapper.style.setProperty('border-color', 'var(--pdv-input-border)', 'important');
+    wrapper.style.setProperty('box-shadow', 'none', 'important');
+
+    control.className = `${isSelect ? 'pdv-modal-select' : (isTextarea ? 'pdv-modal-textarea' : 'pdv-modal-input')}${prefixText ? ' with-prefix' : ''}${inputClass ? ` ${inputClass}` : ''}`;
+    control.style.setProperty('background', 'var(--pdv-input-bg)', 'important');
+    control.style.setProperty('background-color', 'var(--pdv-input-bg)', 'important');
+    control.style.setProperty('border', '0', 'important');
+    control.style.setProperty('border-color', 'transparent', 'important');
+    control.style.setProperty('color', 'var(--pdv-input-text)', 'important');
+    control.style.setProperty('caret-color', 'var(--pdv-input-text)', 'important');
+    control.style.setProperty('-webkit-text-fill-color', 'var(--pdv-input-text)', 'important');
+    control.style.setProperty('-webkit-box-shadow', '0 0 0 1000px var(--pdv-input-bg) inset', 'important');
+    control.style.setProperty('box-shadow', 'none', 'important');
+    if (isSelect) {
+        control.style.setProperty('background-image', 'none', 'important');
+    }
+
+    if (disabled || control.disabled || control.readOnly) {
+        wrapper.classList.add('is-disabled');
+    }
+
+    return wrapper;
+}
+
+function upgradeModalField(control, options = {}) {
+    if (!control) {
+        return;
+    }
+
+    const field = control.closest('.mb-4, .mb-5');
+    if (field) {
+        field.classList.add('pdv-modal-field');
+        const label = field.querySelector('label');
+        if (label) {
+            label.className = 'pdv-modal-label';
+        }
+        const helperText = field.querySelector('p');
+        if (helperText) {
+            helperText.classList.add('pdv-modal-helper');
+        }
+    }
+
+    upgradeModalControl(control, options);
+}
+
+function enhanceAddProductModalUI() {
+    const content = document.getElementById('product-modal-content');
+    const root = content?.firstElementChild;
+
+    if (!root) {
+        return;
+    }
+
+    root.classList.add('pdv-modal-stack');
+
+    const headerCard = root.firstElementChild;
+    if (headerCard) {
+        headerCard.className = 'pdv-modal-card pdv-modal-header-card';
+        const label = headerCard.querySelector('span');
+        if (label) {
+            label.className = 'pdv-modal-kpi-label';
+        }
+        const price = headerCard.querySelector('.text-2xl');
+        if (price) {
+            price.className = 'pdv-modal-kpi-value';
+        }
+        const meta = headerCard.querySelector('.text-xs.text-gray-500');
+        if (meta) {
+            meta.className = 'pdv-modal-kpi-meta';
+        }
+        const badge = headerCard.querySelector('.bg-green-100');
+        if (badge) {
+            badge.className = 'pdv-modal-badge';
+        }
+    }
+
+    upgradeModalField(document.getElementById('modal-quantity'), {
+        inputClass: 'text-right',
+        disabled: document.getElementById('modal-quantity')?.disabled || document.getElementById('modal-quantity')?.readOnly,
+    });
+
+    upgradeModalField(document.getElementById('modal-unit-price'), {
+        prefixText: 'R$',
+        inputClass: 'text-right',
+    });
+
+    upgradeModalField(document.getElementById('modal-color-select'), {
+        isSelect: true,
+    });
+
+    const sizeHeader = document.getElementById('total-quantity-display')?.closest('.flex.items-center.justify-between');
+    if (sizeHeader) {
+        sizeHeader.className = 'pdv-modal-card pdv-modal-section-head';
+        const title = sizeHeader.querySelector('label');
+        if (title) {
+            title.className = 'pdv-modal-section-title';
+        }
+        sizeHeader.querySelectorAll('.text-gray-500').forEach((metric) => {
+            metric.className = 'pdv-modal-mini-kpi';
+        });
+    }
+
+    document.querySelectorAll('[id^="modal-size-"]').forEach((input) => {
+        input.className = 'pdv-modal-size-input';
+        input.style.setProperty('background', 'var(--pdv-input-bg)', 'important');
+        input.style.setProperty('background-color', 'var(--pdv-input-bg)', 'important');
+        input.style.setProperty('border-color', 'var(--pdv-input-border)', 'important');
+        input.style.setProperty('color', 'var(--pdv-input-text)', 'important');
+        input.style.setProperty('caret-color', 'var(--pdv-input-text)', 'important');
+        input.style.setProperty('-webkit-text-fill-color', 'var(--pdv-input-text)', 'important');
+        input.style.setProperty('-webkit-box-shadow', '0 0 0 1000px var(--pdv-input-bg) inset', 'important');
+        input.style.setProperty('box-shadow', 'none', 'important');
+        const card = input.closest('.relative.group');
+        if (card) {
+            card.className = 'pdv-modal-size-card';
+        }
+    });
+
+    const sizeGrids = Array.from(root.querySelectorAll('.grid.grid-cols-5'));
+    sizeGrids.forEach((grid) => {
+        grid.className = 'pdv-modal-size-grid';
+    });
+
+    const stockList = document.getElementById('stock-by-size-list');
+    if (stockList) {
+        stockList.className = 'pdv-modal-stock-list';
+        const emptyBox = stockList.querySelector('.text-sm.text-gray-500');
+        if (emptyBox) {
+            emptyBox.className = 'pdv-modal-stock-empty';
+        }
+    }
+}
+
 // Abrir modal de adicionar produto
 // IMPORTANTE: Definir no window imediatamente para estar disponível quando carregado via AJAX
 window.openAddProductModal = function openAddProductModal(itemId, type = 'product') {
@@ -1201,21 +2875,6 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
     const isFabric = isProduct && (product.sale_type === 'kg' || product.sale_type === 'metro');
     const shouldShowStockFields = Boolean(variantCutTypeId) && !isStockItem && !isFabric;
 
-    // HTML da Aplicação (produtos apenas)
-    let applicationHtml = '';
-    if (isProduct && product.allow_application && product.application_types && product.application_types.length > 0) {
-        applicationHtml = `
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Aplicação:</label>
-                <select id="modal-application-type" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg pdv-card bg-white text-gray-900 dark:text-gray-100">
-                    <option value="">Sem aplicação</option>
-                    ${product.application_types.includes('sublimacao_local') ? '<option value="sublimacao_local">Sublimação Local</option>' : ''}
-                    ${product.application_types.includes('dtf') ? '<option value="dtf">DTF</option>' : ''}
-                </select>
-            </div>
-        `;
-    }
-
     // HTML SubLocal
     let sublocalHtml = '';
     if (isProductOption && product.allows_sublocal) {
@@ -1257,10 +2916,6 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                             Saldo disponível: <span class="font-semibold text-gray-700 dark:text-gray-300">${formatFabricPieceQuantity(product.available_quantity || 0, product)} ${getFabricPieceUnitSuffix(product)}</span>
                             | Valor estimado: <span class="font-semibold text-gray-700 dark:text-gray-300">R$ ${parseFloat(product.sale_price || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </span>
-                        <div class="mt-2 text-[10px] space-y-0.5 border-t border-gray-100 dark:border-gray-700 pt-1">
-                            <span class="block text-gray-900 dark:text-gray-100 font-bold uppercase">${product.fabric_type_name || 'Tecido'}</span>
-                            ${product.supplier_name ? `<span class="block text-gray-500 font-medium">Fornecedor: ${product.supplier_name}</span>` : ''}
-                        </div>
                     ` : `
                         <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Preço Unitário</span>
                         <div class="flex items-center gap-2">
@@ -1309,8 +2964,6 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
             </div>
             ` : `<input type="hidden" id="modal-unit-price" value="${product.price || 0}">`}
             
-            ${applicationHtml}
-            
             ${shouldShowStockFields ? `
             <!-- Hidden field para o ID do tipo de corte -->
             <input type="hidden" id="modal-cut-type-id" value="${variantCutTypeId}">
@@ -1338,30 +2991,61 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-5 gap-2 gap-y-6 mb-4">
+                <!-- Grid 1: PP, P, M, G, GG -->
+                <div class="grid grid-cols-5 gap-3 mb-4 mt-4">
                     ${['PP','P','M','G','GG'].map(s => `
-                    <div class="relative group">
-                        <div class="flex flex-col items-center">
-                            <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">${s}</label>
+                    <div class="flex flex-col items-center justify-start h-32">
+                        <!-- Label Topo -->
+                        <div class="h-6 flex items-end mb-2">
+                            <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">${s}</label>
+                        </div>
+                        
+                        <!-- Tooltip da loja (agora no fluxo normal, acima do input) -->
+                        <div class="h-6 w-full flex items-end justify-center mb-1">
+                            <div id="stock-badge-${s.toLowerCase()}"></div>
+                        </div>
+
+                        <!-- Input -->
+                        <div class="w-full relative">
                             <input type="number" id="modal-size-${s.toLowerCase()}" min="0" value="" placeholder="0"
                                    onchange="checkStockForSizes(); ${s === 'GG' ? 'calculateSizeSurcharges();' : ''} updateTotalQuantity();" 
-                                   class="w-full h-10 border border-gray-200 dark:border-gray-600 rounded-lg text-center text-base font-bold pdv-card bg-white text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 focus:border-gray-900 placeholder-gray-300 dark:placeholder-gray-600 transition-all hover:border-gray-400 relative z-0">
-                             <span id="stock-badge-${s.toLowerCase()}" class="pointer-events-none"></span>
-                             ${s === 'GG' ? `<p class="hidden text-[9px] font-bold text-orange-500 text-center absolute w-full -bottom-5" id="surcharge-gg"></p>` : ''}
-                            <div id="stock-${s.toLowerCase()}" class="hidden absolute z-50 top-full left-0 w-32 bg-white shadow-xl rounded-lg p-3 text-xs border border-gray-100"></div>
+                                   class="w-full h-11 border border-gray-200 dark:border-gray-600 rounded-lg text-center text-base font-bold pdv-card bg-white text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 focus:border-gray-900 placeholder-gray-300 dark:placeholder-gray-600 transition-all hover:border-gray-400">
                         </div>
+                        
+                        <!-- Valor Adicional GG -->
+                        <div class="h-6 w-full mt-1.5 flex justify-center">
+                            ${s === 'GG' ? `<p class="text-[10px] font-bold text-orange-500 text-center w-full" id="surcharge-gg"></p>` : ''}
+                        </div>
+                        
+                        <!-- Tooltip antigo/oculto -->
+                        <div id="stock-${s.toLowerCase()}" class="hidden absolute z-50 top-full left-1/2 -translate-x-1/2 mt-1 w-max min-w-[120px] bg-white dark:bg-slate-800 shadow-xl rounded-lg p-3 text-xs border border-gray-100 dark:border-slate-700"></div>
                     </div>`).join('')}
                 </div>
-                <div class="grid grid-cols-5 gap-2 gap-y-6">
+
+                <!-- Grid 2: EXG, G1, G2, G3, Especial -->
+                <div class="grid grid-cols-5 gap-3 mb-6">
                      ${['EXG','G1','G2','G3','Especial'].map(s => `
-                    <div class="relative group">
-                        <div class="flex flex-col items-center">
-                            <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">${s}</label>
+                    <div class="flex flex-col items-center justify-start h-32">
+                        <!-- Label Topo -->
+                        <div class="h-6 flex items-end mb-2">
+                            <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">${s === 'Especial' ? 'ESP' : s}</label>
+                        </div>
+                        
+                        <!-- Tooltip da loja (agora no fluxo normal, acima do input) -->
+                        <div class="h-6 w-full flex items-end justify-center mb-1">
+                            <div id="stock-badge-${s.toLowerCase()}"></div>
+                        </div>
+
+                        <!-- Input -->
+                        <div class="w-full relative">
                             <input type="number" id="modal-size-${s.toLowerCase()}" min="0" value="" placeholder="0"
                                    onchange="checkStockForSizes(); calculateSizeSurcharges(); updateTotalQuantity();" 
-                                   class="w-full h-10 border border-gray-200 dark:border-gray-600 rounded-lg text-center text-base font-bold pdv-card bg-white text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 focus:border-gray-900 placeholder-gray-300 dark:placeholder-gray-600 transition-all hover:border-gray-400 relative z-0">
-                             <span id="stock-badge-${s.toLowerCase()}" class="pointer-events-none"></span>
-                            <p class="hidden text-[9px] font-bold text-orange-500 text-center absolute w-full -bottom-5" id="surcharge-${s.toLowerCase()}"></p>
+                                   class="w-full h-11 border border-gray-200 dark:border-gray-600 rounded-lg text-center text-base font-bold pdv-card bg-white text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-400 focus:border-gray-900 placeholder-gray-300 dark:placeholder-gray-600 transition-all hover:border-gray-400">
+                        </div>
+                        
+                        <!-- Valores adicionais Plus Size -->
+                        <div class="h-6 w-full mt-1.5 flex justify-center">
+                            <p class="text-[10px] font-bold text-orange-500 dark:text-orange-400 text-center w-full" id="surcharge-${s.toLowerCase()}"></p>
                         </div>
                     </div>`).join('')}
                 </div>
@@ -1382,18 +3066,19 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
             
             ${sublocalHtml}
             
-            <div class="pt-4 mt-2 grid grid-cols-2 gap-3">
-                <button onclick="closeAddProductModal()" class="w-full py-3.5 text-sm font-bold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors">
+            <div class="pt-4 mt-2 flex gap-3">
+                <button onclick="closeAddProductModal()" class="flex-1 py-3 text-sm font-bold pdv-secondary-action rounded-xl transition-colors">
                     Cancelar
                 </button>
-                <button onclick="confirmAddProduct()" class="w-full py-3.5 text-sm font-bold text-white bg-gray-900 hover:bg-black rounded-xl shadow-lg shadow-gray-200 dark:shadow-none transition-all active:scale-[0.98] flex items-center justify-center gap-2" style="color: white !important;">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: white !important;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                    <span style="color: white !important;">Adicionar</span>
+                <button onclick="confirmAddProduct()" class="flex-1 py-3 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                    <span>Adicionar</span>
                 </button>
             </div>
         </div>
     `;
-    
+
+    enhanceAddProductModalUI();
     modal.classList.remove('hidden');
 
     if (isFabricPiece) {
@@ -1555,15 +3240,16 @@ window.checkStockForSizes = async function checkStockForSizes() {
                 // Formatar exibição: "100 - NomeLoja"
                 // Se for da loja atual: Verde. Se for de outra: Laranja/Azul.
                 const badgeColorClass = neededTransfer 
-                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' 
-                    : 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300';
+                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 border-blue-200 dark:border-blue-800' 
+                    : 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 border-green-200 dark:border-green-800';
                 
                 // Abrevia o nome da loja se for muito longo para caber
                 let storeName = targetStore.store_name;
-                if (storeName.length > 10) storeName = storeName.substring(0, 10) + '...';
+                if (storeName.length > 8) storeName = storeName.substring(0, 8) + '..';
                 
-                stockBadge.className = `absolute top-full mt-1 left-0 right-0 mx-auto w-max max-w-full px-1.5 py-0.5 rounded text-[9px] font-bold shadow-sm whitespace-nowrap z-10 flex items-center justify-center gap-1 ${badgeColorClass}`;
-                stockBadge.innerHTML = `<span>${targetStore.available}</span> <span class="opacity-75 font-medium border-l border-current pl-1">${storeName}</span>`;
+                // Agora o tooltip está em um container estático 'h-6' (sem absolute overlap)
+                stockBadge.className = `w-max max-w-full px-1.5 py-0.5 rounded text-[9.5px] font-bold shadow-sm whitespace-nowrap flex items-center justify-center gap-1 border border-b-0 rounded-b-none ${badgeColorClass}`;
+                stockBadge.innerHTML = `<span>${targetStore.available}</span> <span class="opacity-75 font-medium border-l border-current pl-1 truncate">${storeName}</span>`;
                 
                 // Tooltip simples (title nativo)
                 stockBadge.title = `Loja: ${targetStore.store_name} (${targetStore.available} un.)`;
@@ -1576,11 +3262,11 @@ window.checkStockForSizes = async function checkStockForSizes() {
             // Sem estoque
             // Opcional: Mostrar "0" ou nada. Usuário pediu pra focar no "Se tem".
             // Se não tem, gera solicitação, mas visualmente no grid pode ficar vazio ou traço.
-            stockBadge.className = 'absolute top-full mt-1 right-0 text-[8px] text-gray-400 font-medium px-1';
+            stockBadge.className = 'text-[9.5px] text-gray-400 font-bold px-1 whitespace-nowrap';
             stockBadge.innerHTML = '0';
         }
     });
-}
+} // Fim de checkStockForSizes
 
 // Buscar estoque por tipo de corte
 async function loadStockByCutType(cutTypeId) {
@@ -1593,6 +3279,17 @@ async function loadStockByCutType(cutTypeId) {
     if (!stockList) return;
     
     const colorId = colorSelect?.value;
+    
+    if (!colorId) {
+        stockList.innerHTML = `
+            <div class="text-center py-6 pdv-card bg-gray-50/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Selecione uma cor para verificar o estoque disponível.
+                </p>
+            </div>
+        `;
+        return;
+    }
     
     try {
         // Buscar de todas as lojas (não filtrar por loja específica)
@@ -1612,7 +3309,7 @@ async function loadStockByCutType(cutTypeId) {
             
             data.stock_by_size.forEach(item => {
                 const hasStock = item.available > 0;
-                const bgColor = hasStock ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700' : 'pdv-card bg-gray-50 border-gray-300 dark:border-gray-600';
+                const bgColor = hasStock ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700' : 'pdv-card bg-gray-50/50 border-gray-200 dark:border-gray-700';
                 const textColor = hasStock ? 'text-green-800 dark:text-green-200' : 'text-gray-500 dark:text-gray-400';
                 
                 html += `
@@ -1643,23 +3340,35 @@ async function loadStockByCutType(cutTypeId) {
                         </div>
                         
                         ${item.stores && item.stores.length > 0 ? `
-                            <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                            <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                                 <div class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Por Loja:</div>
                                 <div class="space-y-1.5">
-                                    ${item.stores.map(store => `
-                                        <div class="flex items-center justify-between text-xs">
-                                            <span class="text-gray-600 dark:text-gray-400 font-medium">${store.store_name}:</span>
-                                            <span class="font-semibold ${store.available > 0 ? 'text-green-700 dark:text-green-300' : 'text-gray-500 dark:text-gray-500'}">
-                                                ${store.available} disp.
-                                                ${store.reserved > 0 ? `<span class="text-orange-600 dark:text-orange-400">(${store.reserved} res.)</span>` : ''}
-                                            </span>
-                                        </div>
-                                        ${store.items && store.items.length > 0 ? `
-                                            <div class="ml-2 text-xs text-gray-500 dark:text-gray-500">
-                                                ${store.items.map(i => `${i.fabric} ${i.color}`).join(', ')}
+                                    ${(() => {
+                                        // Priorizar a loja atual
+                                        let myStore = item.stores.find(s => s.store_id == window.currentStoreId);
+                                        let displayStores = item.stores;
+                                        
+                                        if (myStore && myStore.available > 0) {
+                                            displayStores = [myStore];
+                                        } else {
+                                            displayStores = item.stores.filter(s => s.available > 0);
+                                            if (displayStores.length === 0 && myStore) {
+                                                displayStores = [myStore];
+                                            } else if (displayStores.length === 0) {
+                                                displayStores = item.stores.slice(0, 1);
+                                            }
+                                        }
+                                        
+                                        return displayStores.map(store => `
+                                            <div class="flex items-center justify-between text-xs">
+                                                <span class="text-gray-600 dark:text-gray-400 font-medium">${store.store_name}:</span>
+                                                <span class="font-semibold ${store.available > 0 ? 'text-green-700 dark:text-green-300' : 'text-gray-500 dark:text-gray-500'}">
+                                                    ${store.available} disp.
+                                                    ${store.reserved > 0 ? `<span class="text-orange-600 dark:text-orange-400">(${store.reserved} res.)</span>` : ''}
+                                                </span>
                                             </div>
-                                        ` : ''}
-                                    `).join('')}
+                                        `).join('');
+                                    })()}
                                 </div>
                             </div>
                         ` : ''}
@@ -1671,23 +3380,16 @@ async function loadStockByCutType(cutTypeId) {
             stockList.innerHTML = html;
         } else {
             stockList.innerHTML = `
-                <div class="text-center py-8 pdv-card bg-white rounded-xl border-2 border-dashed border-yellow-300 dark:border-yellow-700">
-                    <svg class="w-16 h-16 mx-auto mb-4 text-yellow-500 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="text-center py-8 pdv-card bg-gray-50/50 rounded-xl border-2 border-dashed border-yellow-300 dark:border-yellow-700/50">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-yellow-500 dark:text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
                     </svg>
-                    <p class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    <p class="text-base font-semibold text-yellow-900 dark:text-yellow-100 mb-2">
                         Nenhum estoque cadastrado
                     </p>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        ${colorId ? 'Para esta cor selecionada' : 'Selecione uma cor para verificar o estoque'}
+                    <p class="text-sm text-yellow-700 dark:text-yellow-500/80">
+                        Para esta cor selecionada
                     </p>
-                    ${colorId ? `
-                        <div class="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                            <p class="text-xs text-yellow-700 dark:text-yellow-300">
-                                 Solicitações de estoque serão criadas automaticamente ao finalizar a venda
-                            </p>
-                        </div>
-                    ` : ''}
                 </div>
             `;
         }
@@ -2145,8 +3847,6 @@ window.confirmAddProduct = async function confirmAddProduct() {
         }
     }
     
-    const applicationType = document.getElementById('modal-application-type')?.value || null;
-    
     // Coletar cor/tipo para itens com grade de estoque
     const colorSelect = document.getElementById('modal-color-select');
     const selectedColorId = colorSelect?.value || null;
@@ -2227,7 +3927,6 @@ window.confirmAddProduct = async function confirmAddProduct() {
                     null, 
                     unitPrice, 
                     qty, 
-                    applicationType, 
                     sizeQuantitiesForSurcharge, // Enviar size_quantities para calcular acréscimo
                     sublocalPersonalizationsToSend,
                     size, // tamanho específico
@@ -2286,7 +3985,6 @@ window.confirmAddProduct = async function confirmAddProduct() {
                 null, 
                 unitPrice, 
                 quantity, 
-                applicationType, 
                 sizeQuantities, 
                 sublocalPersonalizationsToSend
             );
@@ -2346,7 +4044,7 @@ document.getElementById('product-search')?.addEventListener('input', function(e)
 
 // Função para adicionar produto ao carrinho
 // Adicionar produto ao carrinho (Frontend)
-window.addProductToCart = async function addProductToCart(itemId, type, productTitle, unitPrice, quantity = 1, applicationType = null, sizeQuantities = {}, sublocalPersonalizations = [], selectedSize = null, selectedColorId = null, cutTypeId = null, fabricId = null) {
+window.addProductToCart = async function addProductToCart(itemId, type, productTitle, unitPrice, quantity = 1, sizeQuantities = {}, sublocalPersonalizations = [], selectedSize = null, selectedColorId = null, cutTypeId = null, fabricId = null) {
     try {
         const body = {
             quantity: quantity,
@@ -2357,7 +4055,6 @@ window.addProductToCart = async function addProductToCart(itemId, type, productT
         
         if (type === 'product') {
             body.product_id = itemId;
-            body.application_type = applicationType;
             if (selectedSize) {
                 body.size = selectedSize;
                 body.color_id = selectedColorId;
@@ -2539,151 +4236,235 @@ window.confirmClearCart = async function confirmClearCart() {
     }
 }
 
-// Função para atualizar exibição do carrinho
+// Fun??o para atualizar exibi??o do carrinho
+const formatPdvCurrency = (value) => `R$ ${Number(value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const formatPdvQuantity = (value) => Number(value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
+
+function getCartAdjustments(subtotal) {
+    const discountType = document.getElementById('discount-type')?.value || 'fixed';
+    const discountValue = parseFloat(document.getElementById('discount-input')?.value || 0);
+    const deliveryFee = parseFloat(document.getElementById('delivery-fee-input')?.value || 0);
+
+    let discount = 0;
+    if (discountType === 'percent') {
+        discount = subtotal * (discountValue / 100);
+    } else {
+        discount = discountValue;
+    }
+
+    return {
+        discount,
+        deliveryFee,
+        total: subtotal - discount + deliveryFee,
+    };
+}
+
+function syncTotalsUI(subtotal, discount, deliveryFee, total) {
+    const totalText = formatPdvCurrency(total);
+
+    const subtotalEl = document.getElementById('cart-subtotal');
+    if (subtotalEl) subtotalEl.textContent = formatPdvCurrency(subtotal);
+
+    const discountEl = document.getElementById('cart-discount-total');
+    if (discountEl) discountEl.textContent = formatPdvCurrency(discount);
+
+    const deliveryEl = document.getElementById('cart-delivery-fee');
+    if (deliveryEl) deliveryEl.textContent = formatPdvCurrency(deliveryFee);
+
+    const totalEl = document.getElementById('cart-total');
+    if (totalEl) totalEl.textContent = totalText;
+
+    const overviewTotalEl = document.getElementById('cart-overview-total');
+    if (overviewTotalEl) overviewTotalEl.textContent = totalText;
+
+    const mobileTotalEl = document.getElementById('mobile-cart-total');
+    if (mobileTotalEl) mobileTotalEl.textContent = totalText;
+
+    const mobileTotalPreview = document.getElementById('mobile-cart-total-preview');
+    if (mobileTotalPreview) mobileTotalPreview.textContent = totalText;
+}
+
 function updateCartDisplay(cart, cartTotal) {
     const cartItemsContainer = document.getElementById('cart-items');
-    
-    if (!cart || cart.length === 0) {
-        cartItemsContainer.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-4">Carrinho vazio</p>';
-    } else {
-        cartItemsContainer.innerHTML = cart.map(item => {
-            let surchargesHtml = '';
-            if (item.size_surcharges && Object.keys(item.size_surcharges).length > 0) {
-                surchargesHtml = '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">';
-                surchargesHtml += '<p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Adicionais:</p>';
-                for (const [size, data] of Object.entries(item.size_surcharges)) {
-                    if (data.quantity > 0) {
-                        surchargesHtml += `<p class="text-xs text-orange-600 dark:text-orange-400">${size} (${data.quantity}x): +R$ ${parseFloat(data.total).toFixed(2).replace('.', ',')}</p>`;
-                    }
-                }
-                surchargesHtml += '</div>';
-            }
-            
-            let sublocalHtml = '';
-            if (item.sublocal_personalizations && item.sublocal_personalizations.length > 0) {
-                sublocalHtml = '<div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">';
-                sublocalHtml += '<p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Personalizações SUB.LOCAL:</p>';
-                item.sublocal_personalizations.forEach((personalization, index) => {
-                    const locationName = personalization.location_name || 'Local não informado';
-                    const sizeName = personalization.size_name ? ` - ${personalization.size_name}` : '';
-                    sublocalHtml += `<p class="text-xs text-green-600 dark:text-green-400">${locationName}${sizeName} (${personalization.quantity}x): R$ ${parseFloat(personalization.final_price || 0).toFixed(2).replace('.', ',')}</p>`;
-                });
-                sublocalHtml += '</div>';
-            }
-            
-            return `
-            <div class="cart-item group pdv-card bg-white rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-600 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors" data-item-id="${item.id}">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex-1 pr-2">
-                        <p class="font-medium text-gray-900 dark:text-gray-100 text-sm leading-tight">${item.product_title}${item.size ? ` - ${item.size}` : ''}</p>
-                        ${(item.color_name && !item.type?.includes('fabric_piece')) ? `<p class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">Cor: ${item.color_name}</p>` : ''}
-                        ${item.type === 'fabric_piece' ? `
-                            <div class="mt-1 flex flex-col gap-0.5">
-                                <span class="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50 bg-indigo-50 dark:bg-indigo-900/20 px-1.5 rounded w-fit uppercase">${item.fabric_type_name || 'Tecido'}</span>
-                                ${item.supplier_name ? `<span class="text-[9px] text-gray-500 dark:text-gray-400 font-medium ml-0.5">Forn: ${item.supplier_name}</span>` : ''}
-                                ${item.available_quantity ? `<span class="text-[9px] text-gray-500 dark:text-gray-400 font-medium ml-0.5">Saldo: ${Number(item.available_quantity).toLocaleString('pt-BR', { minimumFractionDigits: item.control_unit === 'metros' ? 2 : 3, maximumFractionDigits: item.control_unit === 'metros' ? 2 : 3 })} ${item.control_unit === 'metros' ? 'm' : 'kg'}</span>` : ''}
-                            </div>
-                        ` : ''}
-                        ${item.sale_type && item.sale_type !== 'unidade' ? `<p class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">Venda por ${item.sale_type === 'kg' ? 'Kg' : 'Metro'}</p>` : ''}
-                        ${item.application_type ? `<p class="text-[10px] text-green-600 dark:text-green-400 mt-0.5">Aplicação: ${item.application_type === 'sublimacao_local' ? 'Sublimação Local' : 'DTF'}</p>` : ''}
-                        ${surchargesHtml}
-                        ${sublocalHtml}
-                    </div>
-                    <button onclick="removeCartItem('${item.id}')" class="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 transition-opacity">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                </div>
-                
-                <div class="flex items-end justify-between">
-                    <div class="flex items-center pdv-card bg-gray-50 rounded-lg p-1 border border-gray-200 dark:border-gray-600">
-                        <input type="number" 
-                               value="${item.quantity}" 
-                               step="${item.type === 'fabric_piece' ? (item.control_unit === 'metros' ? '0.01' : '0.001') : (item.sale_type && item.sale_type !== 'unidade' ? '0.01' : '1')}"
-                               min="${item.type === 'fabric_piece' ? (item.control_unit === 'metros' ? '0.01' : '0.001') : (item.sale_type && item.sale_type !== 'unidade' ? '0.01' : '1')}"
-                               onchange="updateCartItem('${item.id}', this.value, null)"
-                               class="w-20 p-0 text-center text-xs bg-transparent border-none text-gray-900 dark:text-gray-100 focus:ring-0">
-                        <span class="text-xs text-gray-400 px-1">×</span>
-                        <input type="number" 
-                               step="0.01"
-                               value="${parseFloat(item.unit_price).toFixed(2)}" 
-                               min="0"
-                               onchange="updateCartItem('${item.id}', null, this.value)"
-                               class="w-24 p-0 text-right text-xs bg-transparent border-none text-gray-900 dark:text-gray-100 font-medium focus:ring-0">
-                    </div>
-                    <p class="font-bold text-gray-900 dark:text-white text-sm">
-                        R$ ${parseFloat(item.total_price - (item.item_discount || 0)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </p>
-                </div>
-                
-                <!-- Per-Item Discount -->
-                <div class="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 flex items-center gap-1.5">
-                    <span class="text-[10px] text-gray-400">Desc:</span>
-                    <select id="item-discount-type-${item.id}" 
-                            class="px-1 py-0.5 pdv-card bg-gray-50 border border-gray-200 dark:border-gray-600 rounded text-[10px] focus:ring-1 focus:ring-indigo-500"
-                            onchange="updateItemDiscount('${item.id}')">
-                        <option value="fixed" ${(item.discount_type || 'fixed') === 'fixed' ? 'selected' : ''}>R$</option>
-                        <option value="percent" ${item.discount_type === 'percent' ? 'selected' : ''}>%</option>
-                    </select>
-                    <input type="number" 
-                           id="item-discount-value-${item.id}"
-                           step="0.01"
-                           min="0"
-                           value="${item.discount_value || 0}"
-                           onchange="updateItemDiscount('${item.id}')"
-                           class="w-14 px-1 py-0.5 text-right text-[10px] pdv-card bg-gray-50 border border-gray-200 dark:border-gray-600 rounded focus:ring-1 focus:ring-indigo-500">
-                    ${(item.item_discount || 0) > 0 ? `<span class="text-[10px] text-red-500 font-medium">-R$ ${parseFloat(item.item_discount).toFixed(2).replace('.', ',')}</span>` : ''}
-                </div>
-            </div>
-        `;
-        }).join('');
-    }
+    const mobileCartItemsContainer = document.getElementById('mobile-cart-items');
 
-    // Atualizar total usando os dados do servidor
-    if (cart && cart.length > 0) {
+    const renderEmptyState = () => `
+        <div class="pdv-empty-state">
+            <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <div>
+                <p class="font-semibold text-sm">Seu carrinho esta vazio</p>
+                <p class="text-xs mt-1">Adicione itens do catalogo para iniciar a venda.</p>
+            </div>
+        </div>`;
+
+    const renderMobileEmptyState = () => `
+        <div class="pdv-empty-state min-h-[180px]">
+            <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <div>
+                <p class="font-semibold text-sm">Carrinho vazio</p>
+                <p class="text-xs mt-1">Adicione itens para visualizar o resumo.</p>
+            </div>
+        </div>`;
+
+    const renderMetaChips = (item) => {
+        const chips = [];
+
+        if (item.color_name && !item.type?.includes('fabric_piece')) chips.push(`<span class="pdv-chip">${item.color_name}</span>`);
+        if (item.size) chips.push(`<span class="pdv-chip">${item.size}</span>`);
+
+        if (item.sale_type && item.sale_type !== 'unidade') {
+            chips.push(`<span class="pdv-chip pdv-chip-accent">${item.sale_type === 'kg' ? 'Venda por Kg' : 'Venda por Metro'}</span>`);
+        }
+
+        return chips.join('');
+    };
+
+    const renderExtras = (item) => {
+        let extras = '';
+
+        if (item.size_surcharges && Object.keys(item.size_surcharges).length > 0) {
+            const surchargeLines = Object.entries(item.size_surcharges)
+                .filter(([, data]) => Number(data.quantity || 0) > 0)
+                .map(([size, data]) => `<span class="pdv-chip">+ ${size} (${data.quantity}x): ${formatPdvCurrency(data.total)}</span>`)
+                .join('');
+            if (surchargeLines) extras += `<div class="pdv-cart-item-meta mt-2">${surchargeLines}</div>`;
+        }
+
+        if (item.sublocal_personalizations && item.sublocal_personalizations.length > 0) {
+            const sublocalLines = item.sublocal_personalizations
+                .map((personalization) => {
+                    const locationName = personalization.location_name || 'Local';
+                    const sizeName = personalization.size_name ? ` - ${personalization.size_name}` : '';
+                    return `<span class="pdv-chip pdv-chip-success">${locationName}${sizeName} (${personalization.quantity}x): ${formatPdvCurrency(personalization.final_price || 0)}</span>`;
+                })
+                .join('');
+            if (sublocalLines) extras += `<div class="pdv-cart-item-meta mt-2">${sublocalLines}</div>`;
+        }
+
+        return extras;
+    };
+
+    const renderCartItem = (item) => `
+        <div class="cart-item pdv-cart-item" data-item-id="${item.id}">
+            <div class="pdv-cart-item-head">
+                <div class="min-w-0 flex-1">
+                    <p class="pdv-cart-item-title">${item.product_title}${item.size && item.type === 'fabric_piece' ? ` - ${item.size}` : ''}</p>
+                    <div class="pdv-cart-item-meta">${renderMetaChips(item)}</div>
+                    ${renderExtras(item)}
+                </div>
+                <button onclick="removeCartItem('${item.id}')" class="pdv-cart-remove">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="pdv-cart-item-foot">
+                <div class="pdv-cart-controls">
+                    <input type="number"
+                           value="${item.quantity}"
+                           step="${item.type === 'fabric_piece' ? (item.control_unit === 'metros' ? '0.01' : '0.001') : (item.sale_type && item.sale_type !== 'unidade' ? '0.01' : '1')}"
+                           min="${item.type === 'fabric_piece' ? (item.control_unit === 'metros' ? '0.01' : '0.001') : (item.sale_type && item.sale_type !== 'unidade' ? '0.01' : '1')}"
+                           onchange="updateCartItem('${item.id}', this.value, null)"
+                           class="w-16 p-0 text-center text-xs bg-transparent dark:bg-transparent text-gray-900 dark:text-gray-100 focus:ring-0" style="background-color: transparent !important;">
+                    <span class="text-xs text-gray-400">x</span>
+                    <input type="number"
+                           step="0.01"
+                           value="${parseFloat(item.unit_price || 0).toFixed(2)}"
+                           min="0"
+                           onchange="updateCartItem('${item.id}', null, this.value)"
+                           class="w-20 p-0 text-right text-xs bg-transparent dark:bg-transparent text-gray-900 dark:text-gray-100 font-medium focus:ring-0" style="background-color: transparent !important;">
+                </div>
+                <p class="pdv-cart-price">${formatPdvCurrency((item.total_price || 0) - (item.item_discount || 0))}</p>
+            </div>
+
+            <div class="pdv-cart-discount-row mt-2 pt-2 border-t border-dashed border-gray-200 dark:border-gray-700">
+                <label class="text-xs font-semibold text-gray-500">Desconto</label>
+                <select id="item-discount-type-${item.id}" class="px-2 py-1 text-[11px] rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-transparent text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-indigo-500" style="background-color: transparent !important;" onchange="updateItemDiscount('${item.id}')">
+                    <option value="fixed" ${(item.discount_type || 'fixed') === 'fixed' ? 'selected' : ''} class="dark:bg-gray-800">R$</option>
+                    <option value="percent" ${item.discount_type === 'percent' ? 'selected' : ''} class="dark:bg-gray-800">%</option>
+                </select>
+                <input type="number" id="item-discount-value-${item.id}" step="0.01" min="0" value="${item.discount_value || 0}" onchange="updateItemDiscount('${item.id}')" class="w-20 px-2 py-1 text-right text-[11px] rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-transparent text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-indigo-500" style="background-color: transparent !important;">
+                ${(item.item_discount || 0) > 0 ? `<span class="pdv-chip pdv-chip-danger">- ${formatPdvCurrency(item.item_discount || 0)}</span>` : ''}
+            </div>
+        </div>`;
+
+    const renderMobileCartItem = (item) => `
+        <div class="pdv-cart-item">
+            <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                    <p class="pdv-cart-item-title">${item.product_title}</p>
+                    <p class="text-xs text-gray-500 mt-1">${formatPdvQuantity(item.quantity)} x ${formatPdvCurrency(item.unit_price || 0)}</p>
+                </div>
+                <p class="pdv-cart-price">${formatPdvCurrency((item.total_price || 0) - (item.item_discount || 0))}</p>
+            </div>
+        </div>`;
+
+    if (!cart || cart.length === 0) {
+        cartItemsContainer.innerHTML = renderEmptyState();
+        if (mobileCartItemsContainer) mobileCartItemsContainer.innerHTML = renderMobileEmptyState();
+        syncTotalsUI(0, 0, 0, 0);
+    } else {
+        cartItemsContainer.innerHTML = cart.map(renderCartItem).join('');
+        if (mobileCartItemsContainer) {
+            mobileCartItemsContainer.innerHTML = `<div class="pdv-cart-list">${cart.map(renderMobileCartItem).join('')}</div>`;
+        }
+
         let subtotal = 0;
-        let totalQuantity = 0; // Total de itens (quantidade)
-        
+        let totalQuantity = 0;
+
         cart.forEach(item => {
             subtotal += parseFloat(item.total_price || 0);
-            // Somar a quantidade de cada item
             totalQuantity += parseFloat(item.quantity || 0);
         });
-        
-        const discountType = document.getElementById('discount-type')?.value || 'fixed';
-        const discountValue = parseFloat(document.getElementById('discount-input')?.value || 0);
-        let discount = 0;
-        if (discountType === 'percent') {
-            discount = subtotal * (discountValue / 100);
-        } else {
-            discount = discountValue;
-        }
-        const deliveryFee = parseFloat(document.getElementById('delivery-fee-input')?.value || 0);
-        const total = subtotal - discount + deliveryFee;
 
-        const subtotalEl = document.getElementById('cart-subtotal');
-        if (subtotalEl) subtotalEl.textContent = 'R$ ' + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            
-        const totalEl = document.getElementById('cart-total');
-        if (totalEl) totalEl.textContent = 'R$ ' + total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        
-        // Atualizar total de itens no carrinho (se existir elemento)
+        const { discount, deliveryFee, total } = getCartAdjustments(subtotal);
+        syncTotalsUI(subtotal, discount, deliveryFee, total);
+
         const cartTotalItems = document.getElementById('cart-total-items');
-        if (cartTotalItems) {
-            cartTotalItems.textContent = totalQuantity;
+        if (cartTotalItems) cartTotalItems.textContent = formatPdvQuantity(totalQuantity);
+
+        const cartItemsBadge = document.getElementById('cart-total-items-badge');
+        if (cartItemsBadge) cartItemsBadge.textContent = `${formatPdvQuantity(totalQuantity)} itens`;
+
+        const mobileCartCount = document.getElementById('mobile-cart-count');
+        if (mobileCartCount) {
+            mobileCartCount.textContent = cart.length;
+            mobileCartCount.classList.remove('hidden');
         }
-    } else {
-        updateTotal();
-        // Se carrinho vazio, zerar total de itens
-        const cartTotalItems = document.getElementById('cart-total-items');
-        if (cartTotalItems) {
-            cartTotalItems.textContent = '0';
-        }
+
+        const mobileTotalPreview = document.getElementById('mobile-cart-total-preview');
+        if (mobileTotalPreview) mobileTotalPreview.classList.remove('hidden');
     }
-    
+
+    if (!cart || cart.length === 0) {
+        const cartTotalItems = document.getElementById('cart-total-items');
+        if (cartTotalItems) cartTotalItems.textContent = '0';
+
+        const cartItemsBadge = document.getElementById('cart-total-items-badge');
+        if (cartItemsBadge) cartItemsBadge.textContent = '0 itens';
+
+        const mobileCartCount = document.getElementById('mobile-cart-count');
+        if (mobileCartCount) {
+            mobileCartCount.textContent = '0';
+            mobileCartCount.classList.add('hidden');
+        }
+
+        const mobileTotalPreview = document.getElementById('mobile-cart-total-preview');
+        if (mobileTotalPreview) {
+            mobileTotalPreview.textContent = 'R$ 0,00';
+            mobileTotalPreview.classList.add('hidden');
+        }
+
+        const mobileTotalEl = document.getElementById('mobile-cart-total');
+        if (mobileTotalEl) mobileTotalEl.textContent = 'R$ 0,00';
+    }
+
     updateCheckoutButtonState();
 }
 
-// Função para atualizar estado do botão de finalizar
 function updateCheckoutButtonState() {
     const cartItems = document.querySelectorAll('.cart-item');
     const checkoutBtn = document.getElementById('checkout-btn');
@@ -2698,9 +4479,8 @@ function updateCheckoutButtonState() {
     }
 }
 
-// Função para atualizar total
+// Fun??o para atualizar total
 function updateTotal() {
-    // Buscar carrinho do servidor para ter os valores corretos (incluindo sub.local)
     fetch('{{ route("pdv.cart.get") }}', {
         method: 'GET',
         headers: {
@@ -2710,80 +4490,37 @@ function updateTotal() {
     .then(response => response.json())
     .then(data => {
         const cart = data.cart || [];
-        
-        // Calcular subtotal somando o total_price de cada item (que já inclui sub.local e acréscimos)
-        let subtotal = 0;
-        cart.forEach(item => {
-            // Usar o total_price do item que já vem do servidor (inclui sub.local, acréscimos de tamanho, etc)
-            subtotal += parseFloat(item.total_price || 0);
-        });
-
-        const discountType = document.getElementById('discount-type')?.value || 'fixed';
-        const discountValue = parseFloat(document.getElementById('discount-input')?.value || 0);
-        let discount = 0;
-        if (discountType === 'percent') {
-            discount = subtotal * (discountValue / 100);
-        } else {
-            discount = discountValue;
-        }
-        const deliveryFee = parseFloat(document.getElementById('delivery-fee-input')?.value || 0);
-        const total = subtotal - discount + deliveryFee;
-
-        document.getElementById('cart-subtotal').textContent = 
-            'R$ ' + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        document.getElementById('cart-total').textContent = 
-            'R$ ' + total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const subtotal = cart.reduce((sum, item) => sum + parseFloat(item.total_price || 0), 0);
+        const { discount, deliveryFee, total } = getCartAdjustments(subtotal);
+        syncTotalsUI(subtotal, discount, deliveryFee, total);
     })
     .catch(error => {
         console.error('Erro ao buscar carrinho:', error);
-        // Fallback: extrair total_price dos itens exibidos no DOM
-        const cartItems = document.querySelectorAll('.cart-item');
+
+        const cartItems = document.querySelectorAll('.cart-item .pdv-cart-price');
         let subtotal = 0;
 
         cartItems.forEach(item => {
-            // Extrair o total_price do texto exibido - Updated to match new UI structure
-            const priceElement = item.querySelector('p.font-bold.text-gray-900') || item.querySelector('p.text-sm.font-semibold');
-            const totalPriceText = priceElement?.textContent;
-            
-            if (totalPriceText) {
-                const match = totalPriceText.match(/R\$\s*([\d.,]+)/);
-                if (match) {
-                    // Converter formato brasileiro para número (ex: "256,10" -> 256.10)
-                    const priceStr = match[1].replace(/\./g, '').replace(',', '.');
-                    const price = parseFloat(priceStr);
-                    if (!isNaN(price)) {
-                        subtotal += price;
-                    }
-                }
-            }
+            const match = item.textContent.match(/R\$\s*([\d.,]+)/);
+            if (!match) return;
+
+            const priceStr = match[1].replace(/\./g, '').replace(',', '.');
+            const price = parseFloat(priceStr);
+            if (!isNaN(price)) subtotal += price;
         });
 
-        const discountType = document.getElementById('discount-type')?.value || 'fixed';
-        const discountValue = parseFloat(document.getElementById('discount-input')?.value || 0);
-        let discount = 0;
-        if (discountType === 'percent') {
-            discount = subtotal * (discountValue / 100);
-        } else {
-            discount = discountValue;
-        }
-        const deliveryFee = parseFloat(document.getElementById('delivery-fee-input')?.value || 0);
-        const total = subtotal - discount + deliveryFee;
-
-        const subtotalEl = document.getElementById('cart-subtotal');
-        if (subtotalEl) subtotalEl.textContent = 'R$ ' + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            
-        const totalEl = document.getElementById('cart-total');
-        if (totalEl) totalEl.textContent = 'R$ ' + total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const { discount, deliveryFee, total } = getCartAdjustments(subtotal);
+        syncTotalsUI(subtotal, discount, deliveryFee, total);
     });
 }
 
-// Função para finalizar venda
-// Variáveis globais para pagamento
+// Fun??o para finalizar venda
+// Vari?veis globais para pagamento
 let paymentMethods = [];
 let checkoutData = null;
 
-// Função para finalizar venda - abre modal de pagamento
-// Função para finalizar venda checkout normal
+// Fun??o para finalizar venda - abre modal de pagamento
+// Fun??o para finalizar venda checkout normal
 window.checkout = async function checkout() {
     // Buscar valor do client_id - pode ser vazio, null ou um ID
     const clientIdElement = document.getElementById('client_id');
@@ -3317,110 +5054,166 @@ function debounce(func, wait) {
 // Current state
 let currentSearch = '{{ $search ?? "" }}';
 let currentType = '{{ $type ?? "products" }}';
+let catalogRequestController = null;
 
-// Fetch function
-async function fetchProducts(type, search, url = null) {
-    const container = document.getElementById('products-grid-container');
-    if (!container) return;
+function getCatalogContent() {
+    return document.getElementById('pdv-catalog-content');
+}
 
-    // Show loading state (opacity)
-    container.style.opacity = '0.5';
-    container.style.transition = 'opacity 0.2s';
-    
-    // Build URL if not provided
-    if (!url) {
-        url = `{{ route('pdv.index') }}?type=${type}&search=${encodeURIComponent(search)}`;
+function getProductSearchInput() {
+    return document.getElementById('product-search');
+}
+
+function buildCatalogUrl(baseUrl, type, search) {
+    const url = new URL(baseUrl || `{{ route('pdv.index') }}`, window.location.origin);
+    url.searchParams.set('type', type);
+
+    if (search) {
+        url.searchParams.set('search', search);
+    } else {
+        url.searchParams.delete('search');
     }
 
+    return url.toString();
+}
+
+function setActiveTab(type) {
+    document.querySelectorAll('.pdv-tab-link').forEach((link) => {
+        const isActive = link.dataset.type === type;
+        link.classList.toggle('bg-indigo-600', isActive);
+        link.classList.toggle('text-white', isActive);
+        link.setAttribute('aria-current', isActive ? 'page' : 'false');
+        link.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+}
+
+// Fetch function
+async function fetchProducts(type, search, options = {}) {
+    const catalogContent = getCatalogContent();
+    if (!catalogContent) return;
+
+    const {
+        url = null,
+        historyMode = 'replace',
+    } = options;
+
+    const requestUrl = url ?? `{{ route('pdv.index') }}?type=${encodeURIComponent(type)}&search=${encodeURIComponent(search)}`;
+
+    if (catalogRequestController) {
+        catalogRequestController.abort();
+    }
+
+    const requestController = new AbortController();
+    catalogRequestController = requestController;
+    catalogContent.style.opacity = '0.5';
+    catalogContent.style.pointerEvents = 'none';
+    catalogContent.style.transition = 'opacity 0.2s';
+
     try {
-        const response = await fetch(url, {
+        const response = await fetch(requestUrl, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json'
-            }
+            },
+            signal: requestController.signal
         });
 
-        if (!response.ok) throw new Error('Erro na requisição');
+        if (!response.ok) throw new Error(`Erro HTTP ${response.status}`);
 
         const data = await response.json();
         
         // Update Grid HTML
         if (data.html) {
-            container.innerHTML = data.html;
+            catalogContent.innerHTML = data.html;
         }
         
-        // SYNC DATA STATE: Explicitly update page items
+        currentType = data.type ?? type;
+        currentSearch = data.search ?? search ?? '';
+
+        setActiveTab(currentType);
+
+        const searchInput = getProductSearchInput();
+        if (searchInput && searchInput.value !== currentSearch) {
+            searchInput.value = currentSearch;
+        }
+
         if (data.jsItems && typeof window.updatePageItems === 'function') {
             window.updatePageItems(data.jsItems);
         }
-        
-        // Update URL browser history (optional, good for navigation)
-        // Only update if it's a new state search/tab, simplistic approach
-        const newUrl = new URL(url);
-        window.history.pushState({path: newUrl.href}, '', newUrl.href);
-        
-        // Update local state
-        currentType = type;
-        currentSearch = search;
+
+        const nextUrl = new URL(requestUrl, window.location.origin);
+        if (historyMode === 'push') {
+            window.history.pushState({ path: nextUrl.toString() }, '', nextUrl);
+        } else {
+            window.history.replaceState({ path: nextUrl.toString() }, '', nextUrl);
+        }
 
     } catch (error) {
+        if (error.name === 'AbortError') {
+            return;
+        }
+
         console.error('Erro ao buscar produtos:', error);
         showNotification('Erro ao carregar produtos', 'error');
     } finally {
-        container.style.opacity = '1';
+        if (catalogRequestController === requestController) {
+            catalogRequestController = null;
+            catalogContent.style.opacity = '1';
+            catalogContent.style.pointerEvents = '';
+        }
     }
 }
 
 // Event Listener: Instant Search
-const searchInput = document.getElementById('product-search');
+const searchInput = getProductSearchInput();
 if (searchInput) {
     searchInput.addEventListener('input', debounce(function(e) {
-        const val = e.target.value;
-        fetchProducts(currentType, val);
-    }, 500)); // 500ms delay
+        fetchProducts(currentType, e.target.value, { historyMode: 'replace' });
+    }, 350));
 }
 
-// Event Listener: Tabs
-document.querySelectorAll('.pdv-tab-link').forEach(link => {
-    link.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        // Update active class immediately
-        document.querySelectorAll('.pdv-tab-link').forEach(l => {
-            l.classList.remove('bg-indigo-600', 'text-white');
-            l.classList.add('text-gray-600', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
-        });
-        
-        this.classList.remove('text-gray-600', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
-        this.classList.add('bg-indigo-600', 'text-white');
-
-        const type = this.getAttribute('data-type');
-        // Clear search when switching tabs? Or keep it? keeping it for now seems fine or clearing it.
-        // Usually clearing search is better UX when switching categories context significantly.
-        // Let's keep search empty for clean category switch as requested "ele apenas mude a parte onde ficam os produtos"
-        // But if user wants to search across categories...
-        // Let's keep the current search value if the input has value.
-        const searchVal = document.getElementById('product-search')?.value || '';
-        
-        fetchProducts(type, searchVal);
-    });
-});
-
-// Event Listener: Pagination (Delegation)
-// Pagination links are inside #products-grid-container > .mt-8 > nav or just replaced HTML
 document.addEventListener('click', function(e) {
-    const link = e.target.closest('.pagination a, .page-link'); // Laravel default pagination classes usually
-    if (link && document.getElementById('products-grid-container').contains(link)) {
+    const tabLink = e.target.closest('.pdv-tab-link[data-type]');
+    if (tabLink) {
         e.preventDefault();
-        const url = link.href;
-        // Parse params to keep state correct
-        const urlObj = new URL(url);
+        setActiveTab(tabLink.dataset.type);
+        const searchValue = getProductSearchInput()?.value || '';
+        fetchProducts(tabLink.dataset.type, searchValue, {
+            url: buildCatalogUrl(tabLink.dataset.url, tabLink.dataset.type, searchValue),
+            historyMode: 'push',
+        });
+        return;
+    }
+
+    const catalogContent = getCatalogContent();
+    const paginationLink = e.target.closest('.pdv-pagination-btn[data-url]');
+    if (paginationLink && catalogContent && catalogContent.contains(paginationLink)) {
+        e.preventDefault();
+        const url = paginationLink.dataset.url;
+        const urlObj = new URL(url, window.location.origin);
         const params = new URLSearchParams(urlObj.search);
         const type = params.get('type') || currentType;
         const search = params.get('search') || currentSearch;
-        
-        fetchProducts(type, search, url);
+
+        fetchProducts(type, search, {
+            url,
+            historyMode: 'push',
+        });
     }
+});
+
+window.addEventListener('popstate', function() {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+
+    fetchProducts(
+        params.get('type') || 'products',
+        params.get('search') || '',
+        {
+            url: url.toString(),
+            historyMode: 'replace',
+        }
+    );
 });
 
 </script>

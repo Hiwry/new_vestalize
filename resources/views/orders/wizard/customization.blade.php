@@ -1,39 +1,135 @@
-@extends('layouts.admin')
+@push('styles')
+<style>
+    .ow-shell {
+        --sh-surface-from: #f3f4f8;
+        --sh-surface-to: #eceff4;
+        --sh-surface-border: #d8dce6;
+        --sh-text-primary: #0f172a;
+        --sh-text-secondary: #64748b;
+        --sh-card-bg: #ffffff;
+        --sh-card-border: #dde2ea;
+        --sh-card-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        --sh-accent: #7c3aed;
+        --sh-accent-strong: #6d28d9;
+        
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%);
+        border: 1px solid var(--sh-surface-border);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+        color: var(--sh-text-primary);
+    }
+
+    .dark .ow-shell {
+        --sh-surface-from: #0d1830;
+        --sh-surface-to: #0b1322;
+        --sh-surface-border: rgba(148, 163, 184, 0.16);
+        --sh-text-primary: #e5edf8;
+        --sh-text-secondary: #91a4c0;
+        --sh-card-bg: #10203a;
+        --sh-card-border: rgba(148, 163, 184, 0.12);
+        --sh-card-shadow: none;
+        --sh-input-bg: #162847;
+
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%) !important;
+        box-shadow: none !important;
+        border-color: var(--sh-surface-border) !important;
+    }
+
+
+    .dark.avento-theme .ow-card, .dark.avento-theme .ow-progress, .dark.avento-theme .ow-field-panel {
+        background-color: var(--sh-card-bg) !important;
+        box-shadow: none !important;
+    }
+
+    .dark.avento-theme .ow-shell input:not([type="color"]),
+    .dark.avento-theme .ow-shell select,
+    .dark.avento-theme .ow-shell textarea,
+    .dark.avento-theme .ow-btn-ghost,
+    .dark.avento-theme .ow-search-toggle,
+    .dark.avento-theme .ow-search-panel div[class*="dark:bg-slate-800"] {
+        background-color: var(--sh-input-bg) !important;
+        background: var(--sh-input-bg) !important;
+    }
+
+    .ow-card-header {
+        background: color-mix(in srgb, var(--sh-card-bg) 96%, var(--sh-accent) 4%) !important;
+        border-bottom: 1px solid var(--sh-card-border) !important;
+    }
+
+    .ow-step-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: var(--sh-accent);
+        color: #fff !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 800;
+        box-shadow: none !important;
+    }
+
+    .sh-title { font-size: 24px; line-height: 1.1; font-weight: 800; color: var(--sh-text-primary); }
+    .sh-subtitle { margin-top: 3px; font-size: 13px; font-weight: 600; color: var(--sh-text-secondary); }
+
+    .ow-progress-fill {
+        background: linear-gradient(90deg, var(--sh-accent), #a78bfa);
+        box-shadow: none !important;
+    }
+
+    /* Absolute Zero Shadow Kill - FINAL OVERRIDE */
+    html.dark.avento-theme .ow-shell,
+    html.dark.avento-theme .ow-shell *,
+    html.dark.avento-theme .ow-shell *::before,
+    html.dark.avento-theme .ow-shell *::after {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        filter: none !important;
+        -webkit-filter: none !important;
+        transition: none !important;
+    }
+</style>
+@endpush
 
 @section('content')
-<div class="max-w-4xl mx-auto">
-        <!-- Progress Bar -->
-        <div class="mb-6">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center space-x-2">
-                    <div class="w-6 h-6 bg-[#7c3aed] text-white rounded-full flex items-center justify-center text-xs font-medium">3</div>
-                    <div>
-                        <span class="text-base font-medium text-[#7c3aed]">Personalização</span>
-                        <p class="text-xs text-gray-500">Etapa 3 de 5</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <div class="text-xs text-gray-500">Progresso</div>
-                    <div class="text-sm font-medium text-[#7c3aed]">60%</div>
+<div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6">
+    <section class="ow-shell">
+        <!-- Top Bar (Estilo Sales Hub) -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <span class="ow-step-badge">3</span>
+                <div>
+                    <h1 class="sh-title">Personalização</h1>
+                    <p class="sh-subtitle">Etapa 3 de 5 • Configure as aplicações para os itens</p>
                 </div>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-1.5">
-                <div class="bg-[#7c3aed] h-1.5 rounded-full transition-all duration-500 ease-out" style="width: 60%"></div>
+            <div class="text-right hidden sm:block">
+                <div class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Passo Atual</div>
+                <div class="text-2xl font-black text-[#7c3aed]">60%</div>
+            </div>
+        </div>
+
+        <!-- Progress Widget -->
+        <div class="ow-progress p-4 mb-8">
+            <div class="w-full bg-gray-100 dark:bg-slate-800/50 rounded-full h-2">
+                <div class="ow-progress-fill h-2 rounded-full transition-all duration-700" style="width: 60%"></div>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="ow-card overflow-hidden">
             <!-- Header -->
-            <div class="px-6 py-4 border-b border-gray-200">
+            <div class="px-6 py-4 ow-card-header">
                 <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
+                    <div class="w-8 h-8 bg-purple-100 dark:bg-slate-800 rounded-md flex items-center justify-center">
                         <svg class="w-4 h-4 text-[#7c3aed]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                         </svg>
                     </div>
                     <div>
-                        <h1 class="text-lg font-semibold text-gray-900">Personalização dos Itens</h1>
+                        <h1 class="text-lg font-semibold text-gray-900 dark:text-white">Personalização dos Itens</h1>
                         <p class="text-sm text-gray-600">Configure as aplicações para cada item</p>
                     </div>
                 </div>
@@ -222,12 +318,12 @@
                     </div>
                 </form>
             </div>
-        </div>
-    </div>
+        </section>
+</div>
 
     <!-- Modal de Confirmação de Exclusão -->
     <div id="delete-confirmation-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/80 flex items-center justify-center z-50 p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-lg max-w-md w-full shadow-xl border border-gray-200 dark:border-slate-700">
+        <div class="bg-white dark:bg-slate-900 rounded-lg max-w-md w-full border border-gray-200 dark:border-slate-700">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Confirmar Remoção</h3>
             </div>
@@ -252,7 +348,7 @@
 
     <!-- Modal Minimalista -->
     <div id="application-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg max-w-md w-full shadow-xl">
+        <div class="bg-white rounded-lg max-w-md w-full">
             <!-- Modal Header -->
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900">

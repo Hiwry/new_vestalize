@@ -2,92 +2,159 @@
 
 @push('styles')
 <style>
-    /* Realça os cards no dark mode */
+    .ow-shell {
+        --sh-surface-from: #f3f4f8;
+        --sh-surface-to: #eceff4;
+        --sh-surface-border: #d8dce6;
+        --sh-text-primary: #0f172a;
+        --sh-text-secondary: #64748b;
+        --sh-card-bg: #ffffff;
+        --sh-card-border: #dde2ea;
+        --sh-card-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        --sh-accent: #7c3aed;
+        --sh-accent-strong: #6d28d9;
+        
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%);
+        border: 1px solid var(--sh-surface-border);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+        color: var(--sh-text-primary);
+    }
+
+    .dark .ow-shell {
+        --sh-surface-from: #0d1830;
+        --sh-surface-to: #0b1322;
+        --sh-surface-border: rgba(148, 163, 184, 0.16);
+        --sh-text-primary: #e5edf8;
+        --sh-text-secondary: #91a4c0;
+        --sh-card-bg: #10203a;
+        --sh-card-border: rgba(148, 163, 184, 0.12);
+        --sh-card-shadow: none;
+        --sh-input-bg: #162847;
+
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%) !important;
+        box-shadow: none !important;
+        border-color: var(--sh-surface-border) !important;
+    }
+
+
+    .dark.avento-theme .ow-card, .dark.avento-theme .ow-progress, .dark.avento-theme .ow-field-panel, .dark.avento-theme .personalization-option, .dark.avento-theme .glass-card {
+        background-color: var(--sh-card-bg) !important;
+        box-shadow: none !important;
+        background-image: none !important;
+    }
+
+    .dark.avento-theme .ow-shell input:not([type="color"]),
+    .dark.avento-theme .ow-shell select,
+    .dark.avento-theme .ow-shell textarea,
+    .dark.avento-theme .ow-btn-ghost,
+    .dark.avento-theme .ow-search-toggle,
+    .dark.avento-theme .ow-search-panel div[class*="dark:bg-slate-800"] {
+        background-color: var(--sh-input-bg) !important;
+        background: var(--sh-input-bg) !important;
+    }
+
+    .ow-card-header {
+        background: color-mix(in srgb, var(--sh-card-bg) 96%, var(--sh-accent) 4%) !important;
+        border-bottom: 1px solid var(--sh-card-border) !important;
+    }
+
+    .ow-step-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: var(--sh-accent);
+        color: #fff !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 800;
+        box-shadow: none !important;
+    }
+
+    .sh-title { font-size: 24px; line-height: 1.1; font-weight: 800; color: var(--sh-text-primary); }
+    .sh-subtitle { margin-top: 3px; font-size: 13px; font-weight: 600; color: var(--sh-text-secondary); }
+
+    .ow-progress-fill {
+        background: linear-gradient(90deg, var(--sh-accent), #a78bfa);
+        box-shadow: none !important;
+    }
+
+    /* Personalization card adjustments */
     .personalization-option {
-        position: relative;
-        overflow: hidden;
-        background: linear-gradient(145deg, #f9fafb 0%, #ffffff 100%);
-        border: 1px solid rgba(124, 58, 237, 0.14);
-        box-shadow: 0 10px 30px -18px rgba(17, 24, 39, 0.35);
-        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+        background: var(--sh-card-bg) !important;
+        border: 1px solid var(--sh-card-border) !important;
+        box-shadow: var(--sh-card-shadow) !important;
+        border-radius: 20px !important;
     }
-    .personalization-option:hover {
-        transform: translateY(-4px);
-        border-color: rgba(124, 58, 237, 0.45);
-        box-shadow: 0 22px 48px -20px rgba(124, 58, 237, 0.45), 0 14px 30px -22px rgba(0, 0, 0, 0.55);
-    }
-    .personalization-option .check-indicator {
-        box-shadow: 0 8px 18px -8px rgba(124, 58, 237, 0.55);
-    }
-    .personalization-option .icon-bubble {
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 10px 24px -14px rgba(124, 58, 237, 0.65);
-        border: 1px solid rgba(255, 255, 255, 0.14);
-    }
+    
     .dark .personalization-option {
-        background: linear-gradient(165deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)) padding-box,
-                    radial-gradient(circle at 25% 20%, rgba(124, 58, 237, 0.20), transparent 48%) border-box,
-                    #0d1728;
-        border: 1px solid rgba(148, 163, 184, 0.32);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
-                    0 24px 56px -28px rgba(15, 23, 42, 0.95),
-                    0 20px 48px -32px rgba(124, 58, 237, 0.45);
+        background: var(--sh-card-bg) !important;
     }
-    .dark .personalization-option:hover {
-        border-color: rgba(124, 58, 237, 0.75);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12),
-                    0 30px 70px -32px rgba(124, 58, 237, 0.65),
-                    0 24px 56px -36px rgba(0, 0, 0, 0.9);
+
+    .glass-card { background: var(--sh-card-bg) !important; border-color: var(--sh-card-border) !important; }
+
+    /* Absolute Zero Shadow Kill - FINAL OVERRIDE */
+    html.dark.avento-theme .ow-shell,
+    html.dark.avento-theme .ow-shell *,
+    html.dark.avento-theme .ow-shell *::before,
+    html.dark.avento-theme .ow-shell *::after {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        filter: none !important;
+        -webkit-filter: none !important;
+        transition: none !important;
     }
-    .dark .personalization-option .icon-bubble {
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(124, 58, 237, 0.15));
-        border-color: rgba(124, 58, 237, 0.35);
-        box-shadow: 0 12px 28px -18px rgba(124, 58, 237, 0.75);
-    }
+
 </style>
 @endpush
 
 @section('content')
-<div class="py-8">
-    <div class="max-w-5xl mx-auto px-4 sm:px-0">
-        
-        <!-- Progress Bar -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-[#7c3aed] text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">2</div>
-                    <div>
-                        <span class="text-lg font-bold text-gray-900 dark:text-white">Tipo de Personalização</span>
-                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa 2 de 6</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <div class="text-xs text-gray-500 dark:text-slate-400 font-medium">Progresso</div>
-                    <div class="text-2xl font-bold text-[#7c3aed] dark:text-[#a78bfa]">33%</div>
+<div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6">
+    <section class="ow-shell">
+        <!-- Top Bar (Estilo Sales Hub) -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <span class="ow-step-badge">2</span>
+                <div>
+                    <h1 class="sh-title">Tipo de Personalização</h1>
+                    <p class="sh-subtitle">Etapa 2 de 5 • Selecione os serviços desejados</p>
                 </div>
             </div>
-            <div class="w-full bg-white dark:bg-slate-800/80 rounded-full h-2.5 shadow-inner border border-gray-200 dark:border-slate-700">
-                <div class="bg-[#7c3aed] h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 33%"></div>
+            <div class="text-right hidden sm:block">
+                <div class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Passo Atual</div>
+                <div class="text-2xl font-black text-[#7c3aed]">40%</div>
             </div>
         </div>
 
-        <!-- Header -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 mb-8 shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-100 dark:border-slate-700 backdrop-filter blur-16">
-            <div class="flex items-center space-x-3 mb-2">
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                     <div class="w-8 h-8 bg-[#7c3aed] rounded-lg flex items-center justify-center shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">
+        <!-- Progress Widget -->
+        <div class="ow-progress p-4 mb-8">
+            <div class="w-full bg-gray-100 dark:bg-slate-800/50 rounded-full h-2">
+                <div class="ow-progress-fill h-2 rounded-full transition-all duration-700" style="width: 40%"></div>
+            </div>
+        </div>
+
+        <!-- Section Header (Sub-título do Hub) -->
+        <div class="ow-card overflow-hidden mb-8">
+            <div class="px-6 py-5 ow-card-header">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-[#7c3aed] rounded-lg flex items-center justify-center">
                         <i class="fa-solid fa-paintbrush text-white text-sm"></i>
                     </div>
-                    Escolha o <span class="bg-gradient-to-r from-[#7c3aed] to-purple-600 bg-clip-text text-transparent">Tipo de Personalização</span>
-                </h1>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                        Escolha o Tipo de Personalização
+                    </h2>
+                </div>
             </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400 pl-10">Selecione um ou mais tipos de serviço para este pedido</p>
         </div>
 
         <!-- Client Info Card -->
         @if(session('wizard.client'))
-        <div class="glass-card rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 mb-8 animate-fade-in-up">
+        <div class="glass-card rounded-2xl border border-gray-100 dark:border-gray-700 p-4 mb-8 animate-fade-in-up">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-gradient-to-br from-[#7c3aed] to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-[#7c3aed]/30">
+                <div class="w-12 h-12 bg-[#7c3aed] rounded-2xl flex items-center justify-center">
                     <i class="fa-solid fa-user text-white"></i>
                 </div>
                 <div>
@@ -106,7 +173,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" id="personalization-grid">
                 
                 <!-- Sub. Local -->
-                <label class="personalization-option group bg-white dark:bg-gray-800 rounded-xl shadow-sm border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer hover:shadow-lg animate-fade-in-up delay-100">
+                <label class="personalization-option group rounded-xl border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer animate-fade-in-up delay-100">
                     <input type="checkbox" name="types[]" value="sub_local" class="hidden personalization-checkbox">
                     <div class="flex flex-col items-center text-center">
                         <div class="check-indicator absolute top-3 right-3 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center hidden">
@@ -121,7 +188,7 @@
                 </label>
 
                 <!-- Serigrafia -->
-                <label class="personalization-option group bg-white dark:bg-gray-800 rounded-xl shadow-sm border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer hover:shadow-lg animate-fade-in-up delay-200">
+                <label class="personalization-option group rounded-xl border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer animate-fade-in-up delay-200">
                     <input type="checkbox" name="types[]" value="serigrafia" class="hidden personalization-checkbox">
                     <div class="flex flex-col items-center text-center relative">
                         <div class="check-indicator absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center hidden">
@@ -136,7 +203,7 @@
                 </label>
 
                 <!-- DTF -->
-                <label class="personalization-option group bg-white dark:bg-gray-800 rounded-xl shadow-sm border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer hover:shadow-lg animate-fade-in-up delay-300">
+                <label class="personalization-option group rounded-xl border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer animate-fade-in-up delay-300">
                     <input type="checkbox" name="types[]" value="dtf" class="hidden personalization-checkbox">
                     <div class="flex flex-col items-center text-center relative">
                         <div class="check-indicator absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center hidden">
@@ -151,7 +218,7 @@
                 </label>
 
                 <!-- Bordado -->
-                <label class="personalization-option group bg-white dark:bg-gray-800 rounded-xl shadow-sm border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer hover:shadow-lg animate-fade-in-up delay-100">
+                <label class="personalization-option group rounded-xl border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer animate-fade-in-up delay-100">
                     <input type="checkbox" name="types[]" value="bordado" class="hidden personalization-checkbox">
                     <div class="flex flex-col items-center text-center relative">
                         <div class="check-indicator absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center hidden">
@@ -166,7 +233,7 @@
                 </label>
 
                 <!-- Emborrachado -->
-                <label class="personalization-option group bg-white dark:bg-gray-800 rounded-xl shadow-sm border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer hover:shadow-lg animate-fade-in-up delay-200">
+                <label class="personalization-option group rounded-xl border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer animate-fade-in-up delay-200">
                     <input type="checkbox" name="types[]" value="emborrachado" class="hidden personalization-checkbox">
                     <div class="flex flex-col items-center text-center relative">
                         <div class="check-indicator absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center hidden">
@@ -181,7 +248,7 @@
                 </label>
 
                 <!-- Lisas -->
-                <label class="personalization-option group bg-white dark:bg-gray-800 rounded-xl shadow-sm border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer hover:shadow-lg animate-fade-in-up delay-300">
+                <label class="personalization-option group rounded-xl border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer animate-fade-in-up delay-300">
                     <input type="checkbox" name="types[]" value="lisas" class="hidden personalization-checkbox">
                     <div class="flex flex-col items-center text-center relative">
                         <div class="check-indicator absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center hidden">
@@ -196,13 +263,13 @@
                 </label>
 
                 <!-- Sub. Total -->
-                <label class="personalization-option group bg-white dark:bg-gray-800 rounded-xl shadow-sm border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer hover:shadow-lg sm:col-span-2 lg:col-span-1 animate-fade-in-up delay-100">
+                <label class="personalization-option group rounded-xl border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer sm:col-span-2 lg:col-span-1 animate-fade-in-up delay-100">
                     <input type="checkbox" name="types[]" value="sub_total" class="hidden personalization-checkbox">
                     <div class="flex flex-col items-center text-center relative">
                         <div class="check-indicator absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center hidden">
                             <i class="fa-solid fa-check text-xs"></i>
                         </div>
-                        <div class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-cyan-100 to-purple-100 dark:from-cyan-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform icon-bubble">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform icon-bubble">
                             <i class="fa-solid fa-image text-2xl sm:text-3xl text-[#7c3aed] dark:text-[#7c3aed]"></i>
                         </div>
                         <h3 class="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">Sublimação Total</h3>
@@ -231,12 +298,15 @@
                 </a>
                 
                 <button type="submit" id="continue-btn" disabled
-                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-[#7c3aed] to-purple-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-[#7c3aed]/30 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl transition-all">
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 bg-[#7c3aed] text-white rounded-xl font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                     Continuar
                     <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
             </div>
+            </div>
         </form>
+    </section>
+</div>
 
     </div>
 </div>
@@ -267,12 +337,12 @@
             const indicator = option.querySelector('.check-indicator');
             
             if (checkbox.checked) {
-                option.classList.add('border-[#7c3aed]', 'ring-2', 'ring-[#7c3aed]/20');
+                option.classList.add('border-[#7c3aed]');
                 option.classList.remove('border-gray-200', 'dark:border-gray-700');
                 indicator.classList.remove('hidden');
                 indicator.classList.add('flex');
             } else {
-                option.classList.remove('border-[#7c3aed]', 'ring-2', 'ring-[#7c3aed]/20');
+                option.classList.remove('border-[#7c3aed]');
                 option.classList.add('border-gray-200', 'dark:border-gray-700');
                 indicator.classList.add('hidden');
                 indicator.classList.remove('flex');

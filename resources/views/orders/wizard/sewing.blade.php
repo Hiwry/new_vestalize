@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('content')
 <script>
@@ -58,7 +58,73 @@
 })();
 </script>
 <style>
-/* AnimaÃ§Ãµes Premium */
+    .ow-shell, #sewing-wizard-modal {
+        --sh-surface-from: #f3f4f8;
+        --sh-surface-to: #eceff4;
+        --sh-surface-border: #d8dce6;
+        --sh-text-primary: #0f172a;
+        --sh-text-secondary: #64748b;
+        --sh-card-bg: #ffffff;
+        --sh-card-border: #dde2ea;
+        --sh-card-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        --sh-accent: #7c3aed;
+        --sh-accent-strong: #6d28d9;
+    }
+    
+    .ow-shell {
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%);
+        border: 1px solid var(--sh-surface-border);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+        color: var(--sh-text-primary);
+    }
+
+    .dark .ow-shell, .dark #sewing-wizard-modal {
+        --sh-surface-from: #0d1830;
+        --sh-surface-to: #0b1322;
+        --sh-surface-border: rgba(148, 163, 184, 0.16);
+        --sh-text-primary: #e5edf8;
+        --sh-text-secondary: #91a4c0;
+        --sh-card-bg: #10203a;
+        --sh-card-border: rgba(148, 163, 184, 0.12);
+        --sh-card-shadow: none;
+        --sh-input-bg: #162847;
+    }
+
+    .dark .ow-shell {
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%) !important;
+        box-shadow: none !important;
+        border-color: var(--sh-surface-border) !important;
+    }
+
+
+    .dark.avento-theme .ow-card, .dark.avento-theme .ow-progress, .dark.avento-theme .sewing-ui-surface, .dark.avento-theme .glass-card, .dark.avento-theme #sewing-wizard-modal .wizard-option-card {
+        background-color: var(--sh-card-bg) !important;
+        box-shadow: none !important;
+    }
+
+    .dark.avento-theme .ow-shell input:not([type="color"]),
+    .dark.avento-theme .ow-shell select,
+    .dark.avento-theme .ow-shell textarea,
+    .dark.avento-theme .ow-btn-ghost,
+    .dark.avento-theme .ow-search-toggle,
+    .dark.avento-theme .ow-search-panel div[class*="dark:bg-slate-800"],
+    .dark.avento-theme #sewing-wizard-modal input:not([type="color"]),
+    .dark.avento-theme #sewing-wizard-modal select,
+    .dark.avento-theme #sewing-wizard-modal textarea {
+        background-color: var(--sh-input-bg) !important;
+        background: var(--sh-input-bg) !important;
+    }
+
+    .ow-card, .ow-progress, .ow-field-panel {
+        background: var(--sh-card-bg) !important;
+        border: 1px solid var(--sh-card-border) !important;
+        border-radius: 16px !important;
+        box-shadow: var(--sh-card-shadow) !important;
+    }
+
+/* Animações Premium */
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
@@ -72,22 +138,23 @@
 .delay-200 { animation-delay: 0.2s; opacity: 0; }
 
 .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
-.dark .glass-card { background: rgba(15, 23, 42, 0.8); }
+.dark .glass-card { background: #10203a !important; }
 
 .hover-lift { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.hover-lift:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -8px rgba(0,0,0,0.15); }
+.hover-lift:hover { transform: translateY(-2px); }
+.dark .hover-lift:hover { box-shadow: none !important; }
 
 /* Dashboard visual parity */
-.sewing-dashboard-shell {
+.ow-shell {
     max-width: 1600px;
     margin: 0 auto;
     padding: 1rem 1rem 1.5rem;
 }
 
-.sewing-dashboard-shell .glass-card {
-    background: var(--card-bg) !important;
-    border: 1px solid var(--border) !important;
-    box-shadow: var(--shadow) !important;
+.ow-shell .glass-card {
+    background: var(--sh-card-bg) !important;
+    border: 1px solid var(--sh-card-border) !important;
+    box-shadow: var(--sh-card-shadow) !important;
 }
 
 /* Host card must not trap fixed wizard modal */
@@ -97,28 +164,28 @@
     -webkit-backdrop-filter: none !important;
 }
 
-.sewing-dashboard-shell .sewing-ui-surface {
-    background: var(--card-bg) !important;
-    border: 1px solid var(--border) !important;
-    box-shadow: var(--shadow) !important;
+.ow-shell .sewing-ui-surface {
+    background: var(--sh-card-bg) !important;
+    border: 1px solid var(--sh-card-border) !important;
+    box-shadow: var(--sh-card-shadow) !important;
 }
 
-.sewing-dashboard-shell .sewing-ui-muted {
-    background: var(--input-bg) !important;
-    border: 1px solid var(--border) !important;
+.ow-shell .sewing-ui-muted {
+    background: var(--sh-input-bg, #f8fafc) !important;
+    border: 1px solid var(--sh-card-border) !important;
 }
 
-.sewing-dashboard-shell .text-ui-primary { color: var(--foreground) !important; }
-.sewing-dashboard-shell .text-ui-muted { color: var(--muted) !important; }
+.ow-shell .text-ui-primary { color: var(--sh-text-primary) !important; }
+.ow-shell .text-ui-muted { color: var(--sh-text-secondary) !important; }
 
 @media (min-width: 640px) {
-    .sewing-dashboard-shell {
+    .ow-shell {
         padding: 1.25rem 1.5rem 1.75rem;
     }
 }
 
 @media (min-width: 1024px) {
-    .sewing-dashboard-shell {
+    .ow-shell {
         padding: 1.25rem 2rem 2rem;
     }
 }
@@ -145,6 +212,11 @@
 #wizard-content {
     overscroll-behavior: contain;
     min-height: 0;
+    background:
+        radial-gradient(circle at top right, rgba(124, 58, 237, 0.08), transparent 28%),
+        linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 97%, var(--sh-accent) 3%) 0%,
+            var(--sh-card-bg) 100%) !important;
 }
 
 #sewing-wizard-modal {
@@ -157,6 +229,11 @@
 #sewing-wizard-modal .wizard-overlay {
     position: absolute;
     inset: 0;
+    background:
+        radial-gradient(circle at top right, rgba(124, 58, 237, 0.18), transparent 30%),
+        linear-gradient(180deg, rgba(3, 10, 24, 0.56), rgba(3, 10, 24, 0.78)) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
 }
 
 #sewing-wizard-modal .wizard-frame {
@@ -179,24 +256,161 @@
 }
 
 #sewing-wizard-modal .sewing-wizard-panel {
-    background: var(--card-bg) !important;
-    border-color: var(--border) !important;
-    box-shadow: var(--shadow) !important;
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--sh-card-bg) 97%, var(--sh-accent) 3%) 0%,
+        var(--sh-card-bg) 100%) !important;
+    border: 1px solid color-mix(in srgb, var(--sh-card-border) 70%, var(--sh-accent) 30%) !important;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22) !important;
 }
 
 #sewing-wizard-modal .wizard-head,
 #sewing-wizard-modal .wizard-foot {
-    background: color-mix(in srgb, var(--card-bg) 95%, transparent) !important;
-    border-color: var(--border) !important;
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--sh-card-bg) 90%, var(--sh-accent) 10%) 0%,
+        color-mix(in srgb, var(--sh-card-bg) 97%, transparent) 100%) !important;
+    border-color: var(--sh-card-border) !important;
+}
+
+#sewing-wizard-modal .wizard-head {
+    position: relative;
+}
+
+#sewing-wizard-modal .wizard-head::after {
+    content: "";
+    position: absolute;
+    left: 1.5rem;
+    right: 1.5rem;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.45), transparent);
+}
+
+#sewing-wizard-modal #wizard-step-title {
+    color: var(--sh-text-secondary) !important;
+}
+
+#sewing-wizard-modal .wizard-close-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    border: 1px solid var(--sh-card-border);
+    background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 88%, var(--sh-card-bg) 12%) !important;
+    color: var(--sh-text-secondary) !important;
+}
+
+#sewing-wizard-modal .wizard-close-btn:hover {
+    color: var(--sh-text-primary) !important;
+    border-color: rgba(124, 58, 237, 0.35) !important;
+    background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 78%, var(--sh-accent) 22%) !important;
 }
 
 #sewing-wizard-modal .wizard-bar-track {
-    background: var(--input-bg) !important;
+    background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 90%, var(--sh-card-bg) 10%) !important;
 }
 
 #wizard-options-personalizacao {
     grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-    gap: 0.9rem;
+    gap: 1rem;
+}
+
+#sewing-wizard-modal .wizard-step-copy {
+    margin-bottom: 1.25rem;
+    padding: 1rem 1.1rem;
+    border-radius: 1rem;
+    border: 1px solid color-mix(in srgb, var(--sh-card-border) 72%, var(--sh-accent) 28%);
+    background: var(--sh-card-bg);
+}
+
+#sewing-wizard-modal .wizard-step-kicker {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(124, 58, 237, 0.12);
+    color: #7c3aed;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+#sewing-wizard-modal .wizard-step-heading {
+    margin-top: 0.85rem;
+    font-size: 1.1rem;
+    line-height: 1.2;
+    font-weight: 800;
+    color: var(--sh-text-primary) !important;
+}
+
+#sewing-wizard-modal .wizard-step-text {
+    margin-top: 0.35rem;
+    max-width: 40rem;
+    font-size: 0.9rem;
+    color: var(--sh-text-secondary) !important;
+}
+
+#sewing-wizard-modal .wizard-option-card {
+    background: var(--sh-card-bg) !important;
+    border-color: var(--sh-card-border) !important;
+}
+
+#sewing-wizard-modal .wizard-option-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(124, 58, 237, 0.55) !important;
+}
+
+#sewing-wizard-modal .wizard-option-card.ring-2 {
+    background: rgba(124, 58, 237, 0.08) !important;
+    border-color: rgba(124, 58, 237, 0.55) !important;
+}
+
+#sewing-wizard-modal .wizard-personalization-card span {
+    color: var(--sh-text-primary) !important;
+}
+
+#sewing-wizard-modal #wizard-prev-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 7rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.9rem;
+    border: 1px solid var(--sh-card-border);
+    background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 88%, var(--sh-card-bg) 12%) !important;
+    color: var(--sh-text-secondary) !important;
+}
+
+#sewing-wizard-modal #wizard-prev-btn:hover {
+    color: var(--sh-text-primary) !important;
+    border-color: rgba(124, 58, 237, 0.35) !important;
+    background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 78%, var(--sh-accent) 22%) !important;
+}
+
+#sewing-wizard-modal #wizard-next-btn {
+    min-width: 8.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 24px rgba(124, 58, 237, 0.22);
+}
+
+/* Absolute Zero Shadow Kill - FINAL OVERRIDE */
+html.dark.avento-theme .ow-shell,
+html.dark.avento-theme .ow-shell *,
+html.dark.avento-theme .ow-shell *::before,
+html.dark.avento-theme .ow-shell *::after,
+html.dark.avento-theme #sewing-wizard-modal,
+html.dark.avento-theme #sewing-wizard-modal *,
+html.dark.avento-theme #sewing-wizard-modal *::before,
+html.dark.avento-theme #sewing-wizard-modal *::after {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+    transition: none !important;
 }
 
 .wizard-personalization-card {
@@ -210,34 +424,29 @@
 }
 </style>
 
-<div class="sewing-dashboard-shell">
-    <!-- Progress Bar Premium -->
-    <div class="mb-6 sm:mb-8 animate-fade-in-up">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#7c3aed] text-white stay-white rounded-xl sm:rounded-2xl flex items-center justify-center text-sm sm:text-base font-black shadow-xl shadow-purple-500/30 animate-float">2</div>
+<div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6">
+    <section class="ow-shell">
+        <!-- Top Bar (Estilo Sales Hub) -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <span class="ow-step-badge">2</span>
                 <div>
-                    <span class="text-base sm:text-xl font-black text-gray-900 dark:text-white">Costura e <span class="text-[#7c3aed]">PersonalizaÃ§Ã£o</span></span>
-                    <p class="text-[10px] sm:text-xs text-gray-500 dark:text-slate-400 mt-0.5 font-bold uppercase tracking-widest">Etapa 2 de 5</p>
+                    <h1 class="sh-title">Costura e Personalização</h1>
+                    <p class="sh-subtitle">Etapa 2 de 5 • Configure os detalhes do item</p>
                 </div>
             </div>
-            <div class="flex items-center bg-white/80 dark:bg-slate-800/60 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-xl sm:rounded-2xl border border-gray-100 dark:border-slate-700 shadow-lg animate-slide-right">
-                <div class="text-right mr-3 sm:mr-4">
-                    <div class="text-[9px] sm:text-[10px] text-gray-400 dark:text-slate-500 font-bold uppercase tracking-widest">Progresso</div>
-                    <div class="text-lg sm:text-2xl font-black text-[#7c3aed] dark:text-purple-400 leading-none">40%</div>
-                </div>
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-4 border-purple-100 dark:border-purple-900/30 flex items-center justify-center relative">
-                    <svg class="w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 36 36">
-                        <path class="stroke-gray-200 dark:stroke-slate-700" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="stroke-[#7c3aed]" stroke-dasharray="40, 100" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                    </svg>
-                </div>
+            <div class="text-right hidden sm:block">
+                <div class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Passo Atual</div>
+                <div class="text-2xl font-black text-[#7c3aed]">40%</div>
             </div>
         </div>
-        <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-1.5 sm:h-2 shadow-inner overflow-hidden">
-            <div class="bg-[#7c3aed] h-full rounded-full transition-all duration-500 ease-out shadow-lg shadow-purple-500/40" style="width: 40%"></div>
+
+        <!-- Progress Widget -->
+        <div class="ow-progress p-4 mb-8">
+            <div class="w-full bg-gray-100 dark:bg-slate-800/50 rounded-full h-2">
+                <div class="ow-progress-fill h-2 rounded-full transition-all duration-700" style="width: 40%"></div>
+            </div>
         </div>
-    </div>
 
     <!-- Messages Premium -->
 
@@ -245,11 +454,11 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         <!-- FormulÃ¡rio de Adicionar Item -->
         <div class="lg:col-span-2">
-            <div class="glass-card wizard-host-card sewing-ui-surface rounded-2xl sm:rounded-3xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-100 dark:border-slate-800 overflow-hidden">
+            <div class="glass-card wizard-host-card sewing-ui-surface rounded-2xl sm:rounded-3xl border border-gray-100 dark:border-slate-800 overflow-hidden">
                 <!-- Header Premium -->
                 <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 dark:border-slate-800 sewing-ui-surface">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#7c3aed] rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30 border border-[#7c3aed]">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#7c3aed] rounded-xl sm:rounded-2xl flex items-center justify-center border border-[#7c3aed]">
                             <i class="fa-solid fa-plus text-white stay-white text-sm sm:text-base"></i>
                         </div>
                         <div>
@@ -279,15 +488,15 @@
 
                                 <label class="block text-sm font-semibold text-ui-primary">Configuração do Item</label>
                                 
-                                <div class="sewing-ui-muted rounded-xl border border-gray-200 dark:border-slate-700 p-6 shadow-sm flex flex-col items-center justify-center text-center space-y-4">
+                                <div class="sewing-ui-muted rounded-xl border border-gray-200 dark:border-slate-700 p-6 flex flex-col items-center justify-center text-center space-y-4">
                                     <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-[#7c3aed] dark:text-purple-400 mb-2">
                                         <i class="fa-solid fa-layer-group text-3xl"></i>
                                     </div>
                                     <div>
                                         <h4 class="text-lg font-bold text-ui-primary" id="summary-title">Configurar Novo Item</h4>
-                                        <p class="text-sm text-ui-muted mt-1 max-w-md mx-auto" id="summary-desc">Clique abaixo para iniciar a configuraÃ§Ã£o completa do item (Tecido, Modelo, Tamanhos, etc).</p>
+                                        <p class="text-sm text-ui-muted mt-1 max-w-md mx-auto" id="summary-desc">Clique abaixo para iniciar a configura&ccedil;&atilde;o completa do item (Tecido, Modelo, Tamanhos, etc).</p>
                                     </div>
-                                    <button type="button" onclick="openSewingWizard()" class="px-6 py-3 bg-white text-[#7c3aed] border border-[#7c3aed] font-bold rounded-xl shadow-lg shadow-purple-500/10 hover:bg-purple-50 transition-all transform hover:scale-105">
+                                    <button type="button" onclick="openSewingWizard()" class="px-6 py-3 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white border border-[#7c3aed] font-bold rounded-xl shadow-md shadow-purple-500/20 transition-all transform hover:scale-105">
                                         Iniciar Configuração
                                     </button>
                                      
@@ -616,7 +825,7 @@
                                                 <h3 class="text-lg font-black text-gray-900 dark:text-white leading-tight">Configurar Modelo</h3>
                                                 <p class="text-[10px] text-gray-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5" id="wizard-step-title">Etapa 1 de 5</p>
                                             </div>
-                                            <button type="button" onclick="closeSewingWizard()" class="text-gray-400 hover:text-gray-500 transition-colors">
+                                            <button type="button" onclick="closeSewingWizard()" class="wizard-close-btn transition-colors">
                                                 <i class="fa-solid fa-xmark text-xl"></i>
                                             </button>
                                         </div>
@@ -629,18 +838,21 @@
                                         <!-- Steps Content -->
                                         <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6 lg:p-7 custom-scrollbar" id="wizard-content">
                                             
-                                            <!-- Step 1: PersonalizaÃ§Ã£o -->
+                                            <!-- Step 1: Personalizacao -->
                                             <div id="step-1" class="wizard-step">
-                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Selecione a PersonalizaÃ§Ã£o</h4>
-                                                <p class="text-xs text-gray-500 mb-4">VocÃª pode selecionar mÃºltiplas opÃ§Ãµes.</p>
+                                                <div class="wizard-step-copy">
+                                                    <span class="wizard-step-kicker">Escolha as t&eacute;cnicas</span>
+                                                    <h4 class="wizard-step-heading">Selecione a Personaliza&ccedil;&atilde;o</h4>
+                                                    <p class="wizard-step-text">Voc&ecirc; pode selecionar m&uacute;ltiplas op&ccedil;&otilde;es.</p>
+                                                </div>
                                                 <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4" id="wizard-options-personalizacao">
                                                     <!-- Filled by JS -->
                                                 </div>
                                             </div>
 
-                                            <!-- Step SUB: SublimaÃ§Ã£o Total (shown when SUB.TOTAL is selected) -->
+                                            <!-- Step SUB: Sublimacao Total (shown when SUB.TOTAL is selected) -->
                                             <div id="step-sub" class="wizard-step hidden">
-                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Configurar SublimaÃ§Ã£o Total</h4>
+                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Configurar Sublima&ccedil;&atilde;o Total</h4>
                                                 
                                                 <div class="space-y-5">
                                                     <!-- Tipo de Produto SUB.TOTAL -->
@@ -718,14 +930,14 @@
                                                             </div>
                                                         </div>
                                                         
-                                                        <!-- Total de PeÃ§as e PreÃ§o -->
+                                                        <!-- Total de Pecas e Preco -->
                                                         <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                             <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-center">
-                                                                <span class="block text-xs text-gray-600 dark:text-slate-400 mb-1">Total de PeÃ§as</span>
+                                                                <span class="block text-xs text-gray-600 dark:text-slate-400 mb-1">Total de Pe&ccedil;as</span>
                                                                 <span class="text-2xl font-black text-purple-600 dark:text-purple-400" id="sub-wizard-total-qty">0</span>
                                                             </div>
                                                             <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg text-center">
-                                                                <span class="block text-xs text-gray-600 dark:text-slate-400 mb-1">PreÃ§o UnitÃ¡rio</span>
+                                                                <span class="block text-xs text-gray-600 dark:text-slate-400 mb-1">Pre&ccedil;o Unit&aacute;rio</span>
                                                                 <span class="text-2xl font-black text-green-600 dark:text-green-400" id="sub-wizard-unit-price">R$ 0,00</span>
                                                             </div>
                                                         </div>
@@ -751,10 +963,10 @@
                                                         </div>
                                                     </div>
 
-                                                    <!-- ObservaÃ§Ãµes -->
+                                                    <!-- Observacoes -->
                                                     <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
-                                                        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">ObservaÃ§Ãµes</label>
-                                                        <textarea id="sub_wizard_notes" rows="2" placeholder="ObservaÃ§Ãµes importantes para a produÃ§Ã£o..." class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm"></textarea>
+                                                        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Observa&ccedil;&otilde;es</label>
+                                                        <textarea id="sub_wizard_notes" rows="2" placeholder="Observa&ccedil;&otilde;es importantes para a produ&ccedil;&atilde;o..." class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm"></textarea>
                                                     </div>
 
                                                     <!-- Total Final -->
@@ -801,14 +1013,14 @@
                                             <div id="step-4" class="wizard-step hidden">
                                                 <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Selecione o Tipo de Corte</h4>
                                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="wizard-options-corte">
-                                                    <div class="p-8 text-center text-gray-500">Carregando opÃ§Ãµes...</div>
+                                                    <div class="p-8 text-center text-gray-500">Carregando op&ccedil;&otilde;es...</div>
                                                 </div>
                                             </div>
 
                                             <!-- Step 5: Detalhe -->
                                             <div id="step-5" class="wizard-step hidden">
                                                 <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-2">Selecione o(s) Detalhe(s)</h4>
-                                                <p class="text-[10px] text-gray-500 mb-3">VocÃª pode selecionar mÃºltiplos detalhes.</p>
+                                                <p class="text-[10px] text-gray-500 mb-3">Voc&ecirc; pode selecionar m&uacute;ltiplos detalhes.</p>
                                                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 mb-4" id="wizard-options-detalhe">
                                                     <!-- Filled by JS -->
                                                 </div>
@@ -897,7 +1109,7 @@
 
                                             <!-- Step 10: Imagem e Obs -->
                                             <div id="step-10" class="wizard-step hidden">
-                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">PersonalizaÃ§Ã£o e Detalhes Finais</h4>
+                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Personaliza&ccedil;&atilde;o e Detalhes Finais</h4>
                                                 
                                                 <div class="space-y-5">
                                                     <!-- Image Upload -->
@@ -979,11 +1191,11 @@
                                         <!-- Footer -->
                                         <div class="wizard-foot px-5 sm:px-6 lg:px-8 py-3 sm:py-4 flex-none border-t border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/50 rounded-none">
                                             <button type="button" id="wizard-prev-btn" onclick="wizardPrevStep()" class="px-4 py-2 text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed">
-                                                â† Voltar
+                                                &larr; Voltar
                                             </button>
                                             <div class="flex gap-2">
                                                 <button type="button" id="wizard-next-btn" onclick="wizardNextStep()" class="px-6 py-2 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white text-sm font-bold rounded-lg transition-all shadow-md shadow-purple-500/20">
-                                                    PrÃ³ximo
+                                                    Pr&oacute;ximo
                                                 </button>
                                             </div>
                                         </div>
@@ -1028,6 +1240,7 @@
             </div>
         </div>
     </div>
+    </section>
 </div>
 
 @if(isset($sublimationEnabled) && $sublimationEnabled)
@@ -1132,8 +1345,8 @@
         emborrachado:   { icon: 'fa-cubes',        bubble: 'bg-emerald-100 dark:bg-emerald-900/30',color: 'text-emerald-600 dark:text-emerald-400' },
         sub_local:      { icon: 'fa-layer-group',  bubble: 'bg-purple-100 dark:bg-purple-900/30',  color: 'text-purple-600 dark:text-purple-400' },
         sub_total:      { icon: 'fa-image',        bubble: 'bg-cyan-100 dark:bg-cyan-900/30',      color: 'text-cyan-700 dark:text-cyan-300' },
-        lisas:          { icon: 'fa-shirt',        bubble: 'bg-gray-100 dark:bg-slate-800',        color: 'text-gray-600 dark:text-gray-300' },
-        default:        { icon: 'fa-shirt',        bubble: 'bg-gray-100 dark:bg-slate-800',        color: 'text-[#7c3aed] dark:text-[#7c3aed]' }
+        lisas:          { icon: 'fa-shirt',        bubble: 'bg-gray-100 dark:bg-slate-700/50',     color: 'text-gray-600 dark:text-gray-300' },
+        default:        { icon: 'fa-shirt',        bubble: 'bg-gray-100 dark:bg-slate-700/50',     color: 'text-[#7c3aed] dark:text-[#7c3aed]' }
     };
     window.personalizationIconMap = personalizationIconMap;
 
@@ -1900,7 +2113,7 @@
             const style = personalizationIconMap[key] || personalizationIconMap.default;
 
             return `
-            <label class="wizard-option-card wizard-personalization-card group cursor-pointer p-3 sm:p-3.5 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all flex flex-col items-center justify-center gap-2 ${activeClass}">
+            <label class="wizard-option-card wizard-personalization-card group cursor-pointer p-3 sm:p-3.5 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all duration-200 ease-in-out flex flex-col items-center justify-center gap-2 ${activeClass}">
                 <input type="checkbox" class="personalizacao-checkbox hidden" value="${item.id ?? ''}" ${isSelected ? 'checked' : ''} onchange="syncWizardPersonalizacaoUI()">
                 <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full ${style.bubble} flex items-center justify-center ${style.color}">
                      <i class="fa-solid ${style.icon} text-base"></i>
@@ -1931,6 +2144,7 @@
             card.classList.toggle('bg-purple-50', isChecked);
             card.classList.toggle('dark:bg-purple-900/20', isChecked);
             card.classList.toggle('shadow-sm', isChecked);
+            card.classList.toggle('scale-105', isChecked);
 
             if (isChecked && checkbox.value !== '') {
                 selectedIds.push(checkbox.value.toString());
@@ -4017,7 +4231,3 @@
 </script>
 @endpush
 @endsection
-
-
-
-

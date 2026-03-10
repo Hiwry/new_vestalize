@@ -1,35 +1,105 @@
-@extends('layouts.admin')
+@push('styles')
+<style>
+    .ow-shell {
+        --sh-surface-from: #f3f4f8;
+        --sh-surface-to: #eceff4;
+        --sh-surface-border: #d8dce6;
+        --sh-text-primary: #0f172a;
+        --sh-text-secondary: #64748b;
+        --sh-card-bg: #ffffff;
+        --sh-card-border: #dde2ea;
+        --sh-card-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        --sh-accent: #7c3aed;
+        --sh-accent-strong: #6d28d9;
+        
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%);
+        border: 1px solid var(--sh-surface-border);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+        color: var(--sh-text-primary);
+    }
+
+    .dark.avento-theme .ow-shell {
+        --sh-surface-from: #0d1830;
+        --sh-surface-to: #0b1322;
+        --sh-surface-border: rgba(148, 163, 184, 0.16);
+        --sh-text-primary: #e5edf8;
+        --sh-text-secondary: #91a4c0;
+        --sh-card-bg: #10203a;
+        --sh-card-border: rgba(148, 163, 184, 0.12);
+        --sh-card-shadow: none;
+        --sh-input-bg: #162847;
+
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%) !important;
+        box-shadow: none !important;
+        border-color: var(--sh-surface-border) !important;
+    }
+
+    .dark.avento-theme .ow-shell input:not([type="color"]),
+    .dark.avento-theme .ow-shell select,
+    .dark.avento-theme .ow-shell textarea,
+    .dark.avento-theme .ow-btn-ghost,
+    .dark.avento-theme .ow-search-toggle,
+    .dark.avento-theme .ow-search-panel div[class*="dark:bg-slate-800"] {
+        background-color: var(--sh-input-bg) !important;
+        background: var(--sh-input-bg) !important;
+    }
+
+
+    .dark .ow-card, .dark .ow-progress, .dark .ow-field-panel {
+        background-color: var(--sh-card-bg) !important;
+        box-shadow: none !important;
+    }
+
+    .sh-title { font-size: 24px; line-height: 1.1; font-weight: 800; color: var(--sh-text-primary); }
+    .sh-subtitle { margin-top: 3px; font-size: 13px; font-weight: 600; color: var(--sh-text-secondary); }
+
+    .ow-progress-fill {
+        background: linear-gradient(90deg, var(--sh-accent), #a78bfa);
+        box-shadow: none !important;
+    }
+
+    /* Absolute Zero Shadow Kill - FINAL OVERRIDE */
+    html.dark.avento-theme .ow-shell,
+    html.dark.avento-theme .ow-shell *,
+    html.dark.avento-theme .ow-shell *::before,
+    html.dark.avento-theme .ow-shell *::after {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        filter: none !important;
+        -webkit-filter: none !important;
+        transition: none !important;
+    }
+</style>
+@endpush
 
 @section('content')
-<div class="max-w-6xl mx-auto">
-        <!-- Header -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-[#7c3aed] rounded-full flex items-center justify-center">
-                        <span class="text-white font-bold text-sm">S</span>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-900">Personalização - Serigrafia</h1>
-                        <p class="text-sm text-gray-600">Configuração de aplicações serigráficas</p>
-                    </div>
+<div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6">
+    <section class="ow-shell">
+        <!-- Top Bar (Estilo Sales Hub) -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <span class="ow-step-badge">3</span>
+                <div>
+                    <h1 class="sh-title">Personalização - Serigrafia</h1>
+                    <p class="sh-subtitle">Etapa 3 de 5 • Configuração de aplicações serigráficas</p>
                 </div>
-                <a href="{{ route('orders.wizard.sewing') }}" class="text-gray-600 hover:text-gray-900 text-sm">
-                    ← Voltar
-                </a>
             </div>
-            
-            <!-- Progress Bar -->
-            <div class="w-full bg-gray-200 rounded-full h-1">
-                <div class="bg-[#7c3aed] h-1 rounded-full" style="width: 60%"></div>
-            </div>
-            <div class="flex justify-between mt-2">
-                <span class="text-xs text-gray-500">Etapa 3 de 5</span>
-                <span class="text-xs text-gray-500">60%</span>
+            <div class="text-right hidden sm:block">
+                <div class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Passo Atual</div>
+                <div class="text-2xl font-black text-[#7c3aed]">60%</div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg border border-gray-200 p-8">
+        <!-- Progress Widget -->
+        <div class="ow-progress p-4 mb-8">
+            <div class="w-full bg-gray-100 dark:bg-slate-800/50 rounded-full h-2">
+                <div class="ow-progress-fill h-2 rounded-full transition-all duration-700" style="width: 60%"></div>
+            </div>
+        </div>
+
+        <div class="ow-card p-6">
 
             <form method="POST" action="{{ route('orders.wizard.customization') }}" id="customization-form" enctype="multipart/form-data">
                 @csrf
@@ -39,16 +109,16 @@
                 <input type="hidden" name="personalization_type" value="serigrafia">
 
                 <!-- Informações do Pedido -->
-                <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                    <h3 class="font-semibold text-gray-900 mb-2">Informações do Pedido</h3>
-                    <p class="text-sm text-gray-700">Total de camisas: <strong id="display-total-shirts" class="text-gray-900">{{ session('total_shirts', 0) }}</strong></p>
+                <div class="rounded-xl border border-gray-200 dark:border-slate-700 p-4 mb-6 ow-field-panel">
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Informações do Pedido</h3>
+                    <p class="text-sm text-gray-700 dark:text-slate-300">Total de camisas: <strong id="display-total-shirts" class="text-gray-900 dark:text-white">{{ session('total_shirts', 0) }}</strong></p>
                 </div>
 
                 <!-- Nome da Arte -->
                 <div class="mb-6">
                     <label for="art_name" class="block text-sm font-medium text-gray-900 mb-2">Nome da Arte *</label>
                     <input type="text" id="art_name" name="art_name" required
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-[#7c3aed] focus:ring-[#7c3aed] bg-white"
+                           class="w-full rounded-lg border-2 border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:border-[#7c3aed] focus:ring-0"
                            placeholder="Ex: Logo Empresa XYZ">
                 </div>
 
@@ -57,7 +127,7 @@
                 <div class="mb-6">
                     <label for="art_files" class="block text-sm font-medium text-gray-900 mb-2">Arquivos da Arte (múltiplos) *</label>
                     <input type="file" id="art_files" name="art_files[]" multiple
-                           required class="w-full rounded-md border-gray-300 shadow-sm focus:border-[#7c3aed] focus:ring-[#7c3aed] bg-white"
+                           required class="w-full rounded-lg border-2 border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:border-[#7c3aed] focus:ring-0"
                            onchange="displayFileList()">
                     <p class="text-xs text-gray-600 mt-1">Você pode selecionar múltiplos arquivos (AI, PDF, PNG, JPG, etc) - Obrigatório pelo menos 1 arquivo</p>
                     <div id="file-list" class="mt-3 space-y-2"></div>
@@ -80,15 +150,15 @@
                 </div>
 
                 <!-- Resumo de Valores -->
-                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-8">
-                    <h3 class="font-semibold text-gray-900 mb-3">Resumo de Valores</h3>
-                    <p class="text-xs text-gray-600 mb-4">* A partir de 3 aplicações: 2 com valor cheio + demais com 50% de desconto</p>
-                    <div id="price-breakdown" class="space-y-2 text-sm">
+                <div class="rounded-xl p-6 border border-gray-200 dark:border-slate-700 mb-8 ow-field-panel">
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Resumo de Valores</h3>
+                    <p class="text-xs text-gray-600 dark:text-slate-400 mb-4">* A partir de 3 aplicações: 2 com valor cheio + demais com 50% de desconto</p>
+                    <div id="price-breakdown" class="space-y-2 text-sm dark:text-slate-300">
                         <!-- Será preenchido via JavaScript -->
                     </div>
-                    <div class="flex justify-between font-bold text-lg pt-4 border-t border-gray-300 mt-4">
-                        <span class="text-gray-900">Total:</span>
-                        <span id="total-price" class="text-gray-900">R$ 0,00</span>
+                    <div class="flex justify-between font-bold text-lg pt-4 border-t border-gray-300 dark:border-slate-700 mt-4 text-gray-900 dark:text-white">
+                        <span>Total:</span>
+                        <span id="total-price">R$ 0,00</span>
                     </div>
                 </div>
 
@@ -101,7 +171,8 @@
                 </div>
             </form>
         </div>
-    </div>
+    </section>
+</div>
 
     <!-- Modal para adicionar aplicação -->
     <div id="application-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -110,7 +181,7 @@
             
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-900 mb-2">Local da Aplicação *</label>
-                <select id="modal-location" class="w-full rounded-md border-gray-300 shadow-sm focus:border-[#7c3aed] focus:ring-[#7c3aed] bg-white">
+                <select id="modal-location" class="w-full rounded-md border-gray-300 focus:border-[#7c3aed] focus:ring-[#7c3aed] bg-white">
                     <option value="">Selecione</option>
                 </select>
             </div>
@@ -150,7 +221,7 @@
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-900 mb-2">Quantidade de Aplicações *</label>
                 <input type="number" id="modal-quantity" min="1" value="1" 
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-[#7c3aed] focus:ring-[#7c3aed] bg-white">
+                       class="w-full rounded-md border-gray-300 focus:border-[#7c3aed] focus:ring-[#7c3aed] bg-white">
             </div>
 
             <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">

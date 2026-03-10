@@ -1,72 +1,144 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="max-w-7xl mx-auto">
+<div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6">
+    <section class="ow-shell">
     <style>
-        .payment-input {
-            height: 46px;
-            border-radius: 12px;
-            padding: 0.65rem 0.9rem;
-            border: 1px solid #e2e8f0;
-            background: #ffffff;
-            color: #0f172a;
-            box-shadow: 0 8px 24px -16px rgba(124, 58, 237, 0.35);
-            transition: all 0.18s ease;
-        }
-        .payment-input:focus {
-            border-color: #7c3aed;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18);
-        }
-        .payment-input::placeholder {
-            color: #94a3b8;
-        }
-        .payment-input::-webkit-outer-spin-button,
-        .payment-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        .payment-input {
-            -moz-appearance: textfield;
-        }
-        .dark .payment-input {
-            background: #0f172a;
-            border-color: #24334d;
-            color: #e2e8f0;
-            box-shadow: 0 12px 30px -18px rgba(0, 0, 0, 0.7);
-        }
-        .dark .payment-input:focus {
-            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.25);
-        }
-        .dark .payment-input::placeholder {
-            color: #64748b;
-        }
+    .ow-shell {
+        --sh-surface-from: #f3f4f8;
+        --sh-surface-to: #eceff4;
+        --sh-surface-border: #d8dce6;
+        --sh-text-primary: #0f172a;
+        --sh-text-secondary: #64748b;
+        --sh-card-bg: #ffffff;
+        --sh-card-border: #dde2ea;
+        --sh-card-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        --sh-accent: #7c3aed;
+        --sh-accent-strong: #6d28d9;
+        
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%);
+        border: 1px solid var(--sh-surface-border);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+        color: var(--sh-text-primary);
+    }
+
+    .dark .ow-shell {
+        --sh-surface-from: #0d1830;
+        --sh-surface-to: #0b1322;
+        --sh-surface-border: rgba(148, 163, 184, 0.16);
+        --sh-text-primary: #e5edf8;
+        --sh-text-secondary: #91a4c0;
+        --sh-card-bg: #10203a;
+        --sh-card-border: rgba(148, 163, 184, 0.12);
+        --sh-card-shadow: none;
+        --sh-input-bg: #162847;
+
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%) !important;
+        box-shadow: none !important;
+        border-color: var(--sh-surface-border) !important;
+    }
+
+
+    .dark.avento-theme .ow-card, .dark.avento-theme .ow-progress, .dark.avento-theme .ow-field-panel {
+        background-color: var(--sh-card-bg) !important;
+        box-shadow: none !important;
+    }
+
+    .dark.avento-theme .ow-shell input:not([type="color"]),
+    .dark.avento-theme .ow-shell select,
+    .dark.avento-theme .ow-shell textarea,
+    .dark.avento-theme .ow-btn-ghost,
+    .dark.avento-theme .ow-search-toggle,
+    .dark.avento-theme .ow-search-panel div[class*="dark:bg-slate-800"] {
+        background-color: var(--sh-input-bg) !important;
+        background: var(--sh-input-bg) !important;
+    }
+
+    .ow-card-header {
+        background: color-mix(in srgb, var(--sh-card-bg) 96%, var(--sh-accent) 4%) !important;
+        border-bottom: 1px solid var(--sh-card-border) !important;
+    }
+
+    .ow-step-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: var(--sh-accent);
+        color: #fff !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 800;
+        box-shadow: none !important;
+    }
+
+    .sh-title { font-size: 24px; line-height: 1.1; font-weight: 800; color: var(--sh-text-primary); }
+    .sh-subtitle { margin-top: 3px; font-size: 13px; font-weight: 600; color: var(--sh-text-secondary); }
+
+    .ow-progress-fill {
+        background: linear-gradient(90deg, var(--sh-accent), #a78bfa);
+        box-shadow: none !important;
+    }
+
+    .payment-input {
+        background: var(--sh-input-bg, #f8fafc) !important;
+        border: 1px solid var(--sh-card-border) !important;
+        color: var(--sh-text-primary) !important;
+        border-radius: 12px !important;
+        height: 46px;
+        padding: 0.65rem 0.9rem;
+        transition: all 0.18s ease;
+    }
+
+    .dark .payment-input {
+        background: var(--sh-input-bg) !important;
+    }
+
+    /* Absolute Zero Shadow Kill - FINAL OVERRIDE */
+    html.dark.avento-theme .ow-shell,
+    html.dark.avento-theme .ow-shell *,
+    html.dark.avento-theme .ow-shell *::before,
+    html.dark.avento-theme .ow-shell *::after {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        filter: none !important;
+        -webkit-filter: none !important;
+        transition: none !important;
+    }
+
     </style>
-        <!-- Progress Bar -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-[#7c3aed] text-white stay-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">4</div>
-                    <div>
-                        <span class="text-lg font-bold text-gray-900 dark:text-white">Pagamento</span>
-                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa 4 de 5</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <div class="text-xs text-gray-500 dark:text-slate-400 font-medium">Progresso</div>
-                    <div class="text-2xl font-bold text-[#7c3aed] dark:text-[#a78bfa]">80%</div>
+<div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6">
+    <section class="ow-shell">
+        <!-- Top Bar (Estilo Sales Hub) -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <span class="ow-step-badge">4</span>
+                <div>
+                    <h1 class="sh-title">Pagamento</h1>
+                    <p class="sh-subtitle">Etapa 4 de 5 • Defina valores e formas de pagamento</p>
                 </div>
             </div>
-            <div class="w-full bg-white dark:bg-slate-800/80 rounded-full h-2.5 shadow-inner border border-gray-200 dark:border-slate-700">
-                <div class="bg-[#7c3aed] h-2.5 rounded-full transition-all duration-500 ease-out shadow-lg shadow-purple-500/30 dark:shadow-purple-600/30" style="width: 80%"></div>
+            <div class="text-right hidden sm:block">
+                <div class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Passo Atual</div>
+                <div class="text-2xl font-black text-[#7c3aed]">80%</div>
+            </div>
+        </div>
+
+        <!-- Progress Widget -->
+        <div class="ow-progress p-4 mb-8">
+            <div class="w-full bg-gray-100 dark:bg-slate-800/50 rounded-full h-2">
+                <div class="ow-progress-fill h-2 rounded-full transition-all duration-700" style="width: 80%"></div>
             </div>
         </div>
 
         <!-- Main Content -->
 
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-lg dark:shadow-black/20 border border-gray-200 dark:border-slate-800">
+        <div class="ow-card overflow-hidden">
             <!-- Clean Minimalist Header -->
-            <div class="px-6 py-6 border-b border-gray-200 dark:border-slate-800">
+            <div class="px-6 py-6 ow-card-header">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <!-- Simple Icon -->
@@ -106,7 +178,7 @@
             <!-- Content -->
             <div class="p-6">
             <!-- Resumo do Pedido -->
-                <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 mb-6 shadow-sm">
+                <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 mb-6">
                     <div class="flex items-center space-x-2 mb-4">
                         <div class="w-7 h-7 bg-gray-100 dark:bg-slate-800/60 rounded-md flex items-center justify-center">
                             <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -218,7 +290,7 @@
                             </div>
                             <h3 class="text-sm font-medium text-gray-900 dark:text-white">Data de Entrada *</h3>
                         </div>
-                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm">
+                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
                             <input type="date" id="entry_date" name="entry_date" required
                                    value="{{ $sessionPaymentData['entry_date'] ?? $order->payments->first()->entry_date ?? $order->entry_date ?? date('Y-m-d') }}"
                                    class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:border-[#7c3aed] dark:focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
@@ -236,7 +308,7 @@
                             </div>
                             <h3 class="text-sm font-medium text-gray-900 dark:text-white">Taxa de Entrega</h3>
                         </div>
-                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm">
+                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
                             <label for="delivery_fee" class="block text-xs text-gray-600 dark:text-slate-400 mb-2">Valor da Taxa (R$)</label>
                             <input type="number" id="delivery_fee" name="delivery_fee" step="0.01" min="0" value="{{ $sessionPaymentData['delivery_fee'] ?? $order->delivery_fee ?? 0 }}"
                                    onchange="calculateTotal()"
@@ -255,7 +327,7 @@
                             </div>
                             <h3 class="text-sm font-medium text-gray-900 dark:text-white">Desconto</h3>
                         </div>
-                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm">
+                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label for="discount_type" class="block text-xs text-gray-600 dark:text-slate-400 mb-2">Tipo de Desconto</label>
@@ -299,7 +371,7 @@
                             <h3 class="text-sm font-medium text-gray-900 dark:text-white">Adicionar Pagamento</h3>
                         </div>
 
-                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm">
+                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
                             <!-- Formulário de Adicionar Pagamento -->
                             <div class="bg-white dark:bg-slate-800 rounded-md p-4 border border-gray-200 dark:border-slate-700 mb-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
@@ -336,7 +408,7 @@
                                         <span class="text-xl font-bold text-[#7c3aed] dark:text-purple-400" id="suggested-amount">R$ 0,00</span>
                                     </div>
                                     <button type="button" onclick="useSuggestedAmount()" style="color: white !important;" 
-                                            class="w-full mt-2 px-4 py-2 bg-[#7c3aed] text-white stay-white rounded-md text-sm font-semibold transition-all flex items-center justify-center gap-2 shadow-sm">
+                                            class="w-full mt-2 px-4 py-2 bg-[#7c3aed] text-white stay-white rounded-md text-sm font-semibold transition-all flex items-center justify-center gap-2">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                         </svg>
@@ -345,7 +417,7 @@
                                 </div>
 
                                 <button type="button" onclick="addPaymentMethod()" style="color: white !important;" 
-                                        class="w-full px-4 py-2.5 bg-[#7c3aed] text-white stay-white rounded-md transition-colors text-sm font-medium shadow-lg shadow-purple-500/20 dark:shadow-purple-600/20">
+                                        class="w-full px-4 py-2.5 bg-[#7c3aed] text-white stay-white rounded-md transition-colors text-sm font-medium">
                                     Adicionar Pagamento
                                 </button>
                             </div>
@@ -379,8 +451,9 @@
                             Voltar
                         </a>
                         <button type="submit" 
+                                id="payment-continue-btn"
                                 style="color: white !important;"
-                                class="px-6 py-2 bg-[#7c3aed] text-white stay-white text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:ring-offset-2 flex items-center shadow-lg shadow-purple-500/20 dark:shadow-purple-600/20 transition-all">
+                                class="px-6 py-2 bg-[#7c3aed] text-white stay-white text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:ring-offset-2 flex items-center transition-all">
                             Continuar
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -390,8 +463,7 @@
                 </form>
             </div>
         </div>
-    </div>
-</div>
+        </section>
 </div>
 </div>
 

@@ -1,11 +1,11 @@
 <!-- Modal SUB. TOTAL -->
 <div id="sublimation-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm overflow-y-auto">
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl max-w-2xl w-full border border-gray-200 dark:border-slate-700 my-8 max-h-[90vh] overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-xl max-w-2xl w-full border border-gray-200 dark:border-slate-700 my-8 max-h-[90vh] overflow-y-auto">
         <!-- Header -->
         <div class="px-6 py-4 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/40 sticky top-0 z-10">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
@@ -141,7 +141,7 @@
 
                             <div id="sub-image-preview-container" class="hidden relative w-full h-full p-2">
                                 <img id="sub-image-preview" class="w-full h-full object-contain rounded-md border border-gray-200 dark:border-slate-600">
-                                <button type="button" onclick="event.stopPropagation(); clearSublimationImage()" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-[10px] shadow-sm hover:bg-red-600 transition-transform hover:scale-110 z-10">
+                                <button type="button" onclick="event.stopPropagation(); clearSublimationImage()" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-[10px] hover:bg-red-600 transition-transform hover:scale-110 z-10">
                                     <i class="fa-solid fa-times"></i>
                                 </button>
                             </div>

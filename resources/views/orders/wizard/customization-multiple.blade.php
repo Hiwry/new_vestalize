@@ -1,41 +1,138 @@
+@push('styles')
+<style>
+    .ow-shell {
+        --sh-surface-from: #f3f4f8;
+        --sh-surface-to: #eceff4;
+        --sh-surface-border: #d8dce6;
+        --sh-text-primary: #0f172a;
+        --sh-text-secondary: #64748b;
+        --sh-card-bg: #ffffff;
+        --sh-card-border: #dde2ea;
+        --sh-card-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        --sh-accent: #7c3aed;
+        --sh-accent-strong: #6d28d9;
+        
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%);
+        border: 1px solid var(--sh-surface-border);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+        color: var(--sh-text-primary);
+    }
+
+    .dark .ow-shell {
+        --sh-surface-from: #0d1830;
+        --sh-surface-to: #0b1322;
+        --sh-surface-border: rgba(148, 163, 184, 0.16);
+        --sh-text-primary: #e5edf8;
+        --sh-text-secondary: #91a4c0;
+        --sh-card-bg: #10203a;
+        --sh-card-border: rgba(148, 163, 184, 0.12);
+        --sh-card-shadow: none;
+        --sh-input-bg: #162847;
+
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%) !important;
+        box-shadow: none !important;
+        border-color: var(--sh-surface-border) !important;
+    }
+
+
+    .dark.avento-theme .ow-card, .dark.avento-theme .ow-progress, .dark.avento-theme .ow-field-panel {
+        background-color: var(--sh-card-bg) !important;
+        box-shadow: none !important;
+    }
+
+    .dark.avento-theme .ow-shell input:not([type="color"]),
+    .dark.avento-theme .ow-shell select,
+    .dark.avento-theme .ow-shell textarea,
+    .dark.avento-theme .ow-btn-ghost,
+    .dark.avento-theme .ow-search-toggle,
+    .dark.avento-theme .ow-search-panel div[class*="dark:bg-slate-800"] {
+        background-color: var(--sh-input-bg) !important;
+        background: var(--sh-input-bg) !important;
+    }
+
+    .ow-card-header {
+        background: color-mix(in srgb, var(--sh-card-bg) 96%, var(--sh-accent) 4%) !important;
+        border-bottom: 1px solid var(--sh-card-border) !important;
+    }
+
+    .ow-step-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: var(--sh-accent);
+        color: #fff !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 800;
+        box-shadow: none !important;
+    }
+
+    .sh-title { font-size: 24px; line-height: 1.1; font-weight: 800; color: var(--sh-text-primary); }
+    .sh-subtitle { margin-top: 3px; font-size: 13px; font-weight: 600; color: var(--sh-text-secondary); }
+
+    .ow-progress-fill {
+        background: linear-gradient(90deg, var(--sh-accent), #a78bfa);
+        box-shadow: none !important;
+    }
+
+    /* Absolute Zero Shadow Kill - FINAL OVERRIDE */
+    html.dark.avento-theme .ow-shell,
+    html.dark.avento-theme .ow-shell *,
+    html.dark.avento-theme .ow-shell *::before,
+    html.dark.avento-theme .ow-shell *::after {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        filter: none !important;
+        -webkit-filter: none !important;
+        transition: none !important;
+    }
+</style>
+@endpush
+
 @extends('layouts.admin')
 
 @section('content')
-<div class="max-w-7xl mx-auto">
-    @php
-        $customizationAction = (Str::contains(request()->url(), '/pedidos/editar/') || request()->routeIs('orders.edit.*') || session()->has('edit_order_id'))
-            ? route('orders.edit.customization')
-            : route('orders.wizard.customization');
-    @endphp
-    
-        <!-- Progress Bar -->
-        <div class="mb-8">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-[#7c3aed] text-white stay-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">3</div>
-                    <div>
-                        <span class="text-lg font-bold text-gray-900 dark:text-white">Personalização</span>
-                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa 3 de 5</p>
-                    </div>
-                </div>
-                <div class="text-left sm:text-right">
-                    <div class="text-xs text-gray-500 dark:text-slate-400 font-medium">Progresso</div>
-                    <div class="text-2xl font-bold text-[#7c3aed] dark:text-[#a78bfa]">60%</div>
+@php
+    $customizationAction = (Str::contains(request()->url(), '/pedidos/editar/') || request()->routeIs('orders.edit.*') || session()->has('edit_order_id'))
+        ? route('orders.edit.customization')
+        : route('orders.wizard.customization');
+@endphp
+<div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6">
+    <section class="ow-shell">
+        <!-- Top Bar (Estilo Sales Hub) -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <span class="ow-step-badge">3</span>
+                <div>
+                    <h1 class="sh-title">Personalizações</h1>
+                    <p class="sh-subtitle">Etapa 3 de 5 • Configure as personalizações de cada item</p>
                 </div>
             </div>
-            <div class="w-full bg-white dark:bg-slate-800/80 rounded-full h-2.5 shadow-inner border border-gray-200 dark:border-slate-700">
-                <div class="bg-gradient-to-r from-[#7c3aed] to-[#7c3aed] dark:from-[#7c3aed] dark:to-[#7c3aed] h-2.5 rounded-full transition-all duration-500 ease-out shadow-lg shadow-[#7c3aed]/30 dark:shadow-[#7c3aed]/30" style="width: 60%"></div>
+            <div class="text-right hidden sm:block">
+                <div class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Passo Atual</div>
+                <div class="text-2xl font-black text-[#7c3aed]">60%</div>
             </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-slate-800">
+        <!-- Progress Widget -->
+        <div class="ow-progress p-4 mb-8">
+            <div class="w-full bg-gray-100 dark:bg-slate-800/50 rounded-full h-2">
+                <div class="ow-progress-fill h-2 rounded-full transition-all duration-700" style="width: 60%"></div>
+            </div>
+        </div>
+
+        <div class="ow-card overflow-hidden">
             
-            <!-- Header -->
-            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-gradient-to-r dark:from-slate-800/50 dark:to-slate-900/50">
+            <!-- Header (Simplified as we have the Top Bar now) -->
+            <div class="ow-card-header px-6 py-4">
                 <div class="flex items-center space-x-3">
                     <div class="flex items-center">
                         <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                             <div class="w-8 h-8 bg-[#7c3aed] rounded-lg flex items-center justify-center shadow-lg shadow-purple-200 dark:shadow-none border border-[#7c3aed]">
+                             <div class="w-8 h-8 bg-[#7c3aed] rounded-lg flex items-center justify-center border border-[#7c3aed]">
                                 <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                                 </svg>
@@ -53,7 +150,7 @@
                 <input type="hidden" name="action" value="save_order_art">
                 
                 <!-- Card do Formulário -->
-                <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm">
+                <div class="rounded-xl border border-gray-200 dark:border-slate-700 p-5 ow-field-panel">
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
                         
                         <!-- Nome da Arte -->
@@ -112,7 +209,7 @@
                         
                         <!-- Botão -->
                         <div class="lg:col-span-1">
-                            <button type="submit" class="w-full h-11 px-4 bg-[#7c3aed] text-white stay-white rounded-lg shadow-lg shadow-[#7c3aed]/25 hover:bg-[#6d28d9] hover:shadow-[#7c3aed]/40 transition-all font-semibold text-sm flex items-center justify-center gap-2">
+                            <button type="submit" class="w-full h-11 px-4 bg-[#7c3aed] text-white stay-white rounded-lg hover:bg-[#6d28d9] transition-all font-semibold text-sm flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
@@ -128,7 +225,7 @@
             <div class="p-6">
                 
                 @if(session('success'))
-                    <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 shadow-sm">
+                    <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                         <div class="flex items-center">
                             <svg class="w-5 h-5 text-green-600 dark:text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -139,7 +236,7 @@
                 @endif
 
                 @if(session('error'))
-                    <div class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 shadow-sm">
+                    <div class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                         <div class="flex items-center">
                             <svg class="w-5 h-5 text-red-600 dark:text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -154,7 +251,7 @@
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         <div class="bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/10 rounded-xl p-4 border border-blue-100 dark:border-blue-800/50">
                             <div class="flex items-center gap-3 mb-2">
-                                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/30">
+                                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                                     <i class="fa-solid fa-boxes-stacked text-white stay-white"></i>
                                 </div>
                                 <p class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Total de Itens</p>
@@ -163,7 +260,7 @@
                         </div>
                         <div class="bg-gradient-to-br from-violet-50 to-violet-100/50 dark:from-violet-900/20 dark:to-violet-800/10 rounded-xl p-4 border border-violet-100 dark:border-violet-800/50">
                             <div class="flex items-center gap-3 mb-2">
-                                <div class="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center shadow-lg shadow-violet-500/30">
+                                <div class="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center">
                                     <i class="fa-solid fa-tag text-white stay-white"></i>
                                 </div>
                                 <p class="text-xs font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wide">Total de Peças</p>
@@ -424,12 +521,12 @@
                 </div>
 
             </div>
-        </div>
-    </div>
+        </section>
+</div>
 
     <!-- Modal de Adicionar Personalização -->
     <div id="personalizationModal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-gray-200 dark:border-slate-700/50 animate-slideUp flex flex-col">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-gray-200 dark:border-slate-700/50 animate-slideUp flex flex-col">
             
             <!-- Modal Header com gradiente e ícone -->
             <div class="px-6 py-5 border-b border-gray-200 dark:border-slate-700/50 flex items-center justify-between sticky top-0 bg-white dark:bg-gradient-to-r dark:from-purple-600/20 dark:via-slate-900 dark:to-slate-900 z-10 backdrop-blur-sm">
@@ -472,7 +569,7 @@
                     
                     <div class="space-y-2" id="linkItemsCheckboxes">
                         @foreach($order->items as $item)
-                        <label class="flex items-center p-2.5 bg-white dark:bg-slate-800/50 border border-purple-200 dark:border-slate-700 rounded-lg hover:border-purple-400 dark:hover:border-purple-500/50 cursor-pointer transition-colors link-item-label shadow-sm" data-item-id="{{ $item->id }}">
+                        <label class="flex items-center p-2.5 bg-white dark:bg-slate-800/50 border border-purple-200 dark:border-slate-700 rounded-lg hover:border-purple-400 dark:hover:border-purple-500/50 cursor-pointer transition-colors link-item-label" data-item-id="{{ $item->id }}">
                             <input type="checkbox" name="linked_item_ids[]" value="{{ $item->id }}" 
                                    class="link-item-checkbox w-4 h-4 text-purple-600 dark:text-purple-500 border-gray-300 dark:border-slate-600 rounded focus:ring-purple-500 bg-white dark:bg-slate-700">
                             <div class="ml-3 flex-1">
@@ -710,7 +807,7 @@
                             Cancelar
                         </button>
                         <button type="submit" 
-                                class="px-6 py-2.5 text-sm bg-gradient-to-r from-[#7c3aed] to-[#7c3aed] hover:from-[#7c3aed] hover:to-[#7c3aed] text-white stay-white rounded-xl font-semibold transition-all shadow-lg shadow-purple-900/30 flex items-center gap-2">
+                                class="px-6 py-2.5 text-sm bg-gradient-to-r from-[#7c3aed] to-[#7c3aed] hover:from-[#7c3aed] hover:to-[#7c3aed] text-white stay-white rounded-xl font-semibold transition-all flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>

@@ -410,10 +410,12 @@
             
             document.getElementById('search-results').innerHTML = 
                 '<div class="p-3 bg-indigo-50 border border-indigo-200 rounded-md">' +
-                '<div class="flex items-center space-x-2">' +
-                '<svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' +
+                '<div class="flex items-start gap-2 sm:items-center">' +
+                '<div class="inline-flex w-8 h-8 shrink-0 items-center justify-center rounded-full bg-indigo-600 shadow-md shadow-indigo-600/20">' +
+                '<svg class="w-3.5 h-3.5 text-white stay-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">' +
+                '<path fill-rule="evenodd" clip-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 011.414-1.42l2.793 2.794 6.793-6.794a1 1 0 011.414 0Z"></path>' +
                 '</svg>' +
+                '</div>' +
                 '<p class="text-sm font-medium text-indigo-800">Cliente selecionado com sucesso!</p>' +
                 '</div>' +
                 '<p class="text-xs text-indigo-600 mt-1">Você pode editar os dados se necessário antes de continuar.</p>' +

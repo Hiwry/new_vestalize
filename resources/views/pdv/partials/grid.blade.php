@@ -1,142 +1,186 @@
-<div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6">
+<div id="products-grid" class="pdv-products-grid">
     @forelse($paginatedItems as $item)
         @if($type == 'products')
             @if($item instanceof \App\Models\Product)
-                {{-- Product Card --}}
-                <div class="group pdv-neo-card pdv-neo-card-hover rounded-xl md:rounded-2xl p-3 md:p-5 transition-all flex flex-col h-full">
-                    {{-- Product Image (if exists) --}}
-                    @php
-                        $productImage = $item->primary_image_url ?? ($item->image_path ? Storage::url($item->image_path) : null);
-                    @endphp
-                    @if($productImage)
-                    <div class="aspect-square rounded-lg overflow-hidden mb-2 md:mb-3 pdv-neo-input">
-                        <img src="{{ $productImage }}" alt="{{ $item->title }}" class="w-full h-full object-cover">
-                    </div>
-                    @endif
-                    
-                    <div class="flex-1 mb-2 md:mb-4">
-                        <h3 class="font-bold text-gray-900 dark:text-[var(--pdv-text-primary)] text-sm md:text-lg leading-tight mb-0.5 md:mb-1 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                            {{ $item->title }}
-                        </h3>
-                        <div class="mt-1 flex flex-wrap items-center gap-1.5">
-                            @if($item->category)
-                                <span class="hidden md:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium pdv-neo-input text-gray-800 dark:text-gray-300">
-                                    {{ $item->category->name }}
-                                </span>
-                            @endif
-                            @if($item->cut_type_id)
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-semibold bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                                    Cor + tamanho
-                                </span>
-                            @endif
-                        </div>
-                        
-                        <div class="mt-2 md:mt-4">
-                            @if($item->price)
-                                <p class="text-base md:text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-                                    R$ {{ number_format($item->price, 2, ',', '.') }}
-                                </p>
-                            @endif
+                @php
+                    $productImage = $item->primary_image_url ?? ($item->image_path ? Storage::url($item->image_path) : null);
+                @endphp
+
+                <div class="pdv-product-card">
+                    <div class="pdv-product-media">
+                        @if($productImage)
+                            <div class="pdv-product-thumb">
+                                <img src="{{ $productImage }}" alt="{{ $item->title }}">
+                            </div>
+                        @else
+                            <div class="pdv-product-thumb pdv-product-thumb-placeholder">
+                                <i class="fa-solid fa-shirt"></i>
+                            </div>
+                        @endif
+
+                        <div class="pdv-product-summary">
+                            <div class="pdv-product-head">
+                                <div class="min-w-0 flex-1">
+                                    <span class="pdv-product-label">Produto</span>
+                                    <h3 class="pdv-product-title line-clamp-2">{{ $item->title }}</h3>
+                                </div>
+                            </div>
+
+                            <div class="pdv-product-meta">
+                                @if($item->category)
+                                    <span class="pdv-chip">{{ $item->category->name }}</span>
+                                @endif
+                                @if($item->cut_type_id)
+                                    <span class="pdv-chip pdv-chip-accent">Cor + tamanho</span>
+                                @endif
+                            </div>
                         </div>
                     </div>
-                    
-                    <button onclick="openAddProductModal({{ $item->id }}, 'product')" 
-                            class="w-full py-2 md:py-2.5 bg-indigo-600 text-white rounded-lg md:rounded-xl hover:bg-indigo-700 transition-colors font-medium flex items-center justify-center gap-1 md:gap-2 text-sm"
-                            style="color: white !important;">
-                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: white !important;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                        </svg>
-                        <span class="hidden sm:inline" style="color: white !important;">Adicionar</span>
-                    </button>
+
+                    <div class="pdv-product-footer">
+                        <div>
+                            <p class="pdv-product-price-label">Preco</p>
+                            <p class="pdv-product-price">
+                                R$ {{ number_format($item->price ?? 0, 2, ',', '.') }}
+                            </p>
+                        </div>
+
+                        <button onclick="openAddProductModal({{ $item->id }}, 'product')"
+                                class="pdv-grid-action pdv-product-action py-3 rounded-xl font-semibold flex items-center justify-center gap-2 text-sm"
+                                style="color: white !important;">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: white !important;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            <span style="color: white !important;">Adicionar</span>
+                        </button>
+                    </div>
                 </div>
             @else
-                {{-- Product Option Card --}}
-                <div class="group pdv-neo-card pdv-neo-card-hover rounded-xl md:rounded-2xl p-3 md:p-5 transition-all flex flex-col h-full border-l-4 border-l-purple-500">
-                    <div class="flex-1 mb-2 md:mb-4">
-                        <h3 class="font-bold text-gray-900 dark:text-[var(--pdv-text-primary)] text-sm md:text-lg leading-tight mb-0.5 line-clamp-2">{{ $item->name }}</h3>
-                        <p class="text-xs text-purple-600 dark:text-purple-400 font-medium mb-2">Tipo de Corte</p>
-                        
-                        <p class="text-base md:text-2xl font-bold text-purple-600 dark:text-purple-400">
-                            R$ {{ number_format($item->price, 2, ',', '.') }}
-                        </p>
+                <div class="pdv-product-card">
+                    <div class="pdv-product-media">
+                        <div class="pdv-product-thumb pdv-product-thumb-placeholder">
+                            <i class="fa-solid fa-scissors"></i>
+                        </div>
+
+                        <div class="pdv-product-summary">
+                            <div class="pdv-product-head">
+                                <div class="min-w-0 flex-1">
+                                    <span class="pdv-product-label">Tipo de corte</span>
+                                    <h3 class="pdv-product-title line-clamp-2">{{ $item->name }}</h3>
+                                </div>
+                            </div>
+
+                            <div class="pdv-product-meta">
+                                <span class="pdv-chip pdv-chip-accent">Opcao</span>
+                            </div>
+                        </div>
                     </div>
-                    <button onclick="openAddProductModal({{ $item->id }}, 'product_option')" 
-                            class="w-full py-2 md:py-2.5 bg-purple-600 text-white rounded-lg md:rounded-xl hover:bg-purple-700 transition-colors font-medium flex items-center justify-center gap-1 md:gap-2 text-sm"
+
+                    <div class="pdv-product-footer">
+                        <div>
+                            <p class="pdv-product-price-label">Preco</p>
+                            <p class="pdv-product-price">R$ {{ number_format($item->price, 2, ',', '.') }}</p>
+                        </div>
+
+                        <button onclick="openAddProductModal({{ $item->id }}, 'product_option')"
+                                class="pdv-grid-action pdv-product-action py-3 rounded-xl font-semibold flex items-center justify-center gap-2 text-sm"
+                                style="color: white !important;">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: white !important;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            <span style="color: white !important;">Adicionar</span>
+                        </button>
+                    </div>
+                </div>
+            @endif
+        @else
+            <div class="pdv-product-card">
+                <div class="pdv-product-media">
+                    <div class="pdv-product-thumb pdv-product-thumb-placeholder">
+                        @if($type === 'fabric_pieces')
+                            <i class="fa-solid fa-ruler-combined"></i>
+                        @elseif($type === 'machines')
+                            <i class="fa-solid fa-gears"></i>
+                        @elseif($type === 'supplies')
+                            <i class="fa-solid fa-box-open"></i>
+                        @else
+                            <i class="fa-solid fa-shirt"></i>
+                        @endif
+                    </div>
+
+                    <div class="pdv-product-summary">
+                        <div class="pdv-product-head">
+                            <div class="min-w-0 flex-1">
+                                <span class="pdv-product-label">{{ $item->type_label ?? 'Item' }}</span>
+                                <h3 class="pdv-product-title line-clamp-2">{{ $item->title }}</h3>
+                            </div>
+                        </div>
+
+                        <div class="pdv-product-meta">
+                            @if(isset($item->stock_quantity))
+                                <span class="pdv-chip {{ $item->stock_quantity > 0 ? 'pdv-chip-success' : 'pdv-chip-danger' }}">
+                                    {{ $item->stock_label ?? $item->stock_quantity }}
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pdv-product-footer">
+                    <div>
+                        <p class="pdv-product-price-label">Preco</p>
+                        @if(isset($item->price) && $item->price > 0)
+                            <p class="pdv-product-price">R$ {{ number_format($item->price, 2, ',', '.') }}</p>
+                        @else
+                            <p class="text-sm text-gray-500 italic mt-1">Definir valor</p>
+                        @endif
+                    </div>
+
+                    <button onclick="openAddProductModal({{ $item->id }}, '{{ substr($type, 0, -1) }}')"
+                            class="pdv-grid-action pdv-product-action py-3 rounded-xl font-semibold flex items-center justify-center gap-2 text-sm"
                             style="color: white !important;">
-                        <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: white !important;">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: white !important;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
                         <span style="color: white !important;">Adicionar</span>
                     </button>
                 </div>
-            @endif
-        @else
-            {{-- Generic Stock Item Card --}}
-            <div class="group pdv-neo-card pdv-neo-card-hover rounded-xl md:rounded-2xl p-3 md:p-5 transition-all flex flex-col h-full">
-                <div class="flex-1 mb-2 md:mb-4">
-                    <div class="flex justify-between items-start gap-2">
-                        <div class="flex-1 min-w-0">
-                            <h3 class="font-bold text-gray-900 dark:text-[var(--pdv-text-primary)] text-sm md:text-lg leading-tight mb-0.5 line-clamp-2">{{ $item->title }}</h3>
-                            <p class="text-[10px] md:text-xs font-medium text-gray-500 dark:text-[var(--pdv-text-secondary)] uppercase tracking-wide">{{ $item->type_label ?? 'Item' }}</p>
-                        </div>
-                        @if(isset($item->stock_quantity))
-                            <span class="shrink-0 inline-flex items-center px-1.5 py-0.5 md:px-2 md:py-1 rounded-lg text-[10px] md:text-xs font-bold {{ $item->stock_quantity > 0 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' }}">
-                                {{ $item->stock_label ?? $item->stock_quantity }}
-                            </span>
-                        @endif
-                    </div>
-                    
-                    <div class="mt-2 md:mt-4">
-                        @if(isset($item->price) && $item->price > 0)
-                            <p class="text-base md:text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-                                R$ {{ number_format($item->price, 2, ',', '.') }}
-                            </p>
-                        @else
-                            <p class="text-xs text-gray-400 italic">Definir valor</p>
-                        @endif
-                    </div>
-                </div>
-                <button onclick="openAddProductModal({{ $item->id }}, '{{ substr($type, 0, -1) }}')" 
-                        class="w-full py-2 md:py-2.5 bg-indigo-600 text-white rounded-lg md:rounded-xl hover:bg-indigo-700 transition-colors font-medium flex items-center justify-center gap-1 md:gap-2 text-sm"
-                        style="color: white !important;">
-                    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: white !important;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                    <span class="hidden sm:inline" style="color: white !important;">Adicionar</span>
-                </button>
             </div>
         @endif
     @empty
-        <div class="col-span-full flex flex-col items-center justify-center py-12 md:py-16 text-center">
-            <div class="bg-gray-100 dark:bg-gray-800 p-3 md:p-4 rounded-full mb-3 md:mb-4">
-                <svg class="w-6 h-6 md:w-8 md:h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="col-span-full">
+            <div class="pdv-empty-state min-h-[280px]">
+                <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
+                <div>
+                    <h3 class="text-base md:text-lg font-semibold text-gray-900 dark:text-[var(--pdv-text-primary)]">Nenhum item encontrado</h3>
+                    <p class="text-gray-500 dark:text-[var(--pdv-text-secondary)] mt-1 text-sm">Tente ajustar sua busca ou trocar a categoria.</p>
+                </div>
             </div>
-            <h3 class="text-base md:text-lg font-medium text-gray-900 dark:text-[var(--pdv-text-primary)]">Nenhum item encontrado</h3>
-            <p class="text-gray-500 dark:text-[var(--pdv-text-secondary)] mt-1 text-sm">Tente outra busca.</p>
         </div>
     @endforelse
 </div>
 
-{{-- Pagination (Mobile optimized) --}}
-<div class="mt-6 md:mt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+<div class="pdv-pagination">
     <p class="text-xs md:text-sm text-gray-600 dark:text-[var(--pdv-text-secondary)]">
         {{ $paginatedItems->firstItem() ?? 0 }}-{{ $paginatedItems->lastItem() ?? 0 }} de {{ $paginatedItems->total() }}
     </p>
-    <div class="flex gap-2">
+
+    <div class="pdv-pagination-actions">
         @if($paginatedItems->previousPageUrl())
-            <a href="{{ $paginatedItems->previousPageUrl() }}&type={{ $type ?? 'products' }}&search={{ $search ?? '' }}" 
-               class="px-3 py-1.5 md:px-4 md:py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-xs md:text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
-                ← Ant.
-            </a>
+            <button type="button"
+               data-url="{{ $paginatedItems->previousPageUrl() }}"
+               class="pdv-pagination-btn">
+                &larr; Ant.
+            </button>
         @endif
         @if($paginatedItems->nextPageUrl())
-            <a href="{{ $paginatedItems->nextPageUrl() }}&type={{ $type ?? 'products' }}&search={{ $search ?? '' }}" 
-               class="px-3 py-1.5 md:px-4 md:py-2 bg-indigo-600 text-white rounded-lg text-xs md:text-sm font-medium hover:bg-indigo-700 transition-colors">
-                Próx. →
-            </a>
+            <button type="button"
+               data-url="{{ $paginatedItems->nextPageUrl() }}"
+               class="pdv-pagination-btn">
+                Prox. &rarr;
+            </button>
         @endif
     </div>
 </div>
-

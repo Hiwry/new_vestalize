@@ -56,14 +56,6 @@
                             <div class="product-card-category">{{ $piece->fabricType?->name ?? $piece->fabric?->name ?? 'Tecido' }}</div>
                         </div>
                         <div class="product-card-title">{{ $piece->display_name }}</div>
-                        <div style="font-size:12px;color:#64748b;line-height:1.4;margin-bottom:10px;">
-                            @if($piece->color?->name)
-                                <div>Cor: {{ $piece->color->name }}</div>
-                            @endif
-                            @if($piece->supplier)
-                                <div>Fornecedor: {{ $piece->supplier }}</div>
-                            @endif
-                        </div>
                         <div class="product-card-prices" style="margin-top:auto;">
                             <span class="product-price-retail" style="font-size:18px;color:#1e293b;">
                                 R$ {{ number_format($piece->sale_price, 2, ',', '.') }}

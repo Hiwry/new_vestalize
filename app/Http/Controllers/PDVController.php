@@ -39,6 +39,14 @@ class PDVController extends Controller
         $user = Auth::user();
         $search = $request->get('search');
         $type = $request->get('type', 'products');
+        $typeLabels = [
+            'products' => 'Produtos',
+            'fabric_pieces' => 'Tecidos',
+            'machines' => 'Maquinas',
+            'supplies' => 'Suprimentos',
+            'uniforms' => 'Uniformes',
+        ];
+        $currentTypeLabel = $typeLabels[$type] ?? 'Produtos';
         
         $type = $request->get('type', 'products');
         
@@ -321,15 +329,20 @@ class PDVController extends Controller
         })->values();
 
         if ($request->ajax()) {
-            $html = view('pdv.partials.grid', compact(
+            $html = view('pdv.partials.catalog', compact(
                 'paginatedItems',
                 'type',
-                'jsItems'
+                'jsItems',
+                'search',
+                'currentTypeLabel'
             ))->render();
 
             return response()->json([
                 'html' => $html,
-                'jsItems' => $jsItems
+                'jsItems' => $jsItems,
+                'currentTypeLabel' => $currentTypeLabel,
+                'type' => $type,
+                'search' => $search,
             ]);
         }
 
@@ -346,7 +359,8 @@ class PDVController extends Controller
             'colors',
             'currentStoreId',
             'search',
-            'jsItems'
+            'jsItems',
+            'currentTypeLabel'
         ));
     }
 

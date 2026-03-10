@@ -1,4 +1,4 @@
-<div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl dark:shadow-2xl dark:shadow-black/20 border border-gray-200 dark:border-slate-800 sticky top-6">
+<div class="rounded-xl border border-gray-200 dark:border-slate-800 sticky top-6 ow-card">
     <div class="px-5 py-4 border-b border-gray-200 dark:border-slate-800">
         <h2 class="text-lg font-bold text-gray-900 dark:text-white">Itens do Pedido</h2>
         <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">{{ $order->items->count() }} item(s)</p>

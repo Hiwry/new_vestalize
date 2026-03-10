@@ -1,47 +1,109 @@
-@extends('layouts.admin')
+@push('styles')
+<style>
+    .ow-shell {
+        --sh-surface-from: #f3f4f8;
+        --sh-surface-to: #eceff4;
+        --sh-surface-border: #d8dce6;
+        --sh-text-primary: #0f172a;
+        --sh-text-secondary: #64748b;
+        --sh-card-bg: #ffffff;
+        --sh-card-border: #dde2ea;
+        --sh-card-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        --sh-accent: #7c3aed;
+        --sh-accent-strong: #6d28d9;
+        
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%);
+        border: 1px solid var(--sh-surface-border);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+        color: var(--sh-text-primary);
+    }
+
+    .dark.avento-theme .ow-shell {
+        --sh-surface-from: #0d1830;
+        --sh-surface-to: #0b1322;
+        --sh-surface-border: rgba(148, 163, 184, 0.16);
+        --sh-text-primary: #e5edf8;
+        --sh-text-secondary: #91a4c0;
+        --sh-card-bg: #10203a;
+        --sh-card-border: rgba(148, 163, 184, 0.12);
+        --sh-card-shadow: none;
+        --sh-input-bg: #162847;
+
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%) !important;
+        box-shadow: none !important;
+        border-color: var(--sh-surface-border) !important;
+    }
+
+    .dark.avento-theme .ow-shell input:not([type="color"]),
+    .dark.avento-theme .ow-shell select,
+    .dark.avento-theme .ow-shell textarea,
+    .dark.avento-theme .ow-btn-ghost,
+    .dark.avento-theme .ow-search-toggle,
+    .dark.avento-theme .ow-search-panel div[class*="dark:bg-slate-800"] {
+        background-color: var(--sh-input-bg) !important;
+        background: var(--sh-input-bg) !important;
+    }
+
+
+    .dark .ow-card, .dark .ow-progress, .dark .ow-field-panel {
+        background-color: var(--sh-card-bg) !important;
+        box-shadow: none !important;
+    }
+
+    .sh-title { font-size: 24px; line-height: 1.1; font-weight: 800; color: var(--sh-text-primary); }
+    .sh-subtitle { margin-top: 3px; font-size: 13px; font-weight: 600; color: var(--sh-text-secondary); }
+
+    .ow-progress-fill {
+        background: linear-gradient(90deg, var(--sh-accent), #a78bfa);
+        box-shadow: none !important;
+    }
+
+    /* Absolute Zero Shadow Kill - FINAL OVERRIDE */
+    html.dark.avento-theme .ow-shell,
+    html.dark.avento-theme .ow-shell *,
+    html.dark.avento-theme .ow-shell *::before,
+    html.dark.avento-theme .ow-shell *::after {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        filter: none !important;
+        -webkit-filter: none !important;
+        transition: none !important;
+    }
+</style>
+@endpush
 
 @section('content')
-<div class="py-6 bg-[#f6f7fb] dark:bg-[#0b0f1a] min-h-screen">
-    <div class="max-w-7xl mx-auto px-4">
-        
-        <!-- Header com cliente -->
-        <div class="flex items-center justify-between mb-6">
+<div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6">
+    <section class="ow-shell">
+        <!-- Top Bar (Estilo Sales Hub) -->
+        <div class="flex items-center justify-between mb-8">
             <div class="flex items-center gap-4">
-                <a href="{{ route('orders.wizard.personalization-type') }}"
-                   class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-sm font-semibold text-gray-700 dark:text-white hover:border-[#7c3aed] hover:text-[#7c3aed] dark:hover:text-[#7c3aed] transition shadow-sm">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                    Voltar
-                </a>
+                <span class="ow-step-badge">2</span>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Sublimação Local</h1>
-                    <p class="text-gray-500 dark:text-gray-400 text-sm">Selecione os produtos para o pedido</p>
+                    <h1 class="sh-title">Sublimação Local</h1>
+                    <p class="sh-subtitle">Etapa 2 de 5 • Selecione os produtos para o pedido</p>
                 </div>
             </div>
-            @if(session('wizard.client'))
-            <div class="bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 flex items-center gap-3">
-                <div class="w-10 h-10 bg-[#7c3aed] rounded-full flex items-center justify-center text-white font-bold">
-                    {{ substr(session('wizard.client.name'), 0, 1) }}
-                </div>
-                <div>
-                    <p class="text-gray-900 dark:text-white font-medium text-sm">{{ session('wizard.client.name') }}</p>
-                    <p class="text-gray-500 dark:text-gray-400 text-xs">{{ session('wizard.client.phone_primary') ?? 'Sem telefone' }}</p>
-                </div>
+            <div class="text-right hidden sm:block">
+                <div class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Passo Atual</div>
+                <div class="text-2xl font-black text-[#7c3aed]">50%</div>
             </div>
-            @endif
         </div>
 
-        <!-- Barra de Progresso -->
-        <div class="bg-gray-200 dark:bg-gray-800 rounded-full h-2 mb-8">
-            <div class="bg-gradient-to-r from-[#7c3aed] to-purple-500 h-2 rounded-full transition-all" style="width: 50%"></div>
+        <!-- Progress Widget -->
+        <div class="ow-progress p-4 mb-8">
+            <div class="w-full bg-gray-100 dark:bg-slate-800/50 rounded-full h-2">
+                <div class="ow-progress-fill h-2 rounded-full transition-all duration-700" style="width: 50%"></div>
+            </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-900/80 rounded-3xl p-4 md:p-6 shadow-xl shadow-black/5 dark:shadow-black/40 border border-gray-100 dark:border-slate-800">
+        <div class="ow-card p-6">
             <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6 items-start">
                 <div class="space-y-6">
                     <!-- Search Bar -->
-                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-lg shadow-black/5 dark:shadow-black/30 border border-gray-200 dark:border-slate-800">
+                    <div class="rounded-2xl p-4 border border-gray-200 dark:border-slate-800 ow-field-panel">
                         <div class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-100 mb-3">
                             <i class="fa-solid fa-magnifying-glass text-[#7c3aed]"></i>
                             Buscar Produto
@@ -56,25 +118,25 @@
                     </div>
 
                     <!-- Categorias -->
-                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-lg shadow-black/5 dark:shadow-black/30 border border-gray-200 dark:border-slate-800">
+                    <div class="rounded-2xl p-4 border border-gray-200 dark:border-slate-800 ow-field-panel">
                         <div class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-100 mb-3">
                             <i class="fa-solid fa-list text-[#7c3aed]"></i>
                             Categorias
                         </div>
                         <div class="flex flex-wrap gap-2.5">
-                            <button class="category-btn active flex items-center gap-3 px-4 h-11 rounded-2xl bg-gradient-to-r from-[#7c3aed] to-purple-500 text-white font-semibold shadow-lg whitespace-nowrap transition text-sm md:text-base border border-transparent" data-category="all">
+                            <button class="category-btn active flex items-center gap-3 px-4 h-11 rounded-2xl bg-[#7c3aed] text-white font-semibold whitespace-nowrap transition text-sm md:text-base border border-transparent" data-category="all">
                                 <i class="fa-solid fa-cart-shopping text-sm"></i> Todos
                             </button>
-                            <button class="category-btn flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-200 font-semibold whitespace-nowrap transition text-sm md:text-base border border-gray-200 dark:border-slate-700 shadow-sm" data-category="vestuario">
+                            <button class="category-btn flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-200 font-semibold whitespace-nowrap transition text-sm md:text-base border border-gray-200 dark:border-slate-700" data-category="vestuario">
                                 <i class="fa-solid fa-shirt text-sm text-gray-500 dark:text-gray-300"></i> Vestuário
                             </button>
-                            <button class="category-btn flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-200 font-semibold whitespace-nowrap transition text-sm md:text-base border border-gray-200 dark:border-slate-700 shadow-sm" data-category="canecas">
+                            <button class="category-btn flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-200 font-semibold whitespace-nowrap transition text-sm md:text-base border border-gray-200 dark:border-slate-700" data-category="canecas">
                                 <i class="fa-solid fa-mug-hot text-sm text-gray-500 dark:text-gray-300"></i> Canecas
                             </button>
-                            <button class="category-btn flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-200 font-semibold whitespace-nowrap transition text-sm md:text-base border border-gray-200 dark:border-slate-700 shadow-sm" data-category="acessorios">
+                            <button class="category-btn flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-200 font-semibold whitespace-nowrap transition text-sm md:text-base border border-gray-200 dark:border-slate-700" data-category="acessorios">
                                 <i class="fa-solid fa-gem text-sm text-gray-500 dark:text-gray-300"></i> Acessórios
                             </button>
-                            <button class="category-btn flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-200 font-semibold whitespace-nowrap transition text-sm md:text-base border border-gray-200 dark:border-slate-700 shadow-sm" data-category="diversos">
+                            <button class="category-btn flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-200 font-semibold whitespace-nowrap transition text-sm md:text-base border border-gray-200 dark:border-slate-700" data-category="diversos">
                                 <i class="fa-solid fa-shapes text-sm text-gray-500 dark:text-gray-300"></i> Diversos
                             </button>
                         </div>
@@ -95,7 +157,7 @@
 
                 {{-- Carrinho Lateral (Desktop Only) --}}
                 <div class="hidden lg:block">
-                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sticky top-6 shadow-lg shadow-black/10 dark:shadow-black/40 border border-gray-200 dark:border-slate-800">
+                    <div class="rounded-2xl p-5 sticky top-6 border border-gray-200 dark:border-slate-800 ow-field-panel">
                         <h2 class="text-gray-900 dark:text-white font-bold text-xl mb-4 flex items-center gap-2">
                             <svg class="w-6 h-6 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -127,15 +189,16 @@
 
                         {{-- Botão Continuar --}}
                         <button id="btn-continue" disabled style="color: white !important;" 
-                                class="w-full mt-6 bg-gradient-to-r from-[#7c3aed] to-purple-500 text-white font-bold py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30">
+                                class="w-full mt-6 bg-gradient-to-r from-[#7c3aed] to-purple-500 text-white font-bold py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                             Continuar
                         </button>
                     </div>
                 </div>
-            </div>
         </div>
+    </section>
+</div>
 {{-- Mobile Cart Sticky Footer --}}
-        <div class="lg:hidden fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-3 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <div class="lg:hidden fixed bottom-16 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-3 z-40">
             <div class="flex items-center justify-between gap-3">
                 <div class="flex-1">
                     <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
@@ -158,7 +221,7 @@
 
 <!-- Modal de Quantidade -->
 <div id="quantity-modal" class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full mx-4 transform scale-95 opacity-0 transition-all shadow-2xl border border-gray-200 dark:border-gray-700" id="modal-content">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full mx-4 transform scale-95 opacity-0 transition-all border border-gray-200 dark:border-gray-700" id="modal-content">
         <div class="text-center mb-6">
             <div id="modal-icon" class="w-20 h-20 mx-auto mb-4 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center border border-purple-200 dark:border-purple-800">
                 <!-- Icon inserted via JS -->
@@ -199,10 +262,10 @@
         <div class="mb-6">
             <label class="text-gray-600 dark:text-gray-400 text-sm block mb-3 text-center">Quantidade</label>
             <div class="flex items-center justify-center gap-4">
-                <button id="btn-decrease" class="w-10 h-10 bg-[#7c3aed] hover:bg-purple-700 text-white rounded-full flex items-center justify-center text-xl font-bold transition shadow-lg shadow-purple-500/20">-</button>
+                <button id="btn-decrease" class="w-10 h-10 bg-[#7c3aed] hover:bg-purple-700 text-white rounded-full flex items-center justify-center text-xl font-bold transition">-</button>
                 <input type="number" id="modal-quantity" value="1" min="1" max="999" 
                        class="w-16 h-12 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-center text-xl font-bold rounded-xl border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] p-0">
-                <button id="btn-increase" class="w-10 h-10 bg-[#7c3aed] hover:bg-purple-700 text-white rounded-full flex items-center justify-center text-xl font-bold transition shadow-lg shadow-purple-500/20">+</button>
+                <button id="btn-increase" class="w-10 h-10 bg-[#7c3aed] hover:bg-purple-700 text-white rounded-full flex items-center justify-center text-xl font-bold transition">+</button>
             </div>
         </div>
 
@@ -217,7 +280,7 @@
                 Cancelar
             </button>
             <button id="btn-add-to-cart" style="color: white !important;" 
-                    class="flex-1 py-3 bg-[#7c3aed] text-white rounded-xl font-semibold transition shadow-lg shadow-purple-500/20">
+                    class="flex-1 py-3 bg-[#7c3aed] text-white rounded-xl font-semibold transition">
                 Adicionar
             </button>
         </div>

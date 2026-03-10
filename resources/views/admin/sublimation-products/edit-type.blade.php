@@ -236,9 +236,9 @@
 
 @push('scripts')
 <script>
-    let rowIndex = {{ $prices->count() }};
+    window.rowIndex = {{ $prices->count() }};
 
-    function addRow() {
+    window.addRow = function addRow() {
         const emptyRow = document.getElementById('empty-row');
         if (emptyRow) emptyRow.remove();
 
@@ -248,17 +248,17 @@
         row.innerHTML = `
             <td class="py-2 px-4 border border-gray-200 dark:border-gray-600">
                 <div class="flex items-center gap-2">
-                    <input type="number" name="prices[${rowIndex}][quantity_from]" 
+                    <input type="number" name="prices[${window.rowIndex}][quantity_from]" 
                            min="1" required placeholder="De"
                            class="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-center">
                     <span class="text-gray-400">-</span>
-                    <input type="number" name="prices[${rowIndex}][quantity_to]" 
+                    <input type="number" name="prices[${window.rowIndex}][quantity_to]" 
                            min="1" placeholder="∞"
                            class="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-center">
                 </div>
             </td>
             <td class="py-2 px-4 border border-gray-200 dark:border-gray-600">
-                <input type="number" name="prices[${rowIndex}][price]" 
+                <input type="number" name="prices[${window.rowIndex}][price]" 
                        step="0.01" min="0" required placeholder="0,00"
                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-right font-bold text-green-600 dark:text-green-400">
             </td>
@@ -271,11 +271,11 @@
             </td>
         `;
         tbody.appendChild(row);
-        rowIndex++;
+        window.rowIndex++;
         row.querySelector('input').focus();
     }
 
-    function removeRow(btn) {
+    window.removeRow = function removeRow(btn) {
         if (confirm('Remover esta faixa?')) {
             btn.closest('tr').remove();
         }

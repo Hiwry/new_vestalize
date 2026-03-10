@@ -65,13 +65,13 @@
             if (resultsDiv) {
                 resultsDiv.innerHTML =
                     '<div class="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-900/20 dark:to-emerald-900/10 border-2 border-emerald-200 dark:border-emerald-800/30 rounded-xl shadow-sm">' +
-                    '<div class="flex items-center space-x-3">' +
-                    '<div class="w-10 h-10 bg-emerald-600 dark:bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-600/20">' +
-                    '<svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' +
+                    '<div class="flex items-start gap-3 sm:items-center">' +
+                    '<div class="inline-flex w-10 h-10 shrink-0 items-center justify-center rounded-full bg-emerald-600 shadow-lg shadow-emerald-600/20 dark:bg-emerald-500">' +
+                    '<svg class="w-4 h-4 text-white stay-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">' +
+                    '<path fill-rule="evenodd" clip-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 011.414-1.42l2.793 2.794 6.793-6.794a1 1 0 011.414 0Z"></path>' +
                     '</svg>' +
                     '</div>' +
-                    '<div class="flex-1">' +
+                    '<div class="flex-1 min-w-0">' +
                     '<p class="text-sm font-bold text-gray-900 dark:text-white">Cliente selecionado com sucesso!</p>' +
                     '<p class="text-xs text-gray-600 dark:text-slate-400 mt-0.5">Voc&ecirc; pode editar os dados se necess&aacute;rio antes de continuar.</p>' +
                     '</div>' +

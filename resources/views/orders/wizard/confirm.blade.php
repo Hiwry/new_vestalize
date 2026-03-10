@@ -1,22 +1,122 @@
-@extends('layouts.admin')
+@push('styles')
+<style>
+    .ow-shell {
+        --sh-surface-from: #f3f4f8;
+        --sh-surface-to: #eceff4;
+        --sh-surface-border: #d8dce6;
+        --sh-text-primary: #0f172a;
+        --sh-text-secondary: #64748b;
+        --sh-card-bg: #ffffff;
+        --sh-card-border: #dde2ea;
+        --sh-card-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        --sh-accent: #7c3aed;
+        --sh-accent-strong: #6d28d9;
+        
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%);
+        border: 1px solid var(--sh-surface-border);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+        color: var(--sh-text-primary);
+    }
+
+    .dark .ow-shell {
+        --sh-surface-from: #0d1830;
+        --sh-surface-to: #0b1322;
+        --sh-surface-border: rgba(148, 163, 184, 0.16);
+        --sh-text-primary: #e5edf8;
+        --sh-text-secondary: #91a4c0;
+        --sh-card-bg: #10203a;
+        --sh-card-border: rgba(148, 163, 184, 0.12);
+        --sh-card-shadow: none;
+        --sh-input-bg: #162847;
+
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%) !important;
+        box-shadow: none !important;
+        border-color: var(--sh-surface-border) !important;
+    }
+
+
+    .dark.avento-theme .ow-card, .dark.avento-theme .ow-progress, .dark.avento-theme .ow-field-panel {
+        background-color: var(--sh-card-bg) !important;
+        box-shadow: none !important;
+    }
+
+    .dark.avento-theme .ow-shell input:not([type="color"]),
+    .dark.avento-theme .ow-shell select,
+    .dark.avento-theme .ow-shell textarea,
+    .dark.avento-theme .ow-btn-ghost,
+    .dark.avento-theme .ow-search-toggle,
+    .dark.avento-theme .ow-search-panel div[class*="dark:bg-slate-800"] {
+        background-color: var(--sh-input-bg) !important;
+        background: var(--sh-input-bg) !important;
+    }
+
+    .ow-card-header {
+        background: color-mix(in srgb, var(--sh-card-bg) 96%, var(--sh-accent) 4%) !important;
+        border-bottom: 1px solid var(--sh-card-border) !important;
+    }
+
+    .ow-step-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: var(--sh-accent);
+        color: #fff !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 800;
+        box-shadow: none !important;
+    }
+
+    .sh-title { font-size: 24px; line-height: 1.1; font-weight: 800; color: var(--sh-text-primary); }
+    .sh-subtitle { margin-top: 3px; font-size: 13px; font-weight: 600; color: var(--sh-text-secondary); }
+
+    .ow-progress-fill {
+        background: linear-gradient(90deg, var(--sh-accent), #a78bfa);
+        box-shadow: none !important;
+    }
+
+    /* Absolute Zero Shadow Kill - FINAL OVERRIDE */
+    html.dark.avento-theme .ow-shell,
+    html.dark.avento-theme .ow-shell *,
+    html.dark.avento-theme .ow-shell *::before,
+    html.dark.avento-theme .ow-shell *::after {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        filter: none !important;
+        -webkit-filter: none !important;
+        transition: none !important;
+    }
+</style>
+@endpush
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 py-6">
-    <!-- Header Minimalista -->
-    <div class="mb-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Confirmação do Pedido</h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Revise os detalhes antes de confirmar</p>
+<div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6">
+    <section class="ow-shell">
+        <!-- Top Bar (Estilo Sales Hub) -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <span class="ow-step-badge">5</span>
+                <div>
+                    <h1 class="sh-title">Confirmação do Pedido</h1>
+                    <p class="sh-subtitle">Etapa 5 de 5 • Revise os detalhes antes de finalizar</p>
+                </div>
             </div>
-            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-[#7c3aed] dark:text-purple-400 text-sm font-medium rounded-full">
-                Pedido #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
-            </span>
+            <div class="text-right hidden sm:block">
+                <div class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Passo Atual</div>
+                <div class="text-2xl font-black text-[#7c3aed]">100%</div>
+            </div>
         </div>
-        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1 mt-4">
-            <div class="bg-[#7c3aed] h-1 rounded-full w-full"></div>
+
+        <!-- Progress Widget -->
+        <div class="ow-progress p-4 mb-8">
+            <div class="w-full bg-gray-100 dark:bg-slate-800/50 rounded-full h-2">
+                <div class="ow-progress-fill h-2 rounded-full transition-all duration-700" style="width: 100%"></div>
+            </div>
         </div>
-    </div>
 
     @if(session('success'))
     <div class="mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
@@ -35,7 +135,7 @@
         <div class="lg:col-span-2 space-y-4">
             
             <!-- Cliente -->
-            <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm">
+            <div class="rounded-xl border border-gray-200 dark:border-slate-700 p-4 ow-field-panel">
                 <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Cliente</h2>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                     <div>
@@ -56,7 +156,7 @@
             </div>
 
             <!-- Itens do Pedido -->
-            <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm">
+            <div class="rounded-xl border border-gray-200 dark:border-slate-700 p-4 ow-field-panel">
                 <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Itens do Pedido</h2>
                 
                 <div class="space-y-3">
@@ -70,7 +170,7 @@
                         $personalizacaoSubtotal = $item->sublimations->sum('final_price');
                         $itemTotal = ($item->unit_price * $item->quantity) + $personalizacaoSubtotal;
                     @endphp
-                    <div class="border border-gray-100 dark:border-slate-700/50 bg-gray-50/30 dark:bg-slate-800/20 rounded-xl p-4">
+                    <div class="border border-gray-100 dark:border-slate-700/50 rounded-xl p-4 ow-field-panel">
                         <div class="flex items-center justify-between mb-3">
                             <span class="text-xs font-semibold text-[#7c3aed] dark:text-purple-400">ITEM {{ $index + 1 }}</span>
                             <span class="text-lg font-bold text-gray-900 dark:text-white">R$ {{ number_format($itemTotal, 2, ',', '.') }}</span>
@@ -246,13 +346,13 @@
                 </form>
             </div>
         </div>
-    </div>
+        </section>
 </div>
 
 <!-- Modal de Confirmação -->
 <div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/50" onclick="closeConfirmModal()"></div>
-    <div class="relative bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6 shadow-xl">
+    <div class="relative bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6">
         <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Confirmar Pedido?</h3>
         <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">O pedido será enviado para produção.</p>
         <div class="flex gap-3">

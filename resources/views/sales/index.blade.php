@@ -74,21 +74,29 @@
         background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%);
         border: 1px solid var(--sh-surface-border);
         border-radius: 20px;
-        padding: 20px;
+        padding: 24px;
         box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
         color: var(--sh-text-primary);
     }
 
     .dark .sales-hub {
-        --sh-surface-from: #0f172a;
+        --sh-surface-from: #0d1830;
         --sh-surface-to: #0b1322;
-        --sh-surface-border: rgba(148, 163, 184, 0.25);
-        --sh-text-primary: #e2e8f0;
-        --sh-text-secondary: #94a3b8;
-        --sh-card-bg: #111827;
-        --sh-card-border: rgba(148, 163, 184, 0.22);
-        --sh-card-shadow: 0 18px 38px rgba(2, 6, 23, 0.55);
-        box-shadow: 0 18px 38px rgba(2, 6, 23, 0.55);
+        --sh-surface-border: rgba(148, 163, 184, 0.16);
+        --sh-text-primary: #e5edf8;
+        --sh-text-secondary: #91a4c0;
+        --sh-card-bg: #10203a;
+        --sh-card-border: rgba(148, 163, 184, 0.12);
+        --sh-card-shadow: 0 18px 30px rgba(2, 6, 23, 0.14);
+        box-shadow: 0 18px 30px rgba(2, 6, 23, 0.14);
+        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%) !important;
+    }
+
+    .dark .sales-hub .sh-card,
+    .dark .sales-hub .sh-intro {
+        background-color: var(--sh-card-bg) !important;
+        border-color: var(--sh-card-border) !important;
+        box-shadow: var(--sh-card-shadow) !important;
     }
 
     .sh-topbar {
