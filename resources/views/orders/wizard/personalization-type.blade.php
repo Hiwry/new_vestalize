@@ -93,29 +93,30 @@
     }
     
     .personalization-option.selected {
-        border-color: var(--sh-accent) !important;
-        background-color: color-mix(in srgb, var(--sh-accent) 5%, var(--sh-card-bg)) !important;
+        border-color: #7c3aed !important;
+        background-color: rgba(124, 58, 237, 0.08) !important;
         transform: translateY(-2px);
     }
 
     .selected-badge {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        background: var(--sh-accent);
-        color: white;
-        font-size: 10px;
-        font-weight: 800;
-        padding: 4px 10px;
-        border-radius: 20px;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        display: none;
-        z-index: 10;
+        position: absolute !important;
+        top: 12px !important;
+        right: 12px !important;
+        background-color: #7c3aed !important;
+        color: white !important;
+        font-size: 10px !important;
+        font-weight: 800 !important;
+        padding: 4px 10px !important;
+        border-radius: 20px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        display: none !important;
+        z-index: 50 !important;
+        line-height: 1 !important;
     }
 
     .personalization-option.selected .selected-badge {
-        display: block;
+        display: block !important;
     }
     
     .dark .personalization-option {
