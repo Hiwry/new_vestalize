@@ -228,7 +228,7 @@
                                     $qty = (int)$qty;
                                 @endphp
                                 @if($qty > 0)
-                                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium rounded">
+                                <span class="px-3 py-1 bg-white dark:bg-[var(--sh-input-bg)] text-gray-700 dark:text-gray-300 text-[11px] font-black rounded-lg border border-gray-200 dark:border-slate-700/50 shadow-sm uppercase">
                                     {{ $size }}: {{ $qty }}
                                 </span>
                                 @endif
@@ -327,11 +327,11 @@
                 <form method="POST" action="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.finalize') : route('orders.wizard.finalize') }}" id="finalize-form" class="mt-6" enctype="multipart/form-data">
                     @csrf
                     
-                    <label class="flex items-center gap-3 p-3 bg-[var(--sh-input-bg)] dark:bg-slate-700/50 rounded-lg cursor-pointer mb-4 border border-[var(--sh-card-border)]">
-                        <input type="checkbox" name="is_event" value="1" {{ old('is_event', ($order->is_event ?? false)) ? 'checked' : '' }} class="w-4 h-4 text-[#7c3aed] rounded">
+                    <label class="flex items-center gap-3 p-3 bg-purple-500/5 dark:bg-purple-500/10 rounded-full cursor-pointer mb-4 border border-purple-200/30 dark:border-purple-500/20 transition-all hover:bg-purple-500/10 dark:hover:bg-purple-500/20">
+                        <input type="checkbox" name="is_event" value="1" {{ old('is_event', ($order->is_event ?? false)) ? 'checked' : '' }} class="w-4 h-4 text-[#7c3aed] rounded-full border-purple-300">
                         <div>
-                            <span class="text-sm font-bold text-gray-900 dark:text-white block">Prioridade Evento</span>
-                            <span class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-semibold">Produção acelerada</span>
+                            <span class="text-xs font-black text-gray-900 dark:text-white block uppercase tracking-tight">Prioridade Evento</span>
+                            <span class="text-[9px] text-purple-600 dark:text-purple-400 uppercase font-black tracking-widest">Produção acelerada</span>
                         </div>
                     </label>
 
