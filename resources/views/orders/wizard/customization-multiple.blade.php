@@ -236,6 +236,290 @@
         background: color-mix(in srgb, var(--sh-card-bg) 97%, var(--sh-accent) 3%);
     }
 
+    #personalizationModal {
+        background: linear-gradient(180deg, rgba(8, 15, 31, 0.62) 0%, rgba(5, 10, 22, 0.84) 100%) !important;
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+    }
+
+    .dark.avento-theme #personalizationModal {
+        background:
+            radial-gradient(circle at top right, rgba(124, 58, 237, 0.22), transparent 34%),
+            radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 28%),
+            rgba(5, 10, 22, 0.82) !important;
+    }
+
+    .pm-panel {
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 82%, var(--sh-surface-from) 18%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 90%, var(--sh-surface-to) 10%) 100%) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 78%, #60a5fa 22%) !important;
+        border-radius: 28px !important;
+        box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18) !important;
+    }
+
+    .dark.avento-theme .pm-panel {
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 80%, #1d4ed8 20%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 92%, var(--sh-surface-to) 8%) 100%) !important;
+        box-shadow: none !important;
+    }
+
+    .pm-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        padding: 1.5rem 1.75rem;
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 88%, var(--sh-accent) 12%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 96%, var(--sh-input-bg, #162847) 4%) 100%) !important;
+        border-bottom: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+    }
+
+    .pm-icon {
+        width: 3.5rem;
+        height: 3.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 1.1rem;
+        background: linear-gradient(135deg, var(--sh-accent) 0%, #8b5cf6 100%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .pm-close {
+        width: 2.75rem;
+        height: 2.75rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--sh-card-bg) 84%, var(--sh-input-bg, #162847) 16%) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        color: var(--sh-text-secondary) !important;
+    }
+
+    .pm-close:hover {
+        background: color-mix(in srgb, var(--sh-card-bg) 74%, var(--sh-accent) 26%) !important;
+        color: var(--sh-text-primary) !important;
+    }
+
+    #personalizationModal #modalTitle {
+        color: var(--sh-text-primary) !important;
+        font-size: 1.7rem;
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+    }
+
+    #personalizationModal #modalSubtitle {
+        color: var(--sh-text-secondary) !important;
+        font-size: 0.95rem;
+    }
+
+    .pm-body {
+        padding: 1.5rem 1.75rem 1.75rem;
+        background: transparent !important;
+    }
+
+    #personalizationModal select,
+    #personalizationModal input:not([type="checkbox"]):not([type="file"]):not([type="hidden"]),
+    #personalizationModal textarea {
+        min-height: 3.25rem;
+        border-radius: 1rem !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 78%, #60a5fa 22%) !important;
+        background: var(--sh-input-bg, #162847) !important;
+        color: var(--sh-text-primary) !important;
+        box-shadow: none !important;
+    }
+
+    #personalizationModal textarea {
+        min-height: unset;
+    }
+
+    #personalizationModal input::placeholder,
+    #personalizationModal textarea::placeholder {
+        color: color-mix(in srgb, var(--sh-text-secondary) 82%, transparent) !important;
+    }
+
+    #personalizationModal select:focus,
+    #personalizationModal input:not([type="checkbox"]):not([type="file"]):not([type="hidden"]):focus,
+    #personalizationModal textarea:focus {
+        border-color: color-mix(in srgb, var(--sh-accent) 72%, #a78bfa 28%) !important;
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--sh-accent) 70%, transparent) !important;
+        outline: none !important;
+    }
+
+    #personalizationModal input[readonly] {
+        background: color-mix(in srgb, var(--sh-card-bg) 72%, var(--sh-input-bg, #162847) 28%) !important;
+        color: var(--sh-text-secondary) !important;
+    }
+
+    #personalizationModal #linkItemsSection,
+    #personalizationModal #addonsField > div,
+    #personalizationModal #colorCountField > div,
+    #personalizationModal #priceDisplay > div {
+        border-radius: 1.5rem !important;
+        box-shadow: none !important;
+    }
+
+    #personalizationModal #linkItemsSection {
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 78%, var(--sh-accent) 22%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 90%, var(--sh-input-bg, #162847) 10%) 100%) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 70%, var(--sh-accent) 30%) !important;
+    }
+
+    #personalizationModal .link-item-label {
+        padding: 0.9rem 1rem !important;
+        border-radius: 1.15rem !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        background: color-mix(in srgb, var(--sh-card-bg) 86%, var(--sh-input-bg, #162847) 14%) !important;
+        transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease !important;
+    }
+
+    #personalizationModal .link-item-label:hover {
+        border-color: color-mix(in srgb, var(--sh-accent) 42%, var(--sh-card-border) 58%) !important;
+        background: color-mix(in srgb, var(--sh-card-bg) 78%, var(--sh-accent) 22%) !important;
+        transform: translateY(-1px);
+    }
+
+    #personalizationModal .link-item-label.ring-2 {
+        border-color: color-mix(in srgb, var(--sh-accent) 68%, #a78bfa 32%) !important;
+        background: color-mix(in srgb, var(--sh-card-bg) 72%, var(--sh-accent) 28%) !important;
+    }
+
+    #personalizationModal .link-item-checkbox {
+        accent-color: var(--sh-accent);
+    }
+
+    #personalizationModal #linkedItemsSummary {
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 76%, #0f766e 24%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 90%, #064e3b 10%) 100%) !important;
+        border: 1px solid color-mix(in srgb, #10b981 34%, var(--sh-card-border) 66%) !important;
+    }
+
+    #personalizationModal #addonsField > div {
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 74%, #047857 26%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 92%, var(--sh-input-bg, #162847) 8%) 100%) !important;
+        border: 1px solid color-mix(in srgb, #10b981 24%, var(--sh-card-border) 76%) !important;
+    }
+
+    #personalizationModal #addAddonBtn {
+        border-radius: 1rem !important;
+        border-style: dashed !important;
+        border-color: color-mix(in srgb, #34d399 42%, var(--sh-card-border) 58%) !important;
+        background: color-mix(in srgb, var(--sh-card-bg) 82%, #064e3b 18%) !important;
+        color: #6ee7b7 !important;
+    }
+
+    #personalizationModal #addAddonBtn:hover {
+        background: color-mix(in srgb, var(--sh-card-bg) 74%, #047857 26%) !important;
+        border-color: color-mix(in srgb, #6ee7b7 56%, var(--sh-card-border) 44%) !important;
+    }
+
+    #personalizationModal #colorCountField > div {
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 78%, var(--sh-accent) 22%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 90%, #1d4ed8 10%) 100%) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-accent) 28%, var(--sh-card-border) 72%) !important;
+    }
+
+    #personalizationModal #priceDisplay > div {
+        background: linear-gradient(135deg,
+            color-mix(in srgb, var(--sh-card-bg) 72%, var(--sh-accent) 28%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 86%, #2563eb 14%) 100%) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-accent) 34%, var(--sh-card-border) 66%) !important;
+    }
+
+    #personalizationModal #priceDisplay span,
+    #personalizationModal #priceDisplay div {
+        color: var(--sh-text-primary);
+    }
+
+    #personalizationModal #application_image_dropzone {
+        border-radius: 1.25rem !important;
+        border-color: color-mix(in srgb, var(--sh-card-border) 72%, #60a5fa 28%) !important;
+        background: color-mix(in srgb, var(--sh-card-bg) 86%, var(--sh-input-bg, #162847) 14%) !important;
+    }
+
+    #personalizationModal #application_image_dropzone:hover {
+        border-color: color-mix(in srgb, var(--sh-accent) 50%, var(--sh-card-border) 50%) !important;
+        background: color-mix(in srgb, var(--sh-card-bg) 80%, var(--sh-accent) 20%) !important;
+    }
+
+    #personalizationModal #application_image_placeholder label span {
+        border-radius: 999px !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 74%, #60a5fa 26%) !important;
+        background: color-mix(in srgb, var(--sh-card-bg) 82%, var(--sh-input-bg, #162847) 18%) !important;
+        color: var(--sh-text-primary) !important;
+    }
+
+    #personalizationModal #application_image_preview > div {
+        background: color-mix(in srgb, var(--sh-card-bg) 80%, #065f46 20%) !important;
+        border: 1px solid color-mix(in srgb, #10b981 28%, var(--sh-card-border) 72%) !important;
+    }
+
+    .pm-footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 0.25rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+    }
+
+    .pm-footnote {
+        color: var(--sh-text-secondary) !important;
+    }
+
+    .pm-cancel-btn {
+        padding: 0.82rem 1.25rem;
+        border-radius: 999px;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        background: color-mix(in srgb, var(--sh-card-bg) 86%, var(--sh-input-bg, #162847) 14%) !important;
+        color: var(--sh-text-secondary) !important;
+    }
+
+    .pm-cancel-btn:hover {
+        background: color-mix(in srgb, var(--sh-card-bg) 74%, var(--sh-accent) 26%) !important;
+        color: var(--sh-text-primary) !important;
+    }
+
+    .pm-submit-btn {
+        padding: 0.86rem 1.45rem;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--sh-accent) 0%, #8b5cf6 100%) !important;
+        color: #ffffff !important;
+        box-shadow: none !important;
+    }
+
+    .pm-submit-btn:hover {
+        filter: brightness(1.05);
+    }
+
+    @media (max-width: 768px) {
+        .pm-panel {
+            max-height: 94vh;
+            border-radius: 1.5rem !important;
+        }
+
+        .pm-header,
+        .pm-body {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        #personalizationModal #modalTitle {
+            font-size: 1.35rem;
+        }
+    }
+
     /* Absolute Zero Shadow Kill - FINAL OVERRIDE */
     html.dark.avento-theme .ow-shell,
     html.dark.avento-theme .ow-shell *,
@@ -802,13 +1086,13 @@
 </div>
 
     <!-- Modal de Adicionar Personalização -->
-    <div id="personalizationModal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-white dark:bg-[#10203a] rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-gray-200 dark:border-slate-700/50 animate-slideUp flex flex-col">
+    <div id="personalizationModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="pm-panel rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-slideUp flex flex-col">
             
             <!-- Modal Header com gradiente e ícone -->
-            <div class="px-6 py-5 border-b border-gray-200 dark:border-slate-700/50 flex items-center justify-between sticky top-0 bg-white dark:bg-gradient-to-r dark:from-purple-600/20 dark:via-[#10203a] dark:to-[#10203a] z-10 backdrop-blur-sm">
+            <div class="pm-header flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-500/20 rounded-xl flex items-center justify-center ring-1 ring-purple-200 dark:ring-purple-500/30">
+                    <div class="pm-icon">
                         <svg class="w-6 h-6 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                         </svg>
@@ -818,7 +1102,7 @@
                         <p class="text-sm text-gray-500 dark:text-slate-400 mt-0.5" id="modalSubtitle">Configure os detalhes da personalização</p>
                     </div>
                 </div>
-                <button type="button" onclick="closePersonalizationModal()" class="p-2 text-gray-400 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-all">
+                <button type="button" onclick="closePersonalizationModal()" class="pm-close transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -826,7 +1110,7 @@
             </div>
             
             <!-- Modal Body -->
-            <form id="personalizationForm" action="{{ $customizationAction }}" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
+            <form id="personalizationForm" action="{{ $customizationAction }}" method="POST" enctype="multipart/form-data" class="pm-body flex-1 overflow-y-auto space-y-6 scrollbar-thin">
                 @csrf
                 <input type="hidden" id="modal_item_id" name="item_id">
                 <input type="hidden" id="modal_personalization_type" name="personalization_type">
@@ -1076,15 +1360,15 @@
                 </div>
 
                 <!-- Botões -->
-                <div class="flex items-center justify-between pt-6 border-t border-slate-700/50">
-                    <p class="text-xs text-slate-500">* Campos obrigatórios</p>
+                <div class="pm-footer flex items-center justify-between">
+                    <p class="pm-footnote text-xs">* Campos obrigatórios</p>
                     <div class="flex items-center gap-3">
                         <button type="button" onclick="closePersonalizationModal()"
-                                class="px-5 py-2.5 text-sm text-slate-300 hover:text-white hover:bg-slate-700 font-medium rounded-lg transition-all">
+                                class="pm-cancel-btn text-sm font-medium transition-all">
                             Cancelar
                         </button>
                         <button type="submit" 
-                                class="px-6 py-2.5 text-sm bg-gradient-to-r from-[#7c3aed] to-[#7c3aed] hover:from-[#7c3aed] hover:to-[#7c3aed] text-white stay-white rounded-xl font-semibold transition-all flex items-center gap-2">
+                                class="pm-submit-btn text-sm stay-white font-semibold transition-all flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
