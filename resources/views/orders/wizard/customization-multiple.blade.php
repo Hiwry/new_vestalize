@@ -1106,20 +1106,29 @@
                                 @foreach($itemPersonalizations as $itemData)
                                     @php
                                         $sidebarItem = $itemData['item'];
+                                        $sidebarPersIds = array_values($itemData['personalization_ids']);
                                         $sidebarTypes = array_values($itemData['personalization_names']);
                                         $sidebarPreview = implode(' | ', array_slice($sidebarTypes, 0, 2));
+                                        $sidebarPrimaryId = $sidebarPersIds[0] ?? null;
+                                        $sidebarPrimaryType = $sidebarTypes[0] ?? null;
                                         if (count($sidebarTypes) > 2) {
                                             $sidebarPreview .= ' +' . (count($sidebarTypes) - 2);
                                         }
                                     @endphp
-                                    <a href="#item-card-{{ $sidebarItem->id }}" class="ow-soft-panel flex items-start justify-between gap-3 rounded-2xl border border-gray-200 dark:border-slate-700 px-4 py-3 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all">
+                                    <button
+                                        type="button"
+                                        class="ow-soft-panel flex w-full items-start justify-between gap-3 rounded-2xl border border-gray-200 dark:border-slate-700 px-4 py-3 text-left hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all"
+                                        data-item-id="{{ $sidebarItem->id }}"
+                                        data-pers-id="{{ $sidebarPrimaryId }}"
+                                        data-pers-type="{{ $sidebarPrimaryType }}"
+                                        onclick="openSidebarShortcutModal(this)">
                                         <div>
                                             <p class="text-sm font-semibold text-gray-900 dark:text-white">Item {{ $sidebarItem->item_number }}</p>
                                             <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">{{ $sidebarItem->quantity }} pe&ccedil;as</p>
                                             <p class="mt-2 text-xs text-gray-600 dark:text-slate-300">{{ $sidebarPreview }}</p>
                                         </div>
                                         <span class="text-xs font-semibold text-[#7c3aed] dark:text-[#a78bfa]">Abrir</span>
-                                    </a>
+                                    </button>
                                 @endforeach
                             </div>
                         </div>
@@ -1792,6 +1801,21 @@
             document.body.style.overflow = 'hidden';
         }
         window.openPersonalizationModal = openPersonalizationModal;
+
+        function openSidebarShortcutModal(trigger) {
+            if (!trigger) return;
+
+            const itemId = parseInt(trigger.dataset.itemId || '', 10);
+            const persId = parseInt(trigger.dataset.persId || '', 10);
+            const persType = trigger.dataset.persType || '';
+
+            if (!itemId || !persId || !persType) {
+                return;
+            }
+
+            openPersonalizationModal(itemId, persType, persId);
+        }
+        window.openSidebarShortcutModal = openSidebarShortcutModal;
 
         // Função para configurar checkboxes de itens vinculados
         let mainLinkedItemId = null;
