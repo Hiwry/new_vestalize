@@ -71,21 +71,9 @@
         box-shadow: none !important;
     }
 
-    .dark .ow-soft-bg {
-        background-color: rgba(30, 41, 59, 0.3) !important; /* Soft slate-800 equivalent */
-        border-color: rgba(51, 65, 85, 0.5) !important;
-    }
-    
-    .dark .ow-soft-btn {
-        background-color: rgba(30, 41, 59, 0.2) !important;
-        border-color: rgba(51, 65, 85, 0.5) !important;
-    }
-    .dark .ow-soft-btn:hover {
-        background-color: rgba(30, 41, 59, 0.4) !important;
-    }
-
     .sh-title { font-size: 24px; line-height: 1.1; font-weight: 800; color: var(--sh-text-primary); }
     .sh-subtitle { margin-top: 3px; font-size: 13px; font-weight: 600; color: var(--sh-text-secondary); }
+
 
     .ow-progress-fill {
         background: linear-gradient(90deg, var(--sh-accent), #a78bfa);
@@ -397,7 +385,7 @@
                                         <i class="fa-solid fa-swatchbook"></i>
                                         {{ $totalApplicationsCount }} aplica&ccedil;&otilde;es cadastradas
                                     </span>
-                                    <span class="inline-flex items-center gap-2 rounded-full bg-gray-100 dark:bg-slate-800/50 ow-soft-bg px-3 py-2 text-xs font-semibold text-gray-600 dark:text-slate-300">
+                                    <span class="inline-flex items-center gap-2 rounded-full bg-gray-100 dark:bg-transparent border border-transparent dark:border-slate-700 px-3 py-2 text-xs font-semibold text-gray-600 dark:text-slate-300">
                                         <i class="fa-solid fa-layer-group"></i>
                                         {{ count($itemPersonalizations) }} itens para revisar
                                     </span>
@@ -413,7 +401,7 @@
                             <h3 class="mt-1 text-lg font-bold text-gray-900 dark:text-white">Resumo das personaliza&ccedil;&otilde;es</h3>
                             <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Confira o impacto geral antes de descer para os itens.</p>
                         </div>
-                        <span class="inline-flex items-center gap-2 rounded-full bg-white dark:bg-slate-800/50 ow-soft-bg px-3 py-2 text-xs font-semibold text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700/50">
+                        <span class="inline-flex items-center gap-2 rounded-full bg-white dark:bg-transparent px-3 py-2 text-xs font-semibold text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700">
                             <i class="fa-solid fa-chart-line text-[#7c3aed]"></i>
                             Atualizado com os itens abaixo
                         </span>
@@ -515,7 +503,7 @@
                                             </div>
                                         </div>
                                     @else
-                                        <div class="xl:w-[320px] rounded-2xl border border-dashed border-gray-300 dark:border-slate-700/50 bg-white/70 dark:bg-slate-800/20 ow-soft-bg px-4 py-4">
+                                        <div class="xl:w-[320px] rounded-2xl border border-dashed border-gray-300 dark:border-slate-700 bg-white/70 dark:bg-transparent px-4 py-4">
                                             <p class="text-sm font-semibold text-gray-900 dark:text-white">Nenhuma aplicação cadastrada ainda</p>
                                             <p class="mt-1 text-xs text-gray-600 dark:text-slate-400">Escolha um dos tipos liberados abaixo para iniciar a configuração deste item.</p>
                                         </div>
@@ -545,7 +533,7 @@
                                     @endif
                                 </div>
                             @else
-                                <div class="mt-3 mx-5 rounded-2xl border border-dashed border-gray-300 dark:border-slate-700/50 bg-gray-50/80 dark:bg-slate-800/20 ow-soft-bg p-4">
+                                <div class="mt-3 mx-5 rounded-2xl border border-dashed border-gray-300 dark:border-slate-700 bg-gray-50/80 dark:bg-transparent p-4">
                                     <p class="text-sm font-semibold text-gray-900 dark:text-white">Este item ainda n&atilde;o possui arte-base salva.</p>
                                     <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Se precisar anexar nome ou arquivos antes das aplica&ccedil;&otilde;es, use o bloco do topo desta p&aacute;gina.</p>
                                 </div>
@@ -730,7 +718,7 @@
 
                         <div class="hidden xl:flex ow-aside-card p-4 flex-col gap-3">
                             <a href="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.sewing') : route('orders.wizard.sewing') }}" 
-                               class="w-full px-4 py-2.5 text-sm text-center text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white font-medium rounded-xl border border-gray-200 dark:border-slate-700/50 bg-white dark:bg-slate-800/20 ow-soft-btn transition-all hover:bg-gray-50 dark:hover:bg-slate-800/40">
+                               class="w-full px-4 py-2.5 text-sm text-center text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white font-medium rounded-xl border border-gray-200 dark:border-slate-600 bg-white dark:bg-transparent transition-all hover:bg-gray-50 dark:hover:bg-white/5">
                                 &larr; Voltar para costura
                             </a>
                             <a href="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.payment') : route('orders.wizard.payment') }}" 
