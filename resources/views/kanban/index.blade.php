@@ -382,6 +382,7 @@
         @php
             $calendarData = ($ordersForCalendar ?? collect())->map(function($order) {
                 $firstItem = $order->items->first();
+                $coverItem = $order->items->first(fn($item) => filled($item->cover_image));
                 $artName = null;
                 if ($firstItem && $firstItem->sublimations) {
                     $firstSublimation = $firstItem->sublimations->first();
@@ -390,7 +391,7 @@
                 $title = $firstItem?->art_name ?? ($order->client->name ?? 'Cliente');
                 
                 // Buscar imagem de capa
-                $coverImage = $order->cover_image_url ?: $firstItem?->cover_image_url;
+                $coverImage = $order->cover_image_url ?: $coverItem?->cover_image_url;
 
                 return [
                     'id' => $order->id,
@@ -599,9 +600,10 @@
                             @foreach($group as $order)
                                 @php
                                     $firstItem = $order->items->first();
+                                    $coverItem = $order->items->first(fn($item) => filled($item->cover_image));
                                     $displayName = $firstItem?->art_name ?? ($order->client?->name ?? 'Sem cliente');
                                     $storeName = $order->store?->name ?? 'Loja Principal';
-                                    $coverImage = $order->cover_image_url ?: $firstItem?->cover_image_url;
+                                    $coverImage = $order->cover_image_url ?: $coverItem?->cover_image_url;
                                 @endphp
                                 <div class="border border-gray-200 rounded-md p-3 bg-white shadow-sm hover:shadow-md transition-shadow">
                                     <div class="flex items-start gap-3">
@@ -663,7 +665,8 @@
                         @foreach(($ordersByStatus[$status->id] ?? collect()) as $order)
                             @php
                                 $firstItem = $order->items->first();
-                                $coverImage = $order->cover_image_url ?: $firstItem?->cover_image_url;
+                                $coverItem = $order->items->first(fn($item) => filled($item->cover_image));
+                                $coverImage = $order->cover_image_url ?: $coverItem?->cover_image_url;
                                 $artName = $firstItem?->art_name;
                                 $productName = $firstItem?->print_type ?? $firstItem?->art_name ?? 'Personalizado';
                                 $customNote = $firstItem?->print_desc ?? $firstItem?->art_notes;
