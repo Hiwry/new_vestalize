@@ -236,43 +236,6 @@
             </div>
 
             <!-- Content - Formulário de Arte -->
-            <div class="px-6 pt-6">
-                <div class="ow-guide-card p-5 sm:p-6">
-                    <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-                        <div class="max-w-2xl">
-                            <p class="ow-section-kicker">Fluxo sugerido</p>
-                            <h2 class="mt-1 text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Organize esta etapa em 3 movimentos simples</h2>
-                            <p class="mt-2 text-sm text-gray-600 dark:text-slate-400">
-                                Primeiro salve a arte-base do pedido. Depois abra cada item e distribua as aplica&ccedil;&otilde;es por tipo.
-                                Quando o resumo estiver coerente, siga para pagamento.
-                            </p>
-                        </div>
-                        <div class="inline-flex items-center gap-2 rounded-full border border-gray-200 dark:border-slate-700 bg-white/90 dark:bg-slate-800/80 px-3 py-2 text-xs font-semibold text-gray-600 dark:text-slate-300">
-                            <i class="fa-solid fa-lightbulb text-[#7c3aed]"></i>
-                            Use &quot;Aplicar a todos os itens&quot; quando a mesma arte valer para o pedido inteiro
-                        </div>
-                    </div>
-
-                    <div class="mt-5 grid gap-3 md:grid-cols-3">
-                        <div class="ow-guide-step">
-                            <span class="ow-guide-step-index">1</span>
-                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Salvar a arte-base</p>
-                            <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Cadastre nome, arquivos e um item de refer&ecirc;ncia para o pedido.</p>
-                        </div>
-                        <div class="ow-guide-step">
-                            <span class="ow-guide-step-index">2</span>
-                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Abrir cada tipo liberado</p>
-                            <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Dentro de cada item, clique em &quot;Adicionar&quot; para definir local, tamanho e quantidade.</p>
-                        </div>
-                        <div class="ow-guide-step">
-                            <span class="ow-guide-step-index">3</span>
-                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Revisar o consolidado</p>
-                            <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Use o resumo lateral para conferir valores e garantir que nada ficou pendente.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <form id="orderArtForm" action="{{ $customizationAction }}" method="POST" enctype="multipart/form-data" class="px-6 pt-6">
                 @csrf
                 <input type="hidden" name="action" value="save_order_art">
@@ -719,33 +682,6 @@
                     </div>
 
                     <aside class="space-y-6 xl:sticky xl:top-6">
-                        <div class="ow-aside-card p-5">
-                            <p class="ow-section-kicker">Como usar</p>
-                            <div class="mt-4 space-y-4">
-                                <div class="ow-check-row">
-                                    <span class="ow-check-row-badge">1</span>
-                                    <div>
-                                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Salve a arte principal primeiro</p>
-                                        <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Isso ajuda a manter contexto visual e arquivos centralizados.</p>
-                                    </div>
-                                </div>
-                                <div class="ow-check-row">
-                                    <span class="ow-check-row-badge">2</span>
-                                    <div>
-                                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Use os tipos liberados de cada item</p>
-                                        <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Cada card de item mostra quais t&eacute;cnicas podem ser configuradas naquele contexto.</p>
-                                    </div>
-                                </div>
-                                <div class="ow-check-row">
-                                    <span class="ow-check-row-badge">3</span>
-                                    <div>
-                                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Revise o custo antes de continuar</p>
-                                        <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">O resumo mostra o impacto financeiro desta etapa para evitar surpresas no pagamento.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="ow-aside-card p-5">
                             <div class="flex items-center justify-between gap-3">
                                 <div>
