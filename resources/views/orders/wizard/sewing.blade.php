@@ -1710,7 +1710,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         $safePreselectedTypes = $preselectedTypes ?? [];
     @endphp
 
-    // SUB. TOTAL - Dados e ConfiguraÃ§Ãµes
+    // SUB. TOTAL - Dados e Configurações
     const sublimationEnabled = {{ isset($sublimationEnabled) && $sublimationEnabled ? 'true' : 'false' }};
     window.sublimationEnabled = sublimationEnabled;
     const sublimationTypes = @json($safeSublimationTypes);
@@ -1718,9 +1718,12 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     let sublimationAddonsCache = {};
     window.sublimationAddonsCache = sublimationAddonsCache;
     
-    // Tipos de personalizaÃ§Ã£o prÃ©-selecionados na etapa anterior
+    // Tipos de personalização pré-selecionados na etapa anterior
     const preselectedPersonalizationTypes = @json($safePreselectedTypes);
     window.preselectedPersonalizationTypes = preselectedPersonalizationTypes;
+
+    let isInSublimationMode = false;
+    window.isInSublimationMode = isInSublimationMode;
 
     let itemToDeleteId = null;
 
@@ -2789,7 +2792,26 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     window.selectWizardDetailColor = selectWizardDetailColor;
 
     function renderWizardGolas() {
-        const items = filterByParent(getOptionList(['gola']), wizardData.tipo_corte?.id || null);
+        console.log('VESTALIZE: Rendering Golas. Current Cut ID:', wizardData.tipo_corte?.id);
+        const allGolas = getOptionList(['gola']);
+        console.log('VESTALIZE: Total Gola options available:', allGolas.length);
+        
+        let items = filterByParent(allGolas, wizardData.tipo_corte?.id || null);
+        
+        // If no golas found for specific cut, maybe show all golas that have no specific parent designated?
+        // Or if still empty, show all active golas as fallback if cut is "Básica" (often a generic case)
+        if (items.length === 0 && allGolas.length > 0) {
+            console.warn('VESTALIZE: No Golas found for cut ID', wizardData.tipo_corte?.id, '. Showing all golas with no parent.');
+            items = allGolas.filter(item => !item.parent_ids || item.parent_ids.length === 0);
+            
+            // If still empty and it's a known common case like "Básica", maybe show all?
+            if (items.length === 0) {
+                console.warn('VESTALIZE: Still no Golas. Fallback to all Golas.');
+                items = allGolas;
+            }
+        }
+        
+        console.log('VESTALIZE: Golas to render:', items.length);
         renderSelectableOptionCards('wizard-options-gola', items, wizardData.gola?.id, 'selectWizardGola');
     }
     window.renderWizardGolas = renderWizardGolas;
@@ -4015,6 +4037,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         if (fullpageForm) fullpageForm.classList.remove('hidden');
         if (sewingWizardModal) sewingWizardModal.classList.add('hidden');
         
+        isInSublimationMode = true;
+        window.isInSublimationMode = true;
+        
         document.body.style.overflow = 'auto';
         setFullpageSubStep(1);
         calculateFullpageSubTotal();
@@ -4028,6 +4053,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         
         if (normalTrigger) normalTrigger.classList.remove('hidden');
         if (fullpageForm) fullpageForm.classList.add('hidden');
+        
+        isInSublimationMode = false;
+        window.isInSublimationMode = false;
         
         // Reset form
         resetFullpageSubForm();
