@@ -88,6 +88,34 @@
         border: 1px solid var(--sh-card-border) !important;
         box-shadow: var(--sh-card-shadow) !important;
         border-radius: 20px !important;
+        position: relative;
+        transition: all 0.3s ease !important;
+    }
+    
+    .personalization-option.selected {
+        border-color: var(--sh-accent) !important;
+        background-color: color-mix(in srgb, var(--sh-accent) 5%, var(--sh-card-bg)) !important;
+        transform: translateY(-2px);
+    }
+
+    .selected-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: var(--sh-accent);
+        color: white;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: none;
+        z-index: 10;
+    }
+
+    .personalization-option.selected .selected-badge {
+        display: block;
     }
     
     .dark .personalization-option {
@@ -175,10 +203,8 @@
                 <!-- Sub. Local -->
                 <label class="personalization-option group rounded-xl border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer animate-fade-in-up delay-100">
                     <input type="checkbox" name="types[]" value="sub_local" class="hidden personalization-checkbox">
+                    <div class="selected-badge">Selecionado</div>
                     <div class="flex flex-col items-center text-center">
-                        <div class="check-indicator absolute top-3 right-3 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center hidden">
-                            <i class="fa-solid fa-check text-xs"></i>
-                        </div>
                         <div class="w-14 h-14 sm:w-16 sm:h-16 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform icon-bubble">
                             <i class="fa-solid fa-fire text-2xl sm:text-3xl text-[#7c3aed] dark:text-[#7c3aed]"></i>
                         </div>
@@ -190,10 +216,8 @@
                 <!-- Serigrafia -->
                 <label class="personalization-option group rounded-xl border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer animate-fade-in-up delay-200">
                     <input type="checkbox" name="types[]" value="serigrafia" class="hidden personalization-checkbox">
+                    <div class="selected-badge">Selecionado</div>
                     <div class="flex flex-col items-center text-center relative">
-                        <div class="check-indicator absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center hidden">
-                            <i class="fa-solid fa-check text-xs"></i>
-                        </div>
                         <div class="w-14 h-14 sm:w-16 sm:h-16 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform icon-bubble">
                             <i class="fa-solid fa-fill-drip text-2xl sm:text-3xl text-purple-600 dark:text-purple-400"></i>
                         </div>
@@ -205,10 +229,8 @@
                 <!-- DTF -->
                 <label class="personalization-option group rounded-xl border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer animate-fade-in-up delay-300">
                     <input type="checkbox" name="types[]" value="dtf" class="hidden personalization-checkbox">
+                    <div class="selected-badge">Selecionado</div>
                     <div class="flex flex-col items-center text-center relative">
-                        <div class="check-indicator absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center hidden">
-                            <i class="fa-solid fa-check text-xs"></i>
-                        </div>
                         <div class="w-14 h-14 sm:w-16 sm:h-16 bg-orange-100 dark:bg-orange-900/30 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform icon-bubble">
                             <i class="fa-solid fa-print text-2xl sm:text-3xl text-orange-600 dark:text-orange-400"></i>
                         </div>
@@ -220,10 +242,8 @@
                 <!-- Bordado -->
                 <label class="personalization-option group rounded-xl border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer animate-fade-in-up delay-100">
                     <input type="checkbox" name="types[]" value="bordado" class="hidden personalization-checkbox">
+                    <div class="selected-badge">Selecionado</div>
                     <div class="flex flex-col items-center text-center relative">
-                        <div class="check-indicator absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center hidden">
-                            <i class="fa-solid fa-check text-xs"></i>
-                        </div>
                         <div class="w-14 h-14 sm:w-16 sm:h-16 bg-pink-100 dark:bg-pink-900/30 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform icon-bubble">
                             <i class="fa-solid fa-pen-nib text-2xl sm:text-3xl text-pink-600 dark:text-pink-400"></i>
                         </div>
@@ -235,10 +255,8 @@
                 <!-- Emborrachado -->
                 <label class="personalization-option group rounded-xl border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer animate-fade-in-up delay-200">
                     <input type="checkbox" name="types[]" value="emborrachado" class="hidden personalization-checkbox">
+                    <div class="selected-badge">Selecionado</div>
                     <div class="flex flex-col items-center text-center relative">
-                        <div class="check-indicator absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center hidden">
-                            <i class="fa-solid fa-check text-xs"></i>
-                        </div>
                         <div class="w-14 h-14 sm:w-16 sm:h-16 bg-green-100 dark:bg-green-900/30 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform icon-bubble">
                             <i class="fa-solid fa-cube text-2xl sm:text-3xl text-green-600 dark:text-green-400"></i>
                         </div>
@@ -250,10 +268,8 @@
                 <!-- Lisas -->
                 <label class="personalization-option group rounded-xl border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer animate-fade-in-up delay-300">
                     <input type="checkbox" name="types[]" value="lisas" class="hidden personalization-checkbox">
+                    <div class="selected-badge">Selecionado</div>
                     <div class="flex flex-col items-center text-center relative">
-                        <div class="check-indicator absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center hidden">
-                            <i class="fa-solid fa-check text-xs"></i>
-                        </div>
                         <div class="w-14 h-14 sm:w-16 sm:h-16 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform icon-bubble">
                             <i class="fa-solid fa-star text-2xl sm:text-3xl text-gray-600 dark:text-gray-400"></i>
                         </div>
@@ -265,10 +281,8 @@
                 <!-- Sub. Total -->
                 <label class="personalization-option group rounded-xl border-2 border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all cursor-pointer sm:col-span-2 lg:col-span-1 animate-fade-in-up delay-100">
                     <input type="checkbox" name="types[]" value="sub_total" class="hidden personalization-checkbox">
+                    <div class="selected-badge">Selecionado</div>
                     <div class="flex flex-col items-center text-center relative">
-                        <div class="check-indicator absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#7c3aed] text-white items-center justify-center hidden">
-                            <i class="fa-solid fa-check text-xs"></i>
-                        </div>
                         <div class="w-14 h-14 sm:w-16 sm:h-16 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform icon-bubble">
                             <i class="fa-solid fa-image text-2xl sm:text-3xl text-[#7c3aed] dark:text-[#7c3aed]"></i>
                         </div>
@@ -334,18 +348,13 @@
         // Update visual state of cards
         options.forEach(option => {
             const checkbox = option.querySelector('.personalization-checkbox');
-            const indicator = option.querySelector('.check-indicator');
             
             if (checkbox.checked) {
-                option.classList.add('border-[#7c3aed]');
+                option.classList.add('selected');
                 option.classList.remove('border-gray-200', 'dark:border-gray-700');
-                indicator.classList.remove('hidden');
-                indicator.classList.add('flex');
             } else {
-                option.classList.remove('border-[#7c3aed]');
+                option.classList.remove('selected');
                 option.classList.add('border-gray-200', 'dark:border-gray-700');
-                indicator.classList.add('hidden');
-                indicator.classList.remove('flex');
             }
         });
     }

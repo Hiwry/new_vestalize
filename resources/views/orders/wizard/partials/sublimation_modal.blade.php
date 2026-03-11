@@ -1,8 +1,8 @@
 <!-- Modal SUB. TOTAL -->
-<div id="sublimation-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm overflow-y-auto">
-    <div class="bg-white dark:bg-slate-900 rounded-xl max-w-2xl w-full border border-gray-200 dark:border-slate-700 my-8 max-h-[90vh] overflow-y-auto">
+<div id="sublimation-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm overflow-y-auto">
+    <div class="bg-white dark:bg-[#10203a] rounded-xl max-w-2xl w-full border border-gray-200 dark:border-slate-700 my-8 max-h-[90vh] overflow-y-auto">
         <!-- Header -->
-        <div class="px-6 py-4 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/40 sticky top-0 z-10">
+        <div class="px-6 py-4 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-[#10203a] sticky top-0 z-10">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
@@ -178,7 +178,7 @@
             </div>
 
             <!-- Footer -->
-            <div class="px-6 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 flex justify-between items-center sticky bottom-0">
+            <div class="px-6 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-[#10203a] flex justify-between items-center sticky bottom-0">
                 <button type="button" onclick="closeSublimationModal()" class="px-4 py-2 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white text-sm font-medium">
                     Cancelar
                 </button>
