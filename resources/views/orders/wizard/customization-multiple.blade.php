@@ -119,6 +119,31 @@
         border-color: color-mix(in srgb, var(--sh-card-border) 78%, #60a5fa 22%) !important;
     }
 
+    .ow-aside-stack {
+        background: transparent !important;
+        border: 0 !important;
+    }
+
+    .dark.avento-theme .ow-aside-stack {
+        background: transparent !important;
+        border: 0 !important;
+        border-right: 0 !important;
+    }
+
+    .ow-mobile-nav {
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 94%, var(--sh-accent) 6%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 86%, var(--sh-input-bg, #f8fafc) 14%) 100%) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+    }
+
+    .dark.avento-theme .ow-mobile-nav {
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 90%, #1d4ed8 10%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 80%, var(--sh-input-bg, #162847) 20%) 100%) !important;
+        border-color: color-mix(in srgb, var(--sh-card-border) 78%, #60a5fa 22%) !important;
+    }
+
     .ow-soft-panel {
         background: linear-gradient(180deg,
             color-mix(in srgb, var(--sh-card-bg) 86%, var(--sh-input-bg, #f8fafc) 14%) 0%,
@@ -710,7 +735,7 @@
                 </div>
 
                 <!-- Navegação -->
-                        <div class="xl:hidden mt-2 flex items-center justify-between gap-3 rounded-2xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
+                        <div class="ow-mobile-nav xl:hidden mt-2 flex items-center justify-between gap-3 rounded-2xl border border-gray-200 dark:border-slate-700 p-4">
                     <a href="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.sewing') : route('orders.wizard.sewing') }}" 
                        class="px-4 py-2 text-sm text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white font-medium">
                         &larr; Voltar
@@ -722,7 +747,7 @@
                 </div>
                     </div>
 
-                    <aside class="space-y-6 xl:sticky xl:top-6">
+                    <aside class="ow-aside-stack space-y-6 xl:sticky xl:top-6">
                         <div class="ow-aside-card p-5">
                             <div class="flex items-center justify-between gap-3">
                                 <div>
