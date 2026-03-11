@@ -580,7 +580,7 @@
                             </div>
 
                             @if($item->art_name || ($item->files && $item->files->count()))
-                                <div class="mt-3 mx-5 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700">
+                                <div class="ow-soft-panel mt-3 mx-5 p-4 rounded-2xl border border-gray-200 dark:border-slate-700">
                                     @if($item->art_name)
                                         <p class="text-sm text-gray-800 dark:text-slate-200 mb-2">
                                             <span class="font-semibold text-gray-900 dark:text-white">Nome da Arte:</span>
