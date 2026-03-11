@@ -42,6 +42,13 @@
         box-shadow: none !important;
     }
 
+    .ow-card, .ow-progress, .ow-field-panel {
+        background: var(--sh-card-bg) !important;
+        border: 1px solid var(--sh-card-border) !important;
+        border-radius: 16px !important;
+        box-shadow: var(--sh-card-shadow) !important;
+    }
+
     .dark.avento-theme .ow-shell input:not([type="color"]),
     .dark.avento-theme .ow-shell select,
     .dark.avento-theme .ow-shell textarea,
