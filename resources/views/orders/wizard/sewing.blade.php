@@ -560,6 +560,20 @@
     background: var(--sh-card-bg);
 }
 
+#sewing-wizard-modal .wizard-soft-surface {
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--sh-input-bg, #f8fafc) 82%, var(--sh-accent) 6%) 0%,
+        color-mix(in srgb, var(--sh-card-bg) 92%, var(--sh-input-bg, #f8fafc) 8%) 100%) !important;
+    border: 1px solid color-mix(in srgb, var(--sh-card-border) 78%, transparent) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+#sewing-wizard-modal .wizard-soft-surface:hover {
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--sh-input-bg, #f8fafc) 74%, var(--sh-accent) 12%) 0%,
+        color-mix(in srgb, var(--sh-card-bg) 88%, var(--sh-input-bg, #f8fafc) 12%) 100%) !important;
+}
+
 #sewing-wizard-modal .wizard-step-kicker {
     display: inline-flex;
     align-items: center;
@@ -1416,7 +1430,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                 
                                                 <div class="space-y-5">
                                                     <!-- Image Upload -->
-                                                    <div class="p-4 border border-dashed border-gray-300 dark:border-slate-600 rounded-xl bg-gray-50/50 dark:bg-slate-900/40 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-center cursor-pointer relative" onclick="document.getElementById('wizard_file_input').click()">
+                                                    <div class="wizard-soft-surface p-4 border border-dashed border-gray-300 dark:border-slate-600 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-center cursor-pointer relative" onclick="document.getElementById('wizard_file_input').click()">
                                                         <input type="file" id="wizard_file_input" class="hidden" accept="image/*" onchange="previewWizardImage(this)">
                                                         
                                                         <div id="wizard-image-placeholder" class="py-4">
@@ -1442,7 +1456,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                             <div id="step-11" class="wizard-step hidden">
                                                 <h4 class="text-sm font-bold text-center text-gray-900 dark:text-white mb-6">Conferência Final</h4>
                                                 
-                                                <div class="bg-gray-50/50 dark:bg-slate-900/40 rounded-2xl p-6 border border-gray-200 dark:border-slate-700 space-y-4">
+                                                <div class="wizard-soft-surface rounded-2xl p-6 border border-gray-200 dark:border-slate-700 space-y-4">
                                                     <!-- Dynamic Summary List -->
                                                     <div class="space-y-3 text-sm">
                                                         <div class="flex justify-between border-b border-gray-200 dark:border-slate-700 pb-2">
