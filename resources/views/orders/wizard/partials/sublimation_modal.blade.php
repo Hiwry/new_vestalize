@@ -29,9 +29,9 @@
             
             <div class="p-6 space-y-5">
                 <!-- Tipo de Produto -->
-                <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
+                <div class="p-4 bg-gray-50 dark:bg-[#1a2b4e]/50 rounded-lg border border-gray-200 dark:border-[#2d3d5a]">
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Tipo de Produto *</label>
-                    <select name="sublimation_type" id="sublimation_type" required onchange="loadSublimationAddons()" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 transition-all text-sm">
+                    <select name="sublimation_type" id="sublimation_type" required onchange="loadSublimationAddons()" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-[#2d3d5a] bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 transition-all text-sm">
                         <option value="">Selecione o tipo</option>
                         @if(isset($sublimationTypes))
                         @foreach($sublimationTypes as $type)
@@ -42,7 +42,7 @@
                 </div>
 
                 <!-- Adicionais -->
-                <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
+                <div class="p-4 bg-gray-50 dark:bg-[#1a2b4e]/50 rounded-lg border border-gray-200 dark:border-[#2d3d5a]">
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Adicionais</label>
                     <div id="sublimation-addons-container" class="grid grid-cols-2 md:grid-cols-3 gap-2">
                         <p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Selecione um tipo primeiro</p>
@@ -50,56 +50,56 @@
                 </div>
 
                 <!-- Nome da Arte -->
-                <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
+                <div class="p-4 bg-gray-50 dark:bg-[#1a2b4e]/50 rounded-lg border border-gray-200 dark:border-[#2d3d5a]">
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Nome da Arte *</label>
-                    <input type="text" name="art_name" id="sub_art_name" required placeholder="Ex: Logo Empresa ABC" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 transition-all text-sm">
+                    <input type="text" name="art_name" id="sub_art_name" required placeholder="Ex: Logo Empresa ABC" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-[#2d3d5a] bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 transition-all text-sm">
                 </div>
 
                 <!-- Tamanhos -->
-                <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
+                <div class="p-4 bg-gray-50 dark:bg-[#1a2b4e]/50 rounded-lg border border-gray-200 dark:border-[#2d3d5a]">
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Tamanhos e Quantidades *</label>
                     <div class="grid grid-cols-5 gap-2 mb-2">
                         <div>
                             <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">PP</label>
-                            <input type="number" name="tamanhos[PP]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                            <input type="number" name="tamanhos[PP]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
                         </div>
                         <div>
                             <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">P</label>
-                            <input type="number" name="tamanhos[P]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                            <input type="number" name="tamanhos[P]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
                         </div>
                         <div>
                             <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">M</label>
-                            <input type="number" name="tamanhos[M]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                            <input type="number" name="tamanhos[M]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
                         </div>
                         <div>
                             <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G</label>
-                            <input type="number" name="tamanhos[G]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                            <input type="number" name="tamanhos[G]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
                         </div>
                         <div>
                             <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">GG</label>
-                            <input type="number" name="tamanhos[GG]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                            <input type="number" name="tamanhos[GG]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
                         </div>
                     </div>
                     <div class="grid grid-cols-5 gap-2">
                         <div>
                             <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">EXG</label>
-                            <input type="number" name="tamanhos[EXG]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                            <input type="number" name="tamanhos[EXG]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
                         </div>
                         <div>
                             <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G1</label>
-                            <input type="number" name="tamanhos[G1]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                            <input type="number" name="tamanhos[G1]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
                         </div>
                         <div>
                             <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G2</label>
-                            <input type="number" name="tamanhos[G2]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                            <input type="number" name="tamanhos[G2]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
                         </div>
                         <div>
                             <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G3</label>
-                            <input type="number" name="tamanhos[G3]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                            <input type="number" name="tamanhos[G3]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
                         </div>
                         <div>
                             <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">Esp.</label>
-                            <input type="number" name="tamanhos[Especial]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+                            <input type="number" name="tamanhos[Especial]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
                         </div>
                     </div>
                     <input type="hidden" name="quantity" id="sub_quantity" value="0">
@@ -114,7 +114,7 @@
                 <!-- Arquivos -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Arquivo Corel -->
-                    <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
+                    <div class="p-4 bg-gray-50 dark:bg-[#1a2b4e]/50 rounded-lg border border-gray-200 dark:border-[#2d3d5a]">
                         <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Arquivo Corel</label>
                         <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">
                             <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,7 +126,7 @@
                     </div>
                     
                     <!-- Imagem de Capa -->
-                    <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
+                    <div class="p-4 bg-gray-50 dark:bg-[#1a2b4e]/50 rounded-lg border border-gray-200 dark:border-[#2d3d5a]">
                         <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Imagem de Capa</label>
                         <div class="relative w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 flex flex-col items-center justify-center overflow-hidden" onclick="document.getElementById('sub_wizard_file_input').click()">
                             <input type="file" name="item_cover_image" id="sub_wizard_file_input" class="hidden" accept="image/*" onchange="previewSublimationImage(this)">
@@ -150,16 +150,16 @@
                 </div>
 
                 <!-- Preços -->
-                <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
+                <div class="p-4 bg-gray-50 dark:bg-[#1a2b4e]/50 rounded-lg border border-gray-200 dark:border-[#2d3d5a]">
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Preços</label>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1">Preço Unitário (R$) *</label>
-                            <input type="number" name="unit_price" id="sub_unit_price" step="0.01" min="0" value="0" required onchange="updateSublimationPreview()" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-right font-bold text-green-600 dark:text-green-400">
+                            <input type="number" name="unit_price" id="sub_unit_price" step="0.01" min="0" value="0" required onchange="updateSublimationPreview()" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-[#2d3d5a] bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white text-right font-bold text-green-600 dark:text-green-400">
                         </div>
                         <div>
                             <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1">Custo Unitário (R$)</label>
-                            <input type="number" name="unit_cost" id="sub_unit_cost" step="0.01" min="0" value="0.00" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-right">
+                            <input type="number" name="unit_cost" id="sub_unit_cost" step="0.01" min="0" value="0.00" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-[#2d3d5a] bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white text-right">
                         </div>
                     </div>
                     <div class="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
@@ -171,9 +171,9 @@
                 </div>
 
                 <!-- Observações -->
-                <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700">
+                <div class="p-4 bg-gray-50 dark:bg-[#1a2b4e]/50 rounded-lg border border-gray-200 dark:border-[#2d3d5a]">
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Observações</label>
-                    <textarea name="art_notes" rows="2" placeholder="Observações importantes para a produção..." class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm"></textarea>
+                    <textarea name="art_notes" rows="2" placeholder="Observações importantes para a produção..." class="w-full px-4 py-2.5 border border-gray-300 dark:border-[#2d3d5a] rounded-lg bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white text-sm"></textarea>
                 </div>
             </div>
 
