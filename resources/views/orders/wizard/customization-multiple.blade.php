@@ -236,6 +236,23 @@
         background: color-mix(in srgb, var(--sh-card-bg) 97%, var(--sh-accent) 3%);
     }
 
+    .ow-art-summary {
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 90%, var(--sh-accent) 10%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 82%, var(--sh-input-bg, #162847) 18%) 100%) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, #60a5fa 18%) !important;
+        border-radius: 1rem !important;
+        color: var(--sh-text-primary) !important;
+        box-shadow: none !important;
+    }
+
+    .dark.avento-theme .ow-art-summary {
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 88%, #1d4ed8 12%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 76%, var(--sh-input-bg, #162847) 24%) 100%) !important;
+        border-color: color-mix(in srgb, var(--sh-card-border) 76%, #60a5fa 24%) !important;
+    }
+
     #personalizationModal {
         background: linear-gradient(180deg, rgba(8, 15, 31, 0.62) 0%, rgba(5, 10, 22, 0.84) 100%) !important;
         backdrop-filter: blur(18px);
@@ -677,7 +694,7 @@
                     </div>
                     
                     <!-- Preview (hidden by default) -->
-                    <div id="order_art_preview" class="mt-4 text-sm text-gray-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-4 py-3 hidden"></div>
+                    <div id="order_art_preview" class="ow-art-summary mt-4 text-sm text-gray-600 dark:text-slate-400 px-4 py-3 hidden"></div>
                 </div>
             </form>
             <div class="p-6">
@@ -864,7 +881,7 @@
                             </div>
 
                             @if($item->art_name || ($item->files && $item->files->count()))
-                                <div class="ow-soft-panel mt-3 mx-5 p-4 rounded-2xl border border-gray-200 dark:border-slate-700">
+                                <div class="ow-soft-panel ow-art-summary mt-3 mx-5 p-4 rounded-2xl border border-gray-200 dark:border-slate-700">
                                     @if($item->art_name)
                                         <p class="text-sm text-gray-800 dark:text-slate-200 mb-2">
                                             <span class="font-semibold text-gray-900 dark:text-white">Nome da Arte:</span>
