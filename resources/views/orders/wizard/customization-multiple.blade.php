@@ -270,32 +270,29 @@
     }
 
     #personalizationModal {
-        background: linear-gradient(180deg, rgba(8, 15, 31, 0.62) 0%, rgba(5, 10, 22, 0.84) 100%) !important;
+        background: linear-gradient(180deg, rgba(3, 8, 20, 0.8) 0%, rgba(3, 8, 20, 0.92) 100%) !important;
         backdrop-filter: blur(18px);
         -webkit-backdrop-filter: blur(18px);
     }
 
     .dark.avento-theme #personalizationModal {
         background:
-            radial-gradient(circle at top right, rgba(124, 58, 237, 0.22), transparent 34%),
-            radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 28%),
-            rgba(5, 10, 22, 0.82) !important;
+            radial-gradient(circle at top right, rgba(124, 58, 237, 0.16), transparent 32%),
+            radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 26%),
+            rgba(3, 8, 20, 0.92) !important;
     }
 
     .pm-panel {
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 82%, var(--sh-surface-from) 18%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 90%, var(--sh-surface-to) 10%) 100%) !important;
-        border: 1px solid color-mix(in srgb, var(--sh-card-border) 78%, #60a5fa 22%) !important;
+        background: linear-gradient(180deg, #112548 0%, #0b1730 100%) !important;
+        border: 1px solid rgba(96, 165, 250, 0.18) !important;
         border-radius: 28px !important;
-        box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18) !important;
+        box-shadow: 0 30px 90px rgba(2, 6, 23, 0.58), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
     }
 
     .dark.avento-theme .pm-panel {
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 80%, #1d4ed8 20%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 92%, var(--sh-surface-to) 8%) 100%) !important;
-        box-shadow: none !important;
+        background: linear-gradient(180deg, #112548 0%, #0b1730 100%) !important;
+        border-color: rgba(96, 165, 250, 0.2) !important;
+        box-shadow: 0 30px 90px rgba(2, 6, 23, 0.62), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
     }
 
     .pm-header {
@@ -303,10 +300,8 @@
         top: 0;
         z-index: 10;
         padding: 1.5rem 1.75rem;
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 88%, var(--sh-accent) 12%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 96%, var(--sh-input-bg, #162847) 4%) 100%) !important;
-        border-bottom: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        background: linear-gradient(180deg, rgba(18, 37, 72, 0.98) 0%, rgba(12, 24, 48, 0.97) 100%) !important;
+        border-bottom: 1px solid rgba(96, 165, 250, 0.14) !important;
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
     }
@@ -353,7 +348,45 @@
 
     .pm-body {
         padding: 1.5rem 1.75rem 1.75rem;
-        background: transparent !important;
+        background: linear-gradient(180deg, #0c1730 0%, #091326 100%) !important;
+    }
+
+    .pm-grid {
+        gap: 1rem !important;
+    }
+
+    .pm-control-group,
+    .pm-upload-card {
+        padding: 1rem 1.05rem;
+        border-radius: 1.25rem;
+        border: 1px solid rgba(96, 165, 250, 0.14);
+        background: linear-gradient(180deg, #112340 0%, #0d1d39 100%) !important;
+    }
+
+    .pm-section-card {
+        border-radius: 1.25rem;
+        border: 1px solid rgba(96, 165, 250, 0.14);
+        background: linear-gradient(180deg, #112340 0%, #0d1d39 100%) !important;
+    }
+
+    .pm-section-card--accent {
+        background: linear-gradient(180deg, #152547 0%, #101c37 100%) !important;
+        border-color: rgba(167, 139, 250, 0.22) !important;
+    }
+
+    .pm-section-card--emerald {
+        background: linear-gradient(180deg, #0f2336 0%, #0b1c2c 100%) !important;
+        border-color: rgba(52, 211, 153, 0.22) !important;
+    }
+
+    .pm-section-card--price {
+        background: linear-gradient(135deg, #182b4f 0%, #10203d 100%) !important;
+        border-color: rgba(129, 140, 248, 0.26) !important;
+    }
+
+    .pm-control-group label,
+    .pm-section-card label {
+        margin-bottom: 0.75rem;
     }
 
     #personalizationModal select,
@@ -361,8 +394,8 @@
     #personalizationModal textarea {
         min-height: 3.25rem;
         border-radius: 1rem !important;
-        border: 1px solid color-mix(in srgb, var(--sh-card-border) 78%, #60a5fa 22%) !important;
-        background: var(--sh-input-bg, #162847) !important;
+        border: 1px solid rgba(96, 165, 250, 0.18) !important;
+        background: #162847 !important;
         color: var(--sh-text-primary) !important;
         box-shadow: none !important;
     }
@@ -385,7 +418,7 @@
     }
 
     #personalizationModal input[readonly] {
-        background: color-mix(in srgb, var(--sh-card-bg) 72%, var(--sh-input-bg, #162847) 28%) !important;
+        background: #132240 !important;
         color: var(--sh-text-secondary) !important;
     }
 
@@ -398,29 +431,27 @@
     }
 
     #personalizationModal #linkItemsSection {
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 78%, var(--sh-accent) 22%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 90%, var(--sh-input-bg, #162847) 10%) 100%) !important;
-        border: 1px solid color-mix(in srgb, var(--sh-card-border) 70%, var(--sh-accent) 30%) !important;
+        background: linear-gradient(180deg, #152547 0%, #101d38 100%) !important;
+        border: 1px solid rgba(167, 139, 250, 0.24) !important;
     }
 
     #personalizationModal .link-item-label {
         padding: 0.9rem 1rem !important;
         border-radius: 1.15rem !important;
-        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
-        background: color-mix(in srgb, var(--sh-card-bg) 86%, var(--sh-input-bg, #162847) 14%) !important;
+        border: 1px solid rgba(96, 165, 250, 0.12) !important;
+        background: linear-gradient(180deg, #0f1c36 0%, #0c1730 100%) !important;
         transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease !important;
     }
 
     #personalizationModal .link-item-label:hover {
-        border-color: color-mix(in srgb, var(--sh-accent) 42%, var(--sh-card-border) 58%) !important;
-        background: color-mix(in srgb, var(--sh-card-bg) 78%, var(--sh-accent) 22%) !important;
+        border-color: rgba(167, 139, 250, 0.36) !important;
+        background: linear-gradient(180deg, #142246 0%, #0f1b37 100%) !important;
         transform: translateY(-1px);
     }
 
     #personalizationModal .link-item-label.ring-2 {
-        border-color: color-mix(in srgb, var(--sh-accent) 68%, #a78bfa 32%) !important;
-        background: color-mix(in srgb, var(--sh-card-bg) 72%, var(--sh-accent) 28%) !important;
+        border-color: rgba(167, 139, 250, 0.52) !important;
+        background: linear-gradient(180deg, #1a2b54 0%, #142246 100%) !important;
     }
 
     #personalizationModal .link-item-checkbox {
@@ -428,44 +459,36 @@
     }
 
     #personalizationModal #linkedItemsSummary {
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 76%, #0f766e 24%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 90%, #064e3b 10%) 100%) !important;
-        border: 1px solid color-mix(in srgb, #10b981 34%, var(--sh-card-border) 66%) !important;
+        background: linear-gradient(180deg, #102c2f 0%, #0b2022 100%) !important;
+        border: 1px solid rgba(16, 185, 129, 0.28) !important;
     }
 
     #personalizationModal #addonsField > div {
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 74%, #047857 26%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 92%, var(--sh-input-bg, #162847) 8%) 100%) !important;
-        border: 1px solid color-mix(in srgb, #10b981 24%, var(--sh-card-border) 76%) !important;
+        background: linear-gradient(180deg, #0f2336 0%, #0b1c2c 100%) !important;
+        border: 1px solid rgba(52, 211, 153, 0.22) !important;
     }
 
     #personalizationModal #addAddonBtn {
         border-radius: 1rem !important;
         border-style: dashed !important;
-        border-color: color-mix(in srgb, #34d399 42%, var(--sh-card-border) 58%) !important;
-        background: color-mix(in srgb, var(--sh-card-bg) 82%, #064e3b 18%) !important;
+        border-color: rgba(52, 211, 153, 0.42) !important;
+        background: #0d2232 !important;
         color: #6ee7b7 !important;
     }
 
     #personalizationModal #addAddonBtn:hover {
-        background: color-mix(in srgb, var(--sh-card-bg) 74%, #047857 26%) !important;
-        border-color: color-mix(in srgb, #6ee7b7 56%, var(--sh-card-border) 44%) !important;
+        background: #123047 !important;
+        border-color: rgba(110, 231, 183, 0.56) !important;
     }
 
     #personalizationModal #colorCountField > div {
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 78%, var(--sh-accent) 22%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 90%, #1d4ed8 10%) 100%) !important;
-        border: 1px solid color-mix(in srgb, var(--sh-accent) 28%, var(--sh-card-border) 72%) !important;
+        background: linear-gradient(180deg, #16284b 0%, #11213d 100%) !important;
+        border: 1px solid rgba(167, 139, 250, 0.24) !important;
     }
 
     #personalizationModal #priceDisplay > div {
-        background: linear-gradient(135deg,
-            color-mix(in srgb, var(--sh-card-bg) 72%, var(--sh-accent) 28%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 86%, #2563eb 14%) 100%) !important;
-        border: 1px solid color-mix(in srgb, var(--sh-accent) 34%, var(--sh-card-border) 66%) !important;
+        background: linear-gradient(135deg, #182b4f 0%, #11223f 100%) !important;
+        border: 1px solid rgba(129, 140, 248, 0.26) !important;
     }
 
     #personalizationModal #priceDisplay span,
@@ -475,25 +498,25 @@
 
     #personalizationModal #application_image_dropzone {
         border-radius: 1.25rem !important;
-        border-color: color-mix(in srgb, var(--sh-card-border) 72%, #60a5fa 28%) !important;
-        background: color-mix(in srgb, var(--sh-card-bg) 86%, var(--sh-input-bg, #162847) 14%) !important;
+        border-color: rgba(96, 165, 250, 0.22) !important;
+        background: #10213e !important;
     }
 
     #personalizationModal #application_image_dropzone:hover {
-        border-color: color-mix(in srgb, var(--sh-accent) 50%, var(--sh-card-border) 50%) !important;
-        background: color-mix(in srgb, var(--sh-card-bg) 80%, var(--sh-accent) 20%) !important;
+        border-color: rgba(167, 139, 250, 0.44) !important;
+        background: #13274a !important;
     }
 
     #personalizationModal #application_image_placeholder label span {
         border-radius: 999px !important;
-        border: 1px solid color-mix(in srgb, var(--sh-card-border) 74%, #60a5fa 26%) !important;
-        background: color-mix(in srgb, var(--sh-card-bg) 82%, var(--sh-input-bg, #162847) 18%) !important;
+        border: 1px solid rgba(96, 165, 250, 0.24) !important;
+        background: #172a48 !important;
         color: var(--sh-text-primary) !important;
     }
 
     #personalizationModal #application_image_preview > div {
-        background: color-mix(in srgb, var(--sh-card-bg) 80%, #065f46 20%) !important;
-        border: 1px solid color-mix(in srgb, #10b981 28%, var(--sh-card-border) 72%) !important;
+        background: #102b2f !important;
+        border: 1px solid rgba(16, 185, 129, 0.28) !important;
     }
 
     .pm-footer {
@@ -514,13 +537,13 @@
     .pm-cancel-btn {
         padding: 0.82rem 1.25rem;
         border-radius: 999px;
-        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
-        background: color-mix(in srgb, var(--sh-card-bg) 86%, var(--sh-input-bg, #162847) 14%) !important;
+        border: 1px solid rgba(96, 165, 250, 0.14) !important;
+        background: #132443 !important;
         color: var(--sh-text-secondary) !important;
     }
 
     .pm-cancel-btn:hover {
-        background: color-mix(in srgb, var(--sh-card-bg) 74%, var(--sh-accent) 26%) !important;
+        background: #1a2d52 !important;
         color: var(--sh-text-primary) !important;
     }
 
@@ -1152,7 +1175,7 @@
 
                 <!-- Vincular a outros itens -->
                 @if($order->items->count() > 1)
-                <div id="linkItemsSection" class="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/10 border border-purple-200 dark:border-purple-500/30 rounded-xl p-4 ring-1 ring-purple-100 dark:ring-purple-500/20">
+                <div id="linkItemsSection" class="pm-section-card pm-section-card--accent bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/10 border border-purple-200 dark:border-purple-500/30 rounded-xl p-4 ring-1 ring-purple-100 dark:ring-purple-500/20">
                     <label class="flex items-center gap-2 text-sm font-semibold text-purple-700 dark:text-purple-300 mb-3">
                         <svg class="w-5 h-5 text-purple-500 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
@@ -1187,9 +1210,9 @@
                 @endif
 
                 <!-- Grid de Localização e Tamanho -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="pm-grid grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Localização (oculto para SUB. TOTAL) -->
-                    <div id="locationField">
+                    <div id="locationField" class="pm-control-group">
                         <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2">
                             <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
@@ -1206,7 +1229,7 @@
                     </div>
 
                     <!-- Tamanho (oculto para SUB. TOTAL) -->
-                    <div id="sizeField">
+                    <div id="sizeField" class="pm-control-group">
                         <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2">
                             <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
@@ -1228,7 +1251,7 @@
 
                 <!-- Adicionais (Opções Especiais) -->
                 <div id="addonsField">
-                    <div class="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/10 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800/50">
+                    <div class="pm-section-card pm-section-card--emerald bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/10 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800/50">
                         <label class="flex items-center gap-2 text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-3">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -1267,7 +1290,7 @@
                 </div>
 
                 <!-- Quantidade (oculto para SUB. TOTAL) -->
-                <div id="quantityField">
+                <div id="quantityField" class="pm-control-group">
                     <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2">
                         <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
@@ -1281,7 +1304,7 @@
 
                 <!-- Cores (para Serigrafia e Emborrachado) -->
                 <div id="colorCountField" class="hidden">
-                    <div class="bg-gradient-to-r from-purple-600/20 to-pink-600/10 border border-purple-500/30 rounded-xl p-4 ring-1 ring-purple-500/20">
+                    <div class="pm-section-card pm-section-card--accent bg-gradient-to-r from-purple-600/20 to-pink-600/10 border border-purple-500/30 rounded-xl p-4 ring-1 ring-purple-500/20">
                         <label class="flex items-center gap-2 text-sm font-semibold text-purple-300 mb-3">
                             <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
@@ -1297,7 +1320,7 @@
 
                 <!-- Preço Calculado -->
                 <div id="priceDisplay" class="hidden">
-                    <div class="bg-gradient-to-r from-purple-600/20 to-purple-600/10 border border-purple-500/30 rounded-xl p-5 ring-1 ring-purple-500/20">
+                    <div class="pm-section-card pm-section-card--price bg-gradient-to-r from-purple-600/20 to-purple-600/10 border border-purple-500/30 rounded-xl p-5 ring-1 ring-purple-500/20">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1323,7 +1346,7 @@
 
                 <!-- Upload de Imagem -->
                 <!-- Removed checks for is_draft to allow image upload anytime -->
-                <div>
+                <div class="pm-upload-card">
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
                         Imagem da Arte (opcional) 
                         <span class="text-xs font-normal text-gray-500 dark:text-slate-400 ml-1">(Cole com Ctrl+V)</span>
@@ -1375,7 +1398,7 @@
                 </div>
 
                 <!-- Detalhes das Cores (oculto para SUB. TOTAL e SUB. LOCAL) -->
-                <div id="colorDetailsField" class="@if($order->is_draft) hidden @endif">
+                <div id="colorDetailsField" class="pm-control-group @if($order->is_draft) hidden @endif">
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Detalhes das Cores (opcional)</label>
                     <textarea id="color_details" name="color_details" rows="2" 
                               placeholder="Ex: Verde limão, Azul marinho, Branco, etc."
@@ -1384,7 +1407,7 @@
                 </div>
 
                 <!-- Observações do Vendedor -->
-                <div class="@if($order->is_draft) hidden @endif">
+                <div class="pm-control-group @if($order->is_draft) hidden @endif">
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Observações do Vendedor (opcional)</label>
                     <textarea id="seller_notes" name="seller_notes" rows="3" 
                               placeholder="Ex: Aplicar com cuidado, cliente pediu urgência, etc."
