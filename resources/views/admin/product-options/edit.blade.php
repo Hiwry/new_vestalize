@@ -85,14 +85,20 @@
 
 
                 @if(count($parents) > 0)
-                    <div>
-                        <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">{{ $parentLabel }} * (selecione um ou mais)</label>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs text-gray-600 dark:text-slate-400 font-medium">{{ $parentLabel }} * (selecione um ou mais)</label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" id="select_all_parents" class="h-3 w-3 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-slate-600 rounded">
+                                <span class="ml-1.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Selecionar Todos</span>
+                            </label>
+                        </div>
                         <div class="border border-gray-300 dark:border-slate-600 rounded-lg p-4 max-h-48 overflow-y-auto bg-white dark:bg-slate-800">
                             @foreach($parents as $parent)
                                 <div class="flex items-center mb-2 last:mb-0">
                                     <input type="checkbox" 
                                            id="parent_{{ $parent->id }}" 
                                            name="parent_ids[]" 
+                                           data-parent-checkbox
                                            value="{{ $parent->id }}"
                                            {{ in_array($parent->id, old('parent_ids', $option->parents->pluck('id')->toArray())) ? 'checked' : '' }}
                                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-slate-600 rounded">
@@ -102,6 +108,38 @@
                                 </div>
                             @endforeach
                         </div>
+
+                        @push('scripts')
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const selectAllCb = document.getElementById('select_all_parents');
+                                const parentCbs = document.querySelectorAll('[data-parent-checkbox]');
+
+                                if (selectAllCb) {
+                                    selectAllCb.addEventListener('change', function() {
+                                        parentCbs.forEach(cb => {
+                                            cb.checked = selectAllCb.checked;
+                                        });
+                                    });
+
+                                    // Update select all state based on individual checkboxes
+                                    const updateSelectAllState = () => {
+                                        const allChecked = Array.from(parentCbs).every(cb => cb.checked);
+                                        const someChecked = Array.from(parentCbs).some(cb => cb.checked);
+                                        selectAllCb.checked = allChecked;
+                                        selectAllCb.indeterminate = someChecked && !allChecked;
+                                    };
+
+                                    parentCbs.forEach(cb => {
+                                        cb.addEventListener('change', updateSelectAllState);
+                                    });
+
+                                    // Initial state
+                                    updateSelectAllState();
+                                }
+                            });
+                        </script>
+                        @endpush
                         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Selecione um ou mais {{ strtolower($parentLabel) }}(s) para associar</p>
                         @error('parent_ids')
                             <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>

@@ -1329,7 +1329,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                 </div>
                                                 
                                                 <div class="space-y-3">
-                                                    <div class="p-3 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                    <div class="p-3 sewing-ui-muted rounded-xl border border-gray-200 dark:border-slate-700">
                                                         <label class="flex items-center cursor-pointer">
                                                             <input type="checkbox" id="different_detail_color_cb" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]" onchange="toggleDetailColorUI()">
                                                             <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Cor do detalhe diferente do tecido?</span>
@@ -1359,7 +1359,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4" id="wizard-options-gola">
                                                     <!-- Filled by JS -->
                                                 </div>
-                                                <div class="p-3 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                <div class="p-3 sewing-ui-muted rounded-xl border border-gray-200 dark:border-slate-700">
                                                     <label class="flex items-center cursor-pointer">
                                                         <input type="checkbox" id="different_collar_color_cb" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]">
                                                         <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Cor da gola diferente do tecido?</span>
