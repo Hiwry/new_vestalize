@@ -236,6 +236,15 @@
                         <div style="margin-top: 5px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 4px; padding: 6px;">
                             <strong style="color: #b45309; font-size: 11px;">OBSERVAÇÕES DO PEDIDO:</strong>
                             <div style="font-size: 11px; color: #78350f; line-height: 1.4;">
+                                @php
+                                    $printDesc = is_string($item->print_desc) ? json_decode($item->print_desc, true) : $item->print_desc;
+                                    $isClientModeling = isset($printDesc['is_client_modeling']) && $printDesc['is_client_modeling'];
+                                @endphp
+
+                                @if($isClientModeling)
+                                    <div style="font-weight: bold; color: #10b981;">• AMOSTRA DO CLIENTE (MODELAGEM PRÓPRIA)</div>
+                                @endif
+
                                 {{ $order->notes }}
                             </div>
                             

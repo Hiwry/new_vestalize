@@ -262,6 +262,15 @@
                                     <div style="font-weight: bold; color: #dc2626;">• {{ $autoNote }}</div>
                                 @endforeach
                                 
+                                @php
+                                    $printDesc = is_string($item->print_desc) ? json_decode($item->print_desc, true) : $item->print_desc;
+                                    $isClientModeling = isset($printDesc['is_client_modeling']) && $printDesc['is_client_modeling'];
+                                @endphp
+
+                                @if($isClientModeling)
+                                    <div style="font-weight: bold; color: #10b981;">• AMOSTRA DO CLIENTE (MODELAGEM PRÓPRIA)</div>
+                                @endif
+                                
                                 {{ $item->art_notes }} 
                                 @if($item->art_notes && $order->notes) | @endif 
                                 {{ $order->notes }}

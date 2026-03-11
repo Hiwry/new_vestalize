@@ -549,10 +549,21 @@
     @endif
 
     <!-- Observações -->
-    @if($order->notes)
+    @if($order->notes || $order->items->contains(fn($i) => isset(json_decode($i->print_desc ?? '{}', true)['is_client_modeling']) && json_decode($i->print_desc ?? '{}', true)['is_client_modeling']))
     <div class="section">
         <div class="section-title">OBSERVAÇÕES</div>
         <div style="padding: 8px; background-color: #f5f5f5; border-left: 4px solid var(--brand-primary); font-size: 9px; line-height: 1.4;">
+            @php
+                $hasClientModeling = $order->items->some(function($item) {
+                    $desc = is_string($item->print_desc) ? json_decode($item->print_desc, true) : $item->print_desc;
+                    return isset($desc['is_client_modeling']) && $desc['is_client_modeling'];
+                });
+            @endphp
+
+            @if($hasClientModeling)
+                <div style="font-weight: bold; color: #059669; margin-bottom: 4px;">• AMOSTRA DO CLIENTE (MODELAGEM PRÓPRIA VERIFICADA)</div>
+            @endif
+
             {{ $order->notes }}
         </div>
     </div>
