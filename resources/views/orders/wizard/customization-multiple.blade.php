@@ -330,7 +330,7 @@
                         </div>
                         
                         <!-- Aplicar no Item -->
-                        <div class="lg:col-span-3">
+                        <div class="lg:col-span-3 lg:row-start-1">
                             <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
                                 <div class="w-6 h-6 bg-amber-100 dark:bg-amber-900/30 rounded flex items-center justify-center">
                                     <svg class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -354,7 +354,7 @@
                         </div>
                         
                         <!-- Botão -->
-                        <div class="lg:col-span-1">
+                        <div class="lg:col-span-1 lg:col-start-12 lg:row-start-1 lg:self-start lg:pt-8">
                             <button type="submit" class="w-full h-11 px-4 bg-[#7c3aed] text-white stay-white rounded-lg hover:bg-[#6d28d9] transition-all font-semibold text-sm flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
