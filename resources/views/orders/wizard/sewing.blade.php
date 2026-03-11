@@ -124,6 +124,242 @@
         box-shadow: var(--sh-card-shadow) !important;
     }
 
+    .ow-sidebar-item {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.92)) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        box-shadow: none !important;
+    }
+
+    .dark .ow-sidebar-item {
+        background: linear-gradient(180deg, rgba(16, 32, 58, 0.96), rgba(22, 40, 71, 0.92)) !important;
+        border-color: color-mix(in srgb, var(--sh-card-border) 88%, transparent) !important;
+    }
+
+    .dark.avento-theme .ow-sidebar-item {
+        background: linear-gradient(180deg, rgba(16, 32, 58, 0.96), rgba(22, 40, 71, 0.92)) !important;
+        border-color: color-mix(in srgb, var(--sh-card-border) 88%, transparent) !important;
+    }
+
+    .ow-sidebar-item:hover {
+        border-color: var(--sh-accent) !important;
+    }
+
+    .ow-step-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: var(--sh-accent);
+        color: #fff !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 800;
+        box-shadow: none !important;
+    }
+
+    .sh-title {
+        font-size: 24px;
+        line-height: 1.1;
+        font-weight: 800;
+        color: var(--sh-text-primary);
+    }
+
+    .sh-subtitle {
+        margin-top: 3px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--sh-text-secondary);
+    }
+
+    .ow-progress-track {
+        background: color-mix(in srgb, var(--sh-input-bg, #e5e7eb) 78%, var(--sh-card-bg) 22%) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        overflow: hidden;
+    }
+
+    .ow-progress-fill {
+        display: block;
+        min-width: 0.75rem;
+        background: var(--sh-accent);
+        box-shadow: none !important;
+    }
+
+    #sublimation-fullpage-form .fullpage-sub-shell {
+        background: color-mix(in srgb, var(--sh-card-bg) 94%, var(--sh-accent) 6%) !important;
+        border-color: color-mix(in srgb, var(--sh-card-border) 72%, var(--sh-accent) 28%) !important;
+        box-shadow: var(--sh-card-shadow) !important;
+        overflow: hidden;
+    }
+
+    #sublimation-fullpage-form .fullpage-sub-header,
+    #sublimation-fullpage-form .fullpage-sub-footer {
+        background: color-mix(in srgb, var(--sh-card-bg) 88%, var(--sh-accent) 12%) !important;
+        border-color: var(--sh-card-border) !important;
+    }
+
+    #sublimation-fullpage-form .fullpage-sub-header {
+        margin: -1rem -1rem 1.25rem;
+        padding: 1rem 1rem 0.95rem;
+    }
+
+    #sublimation-fullpage-form .fullpage-sub-footer {
+        margin: 1.5rem -1rem -1rem;
+        padding: 1rem;
+    }
+
+    @media (min-width: 640px) {
+        #sublimation-fullpage-form .fullpage-sub-header {
+            margin: -1.25rem -1.25rem 1.5rem;
+            padding: 1.15rem 1.25rem 1.05rem;
+        }
+
+        #sublimation-fullpage-form .fullpage-sub-footer {
+            margin: 1.75rem -1.25rem -1.25rem;
+            padding: 1rem 1.25rem;
+        }
+    }
+
+    #sublimation-fullpage-form .fullpage-step-chip {
+        background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 78%, var(--sh-card-bg) 22%);
+        border-color: var(--sh-card-border) !important;
+        color: var(--sh-text-secondary) !important;
+        transition: all 0.2s ease-in-out;
+    }
+
+    #sublimation-fullpage-form .fullpage-step-index {
+        background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 62%, var(--sh-card-bg) 38%);
+        color: var(--sh-text-secondary);
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 78%, transparent);
+    }
+
+    #sublimation-fullpage-form .fullpage-step-chip.is-active {
+        background: rgba(124, 58, 237, 0.12) !important;
+        border-color: rgba(124, 58, 237, 0.45) !important;
+        color: #7c3aed !important;
+    }
+
+    #sublimation-fullpage-form .fullpage-step-chip.is-active .fullpage-step-index {
+        background: #7c3aed !important;
+        color: #ffffff !important;
+        border-color: transparent !important;
+    }
+
+    #sublimation-fullpage-form .fullpage-step-chip.is-complete {
+        background: rgba(124, 58, 237, 0.08) !important;
+        border-color: rgba(124, 58, 237, 0.22) !important;
+        color: #8b5cf6 !important;
+    }
+
+    #sublimation-fullpage-form .fullpage-step-chip.is-complete .fullpage-step-index {
+        background: rgba(124, 58, 237, 0.14) !important;
+        color: #7c3aed !important;
+        border-color: rgba(124, 58, 237, 0.15) !important;
+    }
+
+    #sublimation-fullpage-form select,
+    #sublimation-fullpage-form input:not([type="checkbox"]):not([type="file"]),
+    #sublimation-fullpage-form textarea {
+        background: var(--sh-input-bg, #f8fafc) !important;
+        border-color: color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        color: var(--sh-text-primary) !important;
+        border-radius: 1rem !important;
+        min-height: 3rem;
+    }
+
+    #sublimation-fullpage-form input[readonly] {
+        background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 74%, var(--sh-card-bg) 26%) !important;
+        font-weight: 700;
+    }
+
+    #sublimation-fullpage-form select:focus,
+    #sublimation-fullpage-form input:not([type="checkbox"]):not([type="file"]):focus,
+    #sublimation-fullpage-form textarea:focus {
+        border-color: rgba(124, 58, 237, 0.55) !important;
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12) !important;
+        outline: none;
+    }
+
+    #sublimation-fullpage-form .fullpage-sub-card {
+        background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 62%, var(--sh-card-bg) 38%) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        border-radius: 1rem;
+    }
+
+    #sublimation-fullpage-form .fullpage-sub-metric {
+        background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 68%, var(--sh-card-bg) 32%) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        border-radius: 1rem;
+    }
+
+    #sublimation-fullpage-form .fullpage-sub-metric.is-highlight {
+        background: rgba(124, 58, 237, 0.12) !important;
+        border-color: rgba(124, 58, 237, 0.24) !important;
+    }
+
+    #sublimation-fullpage-form .fullpage-sub-upload {
+        background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 58%, var(--sh-card-bg) 42%) !important;
+        border-color: color-mix(in srgb, var(--sh-card-border) 74%, var(--sh-accent) 26%) !important;
+    }
+
+    #sublimation-fullpage-form .fullpage-sub-upload:hover {
+        background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 48%, var(--sh-accent) 12%) !important;
+    }
+
+    #sublimation-fullpage-form .fullpage-sub-summary {
+        background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 64%, var(--sh-card-bg) 36%) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        border-radius: 1rem;
+    }
+
+    #sublimation-fullpage-form .fullpage-sub-addon-item {
+        background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 70%, var(--sh-card-bg) 30%) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        border-radius: 0.9rem;
+        transition: all 0.2s ease-in-out;
+    }
+
+    #sublimation-fullpage-form .fullpage-sub-addon-item:hover {
+        border-color: rgba(124, 58, 237, 0.35) !important;
+        background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 62%, var(--sh-accent) 8%) !important;
+    }
+
+    #sublimation-fullpage-form .fullpage-sub-addon-item:has(input:checked) {
+        border-color: rgba(124, 58, 237, 0.45) !important;
+        background: rgba(124, 58, 237, 0.12) !important;
+    }
+
+    #fullpage-special-fabric-fields {
+        background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 64%, var(--sh-card-bg) 36%) !important;
+        border-color: color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+    }
+
+    #fullpage-special-fabric-fields label {
+        color: var(--sh-text-secondary) !important;
+    }
+
+    #fullpage-special-fabric-hint {
+        color: var(--sh-text-secondary) !important;
+    }
+
+    #sublimation-fullpage-form #fullpage-step-prev,
+    #sublimation-fullpage-form #fullpage-step-submit {
+        background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 78%, var(--sh-card-bg) 22%) !important;
+        border-color: color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        color: var(--sh-text-primary) !important;
+    }
+
+    #sublimation-fullpage-form #fullpage-step-prev:hover,
+    #sublimation-fullpage-form #fullpage-step-submit:hover {
+        background: color-mix(in srgb, var(--sh-input-bg, #f8fafc) 68%, var(--sh-accent) 12%) !important;
+        border-color: rgba(124, 58, 237, 0.32) !important;
+    }
+
+    #sublimation-fullpage-form #fullpage-step-next {
+        background: #7c3aed !important;
+        border-color: #7c3aed !important;
+    }
+
 /* Animações Premium */
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
@@ -414,12 +650,74 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 }
 
 .wizard-personalization-card {
+    position: relative;
     min-height: 110px;
+}
+
+#sewing-wizard-modal .wizard-personalization-card {
+    overflow: hidden;
+}
+
+#sewing-wizard-modal .wizard-personalization-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    background: rgba(255, 255, 255, 0.08);
+    transition: opacity 0.2s ease-in-out;
+}
+
+#sewing-wizard-modal .wizard-personalization-card.is-selected {
+    background: #7c3aed !important;
+    border-color: rgba(196, 181, 253, 0.95) !important;
+    box-shadow: 0 18px 34px rgba(124, 58, 237, 0.28) !important;
+    transform: translateY(-2px);
+}
+
+#sewing-wizard-modal .wizard-personalization-card.is-selected::before {
+    content: "Selecionado";
+    position: absolute;
+    top: 0.65rem;
+    right: 0.65rem;
+    z-index: 1;
+    padding: 0.2rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.96);
+    color: #5b21b6;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+#sewing-wizard-modal .wizard-personalization-card.is-selected::after {
+    opacity: 1;
+}
+
+#sewing-wizard-modal .wizard-personalization-card.is-selected span {
+    color: #ffffff !important;
+}
+
+#sewing-wizard-modal .wizard-personalization-card.is-selected .wizard-personalization-icon {
+    background: rgba(255, 255, 255, 0.18) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff !important;
+}
+
+#sewing-wizard-modal .wizard-personalization-card.is-selected .wizard-personalization-icon i {
+    color: #ffffff !important;
 }
 
 @media (max-width: 640px) {
     .wizard-personalization-card {
         min-height: 98px;
+    }
+
+    #sewing-wizard-modal .wizard-personalization-card.is-selected::before {
+        top: 0.5rem;
+        right: 0.5rem;
+        font-size: 0.58rem;
     }
 }
 </style>
@@ -443,7 +741,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
         <!-- Progress Widget -->
         <div class="ow-progress p-4 mb-8">
-            <div class="w-full bg-gray-100 dark:bg-slate-800/50 rounded-full h-2">
+            <div class="ow-progress-track w-full rounded-full h-2">
                 <div class="ow-progress-fill h-2 rounded-full transition-all duration-700" style="width: 40%"></div>
             </div>
         </div>
@@ -594,9 +892,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
                             <!-- SUBLIMAÃ‡ÃƒO FULLPAGE FORM (Hidden - Shows when SUB.TOTAL is selected) -->
                             <div id="sublimation-fullpage-form" class="hidden">
-                                <div class="p-4 sm:p-5 bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700">
+                                <div class="fullpage-sub-shell p-4 sm:p-5 rounded-xl border border-gray-200 dark:border-slate-700">
                                     <!-- Header -->
-                                    <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-100 dark:border-slate-800">
+                                    <div class="fullpage-sub-header flex items-center justify-between mb-4 pb-4 border-b border-gray-100 dark:border-slate-800">
                                         <div>
                                             <h3 class="text-lg font-bold text-gray-900 dark:text-white">Sublimação Total</h3>
                                             <p id="fullpage-step-subtitle" class="text-sm text-gray-500 dark:text-slate-400">Etapa 1 de 3 · Configuração</p>
@@ -608,16 +906,16 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
                                     <!-- Stepper -->
                                     <div id="fullpage-step-indicator" class="grid grid-cols-3 gap-2 sm:gap-3 mb-5">
-                                        <div data-step="1" class="fullpage-step-chip flex items-center gap-2 px-3 py-2 rounded-lg border border-[#7c3aed]/40 bg-[#7c3aed]/10 text-[#7c3aed]">
-                                            <span class="w-6 h-6 rounded-full bg-[#7c3aed] text-white text-xs font-bold flex items-center justify-center">1</span>
+                                        <div data-step="1" class="fullpage-step-chip is-active flex items-center gap-2 px-3 py-2 rounded-lg border">
+                                            <span class="fullpage-step-index w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center">1</span>
                                             <span class="text-xs sm:text-sm font-semibold">Configuração</span>
                                         </div>
-                                        <div data-step="2" class="fullpage-step-chip flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400">
-                                            <span class="w-6 h-6 rounded-full bg-gray-200 dark:bg-slate-700 text-[11px] font-bold flex items-center justify-center">2</span>
+                                        <div data-step="2" class="fullpage-step-chip is-pending flex items-center gap-2 px-3 py-2 rounded-lg border">
+                                            <span class="fullpage-step-index w-6 h-6 rounded-full text-[11px] font-bold flex items-center justify-center">2</span>
                                             <span class="text-xs sm:text-sm font-semibold">Produção</span>
                                         </div>
-                                        <div data-step="3" class="fullpage-step-chip flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400">
-                                            <span class="w-6 h-6 rounded-full bg-gray-200 dark:bg-slate-700 text-[11px] font-bold flex items-center justify-center">3</span>
+                                        <div data-step="3" class="fullpage-step-chip is-pending flex items-center gap-2 px-3 py-2 rounded-lg border">
+                                            <span class="fullpage-step-index w-6 h-6 rounded-full text-[11px] font-bold flex items-center justify-center">3</span>
                                             <span class="text-xs sm:text-sm font-semibold">Revisão</span>
                                         </div>
                                     </div>
@@ -646,16 +944,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                 <div>
                                                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Tecido *</label>
-                                                    <select id="fullpage_sub_fabric_type" onchange="toggleFullpageSpecialFabric(); calculateFullpageSubTotal();" class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400 focus:border-gray-400">
+                                                    <select id="fullpage_sub_fabric_type" onchange="handleFullpageFabricTypeChange()" class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400 focus:border-gray-400">
                                                         <option value="">Selecione</option>
-                                                        <option value="PP">PP</option>
-                                                        <option value="CACHARREL">CACHARREL</option>
-                                                        <option value="OUTRO">OUTRO TECIDO</option>
                                                     </select>
                                                 </div>
                                                 <div>
                                                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Modelo *</label>
-                                                    <select id="fullpage_sub_model" class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400 focus:border-gray-400">
+                                                    <select id="fullpage_sub_model" onchange="calculateFullpageSubTotal()" class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400 focus:border-gray-400">
                                                         <option value="">Selecione</option>
                                                         <option value="BASICA">BASICA</option>
                                                         <option value="BABYLOOK">BABYLOOK</option>
@@ -664,14 +959,15 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                 </div>
                                             </div>
 
-                                            <div id="fullpage-special-fabric-fields" class="hidden p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800 space-y-3">
+                                            <div id="fullpage-special-fabric-fields" class="hidden p-3 rounded-lg border space-y-3">
                                                 <div>
-                                                    <label class="block text-xs font-semibold text-yellow-700 dark:text-yellow-300 mb-1">Nome do Tecido</label>
-                                                    <input type="text" id="fullpage_sub_fabric_custom" placeholder="Ex: PP Elastano Alure" class="w-full px-3 py-2 rounded-lg border border-yellow-300 dark:border-yellow-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-yellow-500">
+                                                    <label class="block text-xs font-semibold mb-1">Nome do Tecido</label>
+                                                    <input type="text" id="fullpage_sub_fabric_custom" oninput="syncFullpageSpecialFabricPricing(); calculateFullpageSubTotal();" placeholder="Ex: Dryfit" class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm">
                                                 </div>
                                                 <div>
-                                                    <label class="block text-xs font-semibold text-yellow-700 dark:text-yellow-300 mb-1">Acrescimo por tecido especial (R$)</label>
-                                                    <input type="number" id="fullpage_sub_fabric_surcharge" value="10.00" step="0.01" min="0" oninput="calculateFullpageSubTotal()" class="w-full px-3 py-2 rounded-lg border border-yellow-300 dark:border-yellow-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-yellow-500">
+                                                    <label class="block text-xs font-semibold mb-1">Acréscimo por tecido especial (R$)</label>
+                                                    <input type="number" id="fullpage_sub_fabric_surcharge" value="0.00" step="0.01" min="0" readonly class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm">
+                                                    <p id="fullpage-special-fabric-hint" class="mt-1 text-[11px]"></p>
                                                 </div>
                                             </div>
 
@@ -713,12 +1009,12 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
                                                     <div>
                                                         <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Adicionais</label>
-                                                        <div id="fullpage-sub-addons" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
+                                                        <div id="fullpage-sub-addons" class="fullpage-sub-card grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 rounded-lg border border-gray-200 dark:border-slate-700">
                                                             <p class="text-sm text-gray-400 col-span-full text-center py-2">Selecione um tipo primeiro</p>
                                                         </div>
                                                     </div>
 
-                                                    <div class="p-3 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
+                                                    <div class="fullpage-sub-card p-3 rounded-lg border border-gray-200 dark:border-slate-700">
                                                         <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                                             <input type="checkbox" id="fullpage_has_addon_colors" onchange="renderFullpageAddonColorFields()" class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500">
                                                             Terá cor nos adicionais?
@@ -728,15 +1024,15 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                 </div>
 
                                                 <div class="space-y-3">
-                                                    <div class="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700 text-center">
+                                                    <div class="fullpage-sub-metric p-3 rounded-lg border border-gray-200 dark:border-slate-700 text-center">
                                                         <span class="block text-xs text-gray-500 dark:text-slate-400 mb-0.5">Total de Peças</span>
                                                         <span class="text-2xl font-bold text-gray-900 dark:text-white" id="fullpage-total-qty">0</span>
                                                     </div>
-                                                    <div class="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700 text-center">
+                                                    <div class="fullpage-sub-metric p-3 rounded-lg border border-gray-200 dark:border-slate-700 text-center">
                                                         <span class="block text-xs text-gray-500 dark:text-slate-400 mb-0.5">Preço Unitário</span>
                                                         <span class="text-xl font-bold text-gray-900 dark:text-white" id="fullpage-unit-price">R$ 0,00</span>
                                                     </div>
-                                                    <div class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg text-center border border-gray-200 dark:border-slate-700">
+                                                    <div class="fullpage-sub-metric is-highlight p-4 rounded-lg text-center border border-gray-200 dark:border-slate-700">
                                                         <span class="block text-sm text-gray-600 dark:text-slate-400 mb-1">Total do Item</span>
                                                         <span class="text-3xl font-bold text-gray-900 dark:text-white" id="fullpage-total-price">R$ 0,00</span>
                                                         <p id="fullpage-price-breakdown" class="text-xs text-gray-500 dark:text-slate-400 mt-1">Base R$ 0,00 + Adicionais R$ 0,00 + Tecido R$ 0,00</p>
@@ -751,18 +1047,25 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                 <div class="space-y-3">
                                                     <div>
                                                         <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Arquivo Corel</label>
-                                                        <label class="flex flex-col items-center justify-center w-full h-20 border border-dashed border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                                                        <label class="fullpage-sub-upload flex flex-col items-center justify-center w-full min-h-20 px-3 py-3 border border-dashed border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer transition-colors">
                                                             <i class="fa-solid fa-upload text-gray-400 text-sm mb-0.5"></i>
-                                                            <span class="text-xs text-gray-500">.CDR, .AI, .PDF</span>
-                                                            <input type="file" id="fullpage_corel_file" class="hidden" accept=".cdr,.ai,.pdf,.eps">
+                                                            <span id="fullpage-corel-placeholder" class="text-xs text-gray-500">.CDR, .AI, .PDF</span>
+                                                            <span id="fullpage-corel-file-name" class="hidden mt-2 max-w-full px-3 py-1 rounded-full bg-[#7c3aed]/10 text-[#7c3aed] text-xs font-semibold truncate"></span>
+                                                            <input type="file" id="fullpage_corel_file" class="hidden" accept=".cdr,.ai,.pdf,.eps" onchange="previewFullpageCorelFile(this)">
                                                         </label>
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Imagem Capa</label>
-                                                        <label class="flex flex-col items-center justify-center w-full h-20 border border-dashed border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
-                                                            <i class="fa-solid fa-image text-gray-400 text-sm mb-0.5"></i>
-                                                            <span class="text-xs text-gray-500">PNG, JPG</span>
-                                                            <input type="file" id="fullpage_cover_image" class="hidden" accept="image/*">
+                                                        <label class="fullpage-sub-upload relative flex items-center justify-center w-full h-24 border border-dashed border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer transition-colors overflow-hidden">
+                                                            <div id="fullpage-cover-placeholder" class="flex flex-col items-center justify-center">
+                                                                <i class="fa-solid fa-image text-gray-400 text-sm mb-0.5"></i>
+                                                                <span class="text-xs text-gray-500">PNG, JPG</span>
+                                                            </div>
+                                                            <div id="fullpage-cover-preview-container" class="hidden absolute inset-0">
+                                                                <img id="fullpage-cover-preview" src="" alt="Preview da capa" class="w-full h-full object-cover">
+                                                                <div id="fullpage-cover-file-name" class="absolute inset-x-0 bottom-0 px-3 py-1.5 bg-slate-950/80 text-white text-[11px] font-medium truncate"></div>
+                                                            </div>
+                                                            <input type="file" id="fullpage_cover_image" class="hidden" accept="image/*" onchange="previewFullpageCoverImage(this)">
                                                         </label>
                                                     </div>
                                                 </div>
@@ -774,7 +1077,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                 </div>
                                             </div>
 
-                                            <div class="p-4 rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/60">
+                                            <div class="fullpage-sub-summary p-4 rounded-lg border border-gray-200 dark:border-slate-700">
                                                 <p class="text-sm text-gray-600 dark:text-slate-300 mb-2">Resumo final</p>
                                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
                                                     <div class="text-gray-700 dark:text-slate-300">Peças: <span id="fullpage-total-qty-review" class="font-semibold text-gray-900 dark:text-white">0</span></div>
@@ -787,7 +1090,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                     </div>
 
                                     <!-- Footer Nav -->
-                                    <div class="mt-6 pt-4 border-t border-gray-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                    <div class="fullpage-sub-footer mt-6 pt-4 border-t border-gray-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                         <button id="fullpage-step-prev" type="button" onclick="goToPrevFullpageSubStep()" class="hidden w-full sm:w-auto px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
                                             <i class="fa-solid fa-arrow-left mr-1"></i>
                                             Voltar
@@ -1180,7 +1483,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                         </div>
                                                     </div>
 
-                                                    <button type="button" onclick="submitSewingWizard()" class="w-full py-4 mt-6 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all transform hover:scale-[1.02]">
+                                                    <button type="button" id="submit-button" onclick="submitSewingWizard()" class="w-full py-4 mt-6 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all transform hover:scale-[1.02]">
                                                         Confirmar e Adicionar Item
                                                     </button>
                                                 </div>
@@ -1830,6 +2133,14 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     function openSewingWizard() {
         const modal = ensureSewingWizardPortal();
         if (modal) {
+            const submitButton = document.getElementById('submit-button');
+            const formAction = document.getElementById('form-action')?.value;
+            if (submitButton) {
+                submitButton.innerHTML = formAction === 'update_item'
+                    ? 'Salvar Alteracoes'
+                    : 'Confirmar e Adicionar Item';
+            }
+
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2082,7 +2393,11 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     function filterByParent(items, parentId) {
         if (!parentId) return items;
 
-        const parentIds = (Array.isArray(parentId) ? parentId : [parentId]).map(id => id?.toString());
+        const parentIds = (Array.isArray(parentId) ? parentId : [parentId])
+            .map(id => id?.toString())
+            .filter(id => id !== undefined && id !== null && id !== '');
+
+        if (parentIds.length === 0) return items;
 
         return items.filter(item => {
             if (Array.isArray(item.parent_ids)) {
@@ -2108,14 +2423,14 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
         container.innerHTML = personalizacaoList.map(item => {
             const isSelected = wizardData.personalizacao.includes(item.id.toString()) || wizardData.personalizacao.includes(item.id);
-            const activeClass = isSelected ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : '';
+            const activeClass = isSelected ? 'ring-2 ring-[#7c3aed] is-selected shadow-sm' : '';
             const key = normalizePersonalizationKey(item.slug || item.name || '');
             const style = personalizationIconMap[key] || personalizationIconMap.default;
 
             return `
             <label class="wizard-option-card wizard-personalization-card group cursor-pointer p-3 sm:p-3.5 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] hover:shadow-md transition-all duration-200 ease-in-out flex flex-col items-center justify-center gap-2 ${activeClass}">
                 <input type="checkbox" class="personalizacao-checkbox hidden" value="${item.id ?? ''}" ${isSelected ? 'checked' : ''} onchange="syncWizardPersonalizacaoUI()">
-                <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full ${style.bubble} flex items-center justify-center ${style.color}">
+                <div class="wizard-personalization-icon w-11 h-11 sm:w-12 sm:h-12 rounded-full ${style.bubble} flex items-center justify-center ${style.color}">
                      <i class="fa-solid ${style.icon} text-base"></i>
                 </div>
                 <span class="text-[11px] sm:text-xs font-bold text-center leading-tight text-gray-700 dark:text-slate-300 group-hover:text-[#7c3aed]">${item.name}</span>
@@ -2141,8 +2456,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             const isChecked = checkbox.checked;
             card.classList.toggle('ring-2', isChecked);
             card.classList.toggle('ring-[#7c3aed]', isChecked);
-            card.classList.toggle('bg-purple-50', isChecked);
-            card.classList.toggle('dark:bg-purple-900/20', isChecked);
+            card.classList.toggle('is-selected', isChecked);
             card.classList.toggle('shadow-sm', isChecked);
             card.classList.toggle('scale-105', isChecked);
 
@@ -2285,8 +2599,35 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         }).join('');
     }
 
+    function getEligibleCutParentIds() {
+        const parentIds = [];
+
+        if (wizardData.tipo_tecido?.id) {
+            parentIds.push(wizardData.tipo_tecido.id.toString());
+        }
+
+        if (wizardData.tecido?.id) {
+            parentIds.push(wizardData.tecido.id.toString());
+
+            const fabricTypes = filterByParent(getOptionList(['tipo_tecido']), wizardData.tecido.id);
+            fabricTypes.forEach(item => {
+                if (item?.id) {
+                    parentIds.push(item.id.toString());
+                }
+            });
+        }
+
+        return [...new Set(parentIds.filter(Boolean))];
+    }
+    window.getEligibleCutParentIds = getEligibleCutParentIds;
+
     function renderWizardCortes() {
-        const items = filterByParent(getOptionList(['tipo_corte', 'corte']), selectedPersonalizacoes);
+        const cutOptions = getOptionList(['tipo_corte', 'corte']);
+        const eligibleParentIds = getEligibleCutParentIds();
+        const items = eligibleParentIds.length
+            ? filterByParent(cutOptions, eligibleParentIds)
+            : cutOptions;
+
         renderSelectableOptionCards('wizard-options-corte', items, wizardData.tipo_corte?.id, 'selectWizardCorte');
     }
     window.renderWizardCortes = renderWizardCortes;
@@ -2851,11 +3192,33 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     window.submitSewingWizard = submitSewingWizard;
 
     async function editItem(itemId) {
+        const item = itemsData.find(i => i.id == itemId);
+        if (!item) {
+            alert('Item nÃ£o encontrado.');
+            return;
+        }
+
+        if (isGroupedFullpageSublimationItem(item)) {
+            await populateFullpageSubFormFromItem(item, false);
+            return;
+        }
+
         await populateWizardFromItem(itemId, false);
     }
     window.editItem = editItem;
 
     async function duplicateItem(itemId) {
+        const item = itemsData.find(i => i.id == itemId);
+        if (!item) {
+            alert('Item não encontrado.');
+            return;
+        }
+
+        if (isGroupedFullpageSublimationItem(item)) {
+            await populateFullpageSubFormFromItem(item, true);
+            return;
+        }
+
         await populateWizardFromItem(itemId, true);
     }
     window.duplicateItem = duplicateItem;
@@ -2904,6 +3267,11 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         
         const formTitle = document.getElementById('form-title');
         if (formTitle) formTitle.textContent = isDuplicate ? 'Duplicar Item' : 'Editar Item';
+
+        const submitButton = document.getElementById('submit-button');
+        if (submitButton) {
+            submitButton.innerHTML = isDuplicate ? 'Confirmar e Adicionar Item' : 'Salvar Alteracoes';
+        }
         
         let printDesc = {};
         try {
@@ -3078,7 +3446,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         selectedPersonalizacoes = [...wizardData.personalizacao];
         window.selectedPersonalizacoes = selectedPersonalizacoes;
 
-        wizardCurrentStep = isDuplicate ? 4 : 1; 
+        wizardCurrentStep = 4;
         window.wizardCurrentStep = wizardCurrentStep;
         openSewingWizard();
     }
@@ -3117,7 +3485,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         if (editingItemId) editingItemId.value = '';
         if (formAction) formAction.value = 'add_item';
         if (formTitle) formTitle.textContent = 'Adicionar Novo Item';
-        if (submitButton) submitButton.innerHTML = 'Adicionar Item';
+        if (submitButton) submitButton.innerHTML = 'Confirmar e Adicionar Item';
         if (sewingForm) sewingForm.reset();
         
         if (coverPreviewContainer) coverPreviewContainer.classList.add('hidden');
@@ -3593,7 +3961,49 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     let fullpageSubBaseUnitPrice = 0;
     let fullpageSubAddonsAdjustment = 0;
     let fullpageSubFabricSurcharge = 0;
+    let fullpageSubMatchedFabricAddonId = null;
+    let fullpageSubMode = 'add';
+    let fullpageSubEditingItemId = '';
+    let fullpageSubExistingCoverImage = '';
+    let fullpageSubExistingCorelFile = '';
+    let fullpageSubUnitCost = 0;
+    let fullpageSubTypeMeta = {
+        defaultFabricName: '',
+        startingPrice: 0,
+        startingQuantityFrom: null,
+        typeLabel: '',
+    };
     let fullpageSubCurrentStep = 1;
+
+    function getFullpageSubmitIdleHtml() {
+        if (fullpageSubMode === 'update') {
+            return '<i class="fa-solid fa-floppy-disk"></i> Salvar Alteracoes';
+        }
+
+        return fullpageSubMode === 'duplicate'
+            ? '<i class="fa-solid fa-copy"></i> Duplicar Item'
+            : '<i class="fa-solid fa-plus"></i> Adicionar Item';
+    }
+
+    function getFullpageSubmitLoadingHtml() {
+        if (fullpageSubMode === 'update') {
+            return '<i class="fa-solid fa-spinner animate-spin"></i> Salvando...';
+        }
+
+        return fullpageSubMode === 'duplicate'
+            ? '<i class="fa-solid fa-spinner animate-spin"></i> Duplicando...'
+            : '<i class="fa-solid fa-spinner animate-spin"></i> Adicionando...';
+    }
+
+    function setFullpageSubmitButtonMode(mode = 'add', editingItemId = '') {
+        fullpageSubMode = mode;
+        fullpageSubEditingItemId = mode === 'update' ? String(editingItemId || '') : '';
+
+        const submitBtn = document.getElementById('fullpage-step-submit');
+        if (submitBtn) {
+            submitBtn.innerHTML = getFullpageSubmitIdleHtml();
+        }
+    }
     
     // Show fullpage sublimation form
     function showSubFullpageForm() {
@@ -3707,30 +4117,15 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
         document.querySelectorAll('#fullpage-step-indicator .fullpage-step-chip').forEach(chip => {
             const chipStep = parseInt(chip.dataset.step, 10);
-            const bubble = chip.querySelector('span');
 
-            chip.classList.remove(
-                'border-[#7c3aed]/40', 'bg-[#7c3aed]/10', 'text-[#7c3aed]',
-                'border-purple-200', 'dark:border-purple-700', 'text-purple-600', 'dark:text-purple-300',
-                'border-gray-200', 'dark:border-slate-700', 'text-gray-500', 'dark:text-slate-400'
-            );
-            if (bubble) {
-                bubble.classList.remove(
-                    'bg-[#7c3aed]', 'text-white',
-                    'bg-purple-100', 'dark:bg-purple-900/40', 'text-purple-700', 'dark:text-purple-300',
-                    'bg-gray-200', 'dark:bg-slate-700'
-                );
-            }
+            chip.classList.remove('is-active', 'is-complete', 'is-pending');
 
             if (chipStep === safeStep) {
-                chip.classList.add('border-[#7c3aed]/40', 'bg-[#7c3aed]/10', 'text-[#7c3aed]');
-                if (bubble) bubble.classList.add('bg-[#7c3aed]', 'text-white');
+                chip.classList.add('is-active');
             } else if (chipStep < safeStep) {
-                chip.classList.add('border-purple-200', 'dark:border-purple-700', 'text-purple-600', 'dark:text-purple-300');
-                if (bubble) bubble.classList.add('bg-purple-100', 'dark:bg-purple-900/40', 'text-purple-700', 'dark:text-purple-300');
+                chip.classList.add('is-complete');
             } else {
-                chip.classList.add('border-gray-200', 'dark:border-slate-700', 'text-gray-500', 'dark:text-slate-400');
-                if (bubble) bubble.classList.add('bg-gray-200', 'dark:bg-slate-700');
+                chip.classList.add('is-pending');
             }
         });
 
@@ -3758,6 +4153,478 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     let isSubmittingFullpage = false;
 
     // --- SUB.TOTAL fullpage overrides ---
+    function normalizeFullpageLookupValue(value) {
+        return (value || '')
+            .toString()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim()
+            .toUpperCase();
+    }
+
+    function parseFullpageItemPrintDesc(item) {
+        if (!item) return {};
+        if (item.print_desc && typeof item.print_desc === 'object') {
+            return item.print_desc;
+        }
+        if (typeof item.print_desc === 'string' && item.print_desc.trim() !== '') {
+            try {
+                const parsed = JSON.parse(item.print_desc);
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (error) {
+                console.error('Erro ao parsear print_desc do item SUB. TOTAL', error);
+            }
+        }
+        return {};
+    }
+
+    function parseFullpageItemSizes(item) {
+        if (!item) return {};
+        if (item.sizes && typeof item.sizes === 'object') {
+            return item.sizes;
+        }
+        if (typeof item.sizes === 'string' && item.sizes.trim() !== '') {
+            try {
+                const parsed = JSON.parse(item.sizes);
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (error) {
+                console.error('Erro ao parsear tamanhos do item SUB. TOTAL', error);
+            }
+        }
+        return {};
+    }
+
+    function parseFullpageItemAddonIds(item, printDesc = parseFullpageItemPrintDesc(item)) {
+        let rawIds = [];
+
+        if (Array.isArray(item?.sublimation_addons)) {
+            rawIds = item.sublimation_addons;
+        } else if (typeof item?.sublimation_addons === 'string' && item.sublimation_addons.trim() !== '') {
+            try {
+                const parsed = JSON.parse(item.sublimation_addons);
+                rawIds = Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                console.error('Erro ao parsear adicionais do item SUB. TOTAL', error);
+            }
+        } else if (Array.isArray(printDesc.addons)) {
+            rawIds = printDesc.addons;
+        }
+
+        return rawIds
+            .map(id => parseInt(id, 10))
+            .filter(id => Number.isFinite(id) && id > 0);
+    }
+
+    function resolveFullpageFabricType(item, printDesc = parseFullpageItemPrintDesc(item)) {
+        const fabricType = String(printDesc.fabric_type || '').toUpperCase();
+        if (['PADRAO', 'PP', 'CACHARREL', 'OUTRO'].includes(fabricType)) {
+            return fabricType;
+        }
+
+        const fabricName = String(item?.fabric || '').toUpperCase();
+        if (fabricName === 'PP') return 'PP';
+        if (fabricName === 'CACHARREL') return 'CACHARREL';
+        return fabricName ? 'OUTRO' : '';
+    }
+
+    function resolveFullpageModelType(item, printDesc = parseFullpageItemPrintDesc(item)) {
+        const modelType = String(printDesc.model_type || '').toUpperCase();
+        if (['BASICA', 'BABYLOOK', 'INFANTIL'].includes(modelType)) {
+            return modelType;
+        }
+
+        const modelName = String(item?.model || '').toUpperCase();
+        if (modelName.includes('BABYLOOK')) return 'BABYLOOK';
+        if (modelName.includes('INFANTIL')) return 'INFANTIL';
+        if (modelName.includes('BASICA')) return 'BASICA';
+        return '';
+    }
+
+    function getFullpageBaseName(path) {
+        return String(path || '').split('/').pop() || '';
+    }
+
+    function isGroupedFullpageSublimationItem(item) {
+        if (!item) return false;
+        if (item.is_sublimation_total === true || item.is_sublimation_total === 1 || item.is_sublimation_total === '1') {
+            return true;
+        }
+        const printDesc = parseFullpageItemPrintDesc(item);
+        return !!printDesc.is_sublimation_total;
+    }
+
+    function resolveFullpageSublimationType(item) {
+        if (!item) return '';
+        if (item.sublimation_type) {
+            return String(item.sublimation_type);
+        }
+        const printDesc = parseFullpageItemPrintDesc(item);
+        return typeof printDesc.type === 'string' ? printDesc.type : '';
+    }
+
+    function getFullpageGroupedExistingQty(typeSlug, excludeItemId = null) {
+        if (!typeSlug) return 0;
+
+        const currentItems = Array.isArray(itemsData)
+            ? itemsData
+            : (Array.isArray(window.itemsData) ? window.itemsData : []);
+
+        return currentItems.reduce((sum, item) => {
+            if (!isGroupedFullpageSublimationItem(item)) {
+                return sum;
+            }
+
+            if (resolveFullpageSublimationType(item) !== typeSlug) {
+                return sum;
+            }
+
+            if (excludeItemId && String(item.id) === String(excludeItemId)) {
+                return sum;
+            }
+
+            return sum + (parseInt(item.quantity, 10) || 0);
+        }, 0);
+    }
+
+    function setFullpageUploadActiveState(input, isActive) {
+        const uploadCard = input?.closest('.fullpage-sub-upload');
+        if (!uploadCard) return;
+
+        uploadCard.classList.toggle('border-[#7c3aed]', isActive);
+        uploadCard.classList.toggle('bg-[#7c3aed]/5', isActive);
+    }
+
+    function resetFullpageCorelPreview() {
+        fullpageSubExistingCorelFile = '';
+
+        const fileName = document.getElementById('fullpage-corel-file-name');
+        const placeholder = document.getElementById('fullpage-corel-placeholder');
+        const input = document.getElementById('fullpage_corel_file');
+
+        if (fileName) {
+            fileName.textContent = '';
+            fileName.classList.add('hidden');
+        }
+        if (placeholder) {
+            placeholder.classList.remove('hidden');
+        }
+
+        setFullpageUploadActiveState(input, false);
+    }
+
+    function previewFullpageCorelFile(input) {
+        const file = input?.files?.[0];
+        const fileName = document.getElementById('fullpage-corel-file-name');
+        const placeholder = document.getElementById('fullpage-corel-placeholder');
+
+        if (!file) {
+            resetFullpageCorelPreview();
+            return;
+        }
+
+        fullpageSubExistingCorelFile = '';
+
+        if (fileName) {
+            fileName.textContent = file.name;
+            fileName.classList.remove('hidden');
+        }
+        if (placeholder) {
+            placeholder.classList.add('hidden');
+        }
+
+        setFullpageUploadActiveState(input, true);
+    }
+    window.previewFullpageCorelFile = previewFullpageCorelFile;
+
+    function resetFullpageCoverPreview() {
+        fullpageSubExistingCoverImage = '';
+
+        const placeholder = document.getElementById('fullpage-cover-placeholder');
+        const previewContainer = document.getElementById('fullpage-cover-preview-container');
+        const previewImage = document.getElementById('fullpage-cover-preview');
+        const fileName = document.getElementById('fullpage-cover-file-name');
+        const input = document.getElementById('fullpage_cover_image');
+
+        if (placeholder) {
+            placeholder.classList.remove('hidden');
+        }
+        if (previewContainer) {
+            previewContainer.classList.add('hidden');
+        }
+        if (previewImage) {
+            previewImage.src = '';
+        }
+        if (fileName) {
+            fileName.textContent = '';
+        }
+
+        setFullpageUploadActiveState(input, false);
+    }
+
+    function previewFullpageCoverImage(input) {
+        const file = input?.files?.[0];
+        const placeholder = document.getElementById('fullpage-cover-placeholder');
+        const previewContainer = document.getElementById('fullpage-cover-preview-container');
+        const previewImage = document.getElementById('fullpage-cover-preview');
+        const fileName = document.getElementById('fullpage-cover-file-name');
+
+        if (!file) {
+            resetFullpageCoverPreview();
+            return;
+        }
+
+        fullpageSubExistingCoverImage = '';
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            if (previewImage) {
+                previewImage.src = event.target?.result || '';
+            }
+            if (previewContainer) {
+                previewContainer.classList.remove('hidden');
+            }
+            if (placeholder) {
+                placeholder.classList.add('hidden');
+            }
+            if (fileName) {
+                fileName.textContent = file.name;
+            }
+
+            setFullpageUploadActiveState(input, true);
+        };
+        reader.readAsDataURL(file);
+    }
+    window.previewFullpageCoverImage = previewFullpageCoverImage;
+
+    function setExistingFullpageCorelFile(filePath) {
+        fullpageSubExistingCorelFile = String(filePath || '').trim();
+
+        const fileName = document.getElementById('fullpage-corel-file-name');
+        const placeholder = document.getElementById('fullpage-corel-placeholder');
+        const input = document.getElementById('fullpage_corel_file');
+        if (input) input.value = '';
+
+        if (!fullpageSubExistingCorelFile) {
+            resetFullpageCorelPreview();
+            return;
+        }
+
+        if (fileName) {
+            fileName.textContent = getFullpageBaseName(fullpageSubExistingCorelFile);
+            fileName.classList.remove('hidden');
+        }
+        if (placeholder) {
+            placeholder.classList.add('hidden');
+        }
+
+        setFullpageUploadActiveState(input, true);
+    }
+
+    function setExistingFullpageCoverImage(filePath, imageUrl = '') {
+        fullpageSubExistingCoverImage = String(filePath || '').trim();
+
+        const placeholder = document.getElementById('fullpage-cover-placeholder');
+        const previewContainer = document.getElementById('fullpage-cover-preview-container');
+        const previewImage = document.getElementById('fullpage-cover-preview');
+        const fileName = document.getElementById('fullpage-cover-file-name');
+        const input = document.getElementById('fullpage_cover_image');
+        if (input) input.value = '';
+
+        if (!fullpageSubExistingCoverImage) {
+            resetFullpageCoverPreview();
+            return;
+        }
+
+        const normalizedPath = fullpageSubExistingCoverImage.replace(/^\/+/, '');
+        const resolvedUrl = imageUrl || (normalizedPath ? `${storageUrl}${normalizedPath}` : '');
+
+        if (previewImage) {
+            previewImage.src = resolvedUrl;
+        }
+        if (previewContainer) {
+            previewContainer.classList.remove('hidden');
+        }
+        if (placeholder) {
+            placeholder.classList.add('hidden');
+        }
+        if (fileName) {
+            fileName.textContent = getFullpageBaseName(fullpageSubExistingCoverImage);
+        }
+
+        setFullpageUploadActiveState(input, true);
+    }
+
+    function populateFullpageFabricOptions() {
+        const fabricSelect = document.getElementById('fullpage_sub_fabric_type');
+        if (!fabricSelect) return;
+
+        const currentValue = fabricSelect.value || '';
+        const defaultFabricName = fullpageSubTypeMeta.defaultFabricName || 'Tecido padrão';
+
+        fabricSelect.innerHTML = `
+            <option value="">Selecione</option>
+            <option value="PADRAO">${defaultFabricName}</option>
+            <option value="PP">PP</option>
+            <option value="CACHARREL">CACHARREL</option>
+            <option value="OUTRO">OUTRO TECIDO</option>
+        `;
+
+        fabricSelect.value = ['PADRAO', 'PP', 'CACHARREL', 'OUTRO'].includes(currentValue)
+            ? currentValue
+            : (fullpageSubTypeMeta.defaultFabricName ? 'PADRAO' : '');
+    }
+
+    async function populateFullpageSubFormFromItem(item, isDuplicate = true) {
+        if (!item || !isGroupedFullpageSublimationItem(item)) {
+            return false;
+        }
+
+        const printDesc = parseFullpageItemPrintDesc(item);
+        const typeSlug = resolveFullpageSublimationType(item);
+        if (!typeSlug) {
+            alert('Tipo de SUB. TOTAL não encontrado para este item.');
+            return false;
+        }
+
+        resetFullpageSubForm();
+        showSubFullpageForm();
+        setFullpageSubmitButtonMode(isDuplicate ? 'duplicate' : 'update', isDuplicate ? '' : item.id);
+
+        fullpageSubUnitCost = parseFloat(item.unit_cost || 0) || 0;
+
+        const typeSelect = document.getElementById('fullpage_sub_type');
+        if (typeSelect) {
+            typeSelect.value = typeSlug;
+        }
+        await loadFullpageSubAddons();
+
+        const artInput = document.getElementById('fullpage_art_name');
+        if (artInput) {
+            artInput.value = item.art_name || '';
+        }
+
+        const fabricType = resolveFullpageFabricType(item, printDesc);
+        const fabricTypeSelect = document.getElementById('fullpage_sub_fabric_type');
+        if (fabricTypeSelect) {
+            fabricTypeSelect.value = fabricType || '';
+        }
+
+        const fabricCustomInput = document.getElementById('fullpage_sub_fabric_custom');
+        if (fabricCustomInput) {
+            fabricCustomInput.value = fabricType === 'OUTRO'
+                ? (printDesc.fabric_custom || item.fabric || '')
+                : '';
+        }
+
+        const fabricColorInput = document.getElementById('fullpage_sub_fabric_color');
+        if (fabricColorInput) {
+            fabricColorInput.value = printDesc.fabric_color || item.color || 'BRANCO';
+        }
+
+        const baseCollarInput = document.getElementById('fullpage_sub_base_collar');
+        if (baseCollarInput) {
+            baseCollarInput.value = printDesc.base_collar || String(item.collar || 'REDONDA').split('+')[0].trim() || 'REDONDA';
+        }
+
+        const modelSelect = document.getElementById('fullpage_sub_model');
+        if (modelSelect) {
+            modelSelect.value = resolveFullpageModelType(item, printDesc);
+        }
+
+        handleFullpageFabricTypeChange();
+
+        const selectedAddonIds = parseFullpageItemAddonIds(item, printDesc);
+        document.querySelectorAll('#fullpage-sub-addons input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = selectedAddonIds.includes(parseInt(checkbox.value, 10));
+        });
+
+        const addonColorMap = printDesc.addon_color_map && typeof printDesc.addon_color_map === 'object'
+            ? printDesc.addon_color_map
+            : {};
+        const hasAddonColors = !!printDesc.has_addon_colors || Object.keys(addonColorMap).length > 0;
+        const addonColorsCheckbox = document.getElementById('fullpage_has_addon_colors');
+        if (addonColorsCheckbox) {
+            addonColorsCheckbox.checked = hasAddonColors;
+        }
+
+        renderFullpageAddonColorFields();
+        Object.entries(addonColorMap).forEach(([addonId, color]) => {
+            const input = document.querySelector(`#fullpage-addon-color-fields input[data-addon-color-id="${addonId}"]`);
+            if (input) {
+                input.value = color || '';
+            }
+        });
+
+        const itemSizes = parseFullpageItemSizes(item);
+        document.querySelectorAll('.fullpage-sub-size').forEach(input => {
+            const sizeKey = input.dataset.size;
+            input.value = parseInt(itemSizes[sizeKey], 10) || 0;
+        });
+
+        const notesInput = document.getElementById('fullpage_notes');
+        if (notesInput) {
+            notesInput.value = item.art_notes || '';
+        }
+
+        setExistingFullpageCoverImage(item.cover_image || '', item.cover_image_url || '');
+        setExistingFullpageCorelFile(item.corel_file_path || printDesc.corel_file || '');
+
+        await calculateFullpageSubTotal();
+        setFullpageSubStep(3);
+
+        return true;
+    }
+    window.populateFullpageSubFormFromItem = populateFullpageSubFormFromItem;
+
+    function getMatchedFullpageFabricAddon() {
+        const fabricType = document.getElementById('fullpage_sub_fabric_type')?.value || '';
+        const fabricName = document.getElementById('fullpage_sub_fabric_custom')?.value || '';
+
+        if (fabricType !== 'OUTRO' || !fabricName.trim()) {
+            return null;
+        }
+
+        const normalizedFabricName = normalizeFullpageLookupValue(fabricName);
+        return fullpageSubAddons.find(addon => {
+            const normalizedAddonName = normalizeFullpageLookupValue(addon.name);
+            return normalizedAddonName === normalizedFabricName
+                || normalizedAddonName.includes(normalizedFabricName)
+                || normalizedFabricName.includes(normalizedAddonName);
+        }) || null;
+    }
+
+    function syncFullpageSpecialFabricPricing() {
+        const surchargeInput = document.getElementById('fullpage_sub_fabric_surcharge');
+        const hint = document.getElementById('fullpage-special-fabric-hint');
+        if (!surchargeInput) return;
+
+        const matchedAddon = getMatchedFullpageFabricAddon();
+        fullpageSubMatchedFabricAddonId = matchedAddon ? parseInt(matchedAddon.id, 10) : null;
+
+        if (matchedAddon) {
+            surchargeInput.value = Number(parseFloat(matchedAddon.price) || 0).toFixed(2);
+            if (hint) {
+                hint.textContent = `Valor configurado em SUB. TOTAL > ${fullpageSubTypeMeta.typeLabel || 'Tipo'} para "${matchedAddon.name}".`;
+            }
+            return;
+        }
+
+        surchargeInput.value = '0.00';
+        if (hint) {
+            const hasFabricName = !!document.getElementById('fullpage_sub_fabric_custom')?.value?.trim();
+            hint.textContent = hasFabricName
+                ? 'Nenhum acréscimo configurado para este tecido no painel de preços.'
+                : '';
+        }
+    }
+    window.syncFullpageSpecialFabricPricing = syncFullpageSpecialFabricPricing;
+
+    function handleFullpageFabricTypeChange() {
+        toggleFullpageSpecialFabric();
+        calculateFullpageSubTotal();
+    }
+    window.handleFullpageFabricTypeChange = handleFullpageFabricTypeChange;
+
     function toggleFullpageSpecialFabric() {
         const fabricType = document.getElementById('fullpage_sub_fabric_type')?.value || '';
         const wrapper = document.getElementById('fullpage-special-fabric-fields');
@@ -3768,12 +4635,15 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         if (fabricType === 'OUTRO') {
             wrapper.classList.remove('hidden');
             customInput.required = true;
-            if ((parseFloat(surchargeInput.value || '0') || 0) <= 0) surchargeInput.value = '10.00';
+            syncFullpageSpecialFabricPricing();
         } else {
             wrapper.classList.add('hidden');
             customInput.required = false;
             customInput.value = '';
             surchargeInput.value = '0.00';
+            fullpageSubMatchedFabricAddonId = null;
+            const hint = document.getElementById('fullpage-special-fabric-hint');
+            if (hint) hint.textContent = '';
         }
     }
     window.toggleFullpageSpecialFabric = toggleFullpageSpecialFabric;
@@ -3789,6 +4659,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     function getFullpageFabricSurcharge() {
         const fabricType = document.getElementById('fullpage_sub_fabric_type')?.value || '';
         if (fabricType !== 'OUTRO') return 0;
+        syncFullpageSpecialFabricPricing();
         const inputValue = parseFloat(document.getElementById('fullpage_sub_fabric_surcharge')?.value || '0');
         return Number.isFinite(inputValue) ? Math.max(0, inputValue) : 0;
     }
@@ -3851,6 +4722,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         if (!typeSlug) {
             container.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center py-4">Selecione um tipo primeiro</p>';
             fullpageSubAddons = [];
+            fullpageSubTypeMeta = {
+                defaultFabricName: '',
+                startingPrice: 0,
+                startingQuantityFrom: null,
+                typeLabel: '',
+            };
+            populateFullpageFabricOptions();
             renderFullpageAddonColorFields();
             calculateFullpageSubTotal();
             return;
@@ -3862,6 +4740,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             const response = await fetch(`/api/sublimation-total/addons/${typeSlug}`);
             const payload = await response.json();
             const addons = Array.isArray(payload?.addons) ? payload.addons : (Array.isArray(payload?.data) ? payload.data : []);
+            fullpageSubTypeMeta = {
+                defaultFabricName: payload?.default_fabric_name || '',
+                startingPrice: parseFloat(payload?.starting_price || 0) || 0,
+                startingQuantityFrom: payload?.starting_quantity_from ?? null,
+                typeLabel: payload?.type_name || typeSlug,
+            };
+            populateFullpageFabricOptions();
 
             if (payload?.success && addons.length > 0) {
                 fullpageSubAddons = addons;
@@ -3873,7 +4758,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                             ? `-R$${Math.abs(addonPrice).toFixed(2).replace('.', ',')}`
                             : '';
                     return `
-                    <label class="flex items-center gap-2 p-2.5 bg-gray-50 dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-700 cursor-pointer hover:border-purple-400 transition-colors">
+                    <label class="fullpage-sub-addon-item flex items-center gap-2 p-2.5 cursor-pointer">
                         <input type="checkbox" name="fullpage_addons[]" value="${addon.id}" onchange="calculateFullpageSubTotal(); renderFullpageAddonColorFields();" class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500">
                         <span class="text-sm text-gray-700 dark:text-slate-300 flex-1">${addon.name}</span>
                         ${priceText ? `<span class="text-xs font-bold ${addonPrice > 0 ? 'text-green-600' : 'text-red-500'}">${priceText}</span>` : ''}
@@ -3887,9 +4772,18 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         } catch (error) {
             console.error('Error loading addons:', error);
             fullpageSubAddons = [];
+            fullpageSubTypeMeta = {
+                defaultFabricName: '',
+                startingPrice: 0,
+                startingQuantityFrom: null,
+                typeLabel: typeSlug,
+            };
+            populateFullpageFabricOptions();
             container.innerHTML = '<p class="text-sm text-red-500 col-span-full text-center py-4">Erro ao carregar adicionais</p>';
         }
 
+        toggleFullpageSpecialFabric();
+        syncFullpageSpecialFabricPricing();
         renderFullpageAddonColorFields();
         calculateFullpageSubTotal();
     }
@@ -3909,21 +4803,30 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const qtyReviewEl = document.getElementById('fullpage-total-qty-review');
         if (qtyReviewEl) qtyReviewEl.textContent = totalQty;
 
+        const groupedExistingQty = getFullpageGroupedExistingQty(
+            typeSlug,
+            fullpageSubMode === 'update' ? fullpageSubEditingItemId : null
+        );
+        const pricingQty = totalQty > 0 ? totalQty + groupedExistingQty : 0;
+
+        fullpageSubFabricSurcharge = getFullpageFabricSurcharge();
+
         const selectedAddonIds = getSelectedFullpageAddonIds();
         fullpageSubAddonsAdjustment = selectedAddonIds.reduce((sum, addonId) => {
+            if (fullpageSubMatchedFabricAddonId && parseInt(addonId, 10) === fullpageSubMatchedFabricAddonId) {
+                return sum;
+            }
             const addon = fullpageSubAddons.find(a => parseInt(a.id, 10) === addonId);
             return sum + (addon ? (parseFloat(addon.price) || 0) : 0);
         }, 0);
+        fullpageSubBaseUnitPrice = fullpageSubTypeMeta.startingPrice || 0;
 
-        fullpageSubFabricSurcharge = getFullpageFabricSurcharge();
-        fullpageSubBaseUnitPrice = 0;
-
-        if (typeSlug && totalQty > 0) {
+        if (typeSlug && pricingQty > 0) {
             try {
-                const response = await fetch(`/api/sublimation-total/price/${typeSlug}/${totalQty}`);
+                const response = await fetch(`/api/sublimation-total/price/${typeSlug}/${pricingQty}`);
                 const payload = await response.json();
                 if (payload?.success) {
-                    fullpageSubBaseUnitPrice = parseFloat(payload.price) || 0;
+                    fullpageSubBaseUnitPrice = parseFloat(payload.price) || fullpageSubBaseUnitPrice;
                 }
             } catch (error) {
                 console.error('Error fetching price:', error);
@@ -3950,7 +4853,10 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
         const breakdownEl = document.getElementById('fullpage-price-breakdown');
         if (breakdownEl) {
-            const breakdownText = `Base ${formatMoney(fullpageSubBaseUnitPrice)} ${addonSign} Adicionais ${formatMoney(Math.abs(fullpageSubAddonsAdjustment))} ${fabricSign} Tecido ${formatMoney(Math.abs(fullpageSubFabricSurcharge))}`;
+            let breakdownText = `Base ${formatMoney(fullpageSubBaseUnitPrice)} ${addonSign} Adicionais ${formatMoney(Math.abs(fullpageSubAddonsAdjustment))} ${fabricSign} Tecido ${formatMoney(Math.abs(fullpageSubFabricSurcharge))}`;
+            if (groupedExistingQty > 0 && pricingQty > totalQty) {
+                breakdownText += ` · Faixa aplicada com ${pricingQty} peça(s) somadas`;
+            }
             breakdownEl.textContent = breakdownText;
             const breakdownReviewEl = document.getElementById('fullpage-price-breakdown-review');
             if (breakdownReviewEl) breakdownReviewEl.textContent = breakdownText;
@@ -3962,15 +4868,15 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         if (isSubmittingFullpage) return false;
 
         const submitBtn = document.querySelector('#sublimation-fullpage-form button[onclick*="submitFullpageSubItem"]');
-        const idleHtml = '<i class="fa-solid fa-plus"></i> Adicionar Item';
-        const loadingHtml = '<i class="fa-solid fa-spinner animate-spin"></i> Adicionando...';
         const setSubmittingState = (loading) => {
             isSubmittingFullpage = loading;
             if (!submitBtn) return;
             submitBtn.disabled = loading;
-            submitBtn.innerHTML = loading ? loadingHtml : idleHtml;
+            submitBtn.innerHTML = loading ? getFullpageSubmitLoadingHtml() : getFullpageSubmitIdleHtml();
         };
 
+        const isUpdate = fullpageSubMode === 'update';
+        const wasDuplicate = fullpageSubMode === 'duplicate';
         const typeSlug = document.getElementById('fullpage_sub_type')?.value || '';
         const artName = document.getElementById('fullpage_art_name')?.value?.trim() || '';
         const fabricType = document.getElementById('fullpage_sub_fabric_type')?.value || '';
@@ -4022,7 +4928,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
         await calculateFullpageSubTotal();
 
-        const selectedAddons = getSelectedFullpageAddonIds();
+        const selectedAddons = getSelectedFullpageAddonIds().filter(addonId => {
+            return !fullpageSubMatchedFabricAddonId || parseInt(addonId, 10) !== fullpageSubMatchedFabricAddonId;
+        });
         const addonColorMap = {};
         if (hasAddonColors) {
             selectedAddons.forEach(addonId => {
@@ -4034,7 +4942,10 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         }
 
         const formData = new FormData();
-        formData.append('action', 'add_sublimation_item');
+        formData.append('action', isUpdate ? 'update_item' : 'add_sublimation_item');
+        if (isUpdate && fullpageSubEditingItemId) {
+            formData.append('editing_item_id', fullpageSubEditingItemId);
+        }
         formData.append('sublimation_type', typeSlug);
         formData.append('art_name', artName);
 
@@ -4053,16 +4964,25 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
         formData.append('quantity', String(totalQty));
         formData.append('unit_price', Number(fullpageSubUnitPrice || 0).toFixed(2));
+        formData.append('unit_cost', Number(fullpageSubUnitCost || 0).toFixed(2));
         formData.append('art_notes', document.getElementById('fullpage_notes')?.value || '');
         formData.append('_token', document.querySelector('input[name="_token"]')?.value || '');
 
         selectedAddons.forEach(id => formData.append('sublimation_addons[]', String(id)));
 
         const coverFile = document.getElementById('fullpage_cover_image')?.files?.[0];
-        if (coverFile) formData.append('item_cover_image', coverFile);
+        if (coverFile) {
+            formData.append('item_cover_image', coverFile);
+        } else if (fullpageSubExistingCoverImage) {
+            formData.append('existing_cover_image', fullpageSubExistingCoverImage);
+        }
 
         const corelFile = document.getElementById('fullpage_corel_file')?.files?.[0];
-        if (corelFile) formData.append('corel_file', corelFile);
+        if (corelFile) {
+            formData.append('corel_file', corelFile);
+        } else if (fullpageSubExistingCorelFile) {
+            formData.append('existing_corel_file', fullpageSubExistingCorelFile);
+        }
 
         try {
             const response = await fetch('{{ isset($editData) ? route("orders.edit.sewing") : route("orders.wizard.sewing") }}', {
@@ -4073,7 +4993,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
             const data = await response.json();
             if (!data.success) {
-                alert(data.message || 'Erro ao adicionar item.');
+                alert(data.message || (isUpdate ? 'Erro ao atualizar item.' : 'Erro ao adicionar item.'));
                 return false;
             }
 
@@ -4086,9 +5006,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             }
 
             hideSubFullpageForm();
-            resetFullpageSubForm();
 
-            if (window.showToast) window.showToast('Item SUB. TOTAL adicionado!', 'success');
+            if (window.showToast) {
+                const successMessage = isUpdate
+                    ? 'Item SUB. TOTAL atualizado!'
+                    : (wasDuplicate ? 'Item SUB. TOTAL duplicado!' : 'Item SUB. TOTAL adicionado!');
+                window.showToast(successMessage, 'success');
+            }
             return true;
         } catch (error) {
             console.error('Error:', error);
@@ -4117,7 +5041,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         if (fabricCustomInput) fabricCustomInput.value = '';
 
         const fabricSurchargeInput = document.getElementById('fullpage_sub_fabric_surcharge');
-        if (fabricSurchargeInput) fabricSurchargeInput.value = '10.00';
+        if (fabricSurchargeInput) fabricSurchargeInput.value = '0.00';
+
+        const fabricColorInput = document.getElementById('fullpage_sub_fabric_color');
+        if (fabricColorInput) fabricColorInput.value = 'BRANCO';
+
+        const baseCollarInput = document.getElementById('fullpage_sub_base_collar');
+        if (baseCollarInput) baseCollarInput.value = 'REDONDA';
 
         const hasAddonColors = document.getElementById('fullpage_has_addon_colors');
         if (hasAddonColors) hasAddonColors.checked = false;
@@ -4137,9 +5067,11 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
         const coverInput = document.getElementById('fullpage_cover_image');
         if (coverInput) coverInput.value = '';
+        resetFullpageCoverPreview();
 
         const corelInput = document.getElementById('fullpage_corel_file');
         if (corelInput) corelInput.value = '';
+        resetFullpageCorelPreview();
 
         const addonsContainer = document.getElementById('fullpage-sub-addons');
         if (addonsContainer) addonsContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center py-4">Selecione um tipo primeiro</p>';
@@ -4149,6 +5081,22 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         fullpageSubBaseUnitPrice = 0;
         fullpageSubAddonsAdjustment = 0;
         fullpageSubFabricSurcharge = 0;
+        fullpageSubMatchedFabricAddonId = null;
+        fullpageSubUnitCost = 0;
+        fullpageSubTypeMeta = {
+            defaultFabricName: '',
+            startingPrice: 0,
+            startingQuantityFrom: null,
+            typeLabel: '',
+        };
+
+        if (fabricTypeSelect) {
+            fabricTypeSelect.innerHTML = '<option value="">Selecione</option>';
+            fabricTypeSelect.value = '';
+        }
+
+        const specialFabricHint = document.getElementById('fullpage-special-fabric-hint');
+        if (specialFabricHint) specialFabricHint.textContent = '';
 
         const qtyEl = document.getElementById('fullpage-total-qty');
         if (qtyEl) qtyEl.textContent = '0';
@@ -4171,6 +5119,8 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         if (breakdownReviewEl) breakdownReviewEl.textContent = 'Base R$ 0,00 + Adicionais R$ 0,00 + Tecido R$ 0,00';
 
         toggleFullpageSpecialFabric();
+        fullpageSubEditingItemId = '';
+        setFullpageSubmitButtonMode('add');
         setFullpageSubStep(1);
     }
     window.resetFullpageSubForm = resetFullpageSubForm;

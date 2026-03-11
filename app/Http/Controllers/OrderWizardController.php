@@ -314,7 +314,7 @@ class OrderWizardController extends Controller
             'sublimation_addons' => 'nullable|array',
             'sublimation_addons.*' => 'integer|exists:sublimation_product_addons,id',
             'art_name' => 'required|string|max:255',
-            'fabric_type' => 'required|string|in:PP,CACHARREL,OUTRO',
+            'fabric_type' => 'required|string|in:PADRAO,PP,CACHARREL,OUTRO',
             'fabric_custom' => 'nullable|string|max:120|required_if:fabric_type,OUTRO',
             'fabric_color' => 'nullable|string|max:50',
             'model_type' => 'required|string|in:BASICA,BABYLOOK,INFANTIL',
@@ -328,12 +328,14 @@ class OrderWizardController extends Controller
             'unit_cost' => 'nullable|numeric|min:0',
             'item_cover_image' => 'nullable|image|max:10240',
             'corel_file' => 'nullable|file|max:51200',
+            'existing_cover_image' => 'nullable|string',
+            'existing_corel_file' => 'nullable|string',
             'art_notes' => 'nullable|string|max:1000',
         ]);
 
         $order = Order::with('items')->findOrFail(session('current_order_id'));
 
-        $coverImagePath = null;
+        $coverImagePath = $validated['existing_cover_image'] ?? null;
         if ($request->hasFile('item_cover_image')) {
             $coverImagePath = $this->imageProcessor->processAndStore(
                 $request->file('item_cover_image'),
@@ -346,7 +348,7 @@ class OrderWizardController extends Controller
             );
         }
 
-        $corelFilePath = null;
+        $corelFilePath = $validated['existing_corel_file'] ?? null;
         if ($request->hasFile('corel_file')) {
             $corelFile = $request->file('corel_file');
             $fileName = time() . '_' . uniqid() . '_' . $corelFile->getClientOriginalName();
@@ -369,6 +371,17 @@ class OrderWizardController extends Controller
 
     private function updateItem(Request $request)
     {
+        $baseValidated = $request->validate([
+            'editing_item_id' => 'required|exists:order_items,id',
+        ]);
+
+        $order = Order::with('items')->findOrFail(session('current_order_id'));
+        $item = $order->items()->findOrFail($baseValidated['editing_item_id']);
+
+        if ($item->is_sublimation_total) {
+            return $this->updateSublimationItem($request, $order, $item);
+        }
+
         $validated = $request->validate([
             'editing_item_id' => 'required|exists:order_items,id',
             'personalizacao' => 'required|array|min:1',
@@ -397,9 +410,6 @@ class OrderWizardController extends Controller
             'is_client_modeling' => 'nullable|boolean',
             'existing_cover_image' => 'nullable|string'
         ]);
-
-        $order = Order::with('items')->findOrFail(session('current_order_id'));
-        $item = $order->items()->findOrFail($validated['editing_item_id']);
 
         $coverImagePath = $item->cover_image;
         if ($request->hasFile('item_cover_image')) {
@@ -433,6 +443,90 @@ class OrderWizardController extends Controller
         }
 
         return redirect()->route('orders.wizard.sewing')->with('success', 'Item atualizado com sucesso!');
+    }
+
+    private function updateSublimationItem(Request $request, Order $order, OrderItem $item)
+    {
+        $validated = $request->validate([
+            'editing_item_id' => 'required|exists:order_items,id',
+            'sublimation_type' => 'required|string|max:50',
+            'sublimation_addons' => 'nullable|array',
+            'sublimation_addons.*' => 'integer|exists:sublimation_product_addons,id',
+            'art_name' => 'required|string|max:255',
+            'fabric_type' => 'required|string|in:PADRAO,PP,CACHARREL,OUTRO',
+            'fabric_custom' => 'nullable|string|max:120|required_if:fabric_type,OUTRO',
+            'fabric_color' => 'nullable|string|max:50',
+            'model_type' => 'required|string|in:BASICA,BABYLOOK,INFANTIL',
+            'base_collar' => 'nullable|string|max:50',
+            'fabric_surcharge' => 'nullable|numeric|min:0',
+            'has_addon_colors' => 'nullable|boolean',
+            'addon_color_map' => 'nullable|string',
+            'tamanhos' => 'required|array',
+            'quantity' => 'required|integer|min:1',
+            'unit_price' => 'required|numeric|min:0',
+            'unit_cost' => 'nullable|numeric|min:0',
+            'item_cover_image' => 'nullable|image|max:10240',
+            'corel_file' => 'nullable|file|max:51200',
+            'existing_cover_image' => 'nullable|string',
+            'existing_corel_file' => 'nullable|string',
+            'art_notes' => 'nullable|string|max:1000',
+        ]);
+
+        $coverImagePath = filled($validated['existing_cover_image'] ?? null)
+            ? $validated['existing_cover_image']
+            : $item->cover_image;
+
+        if ($request->hasFile('item_cover_image')) {
+            $newCoverImagePath = $this->imageProcessor->processAndStore(
+                $request->file('item_cover_image'),
+                'orders/items/covers',
+                [
+                    'max_width' => 1200,
+                    'max_height' => 1200,
+                    'quality' => 85,
+                ]
+            );
+
+            if ($newCoverImagePath) {
+                if ($coverImagePath) {
+                    $this->imageProcessor->delete($coverImagePath);
+                }
+                $coverImagePath = $newCoverImagePath;
+            }
+        }
+
+        $corelFilePath = filled($validated['existing_corel_file'] ?? null)
+            ? $validated['existing_corel_file']
+            : $item->corel_file_path;
+
+        if ($request->hasFile('corel_file')) {
+            $corelFile = $request->file('corel_file');
+            $fileName = time() . '_' . uniqid() . '_' . $corelFile->getClientOriginalName();
+            $newCorelFilePath = $corelFile->storeAs('orders/corel_files', $fileName, 'public');
+
+            if ($newCorelFilePath) {
+                if ($corelFilePath && $corelFilePath !== $newCorelFilePath) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($corelFilePath);
+                }
+                $corelFilePath = $newCorelFilePath;
+            }
+        }
+
+        $this->orderWizardService->processUpdateSublimationItem($item, $validated, $coverImagePath, $corelFilePath);
+
+        $order->refresh();
+        $order->load('items');
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Item SUB. TOTAL atualizado com sucesso!',
+                'html' => view('orders.wizard.partials.items_sidebar', compact('order'))->render(),
+                'items_data' => $order->items->toArray()
+            ]);
+        }
+
+        return redirect()->route('orders.wizard.sewing')->with('success', 'Item SUB. TOTAL atualizado com sucesso!');
     }
 
     private function deleteItem(Request $request)

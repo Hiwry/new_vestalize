@@ -1,285 +1,715 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="max-w-5xl mx-auto">
-    <!-- Breadcrumb -->
-    <div class="mb-6">
-        <nav class="flex" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="{{ route('admin.sublimation-products.index') }}" 
-                       class="inline-flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400">
-                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
-                        </svg>
-                        Preços SUB. TOTAL
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="ml-1 text-sm font-medium text-gray-500 dark:text-gray-400">{{ $typeLabel }}</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
+<style>
+    .stp-page-shell {
+        --stp-surface-from: #0d1830;
+        --stp-surface-to: #0b1322;
+        --stp-surface-border: rgba(148, 163, 184, 0.16);
+        --stp-text-primary: #e5edf8;
+        --stp-text-secondary: #91a4c0;
+        --stp-card-bg: #10203a;
+        --stp-soft-bg: #122746;
+        --stp-input-bg: #162847;
+        --stp-card-border: rgba(148, 163, 184, 0.12);
+        --stp-accent: #7c3aed;
+        --stp-accent-strong: #6d28d9;
+        --stp-danger-bg: rgba(244, 63, 94, 0.14);
+        --stp-danger-border: rgba(244, 63, 94, 0.24);
+        --stp-danger-text: #fecdd3;
+    }
+    .stp-select { color-scheme: light; }
+    .stp-select option { color: #0f172a; background: #f8fbff; }
+    .stp-page-shell {
+        background: linear-gradient(180deg, var(--stp-surface-from) 0%, var(--stp-surface-to) 100%);
+        min-height: calc(100vh - 7rem);
+        --shadow: none !important;
+        --avento-shadow-sm: none !important;
+        --avento-shadow-md: none !important;
+        --avento-shadow-lg: none !important;
+        --avento-shadow-glow: none !important;
+        --tw-shadow: 0 0 #0000 !important;
+        --tw-shadow-colored: 0 0 #0000 !important;
+    }
+    .stp-page-shell,
+    .stp-page-shell *,
+    .stp-page-shell *::before,
+    .stp-page-shell *::after {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        filter: none !important;
+        --shadow: none !important;
+        --avento-shadow-sm: none !important;
+        --avento-shadow-md: none !important;
+        --avento-shadow-lg: none !important;
+        --avento-shadow-glow: none !important;
+        --tw-shadow: 0 0 #0000 !important;
+        --tw-shadow-colored: 0 0 #0000 !important;
+        --tw-ring-shadow: 0 0 #0000 !important;
+        --tw-ring-offset-shadow: 0 0 #0000 !important;
+    }
+    .stp-panel { background: var(--stp-card-bg) !important; border: 1px solid var(--stp-card-border) !important; backdrop-filter: none !important; }
+    .stp-soft { background: var(--stp-soft-bg) !important; border: 1px solid var(--stp-card-border) !important; }
+    .stp-field {
+        background: var(--stp-input-bg) !important;
+        border: 1px solid var(--stp-card-border) !important;
+        outline: none !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+    }
+    .stp-field::placeholder { color: var(--stp-text-secondary); }
+    .stp-table-head { background: var(--stp-soft-bg) !important; }
+    .stp-muted { color: var(--stp-text-secondary); }
+    .stp-primary { background: var(--stp-accent); }
+    .stp-primary:hover { background: var(--stp-accent-strong); }
+    .stp-secondary { background: var(--stp-input-bg); border: 1px solid var(--stp-card-border); outline: none !important; }
+    .stp-secondary:hover { background: var(--stp-soft-bg); }
+    .stp-success { background: var(--stp-accent); border: 1px solid transparent !important; outline: none !important; }
+    .stp-success:hover { background: var(--stp-accent-strong); }
+    .stp-danger-btn { background: var(--stp-danger-bg); border: 1px solid var(--stp-danger-border) !important; outline: none !important; color: var(--stp-danger-text); }
+    .stp-action-btn { background: var(--stp-input-bg); border: 1px solid var(--stp-card-border) !important; outline: none !important; }
+    .stp-action-btn:hover { background: var(--stp-soft-bg); }
+    .stp-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 120;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: rgba(2, 6, 23, 0.78);
+        backdrop-filter: blur(10px);
+    }
+    .stp-modal-backdrop.stp-modal-open { display: flex; }
+    .stp-modal-card {
+        width: min(100%, 430px);
+        background: var(--stp-card-bg) !important;
+        border: 1px solid var(--stp-card-border) !important;
+        border-radius: 28px;
+    }
+    .stp-modal-copy strong { color: #ffffff !important; }
+    .stp-link-disabled { opacity: .45; pointer-events: none; }
+    .stp-table-wrap { background: var(--stp-soft-bg) !important; }
+    .stp-page-shell,
+    .stp-page-shell h1,
+    .stp-page-shell h2,
+    .stp-page-shell h3,
+    .stp-page-shell h4,
+    .stp-page-shell p,
+    .stp-page-shell span,
+    .stp-page-shell a,
+    .stp-page-shell label,
+    .stp-page-shell th,
+    .stp-page-shell td,
+    .stp-page-shell strong {
+        color: #ffffff !important;
+    }
+    .stp-page-shell .stp-muted,
+    .stp-page-shell .text-slate-300,
+    .stp-page-shell .text-sky-300,
+    .stp-page-shell .text-rose-300 {
+        color: var(--stp-text-secondary) !important;
+    }
+    .stp-page-shell input,
+    .stp-page-shell select,
+    .stp-page-shell textarea,
+    .stp-page-shell input::placeholder,
+    .stp-page-shell textarea::placeholder {
+        color: #ffffff !important;
+    }
+    .stp-page-shell input,
+    .stp-page-shell select,
+    .stp-page-shell textarea,
+    .stp-page-shell button,
+    .stp-page-shell a {
+        outline: none !important;
+        border: none !important;
+        background-clip: padding-box !important;
+    }
+    .dark .stp-panel,
+    .dark .stp-soft,
+    .dark .stp-field,
+    .dark .stp-table-head,
+    .dark select.stp-select,
+    .dark input.stp-field {
+        background-color: inherit;
+    }
+    .dark .stp-panel { background: var(--stp-card-bg) !important; }
+    .dark .stp-soft { background: var(--stp-soft-bg) !important; }
+    .dark .stp-field,
+    .dark select.stp-select,
+    .dark input.stp-field {
+        background: var(--stp-input-bg) !important;
+        border: 1px solid var(--stp-card-border) !important;
+        color: var(--stp-text-primary) !important;
+    }
+    .dark .stp-table-head { background: var(--stp-soft-bg) !important; }
+    .dark.avento-theme aside.stp-panel {
+        background: var(--stp-card-bg) !important;
+        background-color: var(--stp-card-bg) !important;
+        border: 1px solid var(--stp-card-border) !important;
+        border-right: 1px solid var(--stp-card-border) !important;
+        box-shadow: none !important;
+    }
+    .dark.avento-theme form.stp-panel,
+    .dark.avento-theme .stp-soft,
+    .dark.avento-theme .stp-table-wrap {
+        background: var(--stp-soft-bg) !important;
+        background-color: var(--stp-soft-bg) !important;
+        box-shadow: none !important;
+    }
+    .dark.avento-theme form.stp-panel {
+        background: var(--stp-card-bg) !important;
+        background-color: var(--stp-card-bg) !important;
+    }
+    .dark.avento-theme table#prices-table,
+    .dark.avento-theme table#prices-table thead,
+    .dark.avento-theme table#prices-table tbody,
+    .dark.avento-theme table#prices-table tr,
+    .dark.avento-theme table#prices-table td {
+        background: transparent !important;
+        background-color: transparent !important;
+        color: #ffffff !important;
+        border-color: var(--stp-card-border) !important;
+        box-shadow: none !important;
+    }
+    .dark.avento-theme table#prices-table tbody tr:hover {
+        background: transparent !important;
+        background-color: transparent !important;
+    }
+</style>
+@php
+    $currentFabric = $tecidos->firstWhere('id', $productType->tecido_id);
+    $currentFabricName = $currentFabric?->name ?? 'Nenhum tecido definido';
+    $currentFabricEditUrl = $currentFabric ? route('admin.tecidos.edit', $currentFabric->id) : route('admin.tecidos.index');
+@endphp
+
+<div class="stp-page-shell -mx-4 px-4 py-5 md:-mx-6 md:px-6">
+<div class="max-w-7xl mx-auto space-y-5">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div class="space-y-2">
+            <nav class="flex items-center gap-2 text-sm stp-muted">
+                <a href="{{ route('admin.personalization-prices.edit', ['type' => 'SUB. TOTAL']) }}" class="hover:text-white transition-colors">Precos SUB. TOTAL</a>
+                <span>/</span>
+                <span class="text-slate-100">{{ $typeLabel }}</span>
+            </nav>
+            <div class="space-y-1">
+                <h1 class="text-3xl font-bold text-white tracking-tight">Configurar {{ $typeLabel }}</h1>
+                <p class="text-sm stp-muted">Tecido padrao, faixas e adicionais em uma unica tela.</p>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <a href="{{ route('admin.personalization-prices.edit', ['type' => 'SUB. TOTAL']) }}" class="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-2xl stp-secondary px-5 text-sm font-semibold text-white transition-colors">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Voltar
+            </a>
+            <button type="submit" form="prices-form" class="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-2xl stp-primary px-5 text-sm font-semibold text-white transition-colors">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Salvar
+            </button>
+        </div>
     </div>
 
     @if(session('success'))
-    <div class="mb-6 bg-green-100 dark:bg-green-900/20 border border-green-400 dark:border-green-600/30 text-green-700 dark:text-green-300 px-4 py-3 rounded-lg">
-        <div class="flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
+        <div class="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-200">
             {{ session('success') }}
         </div>
-    </div>
     @endif
 
     @if($errors->any())
-    <div class="mb-6 bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-600/30 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
-        <ul class="list-disc list-inside">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
+        <div class="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+            <ul class="space-y-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Coluna Principal: Preços -->
-        <div class="lg:col-span-2">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <!-- Header -->
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-purple-50 dark:bg-purple-900/20">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                            {!! $typeIcon !!}
-                        </div>
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.85fr)_360px]">
+        <form method="POST" action="{{ route('admin.sublimation-products.update-type', $type) }}" id="prices-form" class="stp-panel rounded-[24px]">
+            @csrf
+            @method('PUT')
+
+            <div class="flex flex-col gap-4 border-b border-slate-300/10 px-6 py-5 lg:flex-row lg:items-center lg:justify-between">
+                <div class="space-y-1">
+                    <p class="text-xs font-bold uppercase tracking-[0.24em] stp-muted">Configuracao geral</p>
+                    <h3 class="text-xl font-semibold text-white">Tecido padrao e faixas</h3>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="rounded-full stp-soft px-3 py-1.5 text-xs font-semibold text-white">
+                        Tecido:
+                        <strong id="selected-fabric-name">{{ strtoupper($currentFabricName) }}</strong>
+                    </span>
+                    <span class="rounded-full stp-soft px-3 py-1.5 text-xs font-semibold text-white">
+                        <strong id="price-range-count">{{ $prices->count() }}</strong> faixas
+                    </span>
+                </div>
+            </div>
+
+            <div class="space-y-6 p-6">
+                <section class="rounded-[24px] stp-soft p-5 space-y-5">
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold uppercase tracking-[0.24em] stp-muted">Tecido padrao</p>
+                        <h4 class="text-lg font-semibold text-white">Escolha o tecido de {{ strtolower($typeLabel) }}</h4>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
                         <div>
-                            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ $typeLabel }}</h2>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Configuração Geral e Faixas de Preço</p>
+                            <label for="tecido_id" class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-300">Selecionar tecido</label>
+                            <select name="tecido_id" id="tecido_id" class="stp-select stp-field w-full rounded-2xl px-4 py-3 text-white" required>
+                                <option value="">Selecione um tecido...</option>
+                                @foreach($tecidos as $tecido)
+                                    <option value="{{ $tecido->id }}" {{ (int) old('tecido_id', $productType->tecido_id) === (int) $tecido->id ? 'selected' : '' }}>
+                                        {{ strtoupper($tecido->name) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="flex flex-wrap gap-3">
+                            <a href="{{ route('admin.tecidos.create') }}" class="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl stp-success px-5 text-sm font-bold text-white transition-colors">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Novo tecido
+                            </a>
+                            <a href="{{ $currentFabricEditUrl }}" id="edit-selected-fabric" data-base-url="{{ url('/admin/tecidos') }}" class="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl stp-secondary px-5 text-sm font-bold text-white transition-colors {{ $currentFabric ? '' : 'stp-link-disabled' }}">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Editar tecido selecionado
+                            </a>
                         </div>
                     </div>
-                </div>
 
-                <form method="POST" action="{{ route('admin.sublimation-products.update-type', $type) }}" id="prices-form">
-                    @csrf
-                    @method('PUT')
+                    <a href="{{ route('admin.tecidos.index') }}" class="inline-flex items-center rounded-full stp-soft px-4 py-2 text-sm font-semibold text-white hover:border-slate-200/20">
+                        Gerenciar catalogo de tecidos
+                    </a>
+                </section>
 
-                    <div class="p-6 space-y-6">
-                        <!-- Configuração de Tecido -->
-                        <div class="bg-gray-50 dark:bg-gray-700/30 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                            <label for="tecido_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Tecido Padrão para {{ $typeLabel }}
-                            </label>
-                            <div class="relative">
-                                <select name="tecido_id" id="tecido_id" required
-                                        class="block w-full pl-3 pr-10 py-3 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                    <option value="">Selecione um tecido...</option>
-                                    @foreach($tecidos as $tecido)
-                                        <option value="{{ $tecido->id }}" {{ ($productType->tecido_id == $tecido->id) ? 'selected' : '' }}>
-                                            {{ strtoupper($tecido->name) }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                Este tecido será exibido automaticamente na folha de costura e no pedido para este tipo de produto.
-                            </p>
+                <section class="rounded-[24px] stp-soft p-5 space-y-5">
+                    <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                        <div class="space-y-1">
+                            <p class="text-xs font-bold uppercase tracking-[0.24em] stp-muted">Faixas de preco</p>
+                            <h4 class="text-lg font-semibold text-white">Preco base por quantidade</h4>
                         </div>
-                        <!-- Tabela de Preços -->
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm border-collapse" id="prices-table">
-                                <thead>
-                                    <tr class="bg-gray-100 dark:bg-gray-700">
-                                        <th class="py-3 px-4 text-left font-semibold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">QUANTIDADE</th>
-                                        <th class="py-3 px-4 text-left font-semibold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 w-40">PREÇO (R$)</th>
-                                        <th class="py-3 px-4 text-center border border-gray-200 dark:border-gray-600 w-16"></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="prices-tbody">
-                                    @forelse($prices as $index => $price)
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                        <td class="py-2 px-4 border border-gray-200 dark:border-gray-600">
-                                            <div class="flex items-center gap-2">
-                                                <input type="number" name="prices[{{ $index }}][quantity_from]" 
-                                                       value="{{ $price->quantity_from }}" min="1" required
-                                                       class="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-center">
-                                                <span class="text-gray-400">-</span>
-                                                <input type="number" name="prices[{{ $index }}][quantity_to]" 
-                                                       value="{{ $price->quantity_to }}" min="1"
-                                                       placeholder="∞"
-                                                       class="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-center">
+                        <button type="button" onclick="addRow()" class="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl stp-success px-5 text-sm font-bold text-white transition-colors">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Adicionar faixa
+                        </button>
+                    </div>
+
+                    <div class="stp-table-wrap overflow-hidden rounded-[24px] border border-slate-300/10">
+                        <table class="w-full border-collapse" id="prices-table">
+                            <thead>
+                                <tr class="stp-table-head text-left">
+                                    <th class="px-4 py-4 text-xs font-extrabold uppercase tracking-[0.2em] text-slate-300">Quantidade</th>
+                                    <th class="w-48 px-4 py-4 text-xs font-extrabold uppercase tracking-[0.2em] text-slate-300">Preco (R$)</th>
+                                    <th class="w-20 px-4 py-4 text-center text-xs font-extrabold uppercase tracking-[0.2em] text-slate-300">Acao</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prices-tbody">
+                                @forelse($prices as $index => $price)
+                                    <tr class="border-t border-slate-300/10">
+                                        <td class="px-4 py-4">
+                                            <div class="flex flex-col gap-3 md:flex-row md:items-center">
+                                                <input type="number" name="prices[{{ $index }}][quantity_from]" value="{{ $price->quantity_from }}" min="1" required class="stp-field w-full rounded-2xl px-4 py-3 text-center text-white md:w-28">
+                                                <span class="text-center text-sm font-bold stp-muted">ate</span>
+                                                <input type="number" name="prices[{{ $index }}][quantity_to]" value="{{ $price->quantity_to }}" min="1" placeholder="Sem limite" class="stp-field w-full rounded-2xl px-4 py-3 text-center text-white md:w-32">
                                             </div>
-                                        </td>
-                                        <td class="py-2 px-4 border border-gray-200 dark:border-gray-600">
-                                            <input type="number" name="prices[{{ $index }}][price]" 
-                                                   value="{{ $price->price }}" step="0.01" min="0" required
-                                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-right font-bold text-green-600 dark:text-green-400">
                                             <input type="hidden" name="prices[{{ $index }}][id]" value="{{ $price->id }}">
                                         </td>
-                                        <td class="py-2 px-4 border border-gray-200 dark:border-gray-600 text-center">
-                                            <button type="button" onclick="removeRow(this)" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <td class="px-4 py-4">
+                                            <input type="number" name="prices[{{ $index }}][price]" value="{{ $price->price }}" step="0.01" min="0" required class="stp-field w-full rounded-2xl px-4 py-3 text-right font-extrabold text-white">
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <button type="button" onclick="removeRow(this)" class="inline-flex h-10 w-10 items-center justify-center rounded-full stp-danger-btn transition-colors" title="Remover faixa">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                 </svg>
                                             </button>
                                         </td>
                                     </tr>
-                                    @empty
+                                @empty
                                     <tr id="empty-row">
-                                        <td colspan="3" class="py-8 text-center text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600">
-                                            Nenhuma faixa de preço. Clique em "Adicionar Faixa".
-                                        </td>
+                                        <td colspan="3" class="px-4 py-10 text-center text-sm font-semibold stp-muted">Nenhuma faixa cadastrada. Clique em <strong>Adicionar faixa</strong> para iniciar.</td>
                                     </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </form>
 
-                        <!-- Botão adicionar faixa -->
-                        <div class="flex justify-center">
-                            <button type="button" onclick="addRow()" 
-                                    class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                                Adicionar Faixa
-                            </button>
-                        </div>
+        <aside class="stp-panel rounded-[24px]">
+            <div class="border-b border-slate-300/10 px-6 py-5">
+                <p class="text-xs font-bold uppercase tracking-[0.24em] stp-muted">Adicionais</p>
+                <h3 class="mt-2 text-xl font-semibold text-white">Adicionais de {{ $typeLabel }}</h3>
+                <p class="mt-2 text-sm stp-muted">Valores extras especificos deste tipo.</p>
+            </div>
 
-                        <!-- Botões de Ação -->
-                        <div class="flex justify-between gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-                            <a href="{{ route('admin.sublimation-products.index') }}" 
-                               class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                                </svg>
-                                Voltar
-                            </a>
-                            <button type="submit" 
-                                    class="inline-flex items-center px-6 py-2 text-sm font-medium bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                Salvar Preços
-                            </button>
+            <div class="space-y-6 p-6">
+                <div class="space-y-3">
+                    @forelse($addons as $addon)
+                        <div class="flex items-center justify-between gap-3 rounded-[22px] stp-soft px-4 py-4">
+                            <div class="min-w-0">
+                                <div class="truncate text-sm font-extrabold text-white">{{ strtoupper($addon->name) }}</div>
+                                <div class="mt-1 text-xs stp-muted">Somente para {{ strtolower($typeLabel) }}</div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-extrabold {{ $addon->price >= 0 ? 'text-sky-300' : 'text-rose-300' }}">
+                                    {{ $addon->price >= 0 ? '+' : '' }}R$ {{ number_format($addon->price, 2, ',', '.') }}
+                                </span>
+                                <button
+                                    type="button"
+                                    onclick="openEditAddonModal(this)"
+                                    data-update-url="{{ route('admin.sublimation-products.addons.update', $addon) }}"
+                                    data-addon-name="{{ $addon->name }}"
+                                    data-addon-price="{{ number_format((float) $addon->price, 2, '.', '') }}"
+                                    class="inline-flex h-10 items-center justify-center gap-2 rounded-full stp-action-btn px-3 text-xs font-bold text-white transition-colors"
+                                    title="Editar adicional"
+                                >
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                    <span>Editar</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="openDeleteAddonModal(this)"
+                                    data-delete-url="{{ route('admin.sublimation-products.addons.destroy', $addon) }}"
+                                    data-addon-name="{{ strtoupper($addon->name) }}"
+                                    data-addon-price-display="{{ $addon->price >= 0 ? '+' : '' }}R$ {{ number_format($addon->price, 2, ',', '.') }}"
+                                    class="inline-flex h-10 w-10 items-center justify-center rounded-full stp-danger-btn transition-colors"
+                                    title="Remover adicional"
+                                >
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 7h12m-9 0V5a1 1 0 011-1h4a1 1 0 011 1v2m-7 0v11a2 2 0 002 2h4a2 2 0 002-2V7"></path>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
+                    @empty
+                        <div class="rounded-[22px] stp-soft px-4 py-8 text-center text-sm font-semibold stp-muted">
+                            Nenhum adicional cadastrado para {{ strtolower($typeLabel) }}.
+                        </div>
+                    @endforelse
+                </div>
+
+                <div class="border-t border-slate-300/10 pt-6">
+                    <form method="POST" action="{{ route('admin.sublimation-products.addons.store', $type) }}" class="space-y-4">
+                        @csrf
+                        <div>
+                            <label for="addon-name" class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-300">Nome do adicional</label>
+                            <input type="text" id="addon-name" name="name" placeholder="Ex: DRYFIT PREMIUM" required class="stp-field w-full rounded-2xl px-4 py-3 text-white uppercase">
+                        </div>
+                        <div>
+                            <label for="addon-price" class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-300">Valor (R$)</label>
+                            <input type="number" id="addon-price" name="price" step="0.01" placeholder="0,00" required class="stp-field w-full rounded-2xl px-4 py-3 text-right text-white">
+                        </div>
+                        <button type="submit" class="inline-flex w-full min-h-[48px] items-center justify-center gap-2 rounded-2xl stp-primary px-5 text-sm font-bold text-white transition-colors">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Adicionar adicional
+                        </button>
+                    </form>
+                    <p class="mt-3 text-center text-xs stp-muted">Use valor negativo quando quiser aplicar desconto.</p>
+                </div>
+            </div>
+        </aside>
+
+        <div id="edit-addon-modal" class="stp-modal-backdrop hidden" onclick="if (event.target === this) closeEditAddonModal()">
+            <div class="stp-modal-card overflow-hidden">
+                <div class="flex items-start justify-between gap-4 border-b border-slate-300/10 px-6 py-5">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-[0.24em] stp-muted">Editar adicional</p>
+                        <h3 id="edit-addon-modal-title" class="mt-2 text-xl font-semibold text-white">Atualizar adicional</h3>
+                    </div>
+                    <button type="button" onclick="closeEditAddonModal()" class="inline-flex h-10 w-10 items-center justify-center rounded-full stp-action-btn text-white transition-colors" title="Fechar">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <form method="POST" id="edit-addon-form" class="space-y-4 px-6 py-6">
+                    @csrf
+                    @method('PUT')
+                    <div>
+                        <label for="edit-addon-name" class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-300">Nome do adicional</label>
+                        <input type="text" id="edit-addon-name" name="name" required class="stp-field w-full rounded-2xl px-4 py-3 text-white uppercase">
+                    </div>
+                    <div>
+                        <label for="edit-addon-price" class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-300">Valor (R$)</label>
+                        <input type="number" id="edit-addon-price" name="price" step="0.01" required class="stp-field w-full rounded-2xl px-4 py-3 text-right text-white">
+                    </div>
+                    <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
+                        <button type="button" onclick="closeEditAddonModal()" class="inline-flex min-h-[46px] items-center justify-center rounded-2xl stp-secondary px-5 text-sm font-semibold text-white transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="inline-flex min-h-[46px] items-center justify-center rounded-2xl stp-primary px-5 text-sm font-semibold text-white transition-colors">
+                            Salvar alteracoes
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- Coluna Lateral: Adicionais deste tipo -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 bg-yellow-50 dark:bg-yellow-900/20">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                    </svg>
-                    <div>
-                        <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">Adicionais</h3>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Exclusivos para {{ $typeLabel }}</p>
-                    </div>
+        <div id="delete-addon-modal" class="stp-modal-backdrop hidden" onclick="if (event.target === this) closeDeleteAddonModal()">
+            <div class="stp-modal-card overflow-hidden">
+                <div class="border-b border-slate-300/10 px-6 py-5">
+                    <p class="text-xs font-bold uppercase tracking-[0.24em] stp-muted">Confirmar exclusao</p>
+                    <h3 class="mt-2 text-xl font-semibold text-white">Remover adicional</h3>
                 </div>
-            </div>
-            
-            <div class="p-5 space-y-2 max-h-[400px] overflow-y-auto">
-                @forelse($addons as $addon)
-                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg">
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ strtoupper($addon->name) }}</span>
-                    <div class="flex items-center gap-2">
-                        <span class="font-bold text-sm {{ $addon->price >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
-                            {{ $addon->price >= 0 ? '+' : '' }}R$ {{ number_format($addon->price, 2, ',', '.') }}
-                        </span>
-                        <form method="POST" action="{{ route('admin.sublimation-products.addons.destroy', $addon) }}">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" onclick="return confirm('Remover?')" class="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </button>
-                        </form>
-                    </div>
+                <div class="stp-modal-copy space-y-3 px-6 py-6">
+                    <p class="text-sm text-white">
+                        Voce esta prestes a remover <strong id="delete-addon-name"></strong>.
+                    </p>
+                    <p id="delete-addon-price" class="text-sm font-bold stp-muted"></p>
+                    <p class="text-xs stp-muted">Essa acao nao podera ser desfeita.</p>
                 </div>
-                @empty
-                <p class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">Nenhum adicional cadastrado</p>
-                @endforelse
-            </div>
-
-            <!-- Form adicionar -->
-            <div class="p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-                <form method="POST" action="{{ route('admin.sublimation-products.addons.store', $type) }}" class="space-y-2">
+                <form method="POST" id="delete-addon-form" class="flex flex-col gap-3 border-t border-slate-300/10 px-6 py-5 sm:flex-row sm:justify-end">
                     @csrf
-                    <div class="flex gap-2">
-                        <input type="text" name="name" placeholder="Nome (ex: GOLA V)" required
-                               class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 uppercase">
-                        <input type="number" name="price" step="0.01" placeholder="R$" required
-                               class="w-20 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-right">
-                    </div>
-                    <button type="submit" class="w-full px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        Adicionar
+                    @method('DELETE')
+                    <button type="button" onclick="closeDeleteAddonModal()" class="inline-flex min-h-[46px] items-center justify-center rounded-2xl stp-secondary px-5 text-sm font-semibold text-white transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="inline-flex min-h-[46px] items-center justify-center rounded-2xl stp-danger-btn px-5 text-sm font-semibold text-white transition-colors">
+                        Excluir adicional
                     </button>
                 </form>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">Valor negativo para desconto</p>
             </div>
         </div>
     </div>
 </div>
+</div>
 
-@push('scripts')
 <script>
     window.rowIndex = {{ $prices->count() }};
 
+    function getFabricLabel(select) {
+        const option = select && select.options[select.selectedIndex];
+        return option && option.value ? option.textContent.trim() : 'NENHUM TECIDO DEFINIDO';
+    }
+
+    function syncSelectedFabric() {
+        const select = document.getElementById('tecido_id');
+        const name = document.getElementById('selected-fabric-name');
+        const editLink = document.getElementById('edit-selected-fabric');
+        const label = getFabricLabel(select);
+
+        if (name) name.textContent = label;
+
+        if (editLink && select) {
+            if (select.value) {
+                editLink.href = `${editLink.dataset.baseUrl}/${select.value}/edit`;
+                editLink.classList.remove('stp-link-disabled');
+            } else {
+                editLink.href = '{{ route('admin.tecidos.index') }}';
+                editLink.classList.add('stp-link-disabled');
+            }
+        }
+    }
+
+    function syncPriceRangeCount() {
+        const tbody = document.getElementById('prices-tbody');
+        const count = document.getElementById('price-range-count');
+        if (!tbody || !count) return;
+        count.textContent = tbody.querySelectorAll('tr:not(#empty-row)').length;
+    }
+
+    function ensureEmptyRow() {
+        const tbody = document.getElementById('prices-tbody');
+        if (!tbody || tbody.querySelector('tr:not(#empty-row)')) return;
+
+        const row = document.createElement('tr');
+        row.id = 'empty-row';
+        row.innerHTML = '<td colspan="3" class="px-4 py-10 text-center text-sm font-semibold stp-muted">Nenhuma faixa cadastrada. Clique em <strong>Adicionar faixa</strong> para iniciar.</td>';
+        tbody.appendChild(row);
+    }
+
     window.addRow = function addRow() {
+        const tbody = document.getElementById('prices-tbody');
         const emptyRow = document.getElementById('empty-row');
+        if (!tbody) return;
         if (emptyRow) emptyRow.remove();
 
-        const tbody = document.getElementById('prices-tbody');
         const row = document.createElement('tr');
-        row.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/50';
+        row.className = 'border-t border-slate-300/10';
         row.innerHTML = `
-            <td class="py-2 px-4 border border-gray-200 dark:border-gray-600">
-                <div class="flex items-center gap-2">
-                    <input type="number" name="prices[${window.rowIndex}][quantity_from]" 
-                           min="1" required placeholder="De"
-                           class="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-center">
-                    <span class="text-gray-400">-</span>
-                    <input type="number" name="prices[${window.rowIndex}][quantity_to]" 
-                           min="1" placeholder="∞"
-                           class="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-center">
+            <td class="px-4 py-4">
+                <div class="flex flex-col gap-3 md:flex-row md:items-center">
+                    <input type="number" name="prices[${window.rowIndex}][quantity_from]" min="1" required placeholder="De" class="stp-field w-full rounded-2xl px-4 py-3 text-center text-white md:w-28">
+                    <span class="text-center text-sm font-bold stp-muted">ate</span>
+                    <input type="number" name="prices[${window.rowIndex}][quantity_to]" min="1" placeholder="Sem limite" class="stp-field w-full rounded-2xl px-4 py-3 text-center text-white md:w-32">
                 </div>
             </td>
-            <td class="py-2 px-4 border border-gray-200 dark:border-gray-600">
-                <input type="number" name="prices[${window.rowIndex}][price]" 
-                       step="0.01" min="0" required placeholder="0,00"
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-right font-bold text-green-600 dark:text-green-400">
+            <td class="px-4 py-4">
+                <input type="number" name="prices[${window.rowIndex}][price]" step="0.01" min="0" required placeholder="0,00" class="stp-field w-full rounded-2xl px-4 py-3 text-right font-extrabold text-white">
             </td>
-            <td class="py-2 px-4 border border-gray-200 dark:border-gray-600 text-center">
-                <button type="button" onclick="removeRow(this)" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <td class="px-4 py-4 text-center">
+                <button type="button" onclick="removeRow(this)" class="inline-flex h-10 w-10 items-center justify-center rounded-full stp-danger-btn transition-colors" title="Remover faixa">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                     </svg>
                 </button>
             </td>
         `;
+
         tbody.appendChild(row);
         window.rowIndex++;
-        row.querySelector('input').focus();
+        syncPriceRangeCount();
+
+        const firstInput = row.querySelector('input');
+        if (firstInput) firstInput.focus();
+    };
+
+    window.removeRow = function removeRow(button) {
+        if (!confirm('Remover esta faixa?')) return;
+        const row = button.closest('tr');
+        if (row) row.remove();
+        ensureEmptyRow();
+        syncPriceRangeCount();
+    };
+
+    function syncModalScrollLock() {
+        const hasOpenModal = document.querySelector('.stp-modal-backdrop.stp-modal-open');
+        document.body.style.overflow = hasOpenModal ? 'hidden' : '';
     }
 
-    window.removeRow = function removeRow(btn) {
-        if (confirm('Remover esta faixa?')) {
-            btn.closest('tr').remove();
-        }
+    function toggleAddonModal(modalId, shouldOpen) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+
+        modal.classList.toggle('hidden', !shouldOpen);
+        modal.classList.toggle('stp-modal-open', shouldOpen);
+        syncModalScrollLock();
     }
+
+    window.openEditAddonModal = function openEditAddonModal(button) {
+        const form = document.getElementById('edit-addon-form');
+        const title = document.getElementById('edit-addon-modal-title');
+        const nameInput = document.getElementById('edit-addon-name');
+        const priceInput = document.getElementById('edit-addon-price');
+
+        if (!form || !nameInput || !priceInput || !button) return;
+
+        form.action = button.dataset.updateUrl || '';
+        nameInput.value = (button.dataset.addonName || '').toUpperCase();
+        priceInput.value = button.dataset.addonPrice || '';
+
+        if (title) {
+            title.textContent = `Editar ${nameInput.value || 'adicional'}`;
+        }
+
+        toggleAddonModal('edit-addon-modal', true);
+        setTimeout(() => nameInput.focus(), 10);
+    };
+
+    window.closeEditAddonModal = function closeEditAddonModal() {
+        toggleAddonModal('edit-addon-modal', false);
+    };
+
+    window.openDeleteAddonModal = function openDeleteAddonModal(button) {
+        const form = document.getElementById('delete-addon-form');
+        const name = document.getElementById('delete-addon-name');
+        const price = document.getElementById('delete-addon-price');
+
+        if (!form || !button) return;
+
+        form.action = button.dataset.deleteUrl || '';
+        if (name) name.textContent = button.dataset.addonName || 'este adicional';
+        if (price) price.textContent = button.dataset.addonPriceDisplay || '';
+
+        toggleAddonModal('delete-addon-modal', true);
+    };
+
+    window.closeDeleteAddonModal = function closeDeleteAddonModal() {
+        toggleAddonModal('delete-addon-modal', false);
+    };
+
+    function hasEditTypePageElements() {
+        return !!(
+            document.getElementById('prices-form') &&
+            document.getElementById('tecido_id') &&
+            document.getElementById('prices-tbody')
+        );
+    }
+
+    function initEditTypePage() {
+        if (!hasEditTypePageElements()) {
+            return;
+        }
+
+        const fabricSelect = document.getElementById('tecido_id');
+        const addonName = document.getElementById('addon-name');
+        const editAddonName = document.getElementById('edit-addon-name');
+
+        if (fabricSelect) {
+            if (fabricSelect.dataset.stpBound !== 'true') {
+                fabricSelect.addEventListener('change', syncSelectedFabric);
+                fabricSelect.dataset.stpBound = 'true';
+            }
+            syncSelectedFabric();
+        }
+
+        if (addonName) {
+            if (addonName.dataset.stpBound !== 'true') {
+                addonName.addEventListener('input', function () {
+                    this.value = this.value.toUpperCase();
+                });
+                addonName.dataset.stpBound = 'true';
+            }
+        }
+
+        if (editAddonName) {
+            if (editAddonName.dataset.stpBound !== 'true') {
+                editAddonName.addEventListener('input', function () {
+                    this.value = this.value.toUpperCase();
+                });
+                editAddonName.dataset.stpBound = 'true';
+            }
+        }
+
+        if (!window.__editTypeModalEscapeBound) {
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    closeEditAddonModal();
+                    closeDeleteAddonModal();
+                }
+            });
+            window.__editTypeModalEscapeBound = true;
+        }
+
+        ensureEmptyRow();
+        syncPriceRangeCount();
+    }
+
+    if (window.__editTypeDomInitHandler) {
+        document.removeEventListener('DOMContentLoaded', window.__editTypeDomInitHandler);
+    }
+    if (window.__editTypeAjaxInitHandler) {
+        document.removeEventListener('ajax-content-loaded', window.__editTypeAjaxInitHandler);
+    }
+
+    window.__editTypeDomInitHandler = initEditTypePage;
+    window.__editTypeAjaxInitHandler = initEditTypePage;
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.__editTypeDomInitHandler, { once: true });
+    } else {
+        initEditTypePage();
+    }
+
+    document.addEventListener('ajax-content-loaded', window.__editTypeAjaxInitHandler);
 </script>
-@endpush
 @endsection

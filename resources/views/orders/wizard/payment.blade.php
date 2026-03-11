@@ -129,7 +129,7 @@
 
         <!-- Progress Widget -->
         <div class="ow-progress p-4 mb-8">
-            <div class="w-full bg-gray-100 dark:bg-slate-800/50 rounded-full h-2">
+            <div class="w-full bg-[var(--sh-input-bg)] rounded-full h-2">
                 <div class="ow-progress-fill h-2 rounded-full transition-all duration-700" style="width: 80%"></div>
             </div>
         </div>
@@ -142,7 +142,7 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <!-- Simple Icon -->
-                        <div class="w-12 h-12 bg-purple-600 dark:bg-purple-500 rounded-xl flex items-center justify-center">
+                        <div class="w-12 h-12 bg-[#7c3aed] rounded-xl flex items-center justify-center shadow-sm">
                             <svg class="w-6 h-6 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
@@ -168,24 +168,23 @@
                 
                 <!-- Simple Progress Bar -->
                 <div class="mt-4">
-                    <div class="w-full bg-gray-200 dark:bg-slate-800 rounded-full h-1.5">
+                    <div class="w-full bg-[var(--sh-input-bg)] rounded-full h-1.5">
                         <div class="bg-purple-600 dark:bg-purple-500 h-full rounded-full transition-all" style="width: 80%"></div>
-
                     </div>
                 </div>
             </div>
 
             <!-- Content -->
             <div class="p-6">
-            <!-- Resumo do Pedido -->
-                <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-5 mb-6">
+                <!-- Resumo do Pedido -->
+                <div class="bg-[var(--sh-card-bg)] rounded-xl border border-[var(--sh-card-border)] p-6 mb-6 shadow-sm">
                     <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-7 h-7 bg-gray-100 dark:bg-slate-800/60 rounded-md flex items-center justify-center">
-                            <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-8 h-8 bg-[#7c3aed] rounded-full flex items-center justify-center shadow-sm">
+                            <svg class="w-4 h-4 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                             </svg>
                         </div>
-                        <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Resumo do Pedido</h2>
+                        <h2 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight">Resumo do Pedido</h2>
                     </div>
                     
                     <div class="space-y-2 text-sm">
@@ -206,47 +205,51 @@
                             </div>
                         </div>
                         
-                        <div id="surcharges-breakdown" class="space-y-1">
+                        <div id="surcharges-breakdown" class="space-y-1.5 pt-1">
                             <!-- Será preenchido via JavaScript -->
                         </div>
                         
                         <!-- Diluir Valor no Pedido -->
-                        <div class="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700/50">
-                            <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-lg p-3">
+                        <div class="mt-4 pt-4 border-t border-[var(--sh-card-border)]">
+                            <div class="bg-[var(--sh-input-bg)] border border-[var(--sh-card-border)] rounded-xl p-4">
                                 <div class="flex items-center gap-2 mb-2">
-                                    <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                    <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">Diluir Valor no Pedido</span>
+                                    <div class="w-6 h-6 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                                        <svg class="w-3.5 h-3.5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                    </div>
+                                    <span class="text-sm font-bold text-gray-900 dark:text-white">Diluir Valor no Pedido</span>
                                 </div>
-                                <p class="text-xs text-amber-700 dark:text-amber-400 mb-3">Digite um valor total desejado e ele será distribuído proporcionalmente entre todos os itens.</p>
+                                <p class="text-[11px] text-gray-500 dark:text-slate-400 mb-4">O valor total será distribuído proporcionalmente entre todos os itens.</p>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap">R$</span>
-                                    <input type="number" id="dilution-target" step="0.01" min="0"
-                                           placeholder="Ex: 2200.00"
-                                           class="flex-1 px-3 py-1.5 text-sm rounded-md border border-amber-300 dark:border-amber-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none">
+                                    <div class="flex-1 flex items-center bg-[var(--sh-surface-from)] border border-[var(--sh-card-border)] rounded-lg px-3 py-2 focus-within:border-[#7c3aed] focus-within:ring-1 focus-within:ring-[#7c3aed] transition-all">
+                                        <span class="text-xs font-bold text-[#7c3aed] mr-2 flex-shrink-0">R$</span>
+                                        <input type="number" id="dilution-target" step="0.01" min="0"
+                                               placeholder="Ex: 2200.00"
+                                               class="w-full bg-transparent text-sm text-gray-900 dark:text-white placeholder-gray-500/60 focus:outline-none border-none p-0">
+                                    </div>
                                     <button type="button" onclick="applyDilution()"
-                                            class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-md transition-colors whitespace-nowrap">
-                                        Diluir
+                                            class="px-4 py-2 bg-[#7c3aed] hover:bg-[#6d28d9] text-white text-sm font-bold rounded-lg transition-all whitespace-nowrap stay-white">
+                                        Aplicar
                                     </button>
                                     <button type="button" onclick="resetDilution()" id="dilution-reset-btn"
-                                            class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-300 text-sm font-semibold rounded-md transition-colors whitespace-nowrap hidden">
+                                            class="px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-600 dark:text-slate-300 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap hidden">
                                         Resetar
                                     </button>
                                 </div>
-                                <div id="dilution-feedback" class="mt-2 text-xs font-medium hidden"></div>
+                                <div id="dilution-feedback" class="mt-3 text-[11px] font-medium hidden"></div>
                             </div>
                         </div>
 
                         <!-- Acréscimo Especial (personalizável) -->
-                        <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-200 dark:border-slate-700/50">
-                            <div class="flex items-center space-x-2">
-                                <span class="text-gray-700 dark:text-slate-300 text-sm">Acréscimo Especial:</span>
-                                <span class="text-xs text-gray-500 dark:text-slate-400">(digitar valor)</span>
+                        <div class="flex items-center justify-between mt-3 pt-3 border-t border-[var(--sh-card-border)]">
+                            <div class="flex flex-col">
+                                <span class="text-gray-900 dark:text-white text-sm font-semibold">Acréscimo Especial</span>
+                                <span class="text-[11px] text-gray-500 dark:text-slate-400">Personalize o valor extra</span>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <span class="text-sm text-orange-600 dark:text-orange-400">+R$</span>
+                                <span class="text-sm font-bold text-orange-500">+R$</span>
                                 <input type="number" id="custom_surcharge" step="0.01" min="0" value="0"
                                        onchange="calculateTotal()" oninput="calculateTotal()"
-                                       class="w-20 px-2 py-1 text-right text-sm rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:border-[#7c3aed] dark:focus:border-[#7c3aed] focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed]">
+                                       class="w-24 px-3 py-1.5 text-right text-sm rounded-lg border border-[var(--sh-card-border)] bg-[var(--sh-input-bg)] text-gray-900 dark:text-white focus:border-[#7c3aed] focus:ring-1 focus:ring-[#7c3aed] transition-all">
                             </div>
                         </div>
                         
@@ -260,12 +263,12 @@
                             <span class="font-medium text-green-600 dark:text-green-400" id="discount-display">-R$ 0,00</span>
                         </div>
                         
-                        <div class="border-t border-gray-200 dark:border-slate-700 pt-2 mt-2">
-                            <div class="flex justify-between text-base font-bold">
-                                <span class="text-gray-900 dark:text-white">Total Final:</span>
-                                <span id="total-final" class="text-[#7c3aed] dark:text-purple-400">R$ {{ number_format($order->subtotal, 2, ',', '.') }}</span>
+                        <div class="mt-4 pt-4 border-t-2 border-[var(--sh-card-border)]">
+                            <div class="flex justify-between items-baseline">
+                                <span class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tighter">Total Final</span>
+                                <span id="total-final" class="text-2xl font-black text-[#7c3aed] dark:text-purple-400 drop-shadow-sm">R$ {{ number_format($order->subtotal, 2, ',', '.') }}</span>
+                            </div>
                         </div>
-                    </div>
                 </div>
             </div>
 
@@ -283,51 +286,51 @@
                     <!-- Data de Entrada -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-7 h-7 bg-gray-100 dark:bg-slate-800/60 rounded-md flex items-center justify-center">
-                                <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-8 h-8 bg-purple-500 dark:bg-purple-600 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
                             </div>
                             <h3 class="text-sm font-medium text-gray-900 dark:text-white">Data de Entrada *</h3>
                         </div>
-                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
+                        <div class="bg-[var(--sh-card-bg)] rounded-xl border border-[var(--sh-card-border)] p-4">
                             <input type="date" id="entry_date" name="entry_date" required
                                    value="{{ $sessionPaymentData['entry_date'] ?? $order->payments->first()->entry_date ?? $order->entry_date ?? date('Y-m-d') }}"
-                                   class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:border-[#7c3aed] dark:focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
+                                   class="w-full px-4 py-2.5 rounded-lg border border-[var(--sh-card-border)] bg-[var(--sh-input-bg)] text-gray-900 dark:text-white focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] transition-all text-sm">
                         </div>
                     </div>
 
                     <!-- Taxa de Entrega -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-7 h-7 bg-gray-100 dark:bg-slate-800/60 rounded-md flex items-center justify-center">
-                                <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-8 h-8 bg-purple-500 dark:bg-purple-600 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zm10 0a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H3a1 1 0 00-1 1v10h1a2 2 0 114 0h6a2 2 0 114 0h1V9a1 1 0 00-.293-.707L16 6h-3z"></path>
                                 </svg>
                             </div>
                             <h3 class="text-sm font-medium text-gray-900 dark:text-white">Taxa de Entrega</h3>
                         </div>
-                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
-                            <label for="delivery_fee" class="block text-xs text-gray-600 dark:text-slate-400 mb-2">Valor da Taxa (R$)</label>
+                        <div class="bg-[var(--sh-card-bg)] rounded-xl border border-[var(--sh-card-border)] p-4">
+                            <label for="delivery_fee" class="block text-xs text-gray-600 dark:text-slate-400 mb-2 font-medium">Valor da Taxa (R$)</label>
                             <input type="number" id="delivery_fee" name="delivery_fee" step="0.01" min="0" value="{{ $sessionPaymentData['delivery_fee'] ?? $order->delivery_fee ?? 0 }}"
                                    onchange="calculateTotal()"
                                    placeholder="0.00"
-                                   class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:border-[#7c3aed] dark:focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
+                                   class="w-full px-4 py-2.5 rounded-lg border border-[var(--sh-card-border)] bg-[var(--sh-input-bg)] text-gray-900 dark:text-white placeholder-gray-500 focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] transition-all text-sm">
                         </div>
                     </div>
 
                     <!-- Desconto -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-7 h-7 bg-gray-100 dark:bg-slate-800/60 rounded-md flex items-center justify-center">
-                                <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-8 h-8 bg-purple-500 dark:bg-purple-600 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                                 </svg>
                             </div>
                             <h3 class="text-sm font-medium text-gray-900 dark:text-white">Desconto</h3>
                         </div>
-                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
+                        <div class="bg-[var(--sh-card-bg)] rounded-xl border border-[var(--sh-card-border)] p-4">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label for="discount_type" class="block text-xs text-gray-600 dark:text-slate-400 mb-2">Tipo de Desconto</label>
@@ -339,20 +342,22 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="discount_value" class="block text-xs text-gray-600 dark:text-slate-400 mb-2">
+                                    <label for="discount_value" class="block text-xs text-gray-600 dark:text-slate-400 mb-2 font-medium">
                                         <span id="discount-label">Valor</span>
                                     </label>
                                     <input type="number" id="discount_value" step="0.01" min="0" value="0" disabled
                                            onchange="calculateTotal()"
-                                           class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:border-[#7c3aed] dark:focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm disabled:bg-gray-100 dark:disabled:bg-slate-700 disabled:cursor-not-allowed">
+                                           class="w-full px-4 py-2.5 rounded-lg border border-[var(--sh-card-border)] bg-[var(--sh-input-bg)] text-gray-900 dark:text-white placeholder-gray-500 focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed">
                                 </div>
                             </div>
-                            <div id="discount-preview" class="mt-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md hidden">
+                            <div id="discount-preview" class="mt-3 p-3 bg-green-500/10 border border-green-500/20 rounded-xl hidden">
                                 <div class="flex items-center space-x-2">
-                                    <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    <span class="text-xs text-green-800 dark:text-green-300">
+                                    <div class="w-6 h-6 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                        <svg class="w-3.5 h-3.5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <span class="text-xs text-green-700 dark:text-green-400 font-medium">
                                         Desconto de <strong id="discount-preview-text">R$ 0,00</strong> aplicado
                                     </span>
                                 </div>
@@ -363,22 +368,22 @@
                     <!-- Formas de Pagamento -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-7 h-7 bg-gray-100 dark:bg-slate-800/60 rounded-md flex items-center justify-center">
-                                <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-8 h-8 bg-purple-500 dark:bg-purple-600 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                                 </svg>
                             </div>
                             <h3 class="text-sm font-medium text-gray-900 dark:text-white">Adicionar Pagamento</h3>
                         </div>
 
-                        <div class="bg-white dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
+                        <div class="bg-[var(--sh-card-bg)] rounded-xl border border-[var(--sh-card-border)] p-4">
                             <!-- Formulário de Adicionar Pagamento -->
-                            <div class="bg-white dark:bg-slate-800 rounded-md p-4 border border-gray-200 dark:border-slate-700 mb-4">
+                            <div class="bg-[var(--sh-input-bg)] rounded-xl p-4 border border-[var(--sh-card-border)] mb-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                                     <div>
                                         <label class="block text-xs text-gray-600 dark:text-slate-400 mb-2">Forma de Pagamento</label>
                                         <select id="new-payment-method" 
-                                                class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:border-[#7c3aed] dark:focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
+                                                class="w-full px-4 py-2.5 rounded-lg border border-[var(--sh-card-border)] bg-[var(--sh-surface-from)] text-gray-900 dark:text-white focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] transition-all text-sm">
                                             <option value="pix">PIX</option>
                                             <option value="dinheiro">Dinheiro</option>
                                             <option value="cartao">Cartão</option>
@@ -390,15 +395,15 @@
                                         <label class="block text-xs text-gray-600 dark:text-slate-400 mb-2">Valor (R$)</label>
                                         <input type="number" id="new-payment-amount" step="0.01" min="0" value="0"
                                                placeholder="0.00"
-                                               class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:border-[#7c3aed] dark:focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] transition-all text-sm">
+                                               class="w-full px-4 py-2.5 rounded-lg border border-[var(--sh-card-border)] bg-[var(--sh-surface-from)] text-gray-900 dark:text-white placeholder-gray-500 focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] transition-all text-sm">
                                     </div>
                                 </div>
                                 
                                 <!-- Valor Sugerido -->
-                                <div class="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-4 mb-4 border border-gray-200 dark:border-slate-700">
+                                <div class="bg-purple-500/5 dark:bg-purple-500/5 rounded-xl p-4 mb-4 border border-purple-200 dark:border-purple-800/30">
                                     <div class="flex items-center justify-between mb-2">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-10 h-10 bg-gray-100 dark:bg-slate-800/60 rounded-lg flex items-center justify-center">
+                                            <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
                                                 <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                                                 </svg>
@@ -416,8 +421,8 @@
                                     </button>
                                 </div>
 
-                                <button type="button" onclick="addPaymentMethod()" style="color: white !important;" 
-                                        class="w-full px-4 py-2.5 bg-[#7c3aed] text-white stay-white rounded-md transition-colors text-sm font-medium">
+                                <button type="button" onclick="addPaymentMethod()"
+                                        class="w-full px-4 py-2.5 bg-[#7c3aed] text-white stay-white rounded-lg hover:bg-[#6d28d9] transition-all text-sm font-bold shadow-sm">
                                     Adicionar Pagamento
                                 </button>
                             </div>
@@ -428,7 +433,7 @@
                         </div>
 
                             <!-- Resumo de Pagamentos -->
-                            <div class="p-3 bg-gray-50 dark:bg-slate-800/50 rounded-md border border-gray-200 dark:border-slate-700">
+                            <div class="p-4 bg-[var(--sh-input-bg)] rounded-xl border border-[var(--sh-card-border)]">
                                 <div class="flex justify-between text-sm mb-1">
                                     <span class="text-gray-700 dark:text-slate-300">Total Pago:</span>
                                     <span class="font-semibold text-gray-900 dark:text-white" id="total-paid">R$ 0,00</span>
@@ -594,9 +599,9 @@
                             window.sizeSurcharges[size] = surcharge;
                             totalSurcharge += surcharge;
                             surchargesHtml += `
-                                <div class="flex justify-between text-xs">
-                                    <span class="text-gray-700 dark:text-slate-300">Acréscimo ${size} (${quantity}x):</span>
-                                    <span class="font-medium text-orange-600 dark:text-orange-400">+R$ ${surcharge.toFixed(2).replace('.', ',')}</span>
+                                <div class="flex justify-between text-[13px] py-0.5">
+                                    <span class="text-gray-600 dark:text-slate-400">Acréscimo ${size} (${quantity}x):</span>
+                                    <span class="font-bold text-orange-500/90">+R$ ${surcharge.toFixed(2).replace('.', ',')}</span>
                                 </div>`;
                         }
                     });
@@ -822,8 +827,11 @@
         if (feedback) {
             const diff = target - currentSubtotal;
             const sign = diff >= 0 ? '+' : '-';
-            feedback.textContent = `✓ Diluição aplicada! Subtotal: R$ ${target.toFixed(2).replace('.', ',')} (${sign}R$ ${Math.abs(diff).toFixed(2).replace('.', ',')})`;
-            feedback.className = 'mt-2 text-xs font-medium text-green-700 dark:text-green-400';
+            feedback.innerHTML = `
+                <div class="flex items-center gap-1.5 py-1 px-2.5 bg-green-500/10 text-green-600 dark:text-green-400 rounded-lg border border-green-500/20">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>Diluição aplicada: <strong>R$ ${target.toFixed(2).replace('.', ',')}</strong> (${sign}R$ ${Math.abs(diff).toFixed(2).replace('.', ',')})</span>
+                </div>`;
             feedback.classList.remove('hidden');
         }
         if (resetBtn) resetBtn.classList.remove('hidden');
@@ -843,7 +851,10 @@
         const resetBtn = document.getElementById('dilution-reset-btn');
 
         if (targetInput) targetInput.value = '';
-        if (feedback) feedback.classList.add('hidden');
+        if (feedback) {
+            feedback.classList.add('hidden');
+            feedback.innerHTML = '';
+        }
         if (resetBtn) resetBtn.classList.add('hidden');
 
         const subtotalEl = document.getElementById('subtotal');

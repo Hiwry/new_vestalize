@@ -79,6 +79,97 @@
         box-shadow: none !important;
     }
 
+    .ow-guide-card,
+    .ow-surface-card,
+    .ow-aside-card,
+    .ow-item-frame,
+    .ow-type-frame,
+    .ow-stat-card {
+        background: var(--sh-card-bg);
+        border: 1px solid var(--sh-card-border);
+        border-radius: 18px;
+    }
+
+    .ow-guide-card {
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(255, 255, 255, 0.92));
+    }
+
+    .dark .ow-guide-card {
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(16, 32, 58, 0.96));
+    }
+
+    .ow-section-kicker {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sh-text-secondary);
+    }
+
+    .ow-guide-step {
+        position: relative;
+        min-height: 100%;
+        padding: 1rem 1rem 1rem 3.75rem;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 72%, transparent);
+        border-radius: 16px;
+        background: color-mix(in srgb, var(--sh-card-bg) 90%, var(--sh-accent) 10%);
+    }
+
+    .ow-guide-step-index {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        width: 2rem;
+        height: 2rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: var(--sh-accent);
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 800;
+    }
+
+    .ow-check-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .ow-check-row-badge {
+        width: 1.75rem;
+        height: 1.75rem;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: rgba(124, 58, 237, 0.12);
+        color: var(--sh-accent);
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+
+    .ow-item-frame {
+        overflow: hidden;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98));
+    }
+
+    .dark .ow-item-frame {
+        background: linear-gradient(180deg, rgba(16, 32, 58, 0.98), rgba(11, 19, 34, 0.98));
+    }
+
+    .ow-item-metric {
+        border-radius: 16px;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 76%, transparent);
+        background: color-mix(in srgb, var(--sh-card-bg) 95%, var(--sh-accent) 5%);
+    }
+
+    .ow-type-frame {
+        background: color-mix(in srgb, var(--sh-card-bg) 97%, var(--sh-accent) 3%);
+    }
+
     /* Absolute Zero Shadow Kill - FINAL OVERRIDE */
     html.dark.avento-theme .ow-shell,
     html.dark.avento-theme .ow-shell *,
@@ -145,12 +236,63 @@
             </div>
 
             <!-- Content - Formulário de Arte -->
-            <form id="orderArtForm" action="{{ $customizationAction }}" method="POST" enctype="multipart/form-data" class="px-6 pt-6 pb-4">
+            <div class="px-6 pt-6">
+                <div class="ow-guide-card p-5 sm:p-6">
+                    <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+                        <div class="max-w-2xl">
+                            <p class="ow-section-kicker">Fluxo sugerido</p>
+                            <h2 class="mt-1 text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Organize esta etapa em 3 movimentos simples</h2>
+                            <p class="mt-2 text-sm text-gray-600 dark:text-slate-400">
+                                Primeiro salve a arte-base do pedido. Depois abra cada item e distribua as aplica&ccedil;&otilde;es por tipo.
+                                Quando o resumo estiver coerente, siga para pagamento.
+                            </p>
+                        </div>
+                        <div class="inline-flex items-center gap-2 rounded-full border border-gray-200 dark:border-slate-700 bg-white/90 dark:bg-slate-800/80 px-3 py-2 text-xs font-semibold text-gray-600 dark:text-slate-300">
+                            <i class="fa-solid fa-lightbulb text-[#7c3aed]"></i>
+                            Use &quot;Aplicar a todos os itens&quot; quando a mesma arte valer para o pedido inteiro
+                        </div>
+                    </div>
+
+                    <div class="mt-5 grid gap-3 md:grid-cols-3">
+                        <div class="ow-guide-step">
+                            <span class="ow-guide-step-index">1</span>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Salvar a arte-base</p>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Cadastre nome, arquivos e um item de refer&ecirc;ncia para o pedido.</p>
+                        </div>
+                        <div class="ow-guide-step">
+                            <span class="ow-guide-step-index">2</span>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Abrir cada tipo liberado</p>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Dentro de cada item, clique em &quot;Adicionar&quot; para definir local, tamanho e quantidade.</p>
+                        </div>
+                        <div class="ow-guide-step">
+                            <span class="ow-guide-step-index">3</span>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Revisar o consolidado</p>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Use o resumo lateral para conferir valores e garantir que nada ficou pendente.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form id="orderArtForm" action="{{ $customizationAction }}" method="POST" enctype="multipart/form-data" class="px-6 pt-6">
                 @csrf
                 <input type="hidden" name="action" value="save_order_art">
                 
                 <!-- Card do Formulário -->
-                <div class="rounded-xl border border-gray-200 dark:border-slate-700 p-5 ow-field-panel">
+                <div class="rounded-2xl border border-gray-200 dark:border-slate-700 p-5 ow-field-panel">
+                    <div class="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div>
+                            <p class="ow-section-kicker">Passo 1</p>
+                            <h2 class="mt-1 text-lg font-bold text-gray-900 dark:text-white">Salvar a arte-base do pedido</h2>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">
+                                Essa refer&ecirc;ncia ajuda a centralizar os arquivos e reduz retrabalho na hora de configurar as aplica&ccedil;&otilde;es.
+                            </p>
+                        </div>
+                        <div class="inline-flex items-center gap-2 rounded-full bg-purple-50 dark:bg-purple-900/30 px-3 py-2 text-xs font-semibold text-[#7c3aed] dark:text-[#a78bfa]">
+                            <i class="fa-solid fa-paperclip"></i>
+                            Nome + arquivos + item de referencia
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
                         
                         <!-- Nome da Arte -->
@@ -246,9 +388,61 @@
                     </div>
                 @endif
 
+                @php
+                    $totalApplications = 0;
+                    $totalApplicationsCount = 0;
+                    foreach ($order->items as $item) {
+                        $persIds = session('item_personalizations.' . $item->id, [[]])[0] ?? [];
+                        $allowedTypes = !empty($persIds)
+                            ? \App\Models\ProductOption::whereIn('id', $persIds)->pluck('name')->map(fn ($n) => strtoupper((string) $n))->toArray()
+                            : [];
+                        $itemAllowedApplications = !empty($allowedTypes)
+                            ? $item->sublimations->filter(fn ($sub) => in_array(strtoupper((string) $sub->application_type), $allowedTypes, true))
+                            : collect();
+                        $totalApplications += $itemAllowedApplications->sum('final_price');
+                        $totalApplicationsCount += $itemAllowedApplications->count();
+                    }
+                    $avgPerPiece = $order->items->sum('quantity') > 0 ? $totalApplications / $order->items->sum('quantity') : 0;
+                @endphp
+
+                <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-6 items-start">
+                    <div class="space-y-6">
+                        <div class="ow-surface-card p-5">
+                            <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                                <div>
+                                    <p class="ow-section-kicker">Passo 2</p>
+                                    <h2 class="mt-1 text-lg font-bold text-gray-900 dark:text-white">Distribuir aplica&ccedil;&otilde;es por item</h2>
+                                    <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">
+                                        Cada bloco abaixo mostra os tipos liberados para o item. Abra o configurador em &quot;Adicionar&quot; e preencha local, tamanho, quantidade e arquivos complementares.
+                                    </p>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="inline-flex items-center gap-2 rounded-full bg-purple-50 dark:bg-purple-900/30 px-3 py-2 text-xs font-semibold text-[#7c3aed] dark:text-[#a78bfa]">
+                                        <i class="fa-solid fa-swatchbook"></i>
+                                        {{ $totalApplicationsCount }} aplica&ccedil;&otilde;es cadastradas
+                                    </span>
+                                    <span class="inline-flex items-center gap-2 rounded-full bg-gray-100 dark:bg-slate-800 px-3 py-2 text-xs font-semibold text-gray-600 dark:text-slate-300">
+                                        <i class="fa-solid fa-layer-group"></i>
+                                        {{ count($itemPersonalizations) }} itens para revisar
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
                 <!-- Resumo -->
-                <div id="customization-summary" class="bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-gray-200 dark:border-slate-700 p-5 mb-6">
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div id="customization-summary" class="ow-surface-card p-5">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between mb-5">
+                        <div>
+                            <p class="ow-section-kicker">Panorama da etapa</p>
+                            <h3 class="mt-1 text-lg font-bold text-gray-900 dark:text-white">Resumo das personaliza&ccedil;&otilde;es</h3>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Confira o impacto geral antes de descer para os itens.</p>
+                        </div>
+                        <span class="inline-flex items-center gap-2 rounded-full bg-white dark:bg-slate-800 px-3 py-2 text-xs font-semibold text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700">
+                            <i class="fa-solid fa-chart-line text-[#7c3aed]"></i>
+                            Atualizado com os itens abaixo
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         <div class="bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/10 rounded-xl p-4 border border-blue-100 dark:border-blue-800/50">
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -267,25 +461,6 @@
                             </div>
                             <p class="text-2xl font-bold text-gray-900 dark:text-white" id="total-pecas" data-total-pecas="{{ $order->items->sum('quantity') }}">{{ $order->items->sum('quantity') }}</p>
                         </div>
-        @php
-            $totalApplications = 0;
-            $totalApplicationsCount = 0;
-            foreach($order->items as $item) {
-                $persIds = session('item_personalizations.' . $item->id, [[]])[0] ?? [];
-                $allowedTypes = !empty($persIds)
-                    ? \App\Models\ProductOption::whereIn('id', $persIds)->pluck('name')->map(fn($n)=>strtoupper($n))->toArray()
-                    : [];
-                $itemApplicationsQuery = \App\Models\OrderSublimation::where('order_item_id', $item->id);
-                if (!empty($allowedTypes)) {
-                    $itemApplicationsQuery = $itemApplicationsQuery->whereIn('application_type', $allowedTypes);
-                } else {
-                    $itemApplicationsQuery = $itemApplicationsQuery->whereRaw('1=0');
-                }
-                $totalApplications += $itemApplicationsQuery->sum('final_price');
-                $totalApplicationsCount += $itemApplicationsQuery->count();
-            }
-            $avgPerPiece = $order->items->sum('quantity') > 0 ? $totalApplications / $order->items->sum('quantity') : 0;
-        @endphp
                         <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-900/20 dark:to-emerald-800/10 rounded-xl p-4 border border-emerald-100 dark:border-emerald-800/50">
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-8 h-8 bg-emerald-500/20 dark:bg-emerald-400/20 rounded-lg flex items-center justify-center">
@@ -316,53 +491,64 @@
                             $item = $itemData['item'];
                             $persIds = $itemData['personalization_ids'];
                             $persNames = $itemData['personalization_names'];
+                            $allowedTypes = collect($persNames)->map(fn ($name) => strtoupper((string) $name))->values()->all();
+                            $itemAllowedPersonalizations = !empty($allowedTypes)
+                                ? $item->sublimations->filter(fn ($sub) => in_array(strtoupper((string) $sub->application_type), $allowedTypes, true))
+                                : collect();
+                            $itemTotalApplications = $itemAllowedPersonalizations->sum('final_price');
+                            $itemApplicationsCount = $itemAllowedPersonalizations->count();
+                            $itemAvgPerPiece = $item->quantity > 0 ? $itemTotalApplications / $item->quantity : 0;
                         @endphp
                         
-                        <div class="border border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-800">
+                        <div id="item-card-{{ $item->id }}" class="ow-item-frame">
                             
                             <!-- Item Header -->
-                            <div class="bg-gray-50 dark:bg-slate-800/50 px-4 sm:px-5 py-4 border-b border-gray-200 dark:border-slate-700">
-                                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
-                                    <div>
-                                        <h3 class="font-semibold text-gray-900 dark:text-white">Item {{ $item->item_number }}</h3>
-                                        <p class="text-sm text-gray-600 dark:text-slate-400 mt-0.5">{{ $item->quantity }} peças • {{ $item->fabric }} • {{ $item->color }}</p>
-                                    </div>
-                                    <span class="text-xs px-2.5 py-1 bg-purple-100 dark:bg-purple-900/30 text-[#7c3aed] dark:text-[#a78bfa] rounded-md font-medium">
-                                        {{ count($persIds) }} {{ count($persIds) == 1 ? 'personalização' : 'personalizações' }}
-                                    </span>
+                            <div class="px-5 py-5 border-b border-gray-200 dark:border-slate-700 bg-gradient-to-r from-white to-gray-50 dark:from-slate-900 dark:to-slate-800/70">
+                                <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                                    <div class="space-y-3">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <span class="inline-flex items-center rounded-full bg-[#7c3aed] px-3 py-1 text-xs font-semibold text-white stay-white">Item {{ $item->item_number }}</span>
+                                            <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-slate-800 px-3 py-1 text-xs font-semibold text-gray-600 dark:text-slate-300">{{ $item->quantity }} pe&ccedil;as</span>
+                                            <span class="inline-flex items-center rounded-full bg-purple-50 dark:bg-purple-900/30 px-3 py-1 text-xs font-semibold text-[#7c3aed] dark:text-[#a78bfa]">
+                                                {{ count($persIds) }} {{ count($persIds) == 1 ? 'tipo liberado' : 'tipos liberados' }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ $item->fabric }}</h3>
+                                            <p class="text-sm text-gray-600 dark:text-slate-400 mt-1">
+                                                {{ $item->color }}
+                                                @if($item->model)
+                                                    &bull; {{ $item->model }}
+                                                @endif
+                                            </p>
+                                        </div>
                                 </div>
-                                @php
-                                    $allowedTypes = collect($persNames)->map(fn($name) => strtoupper($name))->toArray();
-                                    $itemPersonalizationsQuery = \App\Models\OrderSublimation::where('order_item_id', $item->id);
-                                    if (!empty($allowedTypes)) {
-                                        $itemPersonalizationsQuery = $itemPersonalizationsQuery->whereIn('application_type', $allowedTypes);
-                                    } else {
-                                        $itemPersonalizationsQuery = $itemPersonalizationsQuery->whereRaw('1=0'); // nenhum tipo permitido
-                                    }
-                                    $itemTotalApplications = $itemPersonalizationsQuery->sum('final_price');
-                                    $itemApplicationsCount = $itemPersonalizationsQuery->count();
-                                    $itemAvgPerPiece = $item->quantity > 0 ? $itemTotalApplications / $item->quantity : 0;
-                                @endphp
-                                @if($itemApplicationsCount > 0)
-                                    <div class="grid grid-cols-3 gap-3 text-xs bg-white dark:bg-slate-800 rounded-lg p-2.5 border border-gray-200 dark:border-slate-700">
-                                        <div>
-                                            <span class="text-gray-500 dark:text-slate-400">Aplicações:</span>
-                                            <span class="font-semibold text-gray-900 dark:text-white ml-1">{{ $itemApplicationsCount }}</span>
+                                    @if($itemApplicationsCount > 0)
+                                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 xl:w-[360px]">
+                                            <div class="ow-item-metric p-3">
+                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-400">Aplicações</p>
+                                                <p class="mt-1 text-xl font-bold text-gray-900 dark:text-white">{{ $itemApplicationsCount }}</p>
+                                            </div>
+                                            <div class="ow-item-metric p-3">
+                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-400">Total</p>
+                                                <p class="mt-1 text-xl font-bold text-[#7c3aed] dark:text-[#a78bfa]">R$ {{ number_format($itemTotalApplications, 2, ',', '.') }}</p>
+                                            </div>
+                                            <div class="ow-item-metric p-3">
+                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-400">Por peça</p>
+                                                <p class="mt-1 text-xl font-bold text-[#7c3aed] dark:text-[#a78bfa]">R$ {{ number_format($itemAvgPerPiece, 2, ',', '.') }}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <span class="text-gray-500 dark:text-slate-400">Total:</span>
-                                            <span class="font-semibold text-[#7c3aed] dark:text-[#a78bfa] ml-1">R$ {{ number_format($itemTotalApplications, 2, ',', '.') }}</span>
+                                    @else
+                                        <div class="xl:w-[320px] rounded-2xl border border-dashed border-gray-300 dark:border-slate-700 bg-white/70 dark:bg-slate-800/40 px-4 py-4">
+                                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Nenhuma aplicação cadastrada ainda</p>
+                                            <p class="mt-1 text-xs text-gray-600 dark:text-slate-400">Escolha um dos tipos liberados abaixo para iniciar a configuração deste item.</p>
                                         </div>
-                                        <div>
-                                            <span class="text-gray-500 dark:text-slate-400">Por peça:</span>
-                                            <span class="font-semibold text-[#7c3aed] dark:text-[#a78bfa] ml-1">R$ {{ number_format($itemAvgPerPiece, 2, ',', '.') }}</span>
-                                        </div>
-                                    </div>
-                                @endif
+                                    @endif
+                                </div>
                             </div>
 
                             @if($item->art_name || ($item->files && $item->files->count()))
-                                <div class="mt-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
+                                <div class="mt-3 mx-5 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700">
                                     @if($item->art_name)
                                         <p class="text-sm text-gray-800 dark:text-slate-200 mb-2">
                                             <span class="font-semibold text-gray-900 dark:text-white">Nome da Arte:</span>
@@ -382,19 +568,26 @@
                                         </div>
                                     @endif
                                 </div>
+                            @else
+                                <div class="mt-3 mx-5 rounded-2xl border border-dashed border-gray-300 dark:border-slate-700 bg-gray-50/80 dark:bg-slate-800/40 p-4">
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">Este item ainda n&atilde;o possui arte-base salva.</p>
+                                    <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Se precisar anexar nome ou arquivos antes das aplica&ccedil;&otilde;es, use o bloco do topo desta p&aacute;gina.</p>
+                                </div>
                             @endif
 
                             <!-- Personalizações do Item -->
                             <div class="p-5 space-y-4">
+                                <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                                    <div>
+                                        <p class="ow-section-kicker">Passo 3</p>
+                                        <h4 class="mt-1 text-base font-bold text-gray-900 dark:text-white">Escolha o tipo e adicione as aplica&ccedil;&otilde;es</h4>
+                                        <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Cada card abaixo representa uma t&eacute;cnica permitida para este item.</p>
+                                    </div>
+                                </div>
                                 @php
                                     // Buscar TODAS as personalizações do item (independente do tipo)
-                                    $allItemPersonalizations = \App\Models\OrderSublimation::where('order_item_id', $item->id)
-                                        ->with('files')
-                                        ->get();
-                                    
-                                    // Agrupar por tipo
-                                    $groupedPersonalizations = $allItemPersonalizations->groupBy(function($pers) {
-                                        return strtoupper($pers->application_type);
+                                    $groupedPersonalizations = $item->sublimations->groupBy(function($pers) {
+                                        return strtoupper((string) $pers->application_type);
                                     });
                                 @endphp
                                 
@@ -407,23 +600,27 @@
                                         $existingPersonalizations = $groupedPersonalizations->get($persNameUpper, collect());
                                     @endphp
                                     
-                                    <div class="bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg p-4">
+                                    <div class="ow-type-frame p-4">
                                         
                                         <!-- Tipo de Personalização -->
-                                        <div class="flex items-center justify-between mb-4">
-                                            <div class="flex items-center space-x-2">
-                                                <div class="w-6 h-6 bg-purple-100 dark:bg-purple-900/30 rounded flex items-center justify-center">
-                                                    <svg class="w-3 h-3 text-[#7c3aed] dark:text-[#a78bfa]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                    </svg>
+                                        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
+                                            <div>
+                                                <div class="flex items-center space-x-2">
+                                                    <div class="w-6 h-6 bg-purple-100 dark:bg-purple-900/30 rounded flex items-center justify-center">
+                                                        <svg class="w-3 h-3 text-[#7c3aed] dark:text-[#a78bfa]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                        </svg>
+                                                    </div>
+                                                    <h4 class="font-semibold text-gray-900 dark:text-white">{{ $persName }}</h4>
                                                 </div>
-                                                <h4 class="font-semibold text-gray-900 dark:text-white">{{ $persName }}</h4>
+                                                <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Cadastre local, tamanho, quantidade e arquivos espec&iacute;ficos desta t&eacute;cnica.</p>
                                             </div>
                                             <button 
                                                 type="button"
                                                 onclick="openPersonalizationModal({{ $item->id }}, '{{ $persName }}', {{ $persId }})"
-                                                class="text-sm px-3 py-1.5 bg-[#7c3aed] text-white stay-white rounded-lg hover:bg-[#7c3aed] transition-colors font-medium">
-                                                + Adicionar
+                                                class="text-sm px-3 py-2 bg-[#7c3aed] text-white stay-white rounded-lg hover:bg-[#6d28d9] transition-colors font-medium inline-flex items-center gap-2">
+                                                <i class="fa-solid fa-plus text-xs"></i>
+                                                Adicionar
                                             </button>
                                         </div>
                                         
@@ -509,15 +706,90 @@
                 </div>
 
                 <!-- Navegação -->
-                <div class="mt-8 flex items-center justify-between pt-6 border-t border-gray-200 dark:border-slate-700">
+                        <div class="xl:hidden mt-2 flex items-center justify-between gap-3 rounded-2xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
                     <a href="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.sewing') : route('orders.wizard.sewing') }}" 
                        class="px-4 py-2 text-sm text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white font-medium">
-                        ← Voltar
+                        &larr; Voltar
                     </a>
                     <a href="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.payment') : route('orders.wizard.payment') }}" 
                        class="px-6 py-2.5 text-sm bg-[#7c3aed] text-white stay-white rounded-lg hover:opacity-90 font-semibold transition-all">
-                        Continuar →
+                        Continuar &rarr;
                     </a>
+                </div>
+                    </div>
+
+                    <aside class="space-y-6 xl:sticky xl:top-6">
+                        <div class="ow-aside-card p-5">
+                            <p class="ow-section-kicker">Como usar</p>
+                            <div class="mt-4 space-y-4">
+                                <div class="ow-check-row">
+                                    <span class="ow-check-row-badge">1</span>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Salve a arte principal primeiro</p>
+                                        <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Isso ajuda a manter contexto visual e arquivos centralizados.</p>
+                                    </div>
+                                </div>
+                                <div class="ow-check-row">
+                                    <span class="ow-check-row-badge">2</span>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Use os tipos liberados de cada item</p>
+                                        <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Cada card de item mostra quais t&eacute;cnicas podem ser configuradas naquele contexto.</p>
+                                    </div>
+                                </div>
+                                <div class="ow-check-row">
+                                    <span class="ow-check-row-badge">3</span>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Revise o custo antes de continuar</p>
+                                        <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">O resumo mostra o impacto financeiro desta etapa para evitar surpresas no pagamento.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ow-aside-card p-5">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <p class="ow-section-kicker">Atalhos</p>
+                                    <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Use os links para ir direto ao item desejado.</p>
+                                </div>
+                                <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-slate-300">
+                                    {{ count($itemPersonalizations) }} itens
+                                </span>
+                            </div>
+
+                            <div class="mt-4 space-y-3">
+                                @foreach($itemPersonalizations as $itemData)
+                                    @php
+                                        $sidebarItem = $itemData['item'];
+                                        $sidebarTypes = array_values($itemData['personalization_names']);
+                                        $sidebarPreview = implode(' | ', array_slice($sidebarTypes, 0, 2));
+                                        if (count($sidebarTypes) > 2) {
+                                            $sidebarPreview .= ' +' . (count($sidebarTypes) - 2);
+                                        }
+                                    @endphp
+                                    <a href="#item-card-{{ $sidebarItem->id }}" class="flex items-start justify-between gap-3 rounded-2xl border border-gray-200 dark:border-slate-700 px-4 py-3 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all">
+                                        <div>
+                                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Item {{ $sidebarItem->item_number }}</p>
+                                            <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">{{ $sidebarItem->quantity }} pe&ccedil;as</p>
+                                            <p class="mt-2 text-xs text-gray-600 dark:text-slate-300">{{ $sidebarPreview }}</p>
+                                        </div>
+                                        <span class="text-xs font-semibold text-[#7c3aed] dark:text-[#a78bfa]">Abrir</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div class="hidden xl:flex ow-aside-card p-4 flex-col gap-3">
+                            <a href="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.sewing') : route('orders.wizard.sewing') }}" 
+                               class="w-full px-4 py-2.5 text-sm text-center text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white font-medium rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 transition-all">
+                                &larr; Voltar para costura
+                            </a>
+                            <a href="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.payment') : route('orders.wizard.payment') }}" 
+                               class="w-full px-6 py-3 text-sm text-center bg-[#7c3aed] text-white stay-white rounded-xl hover:opacity-90 font-semibold transition-all">
+                                Continuar para pagamento &rarr;
+                            </a>
+                        </div>
+                    </aside>
                 </div>
 
             </div>

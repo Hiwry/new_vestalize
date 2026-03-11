@@ -202,6 +202,34 @@ Route::get('/sublimation-total/types', function (Request $request) {
 Route::get('/sublimation-total/addons/{type}', function (Request $request, string $type) {
     $user = $request->user();
     $tenantId = $user ? $user->tenant_id : session('current_tenant_id');
+
+    $productType = null;
+    if ($tenantId) {
+        $productType = \App\Models\SublimationProductType::with('tecido')
+            ->where('slug', $type)
+            ->where('tenant_id', $tenantId)
+            ->first();
+    }
+    if (!$productType) {
+        $productType = \App\Models\SublimationProductType::with('tecido')
+            ->where('slug', $type)
+            ->whereNull('tenant_id')
+            ->first();
+    }
+
+    $startingPriceRow = null;
+    if ($tenantId) {
+        $startingPriceRow = \App\Models\SublimationProductPrice::where('product_type', $type)
+            ->where('tenant_id', $tenantId)
+            ->orderBy('quantity_from')
+            ->first();
+    }
+    if (!$startingPriceRow) {
+        $startingPriceRow = \App\Models\SublimationProductPrice::where('product_type', $type)
+            ->whereNull('tenant_id')
+            ->orderBy('quantity_from')
+            ->first();
+    }
     
     $addons = \App\Models\SublimationProductAddon::where('product_type', $type)
         ->where(function($q) use ($tenantId) {
@@ -219,6 +247,10 @@ Route::get('/sublimation-total/addons/{type}', function (Request $request, strin
                 'price' => (float) $addon->price,
             ];
         }),
+        'type_name' => $productType?->name,
+        'default_fabric_name' => $productType?->tecido?->name,
+        'starting_price' => $startingPriceRow ? (float) $startingPriceRow->price : 0,
+        'starting_quantity_from' => $startingPriceRow?->quantity_from,
     ]);
 })->withoutMiddleware(['web']);
 

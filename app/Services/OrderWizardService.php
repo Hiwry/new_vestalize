@@ -811,9 +811,11 @@ class OrderWizardService
     public function processAddSublimationItem(Order $order, array $validated, ?string $coverImagePath = null, ?string $corelFilePath = null): OrderItem
     {
         $typeModel = \App\Models\SublimationProductType::query()
+            ->with('tecido')
             ->where('slug', $validated['sublimation_type'])
             ->first();
         $typeLabel = $typeModel ? $typeModel->name : $validated['sublimation_type'];
+        $defaultFabricName = trim((string) optional($typeModel?->tecido)->name);
 
         $fabricType = strtoupper((string) ($validated['fabric_type'] ?? ''));
         $modelType = strtoupper((string) ($validated['model_type'] ?? ''));
@@ -824,6 +826,7 @@ class OrderWizardService
         $hasAddonColors = (bool) ($validated['has_addon_colors'] ?? false);
 
         $fabricName = match ($fabricType) {
+            'PADRAO' => ($defaultFabricName !== '' ? $defaultFabricName : 'TECIDO PADRÃO'),
             'PP' => 'PP',
             'CACHARREL' => 'CACHARREL',
             'OUTRO' => ($fabricCustom !== '' ? $fabricCustom : 'OUTRO TECIDO'),
@@ -895,7 +898,11 @@ class OrderWizardService
             'model' => trim($typeLabel . ' - ' . $modelName, ' -'),
             'detail' => $addonDetailLabel !== '' ? $addonDetailLabel : null,
             'print_type' => 'SUB. TOTAL',
+            'is_sublimation_total' => true,
+            'sublimation_type' => $validated['sublimation_type'],
+            'sublimation_addons' => $selectedAddonIds,
             'art_name' => $validated['art_name'],
+            'corel_file_path' => $corelFilePath,
             'sizes' => $validated['tamanhos'],
             'quantity' => $quantity,
             'unit_price' => $unitPrice,
@@ -926,6 +933,131 @@ class OrderWizardService
         $this->recalculateOrderTotals($order);
 
         return $item;
+    }
+
+    /**
+     * Atualiza um item SUB. TOTAL existente
+     */
+    public function processUpdateSublimationItem(OrderItem $item, array $validated, ?string $coverImagePath = null, ?string $corelFilePath = null): void
+    {
+        $typeModel = \App\Models\SublimationProductType::query()
+            ->with('tecido')
+            ->where('slug', $validated['sublimation_type'])
+            ->first();
+        $typeLabel = $typeModel ? $typeModel->name : $validated['sublimation_type'];
+        $defaultFabricName = trim((string) optional($typeModel?->tecido)->name);
+
+        $fabricType = strtoupper((string) ($validated['fabric_type'] ?? ''));
+        $modelType = strtoupper((string) ($validated['model_type'] ?? ''));
+        $baseCollar = strtoupper(trim((string) ($validated['base_collar'] ?? 'REDONDA')));
+        $fabricColor = strtoupper(trim((string) ($validated['fabric_color'] ?? 'BRANCO')));
+        $fabricCustom = trim((string) ($validated['fabric_custom'] ?? ''));
+        $fabricSurcharge = (float) ($validated['fabric_surcharge'] ?? 0);
+        $hasAddonColors = (bool) ($validated['has_addon_colors'] ?? false);
+
+        $fabricName = match ($fabricType) {
+            'PADRAO' => ($defaultFabricName !== '' ? $defaultFabricName : 'TECIDO PADRAO'),
+            'PP' => 'PP',
+            'CACHARREL' => 'CACHARREL',
+            'OUTRO' => ($fabricCustom !== '' ? $fabricCustom : 'OUTRO TECIDO'),
+            default => ($fabricType !== '' ? $fabricType : 'SUB. TOTAL - ' . $typeLabel),
+        };
+
+        $modelName = match ($modelType) {
+            'BASICA' => 'BASICA',
+            'BABYLOOK' => 'BABYLOOK',
+            'INFANTIL' => 'INFANTIL',
+            default => $modelType,
+        };
+
+        $selectedAddonIds = collect($validated['sublimation_addons'] ?? [])
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
+            ->values()
+            ->all();
+
+        $addonColorMap = [];
+        if (!empty($validated['addon_color_map'])) {
+            $decoded = is_array($validated['addon_color_map'])
+                ? $validated['addon_color_map']
+                : json_decode((string) $validated['addon_color_map'], true);
+            if (is_array($decoded)) {
+                $addonColorMap = $decoded;
+            }
+        }
+
+        $selectedAddons = \App\Models\SublimationProductAddon::query()
+            ->whereIn('id', $selectedAddonIds)
+            ->get(['id', 'name', 'price']);
+
+        $addonsDetails = $selectedAddons->map(function ($addon) use ($addonColorMap) {
+            $color = trim((string) ($addonColorMap[(string) $addon->id] ?? $addonColorMap[$addon->id] ?? ''));
+            return [
+                'id' => (int) $addon->id,
+                'name' => (string) $addon->name,
+                'price' => (float) ($addon->price ?? 0),
+                'color' => $color !== '' ? $color : null,
+            ];
+        })->values()->all();
+
+        $addonsLabel = collect($addonsDetails)->pluck('name')->filter()->join(', ');
+        $addonDetailLabel = collect($addonsDetails)
+            ->map(function ($addon) {
+                return !empty($addon['color'])
+                    ? $addon['name'] . ' (' . $addon['color'] . ')'
+                    : $addon['name'];
+            })
+            ->filter()
+            ->join(', ');
+
+        $collarLabel = $baseCollar;
+        if ($addonsLabel !== '') {
+            $collarLabel .= ' + ' . $addonsLabel;
+        }
+
+        $quantity = (int) $validated['quantity'];
+        $unitPrice = (float) $validated['unit_price'];
+        $unitCost = (float) ($validated['unit_cost'] ?? 0);
+
+        $item->update([
+            'fabric' => $fabricName,
+            'color' => $fabricColor !== '' ? $fabricColor : 'BRANCO',
+            'collar' => $collarLabel,
+            'model' => trim($typeLabel . ' - ' . $modelName, ' -'),
+            'detail' => $addonDetailLabel !== '' ? $addonDetailLabel : null,
+            'print_type' => 'SUB. TOTAL',
+            'is_sublimation_total' => true,
+            'sublimation_type' => $validated['sublimation_type'],
+            'sublimation_addons' => $selectedAddonIds,
+            'art_name' => $validated['art_name'],
+            'corel_file_path' => $corelFilePath,
+            'sizes' => $validated['tamanhos'],
+            'quantity' => $quantity,
+            'unit_price' => $unitPrice,
+            'total_price' => $this->calculateItemTotalPrice($unitPrice, $quantity, $validated['tamanhos']),
+            'unit_cost' => $unitCost,
+            'total_cost' => $unitCost * $quantity,
+            'cover_image' => $coverImagePath,
+            'art_notes' => $validated['art_notes'] ?? null,
+            'print_desc' => json_encode([
+                'is_sublimation_total' => true,
+                'type' => $validated['sublimation_type'],
+                'type_label' => $typeLabel,
+                'fabric_type' => $fabricType,
+                'fabric_custom' => $fabricType === 'OUTRO' ? ($fabricCustom !== '' ? $fabricCustom : null) : null,
+                'fabric_color' => $fabricColor !== '' ? $fabricColor : 'BRANCO',
+                'model_type' => $modelType,
+                'base_collar' => $baseCollar,
+                'fabric_surcharge' => $fabricSurcharge,
+                'has_addon_colors' => $hasAddonColors,
+                'addon_color_map' => $addonColorMap,
+                'addons' => $selectedAddonIds,
+                'addons_details' => $addonsDetails,
+                'corel_file' => $corelFilePath,
+            ]),
+        ]);
+
+        $this->recalculateOrderTotals($item->order);
     }
 
     /**
@@ -1168,6 +1300,12 @@ class OrderWizardService
     public function recalculateOrderTotals(Order $order): void
     {
         $order->refresh();
+        $order->load('items');
+
+        $this->recalculateGroupedSublimationTotalPricing($order);
+
+        $order->refresh();
+        $order->load('items');
         
         $subtotal = $order->items->sum('total_price');
         $totalItems = $order->items->sum('quantity');
@@ -1182,6 +1320,87 @@ class OrderWizardService
             'total_items' => $totalItems,
             'total' => max(0, $total),
         ]);
+    }
+
+    private function recalculateGroupedSublimationTotalPricing(Order $order): void
+    {
+        $items = $order->items instanceof \Illuminate\Support\Collection
+            ? $order->items
+            : $order->items()->get();
+
+        $groupedItems = $items
+            ->filter(fn (OrderItem $item) => $this->isGroupedSublimationTotalItem($item))
+            ->groupBy(fn (OrderItem $item) => $this->resolveGroupedSublimationType($item) ?? '__unknown__');
+
+        foreach ($groupedItems as $type => $groupItems) {
+            if ($type === '__unknown__') {
+                continue;
+            }
+
+            $aggregateQuantity = $groupItems->sum(fn (OrderItem $item) => (int) $item->quantity);
+            if ($aggregateQuantity <= 0) {
+                continue;
+            }
+
+            $basePrice = \App\Models\SublimationProductPrice::getPriceFor($type, $aggregateQuantity, $order->tenant_id);
+            if ($basePrice === null) {
+                continue;
+            }
+
+            foreach ($groupItems as $item) {
+                $printDesc = $this->decodeOrderItemPrintDesc($item);
+                $addonsAdjustment = collect($printDesc['addons_details'] ?? [])
+                    ->sum(fn ($addon) => (float) ($addon['price'] ?? 0));
+                $fabricSurcharge = (float) ($printDesc['fabric_surcharge'] ?? 0);
+
+                $updatedUnitPrice = max(0, (float) $basePrice + $addonsAdjustment + $fabricSurcharge);
+                $sizes = is_array($item->sizes) ? $item->sizes : [];
+                $updatedTotalPrice = $this->calculateItemTotalPrice($updatedUnitPrice, (int) $item->quantity, $sizes);
+
+                $item->update([
+                    'is_sublimation_total' => true,
+                    'sublimation_type' => $type,
+                    'unit_price' => $updatedUnitPrice,
+                    'total_price' => $updatedTotalPrice,
+                ]);
+            }
+        }
+    }
+
+    private function decodeOrderItemPrintDesc(OrderItem $item): array
+    {
+        if (is_array($item->print_desc)) {
+            return $item->print_desc;
+        }
+
+        if (is_string($item->print_desc) && $item->print_desc !== '') {
+            $decoded = json_decode($item->print_desc, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return [];
+    }
+
+    private function isGroupedSublimationTotalItem(OrderItem $item): bool
+    {
+        if ((bool) $item->is_sublimation_total) {
+            return true;
+        }
+
+        $printDesc = $this->decodeOrderItemPrintDesc($item);
+        return (bool) ($printDesc['is_sublimation_total'] ?? false);
+    }
+
+    private function resolveGroupedSublimationType(OrderItem $item): ?string
+    {
+        if (!empty($item->sublimation_type)) {
+            return (string) $item->sublimation_type;
+        }
+
+        $printDesc = $this->decodeOrderItemPrintDesc($item);
+        $type = $printDesc['type'] ?? null;
+
+        return is_string($type) && $type !== '' ? $type : null;
     }
 
     /**

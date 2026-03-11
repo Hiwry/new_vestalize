@@ -11,8 +11,10 @@
                 @php
                     $itemPrintDesc = is_array($item->print_desc) ? $item->print_desc : (is_string($item->print_desc) ? json_decode($item->print_desc, true) : []);
                     $itemFabricPiece = $itemPrintDesc['fabric_piece'] ?? null;
+                    $itemCorelPath = $item->corel_file_path ?: ($itemPrintDesc['corel_file'] ?? null);
+                    $itemCorelUrl = $itemCorelPath ? asset('storage/' . ltrim($itemCorelPath, '/')) : null;
                 @endphp
-                <div id="sidebar-item-{{ $item->id }}" class="p-4 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-colors">
+                <div id="sidebar-item-{{ $item->id }}" class="ow-sidebar-item p-4 backdrop-blur-sm rounded-lg transition-colors">
                     <div class="flex justify-between items-start mb-3">
                         <span class="text-sm font-semibold text-gray-900 dark:text-white">Item {{ $index + 1 }}</span>
                         <div class="flex gap-1">
@@ -66,6 +68,14 @@
                         @endif
 
                         <div class="flex justify-between"><span>Quantidade:</span><span class="font-medium text-gray-900 dark:text-white">{{ $item->quantity }} pç</span></div>
+
+                        @if($item->cover_image_url)
+                        <div class="flex justify-between gap-3"><span>Capa:</span><a href="{{ $item->cover_image_url }}" target="_blank" rel="noopener" class="font-medium text-[#7c3aed] dark:text-[#a78bfa] hover:underline truncate max-w-[160px] text-right">Abrir imagem</a></div>
+                        @endif
+
+                        @if($itemCorelUrl)
+                        <div class="flex justify-between gap-3"><span>Arquivo:</span><a href="{{ $itemCorelUrl }}" target="_blank" rel="noopener" class="font-medium text-[#7c3aed] dark:text-[#a78bfa] hover:underline truncate max-w-[160px] text-right">{{ basename($itemCorelPath) }}</a></div>
+                        @endif
 
                         <div class="flex justify-between pt-2 border-t border-gray-200 dark:border-slate-700">
                             <span class="font-semibold">Total:</span>

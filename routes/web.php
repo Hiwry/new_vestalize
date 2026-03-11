@@ -799,6 +799,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         
         // Adicionais por tipo
         Route::post('/type/{type}/addons', [\App\Http\Controllers\Admin\SublimationProductController::class, 'storeAddon'])->name('addons.store');
+        Route::put('/addons/{addon}', [\App\Http\Controllers\Admin\SublimationProductController::class, 'updateAddon'])->name('addons.update');
         Route::delete('/addons/{addon}', [\App\Http\Controllers\Admin\SublimationProductController::class, 'destroyAddon'])->name('addons.destroy');
         
         // Toggle habilitar/desabilitar SUB. TOTAL

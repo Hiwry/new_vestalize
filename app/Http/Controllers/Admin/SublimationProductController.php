@@ -3,16 +3,38 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\SublimationProductType;
-use App\Models\SublimationProductPrice;
 use App\Models\SublimationProductAddon;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
+use App\Models\SublimationProductPrice;
+use App\Models\SublimationProductType;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class SublimationProductController extends Controller
 {
+    private function resolveProductTypeForTenant(string $type, ?int $tenantId): SublimationProductType
+    {
+        return SublimationProductType::with('tecido')
+            ->where('slug', $type)
+            ->where(function ($query) use ($tenantId) {
+                $query->whereNull('tenant_id');
+
+                if ($tenantId) {
+                    $query->orWhere('tenant_id', $tenantId);
+                }
+            })
+            ->orderByRaw(
+                'CASE
+                    WHEN tenant_id = ? THEN 0
+                    WHEN tenant_id IS NULL THEN 1
+                    ELSE 2
+                END',
+                [$tenantId]
+            )
+            ->firstOrFail();
+    }
+
     /**
      * Lista todos os tipos de produto com cards
      */
@@ -33,21 +55,20 @@ class SublimationProductController extends Controller
         $tenantId = auth()->user()->tenant_id;
         $slug = Str::slug($validated['name']);
 
-        // Verificar se já existe
         $exists = SublimationProductType::where('slug', $slug)
-            ->where(function($q) use ($tenantId) {
-                $q->whereNull('tenant_id')->orWhere('tenant_id', $tenantId);
+            ->where(function ($query) use ($tenantId) {
+                $query->whereNull('tenant_id')->orWhere('tenant_id', $tenantId);
             })
             ->exists();
 
         if ($exists) {
             return redirect()
                 ->back()
-                ->with('error', 'Este tipo já existe!');
+                ->with('error', 'Este tipo ja existe.');
         }
 
-        $maxOrder = SublimationProductType::where(function($q) use ($tenantId) {
-            $q->whereNull('tenant_id')->orWhere('tenant_id', $tenantId);
+        $maxOrder = SublimationProductType::where(function ($query) use ($tenantId) {
+            $query->whereNull('tenant_id')->orWhere('tenant_id', $tenantId);
         })->max('order') ?? 0;
 
         SublimationProductType::create([
@@ -59,7 +80,7 @@ class SublimationProductController extends Controller
 
         return redirect()
             ->back()
-            ->with('success', "Tipo '{$validated['name']}' adicionado!");
+            ->with('success', "Tipo '{$validated['name']}' adicionado.");
     }
 
     /**
@@ -69,18 +90,16 @@ class SublimationProductController extends Controller
     {
         $tenantId = auth()->user()->tenant_id;
 
-        // Só pode excluir tipos do próprio tenant
         if ($type->tenant_id !== $tenantId) {
             return redirect()
                 ->back()
-                ->with('error', 'Não é possível excluir tipos padrão.');
+                ->with('error', 'Nao e possivel excluir tipos padrao.');
         }
 
-        // Excluir preços e adicionais relacionados
         SublimationProductPrice::where('tenant_id', $tenantId)
             ->where('product_type', $type->slug)
             ->delete();
-        
+
         SublimationProductAddon::where('tenant_id', $tenantId)
             ->where('product_type', $type->slug)
             ->delete();
@@ -90,35 +109,27 @@ class SublimationProductController extends Controller
 
         return redirect()
             ->back()
-            ->with('success', "Tipo '{$name}' removido!");
+            ->with('success', "Tipo '{$name}' removido.");
     }
 
     /**
-     * Editar preços de um tipo de produto
+     * Editar precos de um tipo de produto
      */
     public function editType(string $type): View
     {
         $tenantId = auth()->user()->tenant_id;
-        
-        // Buscar o tipo
-        $productType = SublimationProductType::where('slug', $type)
-            ->where(function($q) use ($tenantId) {
-                $q->whereNull('tenant_id')->orWhere('tenant_id', $tenantId);
-            })
-            ->firstOrFail();
-        
+        $productType = $this->resolveProductTypeForTenant($type, $tenantId);
+
         $prices = SublimationProductPrice::where('tenant_id', $tenantId)
             ->where('product_type', $type)
             ->orderBy('quantity_from')
             ->get();
 
-        // Adicionais deste tipo
         $addons = SublimationProductAddon::where('tenant_id', $tenantId)
             ->where('product_type', $type)
             ->orderBy('order')
             ->get();
 
-        // Tecidos disponíveis
         $tecidos = \App\Models\Tecido::where('active', true)->orderBy('name')->get();
 
         return view('admin.sublimation-products.edit-type', [
@@ -133,35 +144,35 @@ class SublimationProductController extends Controller
     }
 
     /**
-     * Atualizar preços de um tipo de produto
+     * Atualizar precos de um tipo de produto
      */
     public function updateType(Request $request, string $type): RedirectResponse
     {
         $tenantId = auth()->user()->tenant_id;
-
-        // Atualizar tecido padrão do tipo
-        $productType = SublimationProductType::where('slug', $type)
-            ->where(function($q) use ($tenantId) {
-                $q->whereNull('tenant_id')->orWhere('tenant_id', $tenantId);
-            })
-            ->firstOrFail();
-            
-        $productType->update([
-            'tecido_id' => $request->tecido_id
+        $validated = $request->validate([
+            'tecido_id' => 'required|exists:tecidos,id',
+            'prices' => 'nullable|array',
+            'prices.*.id' => 'nullable|integer',
+            'prices.*.quantity_from' => 'nullable|integer|min:1',
+            'prices.*.quantity_to' => 'nullable|integer|min:1',
+            'prices.*.price' => 'nullable|numeric|min:0',
         ]);
-        
-        // Deletar preços existentes deste tipo
+
+        $productType = $this->resolveProductTypeForTenant($type, $tenantId);
+        $productType->update([
+            'tecido_id' => $validated['tecido_id'],
+        ]);
+
         SublimationProductPrice::where('tenant_id', $tenantId)
             ->where('product_type', $type)
             ->delete();
-        
-        // Criar novos preços
-        $pricesData = $request->input('prices', []);
+
+        $pricesData = $validated['prices'] ?? [];
         foreach ($pricesData as $priceData) {
             if (empty($priceData['quantity_from']) || empty($priceData['price'])) {
                 continue;
             }
-            
+
             SublimationProductPrice::create([
                 'tenant_id' => $tenantId,
                 'product_type' => $type,
@@ -173,7 +184,7 @@ class SublimationProductController extends Controller
 
         return redirect()
             ->route('admin.sublimation-products.edit-type', $type)
-            ->with('success', 'Preços salvos com sucesso!');
+            ->with('success', 'Configuracao salva com sucesso.');
     }
 
     /**
@@ -182,13 +193,13 @@ class SublimationProductController extends Controller
     public function toggleEnabled(Request $request): RedirectResponse
     {
         $tenant = auth()->user()->tenant;
-        
+
         if (!$tenant) {
             return redirect()
                 ->back()
-                ->with('error', 'Super Admin não pode ativar/desativar SUB. TOTAL.');
+                ->with('error', 'Super Admin nao pode ativar ou desativar SUB. TOTAL.');
         }
-        
+
         $tenant->sublimation_total_enabled = !$tenant->sublimation_total_enabled;
         $tenant->save();
 
@@ -196,7 +207,7 @@ class SublimationProductController extends Controller
 
         return redirect()
             ->back()
-            ->with('success', "SUB. TOTAL {$status}!");
+            ->with('success', "SUB. TOTAL {$status}.");
     }
 
     /**
@@ -223,7 +234,35 @@ class SublimationProductController extends Controller
 
         return redirect()
             ->route('admin.sublimation-products.edit-type', $type)
-            ->with('success', 'Adicional adicionado!');
+            ->with('success', 'Adicional adicionado.');
+    }
+
+    /**
+     * Atualizar addon
+     */
+    public function updateAddon(Request $request, SublimationProductAddon $addon): RedirectResponse
+    {
+        $tenantId = auth()->user()->tenant_id;
+
+        if ((int) $addon->tenant_id !== (int) $tenantId) {
+            return redirect()
+                ->route('admin.sublimation-products.edit-type', $addon->product_type)
+                ->with('error', 'Nao e possivel alterar este adicional.');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+        ]);
+
+        $addon->update([
+            'name' => strtoupper($validated['name']),
+            'price' => $validated['price'],
+        ]);
+
+        return redirect()
+            ->route('admin.sublimation-products.edit-type', $addon->product_type)
+            ->with('success', 'Adicional atualizado.');
     }
 
     /**
@@ -231,11 +270,19 @@ class SublimationProductController extends Controller
      */
     public function destroyAddon(SublimationProductAddon $addon): RedirectResponse
     {
+        $tenantId = auth()->user()->tenant_id;
+
+        if ((int) $addon->tenant_id !== (int) $tenantId) {
+            return redirect()
+                ->route('admin.sublimation-products.edit-type', $addon->product_type)
+                ->with('error', 'Nao e possivel remover este adicional.');
+        }
+
         $type = $addon->product_type;
         $addon->delete();
 
         return redirect()
             ->route('admin.sublimation-products.edit-type', $type)
-            ->with('success', 'Adicional removido!');
+            ->with('success', 'Adicional removido.');
     }
 }
