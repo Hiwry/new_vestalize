@@ -1145,7 +1145,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                             <div id="step-1" class="wizard-step">
                                                 <div class="wizard-step-copy">
                                                     <span class="wizard-step-kicker">Escolha as t&eacute;cnicas</span>
-                                                    <h4 class="wizard-step-heading">Selecione a Personaliza&ccedil;&atilde;o</h4>
+                                                    <h4 class="wizard-step-heading">Selecione a Personalização</h4>
                                                     <p class="wizard-step-text">Voc&ecirc; pode selecionar m&uacute;ltiplas op&ccedil;&otilde;es.</p>
                                                 </div>
                                                 <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4" id="wizard-options-personalizacao">
@@ -1172,7 +1172,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                     </div>
 
                                                     <!-- Adicionais -->
-                                                    <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                    <div class="p-4 bg-gray-50/50 dark:bg-slate-900/40 rounded-xl border border-gray-200 dark:border-slate-700">
                                                         <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Adicionais</label>
                                                         <div id="sub-wizard-addons" class="grid grid-cols-2 md:grid-cols-3 gap-2">
                                                             <p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Selecione um tipo primeiro</p>
@@ -1180,13 +1180,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                     </div>
 
                                                     <!-- Nome da Arte -->
-                                                    <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                    <div class="p-4 bg-gray-50/50 dark:bg-slate-900/40 rounded-xl border border-gray-200 dark:border-slate-700">
                                                         <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Nome da Arte *</label>
                                                         <input type="text" id="sub_wizard_art_name" placeholder="Ex: Logo Empresa ABC" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500">
                                                     </div>
 
                                                     <!-- Tamanhos e Quantidades -->
-                                                    <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                    <div class="p-4 bg-gray-50/50 dark:bg-slate-900/40 rounded-xl border border-gray-200 dark:border-slate-700">
                                                         <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Tamanhos e Quantidades</label>
                                                         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 mb-3">
                                                             <div>
@@ -1248,7 +1248,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
                                                     <!-- Arquivos -->
                                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                        <div class="p-4 bg-gray-50/50 dark:bg-slate-900/40 rounded-xl border border-gray-200 dark:border-slate-700">
                                                             <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Arquivo Corel</label>
                                                             <label class="flex flex-col items-center justify-center w-full h-20 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">
                                                                 <i class="fa-solid fa-file-import text-gray-400 text-xl mb-1"></i>
@@ -1256,7 +1256,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                                 <input type="file" id="sub_wizard_corel" class="hidden" accept=".cdr,.ai,.pdf,.eps">
                                                             </label>
                                                         </div>
-                                                        <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                        <div class="p-4 bg-gray-50/50 dark:bg-slate-900/40 rounded-xl border border-gray-200 dark:border-slate-700">
                                                             <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Imagem de Capa</label>
                                                             <label class="flex flex-col items-center justify-center w-full h-20 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">
                                                                 <i class="fa-solid fa-image text-gray-400 text-xl mb-1"></i>
@@ -1267,7 +1267,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                     </div>
 
                                                     <!-- Observacoes -->
-                                                    <div class="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700">
+                                                    <div class="p-4 bg-gray-50/50 dark:bg-slate-900/40 rounded-xl border border-gray-200 dark:border-slate-700">
                                                         <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Observa&ccedil;&otilde;es</label>
                                                         <textarea id="sub_wizard_notes" rows="2" placeholder="Observa&ccedil;&otilde;es importantes para a produ&ccedil;&atilde;o..." class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm"></textarea>
                                                     </div>
@@ -1388,11 +1388,11 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                     @endforeach
                                                 </div>
                                                 
-                                                 <!-- Checkbox para acrÃ©scimo independente (apenas para Infantil/Baby look) -->
+                                                 <!-- Checkbox para acréscimo independente (apenas para Infantil/Baby look) -->
                                                 <div id="wizard-surcharge-container" class="hidden mb-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                                                     <label class="flex items-center cursor-pointer">
                                                         <input type="checkbox" id="wizard_apply_surcharge" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]">
-                                                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Aplicar acrÃ©scimo de tamanho especial</span>
+                                                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Aplicar acréscimo de tamanho especial</span>
                                                     </label>
                                                 </div>
 
@@ -1405,18 +1405,18 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                 </div>
                                                 
                                                 <div class="flex justify-between items-center bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl border border-purple-100 dark:border-purple-800/50">
-                                                    <span class="text-sm font-bold text-gray-700 dark:text-slate-300">Total de PeÃ§as:</span>
+                                                    <span class="text-sm font-bold text-gray-700 dark:text-slate-300">Total de Peças:</span>
                                                     <span class="text-2xl font-black text-[#7c3aed]" id="wizard-total-pieces">0</span>
                                                 </div>
                                             </div>
 
                                             <!-- Step 10: Imagem e Obs -->
                                             <div id="step-10" class="wizard-step hidden">
-                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Personaliza&ccedil;&atilde;o e Detalhes Finais</h4>
+                                                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Personalização e Detalhes Finais</h4>
                                                 
                                                 <div class="space-y-5">
                                                     <!-- Image Upload -->
-                                                    <div class="p-4 border border-dashed border-gray-300 dark:border-slate-600 rounded-xl bg-gray-50 dark:bg-slate-800/50 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-center cursor-pointer relative" onclick="document.getElementById('wizard_file_input').click()">
+                                                    <div class="p-4 border border-dashed border-gray-300 dark:border-slate-600 rounded-xl bg-gray-50/50 dark:bg-slate-900/40 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-center cursor-pointer relative" onclick="document.getElementById('wizard_file_input').click()">
                                                         <input type="file" id="wizard_file_input" class="hidden" accept="image/*" onchange="previewWizardImage(this)">
                                                         
                                                         <div id="wizard-image-placeholder" class="py-4">
@@ -1432,17 +1432,17 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
                                                     <!-- Notes -->
                                                     <div>
-                                                        <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">ObservaÃ§Ãµes</label>
-                                                        <textarea id="wizard_notes" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed]" placeholder="Alguma observaÃ§Ã£o importante para a produÃ§Ã£o?"></textarea>
+                                                        <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">Observações</label>
+                                                        <textarea id="wizard_notes" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#7c3aed]" placeholder="Alguma observação importante para a produção?"></textarea>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <!-- Step 11: Resumo Final -->
                                             <div id="step-11" class="wizard-step hidden">
-                                                <h4 class="text-sm font-bold text-center text-gray-900 dark:text-white mb-6">ConferÃªncia Final</h4>
+                                                <h4 class="text-sm font-bold text-center text-gray-900 dark:text-white mb-6">Conferência Final</h4>
                                                 
-                                                <div class="bg-gray-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-gray-200 dark:border-slate-700 space-y-4">
+                                                <div class="bg-gray-50/50 dark:bg-slate-900/40 rounded-2xl p-6 border border-gray-200 dark:border-slate-700 space-y-4">
                                                     <!-- Dynamic Summary List -->
                                                     <div class="space-y-3 text-sm">
                                                         <div class="flex justify-between border-b border-gray-200 dark:border-slate-700 pb-2">
@@ -1458,7 +1458,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                             <span class="font-bold text-gray-900 dark:text-white text-right" id="summary-modelo-val">-</span>
                                                         </div>
                                                          <div class="flex justify-between border-b border-gray-200 dark:border-slate-700 pb-2">
-                                                            <span class="text-gray-500 dark:text-slate-400">PeÃ§as:</span>
+                                                            <span class="text-gray-500 dark:text-slate-400">Peças:</span>
                                                             <span class="font-bold text-gray-900 dark:text-white text-right" id="summary-pecas-val">0</span>
                                                         </div>
                                                     </div>
@@ -1468,17 +1468,17 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                         <h5 class="font-bold text-gray-900 dark:text-white mb-3">Custos e Valores</h5>
                                                         
                                                         <!-- Admin Only Unit Cost -->
-                                                        <div class="flex justify-between items-center p-3 bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/30 rounded-lg mb-3" 
+                                                        <div class="flex justify-between items-center p-3 bg-red-50/10 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-lg mb-3" 
                                                              style="display: {{ auth()->user()->isAdmin() ? 'flex' : 'none' }}">
-                                                            <span class="text-red-600 dark:text-red-400 font-bold text-sm">Custo UnitÃ¡rio:</span>
+                                                            <span class="text-red-600 dark:text-red-400 font-bold text-sm">Custo Unitário:</span>
                                                             <div class="flex items-center">
                                                                 <span class="text-red-600 dark:text-red-400 font-bold mr-1">R$</span>
                                                                 <input type="number" id="wizard_unit_cost" class="w-20 bg-transparent text-right font-bold text-red-600 dark:text-red-400 border-none p-0 focus:ring-0" value="0.00" step="0.01">
                                                             </div>
                                                         </div>
 
-                                                        <div class="flex justify-between items-center p-4 bg-white dark:bg-slate-900 border border-purple-200 dark:border-purple-900/30 rounded-xl shadow-sm">
-                                                            <span class="text-[#7c3aed] dark:text-purple-400 font-bold">Valor UnitÃ¡rio:</span>
+                                                        <div class="flex justify-between items-center p-4 bg-purple-50/20 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-900/30 rounded-xl shadow-sm">
+                                                            <span class="text-[#7c3aed] dark:text-purple-400 font-bold">Valor Unitário:</span>
                                                             <span class="text-2xl font-black text-[#7c3aed] dark:text-purple-400" id="wizard-final-price">R$ 0,00</span>
                                                         </div>
                                                     </div>
