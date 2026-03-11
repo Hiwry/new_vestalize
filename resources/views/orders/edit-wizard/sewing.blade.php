@@ -292,6 +292,36 @@
         let currentItemData = null;
         let productOptions = {};
 
+        function parseJsonResponse(response, requestLabel) {
+            const contentType = response.headers.get('content-type') || '';
+
+            return response.text().then(text => {
+                let data = null;
+
+                if (text) {
+                    try {
+                        data = JSON.parse(text);
+                    } catch (error) {
+                        console.error(`Resposta nao-JSON em ${requestLabel}:`, {
+                            status: response.status,
+                            contentType,
+                            bodyPreview: text.slice(0, 200)
+                        });
+                    }
+                }
+
+                if (!response.ok) {
+                    throw new Error(data?.message || data?.error || `HTTP error! status: ${response.status}`);
+                }
+
+                if (!data) {
+                    throw new Error('Resposta invalida do servidor.');
+                }
+
+                return data;
+            });
+        }
+
         // Definir função editItem IMEDIATAMENTE (antes de qualquer uso)
         function editItem(itemId) {
             console.log(' editItem chamado com ID:', itemId, typeof itemId);
@@ -323,9 +353,10 @@
             document.body.style.overflow = 'hidden';
             
             // Buscar dados do item
-            console.log(' Buscando dados do item na API:', `/api/order-items/${itemId}`);
-            fetch(`/api/order-items/${itemId}`, {
+            console.log(' Buscando dados do item:', `/order-items/${itemId}`);
+            fetch(`/order-items/${itemId}`, {
                 method: 'GET',
+                credentials: 'same-origin',
                 headers: {
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
@@ -333,12 +364,7 @@
             })
                 .then(response => {
                     console.log(' Resposta recebida:', response.status, response.statusText);
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw new Error(err.error || `HTTP error! status: ${response.status}`);
-                        });
-                    }
-                    return response.json();
+                    return parseJsonResponse(response, 'carregar item para edicao');
                 })
                 .then(data => {
                     console.log(' Dados do item recebidos:', data);

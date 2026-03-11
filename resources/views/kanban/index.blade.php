@@ -2911,6 +2911,36 @@
             @endif
         });
 
+        function parseJsonResponse(response, requestLabel) {
+            const contentType = response.headers.get('content-type') || '';
+
+            return response.text().then(text => {
+                let data = null;
+
+                if (text) {
+                    try {
+                        data = JSON.parse(text);
+                    } catch (error) {
+                        console.error(`Resposta nao-JSON em ${requestLabel}:`, {
+                            status: response.status,
+                            contentType,
+                            bodyPreview: text.slice(0, 200)
+                        });
+                    }
+                }
+
+                if (!response.ok) {
+                    throw new Error(data?.message || data?.error || `Erro HTTP ${response.status}`);
+                }
+
+                if (!data) {
+                    throw new Error('Resposta invalida do servidor.');
+                }
+
+                return data;
+            });
+        }
+
         function submitCoverImage(event) {
             event.preventDefault();
             
@@ -2922,22 +2952,17 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="animate-pulse">Enviando...</span>';
             
-            fetch(`/api/order-items/${itemId}/cover-image`, {
+            fetch(`/order-items/${itemId}/cover-image`, {
                 method: 'POST',
                 body: formData,
+                credentials: 'same-origin',
                 headers: {
+                    'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 }
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => {
-                        throw new Error(err.message || 'Erro ao fazer upload da imagem');
-                    });
-                }
-                return response.json();
-            })
+            .then(response => parseJsonResponse(response, 'upload da imagem de capa'))
             .then(data => {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnText;
@@ -3057,17 +3082,20 @@
             button.disabled = true;
             button.innerHTML = '<span class="animate-pulse">Salvando...</span>';
 
-            fetch(`/api/order-items/${itemId}/art-name`, {
+            fetch(`/order-items/${itemId}/art-name`, {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
+                    'Accept': 'application/json',
                     'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 },
                 body: JSON.stringify({
                     art_name: artName
                 })
             })
-            .then(response => response.json())
+            .then(response => parseJsonResponse(response, 'salvar nome da arte'))
             .then(data => {
                 button.disabled = false;
                 button.innerHTML = originalBtnText;

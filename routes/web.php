@@ -199,6 +199,9 @@ Route::middleware('auth')->group(function () {
 
     // Ação de Pin de Item (AJAX)
     Route::post('/order-items/{id}/toggle-pin', [\App\Http\Controllers\OrderWizardController::class, 'togglePin'])->name('order-items.toggle-pin');
+    Route::get('/order-items/{id}', [\App\Http\Controllers\Api\ClientController::class, 'getOrderItem'])->name('order-items.show');
+    Route::post('/order-items/{id}/cover-image', [\App\Http\Controllers\Api\ClientController::class, 'updateItemCoverImage'])->name('order-items.cover-image.update');
+    Route::post('/order-items/{id}/art-name', [\App\Http\Controllers\Api\ClientController::class, 'updateArtName'])->name('order-items.art-name.update');
 
     // Wizard de Pedido (6 etapas)
     Route::prefix('pedidos')->group(function () {

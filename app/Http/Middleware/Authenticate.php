@@ -14,12 +14,26 @@ class Authenticate
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, ...$guards): Response
     {
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Você precisa estar logado para acessar esta página.');
+        $guards = $guards === [] ? [null] : $guards;
+
+        foreach ($guards as $guard) {
+            if (Auth::guard($guard)->check()) {
+                if ($guard !== null) {
+                    Auth::shouldUse($guard);
+                }
+
+                return $next($request);
+            }
         }
 
-        return $next($request);
+        if ($request->expectsJson() || $request->ajax() || $request->is('api/*')) {
+            return response()->json([
+                'message' => 'Voce precisa estar logado para acessar este recurso.',
+            ], 401);
+        }
+
+        return redirect()->route('login')->with('error', 'Voce precisa estar logado para acessar esta pagina.');
     }
 }
