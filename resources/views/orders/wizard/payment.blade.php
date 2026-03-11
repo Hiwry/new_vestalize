@@ -659,19 +659,23 @@
             return;
         }
         container.innerHTML = window.paymentMethods.map((pm, index) => `
-            <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-md border border-gray-200 dark:border-slate-700 transition-colors">
+            <div class="flex items-center justify-between p-3 bg-white dark:bg-[var(--sh-input-bg)] rounded-full border border-gray-200 dark:border-slate-700/50 transition-colors shadow-sm">
                 <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center">
+                    <div class="w-8 h-8 bg-indigo-100 dark:bg-purple-500/20 rounded-full flex items-center justify-center">
                         <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white capitalize">${pm.method}</p>
-                        <p class="text-xs text-gray-500 dark:text-slate-400">Pagamento ${index + 1}</p>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white capitalize">${pm.method}</p>
+                        <p class="text-[10px] font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Pagamento ${index + 1}</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3">
-                    <span class="text-base font-bold text-[#7c3aed] dark:text-purple-400">R$ ${pm.amount.toFixed(2).replace('.', ',')}</span>
-                    <button type="button" onclick="window.removePaymentMethod(${pm.id})" class="text-red-600 hover:text-red-800 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <div class="flex items-center space-x-4">
+                    <span class="text-base font-black text-[#7c3aed] dark:text-purple-400">R$ ${pm.amount.toFixed(2).replace('.', ',')}</span>
+                    <button type="button" onclick="window.removePaymentMethod(${pm.id})" class="text-red-500 hover:text-red-700 transition-colors pr-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>`).join('');
     };

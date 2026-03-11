@@ -1,3 +1,5 @@
+@extends('layouts.admin')
+
 @push('styles')
 <style>
     .ow-shell {
@@ -113,7 +115,7 @@
 
         <!-- Progress Widget -->
         <div class="ow-progress p-4 mb-8">
-            <div class="w-full bg-gray-100 dark:bg-slate-800/50 rounded-full h-2">
+            <div class="w-full bg-[var(--sh-input-bg)] rounded-full h-2">
                 <div class="ow-progress-fill h-2 rounded-full transition-all duration-700" style="width: 100%"></div>
             </div>
         </div>
@@ -257,22 +259,24 @@
 
             <!-- Pagamento -->
             @if($payment && $payment->count() > 0)
-            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <div class="bg-[var(--sh-card-bg)] rounded-xl border border-[var(--sh-card-border)] p-4 ow-field-panel">
                 <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Pagamento</h2>
                 <div class="space-y-2">
                     @foreach($payment as $paymentItem)
-                    <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center gap-2">
-                            @php
-                                $method = strtolower($paymentItem->payment_method);
-                                $icon = 'fa-money-bill-wave';
-                                if(str_contains($method, 'pix')) $icon = 'fa-brands fa-pix';
-                                elseif(str_contains($method, 'cartão') || str_contains($method, 'credito')) $icon = 'fa-credit-card';
-                            @endphp
-                            <i class="fa-solid {{ $icon }} text-gray-400"></i>
-                            <span class="text-gray-700 dark:text-gray-300 capitalize">{{ $paymentItem->payment_method }}</span>
+                    <div class="flex items-center justify-between text-sm bg-[var(--sh-input-bg)] p-3 rounded-full border border-[var(--sh-card-border)] shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-purple-500/10 rounded-full flex items-center justify-center">
+                                @php
+                                    $method = strtolower($paymentItem->payment_method);
+                                    $icon = 'fa-money-bill-wave';
+                                    if(str_contains($method, 'pix')) $icon = 'fa-brands fa-pix';
+                                    elseif(str_contains($method, 'cartão') || str_contains($method, 'credito')) $icon = 'fa-credit-card';
+                                @endphp
+                                <i class="fa-solid {{ $icon }} text-[#7c3aed] dark:text-purple-400"></i>
+                            </div>
+                            <span class="text-gray-700 dark:text-gray-300 capitalize font-medium">{{ $paymentItem->payment_method }}</span>
                         </div>
-                        <span class="text-gray-900 dark:text-white font-medium">R$ {{ number_format($paymentItem->entry_amount, 2, ',', '.') }}</span>
+                        <span class="text-gray-900 dark:text-white font-black">R$ {{ number_format($paymentItem->entry_amount, 2, ',', '.') }}</span>
                     </div>
                     @endforeach
                 </div>
@@ -289,33 +293,33 @@
 
         <!-- Sidebar Checkout (Direita) -->
         <div class="lg:col-span-1">
-            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5 sticky top-6">
+            <div class="bg-[var(--sh-card-bg)] rounded-xl border border-[var(--sh-card-border)] p-5 sticky top-6 ow-field-panel">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Resumo</h3>
                 
                 <div class="space-y-3 text-sm">
                     <div class="flex justify-between">
                         <span class="text-gray-500 dark:text-gray-400">Subtotal</span>
-                        <span class="text-gray-900 dark:text-white">R$ {{ number_format($order->subtotal, 2, ',', '.') }}</span>
+                        <span class="text-gray-900 dark:text-white font-medium">R$ {{ number_format($order->subtotal, 2, ',', '.') }}</span>
                     </div>
                     
                     @if($order->delivery_fee > 0)
                     <div class="flex justify-between">
                         <span class="text-gray-500 dark:text-gray-400">Entrega</span>
-                        <span class="text-gray-900 dark:text-white">R$ {{ number_format($order->delivery_fee, 2, ',', '.') }}</span>
+                        <span class="text-gray-900 dark:text-white font-medium">R$ {{ number_format($order->delivery_fee, 2, ',', '.') }}</span>
                     </div>
                     @endif
                     
                     @if($order->discount > 0)
                     <div class="flex justify-between text-green-600 dark:text-green-400">
                         <span>Desconto</span>
-                        <span>- R$ {{ number_format($order->discount, 2, ',', '.') }}</span>
+                        <span class="font-medium">- R$ {{ number_format($order->discount, 2, ',', '.') }}</span>
                     </div>
                     @endif
                     
-                    <div class="border-t border-gray-200 dark:border-gray-700 pt-3">
-                        <div class="flex justify-between">
-                            <span class="text-gray-900 dark:text-white font-semibold">Total</span>
-                            <span class="text-2xl font-bold text-[#7c3aed] dark:text-purple-400">R$ {{ number_format($order->total, 2, ',', '.') }}</span>
+                    <div class="border-t border-[var(--sh-card-border)] pt-3 mt-3">
+                        <div class="flex justify-between items-baseline">
+                            <span class="text-gray-900 dark:text-white font-bold uppercase tracking-tighter text-xs">Total Final</span>
+                            <span class="text-2xl font-black text-[#7c3aed] dark:text-purple-400">R$ {{ number_format($order->total, 2, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>
@@ -323,16 +327,16 @@
                 <form method="POST" action="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.finalize') : route('orders.wizard.finalize') }}" id="finalize-form" class="mt-6" enctype="multipart/form-data">
                     @csrf
                     
-                    <label class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer mb-4">
+                    <label class="flex items-center gap-3 p-3 bg-[var(--sh-input-bg)] dark:bg-slate-700/50 rounded-lg cursor-pointer mb-4 border border-[var(--sh-card-border)]">
                         <input type="checkbox" name="is_event" value="1" {{ old('is_event', ($order->is_event ?? false)) ? 'checked' : '' }} class="w-4 h-4 text-[#7c3aed] rounded">
                         <div>
-                            <span class="text-sm font-medium text-gray-900 dark:text-white block">Prioridade Evento</span>
-                            <span class="text-xs text-gray-500 dark:text-gray-400">Produção acelerada</span>
+                            <span class="text-sm font-bold text-gray-900 dark:text-white block">Prioridade Evento</span>
+                            <span class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-semibold">Produção acelerada</span>
                         </div>
                     </label>
 
                     <button type="submit" id="finalize-btn" style="color: white !important;" 
-                            class="w-full bg-[#7c3aed] text-white font-semibold py-3 px-4 rounded-lg transition">
+                            class="w-full bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold py-4 px-4 rounded-xl transition shadow-lg stay-white">
                         <span id="finalize-text">Confirmar Pedido</span>
                         <span id="finalize-loading" class="hidden">
                             <i class="fa-solid fa-spinner fa-spin mr-2"></i>Processando...
@@ -340,7 +344,7 @@
                     </button>
                     
                     <a href="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.payment') : route('orders.wizard.payment') }}" 
-                       class="block text-center text-sm text-gray-500 dark:text-gray-400 hover:text-[#7c3aed] dark:hover:text-purple-400 mt-3 transition">
+                       class="block text-center text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-[#7c3aed] dark:hover:text-purple-400 mt-4 transition uppercase tracking-wider">
                         ← Voltar para Pagamento
                     </a>
                 </form>
