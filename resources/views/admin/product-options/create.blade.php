@@ -86,6 +86,7 @@ Para criar vários, separe por vírgula ou pule linhas (cole sua lista aqui).">{
 
 
                 @if(count($parents) > 0)
+                    <div>
                         <div class="flex items-center justify-between mb-2">
                             <label class="block text-xs text-gray-600 dark:text-slate-400 font-medium">{{ $parentLabel }} * (selecione um ou mais)</label>
                             <label class="flex items-center cursor-pointer">
