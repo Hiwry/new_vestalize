@@ -105,6 +105,13 @@
             color-mix(in srgb, var(--sh-card-bg) 88%, var(--sh-input-bg, #f8fafc) 12%) 100%);
     }
 
+    .dark.avento-theme .ow-aside-card {
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 92%, #1d4ed8 8%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 82%, var(--sh-input-bg, #162847) 18%) 100%) !important;
+        border-color: color-mix(in srgb, var(--sh-card-border) 78%, #60a5fa 22%) !important;
+    }
+
     .ow-soft-panel {
         background: linear-gradient(180deg,
             color-mix(in srgb, var(--sh-card-bg) 86%, var(--sh-input-bg, #f8fafc) 14%) 0%,
@@ -498,7 +505,7 @@
                                     <div class="space-y-3">
                                         <div class="flex flex-wrap items-center gap-2">
                                             <span class="inline-flex items-center rounded-full bg-[#7c3aed] px-3 py-1 text-xs font-semibold text-white stay-white">Item {{ $item->item_number }}</span>
-                                            <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-slate-800 px-3 py-1 text-xs font-semibold text-gray-600 dark:text-slate-300">{{ $item->quantity }} pe&ccedil;as</span>
+                                            <span class="ow-soft-pill inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold">{{ $item->quantity }} pe&ccedil;as</span>
                                             <span class="inline-flex items-center rounded-full bg-purple-50 dark:bg-purple-900/30 px-3 py-1 text-xs font-semibold text-[#7c3aed] dark:text-[#a78bfa]">
                                                 {{ count($persIds) }} {{ count($persIds) == 1 ? 'tipo liberado' : 'tipos liberados' }}
                                             </span>
