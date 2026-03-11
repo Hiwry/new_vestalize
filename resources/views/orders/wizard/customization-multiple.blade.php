@@ -99,6 +99,32 @@
         background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(16, 32, 58, 0.96));
     }
 
+    .ow-aside-card {
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 96%, var(--sh-accent) 4%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 88%, var(--sh-input-bg, #f8fafc) 12%) 100%);
+    }
+
+    .ow-soft-panel {
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 86%, var(--sh-input-bg, #f8fafc) 14%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 94%, var(--sh-accent) 6%) 100%) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+    }
+
+    .ow-soft-panel:hover {
+        border-color: color-mix(in srgb, var(--sh-card-border) 60%, var(--sh-accent) 40%) !important;
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 80%, var(--sh-input-bg, #f8fafc) 20%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 88%, var(--sh-accent) 12%) 100%) !important;
+    }
+
+    .ow-soft-pill {
+        background: color-mix(in srgb, var(--sh-card-bg) 84%, var(--sh-input-bg, #f8fafc) 16%) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        color: var(--sh-text-secondary) !important;
+    }
+
     .ow-section-kicker {
         font-size: 11px;
         font-weight: 800;
@@ -385,7 +411,7 @@
                                         <i class="fa-solid fa-swatchbook"></i>
                                         {{ $totalApplicationsCount }} aplica&ccedil;&otilde;es cadastradas
                                     </span>
-                                    <span class="inline-flex items-center gap-2 rounded-full bg-gray-100 dark:bg-transparent border border-transparent dark:border-slate-700 px-3 py-2 text-xs font-semibold text-gray-600 dark:text-slate-300">
+                                    <span class="ow-soft-pill inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold">
                                         <i class="fa-solid fa-layer-group"></i>
                                         {{ count($itemPersonalizations) }} itens para revisar
                                     </span>
@@ -401,7 +427,7 @@
                             <h3 class="mt-1 text-lg font-bold text-gray-900 dark:text-white">Resumo das personaliza&ccedil;&otilde;es</h3>
                             <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Confira o impacto geral antes de descer para os itens.</p>
                         </div>
-                        <span class="inline-flex items-center gap-2 rounded-full bg-white dark:bg-transparent px-3 py-2 text-xs font-semibold text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700">
+                        <span class="ow-soft-pill inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold">
                             <i class="fa-solid fa-chart-line text-[#7c3aed]"></i>
                             Atualizado com os itens abaixo
                         </span>
@@ -503,7 +529,7 @@
                                             </div>
                                         </div>
                                     @else
-                                        <div class="xl:w-[320px] rounded-2xl border border-dashed border-gray-300 dark:border-slate-700 bg-white/70 dark:bg-transparent px-4 py-4">
+                                        <div class="ow-soft-panel xl:w-[320px] rounded-2xl border border-dashed border-gray-300 dark:border-slate-700 px-4 py-4">
                                             <p class="text-sm font-semibold text-gray-900 dark:text-white">Nenhuma aplicação cadastrada ainda</p>
                                             <p class="mt-1 text-xs text-gray-600 dark:text-slate-400">Escolha um dos tipos liberados abaixo para iniciar a configuração deste item.</p>
                                         </div>
@@ -533,7 +559,7 @@
                                     @endif
                                 </div>
                             @else
-                                <div class="mt-3 mx-5 rounded-2xl border border-dashed border-gray-300 dark:border-slate-700 bg-gray-50/80 dark:bg-transparent p-4">
+                                <div class="ow-soft-panel mt-3 mx-5 rounded-2xl border border-dashed border-gray-300 dark:border-slate-700 p-4">
                                     <p class="text-sm font-semibold text-gray-900 dark:text-white">Este item ainda n&atilde;o possui arte-base salva.</p>
                                     <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Se precisar anexar nome ou arquivos antes das aplica&ccedil;&otilde;es, use o bloco do topo desta p&aacute;gina.</p>
                                 </div>
@@ -689,7 +715,7 @@
                                     <p class="ow-section-kicker">Atalhos</p>
                                     <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Use os links para ir direto ao item desejado.</p>
                                 </div>
-                                <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-slate-300">
+                                <span class="ow-soft-pill inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold">
                                     {{ count($itemPersonalizations) }} itens
                                 </span>
                             </div>
@@ -704,7 +730,7 @@
                                             $sidebarPreview .= ' +' . (count($sidebarTypes) - 2);
                                         }
                                     @endphp
-                                    <a href="#item-card-{{ $sidebarItem->id }}" class="flex items-start justify-between gap-3 rounded-2xl border border-gray-200 dark:border-slate-700 px-4 py-3 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all">
+                                    <a href="#item-card-{{ $sidebarItem->id }}" class="ow-soft-panel flex items-start justify-between gap-3 rounded-2xl border border-gray-200 dark:border-slate-700 px-4 py-3 hover:border-[#7c3aed] dark:hover:border-[#7c3aed] transition-all">
                                         <div>
                                             <p class="text-sm font-semibold text-gray-900 dark:text-white">Item {{ $sidebarItem->item_number }}</p>
                                             <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">{{ $sidebarItem->quantity }} pe&ccedil;as</p>
@@ -718,7 +744,7 @@
 
                         <div class="hidden xl:flex ow-aside-card p-4 flex-col gap-3">
                             <a href="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.sewing') : route('orders.wizard.sewing') }}" 
-                               class="w-full px-4 py-2.5 text-sm text-center text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white font-medium rounded-xl border border-gray-200 dark:border-slate-600 bg-white dark:bg-transparent transition-all hover:bg-gray-50 dark:hover:bg-white/5">
+                               class="ow-soft-panel w-full px-4 py-2.5 text-sm text-center text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white font-medium rounded-xl border border-gray-200 dark:border-slate-600 transition-all">
                                 &larr; Voltar para costura
                             </a>
                             <a href="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.payment') : route('orders.wizard.payment') }}" 
