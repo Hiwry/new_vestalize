@@ -253,6 +253,22 @@
         border-color: color-mix(in srgb, var(--sh-card-border) 76%, #60a5fa 24%) !important;
     }
 
+    .ow-personalization-entry {
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 92%, var(--sh-accent) 8%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 84%, var(--sh-input-bg, #162847) 16%) 100%) !important;
+        border: 1px solid color-mix(in srgb, var(--sh-card-border) 80%, #60a5fa 20%) !important;
+        border-radius: 1.25rem !important;
+        box-shadow: none !important;
+    }
+
+    .dark.avento-theme .ow-personalization-entry {
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--sh-card-bg) 90%, #1d4ed8 10%) 0%,
+            color-mix(in srgb, var(--sh-card-bg) 78%, var(--sh-input-bg, #162847) 22%) 100%) !important;
+        border-color: color-mix(in srgb, var(--sh-card-border) 74%, #60a5fa 26%) !important;
+    }
+
     #personalizationModal {
         background: linear-gradient(180deg, rgba(8, 15, 31, 0.62) 0%, rgba(5, 10, 22, 0.84) 100%) !important;
         backdrop-filter: blur(18px);
@@ -961,7 +977,7 @@
                                         <div id="personalizations-list-{{ $item->id }}-{{ $persId }}" class="space-y-2 personalizations-list">
                                             @if($existingPersonalizations->count() > 0)
                                                 @foreach($existingPersonalizations as $pers)
-                                                    <div class="p-3 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
+                                                    <div class="ow-personalization-entry p-3 rounded-lg border border-gray-200 dark:border-slate-700">
                                                         <div class="flex items-center justify-between">
                                                             <div class="flex-1">
                                                                 <div class="flex items-center space-x-4 text-sm">
