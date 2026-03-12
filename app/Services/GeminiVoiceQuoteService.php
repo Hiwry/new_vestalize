@@ -57,7 +57,15 @@ class GeminiVoiceQuoteService
 
     public function extractQuote(array $catalogContext, ?string $text = null, ?UploadedFile $audio = null): ?array
     {
-        if (!$this->isEnabled() || (blank($text) && !$audio)) {
+        if (!(bool) config('services.gemini.voice_quote_enabled')) {
+            throw new RuntimeException('A integracao Gemini para audio esta desativada no servidor.');
+        }
+
+        if (blank((string) config('services.gemini.api_key'))) {
+            throw new RuntimeException('GEMINI_API_KEY nao configurada no servidor.');
+        }
+
+        if (blank($text) && !$audio) {
             return null;
         }
 
