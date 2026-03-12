@@ -15,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -309,10 +310,11 @@ class OrderController extends Controller
             'method' => 'required|in:pix,dinheiro,cartao,boleto,transferencia',
             'amount' => 'required|numeric|min:0.01',
             'notes' => 'nullable|string|max:500',
+            'receipt' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
         ]);
 
         try {
-            \App\Services\OrderService::addPayment($order, $validated, Auth::id());
+            \App\Services\OrderService::addPayment($order, $validated, Auth::id(), $request->file('receipt'));
             return redirect()->back()->with('success', 'Pagamento adicionado com sucesso!');
         } catch (\Exception $e) {
             \Log::error('Erro ao adicionar pagamento', ['error' => $e->getMessage(), 'order_id' => $id]);
@@ -328,10 +330,11 @@ class OrderController extends Controller
             'method' => 'required|in:pix,dinheiro,cartao,boleto,transferencia',
             'amount' => 'required|numeric|min:0.01',
             'notes' => 'nullable|string|max:500',
+            'receipt' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
         ]);
 
         try {
-            \App\Services\OrderService::updatePayment($order, $validated, $request->input('method_id'));
+            \App\Services\OrderService::updatePayment($order, $validated, $request->input('method_id'), $request->file('receipt'));
             return redirect()->back()->with('success', 'Pagamento atualizado com sucesso!');
         } catch (\Exception $e) {
             \Log::error('Erro ao atualizar pagamento', ['error' => $e->getMessage(), 'order_id' => $id]);
@@ -437,6 +440,44 @@ class OrderController extends Controller
         }
     }
 
+    public function viewPaymentReceipt(Request $request, $id)
+    {
+        $order = Order::with(['payment', 'payments'])->findOrFail($id);
+        $payment = $this->resolveRequestedPayment($order, $request->query('payment'));
+        $receiptIndex = $request->query('receipt');
+        $attachment = $this->resolveReceiptAttachment(
+            $payment,
+            $receiptIndex !== null ? (int) $receiptIndex : 0
+        );
+
+        if (!$payment || !$attachment) {
+            abort(404, 'Comprovante nao encontrado');
+        }
+
+        $filePath = Storage::disk('public')->path($attachment['path']);
+
+        if (!file_exists($filePath)) {
+            abort(404, 'Arquivo nao encontrado');
+        }
+
+        $mimeType = File::mimeType($filePath);
+        if (!$mimeType) {
+            $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+            $mimeTypes = [
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+                'pdf' => 'application/pdf',
+            ];
+            $mimeType = $mimeTypes[$extension] ?? 'application/octet-stream';
+        }
+
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType,
+        ]);
+    }
+
     public function generateShareLink($id): RedirectResponse
     {
         $order = Order::findOrFail($id);
@@ -463,7 +504,28 @@ class OrderController extends Controller
             'entry_amount' => $payment->entry_amount,
             'notes' => $payment->notes,
             'payment_methods' => $payment->payment_methods,
+            'receipt_attachments' => $payment->receipt_attachments_list,
         ]);
+    }
+
+    private function resolveRequestedPayment(Order $order, $paymentId): ?Payment
+    {
+        if ($paymentId === null || $paymentId === '') {
+            return $order->payment ?? $order->payments->first();
+        }
+
+        return $order->payments->firstWhere('id', (int) $paymentId);
+    }
+
+    private function resolveReceiptAttachment(?Payment $payment, int $receiptIndex = 0): ?array
+    {
+        if (!$payment) {
+            return null;
+        }
+
+        $attachments = $payment->receipt_attachments_list;
+
+        return $attachments[$receiptIndex] ?? null;
     }
 
     public function requestEdit(Request $request, $id)

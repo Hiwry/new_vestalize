@@ -162,6 +162,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/pedidos/{id}/pagamento/adicionar', [\App\Http\Controllers\OrderController::class, 'addPayment'])->name('orders.payment.add');
     Route::put('/pedidos/{id}/pagamento/editar', [\App\Http\Controllers\OrderController::class, 'updatePayment'])->name('orders.payment.update');
     Route::delete('/pedidos/{id}/pagamento/remover', [\App\Http\Controllers\OrderController::class, 'deletePayment'])->name('orders.payment.delete');
+    Route::get('/pedidos/{id}/pagamento/comprovante', [\App\Http\Controllers\OrderController::class, 'viewPaymentReceipt'])->name('orders.payment.receipt');
     
     // PIX QR Code - Gerar dinamicamente
     Route::get('/pedidos/{id}/pix', function ($id) {

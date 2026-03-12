@@ -449,7 +449,7 @@
             type="file"
             x-ref="audioFile"
             class="hidden"
-            accept=".mp3,.wav,.aac,.ogg,.flac,audio/*"
+            accept=".mp3,.wav,.aac,.ogg,.flac,.m4a,.mp4,.webm,.3gp,.3gpp,audio/*,video/mp4,video/webm,video/3gpp"
             @change="handleAudioFileChange($event)"
         >
     </div>

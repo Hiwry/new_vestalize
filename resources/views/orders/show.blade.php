@@ -551,6 +551,9 @@
                         <h3 class="text-md font-medium text-gray-900 dark:text-white mb-3">Histórico de Pagamentos</h3>
                         <div class="space-y-2">
                             @foreach($order->payments as $payment)
+                                @php
+                                    $receiptAttachments = $payment->receipt_attachments_list;
+                                @endphp
                                 @if($payment->payment_methods && is_array($payment->payment_methods))
                                     @foreach($payment->payment_methods as $method)
                                     <div class="bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
@@ -586,6 +589,20 @@
                                         </div>
                                     </div>
                                     @endforeach
+                                    @if(count($receiptAttachments) > 0)
+                                    <div class="bg-gray-50/70 dark:bg-gray-700/30 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                                        <p class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-slate-400">Comprovantes</p>
+                                        <div class="mt-2 flex flex-wrap gap-2">
+                                            @foreach($receiptAttachments as $receiptIndex => $receipt)
+                                            <a href="{{ route('orders.payment.receipt', $order->id) }}?payment={{ $payment->id }}&receipt={{ $receiptIndex }}"
+                                               target="_blank"
+                                               class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-indigo-600 dark:text-indigo-400 hover:underline">
+                                                {{ $receipt['name'] ?? ('Comprovante ' . ($receiptIndex + 1)) }}
+                                            </a>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    @endif
                                 @else
                                 <!-- Fallback para pagamentos antigos sem payment_methods -->
                                 <div class="bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg p-3">
@@ -616,6 +633,20 @@
                                             </button>
                                         </div>
                                     </div>
+                                    @if(count($receiptAttachments) > 0)
+                                    <div class="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
+                                        <p class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-slate-400">Comprovantes</p>
+                                        <div class="mt-2 flex flex-wrap gap-2">
+                                            @foreach($receiptAttachments as $receiptIndex => $receipt)
+                                            <a href="{{ route('orders.payment.receipt', $order->id) }}?payment={{ $payment->id }}&receipt={{ $receiptIndex }}"
+                                               target="_blank"
+                                               class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-indigo-600 dark:text-indigo-400 hover:underline">
+                                                {{ $receipt['name'] ?? ('Comprovante ' . ($receiptIndex + 1)) }}
+                                            </a>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    @endif
                                 </div>
                                 @endif
                             @endforeach
@@ -625,13 +656,13 @@
 
                     <!-- Formulário de Pagamento (Oculto por padrão) -->
                     <div id="paymentForm" class="hidden border-t border-gray-200 dark:border-slate-800 pt-4">
-                        <form method="POST" action="{{ route('orders.payment.add', $order->id) }}">
+                        <form method="POST" action="{{ route('orders.payment.add', $order->id) }}" enctype="multipart/form-data">
                             @csrf
                             
                             <div class="grid grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Método de Pagamento</label>
-                                    <select name="method" class="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400" required>
+                                    <select name="method" id="add_method" class="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400" required>
                                         <option value="">Selecione...</option>
                                         <option value="pix">PIX</option>
                                         <option value="dinheiro">Dinheiro</option>
@@ -644,6 +675,7 @@
                                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Valor</label>
                                     <input type="number" 
                                            name="amount" 
+                                           id="add_amount"
                                            step="0.01" 
                                            min="0.01" 
                                            max="{{ $remaining }}"
@@ -658,6 +690,24 @@
                                           rows="2" 
                                           class="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
                                           placeholder="Observações sobre o pagamento..."></textarea>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Comprovante</label>
+                                <input type="file"
+                                       name="receipt"
+                                       accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+                                       class="block w-full text-sm text-gray-700 dark:text-slate-300 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-indigo-700">
+                                <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">Opcional. Aceita JPG, PNG ou PDF de atÃ© 10MB.</p>
+                            </div>
+
+                            <div class="hidden" aria-hidden="true">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Comprovante oculto</label>
+                                <input type="file"
+                                       name="receipt_unused"
+                                       accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+                                       class="block w-full text-sm text-gray-700 dark:text-slate-300 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-indigo-700">
+                                <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">Se enviar um novo arquivo, ele serÃ¡ adicionado aos comprovantes deste pagamento.</p>
                             </div>
 
                             <div class="flex justify-end space-x-3">
@@ -676,11 +726,20 @@
 
                     <!-- Formulário de Edição de Pagamento (Oculto por padrão) -->
                     <div id="editPaymentForm" class="hidden border-t pt-4">
-                        <form method="POST" action="{{ route('orders.payment.update', $order->id) }}">
+                        <form method="POST" action="{{ route('orders.payment.update', $order->id) }}" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <input type="hidden" name="payment_id" id="edit_payment_id">
                             <input type="hidden" name="method_id" id="edit_method_id">
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Anexar comprovante</label>
+                                <input type="file"
+                                       name="receipt"
+                                       accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+                                       class="block w-full text-sm text-gray-700 dark:text-slate-300 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-indigo-700">
+                                <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">Se enviar um novo arquivo, ele sera adicionado aos comprovantes deste pagamento.</p>
+                            </div>
                             
                             <div class="grid grid-cols-2 gap-4 mb-4">
                                 <div>
@@ -940,15 +999,35 @@
         function togglePaymentForm() {
             const form = document.getElementById('paymentForm');
             const editForm = document.getElementById('editPaymentForm');
-            form.classList.toggle('hidden');
             editForm.classList.add('hidden');
+            const willOpen = form.classList.contains('hidden');
+            form.classList.toggle('hidden');
+
+            if (willOpen) {
+                const firstField = document.getElementById('add_method') || document.getElementById('add_amount');
+                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                if (firstField) {
+                    window.setTimeout(() => firstField.focus(), 150);
+                }
+            }
         }
 
         function toggleEditPaymentForm() {
             const form = document.getElementById('editPaymentForm');
             const addForm = document.getElementById('paymentForm');
-            form.classList.toggle('hidden');
             addForm.classList.add('hidden');
+            const willOpen = form.classList.contains('hidden');
+            form.classList.toggle('hidden');
+
+            if (willOpen) {
+                const firstField = document.getElementById('edit_method') || document.getElementById('edit_amount');
+                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                if (firstField) {
+                    window.setTimeout(() => firstField.focus(), 150);
+                }
+            }
         }
 
         function editPayment(paymentId, methodId = null) {
@@ -974,8 +1053,13 @@
                         document.getElementById('edit_amount').value = data.entry_amount;
                         document.getElementById('edit_notes').value = data.notes || '';
                     }
-                    
-                    toggleEditPaymentForm();
+                    const editForm = document.getElementById('editPaymentForm');
+                    if (editForm.classList.contains('hidden')) {
+                        toggleEditPaymentForm();
+                    } else {
+                        editForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        window.setTimeout(() => document.getElementById('edit_method')?.focus(), 150);
+                    }
                 })
                 .catch(error => {
                     console.error('Erro ao carregar dados do pagamento:', error);

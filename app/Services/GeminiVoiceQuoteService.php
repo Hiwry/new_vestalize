@@ -2,12 +2,53 @@
 
 namespace App\Services;
 
+use RuntimeException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class GeminiVoiceQuoteService
 {
+    private const DIRECT_AUDIO_MIME_TYPES = [
+        'audio/wav',
+        'audio/mp3',
+        'audio/mpeg',
+        'audio/aiff',
+        'audio/aac',
+        'audio/ogg',
+        'audio/flac',
+    ];
+
+    private const CONVERTIBLE_AUDIO_MIME_TYPES = [
+        'audio/mp4',
+        'audio/m4a',
+        'audio/x-m4a',
+        'audio/mp4a-latm',
+        'audio/webm',
+        'video/webm',
+        'video/mp4',
+        'audio/3gpp',
+        'video/3gpp',
+    ];
+
+    private const CONVERTIBLE_AUDIO_EXTENSIONS = [
+        'm4a',
+        'mp4',
+        'webm',
+        '3gp',
+        '3gpp',
+    ];
+
+    private const DIRECT_AUDIO_EXTENSION_MAP = [
+        'wav' => 'audio/wav',
+        'mp3' => 'audio/mp3',
+        'aac' => 'audio/aac',
+        'ogg' => 'audio/ogg',
+        'flac' => 'audio/flac',
+        'aif' => 'audio/aiff',
+        'aiff' => 'audio/aiff',
+    ];
+
     public function isEnabled(): bool
     {
         return (bool) config('services.gemini.voice_quote_enabled')
@@ -20,6 +61,8 @@ class GeminiVoiceQuoteService
             return null;
         }
 
+        $audioPart = $audio ? $this->prepareAudioPart($audio) : null;
+
         $response = Http::baseUrl(rtrim((string) config('services.gemini.endpoint'), '/'))
             ->withHeaders([
                 'x-goog-api-key' => (string) config('services.gemini.api_key'),
@@ -30,7 +73,7 @@ class GeminiVoiceQuoteService
             ->post('/models/' . config('services.gemini.model') . ':generateContent', $this->buildPayload(
                 catalogContext: $catalogContext,
                 text: $text,
-                audio: $audio,
+                audioPart: $audioPart,
             ));
 
         if (!$response->successful()) {
@@ -65,21 +108,21 @@ class GeminiVoiceQuoteService
         return $decoded;
     }
 
-    private function buildPayload(array $catalogContext, ?string $text = null, ?UploadedFile $audio = null): array
+    private function buildPayload(array $catalogContext, ?string $text = null, ?array $audioPart = null): array
     {
         $parts = [];
 
-        if ($audio) {
+        if ($audioPart) {
             $parts[] = [
                 'inlineData' => [
-                    'mimeType' => $this->normalizeMimeType((string) $audio->getMimeType()),
-                    'data' => base64_encode((string) file_get_contents($audio->getRealPath())),
+                    'mimeType' => $audioPart['mimeType'],
+                    'data' => $audioPart['data'],
                 ],
             ];
         }
 
         $parts[] = [
-            'text' => $this->buildUserPrompt($catalogContext, $text, $audio !== null),
+            'text' => $this->buildUserPrompt($catalogContext, $text, $audioPart !== null),
         ];
 
         return [
@@ -216,13 +259,127 @@ class GeminiVoiceQuoteService
         return is_array($decoded) ? $decoded : null;
     }
 
+    private function prepareAudioPart(UploadedFile $audio): array
+    {
+        $mimeType = $this->normalizeMimeType((string) $audio->getMimeType());
+        $clientMimeType = $this->normalizeMimeType((string) $audio->getClientMimeType());
+        $extension = strtolower((string) $audio->getClientOriginalExtension());
+
+        Log::info('Gemini voice quote received audio upload.', [
+            'original_name' => $audio->getClientOriginalName(),
+            'size_bytes' => $audio->getSize(),
+            'detected_mime_type' => $mimeType,
+            'client_mime_type' => $clientMimeType,
+            'extension' => $extension,
+        ]);
+
+        if (in_array($mimeType, self::DIRECT_AUDIO_MIME_TYPES, true)) {
+            return [
+                'mimeType' => $mimeType,
+                'data' => base64_encode((string) file_get_contents($audio->getRealPath())),
+            ];
+        }
+
+        if (isset(self::DIRECT_AUDIO_EXTENSION_MAP[$extension])) {
+            return [
+                'mimeType' => self::DIRECT_AUDIO_EXTENSION_MAP[$extension],
+                'data' => base64_encode((string) file_get_contents($audio->getRealPath())),
+            ];
+        }
+
+        if (in_array($mimeType, self::CONVERTIBLE_AUDIO_MIME_TYPES, true)
+            || in_array($clientMimeType, self::CONVERTIBLE_AUDIO_MIME_TYPES, true)
+            || in_array($extension, self::CONVERTIBLE_AUDIO_EXTENSIONS, true)
+        ) {
+            return $this->convertAudioToWav($audio, $mimeType, $clientMimeType, $extension);
+        }
+
+        throw new RuntimeException(
+            'Formato de audio nao suportado pelo servidor. Formato recebido: '
+            . ($mimeType ?: 'desconhecido')
+            . '. Envie MP3, WAV, AAC, OGG, FLAC ou use M4A/MP4/WEBM/3GP com FFmpeg habilitado no servidor.'
+        );
+    }
+
     private function normalizeMimeType(string $mimeType): string
     {
         return match ($mimeType) {
             'audio/x-wav', 'audio/wave' => 'audio/wav',
             'audio/x-flac' => 'audio/flac',
-            'audio/mp3' => 'audio/mpeg',
+            'audio/mp3', 'audio/mpeg' => 'audio/mp3',
+            'audio/x-m4a', 'audio/m4a', 'audio/mp4a-latm' => 'audio/mp4',
+            'audio/3gp' => 'audio/3gpp',
+            'video/3gp' => 'video/3gpp',
             default => $mimeType,
         };
+    }
+
+    private function convertAudioToWav(UploadedFile $audio, string $mimeType, string $clientMimeType, string $extension): array
+    {
+        if (!$this->canUseExec()) {
+            throw new RuntimeException(
+                'O servidor recebeu um audio em formato movel (' . ($mimeType ?: 'desconhecido')
+                . '), mas nao pode converter porque a funcao exec esta indisponivel.'
+            );
+        }
+
+        $ffmpegBinary = (string) config('services.gemini.ffmpeg_binary', 'ffmpeg');
+        $tempBase = tempnam(sys_get_temp_dir(), 'gemini-audio-');
+
+        if ($tempBase === false) {
+            throw new RuntimeException('Nao foi possivel preparar um arquivo temporario para converter o audio.');
+        }
+
+        $outputPath = $tempBase . '.wav';
+        @unlink($tempBase);
+
+        $command = sprintf(
+            '%s -y -i %s -vn -ac 1 -ar 16000 -c:a pcm_s16le %s 2>&1',
+            escapeshellarg($ffmpegBinary),
+            escapeshellarg((string) $audio->getRealPath()),
+            escapeshellarg($outputPath)
+        );
+
+        exec($command, $outputLines, $exitCode);
+
+        if ($exitCode !== 0 || !is_file($outputPath)) {
+            @unlink($outputPath);
+
+            Log::warning('Gemini voice quote audio conversion failed.', [
+                'original_name' => $audio->getClientOriginalName(),
+                'detected_mime_type' => $mimeType,
+                'client_mime_type' => $clientMimeType,
+                'extension' => $extension,
+                'ffmpeg_binary' => $ffmpegBinary,
+                'exit_code' => $exitCode,
+                'ffmpeg_output' => implode("\n", $outputLines),
+            ]);
+
+            throw new RuntimeException(
+                'O servidor recebeu o audio em formato ' . ($mimeType ?: 'desconhecido')
+                . ', mas nao conseguiu converter para um formato aceito pela Gemini. '
+                . 'Verifique se o FFmpeg esta instalado e acessivel no servidor.'
+            );
+        }
+
+        try {
+            return [
+                'mimeType' => 'audio/wav',
+                'data' => base64_encode((string) file_get_contents($outputPath)),
+            ];
+        } finally {
+            @unlink($outputPath);
+        }
+    }
+
+    private function canUseExec(): bool
+    {
+        if (!function_exists('exec')) {
+            return false;
+        }
+
+        $disabled = array_filter(array_map('trim', explode(',', (string) ini_get('disable_functions'))));
+
+        return !in_array('exec', $disabled, true);
     }
 }

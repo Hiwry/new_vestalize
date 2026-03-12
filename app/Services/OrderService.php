@@ -10,9 +10,11 @@ use App\Models\Store;
 use App\Models\Payment;
 use App\Models\CashTransaction;
 use App\Helpers\DateHelper;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 
@@ -169,111 +171,141 @@ class OrderService
      * @param int $userId
      * @return void
      */
-    public static function addPayment(Order $order, array $data, int $userId): void
+    public static function addPayment(Order $order, array $data, int $userId, ?UploadedFile $receipt = null): void
     {
-        DB::transaction(function () use ($order, $data, $userId) {
-            $payment = Payment::where('order_id', $order->id)->first();
-            $user = \App\Models\User::find($userId);
-            
-            if ($payment) {
-                $newEntryAmount = $payment->entry_amount + $data['amount'];
-                $newRemainingAmount = $payment->remaining_amount - $data['amount'];
+        $storedReceiptPath = null;
+
+        try {
+            DB::transaction(function () use ($order, $data, $userId, $receipt, &$storedReceiptPath) {
+                $payment = Payment::where('order_id', $order->id)->first();
+                $user = \App\Models\User::find($userId);
                 
-                $paymentMethods = $payment->payment_methods ?? [];
-                $paymentMethods[] = [
-                    'id' => time() . rand(1000, 9999),
-                    'method' => $data['method'],
-                    'amount' => $data['amount'],
-                    'date' => now()->format('Y-m-d H:i:s'),
-                ];
-                
-                $payment->update([
-                    'entry_amount' => $newEntryAmount,
-                    'remaining_amount' => $newRemainingAmount,
-                    'payment_methods' => $paymentMethods,
-                    'status' => $newRemainingAmount <= 0 ? 'pago' : 'pendente',
-                ]);
-            } else {
-                $payment = Payment::create([
-                    'order_id' => $order->id,
-                    'method' => $data['method'],
-                    'payment_method' => $data['method'],
-                    'payment_methods' => [[
+                if ($payment) {
+                    $newEntryAmount = $payment->entry_amount + $data['amount'];
+                    $newRemainingAmount = $payment->remaining_amount - $data['amount'];
+                    
+                    $paymentMethods = $payment->payment_methods ?? [];
+                    $paymentMethods[] = [
                         'id' => time() . rand(1000, 9999),
                         'method' => $data['method'],
                         'amount' => $data['amount'],
                         'date' => now()->format('Y-m-d H:i:s'),
-                    ]],
-                    'amount' => $order->total,
-                    'entry_amount' => $data['amount'],
-                    'remaining_amount' => $order->total - $data['amount'],
-                    'status' => $data['amount'] >= $order->total ? 'pago' : 'pendente',
-                    'entry_date' => now(),
-                    'payment_date' => now(),
-                    'cash_approved' => false, // Para aparecer nas aprovações
+                    ];
+                    
+                    $payment->update([
+                        'entry_amount' => $newEntryAmount,
+                        'remaining_amount' => $newRemainingAmount,
+                        'payment_methods' => $paymentMethods,
+                        'status' => $newRemainingAmount <= 0 ? 'pago' : 'pendente',
+                    ]);
+                } else {
+                    $payment = Payment::create([
+                        'order_id' => $order->id,
+                        'method' => $data['method'],
+                        'payment_method' => $data['method'],
+                        'payment_methods' => [[
+                            'id' => time() . rand(1000, 9999),
+                            'method' => $data['method'],
+                            'amount' => $data['amount'],
+                            'date' => now()->format('Y-m-d H:i:s'),
+                        ]],
+                        'amount' => $order->total,
+                        'entry_amount' => $data['amount'],
+                        'remaining_amount' => $order->total - $data['amount'],
+                        'status' => $data['amount'] >= $order->total ? 'pago' : 'pendente',
+                        'entry_date' => now(),
+                        'payment_date' => now(),
+                        'cash_approved' => false, // Para aparecer nas aprovações
+                    ]);
+                }
+
+                if ($receipt) {
+                    $storedReceiptPath = self::appendReceiptAttachment($payment, $receipt);
+                }
+
+                CashTransaction::create([
+                    'type' => 'entrada',
+                    'category' => 'Venda',
+                    'description' => "Pagamento do Pedido #" . self::formatOrderNumber($order) . " - " . ($order->client->name ?? 'N/A'),
+                    'amount' => $data['amount'],
+                    'payment_method' => $data['method'],
+                    'status' => 'pendente',
+                    'transaction_date' => now(),
+                    'order_id' => $order->id,
+                    'user_id' => $userId,
+                    'user_name' => $user->name ?? 'N/A',
+                    'notes' => $data['notes'] ?? null,
                 ]);
+            });
+        } catch (\Throwable $e) {
+            if ($storedReceiptPath) {
+                Storage::disk('public')->delete($storedReceiptPath);
             }
 
-            CashTransaction::create([
-                'type' => 'entrada',
-                'category' => 'Venda',
-                'description' => "Pagamento do Pedido #" . self::formatOrderNumber($order) . " - " . ($order->client->name ?? 'N/A'),
-                'amount' => $data['amount'],
-                'payment_method' => $data['method'],
-                'status' => 'pendente',
-                'transaction_date' => now(),
-                'order_id' => $order->id,
-                'user_id' => $userId,
-                'user_name' => $user->name ?? 'N/A',
-                'notes' => $data['notes'] ?? null,
-            ]);
-        });
+            throw $e;
+        }
     }
 
     /**
      * Atualizar um pagamento do pedido
      */
-    public static function updatePayment(Order $order, array $data, ?string $methodId): void
+    public static function updatePayment(Order $order, array $data, ?string $methodId, ?UploadedFile $receipt = null): void
     {
-        $payment = Payment::where('order_id', $order->id)->firstOrFail();
-        
-        if ($methodId && $payment->payment_methods && is_array($payment->payment_methods)) {
-            $paymentMethods = $payment->payment_methods;
-            $oldAmount = 0;
-            
-            foreach ($paymentMethods as $key => $method) {
-                if ($method['id'] == $methodId) {
-                    $oldAmount = $method['amount'];
-                    $paymentMethods[$key]['method'] = $data['method'];
-                    $paymentMethods[$key]['amount'] = $data['amount'];
-                    break;
-                }
-            }
-            
-            $amountDifference = $data['amount'] - $oldAmount;
-            $newEntryAmount = $payment->entry_amount + $amountDifference;
-            $newRemainingAmount = $payment->remaining_amount - $amountDifference;
-            
-            $payment->update([
-                'entry_amount' => $newEntryAmount,
-                'remaining_amount' => $newRemainingAmount,
-                'payment_methods' => $paymentMethods,
-                'status' => $newRemainingAmount <= 0 ? 'pago' : 'pendente',
-                'notes' => $data['notes'] ?? null,
-            ]);
-            
-            $cashTransaction = CashTransaction::where('order_id', $order->id)
-                ->where('type', 'entrada')
-                ->where('amount', $oldAmount)
-                ->first();
+        $storedReceiptPath = null;
 
-            if ($cashTransaction) {
-                $cashTransaction->update([
-                    'amount' => $data['amount'],
-                    'payment_method' => $data['method'],
-                    'notes' => $data['notes'] ?? null,
-                ]);
+        try {
+            DB::transaction(function () use ($order, $data, $methodId, $receipt, &$storedReceiptPath) {
+                $payment = Payment::where('order_id', $order->id)->firstOrFail();
+                
+                if ($methodId && $payment->payment_methods && is_array($payment->payment_methods)) {
+                    $paymentMethods = $payment->payment_methods;
+                    $oldAmount = 0;
+                    
+                    foreach ($paymentMethods as $key => $method) {
+                        if ($method['id'] == $methodId) {
+                            $oldAmount = $method['amount'];
+                            $paymentMethods[$key]['method'] = $data['method'];
+                            $paymentMethods[$key]['amount'] = $data['amount'];
+                            break;
+                        }
+                    }
+                    
+                    $amountDifference = $data['amount'] - $oldAmount;
+                    $newEntryAmount = $payment->entry_amount + $amountDifference;
+                    $newRemainingAmount = $payment->remaining_amount - $amountDifference;
+                    
+                    $payment->update([
+                        'entry_amount' => $newEntryAmount,
+                        'remaining_amount' => $newRemainingAmount,
+                        'payment_methods' => $paymentMethods,
+                        'status' => $newRemainingAmount <= 0 ? 'pago' : 'pendente',
+                        'notes' => $data['notes'] ?? null,
+                    ]);
+                    
+                    $cashTransaction = CashTransaction::where('order_id', $order->id)
+                        ->where('type', 'entrada')
+                        ->where('amount', $oldAmount)
+                        ->first();
+
+                    if ($cashTransaction) {
+                        $cashTransaction->update([
+                            'amount' => $data['amount'],
+                            'payment_method' => $data['method'],
+                            'notes' => $data['notes'] ?? null,
+                        ]);
+                    }
+                }
+
+                if ($receipt) {
+                    $storedReceiptPath = self::appendReceiptAttachment($payment, $receipt);
+                }
+            });
+        } catch (\Throwable $e) {
+            if ($storedReceiptPath) {
+                Storage::disk('public')->delete($storedReceiptPath);
             }
+
+            throw $e;
         }
     }
 
@@ -372,6 +404,7 @@ class OrderService
         // Se chegou aqui, deleta tudo
         Log::info('Deletando todos os pagamentos do pedido', ['order_id' => $order->id]);
         CashTransaction::where('order_id', $order->id)->where('type', 'entrada')->delete();
+        self::deleteReceiptAttachments($payment);
         $payment->delete();
     }
 
@@ -559,5 +592,38 @@ class OrderService
     private static function formatOrderNumber(Order $order): string
     {
         return str_pad($order->id, 6, '0', STR_PAD_LEFT);
+    }
+
+    private static function appendReceiptAttachment(Payment $payment, UploadedFile $receipt): string
+    {
+        $attachments = $payment->receipt_attachments_list;
+        $path = $receipt->store('receipts', 'public');
+
+        $attachments[] = [
+            'path' => $path,
+            'name' => $receipt->getClientOriginalName(),
+            'uploaded_at' => now()->toISOString(),
+        ];
+
+        self::syncReceiptAttachments($payment, $attachments);
+
+        return $path;
+    }
+
+    private static function syncReceiptAttachments(Payment $payment, array $attachments): void
+    {
+        $payment->update([
+            'receipt_attachment' => $attachments[0]['path'] ?? null,
+            'receipt_attachments' => empty($attachments) ? null : array_values($attachments),
+        ]);
+    }
+
+    private static function deleteReceiptAttachments(Payment $payment): void
+    {
+        foreach ($payment->receipt_attachments_list as $attachment) {
+            if (!empty($attachment['path'])) {
+                Storage::disk('public')->delete($attachment['path']);
+            }
+        }
     }
 }

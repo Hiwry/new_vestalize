@@ -11,6 +11,7 @@ use App\Services\GeminiVoiceQuoteService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class VoiceQuoteController extends Controller
@@ -80,7 +81,7 @@ class VoiceQuoteController extends Controller
         $request->validate(
             [
                 'text' => 'nullable|string|max:4000|required_without:audio',
-                'audio' => 'nullable|file|max:10240|mimetypes:audio/mpeg,audio/mp3,audio/wav,audio/x-wav,audio/wave,audio/aac,audio/ogg,audio/flac,audio/x-flac|required_without:text',
+                'audio' => 'nullable|file|max:10240|required_without:text',
             ],
             [
                 'text.required_without' => 'Informe um texto ou envie um áudio.',
@@ -94,6 +95,16 @@ class VoiceQuoteController extends Controller
         $audio = $request->file('audio');
         $resources = $this->loadVoiceResources(Auth::user()?->tenant_id);
 
+        if ($audio) {
+            Log::info('Voice quote upload received.', [
+                'original_name' => $audio->getClientOriginalName(),
+                'size_bytes' => $audio->getSize(),
+                'mime_type' => $audio->getMimeType(),
+                'client_mime_type' => $audio->getClientMimeType(),
+                'extension' => $audio->getClientOriginalExtension(),
+            ]);
+        }
+
         $heuristicResult = filled($text)
             ? $this->buildHeuristicMatch($text, $resources)
             : $this->emptyMatchResult();
@@ -101,16 +112,47 @@ class VoiceQuoteController extends Controller
         $provider = 'fallback';
         $result = $heuristicResult;
 
-        $aiPayload = $gemini->extractQuote(
-            catalogContext: $this->buildGeminiContext($resources),
-            text: filled($text) ? $text : null,
-            audio: $audio,
-        );
+        try {
+            $aiPayload = $gemini->extractQuote(
+                catalogContext: $this->buildGeminiContext($resources),
+                text: filled($text) ? $text : null,
+                audio: $audio,
+            );
+        } catch (\RuntimeException $e) {
+            Log::warning('Voice quote audio processing failed.', [
+                'message' => $e->getMessage(),
+                'mime_type' => $audio?->getMimeType(),
+                'client_mime_type' => $audio?->getClientMimeType(),
+                'extension' => $audio?->getClientOriginalExtension(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        } catch (\Throwable $e) {
+            Log::error('Voice quote matching crashed.', [
+                'message' => $e->getMessage(),
+                'mime_type' => $audio?->getMimeType(),
+                'client_mime_type' => $audio?->getClientMimeType(),
+                'extension' => $audio?->getClientOriginalExtension(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao processar o audio no servidor. Verifique a chave Gemini, conectividade e logs em storage/logs.',
+            ], 500);
+        }
 
         if (is_array($aiPayload)) {
             $provider = 'gemini';
             $aiResult = $this->mapGeminiPayload($aiPayload, $resources, $text);
             $result = $this->mergeMatchResults($heuristicResult, $aiResult);
+        } elseif ($audio && blank($text)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'O servidor recebeu o audio, mas a Gemini nao retornou dados. Verifique o formato enviado pelo celular e os logs do servidor.',
+            ], 502);
         }
 
         $result = $this->finalizeMatchResult($result, $resources['products']);

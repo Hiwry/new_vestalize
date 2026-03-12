@@ -64,6 +64,7 @@ return [
         'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
         'endpoint' => env('GEMINI_API_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta'),
         'voice_quote_enabled' => filter_var(env('GEMINI_VOICE_QUOTE_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'ffmpeg_binary' => env('FFMPEG_BIN', 'ffmpeg'),
     ],
 
 ];
