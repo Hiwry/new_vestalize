@@ -60,6 +60,11 @@ class VoiceQuoteController extends Controller
         ],
     ];
 
+    private const LEGACY_COLOR_COUNT_TYPES = [
+        'SERIGRAFIA',
+        'EMBORRACHADO',
+    ];
+
     public function index()
     {
         $resources = $this->loadVoiceResources(Auth::user()?->tenant_id);
@@ -171,7 +176,23 @@ class VoiceQuoteController extends Controller
     {
         $products = Product::where('active', true)
             ->when($tenantId, fn($query) => $query->where('tenant_id', $tenantId))
-            ->select('id', 'title', 'price', 'wholesale_price', 'wholesale_min_qty', 'available_sizes', 'cut_type_id')
+            ->with([
+                'tecido:id,name',
+                'modelo:id,name',
+                'cutType:id,name',
+            ])
+            ->select(
+                'id',
+                'title',
+                'catalog_description',
+                'price',
+                'wholesale_price',
+                'wholesale_min_qty',
+                'available_sizes',
+                'tecido_id',
+                'modelo_id',
+                'cut_type_id'
+            )
             ->orderBy('title')
             ->get()
             ->map(function (Product $product) {
@@ -204,11 +225,14 @@ class VoiceQuoteController extends Controller
             ->get(['personalization_type', 'charge_by_color', 'color_price_per_unit', 'min_colors', 'max_colors'])
             ->mapWithKeys(function (PersonalizationSetting $setting) {
                 $type = mb_strtoupper(trim((string) $setting->personalization_type));
+                $chargeByColor = (bool) $setting->charge_by_color
+                    || $this->isLegacyColorCountType($type)
+                    || $this->typeHasColorPriceRange($type);
 
                 return [
                     $type => [
                         'personalization_type' => $type,
-                        'charge_by_color' => (bool) $setting->charge_by_color,
+                        'charge_by_color' => $chargeByColor,
                         'color_price_per_unit' => (float) ($setting->color_price_per_unit ?? 0),
                         'min_colors' => (int) ($setting->min_colors ?? 1),
                         'max_colors' => $setting->max_colors !== null ? (int) $setting->max_colors : null,
@@ -232,7 +256,7 @@ class VoiceQuoteController extends Controller
         $bestScore = 0.0;
 
         foreach ($resources['products'] as $product) {
-            $score = $this->fuzzyScore($normalized, $this->normalize($product->title));
+            $score = $this->bestProductMatchScore($normalized, $product);
 
             if ($score > $bestScore && $score >= 0.4) {
                 $bestScore = $score;
@@ -412,8 +436,12 @@ class VoiceQuoteController extends Controller
             'products' => $resources['products']->map(fn(Product $product) => [
                 'id' => $product->id,
                 'title' => $product->title,
+                'catalog_description' => $this->normalizeNullableString($product->catalog_description),
                 'cut_type_id' => $product->cut_type_id,
-                'cut_type_name' => $cutTypeNames[$product->cut_type_id] ?? null,
+                'cut_type_name' => $cutTypeNames[$product->cut_type_id] ?? $product->cutType?->name,
+                'tecido_name' => $product->tecido?->name,
+                'modelo_name' => $product->modelo?->name,
+                'aliases' => $this->buildProductSpeechAliases($product),
                 'available_sizes' => $this->normalizeAvailableSizes($product->available_sizes),
             ])->values()->all(),
             'personalization_types' => $resources['personalizationTypes']->map(fn($type) => [
@@ -575,11 +603,7 @@ class VoiceQuoteController extends Controller
         $bestScore = 0.0;
 
         foreach ($products as $product) {
-            $normalizedProductTitle = $this->normalize($product->title);
-            $score = max(
-                $this->fuzzyScore($normalizedNeedle, $normalizedProductTitle),
-                $this->fuzzyScore($normalizedProductTitle, $normalizedNeedle)
-            );
+            $score = $this->bestProductMatchScore($normalizedNeedle, $product);
 
             if ($score > $bestScore && $score >= 0.5) {
                 $bestScore = $score;
@@ -675,6 +699,102 @@ class VoiceQuoteController extends Controller
             'available_sizes' => $this->normalizeAvailableSizes($product->available_sizes),
             'cut_type_id' => $product->cut_type_id,
         ];
+    }
+
+    private function bestProductMatchScore(string $needle, Product $product): float
+    {
+        $bestScore = 0.0;
+
+        foreach ($this->buildProductSearchTexts($product) as $candidate) {
+            $bestScore = max(
+                $bestScore,
+                $this->fuzzyScore($needle, $candidate),
+                $this->fuzzyScore($candidate, $needle)
+            );
+        }
+
+        return $bestScore;
+    }
+
+    private function buildProductSearchTexts(Product $product): array
+    {
+        static $cache = [];
+
+        $cacheKey = implode(':', [
+            $product->id,
+            $product->updated_at?->timestamp ?? 'na',
+            $product->tecido?->id ?? 'na',
+            $product->modelo?->id ?? 'na',
+            $product->cutType?->id ?? 'na',
+        ]);
+
+        if (isset($cache[$cacheKey])) {
+            return $cache[$cacheKey];
+        }
+
+        $variants = array_merge([
+            $product->title,
+            $product->catalog_description,
+            implode(' ', array_filter([$product->title, $product->tecido?->name])),
+            implode(' ', array_filter([$product->title, $product->modelo?->name])),
+            implode(' ', array_filter([$product->title, $product->cutType?->name])),
+            implode(' ', array_filter([$product->title, $product->tecido?->name, $product->modelo?->name])),
+            implode(' ', array_filter([$product->title, $product->tecido?->name, $product->cutType?->name])),
+        ], $this->buildProductSpeechAliases($product));
+
+        return $cache[$cacheKey] = array_values(array_unique(array_filter(array_map(
+            fn(mixed $variant) => $this->normalize((string) $variant),
+            $variants
+        ))));
+    }
+
+    private function buildProductSpeechAliases(Product $product): array
+    {
+        $aliases = [];
+        $normalizedTitle = $this->normalize((string) $product->title);
+        $fabricName = trim((string) ($product->tecido?->name ?? ''));
+        $modelName = trim((string) ($product->modelo?->name ?? ''));
+        $cutTypeName = trim((string) ($product->cutType?->name ?? ''));
+
+        if ($fabricName !== '') {
+            $aliases[] = trim($product->title . ' ' . $fabricName);
+        }
+
+        if ($modelName !== '') {
+            $aliases[] = trim($product->title . ' ' . $modelName);
+        }
+
+        if ($fabricName !== '' && $modelName !== '') {
+            $aliases[] = trim($product->title . ' ' . $fabricName . ' ' . $modelName);
+        }
+
+        if ($cutTypeName !== '' && $fabricName !== '') {
+            $aliases[] = trim($cutTypeName . ' ' . $fabricName);
+        }
+
+        if (str_contains($normalizedTitle, 'lisas') || $normalizedTitle === 'lisa') {
+            $aliases = array_merge($aliases, [
+                'Camisa basica',
+                'Camiseta basica',
+                'Camisa lisa',
+                'Camiseta lisa',
+                'Basica',
+                'Lisa',
+            ]);
+
+            if ($fabricName !== '') {
+                $aliases = array_merge($aliases, [
+                    'Camisa basica ' . $fabricName,
+                    'Camiseta basica ' . $fabricName,
+                    'Camisa lisa ' . $fabricName,
+                    'Camiseta lisa ' . $fabricName,
+                    'Basica ' . $fabricName,
+                    'Lisa ' . $fabricName,
+                ]);
+            }
+        }
+
+        return array_values(array_unique(array_filter($aliases)));
     }
 
     private function resolvePersonalizationUnitPrice(?string $typeName, ?string $sizeName, int $quantity, ?int $colorCount = null): float
@@ -1215,7 +1335,7 @@ class VoiceQuoteController extends Controller
             return false;
         }
 
-        return in_array(mb_strtoupper(trim((string) $typeName)), ['SERIGRAFIA', 'EMBORRACHADO'], true);
+        return $this->isLegacyColorCountType($typeName);
     }
 
     private function typeUsesColorCount(?string $typeName, array $settings = []): bool
@@ -1227,7 +1347,9 @@ class VoiceQuoteController extends Controller
         $lookupType = mb_strtoupper(trim((string) $typeName));
 
         if (isset($settings[$lookupType])) {
-            return (bool) ($settings[$lookupType]['charge_by_color'] ?? false);
+            return (bool) ($settings[$lookupType]['charge_by_color'] ?? false)
+                || $this->isLegacyColorCountType($lookupType)
+                || $this->typeHasColorPriceRange($lookupType);
         }
 
         static $cache = [];
@@ -1239,8 +1361,8 @@ class VoiceQuoteController extends Controller
         $setting = PersonalizationSetting::findByType($lookupType);
 
         return $cache[$lookupType] = $setting
-            ? (bool) $setting->charge_by_color
-            : in_array($lookupType, ['SERIGRAFIA', 'EMBORRACHADO'], true);
+            ? (bool) $setting->charge_by_color || $this->isLegacyColorCountType($lookupType) || $this->typeHasColorPriceRange($lookupType)
+            : $this->isLegacyColorCountType($lookupType) || $this->typeHasColorPriceRange($lookupType);
     }
 
     private function resolveColorSurcharge(?string $typeName, ?int $colorCount, int $quantity): float
@@ -1262,7 +1384,43 @@ class VoiceQuoteController extends Controller
 
         $setting = PersonalizationSetting::findByType($lookupType);
 
-        return $setting ? (float) $setting->calculateColorSurcharge($colorCount) : 0.0;
+        if (!$setting) {
+            return 0.0;
+        }
+
+        $minColors = max(1, (int) ($setting->min_colors ?? 1));
+        $extraColors = max(0, $colorCount - $minColors);
+
+        return $extraColors * (float) ($setting->color_price_per_unit ?? 0);
+    }
+
+    private function isLegacyColorCountType(?string $typeName): bool
+    {
+        if (blank($typeName)) {
+            return false;
+        }
+
+        return in_array(mb_strtoupper(trim((string) $typeName)), self::LEGACY_COLOR_COUNT_TYPES, true);
+    }
+
+    private function typeHasColorPriceRange(?string $typeName): bool
+    {
+        if (blank($typeName)) {
+            return false;
+        }
+
+        static $cache = [];
+
+        $lookupType = mb_strtoupper(trim((string) $typeName));
+
+        if (array_key_exists($lookupType, $cache)) {
+            return $cache[$lookupType];
+        }
+
+        return $cache[$lookupType] = PersonalizationPrice::query()
+            ->where('personalization_type', $lookupType)
+            ->where('size_name', 'COR')
+            ->exists();
     }
 
     private function emptyMatchResult(): array
