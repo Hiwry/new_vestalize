@@ -172,6 +172,9 @@ class GeminiVoiceQuoteService
             'Se houver um único tamanho citado junto com uma quantidade total, atribua essa quantidade a esse tamanho.',
             'Quando houver grade como "20 P 30 M", devolva sizes com as quantidades exatas por tamanho.',
             'Para personalizações que cobram por cor, devolva color_count, color_details e has_neon quando a fala indicar isso.',
+            'Quando uma frase listar vários locais com cores diferentes, gere uma personalização separada para cada local.',
+            'Se o usuário falar "escudo" e existir local "Peito" no catálogo, trate como local Peito com size_name ESCUDO.',
+            'Se um local vier sem novo tamanho explícito, você pode reaproveitar o último size_name citado no mesmo bloco e registrar isso em notes.',
             'Se o áudio e a transcrição preliminar divergirem, priorize o conteúdo do áudio.',
         ]);
     }
@@ -185,6 +188,7 @@ class GeminiVoiceQuoteService
             'Retorne sizes como uma lista de objetos {size, quantity}.',
             'Retorne personalizations como uma lista de objetos com type_id, type_name, size_name, location_id, location_name, color_count, color_details, has_neon e notes.',
             'Se o usuário disser algo como "3 cores", associe color_count à personalização correta.',
+            'Exemplo: "20 camisas basica pp com serigrafia a4 3 cores frente e escudo 2 cores costas" deve virar quantity=20, sizes=[{size:"PP",quantity:20}] e personalizations separadas para Frente/A4/3 cores, Peito/ESCUDO/3 cores e Costas/A4/2 cores.',
             'Se um campo não estiver claro, use null.',
         ];
 

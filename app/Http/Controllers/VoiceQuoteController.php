@@ -301,17 +301,17 @@ class VoiceQuoteController extends Controller
         $matchedPersonalizationSizes = [];
 
         foreach ($resources['personalizationSizes'] as $personalizationSize) {
-            $normalizedSize = $this->normalize($personalizationSize->size_name);
+            if (!$this->isUsablePersonalizationSize($personalizationSize->size_name ?? null)) {
+                continue;
+            }
+
+            $normalizedSize = $this->normalize((string) $personalizationSize->size_name);
             $normalizedDimensions = $this->normalize((string) ($personalizationSize->size_dimensions ?? ''));
 
-            foreach ($tokens as $token) {
-                if ($token === $normalizedSize
-                    || str_contains($token, $normalizedSize)
-                    || ($normalizedDimensions !== '' && ($token === $normalizedDimensions || str_contains($token, $normalizedDimensions)))
-                ) {
-                    $matchedPersonalizationSizes[] = $personalizationSize;
-                    break;
-                }
+            if ($this->containsPhraseInTokens($tokens, $normalizedSize)
+                || ($normalizedDimensions !== '' && $this->containsPhraseInTokens($tokens, $normalizedDimensions))
+            ) {
+                $matchedPersonalizationSizes[] = $personalizationSize;
             }
         }
 
@@ -325,9 +325,21 @@ class VoiceQuoteController extends Controller
             }
         }
 
-        if (!empty($matchedLocations)) {
+        $heuristicPersonalizations = $this->buildHeuristicPersonalizationEntries(
+            $tokens,
+            $resources,
+            $matchedTypes,
+            $matchedPersonalizationSizes,
+            $detectedColorCount,
+            $detectedNeon,
+            $result
+        );
+
+        if (!empty($heuristicPersonalizations)) {
+            $result['personalizations'] = $heuristicPersonalizations;
+        } elseif (!empty($matchedLocations)) {
             $defaultType = $matchedTypes[0] ?? null;
-            $defaultSize = $matchedPersonalizationSizes[0] ?? null;
+            $defaultSize = $this->preferredSharedPersonalizationSize($matchedPersonalizationSizes);
 
             foreach ($matchedLocations as $location) {
                 $colorData = $this->buildPersonalizationColorData(
@@ -358,7 +370,7 @@ class VoiceQuoteController extends Controller
             }
         } elseif (!empty($matchedTypes)) {
             foreach ($matchedTypes as $matchedType) {
-                $defaultSize = $matchedPersonalizationSizes[0] ?? null;
+                $defaultSize = $this->preferredSharedPersonalizationSize($matchedPersonalizationSizes);
                 $colorData = $this->buildPersonalizationColorData(
                     $matchedType->name,
                     $detectedColorCount,
@@ -919,6 +931,263 @@ class VoiceQuoteController extends Controller
         return null;
     }
 
+    private function buildHeuristicPersonalizationEntries(
+        array $tokens,
+        array $resources,
+        array $matchedTypes,
+        array $matchedPersonalizationSizes,
+        ?int $detectedColorCount,
+        bool $detectedNeon,
+        array $result
+    ): array {
+        if (empty($matchedTypes) && empty($matchedPersonalizationSizes)) {
+            return [];
+        }
+
+        $defaultType = $matchedTypes[0] ?? null;
+        $sharedSize = $this->preferredSharedPersonalizationSize($matchedPersonalizationSizes);
+        $currentColorCount = $detectedColorCount;
+        $locationPhrases = $this->buildLocationPhraseMatches(
+            $resources['locations'],
+            $resources['personalizationSizes']
+        );
+        $sizePhrases = $this->buildPersonalizationSizePhraseMatches($resources['personalizationSizes']);
+        $entries = [];
+        $seen = [];
+        $startIndex = $this->findPersonalizationScanStart($tokens, $matchedTypes);
+        $tokenCount = count($tokens);
+
+        for ($index = $startIndex; $index < $tokenCount; $index++) {
+            $colorMatch = $this->matchColorCountFromTokens($tokens, $index);
+
+            if ($colorMatch) {
+                $currentColorCount = $colorMatch['count'];
+                $index += $colorMatch['length'] - 1;
+                continue;
+            }
+
+            $locationMatch = $this->matchPhraseFromTokens($tokens, $index, $locationPhrases);
+
+            if ($locationMatch) {
+                $entryType = $defaultType;
+                $entrySize = $locationMatch['implicit_size'] ?? $sharedSize;
+                $colorData = $this->buildPersonalizationColorData(
+                    $entryType?->name,
+                    $currentColorCount,
+                    $detectedNeon,
+                    null,
+                    $resources['personalizationSettings'] ?? []
+                );
+
+                $entry = [
+                    'location_id' => $locationMatch['location']->id,
+                    'location_name' => $locationMatch['location']->name,
+                    'type_id' => $entryType?->id,
+                    'type_name' => $entryType?->name,
+                    'size_name' => $entrySize?->size_name,
+                    'size_dimensions' => $entrySize?->size_dimensions,
+                    'unit_price' => $this->resolvePersonalizationUnitPrice(
+                        $entryType?->name,
+                        $entrySize?->size_name,
+                        $this->effectiveQuantity($result),
+                        $colorData['color_count']
+                    ),
+                    'color_count' => $colorData['color_count'],
+                    'color_details' => $colorData['color_details'],
+                    'has_neon' => $colorData['has_neon'],
+                ];
+
+                $entryKey = implode('|', [
+                    $entry['location_id'] ?? 'null',
+                    $entry['type_id'] ?? 'null',
+                    $entry['size_name'] ?? 'null',
+                    $entry['color_count'] ?? 'null',
+                ]);
+
+                if (!isset($seen[$entryKey])) {
+                    $seen[$entryKey] = true;
+                    $entries[] = $entry;
+                }
+
+                $index += $locationMatch['length'] - 1;
+                continue;
+            }
+
+            $sizeMatch = $this->matchPhraseFromTokens($tokens, $index, $sizePhrases);
+
+            if ($sizeMatch) {
+                $sharedSize = $sizeMatch['size'];
+                $index += $sizeMatch['length'] - 1;
+            }
+        }
+
+        return $entries;
+    }
+
+    private function preferredSharedPersonalizationSize(array $matchedPersonalizationSizes): ?object
+    {
+        foreach ($matchedPersonalizationSizes as $size) {
+            if ($this->normalize((string) ($size->size_name ?? '')) !== 'escudo') {
+                return $size;
+            }
+        }
+
+        return $matchedPersonalizationSizes[0] ?? null;
+    }
+
+    private function buildLocationPhraseMatches(Collection $locations, Collection $sizes): array
+    {
+        $matches = [];
+        $peitoLocation = $locations->first(fn($location) => $this->normalize((string) $location->name) === 'peito');
+
+        foreach ($locations as $location) {
+            $normalized = $this->normalize((string) $location->name);
+
+            if ($normalized === '') {
+                continue;
+            }
+
+            $aliases = [$normalized];
+
+            if ($normalized === 'costas') {
+                $aliases[] = 'costa';
+            }
+
+            if ($normalized === 'costas em cima') {
+                $aliases[] = 'costa em cima';
+            }
+
+            foreach (array_values(array_unique($aliases)) as $alias) {
+                $matches[] = [
+                    'phrase' => $alias,
+                    'length' => count(explode(' ', $alias)),
+                    'location' => $location,
+                    'implicit_size' => null,
+                ];
+            }
+        }
+
+        if ($peitoLocation) {
+            $matches[] = [
+                'phrase' => 'escudo',
+                'length' => 1,
+                'location' => $peitoLocation,
+                'implicit_size' => $this->resolvePersonalizationSize('ESCUDO', $sizes),
+            ];
+        }
+
+        usort($matches, static function (array $left, array $right): int {
+            return $right['length'] <=> $left['length'];
+        });
+
+        return $matches;
+    }
+
+    private function buildPersonalizationSizePhraseMatches(Collection $sizes): array
+    {
+        $matches = [];
+
+        foreach ($sizes as $size) {
+            if (!$this->isUsablePersonalizationSize($size->size_name ?? null)) {
+                continue;
+            }
+
+            $phrases = array_filter([
+                $this->normalize((string) $size->size_name),
+                $this->normalize((string) ($size->size_dimensions ?? '')),
+            ]);
+
+            foreach (array_values(array_unique($phrases)) as $phrase) {
+                $matches[] = [
+                    'phrase' => $phrase,
+                    'length' => count(explode(' ', $phrase)),
+                    'size' => $size,
+                ];
+            }
+        }
+
+        usort($matches, static function (array $left, array $right): int {
+            return $right['length'] <=> $left['length'];
+        });
+
+        return $matches;
+    }
+
+    private function findPersonalizationScanStart(array $tokens, array $matchedTypes): int
+    {
+        foreach ($matchedTypes as $type) {
+            $phrase = $this->normalize((string) $type->name);
+            $typeTokens = preg_split('/\s+/', $phrase, -1, PREG_SPLIT_NO_EMPTY);
+            $length = count($typeTokens);
+
+            for ($index = 0; $index <= count($tokens) - $length; $index++) {
+                if (implode(' ', array_slice($tokens, $index, $length)) === $phrase) {
+                    return $index + $length;
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    private function matchColorCountFromTokens(array $tokens, int $index): ?array
+    {
+        $currentToken = $tokens[$index] ?? null;
+        $nextToken = $tokens[$index + 1] ?? null;
+
+        if ($this->isNumericTokenInRange($currentToken, 1, 99) && in_array($nextToken, ['cor', 'cores'], true)) {
+            return [
+                'count' => (int) $currentToken,
+                'length' => 2,
+            ];
+        }
+
+        if (in_array($currentToken, ['cor', 'cores'], true) && $this->isNumericTokenInRange($nextToken, 1, 99)) {
+            return [
+                'count' => (int) $nextToken,
+                'length' => 2,
+            ];
+        }
+
+        return null;
+    }
+
+    private function matchPhraseFromTokens(array $tokens, int $index, array $matches): ?array
+    {
+        foreach ($matches as $match) {
+            $candidate = implode(' ', array_slice($tokens, $index, $match['length']));
+
+            if ($candidate === $match['phrase']) {
+                return $match;
+            }
+        }
+
+        return null;
+    }
+
+    private function containsPhraseInTokens(array $tokens, string $phrase): bool
+    {
+        if ($phrase === '') {
+            return false;
+        }
+
+        $phraseTokens = preg_split('/\s+/', $phrase, -1, PREG_SPLIT_NO_EMPTY);
+        $length = count($phraseTokens);
+
+        for ($index = 0; $index <= count($tokens) - $length; $index++) {
+            if (implode(' ', array_slice($tokens, $index, $length)) === $phrase) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function isUsablePersonalizationSize(mixed $sizeName): bool
+    {
+        return $this->normalize((string) $sizeName) !== 'cor';
+    }
+
     private function buildPersonalizationColorData(
         ?string $typeName,
         mixed $colorCount,
@@ -926,7 +1195,7 @@ class VoiceQuoteController extends Controller
         mixed $colorDetails = null,
         array $settings = []
     ): array {
-        $supportsColorCount = $this->typeUsesColorCount($typeName, $settings);
+        $supportsColorCount = $this->supportsColorParsing($typeName, $settings);
         $normalizedColorCount = $this->normalizeColorCount($colorCount);
 
         return [
@@ -934,6 +1203,19 @@ class VoiceQuoteController extends Controller
             'color_details' => $supportsColorCount ? $this->normalizeNullableString(is_scalar($colorDetails) ? (string) $colorDetails : null) : null,
             'has_neon' => $supportsColorCount ? $this->normalizeBoolean($hasNeon) : false,
         ];
+    }
+
+    private function supportsColorParsing(?string $typeName, array $settings = []): bool
+    {
+        if ($this->typeUsesColorCount($typeName, $settings)) {
+            return true;
+        }
+
+        if (blank($typeName)) {
+            return false;
+        }
+
+        return in_array(mb_strtoupper(trim((string) $typeName)), ['SERIGRAFIA', 'EMBORRACHADO'], true);
     }
 
     private function typeUsesColorCount(?string $typeName, array $settings = []): bool
