@@ -39,7 +39,7 @@ class SecurityHeadersMiddleware
         $response->headers->set('X-Frame-Options', 'DENY');
         $response->headers->set('X-XSS-Protection', '1; mode=block');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
-        $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+        $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(self), camera=()');
 
         // Strict-Transport-Security (apenas em HTTPS)
         if ($request->secure()) {

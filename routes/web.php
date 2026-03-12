@@ -273,7 +273,9 @@ Route::middleware('auth')->group(function () {
         Route::get('{id}/whatsapp', [\App\Http\Controllers\BudgetController::class, 'shareWhatsApp'])->name('whatsapp');
     });
 
-
+    // Orçamento por Voz
+    Route::get('/orcamento-voz', [\App\Http\Controllers\VoiceQuoteController::class, 'index'])->name('voice-quote.index');
+    Route::post('/orcamento-voz/match', [\App\Http\Controllers\VoiceQuoteController::class, 'match'])->name('voice-quote.match');
 
     // Notificações
     Route::prefix('personalizations')->group(function () {

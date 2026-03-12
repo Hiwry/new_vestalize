@@ -26,6 +26,7 @@
                     @if($canAccessKanban)
                     <x-nav-link :href="route('kanban.index', ['type' => $kanbanType])" :active="request()->routeIs('kanban.index')">Kanban</x-nav-link>
                     @endif
+                    <x-nav-link :href="route('voice-quote.index')" :active="request()->routeIs('voice-quote.*')">🎙️ Voz</x-nav-link>
                 </div>
             </div>
 
@@ -125,6 +126,7 @@
             @if($canAccessKanban)
             <x-responsive-nav-link :href="route('kanban.index', ['type' => $kanbanType])" :active="request()->routeIs('kanban.index')">Kanban</x-responsive-nav-link>
             @endif
+            <x-responsive-nav-link :href="route('voice-quote.index')" :active="request()->routeIs('voice-quote.*')">🎙️ Orçamento por Voz</x-responsive-nav-link>
         </div>
 
         <!-- Responsive Settings Options -->
