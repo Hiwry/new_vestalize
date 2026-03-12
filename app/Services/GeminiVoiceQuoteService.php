@@ -77,22 +77,30 @@ class GeminiVoiceQuoteService
             ));
 
         if (!$response->successful()) {
+            $errorMessage = $this->extractApiErrorMessage($response->json(), $response->body());
+
             Log::warning('Gemini voice quote request failed.', [
                 'status' => $response->status(),
                 'body' => $response->json() ?: $response->body(),
             ]);
 
-            return null;
+            throw new RuntimeException('Gemini rejeitou a requisicao: ' . $errorMessage);
         }
 
-        $rawText = data_get($response->json(), 'candidates.0.content.parts.0.text');
+        $rawText = $this->extractTextPayload($response->json());
 
         if (!is_string($rawText) || trim($rawText) === '') {
+            $finishReason = (string) (data_get($response->json(), 'candidates.0.finishReason') ?? '');
+            $blockReason = (string) (data_get($response->json(), 'promptFeedback.blockReason') ?? '');
+
             Log::warning('Gemini voice quote returned an empty payload.', [
                 'response' => $response->json(),
             ]);
 
-            return null;
+            $reason = $finishReason !== '' ? ' finishReason=' . $finishReason : '';
+            $reason .= $blockReason !== '' ? ' blockReason=' . $blockReason : '';
+
+            throw new RuntimeException('Gemini respondeu sem texto util.' . $reason);
         }
 
         $decoded = $this->decodeJsonPayload($rawText);
@@ -102,7 +110,7 @@ class GeminiVoiceQuoteService
                 'payload' => $rawText,
             ]);
 
-            return null;
+            throw new RuntimeException('Gemini respondeu em um formato inesperado e nao gerou JSON valido.');
         }
 
         return $decoded;
@@ -257,6 +265,51 @@ class GeminiVoiceQuoteService
         $decoded = json_decode($payload, true);
 
         return is_array($decoded) ? $decoded : null;
+    }
+
+    private function extractTextPayload(?array $response): ?string
+    {
+        if (!is_array($response)) {
+            return null;
+        }
+
+        $parts = data_get($response, 'candidates.0.content.parts');
+        if (!is_array($parts)) {
+            return null;
+        }
+
+        $texts = [];
+
+        foreach ($parts as $part) {
+            $text = $part['text'] ?? null;
+
+            if (is_string($text) && trim($text) !== '') {
+                $texts[] = trim($text);
+            }
+        }
+
+        if (empty($texts)) {
+            return null;
+        }
+
+        return implode("\n", $texts);
+    }
+
+    private function extractApiErrorMessage(?array $responseJson, string $responseBody): string
+    {
+        $message = data_get($responseJson, 'error.message');
+
+        if (is_string($message) && trim($message) !== '') {
+            return trim($message);
+        }
+
+        $responseBody = trim($responseBody);
+
+        if ($responseBody === '') {
+            return 'resposta vazia da API';
+        }
+
+        return mb_substr($responseBody, 0, 240);
     }
 
     private function prepareAudioPart(UploadedFile $audio): array
