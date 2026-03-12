@@ -726,12 +726,18 @@ function voiceQuote() {
         error: '',
         matchedData: false,
         recognition: null,
+        recordingMode: '',
         mediaRecorder: null,
         mediaStream: null,
         recordedChunks: [],
         recordingMimeType: '',
+        recordingSampleRate: 44100,
         recordingSeconds: 0,
         recordingTimer: null,
+        audioContext: null,
+        audioSourceNode: null,
+        audioProcessorNode: null,
+        audioMonitorNode: null,
         detectedQuantity: 0,
         aiSummary: '',
         aiProvider: '',
@@ -810,9 +816,12 @@ function voiceQuote() {
         },
 
         get canUseAudioRecorder() {
-            return typeof window.MediaRecorder !== 'undefined'
-                && !!navigator.mediaDevices
+            const hasGetUserMedia = !!navigator.mediaDevices
                 && typeof navigator.mediaDevices.getUserMedia === 'function';
+            const hasAudioContext = typeof window.AudioContext !== 'undefined'
+                || typeof window.webkitAudioContext !== 'undefined';
+
+            return hasGetUserMedia && (hasAudioContext || typeof window.MediaRecorder !== 'undefined');
         },
 
         micStatusLabel() {
@@ -1013,6 +1022,64 @@ function voiceQuote() {
             return 'webm';
         },
 
+        canEncodeWavInBrowser() {
+            return typeof window.AudioContext !== 'undefined'
+                || typeof window.webkitAudioContext !== 'undefined';
+        },
+
+        createAudioContext() {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            return AudioContextClass ? new AudioContextClass() : null;
+        },
+
+        mergeAudioChunks(chunks) {
+            const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+            const merged = new Float32Array(totalLength);
+            let offset = 0;
+
+            chunks.forEach((chunk) => {
+                merged.set(chunk, offset);
+                offset += chunk.length;
+            });
+
+            return merged;
+        },
+
+        writeAsciiString(view, offset, value) {
+            for (let index = 0; index < value.length; index += 1) {
+                view.setUint8(offset + index, value.charCodeAt(index));
+            }
+        },
+
+        buildWavBlob(samples, sampleRate) {
+            const buffer = new ArrayBuffer(44 + (samples.length * 2));
+            const view = new DataView(buffer);
+
+            this.writeAsciiString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + (samples.length * 2), true);
+            this.writeAsciiString(view, 8, 'WAVE');
+            this.writeAsciiString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            this.writeAsciiString(view, 36, 'data');
+            view.setUint32(40, samples.length * 2, true);
+
+            let offset = 44;
+
+            for (let index = 0; index < samples.length; index += 1) {
+                const sample = Math.max(-1, Math.min(1, samples[index]));
+                view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+                offset += 2;
+            }
+
+            return new Blob([buffer], { type: 'audio/wav' });
+        },
+
         clearRecordingTimer() {
             if (this.recordingTimer) {
                 window.clearInterval(this.recordingTimer);
@@ -1036,14 +1103,37 @@ function voiceQuote() {
             this.clearRecordingTimer();
             this.isListening = false;
 
+            if (this.audioProcessorNode) {
+                this.audioProcessorNode.onaudioprocess = null;
+                this.audioProcessorNode.disconnect();
+                this.audioProcessorNode = null;
+            }
+
+            if (this.audioSourceNode) {
+                this.audioSourceNode.disconnect();
+                this.audioSourceNode = null;
+            }
+
+            if (this.audioMonitorNode) {
+                this.audioMonitorNode.disconnect();
+                this.audioMonitorNode = null;
+            }
+
+            if (this.audioContext && this.audioContext.state !== 'closed') {
+                this.audioContext.close().catch(() => {});
+            }
+            this.audioContext = null;
+
             if (this.mediaStream) {
                 this.mediaStream.getTracks().forEach(track => track.stop());
                 this.mediaStream = null;
             }
 
+            this.recordingMode = '';
             this.mediaRecorder = null;
             this.recordedChunks = [];
             this.recordingMimeType = '';
+            this.recordingSampleRate = 44100;
             this.recordingSeconds = 0;
         },
 
@@ -1061,6 +1151,60 @@ function voiceQuote() {
                     },
                 });
 
+                this.mediaStream = stream;
+                this.recordingMode = '';
+
+                stream.getTracks().forEach((track) => {
+                    track.onended = () => {
+                        if (this.isListening) {
+                            this.stopAudioRecording();
+                        }
+                    };
+                });
+
+                if (this.canEncodeWavInBrowser()) {
+                    const audioContext = this.createAudioContext();
+
+                    if (!audioContext || typeof audioContext.createScriptProcessor !== 'function') {
+                        audioContext?.close?.().catch(() => {});
+                        throw new Error('AudioContext indisponivel');
+                    }
+
+                    await audioContext.resume?.();
+
+                    const sourceNode = audioContext.createMediaStreamSource(stream);
+                    const processorNode = audioContext.createScriptProcessor(4096, 1, 1);
+                    const monitorNode = audioContext.createGain();
+
+                    monitorNode.gain.value = 0;
+
+                    this.audioContext = audioContext;
+                    this.audioSourceNode = sourceNode;
+                    this.audioProcessorNode = processorNode;
+                    this.audioMonitorNode = monitorNode;
+                    this.recordingMode = 'wav';
+                    this.recordingMimeType = 'audio/wav';
+                    this.recordingSampleRate = audioContext.sampleRate || 44100;
+
+                    processorNode.onaudioprocess = (event) => {
+                        if (!this.isListening) {
+                            return;
+                        }
+
+                        const inputData = event.inputBuffer.getChannelData(0);
+                        this.recordedChunks.push(new Float32Array(inputData));
+                    };
+
+                    sourceNode.connect(processorNode);
+                    processorNode.connect(monitorNode);
+                    monitorNode.connect(audioContext.destination);
+
+                    this.startRecordingTimer();
+                    this.isListening = true;
+
+                    return;
+                }
+
                 const preferredMimeType = this.resolveRecordingMimeType();
                 let recorder = null;
 
@@ -1072,16 +1216,9 @@ function voiceQuote() {
                     recorder = new MediaRecorder(stream);
                 }
 
-                this.mediaStream = stream;
+                this.recordingMode = 'media-recorder';
                 this.mediaRecorder = recorder;
                 this.recordingMimeType = recorder.mimeType || preferredMimeType || 'audio/webm';
-                stream.getTracks().forEach((track) => {
-                    track.onended = () => {
-                        if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
-                            this.stopAudioRecording();
-                        }
-                    };
-                });
 
                 recorder.ondataavailable = (event) => {
                     if (event.data && event.data.size > 0) {
@@ -1138,14 +1275,50 @@ function voiceQuote() {
             }
         },
 
+        async finalizeWavRecording() {
+            const chunks = [...this.recordedChunks];
+            const sampleRate = this.recordingSampleRate || 44100;
+
+            this.cleanupMediaResources();
+
+            if (chunks.length === 0) {
+                this.isProcessing = false;
+                this.error = 'Nenhum audio foi capturado. Tente novamente.';
+                return;
+            }
+
+            const mergedSamples = this.mergeAudioChunks(chunks);
+
+            if (!mergedSamples.length) {
+                this.isProcessing = false;
+                this.error = 'O navegador gerou um audio vazio. Tente novamente.';
+                return;
+            }
+
+            const wavBlob = this.buildWavBlob(mergedSamples, sampleRate);
+            const file = new File([wavBlob], `gravacao-${Date.now()}.wav`, { type: 'audio/wav' });
+
+            await this.sendForMatching({ audio: file });
+        },
+
         stopAudioRecording() {
-            if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') {
-                this.isListening = false;
+            if (!this.isListening) {
                 return;
             }
 
             this.isListening = false;
             this.isProcessing = true;
+
+            if (this.recordingMode === 'wav') {
+                this.finalizeWavRecording();
+                return;
+            }
+
+            if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') {
+                this.isListening = false;
+                this.isProcessing = false;
+                return;
+            }
 
             try {
                 this.mediaRecorder.stop();
