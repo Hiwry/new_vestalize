@@ -415,7 +415,7 @@
 
 {{-- Mic Card --}}
 <div class="vq-mic-card" :class="{ 'is-listening': isListening }">
-    <button @click="toggleListening()" :disabled="isProcessing" class="vq-mic-btn" :class="{ 'listening': isListening }">
+    <button type="button" @click.prevent="toggleListening()" :disabled="isProcessing" class="vq-mic-btn" :class="{ 'listening': isListening }">
         <template x-if="isProcessing">
             <svg class="w-8 h-8 animate-spin" style="color: #2563eb" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -429,8 +429,8 @@
         </template>
     </button>
     <div style="color: #fff;">
-        <p style="font-size: 16px; font-weight: 700;" x-text="isListening ? 'Ouvindo...' : (isProcessing ? 'Processando...' : 'Toque para falar')"></p>
-        <p style="font-size: 13px; opacity: .7; margin-top: 4px;" x-show="!transcript && !isListening">
+        <p style="font-size: 16px; font-weight: 700;" x-text="micStatusLabel()"></p>
+        <p style="font-size: 13px; opacity: .7; margin-top: 4px;" x-show="micHelperLabel()" x-text="micHelperLabel()">
             Ex: "camisa básica 20 P 30 M serigrafia A4 peito e costas"
         </p>
     </div>
@@ -452,6 +452,16 @@
             accept=".mp3,.wav,.aac,.ogg,.flac,.m4a,.mp4,.webm,.3gp,.3gpp,audio/*,video/mp4,video/webm,video/3gpp"
             @change="handleAudioFileChange($event)"
         >
+    </div>
+    <div x-show="isListening && canUseAudioRecorder" style="display: flex; justify-content: center; margin-top: 12px;">
+        <button
+            type="button"
+            @click.prevent="stopAudioRecording()"
+            class="vq-action-btn"
+            style="background: rgba(255,255,255,0.92); color: #dc2626; border: 1px solid rgba(255,255,255,0.4); min-width: 180px;"
+        >
+            Finalizar audio
+        </button>
     </div>
     <p style="font-size: 12px; opacity: .75; color: #fff; margin-top: 8px;">
         MP3, WAV, AAC, OGG ou FLAC, até 10MB.
@@ -805,6 +815,40 @@ function voiceQuote() {
                 && typeof navigator.mediaDevices.getUserMedia === 'function';
         },
 
+        micStatusLabel() {
+            if (this.isListening) {
+                return this.canUseAudioRecorder
+                    ? `Gravando audio... ${this.formatRecordingTime()}`
+                    : 'Ouvindo...';
+            }
+
+            if (this.isProcessing) {
+                return 'Processando...';
+            }
+
+            return this.canUseAudioRecorder ? 'Toque para gravar' : 'Toque para falar';
+        },
+
+        micHelperLabel() {
+            if (this.isListening && this.canUseAudioRecorder) {
+                return 'Use o botao Finalizar audio para concluir o envio.';
+            }
+
+            if (!this.transcript) {
+                return 'Ex: "camisa basica 20 P 30 M serigrafia A4 peito e costas"';
+            }
+
+            return '';
+        },
+
+        formatRecordingTime() {
+            const totalSeconds = Math.max(0, parseInt(this.recordingSeconds || 0) || 0);
+            const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+            const seconds = String(totalSeconds % 60).padStart(2, '0');
+
+            return `${minutes}:${seconds}`;
+        },
+
         freshForm() {
             return {
                 cut_type_id: '',
@@ -981,6 +1025,10 @@ function voiceQuote() {
             this.recordingSeconds = 0;
             this.recordingTimer = window.setInterval(() => {
                 this.recordingSeconds += 1;
+
+                if (this.recordingSeconds >= 120 && this.isListening) {
+                    this.stopAudioRecording();
+                }
             }, 1000);
         },
 
@@ -1027,6 +1075,13 @@ function voiceQuote() {
                 this.mediaStream = stream;
                 this.mediaRecorder = recorder;
                 this.recordingMimeType = recorder.mimeType || preferredMimeType || 'audio/webm';
+                stream.getTracks().forEach((track) => {
+                    track.onended = () => {
+                        if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+                            this.stopAudioRecording();
+                        }
+                    };
+                });
 
                 recorder.ondataavailable = (event) => {
                     if (event.data && event.data.size > 0) {
@@ -1091,7 +1146,14 @@ function voiceQuote() {
 
             this.isListening = false;
             this.isProcessing = true;
-            this.mediaRecorder.stop();
+
+            try {
+                this.mediaRecorder.stop();
+            } catch (error) {
+                this.isProcessing = false;
+                this.error = 'Nao foi possivel finalizar o audio no navegador.';
+                this.cleanupMediaResources();
+            }
         },
 
         async processVoice(text) {
