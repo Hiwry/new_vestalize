@@ -1107,10 +1107,13 @@ class PDVController extends Controller
             'payment_methods' => 'required|array|min:1',
             'payment_methods.*.method' => 'required|string',
             'payment_methods.*.amount' => 'required|numeric|min:0.01',
+            'receipt_attachments' => 'nullable|array',
+            'receipt_attachments.*' => 'nullable|file|max:10240',
         ]);
 
         try {
-            $result = $this->pdvService->processCheckout($validated);
+            $receiptAttachments = $request->file('receipt_attachments', []);
+            $result = $this->pdvService->processCheckout($validated, $receiptAttachments);
             $order = $result['order'];
             $movementId = $result['movementId'];
 

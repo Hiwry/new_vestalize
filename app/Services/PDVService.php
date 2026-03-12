@@ -456,7 +456,7 @@ class PDVService
     /**
      * Processar checkout - criar pedido e pagamento com toda lógica de negócio
      */
-    public function processCheckout(array $validated): array
+    public function processCheckout(array $validated, array $receiptAttachments = []): array
     {
         $user = Auth::user();
         $storeId = $this->getCurrentStoreId();
@@ -466,7 +466,7 @@ class PDVService
             throw new \Exception('Carrinho vazio');
         }
 
-        return DB::transaction(function () use ($cart, $validated, $user, $storeId) {
+        return DB::transaction(function () use ($cart, $validated, $user, $storeId, $receiptAttachments) {
             // Calcular totais
             $subtotal = $this->calculateCartTotal($cart);
             $discount = floatval($validated['discount'] ?? 0);
@@ -651,6 +651,16 @@ class PDVService
                 'payment_date' => now(),
                 'status' => $totalPaid >= $total ? 'pago' : 'pendente',
             ]);
+
+            // Anexar comprovantes de pagamento se existirem
+            if (!empty($receiptAttachments)) {
+                $orderService = app(OrderService::class);
+                foreach ($receiptAttachments as $file) {
+                    if ($file) {
+                        $orderService->appendReceiptAttachment($payment, $file);
+                    }
+                }
+            }
 
             // Transações de Caixa
             foreach ($paymentMethods as $method) {

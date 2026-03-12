@@ -982,6 +982,8 @@ class OrderWizardController extends Controller
             'discount_type' => 'nullable|string|in:none,percentage,fixed',
             'discount_value' => 'nullable|numeric|min:0',
             'item_price_overrides' => 'nullable|json',
+            'receipt_attachments' => 'nullable|array',
+            'receipt_attachments.*' => 'nullable|file|max:10240',
         ]);
 
         $order = Order::with('items')->findOrFail(session('current_order_id'));
@@ -995,7 +997,16 @@ class OrderWizardController extends Controller
             );
         }
         
-        $sizeSurcharges = $this->orderWizardService->processSavePayment($order, $validated, $orderCoverImagePath);
+        $receiptAttachments = $request->file('receipt_attachments', []);
+        
+        $sizeSurcharges = $this->orderWizardService->processSavePayment($order, $validated, $orderCoverImagePath, $receiptAttachments);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'redirect' => route('orders.wizard.confirm')
+            ]);
+        }
 
         // Salvar acréscimos na sessão para exibir no resumo
         session(['size_surcharges' => $sizeSurcharges]);

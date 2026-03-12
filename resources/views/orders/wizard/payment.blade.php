@@ -398,6 +398,21 @@
                                                class="w-full px-4 py-2.5 rounded-lg border border-[var(--sh-card-border)] bg-[var(--sh-surface-from)] text-gray-900 dark:text-white placeholder-gray-500 focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed] transition-all text-sm">
                                     </div>
                                 </div>
+
+                                <div class="mb-4">
+                                    <label class="block text-xs text-gray-600 dark:text-slate-400 mb-2 font-medium">Comprovante de Pagamento</label>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-1 relative">
+                                            <input type="file" id="new-payment-receipt" accept="image/*,.pdf" 
+                                                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                                   onchange="updateFileName(this)">
+                                            <div class="w-full px-4 py-2.5 rounded-lg border border-dashed border-[var(--sh-card-border)] bg-[var(--sh-surface-from)] text-gray-500 dark:text-slate-400 text-sm flex items-center gap-2 overflow-hidden">
+                                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-5-8l-5-5m0 0l-5 5m5-5v12"/></svg>
+                                                <span class="truncate" id="receipt-filename">Clique para anexar comprovante</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 
                                 <!-- Valor Sugerido -->
                                 <div class="bg-purple-500/5 dark:bg-purple-500/5 rounded-xl p-4 mb-4 border border-purple-200 dark:border-purple-800/30">
@@ -524,20 +539,78 @@
         const form = document.getElementById('payment-form');
         if (form && !form.dataset.listenerAttached) {
             form.addEventListener('submit', function(e) {
-                // Prepare hidden fields before submit
-                const methodsInput = document.getElementById('payment-methods-data');
-                const surchargesInput = document.getElementById('size-surcharges-data');
-                const discTypeInput = document.getElementById('discount-type-data');
-                const discValInput = document.getElementById('discount-value-data');
-                const overridesInput = document.getElementById('item-price-overrides-data');
+                e.preventDefault();
                 
-                if (methodsInput) methodsInput.value = JSON.stringify(window.paymentMethods);
-                if (surchargesInput) surchargesInput.value = JSON.stringify(window.sizeSurcharges);
-                if (discTypeInput) discTypeInput.value = window.discountType;
-                if (discValInput) discValInput.value = window.discountValue;
-                if (overridesInput) overridesInput.value = Object.keys(window.itemPriceOverrides).length > 0
-                    ? JSON.stringify(window.itemPriceOverrides)
-                    : '';
+                const formData = new FormData(this);
+                
+                // Add non-file data
+                formData.set('payment_methods', JSON.stringify(window.paymentMethods));
+                formData.set('size_surcharges', JSON.stringify(window.sizeSurcharges));
+                formData.set('discount_type', window.discountType);
+                formData.set('discount_value', window.discountValue);
+                if (Object.keys(window.itemPriceOverrides).length > 0) {
+                    formData.set('item_price_overrides', JSON.stringify(window.itemPriceOverrides));
+                }
+
+                // Add payment receipt files
+                if (window.paymentFiles) {
+                    Object.entries(window.paymentFiles).forEach(([id, file]) => {
+                        formData.append(`receipt_attachments[${id}]`, file);
+                    });
+                }
+                
+                // Disable button
+                const btn = document.getElementById('payment-continue-btn');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processando...';
+                }
+
+                // Submit via fetch or let the form proceed if you want to use standard POST
+                // Since we want to use the standard POST but with FormData (including files),
+                // we'll use fetch and then redirect, or find another way.
+                // Actually, standard forms don't support FormData objects directly, 
+                // so we use fetch and then redirect or handle the response.
+
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.success) {
+                        if (data.redirect) {
+                            window.location.href = data.redirect;
+                        } else {
+                            // Fallback if no redirect is provided but it was successful
+                            window.location.reload();
+                        }
+                    } else if (data && data.error) {
+                        window.showToast(data.error, 'error');
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = 'Continuar <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting form:', error);
+                    window.showToast('Erro ao processar pagamento.', 'error');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = 'Continuar <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>';
+                    }
+                });
             });
             form.dataset.listenerAttached = 'true';
         }
@@ -632,20 +705,53 @@
     window.addPaymentMethod = function() {
         const method = document.getElementById('new-payment-method').value;
         const amount = parseFloat(document.getElementById('new-payment-amount').value) || 0;
+        const receiptInput = document.getElementById('new-payment-receipt');
+        const file = receiptInput?.files[0];
+
         if (amount <= 0) {
             window.showToast('Por favor, informe um valor maior que zero.', 'error');
             return;
         }
-        window.paymentMethods.push({ id: Date.now(), method: method, amount: amount });
+
+        const payment = { 
+            id: Date.now(), 
+            method: method, 
+            amount: amount,
+            fileName: file ? file.name : null
+        };
+
+        // If there's a file, we need to store it somewhere temporarily or just keep it in the files array
+        if (file) {
+            if (!window.paymentFiles) window.paymentFiles = {};
+            window.paymentFiles[payment.id] = file;
+        }
+
+        window.paymentMethods.push(payment);
+        
+        // Reset inputs
         document.getElementById('new-payment-amount').value = '0';
+        if (receiptInput) receiptInput.value = '';
+        const filenameSpan = document.getElementById('receipt-filename');
+        if (filenameSpan) filenameSpan.textContent = 'Clique para anexar comprovante';
+
         window.renderPaymentMethods();
         window.calculatePayments();
         window.updateSuggestedAmount();
         window.showToast('Pagamento adicionado com sucesso!', 'success');
     };
 
+    window.updateFileName = function(input) {
+        const span = document.getElementById('receipt-filename');
+        if (span) {
+            span.textContent = input.files[0] ? input.files[0].name : 'Clique para anexar comprovante';
+        }
+    };
+
     window.removePaymentMethod = function(id) {
         window.paymentMethods = window.paymentMethods.filter(pm => pm.id !== id);
+        if (window.paymentFiles && window.paymentFiles[id]) {
+            delete window.paymentFiles[id];
+        }
         window.renderPaymentMethods();
         window.calculatePayments();
         window.updateSuggestedAmount();
@@ -659,14 +765,16 @@
             return;
         }
         container.innerHTML = window.paymentMethods.map((pm, index) => `
-            <div class="flex items-center justify-between p-3 bg-white dark:bg-[var(--sh-input-bg)] rounded-full border border-gray-200 dark:border-slate-700/50 transition-colors shadow-sm">
+            <div class="flex items-center justify-between p-3 bg-white dark:bg-[var(--sh-input-bg)] rounded-xl border border-gray-200 dark:border-slate-700/50 transition-colors shadow-sm">
                 <div class="flex items-center space-x-3">
                     <div class="w-8 h-8 bg-indigo-100 dark:bg-purple-500/20 rounded-full flex items-center justify-center">
                         <svg class="w-5 h-5 text-[#7c3aed] dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     </div>
                     <div>
                         <p class="text-sm font-bold text-gray-900 dark:text-white capitalize">${pm.method}</p>
-                        <p class="text-[10px] font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Pagamento ${index + 1}</p>
+                        <p class="text-[10px] font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                            Pagamento ${index + 1} ${pm.fileName ? `• <span class="text-green-500 font-bold">Comprovante: ${pm.fileName}</span>` : ''}
+                        </p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">

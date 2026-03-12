@@ -935,6 +935,10 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                     </div>
 
                                     <div class="space-y-5">
+                                        <input type="hidden" id="fullpage-sub-editing-id" name="editing_item_id">
+                                        <input type="hidden" id="fullpage_existing_cover_image" name="existing_cover_image">
+                                        <input type="hidden" id="fullpage_existing_corel_file" name="existing_corel_file">
+                                        
                                         <!-- Step 1 -->
                                         <div id="fullpage-step-1" class="fullpage-sub-step space-y-4">
                                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -1871,6 +1875,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
         try {
             const formData = new FormData(form);
+            
+            // Fix: Manually append the cover image if it exists in the detached modal
+            const wizardFileInput = document.getElementById('wizard_file_input');
+            if (wizardFileInput && wizardFileInput.files && wizardFileInput.files[0]) {
+                formData.append('item_cover_image', wizardFileInput.files[0]);
+            }
+
             const actionUrl = form.dataset.actionUrl || form.getAttribute('action');
             
             const response = await fetch(actionUrl, {
@@ -4446,6 +4457,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const input = document.getElementById('fullpage_corel_file');
         if (input) input.value = '';
 
+        const hiddenInput = document.getElementById('fullpage_existing_corel_file');
+        if (hiddenInput) hiddenInput.value = fullpageSubExistingCorelFile;
+
         if (!fullpageSubExistingCorelFile) {
             resetFullpageCorelPreview();
             return;
@@ -4464,6 +4478,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
     function setExistingFullpageCoverImage(filePath, imageUrl = '') {
         fullpageSubExistingCoverImage = String(filePath || '').trim();
+
+        const hiddenInput = document.getElementById('fullpage_existing_cover_image');
+        if (hiddenInput) hiddenInput.value = fullpageSubExistingCoverImage;
 
         const placeholder = document.getElementById('fullpage-cover-placeholder');
         const previewContainer = document.getElementById('fullpage-cover-preview-container');
@@ -4849,7 +4866,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             typeSlug,
             fullpageSubMode === 'update' ? fullpageSubEditingItemId : null
         );
-        const pricingQty = totalQty > 0 ? totalQty + groupedExistingQty : 0;
+        const pricingQty = totalQty;
 
         fullpageSubFabricSurcharge = getFullpageFabricSurcharge();
 
@@ -4896,8 +4913,8 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const breakdownEl = document.getElementById('fullpage-price-breakdown');
         if (breakdownEl) {
             let breakdownText = `Base ${formatMoney(fullpageSubBaseUnitPrice)} ${addonSign} Adicionais ${formatMoney(Math.abs(fullpageSubAddonsAdjustment))} ${fabricSign} Tecido ${formatMoney(Math.abs(fullpageSubFabricSurcharge))}`;
-            if (groupedExistingQty > 0 && pricingQty > totalQty) {
-                breakdownText += ` · Faixa aplicada com ${pricingQty} peça(s) somadas`;
+            if (totalQty > 0) {
+                breakdownText += ` · Unitário calculado para ${totalQty} peça(s)`;
             }
             breakdownEl.textContent = breakdownText;
             const breakdownReviewEl = document.getElementById('fullpage-price-breakdown-review');

@@ -346,9 +346,9 @@ class OrderWizardService
     /**
      * Processa e salva os dados de pagamento do pedido no wizard
      */
-    public function processSavePayment(Order $order, array $validated, ?string $orderCoverImagePath = null): array
+    public function processSavePayment(Order $order, array $validated, ?string $orderCoverImagePath = null, array $receiptAttachments = []): array
     {
-        return DB::transaction(function () use ($order, $validated, $orderCoverImagePath) {
+        return DB::transaction(function () use ($order, $validated, $orderCoverImagePath, $receiptAttachments) {
             // Apply item price overrides (dilution) if provided
             if (!empty($validated['item_price_overrides'])) {
                 $overrides = is_string($validated['item_price_overrides'])
@@ -464,6 +464,7 @@ class OrderWizardService
                 'discount' => $discountAmount,
                 'total' => $total,
                 'cover_image' => $orderCoverImagePath,
+                'is_pdv' => true,
             ]);
             
             // Pagamentos
@@ -475,7 +476,7 @@ class OrderWizardService
             
             $primaryMethod = count($paymentMethods) === 1 ? $paymentMethods[0]['method'] : 'pix';
             
-            Payment::create([
+            $payment = Payment::create([
                 'order_id' => $order->id,
                 'method' => $primaryMethod,
                 'payment_method' => count($paymentMethods) > 1 ? 'multiplo' : $primaryMethod,
@@ -487,6 +488,15 @@ class OrderWizardService
                 'payment_date' => $validated['entry_date'],
                 'status' => $totalPaid >= $total ? 'pago' : 'pendente',
             ]);
+
+            // Process receipt attachments
+            if (!empty($receiptAttachments)) {
+                foreach ($receiptAttachments as $pmId => $file) {
+                    if ($file instanceof \Illuminate\Http\UploadedFile) {
+                        \App\Services\OrderService::appendReceiptAttachment($payment, $file);
+                    }
+                }
+            }
             
             $user = \App\Models\User::find(Auth::id());
             foreach ($paymentMethods as $method) {
@@ -1328,42 +1338,39 @@ class OrderWizardService
             ? $order->items
             : $order->items()->get();
 
-        $groupedItems = $items
-            ->filter(fn (OrderItem $item) => $this->isGroupedSublimationTotalItem($item))
-            ->groupBy(fn (OrderItem $item) => $this->resolveGroupedSublimationType($item) ?? '__unknown__');
+        $sublimationItems = $items->filter(fn (OrderItem $item) => $this->isGroupedSublimationTotalItem($item));
 
-        foreach ($groupedItems as $type => $groupItems) {
-            if ($type === '__unknown__') {
+        foreach ($sublimationItems as $item) {
+            $type = $this->resolveGroupedSublimationType($item);
+            if (!$type) {
                 continue;
             }
 
-            $aggregateQuantity = $groupItems->sum(fn (OrderItem $item) => (int) $item->quantity);
-            if ($aggregateQuantity <= 0) {
+            $quantity = (int) $item->quantity;
+            if ($quantity <= 0) {
                 continue;
             }
 
-            $basePrice = \App\Models\SublimationProductPrice::getPriceFor($type, $aggregateQuantity, $order->tenant_id);
+            $basePrice = \App\Models\SublimationProductPrice::getPriceFor($type, $quantity, $order->tenant_id);
             if ($basePrice === null) {
                 continue;
             }
 
-            foreach ($groupItems as $item) {
-                $printDesc = $this->decodeOrderItemPrintDesc($item);
-                $addonsAdjustment = collect($printDesc['addons_details'] ?? [])
-                    ->sum(fn ($addon) => (float) ($addon['price'] ?? 0));
-                $fabricSurcharge = (float) ($printDesc['fabric_surcharge'] ?? 0);
+            $printDesc = $this->decodeOrderItemPrintDesc($item);
+            $addonsAdjustment = collect($printDesc['addons_details'] ?? [])
+                ->sum(fn ($addon) => (float) ($addon['price'] ?? 0));
+            $fabricSurcharge = (float) ($printDesc['fabric_surcharge'] ?? 0);
 
-                $updatedUnitPrice = max(0, (float) $basePrice + $addonsAdjustment + $fabricSurcharge);
-                $sizes = is_array($item->sizes) ? $item->sizes : [];
-                $updatedTotalPrice = $this->calculateItemTotalPrice($updatedUnitPrice, (int) $item->quantity, $sizes);
+            $updatedUnitPrice = max(0, (float) $basePrice + $addonsAdjustment + $fabricSurcharge);
+            $sizes = is_array($item->sizes) ? $item->sizes : [];
+            $updatedTotalPrice = $this->calculateItemTotalPrice($updatedUnitPrice, $quantity, $sizes);
 
-                $item->update([
-                    'is_sublimation_total' => true,
-                    'sublimation_type' => $type,
-                    'unit_price' => $updatedUnitPrice,
-                    'total_price' => $updatedTotalPrice,
-                ]);
-            }
+            $item->update([
+                'is_sublimation_total' => true,
+                'sublimation_type' => $type,
+                'unit_price' => $updatedUnitPrice,
+                'total_price' => $updatedTotalPrice,
+            ]);
         }
     }
 

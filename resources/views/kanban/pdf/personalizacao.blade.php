@@ -129,43 +129,78 @@
                             <table style="width: 100%; font-size: 13px;">
                                 <tr><td style="color: #64748b;">Qtd:</td><td style="font-weight: bold; font-size: 16px;">{{ $item->quantity }}</td></tr>
                                 <tr><td style="color: #64748b;">Tipo:</td><td style="font-weight: bold;">{{ $item->print_type }}</td></tr>
-                                <tr><td style="color: #64748b;">Local:</td><td style="font-weight: bold;">{{ strtoupper($item->color) }}</td></tr>
+                                @if($item->is_sublimation_total)
+                                    @php
+                                        $printDesc = is_array($item->print_desc) ? $item->print_desc : (is_string($item->print_desc) ? json_decode($item->print_desc, true) : []);
+                                    @endphp
+                                    <tr><td style="color: #64748b;">Modelo:</td><td style="font-weight: bold;">{{ $printDesc['model_type'] ?? 'N/A' }}</td></tr>
+                                    <tr><td style="color: #64748b;">Gola:</td><td style="font-weight: bold;">{{ $printDesc['base_collar'] ?? 'N/A' }}</td></tr>
+                                    <tr><td style="color: #64748b;">Tecido:</td><td style="font-weight: bold;">{{ $item->fabric }} ({{ $printDesc['fabric_color'] ?? 'BRANCO' }})</td></tr>
+                                @else
+                                    <tr><td style="color: #64748b;">Local:</td><td style="font-weight: bold;">{{ strtoupper($item->color) }}</td></tr>
+                                @endif
                             </table>
                         </div>
 
-                        <!-- Aplicações (Sublimations) -->
+                        <!-- Aplicações (Sublimations) ou Detalhes Total -->
                         <div class="box" style="margin-bottom: 5px;">
-                            <div class="box-title" style="color: #6366f1;">Aplicações</div>
-                            @if($item->sublimations && $item->sublimations->count() > 0)
-                                @foreach($item->sublimations as $sub)
-                                    @php
-                                        $locationName = '-';
-                                        if ($sub->location) {
-                                            $locationName = $sub->location->name;
-                                        } elseif ($sub->location_name) {
-                                            // Se for numérico, tentar buscar o nome
-                                            if (is_numeric($sub->location_name)) {
-                                                $locModel = \App\Models\SublimationLocation::find($sub->location_name);
-                                                $locationName = $locModel ? $locModel->name : $sub->location_name;
-                                            } else {
-                                                $locationName = $sub->location_name;
-                                            }
-                                        }
-
-                                        $sizeName = $sub->size ? $sub->size->name : ($sub->size_name ?? '-');
-                                        $appType = $sub->application_type ? strtoupper($sub->application_type) : 'APLICAÇÃO';
-                                    @endphp
-                                    <div style="border-bottom: 1px dashed #cbd5e1; padding-bottom: 4px; margin-bottom: 4px;">
-                                        <div style="font-weight: bold; color: #4338ca; font-size: 12px;">#{{ $loop->iteration }} {{ $appType }}</div>
-                                        <div style="font-size: 11px; color: #1e293b;">Local: <strong>{{ strtoupper($locationName) }}</strong></div>
-                                        <div style="font-size: 11px; color: #1e293b;">Tam: <strong>{{ $sizeName }}</strong> | Qtd: <strong>{{ $sub->quantity }}</strong></div>
-                                        @if($sub->color_count)<div style="font-size: 11px; color: #c026d3;">Cores: <strong>{{ $sub->color_count }}</strong></div>@endif
-                                        @if($sub->color_details)<div style="font-size: 11px; color: #7c3aed;">🎨 Cores: <strong>{{ $sub->color_details }}</strong></div>@endif
-                                        @if($sub->seller_notes)<div style="font-size: 10px; color: #b45309; background: #fffbeb; padding: 2px; border-radius: 2px; margin-top: 2px;">📝 Obs: {{ $sub->seller_notes }}</div>@endif
+                            @if($item->is_sublimation_total)
+                                <div class="box-title" style="color: #0891b2;">Detalhes Sub. Total</div>
+                                @php
+                                    $printDesc = is_array($item->print_desc) ? $item->print_desc : (is_string($item->print_desc) ? json_decode($item->print_desc, true) : []);
+                                    $addons = $printDesc['addons_details'] ?? [];
+                                @endphp
+                                @if(!empty($addons))
+                                    @foreach($addons as $addon)
+                                        <div style="border-bottom: 1px dashed #cbd5e1; padding-bottom: 4px; margin-bottom: 4px;">
+                                            <div style="font-weight: bold; color: #0e7490; font-size: 12px;">{{ $addon['name'] }}</div>
+                                            @if(!empty($addon['color']))
+                                                <div style="font-size: 11px; color: #1e293b;">Cor: <strong>{{ strtoupper($addon['color']) }}</strong></div>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <div style="color: #cbd5e1; font-size: 9px; text-align: center;">Sem adicionais</div>
+                                @endif
+                                
+                                @if($item->art_notes)
+                                    <div style="margin-top: 5px; font-size: 10px; color: #b45309; background: #fffbeb; padding: 4px; border-radius: 4px; border-left: 3px solid #f59e0b;">
+                                        <strong>Notas:</strong> {{ $item->art_notes }}
                                     </div>
-                                @endforeach
+                                @endif
                             @else
-                                <div style="color: #cbd5e1; font-size: 9px; text-align: center;">Sem aplicações extras</div>
+                                <div class="box-title" style="color: #6366f1;">Aplicações</div>
+                                @if($item->sublimations && $item->sublimations->count() > 0)
+                                    @foreach($item->sublimations as $sub)
+                                        @php
+                                            $locationName = '-';
+                                            if ($sub->location) {
+                                                $locationName = $sub->location->name;
+                                            } elseif ($sub->location_name) {
+                                                // Se for numérico, tentar buscar o nome
+                                                if (is_numeric($sub->location_name)) {
+                                                    $locModel = \App\Models\SublimationLocation::find($sub->location_name);
+                                                    $locationName = $locModel ? $locModel->name : $sub->location_name;
+                                                } else {
+                                                    $locationName = $sub->location_name;
+                                                }
+                                            }
+
+                                            $sizeName = $sub->size ? $sub->size->name : ($sub->size_name ?? '-');
+                                            $appType = $sub->application_type ? strtoupper($sub->application_type) : 'APLICAÇÃO';
+                                        @endphp
+                                        <div style="border-bottom: 1px dashed #cbd5e1; padding-bottom: 4px; margin-bottom: 4px;">
+                                            <div style="font-weight: bold; color: #4338ca; font-size: 12px;">#{{ $loop->iteration }} {{ $appType }}</div>
+                                            <div style="font-size: 11px; color: #1e293b;">Local: <strong>{{ strtoupper($locationName) }}</strong></div>
+                                            <div style="font-size: 11px; color: #1e293b;">Tam: <strong>{{ $sizeName }}</strong> | Qtd: <strong>{{ $sub->quantity }}</strong></div>
+                                            @if($sub->color_count)<div style="font-size: 11px; color: #c026d3;">Cores: <strong>{{ $sub->color_count }}</strong></div>@endif
+                                            @if($sub->color_details)<div style="font-size: 11px; color: #7c3aed;">🎨 Cores: <strong>{{ $sub->color_details }}</strong></div>@endif
+                                            @if($sub->seller_notes)<div style="font-size: 10px; color: #b45309; background: #fffbeb; padding: 2px; border-radius: 2px; margin-top: 2px;">📝 Obs: {{ $sub->seller_notes }}</div>@endif
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <div style="color: #cbd5e1; font-size: 9px; text-align: center;">Sem aplicações extras</div>
+                                @endif
                             @endif
                         </div>
 

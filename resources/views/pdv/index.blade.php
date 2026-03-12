@@ -2248,8 +2248,8 @@ function toggleMobileCart() {
         
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Adicionar Forma de Pagamento:</label>
-            <div class="flex gap-2">
-                <select id="new-payment-method" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg pdv-card bg-white text-gray-900 dark:text-gray-100">
+            <div class="flex flex-wrap gap-2">
+                <select id="new-payment-method" class="flex-1 min-w-[150px] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg pdv-card bg-white text-gray-900 dark:text-gray-100">
                     <option value="">Selecione...</option>
                     <option value="dinheiro">Dinheiro</option>
                     <option value="pix">PIX</option>
@@ -2268,6 +2268,20 @@ function toggleMobileCart() {
                     Adicionar
                 </button>
             </div>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Comprovante de Pagamento (Opcional):</label>
+            <div class="relative">
+                <input type="file" id="pdv-payment-receipt" accept="image/*,.pdf" 
+                       class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                       onchange="document.getElementById('pdv-receipt-filename').textContent = this.files[0] ? this.files[0].name : 'Clique para anexar comprovante'">
+                <div class="w-full px-4 py-2.5 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-slate-800 text-gray-500 dark:text-gray-400 text-sm flex items-center gap-2 overflow-hidden">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-5-8l-5-5m0 0l-5 5m5-5v12"/></svg>
+                    <span class="truncate" id="pdv-receipt-filename">Clique para anexar comprovante</span>
+                </div>
+            </div>
+            <p class="mt-1 text-[10px] text-gray-500">O comprovante será vinculado ao pagamento atual ou ao primeiro método adicionado.</p>
         </div>
         
         <div id="payment-methods-list" class="space-y-2 mb-4">
@@ -4700,6 +4714,8 @@ window.checkoutWithoutClient = async function checkoutWithoutClient() {
 window.addPaymentMethod = function addPaymentMethod() {
     const method = document.getElementById('new-payment-method').value;
     const amount = parseFloat(document.getElementById('new-payment-amount').value);
+    const receiptInput = document.getElementById('pdv-payment-receipt');
+    const file = receiptInput?.files[0];
     
     console.log('Adding payment method:', method, amount);
 
@@ -4713,11 +4729,23 @@ window.addPaymentMethod = function addPaymentMethod() {
         return;
     }
     
+    const paymentId = Date.now() + Math.random();
+    
     paymentMethods.push({
-        id: Date.now() + Math.random(),
+        id: paymentId,
         method: method,
-        amount: amount
+        amount: amount,
+        fileName: file ? file.name : null
     });
+
+    if (file) {
+        if (!window.pdvPaymentFiles) window.pdvPaymentFiles = {};
+        window.pdvPaymentFiles[paymentId] = file;
+        
+        // Reset file input after use
+        receiptInput.value = '';
+        document.getElementById('pdv-receipt-filename').textContent = 'Clique para anexar comprovante';
+    }
     
     document.getElementById('new-payment-method').value = '';
     document.getElementById('new-payment-amount').value = '';
@@ -4753,6 +4781,9 @@ document.addEventListener('change', function(e) {
 // Remover método de pagamento
 window.removePaymentMethod = function removePaymentMethod(id) {
     paymentMethods = paymentMethods.filter(pm => pm.id !== id);
+    if (window.pdvPaymentFiles && window.pdvPaymentFiles[id]) {
+        delete window.pdvPaymentFiles[id];
+    }
     renderPaymentMethods();
     updatePaymentTotals();
 }
@@ -4771,6 +4802,7 @@ function renderPaymentMethods() {
             <div>
                 <span class="font-medium text-gray-900 dark:text-gray-100 capitalize">${pm.method}</span>
                 <span class="text-sm text-gray-600 dark:text-gray-400 ml-2">R$ ${pm.amount.toFixed(2).replace('.', ',')}</span>
+                ${pm.fileName ? `<div class="text-[10px] text-green-600 font-bold mt-0.5 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>${pm.fileName}</div>` : ''}
             </div>
             <button onclick="removePaymentMethod(${pm.id})" 
                     class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300">
@@ -4805,6 +4837,11 @@ function updatePaymentTotals() {
 window.closePaymentModal = function closePaymentModal() {
     document.getElementById('payment-modal').style.display = 'none';
     paymentMethods = [];
+    window.pdvPaymentFiles = {};
+    const receiptInput = document.getElementById('pdv-payment-receipt');
+    if (receiptInput) receiptInput.value = '';
+    const receiptFileName = document.getElementById('pdv-receipt-filename');
+    if (receiptFileName) receiptFileName.textContent = 'Clique para anexar comprovante';
     checkoutData = null;
 }
 
@@ -4840,15 +4877,39 @@ window.confirmPayment = async function confirmPayment() {
         
         const checkoutUrl = '{{ route("pdv.checkout") }}';
         console.log('Sending checkout POST to:', checkoutUrl);
+
+        // Files need FormData
+        const formData = new FormData();
+        
+        // Add checkout data
+        Object.entries(checkoutData).forEach(([key, value]) => {
+            if (value !== null && value !== undefined) {
+                formData.append(key, value);
+            }
+        });
+
+        // Add payment methods as JSON string (or handle differently)
+        formData.append('payment_methods', JSON.stringify(paymentMethods));
+
+        // Add CSRF token
+        formData.append('_token', csrfToken);
+
+        // Add payment receipt files
+        if (window.pdvPaymentFiles) {
+            Object.entries(window.pdvPaymentFiles).forEach(([id, file]) => {
+                formData.append(`receipt_attachments[${id}]`, file);
+            });
+        }
         
         const response = await fetch(checkoutUrl, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                // Content-Type is set automatically for FormData
+                'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRF-TOKEN': csrfToken,
                 'Accept': 'application/json'
             },
-            body: JSON.stringify(checkoutPayload)
+            body: formData
         });
         
         console.log('Response status:', response.status);
