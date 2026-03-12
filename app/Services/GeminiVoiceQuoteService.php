@@ -268,15 +268,88 @@ class GeminiVoiceQuoteService
     private function decodeJsonPayload(string $payload): ?array
     {
         $payload = trim($payload);
+        $candidates = array_values(array_unique(array_filter([
+            $payload,
+            $this->unwrapMarkdownFence($payload),
+            $this->extractJsonObject($payload),
+            $this->extractJsonObject($this->unwrapMarkdownFence($payload)),
+        ])));
 
-        if (str_starts_with($payload, '```')) {
-            $payload = preg_replace('/^```(?:json)?\s*/', '', $payload) ?? $payload;
-            $payload = preg_replace('/\s*```$/', '', $payload) ?? $payload;
+        foreach ($candidates as $candidate) {
+            $decoded = json_decode($candidate, true);
+
+            if (is_array($decoded)) {
+                return $decoded;
+            }
         }
 
-        $decoded = json_decode($payload, true);
+        return null;
+    }
 
-        return is_array($decoded) ? $decoded : null;
+    private function unwrapMarkdownFence(string $payload): string
+    {
+        if (!str_starts_with($payload, '```')) {
+            return $payload;
+        }
+
+        $payload = preg_replace('/^```(?:json)?\s*/i', '', $payload) ?? $payload;
+        $payload = preg_replace('/\s*```$/', '', $payload) ?? $payload;
+
+        return trim($payload);
+    }
+
+    private function extractJsonObject(string $payload): ?string
+    {
+        $start = strpos($payload, '{');
+
+        if ($start === false) {
+            return null;
+        }
+
+        $depth = 0;
+        $inString = false;
+        $isEscaped = false;
+        $length = strlen($payload);
+
+        for ($index = $start; $index < $length; $index++) {
+            $char = $payload[$index];
+
+            if ($isEscaped) {
+                $isEscaped = false;
+                continue;
+            }
+
+            if ($char === '\\' && $inString) {
+                $isEscaped = true;
+                continue;
+            }
+
+            if ($char === '"') {
+                $inString = !$inString;
+                continue;
+            }
+
+            if ($inString) {
+                continue;
+            }
+
+            if ($char === '{') {
+                $depth++;
+                continue;
+            }
+
+            if ($char !== '}') {
+                continue;
+            }
+
+            $depth--;
+
+            if ($depth === 0) {
+                return trim(substr($payload, $start, $index - $start + 1));
+            }
+        }
+
+        return null;
     }
 
     private function extractTextPayload(?array $response): ?string

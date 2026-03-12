@@ -716,6 +716,12 @@ function voiceQuote() {
         error: '',
         matchedData: false,
         recognition: null,
+        mediaRecorder: null,
+        mediaStream: null,
+        recordedChunks: [],
+        recordingMimeType: '',
+        recordingSeconds: 0,
+        recordingTimer: null,
         detectedQuantity: 0,
         aiSummary: '',
         aiProvider: '',
@@ -793,6 +799,12 @@ function voiceQuote() {
             return this.subtotalProduct + this.totalPersonalizations;
         },
 
+        get canUseAudioRecorder() {
+            return typeof window.MediaRecorder !== 'undefined'
+                && !!navigator.mediaDevices
+                && typeof navigator.mediaDevices.getUserMedia === 'function';
+        },
+
         freshForm() {
             return {
                 cut_type_id: '',
@@ -866,6 +878,220 @@ function voiceQuote() {
                     this.error = 'Erro ao acessar o microfone. Verifique se está conectado.';
                 }
             }
+        },
+
+        init() {
+            if (!this.canUseAudioRecorder && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                this.recognition = new SpeechRecognition();
+                this.recognition.continuous = false;
+                this.recognition.interimResults = true;
+                this.recognition.lang = 'pt-BR';
+
+                this.recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
+                        else interimTranscript += event.results[i][0].transcript;
+                    }
+                    if (interimTranscript) this.transcript = interimTranscript;
+                    if (finalTranscript) { this.transcript = finalTranscript; this.processVoice(finalTranscript); }
+                };
+
+                this.recognition.onerror = (event) => {
+                    this.isListening = false;
+                    if (event.error === 'not-allowed') this.error = 'Permissao de microfone negada. Ative nas configuracoes do navegador.';
+                    else this.error = 'Erro no reconhecimento de voz. Tente novamente.';
+                };
+
+                this.recognition.onend = () => { this.isListening = false; };
+            }
+
+            window.addEventListener('beforeunload', () => {
+                this.cleanupMediaResources();
+            });
+        },
+
+        async toggleListening() {
+            if (this.canUseAudioRecorder) {
+                if (this.isListening) {
+                    this.stopAudioRecording();
+                    return;
+                }
+
+                await this.startAudioRecording();
+                return;
+            }
+
+            if (!this.recognition) { this.error = 'Gravacao de audio nao disponivel neste navegador. Use Chrome, Edge ou Safari recente.'; return; }
+            if (this.isListening) { this.recognition.stop(); this.isListening = false; return; }
+            this.error = '';
+            this.transcript = '';
+            try {
+                await navigator.mediaDevices.getUserMedia({ audio: true });
+                this.recognition.start();
+                this.isListening = true;
+            } catch (err) {
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    this.error = 'Permissao de microfone negada. Ative nas configuracoes do navegador.';
+                } else {
+                    this.error = 'Erro ao acessar o microfone. Verifique se esta conectado.';
+                }
+            }
+        },
+
+        resolveRecordingMimeType() {
+            if (typeof window.MediaRecorder === 'undefined' || typeof window.MediaRecorder.isTypeSupported !== 'function') {
+                return '';
+            }
+
+            const candidates = [
+                'audio/webm;codecs=opus',
+                'audio/webm',
+                'audio/mp4;codecs=mp4a.40.2',
+                'audio/mp4',
+                'audio/ogg;codecs=opus',
+                'audio/ogg',
+                'audio/wav',
+            ];
+
+            return candidates.find(type => window.MediaRecorder.isTypeSupported(type)) || '';
+        },
+
+        recordingExtensionFromMimeType(mimeType) {
+            const normalized = String(mimeType || '').toLowerCase();
+
+            if (normalized.includes('mp4') || normalized.includes('aac')) return 'm4a';
+            if (normalized.includes('ogg')) return 'ogg';
+            if (normalized.includes('wav')) return 'wav';
+
+            return 'webm';
+        },
+
+        clearRecordingTimer() {
+            if (this.recordingTimer) {
+                window.clearInterval(this.recordingTimer);
+                this.recordingTimer = null;
+            }
+        },
+
+        startRecordingTimer() {
+            this.clearRecordingTimer();
+            this.recordingSeconds = 0;
+            this.recordingTimer = window.setInterval(() => {
+                this.recordingSeconds += 1;
+            }, 1000);
+        },
+
+        cleanupMediaResources() {
+            this.clearRecordingTimer();
+            this.isListening = false;
+
+            if (this.mediaStream) {
+                this.mediaStream.getTracks().forEach(track => track.stop());
+                this.mediaStream = null;
+            }
+
+            this.mediaRecorder = null;
+            this.recordedChunks = [];
+            this.recordingMimeType = '';
+            this.recordingSeconds = 0;
+        },
+
+        async startAudioRecording() {
+            this.error = '';
+            this.transcript = '';
+            this.recordedChunks = [];
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true,
+                    },
+                });
+
+                const preferredMimeType = this.resolveRecordingMimeType();
+                let recorder = null;
+
+                try {
+                    recorder = preferredMimeType
+                        ? new MediaRecorder(stream, { mimeType: preferredMimeType })
+                        : new MediaRecorder(stream);
+                } catch (error) {
+                    recorder = new MediaRecorder(stream);
+                }
+
+                this.mediaStream = stream;
+                this.mediaRecorder = recorder;
+                this.recordingMimeType = recorder.mimeType || preferredMimeType || 'audio/webm';
+
+                recorder.ondataavailable = (event) => {
+                    if (event.data && event.data.size > 0) {
+                        this.recordedChunks.push(event.data);
+                    }
+                };
+
+                recorder.onerror = () => {
+                    this.isListening = false;
+                    this.isProcessing = false;
+                    this.error = 'Erro ao gravar o audio no navegador.';
+                    this.cleanupMediaResources();
+                };
+
+                recorder.onstop = async () => {
+                    const mimeType = this.recordingMimeType || recorder.mimeType || 'audio/webm';
+                    const chunks = [...this.recordedChunks];
+
+                    this.cleanupMediaResources();
+
+                    if (chunks.length === 0) {
+                        this.isProcessing = false;
+                        this.error = 'Nenhum audio foi capturado. Tente novamente.';
+                        return;
+                    }
+
+                    const blob = new Blob(chunks, { type: mimeType });
+
+                    if (!blob.size) {
+                        this.isProcessing = false;
+                        this.error = 'O navegador gerou um audio vazio. Tente novamente.';
+                        return;
+                    }
+
+                    const extension = this.recordingExtensionFromMimeType(mimeType);
+                    const file = new File([blob], `gravacao-${Date.now()}.${extension}`, { type: mimeType });
+
+                    await this.sendForMatching({ audio: file });
+                };
+
+                recorder.start(1000);
+                this.startRecordingTimer();
+                this.isListening = true;
+            } catch (err) {
+                this.cleanupMediaResources();
+
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    this.error = 'Permissao de microfone negada. Ative nas configuracoes do navegador.';
+                } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                    this.error = 'Nenhum microfone foi encontrado neste aparelho.';
+                } else {
+                    this.error = 'Erro ao iniciar a gravacao de audio no navegador.';
+                }
+            }
+        },
+
+        stopAudioRecording() {
+            if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') {
+                this.isListening = false;
+                return;
+            }
+
+            this.isListening = false;
+            this.isProcessing = true;
+            this.mediaRecorder.stop();
         },
 
         async processVoice(text) {
