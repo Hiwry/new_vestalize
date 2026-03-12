@@ -255,28 +255,73 @@
     .dark .vq-tip-amber { background: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.2); }
     .dark .vq-tip-rose { background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.2); }
 
+    .vq-form-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
     /* Size inputs */
-    .vq-size-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-    .vq-size-item {
+    .vq-size-groups {
+        display: grid;
+        gap: 12px;
+    }
+    .vq-size-group {
+        border: 1px solid var(--of-card-border);
+        border-radius: 14px;
+        background: rgba(148, 163, 184, 0.05);
+        padding: 14px;
+    }
+    .vq-size-group-head {
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+    .vq-size-group-title {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--of-text-primary);
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+    .vq-size-group-count {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--of-text-secondary);
+    }
+    .vq-size-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+        gap: 10px;
+    }
+    .vq-size-item {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
         gap: 8px;
         background: var(--of-input-bg);
         border: 1px solid var(--of-input-border);
-        border-radius: 10px;
-        padding: 6px 10px;
+        border-radius: 12px;
+        padding: 10px;
     }
     .vq-size-label {
         font-size: 11px;
         font-weight: 800;
         color: var(--of-text-secondary);
-        width: 28px;
         text-align: center;
+        min-height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1.1;
+        letter-spacing: .04em;
     }
     .vq-size-input {
-        width: 52px;
-        height: 32px !important;
-        min-height: 32px !important;
+        width: 100%;
+        height: 38px !important;
+        min-height: 38px !important;
         border-radius: 8px !important;
         border: 1px solid var(--of-input-border) !important;
         background: var(--of-card-bg) !important;
@@ -284,6 +329,12 @@
         text-align: center;
         font-size: 13px !important;
         font-weight: 700 !important;
+    }
+    .vq-size-note {
+        margin-top: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--of-text-secondary);
     }
 
     /* Personalization row */
@@ -293,6 +344,19 @@
         border-radius: 12px;
         padding: 14px;
         margin-bottom: 10px;
+    }
+    .vq-pers-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+    }
+    .vq-pers-note {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--of-text-secondary);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
     /* Actions */
@@ -317,6 +381,13 @@
         .vq-ft-title { font-size: 20px; }
         .vq-mic-card { padding: 28px 16px; }
         .vq-mic-btn { width: 64px; height: 64px; }
+        .vq-form-grid-3,
+        .vq-pers-grid {
+            grid-template-columns: 1fr;
+        }
+        .vq-size-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
     }
 </style>
 
@@ -331,7 +402,7 @@
         </span>
         <div>
             <h1 class="vq-ft-title">Orçamento por Voz</h1>
-            <p class="vq-ft-subtitle">Fale os detalhes e o sistema preenche automaticamente</p>
+            <p class="vq-ft-subtitle">Fale os detalhes ou envie um áudio e o Gemini sugere o preenchimento</p>
         </div>
     </div>
     <div class="flex gap-2 flex-wrap">
@@ -358,11 +429,33 @@
         </template>
     </button>
     <div style="color: #fff;">
-        <p style="font-size: 16px; font-weight: 700;" x-text="isListening ? 'Ouvindo...' : (isProcessing ? 'Processando...' : 'Toque para Falar')"></p>
+        <p style="font-size: 16px; font-weight: 700;" x-text="isListening ? 'Ouvindo...' : (isProcessing ? 'Processando...' : 'Toque para falar')"></p>
         <p style="font-size: 13px; opacity: .7; margin-top: 4px;" x-show="!transcript && !isListening">
-            Ex: "camisa básica PP serigrafia A4 peito e escudo costas"
+            Ex: "camisa básica 20 P 30 M serigrafia A4 peito e costas"
         </p>
     </div>
+
+    <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 16px;">
+        <button
+            type="button"
+            @click="$refs.audioFile.click()"
+            :disabled="isProcessing"
+            class="vq-action-btn"
+            style="background: rgba(255,255,255,0.16); color: #fff; border: 1px solid rgba(255,255,255,0.25);"
+        >
+            Enviar áudio
+        </button>
+        <input
+            type="file"
+            x-ref="audioFile"
+            class="hidden"
+            accept=".mp3,.wav,.aac,.ogg,.flac,audio/*"
+            @change="handleAudioFileChange($event)"
+        >
+    </div>
+    <p style="font-size: 12px; opacity: .75; color: #fff; margin-top: 8px;">
+        MP3, WAV, AAC, OGG ou FLAC, até 10MB.
+    </p>
 
     {{-- Transcript --}}
     <div x-show="transcript" x-transition class="vq-transcript-box">
@@ -385,7 +478,10 @@
 {{-- Success --}}
 <div x-show="matchedData && !error" x-transition class="vq-card" style="margin-bottom: 14px; border-left: 4px solid #10b981 !important; display: flex; align-items: center; gap: 10px;">
     <svg class="w-5 h-5" style="color: #10b981; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-    <span style="font-size: 13px; font-weight: 600; color: var(--of-text-primary);">Dados encontrados! Revise e ajuste se necessário.</span>
+    <div>
+        <span style="font-size: 13px; font-weight: 600; color: var(--of-text-primary);" x-text="aiProvider === 'gemini' ? 'Dados encontrados com Gemini. Revise e ajuste se necessário.' : 'Dados encontrados! Revise e ajuste se necessário.'"></span>
+        <p x-show="aiSummary" style="font-size: 12px; color: var(--of-text-secondary); margin-top: 3px;" x-text="aiSummary"></p>
+    </div>
 </div>
 
 {{-- Quote Form --}}
@@ -397,7 +493,7 @@
             <svg class="w-5 h-5" style="color: #3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
             Produto
         </h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
+        <div class="vq-form-grid-3">
             <div>
                 <label class="vq-label">Tipo de Corte</label>
                 <select x-model="form.cut_type_id" @change="onCutTypeChange()" class="vq-input" style="width: 100%;">
@@ -432,17 +528,44 @@
             <svg class="w-5 h-5" style="color: #3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
             Tamanhos
         </h3>
-        <div class="vq-size-grid">
-            @foreach(['PP','P','M','G','GG','EXG','G1','G2','G3'] as $size)
-            <div class="vq-size-item">
-                <span class="vq-size-label">{{ $size }}</span>
-                <input type="number" min="0" x-model.number="form.sizes['{{ $size }}']" class="vq-size-input">
-            </div>
-            @endforeach
+        <div class="vq-size-groups">
+            <template x-for="group in visibleSizeGroups" :key="group.key">
+                <div class="vq-size-group">
+                    <div class="vq-size-group-head">
+                        <span class="vq-size-group-title" x-text="group.label"></span>
+                        <span class="vq-size-group-count" x-text="`${group.sizes.length} tamanhos`"></span>
+                    </div>
+                    <div class="vq-size-grid">
+                        <template x-for="size in group.sizes" :key="`${group.key}-${size}`">
+                            <label class="vq-size-item">
+                                <span class="vq-size-label" x-text="size"></span>
+                                <input type="number" min="0" x-model.number="form.sizes[size]" @change="handleSizeChange()" class="vq-size-input">
+                            </label>
+                        </template>
+                    </div>
+                </div>
+            </template>
         </div>
+        <p x-show="usesProductSizeTable" class="vq-size-note">Grade filtrada pela tabela padrão do produto selecionado.</p>
         <div style="margin-top: 12px; font-size: 13px; display: flex; align-items: center; gap: 8px;">
             <span style="color: var(--of-text-secondary); font-weight: 600;">Total peças:</span>
             <span style="color: var(--of-text-primary); font-weight: 800;" x-text="totalPieces"></span>
+        </div>
+        <div x-show="detectedQuantity > 0 && !hasAnySizes" class="vq-tip vq-tip-amber" style="margin-top: 12px;">
+            <p style="font-size: 12px; font-weight: 700; color: #b45309;">
+                A IA identificou <span x-text="detectedQuantity"></span> peças, mas não distribuiu os tamanhos.
+            </p>
+            <p style="font-size: 12px; color: var(--of-text-secondary); margin-top: 4px;">
+                Ajuste os tamanhos abaixo para fechar o orçamento.
+            </p>
+        </div>
+        <div x-show="hasSizeMismatch" class="vq-tip vq-tip-blue" style="margin-top: 12px;">
+            <p style="font-size: 12px; font-weight: 700; color: #2563eb;">
+                A IA indicou <span x-text="detectedQuantity"></span> peças, mas a grade está somando <span x-text="totalPieces"></span>.
+            </p>
+            <p style="font-size: 12px; color: var(--of-text-secondary); margin-top: 4px;">
+                Revise a distribuição antes de copiar o orçamento.
+            </p>
         </div>
     </div>
 
@@ -466,10 +589,10 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                <div class="vq-pers-grid">
                     <div>
                         <label class="vq-label">Tipo</label>
-                        <select x-model="pers.type_id" class="vq-input" style="width: 100%;">
+                        <select x-model="pers.type_id" @change="handlePersonalizationTypeChange(idx)" class="vq-input" style="width: 100%;">
                             <option value="">-- Tipo --</option>
                             @foreach($personalizationTypes as $pt)
                             <option value="{{ $pt->id }}">{{ $pt->name }}</option>
@@ -478,7 +601,7 @@
                     </div>
                     <div>
                         <label class="vq-label">Tamanho</label>
-                        <select x-model="pers.size_name" class="vq-input" style="width: 100%;">
+                        <select x-model="pers.size_name" @change="syncPersonalizationPrice(idx)" class="vq-input" style="width: 100%;">
                             <option value="">-- Tam --</option>
                             @foreach($personalizationSizes as $ps)
                             <option value="{{ $ps->size_name }}">{{ $ps->size_name }} {{ $ps->size_dimensions ? '('.$ps->size_dimensions.')' : '' }}</option>
@@ -494,6 +617,10 @@
                             @endforeach
                         </select>
                     </div>
+                    <div x-show="personalizationUsesColorCount(pers)">
+                        <label class="vq-label">Qtd. Cores</label>
+                        <input type="number" min="1" x-model.number="pers.color_count" @change="syncPersonalizationPrice(idx)" class="vq-input" style="width: 100%;">
+                    </div>
                     <div>
                         <label class="vq-label">Preço Unit.</label>
                         <div style="position: relative;">
@@ -501,6 +628,10 @@
                             <input type="number" step="0.01" x-model.number="pers.unit_price" class="vq-input" style="width: 100%; padding-left: 28px !important; font-weight: 800 !important;">
                         </div>
                     </div>
+                </div>
+                <div x-show="personalizationUsesColorCount(pers) && (getColorCountLabel(pers) || pers.color_details)" class="vq-pers-note">
+                    <span x-show="getColorCountLabel(pers)" x-text="`Cores: ${getColorCountLabel(pers)}`"></span>
+                    <span x-show="pers.color_details" x-text="`Detalhes: ${pers.color_details}`"></span>
                 </div>
             </div>
         </template>
@@ -523,7 +654,7 @@
             </div>
             <template x-for="(pers, idx) in form.personalizations" :key="'total-' + idx">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                    <span style="color: var(--of-text-secondary); font-weight: 600;" x-text="(getTypeName(pers.type_id) || 'Personalização') + ' - ' + (getLocationName(pers.location_id) || 'Local')"></span>
+                    <span style="color: var(--of-text-secondary); font-weight: 600;" x-text="buildPersonalizationLabel(pers)"></span>
                     <span style="color: var(--of-text-primary); font-weight: 800;" x-text="'R$ ' + (parseFloat(pers.unit_price || 0) * totalPieces).toFixed(2)"></span>
                 </div>
             </template>
@@ -585,19 +716,55 @@ function voiceQuote() {
         error: '',
         matchedData: false,
         recognition: null,
+        detectedQuantity: 0,
+        aiSummary: '',
+        aiProvider: '',
+        defaultSizes: @json(array_fill_keys($knownSizes, 0)),
+        sizeTable: @json($sizeTable),
 
         products: @json($products),
         cutTypes: @json($cutTypes),
         personalizationTypes: @json($personalizationTypes),
+        personalizationSettings: @json($personalizationSettings),
         locations: @json($locations),
         personalizationSizes: @json($personalizationSizes),
+        personalizationPriceUrl: @json(url('/api/personalization-prices/price')),
 
         form: {
             cut_type_id: '',
             product_id: '',
             unit_price: 0,
-            sizes: { PP: 0, P: 0, M: 0, G: 0, GG: 0, EXG: 0, G1: 0, G2: 0, G3: 0 },
+            sizes: @json(array_fill_keys($knownSizes, 0)),
             personalizations: [],
+        },
+
+        get hasAnySizes() {
+            return Object.values(this.form.sizes).some(qty => (parseInt(qty) || 0) > 0);
+        },
+
+        get selectedProduct() {
+            return this.products.find(product => String(product.id) === String(this.form.product_id)) || null;
+        },
+
+        get usesProductSizeTable() {
+            return Array.isArray(this.selectedProduct?.available_sizes) && this.selectedProduct.available_sizes.length > 0;
+        },
+
+        get visibleSizeGroups() {
+            const filledSizes = Object.entries(this.form.sizes)
+                .filter(([, qty]) => (parseInt(qty) || 0) > 0)
+                .map(([size]) => size);
+            const productSizes = this.usesProductSizeTable
+                ? this.selectedProduct.available_sizes.filter(size => Object.prototype.hasOwnProperty.call(this.defaultSizes, size))
+                : [];
+            const visibleSizes = new Set([...(productSizes.length ? productSizes : Object.keys(this.defaultSizes)), ...filledSizes]);
+
+            return this.sizeTable
+                .map(group => ({
+                    ...group,
+                    sizes: group.sizes.filter(size => visibleSizes.has(size)),
+                }))
+                .filter(group => group.sizes.length > 0);
         },
 
         get filteredProducts() {
@@ -606,7 +773,12 @@ function voiceQuote() {
         },
 
         get totalPieces() {
-            return Object.values(this.form.sizes).reduce((sum, qty) => sum + (parseInt(qty) || 0), 0) || 1;
+            const sizeTotal = Object.values(this.form.sizes).reduce((sum, qty) => sum + (parseInt(qty) || 0), 0);
+            return sizeTotal || (parseInt(this.detectedQuantity) || 1);
+        },
+
+        get hasSizeMismatch() {
+            return this.detectedQuantity > 0 && this.hasAnySizes && this.totalPieces !== this.detectedQuantity;
         },
 
         get subtotalProduct() {
@@ -619,6 +791,34 @@ function voiceQuote() {
 
         get grandTotal() {
             return this.subtotalProduct + this.totalPersonalizations;
+        },
+
+        freshForm() {
+            return {
+                cut_type_id: '',
+                product_id: '',
+                unit_price: 0,
+                sizes: { ...this.defaultSizes },
+                personalizations: [],
+            };
+        },
+
+        normalizePersonalizationEntry(entry = {}) {
+            const typeId = entry.type_id ? String(entry.type_id) : '';
+            const typeName = entry.type_name || this.getTypeName(typeId);
+            const usesColorCount = this.personalizationUsesColorCount({ type_id: typeId, type_name: typeName });
+            const colorCount = parseInt(entry.color_count || 0) || 0;
+
+            return {
+                type_id: typeId,
+                size_name: entry.size_name || '',
+                location_id: entry.location_id ? String(entry.location_id) : '',
+                unit_price: parseFloat(entry.unit_price || 0) || 0,
+                color_count: usesColorCount ? Math.max(1, colorCount || 1) : null,
+                color_details: entry.color_details || '',
+                has_neon: Boolean(entry.has_neon),
+                notes: entry.notes || '',
+            };
         },
 
         init() {
@@ -669,33 +869,74 @@ function voiceQuote() {
         },
 
         async processVoice(text) {
+            await this.sendForMatching({ text });
+        },
+
+        async handleAudioFileChange(event) {
+            const [file] = event.target.files || [];
+            event.target.value = '';
+
+            if (!file) {
+                return;
+            }
+
+            await this.sendForMatching({ audio: file });
+        },
+
+        async sendForMatching({ text = '', audio = null } = {}) {
             this.isProcessing = true;
             this.error = '';
             try {
+                const formData = new FormData();
+                if (text) formData.append('text', text);
+                if (audio) formData.append('audio', audio);
+
                 const response = await fetch('{{ route("voice-quote.match") }}', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
-                    body: JSON.stringify({ text }),
+                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+                    body: formData,
                 });
                 const result = await response.json();
-                if (result.success && result.data) { this.applyMatchedData(result.data); this.matchedData = true; }
-                else this.error = 'Não consegui encontrar correspondências. Tente falar mais devagar.';
-            } catch (err) { this.error = 'Erro ao processar. Tente novamente.'; }
-            finally { this.isProcessing = false; }
+
+                if (!response.ok) {
+                    const firstError = result?.errors ? Object.values(result.errors).flat()[0] : null;
+                    this.error = firstError || result?.message || 'Não consegui processar o áudio.';
+                    return;
+                }
+
+                if (result.success && result.data) {
+                    this.aiSummary = result.data.summary || '';
+                    this.aiProvider = result.meta?.provider || '';
+                    this.transcript = result.data.raw_text || this.transcript;
+                    this.applyMatchedData(result.data);
+                    this.matchedData = true;
+                } else {
+                    this.error = 'Não consegui encontrar correspondências. Tente falar mais devagar.';
+                }
+            } catch (err) {
+                this.error = 'Erro ao processar. Tente novamente.';
+            } finally {
+                this.isProcessing = false;
+            }
         },
 
         applyMatchedData(data) {
-            if (data.product) { this.form.product_id = String(data.product.id); this.form.unit_price = data.product.price; }
+            this.form = this.freshForm();
+            this.detectedQuantity = parseInt(data.quantity || 0) || 0;
+
+            if (data.product) {
+                this.form.cut_type_id = data.product.cut_type_id ? String(data.product.cut_type_id) : '';
+                this.form.product_id = String(data.product.id);
+                this.form.unit_price = data.product.price;
+            }
+
             if (data.sizes && Object.keys(data.sizes).length > 0) {
                 for (const [size, qty] of Object.entries(data.sizes)) {
-                    if (this.form.sizes.hasOwnProperty(size)) this.form.sizes[size] = qty;
+                    if (Object.prototype.hasOwnProperty.call(this.form.sizes, size)) this.form.sizes[size] = qty;
                 }
             }
             if (data.personalizations && data.personalizations.length > 0) {
-                this.form.personalizations = data.personalizations.map(p => ({
-                    type_id: p.type_id ? String(p.type_id) : '', size_name: p.size_name || '',
-                    location_id: p.location_id ? String(p.location_id) : '', unit_price: p.unit_price || 0,
-                }));
+                this.form.personalizations = data.personalizations.map(entry => this.normalizePersonalizationEntry(entry));
             }
         },
 
@@ -706,36 +947,234 @@ function voiceQuote() {
 
         onProductChange() {
             const option = this.products.find(p => String(p.id) === String(this.form.product_id));
-            if (option) this.form.unit_price = parseFloat(option.price);
+            if (!option) {
+                return;
+            }
+
+            const qty = parseInt(this.totalPieces || 1) || 1;
+            const wholesaleMin = parseInt(option.wholesale_min_qty || 0) || 0;
+            const wholesalePrice = parseFloat(option.wholesale_price || 0);
+
+            if (wholesalePrice > 0 && wholesaleMin > 0 && qty >= wholesaleMin) {
+                this.form.unit_price = wholesalePrice;
+                return;
+            }
+
+            this.form.unit_price = parseFloat(option.price);
+        },
+
+        handleSizeChange() {
+            this.form.personalizations.forEach((pers, index) => {
+                if (pers.type_id && pers.size_name) {
+                    this.syncPersonalizationPrice(index);
+                }
+            });
+        },
+
+        handlePersonalizationTypeChange(index) {
+            const pers = this.form.personalizations[index];
+            if (!pers) {
+                return;
+            }
+
+            if (this.personalizationUsesColorCount(pers)) {
+                pers.color_count = Math.max(1, parseInt(pers.color_count || 1) || 1);
+            } else {
+                pers.color_count = null;
+                pers.color_details = '';
+                pers.has_neon = false;
+            }
+
+            this.syncPersonalizationPrice(index);
+        },
+
+        getTypeName(typeId) {
+            const type = this.personalizationTypes.find(item => String(item.id) === String(typeId));
+            return type ? type.name : '';
+        },
+
+        getLocationName(locationId) {
+            const location = this.locations.find(item => String(item.id) === String(locationId));
+            return location ? location.name : '';
+        },
+
+        getTypeKey(typeReference) {
+            if (typeReference && typeof typeReference === 'object') {
+                if (typeReference.type_name) {
+                    return String(typeReference.type_name).trim().toUpperCase();
+                }
+
+                if (typeReference.type_id) {
+                    return String(this.getTypeName(typeReference.type_id) || '').trim().toUpperCase();
+                }
+            }
+
+            const rawValue = String(typeReference || '').trim();
+            if (!rawValue) {
+                return '';
+            }
+
+            if (/^\d+$/.test(rawValue)) {
+                return String(this.getTypeName(rawValue) || '').trim().toUpperCase();
+            }
+
+            return rawValue.toUpperCase();
+        },
+
+        getPersonalizationSetting(typeReference) {
+            const typeKey = this.getTypeKey(typeReference);
+            return typeKey ? this.personalizationSettings[typeKey] || null : null;
+        },
+
+        personalizationUsesColorCount(typeReference) {
+            const setting = this.getPersonalizationSetting(typeReference);
+            if (setting) {
+                return Boolean(setting.charge_by_color);
+            }
+
+            return ['SERIGRAFIA', 'EMBORRACHADO'].includes(this.getTypeKey(typeReference));
+        },
+
+        getFallbackColorSurcharge(pers) {
+            const setting = this.getPersonalizationSetting(pers);
+            const colorCount = parseInt(pers.color_count || 0) || 0;
+            if (!setting || !colorCount) {
+                return 0;
+            }
+
+            const minColors = parseInt(setting.min_colors || 1) || 1;
+            if (colorCount <= minColors) {
+                return 0;
+            }
+
+            return (colorCount - minColors) * (parseFloat(setting.color_price_per_unit || 0) || 0);
+        },
+
+        async syncPersonalizationPrice(index) {
+            const pers = this.form.personalizations[index];
+            if (!pers) {
+                return;
+            }
+
+            const typeKey = this.getTypeKey(pers);
+            if (!typeKey || !pers.size_name) {
+                return;
+            }
+
+            const quantity = Math.max(1, parseInt(this.totalPieces || 1) || 1);
+
+            try {
+                const baseResponse = await fetch(
+                    `${this.personalizationPriceUrl}?type=${encodeURIComponent(typeKey)}&size=${encodeURIComponent(pers.size_name)}&quantity=${quantity}`,
+                    { headers: { Accept: 'application/json' } }
+                );
+
+                if (!baseResponse.ok) {
+                    return;
+                }
+
+                const baseData = await baseResponse.json();
+                if (!baseData.success) {
+                    return;
+                }
+
+                let unitPrice = parseFloat(baseData.price || 0) || 0;
+
+                if (this.personalizationUsesColorCount(pers) && (parseInt(pers.color_count || 0) > 1)) {
+                    let colorSurcharge = this.getFallbackColorSurcharge(pers);
+                    const colorResponse = await fetch(
+                        `${this.personalizationPriceUrl}?type=${encodeURIComponent(typeKey)}&size=COR&quantity=${quantity}`,
+                        { headers: { Accept: 'application/json' } }
+                    );
+
+                    if (colorResponse.ok) {
+                        const colorData = await colorResponse.json();
+                        if (colorData.success) {
+                            colorSurcharge = (parseFloat(colorData.price || 0) || 0) * ((parseInt(pers.color_count || 1) || 1) - 1);
+                        }
+                    }
+
+                    unitPrice += colorSurcharge;
+                }
+
+                pers.unit_price = Number(unitPrice.toFixed(2));
+            } catch (error) {
+                console.error('Erro ao atualizar preço da personalização:', error);
+            }
         },
 
         addPersonalization() {
-            this.form.personalizations.push({ type_id: '', size_name: '', location_id: '', unit_price: 0 });
+            this.form.personalizations.push(this.normalizePersonalizationEntry({ color_count: 1 }));
             this.matchedData = true;
         },
 
-        getTypeName(typeId) { const t = this.personalizationTypes.find(pt => String(pt.id) === String(typeId)); return t ? t.name : ''; },
-        getLocationName(locationId) { const l = this.locations.find(loc => String(loc.id) === String(locationId)); return l ? l.name : ''; },
+        getColorCountLabel(pers) {
+            const colorCount = parseInt(pers.color_count || 0) || 0;
+            if (!this.personalizationUsesColorCount(pers) || colorCount < 1) {
+                return '';
+            }
+
+            let label = `${colorCount} ${colorCount === 1 ? 'cor' : 'cores'}`;
+            if (pers.has_neon) {
+                label += ' + neon';
+            }
+
+            return label;
+        },
+
+        buildPersonalizationLabel(pers) {
+            const parts = [
+                this.getTypeName(pers.type_id) || 'Personalização',
+                pers.size_name || null,
+                this.getLocationName(pers.location_id) || null,
+            ].filter(Boolean);
+            const baseLabel = parts.join(' - ');
+            const colorLabel = this.getColorCountLabel(pers);
+
+            return colorLabel ? `${baseLabel} • ${colorLabel}` : baseLabel;
+        },
 
         resetForm() {
-            this.form = { cut_type_id: '', product_id: '', unit_price: 0, sizes: { PP: 0, P: 0, M: 0, G: 0, GG: 0, EXG: 0, G1: 0, G2: 0, G3: 0 }, personalizations: [] };
-            this.matchedData = false; this.transcript = ''; this.error = '';
+            this.form = this.freshForm();
+            this.detectedQuantity = 0;
+            this.aiSummary = '';
+            this.aiProvider = '';
+            this.matchedData = false;
+            this.transcript = '';
+            this.error = '';
         },
 
         buildQuoteText() {
-            const product = this.products.find(p => String(p.id) === String(this.form.product_id));
-            let lines = ['*ORÇAMENTO*', ''];
-            if (product) { lines.push(`*Produto:* ${product.title}`); lines.push(`*Preço unitário:* R$ ${parseFloat(this.form.unit_price).toFixed(2)}`); }
-            const sizes = Object.entries(this.form.sizes).filter(([_, qty]) => qty > 0);
-            if (sizes.length) { lines.push(`*Tamanhos:* ${sizes.map(([s, q]) => `${s}(${q})`).join(', ')}`); lines.push(`*Total peças:* ${this.totalPieces}`); }
+            const product = this.products.find(item => String(item.id) === String(this.form.product_id));
+            const lines = ['*ORÇAMENTO*', ''];
+            if (product) {
+                lines.push(`*Produto:* ${product.title}`);
+                lines.push(`*Preço unitário:* R$ ${parseFloat(this.form.unit_price || 0).toFixed(2)}`);
+            }
+
+            const sizes = Object.entries(this.form.sizes).filter(([, qty]) => qty > 0);
+            if (sizes.length) {
+                lines.push(`*Tamanhos:* ${sizes.map(([size, qty]) => `${size}(${qty})`).join(', ')}`);
+                lines.push(`*Total peças:* ${this.totalPieces}`);
+            } else if (this.detectedQuantity > 0) {
+                lines.push(`*Quantidade detectada:* ${this.detectedQuantity}`);
+                lines.push('*Tamanhos:* pendente de distribuição');
+            }
+
             if (this.form.personalizations.length) {
-                lines.push(''); lines.push('*Personalizações:*');
-                this.form.personalizations.forEach((p, i) => {
-                    lines.push(`  ${i+1}. ${this.getTypeName(p.type_id) || '-'} ${p.size_name || '-'} - ${this.getLocationName(p.location_id) || '-'} — R$ ${parseFloat(p.unit_price || 0).toFixed(2)}/un`);
+                lines.push('');
+                lines.push('*Personalizações:*');
+                this.form.personalizations.forEach((pers, index) => {
+                    const details = pers.color_details ? ` (${pers.color_details})` : '';
+                    lines.push(`  ${index + 1}. ${this.buildPersonalizationLabel(pers)}${details} — R$ ${parseFloat(pers.unit_price || 0).toFixed(2)}/un`);
                 });
             }
-            lines.push(''); lines.push(`*Subtotal Produto:* R$ ${this.subtotalProduct.toFixed(2)}`);
-            if (this.totalPersonalizations > 0) lines.push(`*Subtotal Personalizações:* R$ ${this.totalPersonalizations.toFixed(2)}`);
+
+            lines.push('');
+            lines.push(`*Subtotal Produto:* R$ ${this.subtotalProduct.toFixed(2)}`);
+            if (this.totalPersonalizations > 0) {
+                lines.push(`*Subtotal Personalizações:* R$ ${this.totalPersonalizations.toFixed(2)}`);
+            }
             lines.push(`*TOTAL: R$ ${this.grandTotal.toFixed(2)}*`);
             return lines.join('\n');
         },

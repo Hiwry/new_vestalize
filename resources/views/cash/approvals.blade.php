@@ -91,6 +91,23 @@
                 @forelse($orders as $order)
                 @php
                     $payment = $order->payment ?? null;
+                    $methods = is_array($payment?->payment_methods) ? $payment->payment_methods : [];
+                    $methodDates = collect($methods)
+                        ->pluck('date')
+                        ->filter()
+                        ->map(function ($date) {
+                            try {
+                                return \Carbon\Carbon::parse($date);
+                            } catch (\Throwable $e) {
+                                return null;
+                            }
+                        })
+                        ->filter()
+                        ->sortBy(fn ($date) => $date->timestamp)
+                        ->values();
+                    $paidDate = $methodDates->last() ?? $payment?->payment_date ?? $payment?->entry_date;
+                    $remainingDate = $payment?->due_date ?? $payment?->entry_date ?? $payment?->payment_date;
+                    $receiptAttachments = $payment?->receipt_attachments_list ?? [];
                 @endphp
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 {{ $payment && $payment->cash_approved ? 'bg-green-50 dark:bg-green-900/10' : '' }}">
                     <td class="px-4 py-4 whitespace-nowrap">
@@ -127,20 +144,23 @@
                         </div>
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900 dark:text-gray-100">
-                            R$ {{ number_format($payment->entry_amount ?? 0, 2, ',', '.') }}
+                        <div class="flex items-center gap-2 text-sm text-gray-900 dark:text-gray-100">
+                            <span>R$ {{ number_format($payment->entry_amount ?? 0, 2, ',', '.') }}</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">
+                                {{ $paidDate ? $paidDate->format('d/m/Y') : 'Sem data' }}
+                            </span>
                         </div>
                         @if($payment && $payment->remaining_amount > 0)
-                        <div class="text-xs text-red-600 dark:text-red-400">
-                            Restante: R$ {{ number_format($payment->remaining_amount, 2, ',', '.') }}
+                        <div class="flex items-center gap-2 text-xs text-red-600 dark:text-red-400">
+                            <span>Restante: R$ {{ number_format($payment->remaining_amount, 2, ',', '.') }}</span>
+                            <span class="text-gray-500 dark:text-gray-400">
+                                {{ $remainingDate ? $remainingDate->format('d/m/Y') : 'Sem data' }}
+                            </span>
                         </div>
                         @endif
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap">
                         @if($payment)
-                            @php
-                                $methods = is_array($payment->payment_methods) ? $payment->payment_methods : [];
-                            @endphp
                             @if(count($methods) > 1)
                                 <div class="text-xs text-gray-600 dark:text-gray-400">Múltiplos</div>
                             @else
@@ -152,28 +172,44 @@
                             <span class="text-xs text-gray-400">N/A</span>
                         @endif
                     </td>
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        @if($payment && $payment->receipt_attachment)
-                            <a href="{{ route('cash.approvals.view-receipt', $order->id) }}" 
-                               target="_blank"
-                               class="text-indigo-600 dark:text-indigo-400 hover:underline text-sm">
-                                Ver Comprovante
-                            </a>
-                            <button onclick="removeReceipt({{ $order->id }})" 
-                                    class="ml-2 text-red-600 dark:text-red-400 hover:underline text-xs">
-                                Remover
-                            </button>
-                        @else
-                            <label class="cursor-pointer">
-                                <input type="file" 
-                                       class="hidden receipt-input" 
+                    <td class="px-4 py-4">
+                        <div class="space-y-2">
+                            @if(count($receiptAttachments) > 0)
+                                <div class="space-y-1">
+                                    @foreach($receiptAttachments as $index => $receipt)
+                                        <div class="flex items-center gap-2 text-sm">
+                                            <a href="{{ route('cash.approvals.view-receipt', $order->id) }}?receipt={{ $index }}"
+                                               target="_blank"
+                                               class="text-indigo-600 dark:text-indigo-400 hover:underline">
+                                                {{ $receipt['name'] ?? ('Comprovante ' . ($index + 1)) }}
+                                            </a>
+                                            <button onclick="removeReceipt({{ $order->id }}, {{ $index }})"
+                                                    class="text-red-600 dark:text-red-400 hover:underline text-xs">
+                                                Remover
+                                            </button>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    {{ count($receiptAttachments) }} comprovante(s)
+                                </div>
+                            @else
+                                <div class="text-xs text-gray-400">
+                                    Nenhum comprovante
+                                </div>
+                            @endif
+
+                            <label class="cursor-pointer inline-flex">
+                                <input type="file"
+                                       class="hidden receipt-input"
                                        data-order-id="{{ $order->id }}"
-                                       accept="image/*,application/pdf">
+                                       accept="image/*,application/pdf"
+                                       multiple>
                                 <span class="text-indigo-600 dark:text-indigo-400 hover:underline text-sm">
-                                    Anexar
+                                    {{ count($receiptAttachments) > 0 ? 'Anexar mais' : 'Anexar' }}
                                 </span>
                             </label>
-                        @endif
+                        </div>
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap">
                         @if($payment && $payment->cash_approved)
@@ -297,6 +333,7 @@
 window.currentAction = null;
 window.currentOrderId = null;
 window.currentOrderIds = null;
+window.currentReceiptIndex = null;
 
 // Selecionar todos
 document.getElementById('select-all-checkbox')?.addEventListener('change', function() {
@@ -320,12 +357,13 @@ document.querySelectorAll('.order-checkbox').forEach(cb => {
 
 
 // Funções do Modal (Globais)
-window.showModal = function(title, message, action, orderId = null, orderIds = null) {
+window.showModal = function(title, message, action, orderId = null, orderIds = null, receiptIndex = null) {
     document.getElementById('modal-title').textContent = title;
     document.getElementById('modal-message').textContent = message;
     window.currentAction = action;
     window.currentOrderId = orderId;
     window.currentOrderIds = orderIds;
+    window.currentReceiptIndex = receiptIndex;
     document.getElementById('confirm-modal').classList.remove('hidden');
 }
 
@@ -334,19 +372,22 @@ window.closeModal = function() {
     window.currentAction = null;
     window.currentOrderId = null;
     window.currentOrderIds = null;
+    window.currentReceiptIndex = null;
 }
 
 window.confirmAction = function() {
     console.log('confirmAction chamado', { 
         currentAction: window.currentAction, 
         currentOrderId: window.currentOrderId, 
-        currentOrderIds: window.currentOrderIds 
+        currentOrderIds: window.currentOrderIds,
+        currentReceiptIndex: window.currentReceiptIndex
     });
     
     // Salvar valores antes de fechar o modal
     const action = window.currentAction;
     const orderId = window.currentOrderId;
     const orderIds = window.currentOrderIds;
+    const receiptIndex = window.currentReceiptIndex;
     
     window.closeModal();
     
@@ -356,7 +397,7 @@ window.confirmAction = function() {
     } else if (action === 'approve-multiple') {
         approveMultipleRequest(orderIds);
     } else if (action === 'remove-receipt') {
-        removeReceiptRequest(orderId);
+        removeReceiptRequest(orderId, receiptIndex);
     } else if (action) {
         console.error('Ação desconhecida:', action);
         showResultModal('error', 'Erro', 'Ação desconhecida');
@@ -491,12 +532,12 @@ function approveMultipleRequest(orderIds) {
 document.querySelectorAll('.receipt-input').forEach(input => {
     input.addEventListener('change', function() {
         const orderId = this.dataset.orderId;
-        const file = this.files[0];
+        const files = Array.from(this.files || []);
         
-        if (!file) return;
+        if (files.length === 0) return;
 
         const formData = new FormData();
-        formData.append('receipt', file);
+        files.forEach(file => formData.append('receipts[]', file));
 
         fetch(`/cash/approvals/${orderId}/attach-receipt`, {
             method: 'POST',
@@ -517,26 +558,31 @@ document.querySelectorAll('.receipt-input').forEach(input => {
             console.error('Erro:', error);
             showResultModal('error', 'Erro', 'Erro ao anexar comprovante');
         });
+
+        this.value = '';
     });
 });
 
 // Remover comprovante
-function removeReceipt(orderId) {
+function removeReceipt(orderId, receiptIndex) {
     showModal(
         'Remover Comprovante',
         'Deseja remover o comprovante deste pagamento?',
         'remove-receipt',
-        orderId
+        orderId,
+        null,
+        receiptIndex
     );
 }
 
-function removeReceiptRequest(orderId) {
+function removeReceiptRequest(orderId, receiptIndex) {
     fetch(`/cash/approvals/${orderId}/remove-receipt`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-        }
+        },
+        body: JSON.stringify({ receipt_index: receiptIndex })
     })
     .then(response => response.json())
     .then(data => {

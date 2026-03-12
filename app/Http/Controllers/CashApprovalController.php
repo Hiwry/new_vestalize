@@ -2,28 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CashTransaction;
 use App\Models\Order;
 use App\Models\Payment;
-use App\Models\CashTransaction;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 
 class CashApprovalController extends Controller
 {
     /**
-     * Lista de pedidos e vendas pendentes de aprovação
+     * Lista de pedidos e vendas pendentes de aprovacao.
      */
     public function index(Request $request): View
     {
-        $user = Auth::user();
-        
-        $status = $request->get('status', 'pendente'); // pendente, aprovado, todos
-        $type = $request->get('type', 'todos'); // pedidos, vendas, todos
+        $status = $request->get('status', 'pendente');
+        $type = $request->get('type', 'todos');
         $search = $request->get('search');
 
         $query = Order::with(['client', 'user', 'store', 'payment.approvedBy', 'status'])
@@ -31,66 +28,60 @@ class CashApprovalController extends Controller
             ->where('is_cancelled', false)
             ->has('payment');
 
-        // Aplicar filtro de loja (Super Admin vê todos)
         \App\Helpers\StoreHelper::applyStoreFilter($query);
 
-        // Filtrar por tipo
         if ($type === 'pedidos') {
             $query->where('is_pdv', false);
         } elseif ($type === 'vendas') {
             $query->where('is_pdv', true);
         }
 
-        // Filtrar por status de aprovação
         if ($status === 'pendente') {
-            $query->whereHas('payment', function($q) {
-                // cash_approved = false OU null (não aprovado)
-                $q->where(function($q2) {
+            $query->whereHas('payment', function ($q) {
+                $q->where(function ($q2) {
                     $q2->where('cash_approved', false)
-                       ->orWhereNull('cash_approved');
+                        ->orWhereNull('cash_approved');
                 });
             });
         } elseif ($status === 'aprovado') {
-            $query->whereHas('payment', function($q) {
+            $query->whereHas('payment', function ($q) {
                 $q->where('cash_approved', true);
             });
         }
 
-        // Busca
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('id', 'like', "%{$search}%")
-                  ->orWhereHas('client', function($q2) use ($search) {
-                      $q2->where('name', 'like', "%{$search}%")
-                         ->orWhere('phone_primary', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('client', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%")
+                            ->orWhere('phone_primary', 'like', "%{$search}%");
+                    });
             });
         }
 
         $orders = $query->orderBy('created_at', 'desc')->paginate(20);
 
-        // Estatísticas (aplicar mesmo filtro de loja)
         $statsQuery = Order::where('is_draft', false)->where('is_cancelled', false);
         \App\Helpers\StoreHelper::applyStoreFilter($statsQuery);
-        
+
         $stats = [
             'pendentes' => (clone $statsQuery)
-                ->whereHas('payment', function($q) {
-                    $q->where(function($q2) {
+                ->whereHas('payment', function ($q) {
+                    $q->where(function ($q2) {
                         $q2->where('cash_approved', false)
-                           ->orWhereNull('cash_approved');
+                            ->orWhereNull('cash_approved');
                     });
                 })
                 ->count(),
             'aprovados' => (clone $statsQuery)
-                ->whereHas('payment', function($q) {
+                ->whereHas('payment', function ($q) {
                     $q->where('cash_approved', true);
                 })
                 ->count(),
             'total_pendente' => Payment::whereIn('order_id', (clone $statsQuery)->pluck('id'))
-                ->where(function($q) {
+                ->where(function ($q) {
                     $q->where('cash_approved', false)
-                      ->orWhereNull('cash_approved');
+                        ->orWhereNull('cash_approved');
                 })
                 ->sum('entry_amount'),
         ];
@@ -99,7 +90,7 @@ class CashApprovalController extends Controller
     }
 
     /**
-     * Aprovar pagamento e dar baixa no pedido
+     * Aprovar pagamento e dar baixa no pedido.
      */
     public function approve(Request $request, $orderId): JsonResponse
     {
@@ -107,26 +98,23 @@ class CashApprovalController extends Controller
         $payment = $order->payment;
 
         if (!$payment) {
-            return response()->json(['error' => 'Pagamento não encontrado'], 404);
+            return response()->json(['error' => 'Pagamento nao encontrado'], 404);
         }
 
         if ($payment->cash_approved) {
-            return response()->json(['error' => 'Pagamento já aprovado'], 400);
+            return response()->json(['error' => 'Pagamento ja aprovado'], 400);
         }
 
-        // Aprovar pagamento
         $payment->update([
             'cash_approved' => true,
             'approved_by' => Auth::id(),
             'approved_at' => now(),
         ]);
 
-        // Atualizar status do pagamento para pago se necessário
         if ($payment->remaining_amount <= 0) {
             $payment->update(['status' => 'pago']);
         }
 
-        // Confirmar transações de caixa pendentes relacionadas a este pedido
         CashTransaction::where('order_id', $order->id)
             ->where('status', 'pendente')
             ->update([
@@ -136,62 +124,82 @@ class CashApprovalController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Pagamento aprovado e baixa realizada com sucesso!'
+            'message' => 'Pagamento aprovado e baixa realizada com sucesso!',
         ]);
     }
 
     /**
-     * Anexar comprovante de pagamento
+     * Anexar um ou mais comprovantes de pagamento.
      */
     public function attachReceipt(Request $request, $orderId): JsonResponse
     {
         $request->validate([
-            'receipt' => 'required|file|mimes:jpg,jpeg,png,pdf|max:10240', // 10MB
+            'receipt' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'receipts' => 'nullable|array|min:1',
+            'receipts.*' => 'file|mimes:jpg,jpeg,png,pdf|max:10240',
         ]);
 
         $order = Order::with('payment')->findOrFail($orderId);
         $payment = $order->payment;
 
         if (!$payment) {
-            return response()->json(['error' => 'Pagamento não encontrado'], 404);
+            return response()->json(['error' => 'Pagamento nao encontrado'], 404);
         }
 
-        // Deletar comprovante anterior se existir
-        if ($payment->receipt_attachment) {
-            Storage::disk('public')->delete($payment->receipt_attachment);
+        $files = [];
+        if ($request->hasFile('receipts')) {
+            $files = $request->file('receipts');
+        } elseif ($request->hasFile('receipt')) {
+            $files = [$request->file('receipt')];
         }
 
-        // Salvar novo comprovante
-        $file = $request->file('receipt');
-        $path = $file->store('receipts', 'public');
+        if (empty($files)) {
+            return response()->json(['error' => 'Envie ao menos um comprovante valido.'], 422);
+        }
 
-        $payment->update([
-            'receipt_attachment' => $path,
-        ]);
+        $attachments = $payment->receipt_attachments_list;
+
+        foreach ($files as $file) {
+            $path = $file->store('receipts', 'public');
+            $attachments[] = [
+                'path' => $path,
+                'name' => $file->getClientOriginalName(),
+                'uploaded_at' => now()->toISOString(),
+            ];
+        }
+
+        $this->syncReceiptAttachments($payment, $attachments);
 
         return response()->json([
             'success' => true,
-            'message' => 'Comprovante anexado com sucesso!',
-            'receipt_url' => Storage::url($path),
+            'message' => count($files) > 1
+                ? 'Comprovantes anexados com sucesso!'
+                : 'Comprovante anexado com sucesso!',
+            'receipt_count' => count($payment->fresh()->receipt_attachments_list),
         ]);
     }
 
     /**
-     * Visualizar comprovante
+     * Visualizar um comprovante especifico.
      */
-    public function viewReceipt($orderId)
+    public function viewReceipt(Request $request, $orderId)
     {
         $order = Order::with('payment')->findOrFail($orderId);
         $payment = $order->payment;
+        $receiptIndex = $request->query('receipt');
+        $attachment = $this->resolveReceiptAttachment(
+            $payment,
+            $receiptIndex !== null ? (int) $receiptIndex : 0
+        );
 
-        if (!$payment || !$payment->receipt_attachment) {
-            abort(404, 'Comprovante não encontrado');
+        if (!$payment || !$attachment) {
+            abort(404, 'Comprovante nao encontrado');
         }
 
-        $filePath = Storage::disk('public')->path($payment->receipt_attachment);
-        
+        $filePath = Storage::disk('public')->path($attachment['path']);
+
         if (!file_exists($filePath)) {
-            abort(404, 'Arquivo não encontrado');
+            abort(404, 'Arquivo nao encontrado');
         }
 
         $mimeType = File::mimeType($filePath);
@@ -213,31 +221,33 @@ class CashApprovalController extends Controller
     }
 
     /**
-     * Remover comprovante
+     * Remover um comprovante especifico.
      */
-    public function removeReceipt($orderId): JsonResponse
+    public function removeReceipt(Request $request, $orderId): JsonResponse
     {
         $order = Order::with('payment')->findOrFail($orderId);
         $payment = $order->payment;
+        $receiptIndex = (int) $request->input('receipt_index', 0);
+        $attachments = $payment?->receipt_attachments_list ?? [];
 
-        if (!$payment || !$payment->receipt_attachment) {
-            return response()->json(['error' => 'Comprovante não encontrado'], 404);
+        if (!$payment || empty($attachments) || !isset($attachments[$receiptIndex])) {
+            return response()->json(['error' => 'Comprovante nao encontrado'], 404);
         }
 
-        Storage::disk('public')->delete($payment->receipt_attachment);
+        Storage::disk('public')->delete($attachments[$receiptIndex]['path']);
+        unset($attachments[$receiptIndex]);
 
-        $payment->update([
-            'receipt_attachment' => null,
-        ]);
+        $this->syncReceiptAttachments($payment, array_values($attachments));
 
         return response()->json([
             'success' => true,
-            'message' => 'Comprovante removido com sucesso!'
+            'message' => 'Comprovante removido com sucesso!',
+            'receipt_count' => count($payment->fresh()->receipt_attachments_list),
         ]);
     }
 
     /**
-     * Aprovar múltiplos pedidos
+     * Aprovar multiplos pedidos.
      */
     public function approveMultiple(Request $request): JsonResponse
     {
@@ -253,12 +263,12 @@ class CashApprovalController extends Controller
             try {
                 $order = Order::with('payment')->find($orderId);
                 if (!$order || !$order->payment) {
-                    $errors[] = "Pedido #{$orderId}: Pagamento não encontrado";
+                    $errors[] = "Pedido #{$orderId}: Pagamento nao encontrado";
                     continue;
                 }
 
                 if ($order->payment->cash_approved) {
-                    $errors[] = "Pedido #{$orderId}: Já aprovado";
+                    $errors[] = "Pedido #{$orderId}: Ja aprovado";
                     continue;
                 }
 
@@ -289,7 +299,26 @@ class CashApprovalController extends Controller
             'success' => true,
             'approved' => $approved,
             'errors' => $errors,
-            'message' => "{$approved} pedido(s) aprovado(s) com sucesso!"
+            'message' => "{$approved} pedido(s) aprovado(s) com sucesso!",
+        ]);
+    }
+
+    private function resolveReceiptAttachment(?Payment $payment, int $receiptIndex = 0): ?array
+    {
+        if (!$payment) {
+            return null;
+        }
+
+        $attachments = $payment->receipt_attachments_list;
+
+        return $attachments[$receiptIndex] ?? null;
+    }
+
+    private function syncReceiptAttachments(Payment $payment, array $attachments): void
+    {
+        $payment->update([
+            'receipt_attachment' => $attachments[0]['path'] ?? null,
+            'receipt_attachments' => empty($attachments) ? null : array_values($attachments),
         ]);
     }
 }

@@ -59,4 +59,11 @@ return [
         'secret_key' => env('RECAPTCHA_SECRET_KEY'),
     ],
 
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
+        'endpoint' => env('GEMINI_API_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta'),
+        'voice_quote_enabled' => filter_var(env('GEMINI_VOICE_QUOTE_ENABLED', true), FILTER_VALIDATE_BOOL),
+    ],
+
 ];
