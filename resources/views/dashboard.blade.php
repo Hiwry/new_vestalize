@@ -88,14 +88,14 @@
 
 /* Glassmorphism para Cards */
 .glass-card {
-    background: #030303;
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: #1e293b;
+    border: 1px solid rgba(148, 163, 184, 0.1);
     border-radius: 12px;
 }
 
 .dark .glass-card {
-    background: #030303;
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: #1e293b;
+    border: 1px solid rgba(148, 163, 184, 0.1);
 }
 
 /* Hover Effects */

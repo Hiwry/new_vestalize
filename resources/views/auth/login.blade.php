@@ -39,13 +39,13 @@
             --primary-hover: #8b5cf6;
             --primary-light: rgba(124, 58, 237, 0.18);
 
-            --background: #000000;
-            --foreground: #fafafa;
-            --muted: #a1a1aa;
-            --border: #1a1a1a;
-            --card-bg: #030303;
-            --card-hover: #080808;
-            --input-bg: #050505;
+            --background: #0f172a;
+            --foreground: #f1f5f9;
+            --muted: #94a3b8;
+            --border: rgba(148, 163, 184, 0.1);
+            --card-bg: #1e293b;
+            --card-hover: #263348;
+            --input-bg: #162032;
             color-scheme: dark;
         }
 
@@ -68,8 +68,8 @@
         }
         
         .dark .input-theme {
-            background-color: #050505 !important;
-            color: #fafafa !important;
+            background-color: #162032 !important;
+            color: #f1f5f9 !important;
         }
 
         .input-theme:focus {

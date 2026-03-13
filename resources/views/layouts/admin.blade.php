@@ -97,16 +97,16 @@
             --primary-hover: #8b5cf6;
             --primary-light: rgba(124, 58, 237, 0.18);
 
-            --background: #000000;
-            --foreground: #fafafa;
-            --muted: #a1a1aa;
-            --border: #1a1a1a;
-            --card-bg: #030303;
-            --card-hover: #080808;
-            --input-bg: #050505;
-            --navbar-bg: rgba(0, 0, 0, 0.8);
-            --glow-opacity: 0.12;
-            --shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            --background: #0f172a;
+            --foreground: #f1f5f9;
+            --muted: #94a3b8;
+            --border: rgba(148, 163, 184, 0.1);
+            --card-bg: #1e293b;
+            --card-hover: #263348;
+            --input-bg: #162032;
+            --navbar-bg: rgba(10, 20, 40, 0.92);
+            --glow-opacity: 0.1;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
         }
 
         /* Alinha dashboard ao design system da landing */
@@ -285,8 +285,8 @@
         }
         
         .dark #sidebar {
-            background: linear-gradient(180deg, rgba(18, 14, 34, 0.96) 0%, #080612 60%, #030204 100%) !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+            background: linear-gradient(180deg, rgba(12, 20, 40, 0.98) 0%, #0c1628 60%, #0a1220 100%) !important;
+            border-right: 1px solid rgba(148, 163, 184, 0.08) !important;
         }
 
 

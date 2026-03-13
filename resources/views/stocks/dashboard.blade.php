@@ -3,14 +3,14 @@
 @section('content')
 <style>
     .stock-dashboard-theme .glass-card {
-        background: #030303;
-        border: 1px solid rgba(255, 255, 255, 0.04);
+        background: #1e293b;
+        border: 1px solid rgba(148, 163, 184, 0.1);
         border-radius: 1.5rem;
     }
 
     .stock-dashboard-theme .glass-card-soft {
-        background: rgba(10, 10, 10, 0.72);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(30, 41, 59, 0.72);
+        border: 1px solid rgba(148, 163, 184, 0.08);
         border-radius: 1rem;
         backdrop-filter: blur(12px);
     }

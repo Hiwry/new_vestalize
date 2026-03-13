@@ -72,9 +72,9 @@
             /* Fix para inputs no Dark Mode */
             .dark { color-scheme: dark; }
             .dark input:not([type="checkbox"]):not([type="radio"]) {
-                background-color: #0a0a0a !important;
-                color: #ffffff !important;
-                border-color: #1a1a1a !important;
+                background-color: #162032 !important;
+                color: #f1f5f9 !important;
+                border-color: rgba(148, 163, 184, 0.1) !important;
             }
         </style>
     <!-- Dark Mode Script -->
