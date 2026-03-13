@@ -200,7 +200,7 @@
             <div class="space-y-2 mobile-text-sm">
                 <div>
                     <p class="text-gray-500 dark:text-slate-400 mobile-text-xs">Nome</p>
-                    <p class="font-semibold text-gray-900 dark:text-white">{{ $client?->name ?? 'Cliente nÃ£o informado' }}</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">{{ $client?->name ?? 'Cliente não informado' }}</p>
                 </div>
                 <div>
                     <p class="text-gray-500 dark:text-slate-400 mobile-text-xs">Telefone</p>
@@ -702,15 +702,15 @@
                         } else if (data.content) {
                             content.innerHTML = data.content.replace(/\n/g, '<br>');
                         } else {
-                            content.innerHTML = '<p class="text-gray-500">Termos e condições não disponíveis no momento.</p>';
+                            content.innerHTML = '<div class="text-center py-6 text-yellow-600 font-medium">Termos carregados, mas conteúdo vazio. (success=true)</div>';
                         }
                     } else {
-                        content.innerHTML = '<p class="text-gray-500">Termos e condições não disponíveis no momento.</p>';
+                        content.innerHTML = `<div class="text-center py-6 text-gray-500 font-medium">${data.message || 'Termos e condições não encontrados.'}</div>`;
                     }
                 })
                 .catch(error => {
                     console.error('Erro ao carregar termos e condições:', error);
-                    content.innerHTML = '<p class="text-red-500">Erro ao carregar termos e condições.</p>';
+                    content.innerHTML = '<div class="text-center py-6 text-red-500">Erro de conexão ao carregar termos.</div>';
                 });
         }
 
@@ -744,7 +744,7 @@
 
         // Auto-refresh da página a cada 30 segundos para atualizar o status
         setTimeout(function() {
-            location.reload();
+            // location.reload(); // Comentado para Debug
         }, 30000);
     </script>
 

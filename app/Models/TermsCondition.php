@@ -82,12 +82,18 @@ class TermsCondition extends Model
     {
         $terms = collect();
         
+        $tenantId = $order->tenant_id ?? null;
+        
         // Buscar termos gerais
-        $general = self::where('active', true)
+        $generalQuery = self::where('active', true)
             ->whereNull('personalization_type')
-            ->whereNull('fabric_type_id')
-            ->latest()
-            ->first();
+            ->whereNull('fabric_type_id');
+            
+        if ($tenantId) {
+            $generalQuery->where('tenant_id', $tenantId);
+        }
+        
+        $general = $generalQuery->latest()->first();
         
         if ($general) {
             $terms->push($general);
@@ -110,11 +116,15 @@ class TermsCondition extends Model
                             ]);
                             
                             // Buscar termos específicos do tipo de personalização (case-insensitive)
-                            $personalizationTerm = self::where('active', true)
+                            $pTermQuery = self::where('active', true)
                                 ->whereRaw('UPPER(TRIM(personalization_type)) = ?', [$personalizationType])
-                                ->whereNull('fabric_type_id')
-                                ->latest()
-                                ->first();
+                                ->whereNull('fabric_type_id');
+                            
+                            if ($tenantId) {
+                                $pTermQuery->where('tenant_id', $tenantId);
+                            }
+                                
+                            $personalizationTerm = $pTermQuery->latest()->first();
                             
                             \Log::info('Term search result', [
                                 'found' => $personalizationTerm ? true : false,
@@ -134,11 +144,15 @@ class TermsCondition extends Model
                 if ($item->fabric) {
                     $fabricId = is_numeric($item->fabric) ? $item->fabric : null;
                     if ($fabricId) {
-                        $fabricTerm = self::where('active', true)
+                        $fTermQuery = self::where('active', true)
                             ->whereNull('personalization_type')
-                            ->where('fabric_type_id', $fabricId)
-                            ->latest()
-                            ->first();
+                            ->where('fabric_type_id', $fabricId);
+                            
+                        if ($tenantId) {
+                            $fTermQuery->where('tenant_id', $tenantId);
+                        }
+                            
+                        $fabricTerm = $fTermQuery->latest()->first();
                         
                         if ($fabricTerm && !$terms->contains('id', $fabricTerm->id)) {
                             $terms->push($fabricTerm);
@@ -152,11 +166,15 @@ class TermsCondition extends Model
                                     $personalizationType = strtoupper(trim($sub->application_type));
                                     
                                     // Buscar termos combinados (personalização + tecido) - case-insensitive
-                                    $combinedTerm = self::where('active', true)
+                                    $cTermQuery = self::where('active', true)
                                         ->whereRaw('UPPER(TRIM(personalization_type)) = ?', [$personalizationType])
-                                        ->where('fabric_type_id', $fabricId)
-                                        ->latest()
-                                        ->first();
+                                        ->where('fabric_type_id', $fabricId);
+                                        
+                                    if ($tenantId) {
+                                        $cTermQuery->where('tenant_id', $tenantId);
+                                    }
+                                        
+                                    $combinedTerm = $cTermQuery->latest()->first();
                                     
                                     if ($combinedTerm && !$terms->contains('id', $combinedTerm->id)) {
                                         $terms->push($combinedTerm);
