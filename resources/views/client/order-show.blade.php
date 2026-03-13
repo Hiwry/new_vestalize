@@ -30,6 +30,7 @@
         }
     </script>
     <script src="{{ asset('js/dark-mode.js') }}"></script>
+    <script src="{{ asset('js/utils.js') }}"></script>
     <style>
         :root {
             --primary-color: {{ $order->tenant->primary_color ?? '#312e81' }};

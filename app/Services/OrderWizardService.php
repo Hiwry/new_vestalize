@@ -312,6 +312,11 @@ class OrderWizardService
     public function processDeleteItem(OrderItem $item): void
     {
         $order = $item->order;
+
+        if (!$order->is_draft) {
+            throw new \Exception('Não é possível excluir itens de pedidos finalizados.');
+        }
+
         $item->delete();
 
         // Renumerar itens
@@ -1351,9 +1356,25 @@ class OrderWizardService
                 continue;
             }
 
-            $basePrice = \App\Models\SublimationProductPrice::getPriceFor($type, $quantity, $order->tenant_id);
+            $printDesc = $this->decodeOrderItemPrintDesc($item);
+            $tecidoId = $printDesc['tecido_id'] ?? null;
+
+            // Se não tem tecido no print_desc, tenta pegar o padrão do tipo
+            if (!$tecidoId) {
+                $productTypeObj = \App\Models\SublimationProductType::where('slug', $type)
+                    ->where('tenant_id', $order->tenant_id)
+                    ->first();
+                $tecidoId = $productTypeObj?->tecido_id;
+            }
+
+            $basePrice = \App\Models\SublimationProductPrice::getPriceFor($type, $quantity, $order->tenant_id, $tecidoId);
             if ($basePrice === null) {
-                continue;
+                // Tenta buscar sem o tecido_id se não encontrou com ele (fallback para manter compatibilidade)
+                $basePrice = \App\Models\SublimationProductPrice::getPriceFor($type, $quantity, $order->tenant_id, null);
+                
+                if ($basePrice === null) {
+                    continue;
+                }
             }
 
             $printDesc = $this->decodeOrderItemPrintDesc($item);
@@ -1413,23 +1434,6 @@ class OrderWizardService
     /**
      * Deleta um item do pedido
      */
-    public function deleteItem(int $itemId): bool
-    {
-        $item = OrderItem::findOrFail($itemId);
-        $order = $item->order;
-        
-        // Verificar se o pedido ainda é draft
-        if (!$order->is_draft) {
-            throw new \Exception('Não é possível excluir itens de pedidos finalizados.');
-        }
-        
-        $item->delete();
-        
-        // Recalcular totais
-        $this->recalculateOrderTotals($order);
-        
-        return true;
-    }
 }
 
 

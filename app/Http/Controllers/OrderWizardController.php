@@ -311,6 +311,7 @@ class OrderWizardController extends Controller
     {
         $validated = $request->validate([
             'sublimation_type' => 'required|string|max:50',
+            'tecido_id' => 'nullable|exists:tecidos,id',
             'sublimation_addons' => 'nullable|array',
             'sublimation_addons.*' => 'integer|exists:sublimation_product_addons,id',
             'art_name' => 'required|string|max:255',
@@ -450,6 +451,7 @@ class OrderWizardController extends Controller
         $validated = $request->validate([
             'editing_item_id' => 'required|exists:order_items,id',
             'sublimation_type' => 'required|string|max:50',
+            'tecido_id' => 'nullable|exists:tecidos,id',
             'sublimation_addons' => 'nullable|array',
             'sublimation_addons.*' => 'integer|exists:sublimation_product_addons,id',
             'art_name' => 'required|string|max:255',

@@ -784,6 +784,10 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                         <form method="POST" action="{{ isset($editData) ? route('orders.edit.sewing') : route('orders.wizard.sewing') }}" data-action-url="{{ isset($editData) ? route('orders.edit.sewing') : route('orders.wizard.sewing') }}" id="sewing-form" class="space-y-5" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="action" value="add_item" id="form-action">
+                    <input type="hidden" name="editing_item_id" id="fullpage_editing_item_id" value="">
+                <input type="hidden" name="existing_cover_image" id="fullpage_existing_cover_image" value="">
+                <input type="hidden" name="existing_corel_file" id="fullpage_existing_corel_file" value="">
+                <input type="hidden" name="tecido_id" id="fullpage_tecido_id" value="">
                             <input type="hidden" name="editing_item_id" value="" id="editing-item-id">
 
                             <!-- PersonalizaÃ§Ã£o agora Ã© selecionada dentro do modal -->
@@ -1833,13 +1837,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const form = document.getElementById('sewing-form');
         if (!form || form.dataset.submitting === 'true') return;
 
-        // ValidaÃ§Ã£o atualizada para o Wizard
+        // Validação atualizada para o Wizard
         const personalizacaoInputs = document.querySelectorAll('input[name="personalizacao[]"]');
         
         if (personalizacaoInputs.length === 0) {
              const preselected = document.querySelectorAll('.preselected-personalization');
              if (preselected.length === 0) {
-                 alert('Por favor, selecione pelo menos uma personalizaÃ§Ã£o.');
+                 alert('Por favor, selecione pelo menos uma personalização.');
                  return;
              }
         }
@@ -1852,7 +1856,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                  if(parseInt(i.value) > 0) hasSize = true;
              });
              if (!hasSize) {
-                 alert('Por favor, adicione pelo menos uma peÃ§a nos tamanhos.');
+                 alert('Por favor, adicione pelo menos uma peça nos tamanhos.');
                  return;
              }
         }
@@ -1895,7 +1899,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
             if (!response.ok) {
                 const text = await response.text();
-                console.error('Erro HTTP na submissÃ£o:', response.status, text);
+                console.error('Erro HTTP na submissão:', response.status, text);
                 alert('Erro ao salvar item: ' + (response.statusText || 'erro HTTP'));
                 return;
             }
@@ -1928,7 +1932,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 
             } else {
                  if (data.errors) {
-                     let msg = 'Erros de validaÃ§Ã£o:\n';
+                     let msg = 'Erros de validação:\n';
                      for (let field in data.errors) {
                          msg += `- ${data.errors[field].join(', ')}\n`;
                      }
@@ -1940,11 +1944,11 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
         } catch (error) {
             console.error('Erro no envio:', error);
-            alert('Ocorreu um erro ao processar sua solicitaÃ§Ã£o.');
+            alert('Ocorreu um erro ao processar sua solicitação.');
         } finally {
             if (submitBtn) {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = document.getElementById('form-action').value === 'update_item' ? 'Salvar AlteraÃ§Ãµes' : 'Adicionar Item';
+                submitBtn.innerHTML = document.getElementById('form-action').value === 'update_item' ? 'Salvar Alterações' : 'Adicionar Item';
             }
             if (form) form.dataset.submitting = 'false';
         }
@@ -2010,7 +2014,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 }
             })
             .catch(error => {
-                console.error('Erro ao carregar opÃ§Ãµes:', error);
+                console.error('Erro ao carregar opções:', error);
             });
     }
     window.loadOptions = loadOptions;
@@ -3774,6 +3778,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     // ========================
     
     let subWizardAddons = [];
+    let subWizardTecidoId = null;
     let subWizardUnitPrice = 0;
     window.subWizardAddons = subWizardAddons;
     window.subWizardUnitPrice = subWizardUnitPrice;
@@ -3814,6 +3819,8 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         try {
             const response = await fetch(`/api/sublimation-total/addons/${typeSlug}`);
             const data = await response.json();
+            
+            subWizardTecidoId = data.tecido_id || null;
             
             if (data.success && data.addons && data.addons.length > 0) {
                 subWizardAddons = data.addons;
@@ -3868,7 +3875,8 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         let baseUnitPrice = 0;
         if (typeSlug && totalQty > 0) {
             try {
-                const response = await fetch(`/api/sublimation-total/price/${typeSlug}/${totalQty}`);
+                const url = `/api/sublimation-total/price/${typeSlug}/${totalQty}${subWizardTecidoId ? `?tecido_id=${subWizardTecidoId}` : ''}`;
+                const response = await fetch(url);
                 const data = await response.json();
                 if (data.success && data.price) {
                     baseUnitPrice = parseFloat(data.price);
@@ -4882,7 +4890,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
         if (typeSlug && pricingQty > 0) {
             try {
-                const response = await fetch(`/api/sublimation-total/price/${typeSlug}/${pricingQty}`);
+                const tecidoId = fullpageSubTypeMeta.tecido_id || null;
+                const url = `/api/sublimation-total/price/${typeSlug}/${pricingQty}${tecidoId ? `?tecido_id=${tecidoId}` : ''}`;
+                const response = await fetch(url);
                 const payload = await response.json();
                 if (payload?.success) {
                     fullpageSubBaseUnitPrice = parseFloat(payload.price) || fullpageSubBaseUnitPrice;

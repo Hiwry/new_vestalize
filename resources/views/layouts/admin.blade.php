@@ -777,6 +777,8 @@
     <script src="{{ asset('js/ajax-navigation.js') }}" defer></script>
     <!-- Fallbacks para busca de clientes (suporte AJAX) -->
     <script src="{{ asset('js/client-search-fallback.js') }}" defer></script>
+    <!-- Utility Functions -->
+    <script src="{{ asset('js/utils.js') }}"></script>
     <!-- Paste Modal Script -->
     <script src="{{ asset('js/paste-modal.js') }}" defer></script>
 </head>

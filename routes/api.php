@@ -68,9 +68,12 @@ Route::get('/terms-conditions', function (Request $request) {
     }
     
     if ($storeSettings && $storeSettings->terms_conditions) {
+        \Log::info('Store terms found');
         $combinedContent .= "<h3 class='font-bold text-lg mb-2'>Termos da Loja</h3>";
         $combinedContent .= '<div class="mb-4">' . nl2br(e($storeSettings->terms_conditions)) . '</div>';
         $termsFound = true;
+    } else {
+        \Log::warning('Store terms NOT found or empty');
     }
     
     // 2. Buscar Termos Específicos (TermsCondition)
@@ -100,12 +103,18 @@ Route::get('/terms-conditions', function (Request $request) {
     } else {
         $terms = \App\Models\TermsCondition::getActive($personalizationType, $fabricTypeId);
         if ($terms) {
+            \Log::info('General/Specific terms found (non-order path)', ['term_id' => $terms->id]);
             if ($termsFound) $combinedContent .= '<hr class="my-4">';
             
             $title = $terms->title ? "<h3 class='font-bold text-lg mb-2'>{$terms->title}</h3>" : '';
             $content = nl2br(e($terms->content));
             $combinedContent .= $title . '<div class="mb-4">' . $content . '</div>';
             $termsFound = true;
+        } else {
+            \Log::warning('No terms found for personalization_type/fabric_type_id', [
+                'personalization_type' => $personalizationType,
+                'fabric_type_id' => $fabricTypeId
+            ]);
         }
     }
     

@@ -122,6 +122,7 @@ class SublimationProductController extends Controller
 
         $prices = SublimationProductPrice::where('tenant_id', $tenantId)
             ->where('product_type', $type)
+            ->where('tecido_id', $productType->tecido_id)
             ->orderBy('quantity_from')
             ->get();
 
@@ -165,6 +166,7 @@ class SublimationProductController extends Controller
 
         SublimationProductPrice::where('tenant_id', $tenantId)
             ->where('product_type', $type)
+            ->where('tecido_id', $validated['tecido_id'])
             ->delete();
 
         $pricesData = $validated['prices'] ?? [];
@@ -176,6 +178,7 @@ class SublimationProductController extends Controller
             SublimationProductPrice::create([
                 'tenant_id' => $tenantId,
                 'product_type' => $type,
+                'tecido_id' => $validated['tecido_id'],
                 'quantity_from' => $priceData['quantity_from'],
                 'quantity_to' => $priceData['quantity_to'] ?: null,
                 'price' => $priceData['price'],

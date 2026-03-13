@@ -508,6 +508,7 @@ Route::middleware('auth')->group(function () {
                     }),
                     'type_name' => $productType?->name,
                     'default_fabric_name' => $productType?->tecido?->name,
+                    'tecido_id' => $productType?->tecido_id,
                     'starting_price' => $startingPriceRow ? (float) $startingPriceRow->price : 0,
                     'starting_quantity_from' => $startingPriceRow?->quantity_from,
                 ]);
@@ -516,7 +517,8 @@ Route::middleware('auth')->group(function () {
             // Buscar preço para quantidade SUB. TOTAL
             Route::get('/price/{type}/{quantity}', function (Request $request, string $type, int $quantity) {
                 $tenantId = Auth::user() ? Auth::user()->tenant_id : session('current_tenant_id');
-                $price = \App\Models\SublimationProductPrice::getPriceFor($type, $quantity, $tenantId);
+                $tecidoId = $request->get('tecido_id');
+                $price = \App\Models\SublimationProductPrice::getPriceFor($type, $quantity, $tenantId, $tecidoId);
                 
                 return response()->json([
                     'success' => $price !== null,

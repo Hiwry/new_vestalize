@@ -10,6 +10,7 @@ class SublimationProductPrice extends Model
     protected $fillable = [
         'tenant_id',
         'product_type',
+        'tecido_id',
         'quantity_from',
         'quantity_to',
         'price',
@@ -19,6 +20,7 @@ class SublimationProductPrice extends Model
     protected $casts = [
         'quantity_from' => 'integer',
         'quantity_to' => 'integer',
+        'tecido_id' => 'integer',
         'price' => 'decimal:2',
         'cost' => 'decimal:2',
     ];
@@ -29,6 +31,14 @@ class SublimationProductPrice extends Model
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    /**
+     * Relação com Tecido
+     */
+    public function tecido(): BelongsTo
+    {
+        return $this->belongsTo(Tecido::class);
     }
 
     /**
@@ -46,19 +56,23 @@ class SublimationProductPrice extends Model
      * Buscar preço para um tipo e quantidade específicos
      * Prioriza preços do tenant, depois busca preços globais (tenant_id = null)
      */
-    public static function getPriceFor(string $productType, int $quantity, ?int $tenantId = null): ?float
+    public static function getPriceFor(string $productType, int $quantity, ?int $tenantId = null, ?int $tecidoId = null): ?float
     {
         // Primeiro, tentar buscar preço específico do tenant
         if ($tenantId) {
-            $price = static::where('product_type', $productType)
+            $query = static::where('product_type', $productType)
                 ->where('tenant_id', $tenantId)
                 ->where('quantity_from', '<=', $quantity)
                 ->where(function($q) use ($quantity) {
                     $q->whereNull('quantity_to')
                       ->orWhere('quantity_to', '>=', $quantity);
-                })
-                ->orderBy('quantity_from', 'desc')
-                ->first();
+                });
+
+            if ($tecidoId) {
+                $query->where('tecido_id', $tecidoId);
+            }
+
+            $price = $query->orderBy('quantity_from', 'desc')->first();
             
             if ($price) {
                 return (float) $price->price;
@@ -66,15 +80,19 @@ class SublimationProductPrice extends Model
         }
         
         // Se não encontrou preço do tenant, buscar preço global
-        $globalPrice = static::where('product_type', $productType)
+        $globalQuery = static::where('product_type', $productType)
             ->whereNull('tenant_id')
             ->where('quantity_from', '<=', $quantity)
             ->where(function($q) use ($quantity) {
                 $q->whereNull('quantity_to')
                   ->orWhere('quantity_to', '>=', $quantity);
-            })
-            ->orderBy('quantity_from', 'desc')
-            ->first();
+            });
+
+        if ($tecidoId) {
+            $globalQuery->where('tecido_id', $tecidoId);
+        }
+
+        $globalPrice = $globalQuery->orderBy('quantity_from', 'desc')->first();
         
         return $globalPrice ? (float) $globalPrice->price : null;
     }
