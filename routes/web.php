@@ -483,12 +483,16 @@ Route::middleware('auth')->group(function () {
                     })
                     ->first();
 
-                $startingPriceRow = \App\Models\SublimationProductPrice::where('product_type', $type)
+                $tecidoIdForStarting = $productType?->tecido_id;
+                $startingPriceQuery = \App\Models\SublimationProductPrice::where('product_type', $type)
                     ->where(function($q) use ($tenantId) {
                         $q->whereNull('tenant_id')->orWhere('tenant_id', $tenantId);
                     })
-                    ->orderBy('quantity_from')
-                    ->first();
+                    ->orderBy('quantity_from');
+                if ($tecidoIdForStarting) {
+                    $startingPriceQuery->where('tecido_id', $tecidoIdForStarting);
+                }
+                $startingPriceRow = $startingPriceQuery->first();
                 
                 $addons = \App\Models\SublimationProductAddon::where('product_type', $type)
                     ->where(function($q) use ($tenantId) {

@@ -4913,7 +4913,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
         if (typeSlug && pricingQty > 0) {
             try {
-                const tecidoId = fullpageSubTypeMeta.tecido_id || null;
+                const fabricSelect = document.getElementById('fullpage_sub_fabric_type');
+                const selectedOption = fabricSelect?.options[fabricSelect?.selectedIndex];
+                const tecidoId = selectedOption?.dataset?.tecidoId || fullpageSubTypeMeta.tecido_id || null;
                 const url = `/api/sublimation-total/price/${typeSlug}/${pricingQty}${tecidoId ? `?tecido_id=${tecidoId}` : ''}`;
                 const response = await fetch(url);
                 const payload = await response.json();
