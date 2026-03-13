@@ -1569,8 +1569,32 @@ class EditOrderController extends Controller
             // ATUALIZAR NO BANCO DE DADOS
             $dbItem->update($updatedData);
             $dbItem->refresh();
+
+            // Atualizar quantity e final_price das personalizações vinculadas ao item
+            // (exceto SUB. TOTAL que tem sua própria lógica de quantidade)
+            if ($dbItem->quantity > 0) {
+                $dbItem->sublimations()->where('application_type', '!=', 'sub. total')->each(function ($sub) use ($totalQuantity) {
+                    $oldQty = $sub->quantity ?: 1;
+                    if ($oldQty == $totalQuantity) {
+                        return; // nada mudou
+                    }
+                    $newFinalPrice = $oldQty > 0
+                        ? round(($sub->final_price / $oldQty) * $totalQuantity, 2)
+                        : round($sub->unit_price * $totalQuantity, 2);
+                    $sub->update([
+                        'quantity'    => $totalQuantity,
+                        'final_price' => $newFinalPrice,
+                    ]);
+                });
+
+                // Recalcular total do item incluindo personalizações
+                $totalPersonalizationPrice = $dbItem->sublimations()->sum('final_price');
+                $dbItem->update(['total_price' => ($updatedData['unit_price'] * $totalQuantity) + $totalPersonalizationPrice]);
+                $dbItem->refresh();
+            }
             
             // Atualizar totais do pedido
+            $order->load('items'); // recarregar com total_price atualizado
             $order->update([
                 'subtotal' => $order->items()->sum('total_price'),
                 'total_items' => $order->items()->sum('quantity'),
@@ -1594,7 +1618,7 @@ class EditOrderController extends Controller
                         'sizes' => $sizes, // Manter como array, não JSON
                         'quantity' => $updatedData['quantity'],
                         'unit_price' => $updatedData['unit_price'],
-                        'total_price' => $updatedData['total_price'],
+                        'total_price' => $dbItem->total_price, // usar valor atualizado do banco (inclui personalizações)
                         'unit_cost' => $updatedData['unit_cost'],
                         'total_cost' => $updatedData['total_cost'],
                         'art_notes' => $updatedData['art_notes'],
