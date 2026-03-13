@@ -209,8 +209,11 @@ class OrderWizardController extends Controller
 
             // Buscar tecidos reais para Sublimação Total
             $tecidos = \App\Models\Tecido::where('active', true)->orderBy('name')->get();
+
+            // Acréscimos por tamanho (para cálculo de total no frontend)
+            $sizeSurcharges = \App\Models\SizeSurcharge::orderBy('size')->orderBy('price_from')->get(['size', 'price_from', 'price_to', 'surcharge']);
             
-            return view('orders.wizard.sewing', compact('order', 'fabrics', 'colors', 'personalizationOptions', 'currentStoreId', 'sublimationTypes', 'sublimationEnabled', 'preselectedTypes', 'preselectedIds', 'fabricPieces', 'tecidos'));
+            return view('orders.wizard.sewing', compact('order', 'fabrics', 'colors', 'personalizationOptions', 'currentStoreId', 'sublimationTypes', 'sublimationEnabled', 'preselectedTypes', 'preselectedIds', 'fabricPieces', 'tecidos', 'sizeSurcharges'));
         }
 
         $action = $request->input('action', 'add');

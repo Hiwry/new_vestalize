@@ -1738,6 +1738,30 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     window.sublimationTypes = sublimationTypes;
     let sublimationAddonsCache = {};
     window.sublimationAddonsCache = sublimationAddonsCache;
+
+    @php
+        $safeSizeSurcharges = isset($sizeSurcharges) ? $sizeSurcharges->map(fn($s) => [
+            'size' => $s->size,
+            'price_from' => (float) $s->price_from,
+            'price_to' => $s->price_to !== null ? (float) $s->price_to : null,
+            'surcharge' => (float) $s->surcharge,
+        ])->values()->all() : [];
+    @endphp
+    const sizeSurchargesData = @json($safeSizeSurcharges);
+    window.sizeSurchargesData = sizeSurchargesData;
+
+    function getFullpageSizeSurcharge(size, baseUnitPrice) {
+        const normalized = (size === 'Especial' || size === 'ESPECIAL') ? 'ESPECIAL' : size;
+        const matches = (window.sizeSurchargesData || []).filter(s =>
+            s.size === normalized &&
+            s.price_from <= baseUnitPrice &&
+            (s.price_to === null || s.price_to >= baseUnitPrice)
+        );
+        if (!matches.length) return 0;
+        matches.sort((a, b) => b.price_from - a.price_from);
+        return matches[0].surcharge;
+    }
+    window.getFullpageSizeSurcharge = getFullpageSizeSurcharge;
     
     // Tipos de personalização pré-selecionados na etapa anterior
     const preselectedPersonalizationTypes = @json($safePreselectedTypes);
@@ -4930,7 +4954,17 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         fullpageSubUnitPrice = fullpageSubBaseUnitPrice + fullpageSubAddonsAdjustment + fullpageSubFabricSurcharge;
         if (fullpageSubUnitPrice < 0) fullpageSubUnitPrice = 0;
 
-        const totalPrice = fullpageSubUnitPrice * totalQty;
+        // Calcular acréscimos por tamanho (igual ao backend calculateItemTotalPrice)
+        let totalSizeSurcharge = 0;
+        sizeInputs.forEach(input => {
+            const qty = parseInt(input.value, 10) || 0;
+            const size = input.dataset.size;
+            if (qty > 0 && size) {
+                totalSizeSurcharge += getFullpageSizeSurcharge(size, fullpageSubUnitPrice) * qty;
+            }
+        });
+
+        const totalPrice = fullpageSubUnitPrice * totalQty + totalSizeSurcharge;
         const formatMoney = value => `R$ ${Number(value || 0).toFixed(2).replace('.', ',')}`;
         const addonSign = fullpageSubAddonsAdjustment < 0 ? '-' : '+';
         const fabricSign = fullpageSubFabricSurcharge < 0 ? '-' : '+';
@@ -4948,6 +4982,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const breakdownEl = document.getElementById('fullpage-price-breakdown');
         if (breakdownEl) {
             let breakdownText = `Base ${formatMoney(fullpageSubBaseUnitPrice)} ${addonSign} Adicionais ${formatMoney(Math.abs(fullpageSubAddonsAdjustment))} ${fabricSign} Tecido ${formatMoney(Math.abs(fullpageSubFabricSurcharge))}`;
+            if (totalSizeSurcharge > 0) {
+                breakdownText += ` + Tamanhos ${formatMoney(totalSizeSurcharge)}`;
+            }
             if (totalQty > 0) {
                 breakdownText += ` · Unitário calculado para ${totalQty} peça(s)`;
             }

@@ -350,7 +350,10 @@ class EditOrderController extends Controller
             // Buscar tecidos reais para Sublimação Total
             $tecidos = \App\Models\Tecido::where('active', true)->orderBy('name')->get();
 
-            return view('orders.wizard.sewing', compact('order', 'editData', 'fabrics', 'colors', 'personalizationOptions', 'currentStoreId', 'tecidos', 'sublimationTypes', 'sublimationEnabled', 'preselectedTypes', 'preselectedIds', 'fabricPieces'));
+            // Acréscimos por tamanho (para cálculo de total no frontend)
+            $sizeSurcharges = \App\Models\SizeSurcharge::orderBy('size')->orderBy('price_from')->get(['size', 'price_from', 'price_to', 'surcharge']);
+
+            return view('orders.wizard.sewing', compact('order', 'editData', 'fabrics', 'colors', 'personalizationOptions', 'currentStoreId', 'tecidos', 'sublimationTypes', 'sublimationEnabled', 'preselectedTypes', 'preselectedIds', 'fabricPieces', 'sizeSurcharges'));
         } catch (\Exception $e) {
             Log::error('Error in sewing method: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Erro: ' . $e->getMessage());
