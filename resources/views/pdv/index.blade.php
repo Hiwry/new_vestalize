@@ -440,6 +440,7 @@
         flex-direction: column;
         gap: 8px;
         margin-top: 16px;
+        position: relative;
     }
 
     .pdv-filter-label {
@@ -1756,6 +1757,14 @@
                                    spellcheck="false"
                                    class="pdv-search-field-input">
                         </div>
+                        {{-- Dropdown autocomplete exclusivo para a aba de Tecidos --}}
+                        <div id="fabric-search-dropdown"
+                             class="absolute left-0 right-0 mt-1 z-50 hidden"
+                             style="top: 100%;">
+                            <div class="pdv-card bg-white rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden max-h-80 overflow-y-auto" id="fabric-search-results">
+                                {{-- preenchido por JS --}}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -2631,6 +2640,19 @@ async function loadColorOptionsForCutType(cutTypeId, product, selectedColorId = 
     }
 }
 
+// Preencher quantidade com o total da peça (peça fechada)
+window.sellClosedPiece = function() {
+    const product = window.pageItems.find(p => p.id == currentProductId && p.type == currentProductType);
+    if (!product || currentProductType !== 'fabric_piece') return;
+
+    const maxQty = parseFloat(product.available_quantity) || 0;
+    const qtyInput = document.getElementById('modal-quantity');
+    if (qtyInput) {
+        qtyInput.value = maxQty.toFixed(product.control_unit === 'metros' ? 2 : 3);
+        calculateFabricPiecePrice();
+    }
+};
+
 // Calcular preço de peça de tecido respeitando a unidade de controle
 window.calculateFabricPiecePrice = function() {
     const product = window.pageItems.find(p => p.id == currentProductId && p.type == currentProductType);
@@ -2944,6 +2966,17 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
             </div>
             
             ${!shouldShowStockFields ? `
+            ${isFabricPiece ? `
+            <!-- Cor da peça -->
+            <div class="mb-4 flex items-center gap-3 p-3 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50/50">
+                <div class="flex-shrink-0 w-8 h-8 rounded-full border-2 border-gray-300 dark:border-gray-500"
+                     style="${product.color_hex ? `background:${product.color_hex}` : 'background:#e5e7eb'}"></div>
+                <div>
+                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Cor</span>
+                    <p class="text-sm font-bold text-gray-900 dark:text-gray-100">${product.color_name || '—'}</p>
+                </div>
+            </div>
+            ` : ''}
             <div class="mb-4">
                 <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">${quantityLabel}</label>
                 <input type="number" 
@@ -2951,10 +2984,20 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
                        step="${quantityStep}"
                        min="${quantityMin}"
                        value="${quantityValue}"
-                       ${isFabricPiece ? `max="${product.available_quantity || 999}" onchange="calculateFabricPiecePrice()"` : ''}
+                       ${isFabricPiece ? `max="${product.available_quantity || 999}" oninput="calculateFabricPiecePrice()"` : ''}
                        ${isQuantityReadonly ? 'readonly disabled' : ''}
                        class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg pdv-card bg-gray-50 text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-indigo-500 transition-shadow ${isQuantityReadonly ? 'cursor-not-allowed opacity-75' : ''}">
-                ${isFabricPiece ? `<p class="text-xs text-gray-500 mt-1">Máximo disponível: ${formatFabricPieceQuantity(product.available_quantity || 0, product)} ${getFabricPieceUnitSuffix(product)}</p>` : ''}
+                ${isFabricPiece ? `
+                <div class="flex items-center justify-between mt-2">
+                    <p class="text-xs text-gray-500">Máx: <span class="font-semibold">${formatFabricPieceQuantity(product.available_quantity || 0, product)} ${getFabricPieceUnitSuffix(product)}</span></p>
+                    <button type="button"
+                            onclick="sellClosedPiece()"
+                            class="text-xs font-bold px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Peça Fechada (${formatFabricPieceQuantity(product.available_quantity || 0, product)} ${getFabricPieceUnitSuffix(product)})
+                    </button>
+                </div>
+                ` : ''}
             </div>
             ` : ''}
             
@@ -5146,6 +5189,24 @@ function setActiveTab(type) {
         link.setAttribute('aria-current', isActive ? 'page' : 'false');
         link.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
+
+    // Atualizar placeholder da busca por aba
+    const si = getProductSearchInput();
+    if (si) {
+        const placeholders = {
+            products: 'Buscar camisa, tipo de corte...',
+            fabric_pieces: 'Digite o nome da malha ou tipo de tecido...',
+            machines: 'Buscar máquina por nome ou código...',
+            supplies: 'Buscar suprimento...',
+            uniforms: 'Buscar uniforme...',
+        };
+        si.placeholder = placeholders[type] || 'Buscar item...';
+    }
+
+    // Limpar dropdown de tecido quando sai da aba Tecidos
+    if (type !== 'fabric_pieces') {
+        hideFabricDropdown();
+    }
 }
 
 // Fetch function
@@ -5229,13 +5290,111 @@ async function fetchProducts(type, search, options = {}) {
 const searchInput = getProductSearchInput();
 if (searchInput) {
     searchInput.addEventListener('input', debounce(function(e) {
-        fetchProducts(currentType, e.target.value, { historyMode: 'replace' });
+        const val = e.target.value;
+        if (currentType === 'fabric_pieces') {
+            fetchFabricAutocomplete(val);
+        }
+        fetchProducts(currentType, val, { historyMode: 'replace' });
     }, 350));
+
+    // Fechar dropdown ao clicar fora
+    document.addEventListener('click', function(ev) {
+        if (!ev.target.closest('#fabric-search-dropdown') && ev.target.id !== 'product-search') {
+            hideFabricDropdown();
+        }
+    });
 }
 
+// ---- Fabric Piece Autocomplete ----
+const fabricSearchUrl = '{{ route("pdv.fabric-pieces.search") }}';
+
+function hideFabricDropdown() {
+    const dd = document.getElementById('fabric-search-dropdown');
+    if (dd) dd.classList.add('hidden');
+}
+
+function showFabricDropdown() {
+    const dd = document.getElementById('fabric-search-dropdown');
+    if (dd) dd.classList.remove('hidden');
+}
+
+async function fetchFabricAutocomplete(q) {
+    const dd = document.getElementById('fabric-search-dropdown');
+    const results = document.getElementById('fabric-search-results');
+    if (!dd || !results) return;
+
+    if (!q || q.trim().length === 0) {
+        hideFabricDropdown();
+        return;
+    }
+
+    try {
+        const res = await fetch(`${fabricSearchUrl}?q=${encodeURIComponent(q)}`, {
+            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
+        });
+        const pieces = await res.json();
+
+        if (!pieces || pieces.length === 0) {
+            results.innerHTML = `<div class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">Nenhuma peça encontrada para "<strong>${q}</strong>"</div>`;
+            showFabricDropdown();
+            return;
+        }
+
+        results.innerHTML = pieces.map(piece => {
+            const colorSwatch = piece.color_hex
+                ? `<span class="inline-block w-4 h-4 rounded-full border border-gray-300 flex-shrink-0" style="background:${piece.color_hex}"></span>`
+                : `<span class="inline-block w-4 h-4 rounded-full bg-gray-200 border border-gray-300 flex-shrink-0"></span>`;
+            const statusBadge = piece.status === 'fechada'
+                ? `<span class="text-[10px] font-bold px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Fechada</span>`
+                : `<span class="text-[10px] font-bold px-1.5 py-0.5 bg-green-100 text-green-700 rounded">Aberta</span>`;
+            const unitLabel = piece.control_unit === 'metros' ? '/m' : '/kg';
+            const priceText = piece.price > 0
+                ? `<span class="font-bold text-indigo-600 dark:text-indigo-400">R$ ${parseFloat(piece.price).toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2})}${unitLabel}</span>`
+                : `<span class="text-gray-400 text-xs">Preço não definido</span>`;
+
+            // Register item in pageItems so openAddProductModal can find it
+            if (window.pageItems && !window.pageItems.find(p => p.id == piece.id && p.type === 'fabric_piece')) {
+                window.pageItems.push(piece);
+            }
+
+            return `
+                <div class="px-4 py-3 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-0 transition-colors"
+                     onclick="hideFabricDropdown(); openAddProductModal(${piece.id}, 'fabric_piece')">
+                    <div class="flex items-center gap-3">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate">${piece.fabric_type_name}</span>
+                                ${statusBadge}
+                            </div>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                ${colorSwatch}
+                                <span class="text-xs text-gray-500 dark:text-gray-400">${piece.color_name}</span>
+                                <span class="text-xs text-gray-400">•</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">${piece.available_label} disponível</span>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0 text-right">
+                            ${priceText}
+                        </div>
+                    </div>
+                </div>`;
+        }).join('');
+
+        showFabricDropdown();
+    } catch (err) {
+        console.error('Erro no autocomplete de tecido:', err);
+        hideFabricDropdown();
+    }
+}
+
+// Limpar dropdown ao trocar de aba
 document.addEventListener('click', function(e) {
     const tabLink = e.target.closest('.pdv-tab-link[data-type]');
     if (tabLink) {
+        hideFabricDropdown();
         e.preventDefault();
         setActiveTab(tabLink.dataset.type);
         const searchValue = getProductSearchInput()?.value || '';

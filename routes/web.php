@@ -550,6 +550,7 @@ Route::middleware('auth')->group(function () {
     // PDV - Ponto de Venda
     Route::prefix('pdv')->name('pdv.')->middleware('plan:pdv')->group(function () {
         Route::get('/', [\App\Http\Controllers\PDVController::class, 'index'])->name('index');
+        Route::get('/fabric-pieces/search', [\App\Http\Controllers\PDVController::class, 'searchFabricPieces'])->name('fabric-pieces.search');
         Route::get('/vendas', [\App\Http\Controllers\PDVController::class, 'sales'])->name('sales');
         Route::get('/vendas/{id}/editar', [\App\Http\Controllers\PDVController::class, 'editSale'])->name('sales.edit');
         Route::put('/vendas/{id}', [\App\Http\Controllers\PDVController::class, 'updateSale'])->name('sales.update');

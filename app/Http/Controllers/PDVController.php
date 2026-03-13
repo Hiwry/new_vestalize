@@ -320,6 +320,9 @@ class PDVController extends Controller
                 $data['store_id'] = $item->store_id ?? null;
                 $data['supplier_name'] = $item->supplier ?? 'N/A';
                 $data['fabric_type_name'] = $item->fabricType->name ?? ($item->fabric->name ?? 'Tecido');
+                $data['color_name'] = $item->color->name ?? null;
+                $data['color_hex'] = $item->color->color_hex ?? null;
+                $data['status'] = $item->status ?? null;
             } elseif ($itemType == 'machine') {
                 $data['price'] = $item->purchase_price ?? 0;
                 $data['internal_code'] = $item->internal_code ?? null;
@@ -1196,6 +1199,77 @@ class PDVController extends Controller
                 'error' => 'Erro ao gerar PDF: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Busca rápida de peças de tecido para autocomplete no PDV
+     */
+    public function searchFabricPieces(Request $request)
+    {
+        $q = trim($request->get('q', ''));
+        if (strlen($q) < 1) {
+            return response()->json([]);
+        }
+
+        $user = Auth::user();
+
+        $currentStoreId = null;
+        if ($user->isAdminLoja()) {
+            $storeIds = $user->getStoreIds();
+            $currentStoreId = !empty($storeIds) ? $storeIds[0] : null;
+        } elseif ($user->isVendedor()) {
+            $currentStoreId = $user->stores()->first()?->id;
+        }
+        if (!$currentStoreId) {
+            $mainStore = Store::where('is_main', true)->first();
+            $currentStoreId = $mainStore ? $mainStore->id : null;
+        }
+
+        if (!Schema::hasTable('fabric_pieces')) {
+            return response()->json([]);
+        }
+
+        $query = \App\Models\FabricPiece::with(['fabric', 'fabricType', 'color'])
+            ->availableForChannel('pdv')
+            ->whereIn('status', ['aberta', 'fechada'])
+            ->hasAvailableQuantity()
+            ->where(function ($q2) use ($q) {
+                $q2->whereHas('fabricType', fn($q3) => $q3->where('name', 'like', "%{$q}%"))
+                   ->orWhereHas('fabric', fn($q3) => $q3->where('name', 'like', "%{$q}%"))
+                   ->orWhereHas('color', fn($q3) => $q3->where('name', 'like', "%{$q}%"))
+                   ->orWhere('supplier', 'like', "%{$q}%")
+                   ->orWhere('invoice_number', 'like', "%{$q}%");
+            });
+
+        if ($currentStoreId && !$user->isAdmin() && !$user->isAdminGeral()) {
+            $query->where('store_id', $currentStoreId);
+        }
+
+        $pieces = $query->orderBy('status')->limit(15)->get()->map(function ($piece) {
+            $unit = $piece->control_unit === 'metros' ? 'm' : 'kg';
+            $decimals = $piece->control_unit === 'metros' ? 2 : 3;
+            $qty = number_format((float) $piece->available_quantity, $decimals, ',', '.');
+
+            return [
+                'id'                 => $piece->id,
+                'type'               => 'fabric_piece',
+                'title'              => $piece->display_name,
+                'fabric_type_name'   => $piece->fabricType?->name ?? $piece->fabric?->name ?? 'Tecido',
+                'color_name'         => $piece->color?->name ?? '—',
+                'color_hex'          => $piece->color?->color_hex ?? null,
+                'available_quantity' => (float) $piece->available_quantity,
+                'available_label'    => "{$qty} {$unit}",
+                'control_unit'       => $piece->control_unit,
+                'sale_type'          => $piece->control_unit === 'metros' ? 'metro' : 'kg',
+                'price'              => (float) ($piece->sale_price > 0 ? $piece->sale_price : 0),
+                'price_per_unit'     => (float) ($piece->sale_price > 0 ? $piece->sale_price : 0),
+                'sale_price'         => (float) ($piece->sale_price > 0 ? $piece->sale_price : 0),
+                'status'             => $piece->status,
+                'status_label'       => $piece->status_label,
+            ];
+        });
+
+        return response()->json($pieces);
     }
 
     /**
