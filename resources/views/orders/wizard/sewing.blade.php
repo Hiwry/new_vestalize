@@ -938,9 +938,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                     </div>
 
                                     <div class="space-y-5">
-                                        <input type="hidden" id="fullpage-sub-editing-id" name="editing_item_id">
-                                        <input type="hidden" id="fullpage_existing_cover_image" name="existing_cover_image">
-                                        <input type="hidden" id="fullpage_existing_corel_file" name="existing_corel_file">
+                                        <input type="hidden" id="fullpage-sub-editing-id">
+                                        <input type="hidden" id="fullpage_existing_cover_image_fullpage">
+                                        <input type="hidden" id="fullpage_existing_corel_file_fullpage">
                                         
                                         <!-- Step 1 -->
                                         <div id="fullpage-step-1" class="fullpage-sub-step space-y-4">
@@ -3208,8 +3208,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const formActionInput = document.getElementById('form-action');
         const editingItemIdInput = document.getElementById('editing-item-id');
         if (formActionInput?.value === 'update_item') {
-            const validEditingItem = itemsData.some(item => item.id?.toString() === editingItemIdInput?.value?.toString());
+            const currentEditingId = editingItemIdInput?.value?.toString();
+            const validEditingItem = itemsData.some(item => item.id?.toString() === currentEditingId);
+            
+            console.log('VESTALIZE: Validating Edit ID:', currentEditingId, 'against itemsData:', itemsData);
+            
             if (!validEditingItem) {
+                console.warn('VESTALIZE: Editing ID not found in itemsData. Resetting to add_item.');
                 formActionInput.value = 'add_item';
                 if (editingItemIdInput) editingItemIdInput.value = '';
             }
