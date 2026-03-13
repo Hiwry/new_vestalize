@@ -10,6 +10,7 @@ use App\Models\OrderSublimationFile;
 use App\Models\Payment;
 use App\Models\Status;
 use App\Models\Notification;
+use App\Models\User;
 use App\Helpers\StoreHelper;
 use App\Helpers\ImageHelper;
 use Illuminate\Http\JsonResponse;
@@ -1574,6 +1575,61 @@ class KanbanController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Pagamento registrado com sucesso!'
+        ]);
+    }
+
+    public function getTenantUsers(): JsonResponse
+    {
+        $user = Auth::user();
+        if (!$user || !$user->isAdminGeral()) {
+            return response()->json(['error' => 'Acesso negado.'], 403);
+        }
+
+        $users = User::where('tenant_id', $user->tenant_id)
+            ->select('id', 'name', 'role')
+            ->orderBy('name')
+            ->get();
+
+        return response()->json(['users' => $users]);
+    }
+
+    public function transferOrder(Request $request, $id): JsonResponse
+    {
+        $user = Auth::user();
+        if (!$user || !$user->isAdminGeral()) {
+            return response()->json(['error' => 'Acesso negado.'], 403);
+        }
+
+        $validated = $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+        ]);
+
+        $order = Order::with('user')->findOrFail($id);
+
+        $newUser = User::where('id', $validated['user_id'])
+            ->where('tenant_id', $user->tenant_id)
+            ->firstOrFail();
+
+        $oldUserName = $order->user?->name ?? $order->getOriginal('seller') ?? 'Desconhecido';
+
+        $order->update([
+            'user_id' => $newUser->id,
+            'seller'  => $newUser->name,
+        ]);
+
+        OrderLog::create([
+            'order_id'  => $order->id,
+            'user_id'   => $user->id,
+            'user_name' => $user->name,
+            'action'    => 'order_transferred',
+            'description' => "Pedido transferido de '{$oldUserName}' para '{$newUser->name}'",
+            'old_value' => ['user' => $oldUserName],
+            'new_value' => ['user' => $newUser->name],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Pedido transferido para {$newUser->name} com sucesso!",
         ]);
     }
 }

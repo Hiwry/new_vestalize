@@ -310,6 +310,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/kanban/download-files/{id}', [\App\Http\Controllers\KanbanController::class, 'downloadFiles']);
         Route::post('/kanban/upload-item-file', [\App\Http\Controllers\KanbanController::class, 'uploadItemFile'])->name('kanban.upload-item-file');
         Route::post('/kanban/delete-file', [\App\Http\Controllers\KanbanController::class, 'deleteFile'])->name('kanban.delete-file');
+        Route::post('/kanban/order/{id}/transfer', [\App\Http\Controllers\KanbanController::class, 'transferOrder']);
+        Route::get('/kanban/tenant-users', [\App\Http\Controllers\KanbanController::class, 'getTenantUsers']);
     });
 
     // Catálogo

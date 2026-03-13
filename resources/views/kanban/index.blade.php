@@ -675,7 +675,7 @@
                                     ? ($order->client?->name ?? $productName)
                                     : ($artName ?? ($order->client?->name ?? 'Sem cliente'));
                                 $storeName = $order->store?->name ?? 'Loja Principal';
-                                $filesCount = $order->items->sum(fn($item) => $item->files->count());
+                                $filesCount = $order->items->sum(fn($item) => $item->files->count() + ($item->corel_file_path ? 1 : 0));
                                 $commentsCount = (int) ($order->comments_count ?? 0);
                                 $printType = $order->items
                                     ->pluck('print_type')
@@ -1892,6 +1892,10 @@
                 if (item.files) {
                     itemFilesCount += item.files.length;
                 }
+                // Contar arquivo corel direto no item (SUB. TOTAL)
+                if (item.corel_file_path) {
+                    itemFilesCount += 1;
+                }
                 return sum + itemFilesCount;
             }, 0);
             
@@ -1933,6 +1937,21 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                         Mover
+                                    </button>
+                                </div>
+                                @endif
+                                @if(Auth::user()->isAdminGeral())
+                                <div class="flex items-center gap-2 w-full">
+                                    <select id="transfer-user-select-${order.id}"
+                                            class="flex-1 h-[46px] px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-slate-200 dark:border-slate-700 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400">
+                                        <option value="">Transferir para...</option>
+                                    </select>
+                                    <button onclick="transferOrder(${order.id})"
+                                            class="btn-modern btn-warning h-[46px] min-w-[140px]">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 5H4m0 0l4 4m-4-4l4-4"></path>
+                                        </svg>
+                                        Transferir
                                     </button>
                                 </div>
                                 @endif
@@ -2229,6 +2248,22 @@
                             </div>
                             
                             <div class="space-y-2" id="files-list-${item.id}">
+                                ${item.corel_file_path ? `
+                                    <div class="flex items-center justify-between bg-purple-50 dark:bg-purple-900/20 rounded-md p-2 text-sm border border-purple-200 dark:border-purple-700">
+                                        <div class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                            </svg>
+                                            <span class="text-gray-900 dark:text-gray-300 font-medium">${item.corel_file_path.split('/').pop()}</span>
+                                            <span class="ml-2 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs rounded border border-purple-200 dark:border-purple-800">Corel</span>
+                                        </div>
+                                        <a href="/storage/${item.corel_file_path}" target="_blank" class="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300" title="Baixar arquivo Corel">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                ` : ''}
                                 ${item.files && item.files.length > 0 ? item.files.map(file => `
                                     <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-md p-2 text-sm border border-gray-200 dark:border-gray-600" data-file-row data-file-id="${file.id}" data-file-type="item" data-file-name="${encodeURIComponent(file.file_name || '')}">
                                         <div class="flex items-center">
@@ -2277,7 +2312,7 @@
                                         </div>
                                     `).join('') : ''
                                 ).filter(f => f).join('') : ''}
-                                ${(!item.files || item.files.length === 0) && (!item.sublimations || !item.sublimations.some(sub => sub.files && sub.files.length > 0)) ? 
+                                ${(!item.files || item.files.length === 0) && (!item.sublimations || !item.sublimations.some(sub => sub.files && sub.files.length > 0)) && !item.corel_file_path ? 
                                     '<p class="file-empty-state" id="no-files-msg-' + item.id + '">Nenhum arquivo anexado.</p>' : ''
                                 }
                             </div>
@@ -2603,7 +2638,70 @@
             if (statusSelect && order.status_id) {
                 statusSelect.value = order.status_id;
             }
+
+            // Preencher select de transferência se existir
+            const transferSelect = document.getElementById(`transfer-user-select-${order.id}`);
+            if (transferSelect) {
+                loadTenantUsersIntoSelect(transferSelect, order.user ? order.user.id : null);
+            }
         }
+
+        let _cachedTenantUsers = null;
+        function loadTenantUsersIntoSelect(selectEl, currentUserId) {
+            if (_cachedTenantUsers) {
+                populateTransferSelect(selectEl, _cachedTenantUsers, currentUserId);
+                return;
+            }
+            fetch('/kanban/tenant-users')
+                .then(r => r.json())
+                .then(data => {
+                    _cachedTenantUsers = data.users || [];
+                    populateTransferSelect(selectEl, _cachedTenantUsers, currentUserId);
+                })
+                .catch(() => {});
+        }
+
+        function populateTransferSelect(selectEl, users, currentUserId) {
+            selectEl.innerHTML = '<option value="">Transferir para...</option>';
+            users.forEach(u => {
+                if (u.id == currentUserId) return;
+                const opt = document.createElement('option');
+                opt.value = u.id;
+                opt.textContent = u.name;
+                selectEl.appendChild(opt);
+            });
+        }
+
+        function transferOrder(orderId) {
+            const selectEl = document.getElementById(`transfer-user-select-${orderId}`);
+            if (!selectEl || !selectEl.value) {
+                showNotification('Selecione um vendedor para transferir o pedido.', 'error');
+                return;
+            }
+            const newUserId = selectEl.value;
+            fetch(`/kanban/order/${orderId}/transfer`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ user_id: newUserId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    // Atualiza o modal com os dados novos
+                    fetch(`/kanban/order/${orderId}`)
+                        .then(res => res.json())
+                        .then(updatedOrder => displayOrderDetails(updatedOrder));
+                } else {
+                    showNotification(data.error || 'Erro ao transferir pedido.', 'error');
+                }
+            })
+            .catch(() => showNotification('Erro ao transferir pedido.', 'error'));
+        }
+        window.transferOrder = transferOrder;
 
         function addComment(orderId) {
             const commentText = document.getElementById(`comment-text-${orderId}`).value;
