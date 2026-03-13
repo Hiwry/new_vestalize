@@ -112,17 +112,17 @@ class SublimationProductController extends Controller
             ->with('success', "Tipo '{$name}' removido.");
     }
 
-    /**
-     * Editar precos de um tipo de produto
-     */
-    public function editType(string $type): View
+    public function editType(Request $request, string $type): View
     {
         $tenantId = auth()->user()->tenant_id;
         $productType = $this->resolveProductTypeForTenant($type, $tenantId);
 
+        // Se veio um tecido_id na query string, usa ele. Caso contrrio vincula ao tecido atual do produto.
+        $selectedTecidoId = $request->query('tecido_id', $productType->tecido_id);
+
         $prices = SublimationProductPrice::where('tenant_id', $tenantId)
             ->where('product_type', $type)
-            ->where('tecido_id', $productType->tecido_id)
+            ->where('tecido_id', $selectedTecidoId)
             ->orderBy('quantity_from')
             ->get();
 
@@ -136,6 +136,7 @@ class SublimationProductController extends Controller
         return view('admin.sublimation-products.edit-type', [
             'type' => $type,
             'productType' => $productType,
+            'selectedTecidoId' => $selectedTecidoId,
             'typeLabel' => $productType->name,
             'typeIcon' => $productType->icon,
             'prices' => $prices,
@@ -186,7 +187,7 @@ class SublimationProductController extends Controller
         }
 
         return redirect()
-            ->route('admin.sublimation-products.edit-type', $type)
+            ->route('admin.sublimation-products.edit-type', ['type' => $type, 'tecido_id' => $validated['tecido_id']])
             ->with('success', 'Configuracao salva com sucesso.');
     }
 

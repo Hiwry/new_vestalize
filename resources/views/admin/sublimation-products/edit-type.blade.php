@@ -179,9 +179,13 @@
     }
 </style>
 @php
-    $currentFabric = $tecidos->firstWhere('id', $productType->tecido_id);
+    $selectedTecidoId = $selectedTecidoId ?? $productType->tecido_id;
+    $currentFabric = $tecidos->firstWhere('id', $selectedTecidoId);
     $currentFabricName = $currentFabric?->name ?? 'Nenhum tecido definido';
     $currentFabricEditUrl = $currentFabric ? route('admin.tecidos.edit', $currentFabric->id) : route('admin.tecidos.index');
+    
+    // Indica se estamos vendo o tecido padrao ou outro tecido do catalogo
+    $isDefaultFabric = (int)$selectedTecidoId === (int)$productType->tecido_id;
 @endphp
 
 <div class="stp-page-shell -mx-4 px-4 py-5 md:-mx-6 md:px-6">
@@ -238,8 +242,8 @@
 
             <div class="flex flex-col gap-4 border-b border-slate-300/10 px-6 py-5 lg:flex-row lg:items-center lg:justify-between">
                 <div class="space-y-1">
-                    <p class="text-xs font-bold uppercase tracking-[0.24em] stp-muted">Configuracao geral</p>
-                    <h3 class="text-xl font-semibold text-white">Tecido padrao e faixas</h3>
+                    <p class="text-xs font-bold uppercase tracking-[0.24em] stp-muted">Configuracao de Precos</p>
+                    <h3 class="text-xl font-semibold text-white">Faixas para {{ strtoupper($currentFabricName) }}</h3>
                 </div>
                 <div class="flex flex-wrap gap-2">
                     <span class="rounded-full stp-soft px-3 py-1.5 text-xs font-semibold text-white">
@@ -255,8 +259,13 @@
             <div class="space-y-6 p-6">
                 <section class="rounded-[24px] stp-soft p-5 space-y-5">
                     <div class="space-y-1">
-                        <p class="text-xs font-bold uppercase tracking-[0.24em] stp-muted">Tecido padrao</p>
-                        <h4 class="text-lg font-semibold text-white">Escolha o tecido de {{ strtolower($typeLabel) }}</h4>
+                        <p class="text-xs font-bold uppercase tracking-[0.24em] stp-muted">Selecao de Tecido</p>
+                        <h4 class="text-lg font-semibold text-white">Configurar faixas para:</h4>
+                        @if($isDefaultFabric)
+                            <div class="inline-flex items-center gap-2 rounded-full bg-indigo-500/20 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-indigo-300 border border-indigo-500/30">
+                                Tecido Padrao do Produto
+                            </div>
+                        @endif
                     </div>
 
                     <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
@@ -265,8 +274,8 @@
                             <select name="tecido_id" id="tecido_id" class="stp-select stp-field w-full rounded-2xl px-4 py-3 text-white" required>
                                 <option value="">Selecione um tecido...</option>
                                 @foreach($tecidos as $tecido)
-                                    <option value="{{ $tecido->id }}" {{ (int) old('tecido_id', $productType->tecido_id) === (int) $tecido->id ? 'selected' : '' }}>
-                                        {{ strtoupper($tecido->name) }}
+                                    <option value="{{ $tecido->id }}" {{ (int)$selectedTecidoId === (int)$tecido->id ? 'selected' : '' }}>
+                                        {{ strtoupper($tecido->name) }} {{ (int)$productType->tecido_id === (int)$tecido->id ? '(PADRAO)' : '' }}
                                     </option>
                                 @endforeach
                             </select>
@@ -297,7 +306,7 @@
                     <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                         <div class="space-y-1">
                             <p class="text-xs font-bold uppercase tracking-[0.24em] stp-muted">Faixas de preco</p>
-                            <h4 class="text-lg font-semibold text-white">Preco base por quantidade</h4>
+                            <h4 class="text-lg font-semibold text-white">Precos para {{ strtoupper($currentFabricName) }}</h4>
                         </div>
                         <button type="button" onclick="addRow()" class="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl stp-success px-5 text-sm font-bold text-white transition-colors">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -503,6 +512,15 @@
 
     function syncSelectedFabric() {
         const select = document.getElementById('tecido_id');
+        const currentSelected = '{{ $selectedTecidoId }}';
+        
+        if (select && select.value && select.value !== currentSelected) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('tecido_id', select.value);
+            window.location.href = url.toString();
+            return;
+        }
+
         const name = document.getElementById('selected-fabric-name');
         const editLink = document.getElementById('edit-selected-fabric');
         const label = getFabricLabel(select);
