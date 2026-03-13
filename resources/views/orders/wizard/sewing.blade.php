@@ -4538,13 +4538,15 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
         let html = `<option value="">Selecione</option>`;
         
-        // Option for default fabric
-        html += `<option value="PADRAO" data-tecido-id="${defaultFabricId}">${defaultFabricName} (Correto)</option>`;
+        // Option for default fabric only if a valid defaultFabricId exists
+        if (defaultFabricId) {
+            html += `<option value="PADRAO" data-tecido-id="${defaultFabricId}">${defaultFabricName} (Correto)</option>`;
+        }
         
         // Dynamic options from $tecidos
         fullpageSubFabrics.forEach(f => {
             // Avoid duplicating the default fabric if it's already there
-            if (f.id != defaultFabricId) {
+            if (!defaultFabricId || f.id != defaultFabricId) {
                 html += `<option value="${f.id}" data-tecido-id="${f.id}">${f.name}</option>`;
             }
         });
@@ -4829,6 +4831,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             const addons = Array.isArray(payload?.addons) ? payload.addons : (Array.isArray(payload?.data) ? payload.data : []);
             fullpageSubTypeMeta = {
                 defaultFabricName: payload?.default_fabric_name || '',
+                tecido_id: payload?.tecido_id ?? null,
                 startingPrice: parseFloat(payload?.starting_price || 0) || 0,
                 startingQuantityFrom: payload?.starting_quantity_from ?? null,
                 typeLabel: payload?.type_name || typeSlug,
