@@ -1291,10 +1291,27 @@ class EditOrderController extends Controller
                 'order_id' => $orderId
             ]);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                // Ao adicionar, geralmente recarregamos a lista ou damos feedback
+                // O frontend do wizard espera JSON para atualizar o estado local
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Item adicionado com sucesso!',
+                    'item' => $newItem,
+                    'items_data' => $editData['items']
+                ]);
+            }
+
             return redirect()->back()->with('success', 'Item adicionado com sucesso!');
             
         } catch (\Exception $e) {
             Log::error('Error adding item: ' . $e->getMessage());
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao adicionar item: ' . $e->getMessage()
+                ], 500);
+            }
             return redirect()->back()->with('error', 'Erro ao adicionar item: ' . $e->getMessage());
         }
     }
@@ -1548,6 +1565,15 @@ class EditOrderController extends Controller
                 'new_data' => $dbItem->toArray()
             ]);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Item atualizado com sucesso!',
+                    'item' => $updatedData,
+                    'items_data' => $editData['items']
+                ]);
+            }
+
             return redirect()->back()->with('success', 'Item atualizado com sucesso!');
             
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -1556,6 +1582,13 @@ class EditOrderController extends Controller
                 'message' => $e->getMessage(),
                 'inputs' => $request->all()
             ]);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro de validação',
+                    'errors' => $e->errors()
+                ], 422);
+            }
             throw $e;
         } catch (\Exception $e) {
             Log::error('Error updating item: ' . $e->getMessage(), [
@@ -1563,6 +1596,12 @@ class EditOrderController extends Controller
                 'file' => $e->getFile(),
                 'line' => $e->getLine()
             ]);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao atualizar item: ' . $e->getMessage()
+                ], 500);
+            }
             return redirect()->back()->with('error', 'Erro ao atualizar item: ' . $e->getMessage());
         }
     }
@@ -1610,10 +1649,26 @@ class EditOrderController extends Controller
 
             session(['edit_order_data' => $editData]);
 
+            Log::info('Item removido do banco de dados', ['item_id' => $itemId, 'order_id' => $orderId]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Item removido com sucesso!',
+                    'items_data' => $editData['items']
+                ]);
+            }
+
             return redirect()->back()->with('success', 'Item removido com sucesso!');
             
         } catch (\Exception $e) {
             Log::error('Error deleting item: ' . $e->getMessage());
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao remover item: ' . $e->getMessage()
+                ], 500);
+            }
             return redirect()->back()->with('error', 'Erro ao remover item: ' . $e->getMessage());
         }
     }

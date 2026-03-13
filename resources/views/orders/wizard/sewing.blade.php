@@ -1835,6 +1835,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         if (e) e.preventDefault();
         
         const form = document.getElementById('sewing-form');
+        const submitBtn = document.getElementById('wizard-submit-btn'); // Changed to wizard-submit-btn
         if (!form || form.dataset.submitting === 'true') return;
 
         // Validação atualizada para o Wizard
@@ -1862,7 +1863,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         }
 
         // UI de processamento
-        const submitBtn = document.getElementById('submit-button');
+        // const submitBtn = document.getElementById('submit-button'); // Original line, now using wizard-submit-btn
         let originalText = '';
         if (submitBtn) {
             originalText = submitBtn.innerText;
@@ -2367,19 +2368,19 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         
         const nextBtn = document.getElementById('wizard-next-btn');
         if (nextBtn) {
-            if(wizardCurrentStep === wizardTotalSteps) {
-                nextBtn.classList.add('hidden');
+            if (wizardCurrentStep === wizardTotalSteps) {
+                nextBtn.setAttribute('style', 'display: none !important');
             } else {
-                nextBtn.classList.remove('hidden');
+                nextBtn.style.display = 'flex';
             }
         }
 
         const submitBtn = document.getElementById('wizard-submit-btn');
         if (submitBtn) {
             if (wizardCurrentStep === wizardTotalSteps) {
-                submitBtn.classList.remove('hidden');
+                submitBtn.setAttribute('style', 'display: flex !important');
             } else {
-                submitBtn.classList.add('hidden');
+                submitBtn.style.display = 'none';
             }
         }
 
