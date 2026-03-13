@@ -23,6 +23,31 @@ class SizeSurcharge extends Model
     
     private static $valuesEnsured = false;
 
+    /**
+     * Retorna a tabela de acréscimos como array PHP (sem depender do banco).
+     */
+    public static function getDefaultSurcharges(): array
+    {
+        return [
+            ['size' => 'GG',      'price_from' => 0,     'price_to' => 19.99, 'surcharge' => 1.00],
+            ['size' => 'GG',      'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 2.00],
+            ['size' => 'GG',      'price_from' => 50.00, 'price_to' => null,  'surcharge' => 5.00],
+            ['size' => 'EXG',     'price_from' => 0,     'price_to' => 19.99, 'surcharge' => 2.00],
+            ['size' => 'EXG',     'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 4.00],
+            ['size' => 'EXG',     'price_from' => 50.00, 'price_to' => null,  'surcharge' => 10.00],
+            ['size' => 'G1',      'price_from' => 0,     'price_to' => 19.99, 'surcharge' => 5.00],
+            ['size' => 'G1',      'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 10.00],
+            ['size' => 'G1',      'price_from' => 50.00, 'price_to' => null,  'surcharge' => 20.00],
+            ['size' => 'G2',      'price_from' => 0,     'price_to' => 19.99, 'surcharge' => 10.00],
+            ['size' => 'G2',      'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 20.00],
+            ['size' => 'G2',      'price_from' => 50.00, 'price_to' => null,  'surcharge' => 40.00],
+            ['size' => 'G3',      'price_from' => 0,     'price_to' => 19.99, 'surcharge' => 20.00],
+            ['size' => 'G3',      'price_from' => 20.00, 'price_to' => 49.99, 'surcharge' => 30.00],
+            ['size' => 'G3',      'price_from' => 50.00, 'price_to' => null,  'surcharge' => 60.00],
+            ['size' => 'ESPECIAL','price_from' => 0,     'price_to' => null,  'surcharge' => 35.00],
+        ];
+    }
+
     public static function getSurchargeForSize($size, $totalPrice)
     {
         // Garantir que os valores estejam atualizados (apenas uma vez por requisição)

@@ -1740,12 +1740,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     window.sublimationAddonsCache = sublimationAddonsCache;
 
     @php
-        $safeSizeSurcharges = isset($sizeSurcharges) ? $sizeSurcharges->map(fn($s) => [
-            'size' => $s->size,
-            'price_from' => (float) $s->price_from,
-            'price_to' => $s->price_to !== null ? (float) $s->price_to : null,
-            'surcharge' => (float) $s->surcharge,
-        ])->values()->all() : [];
+        // $sizeSurcharges agora é um array PHP puro (getDefaultSurcharges())
+        $safeSizeSurcharges = isset($sizeSurcharges) ? array_map(fn($s) => [
+            'size' => $s['size'],
+            'price_from' => (float) $s['price_from'],
+            'price_to' => $s['price_to'] !== null ? (float) $s['price_to'] : null,
+            'surcharge' => (float) $s['surcharge'],
+        ], $sizeSurcharges) : [];
     @endphp
     const sizeSurchargesData = @json($safeSizeSurcharges);
     window.sizeSurchargesData = sizeSurchargesData;
