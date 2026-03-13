@@ -45,7 +45,12 @@ self.addEventListener('fetch', event => {
                 })
                 .catch(() => {
                     // Fallback to cache ONLY if network fails (offline)
-                    return caches.match(event.request);
+                    return caches.match(event.request).then(cachedResponse => {
+                        return cachedResponse || new Response('Rede indisponível. Tente carregar novamente.', {
+                            status: 503,
+                            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+                        });
+                    });
                 })
         );
         return;
@@ -56,9 +61,9 @@ self.addEventListener('fetch', event => {
             return response || fetch(event.request);
         }).catch(() => {
             if (event.request.mode === 'navigate') {
-                return caches.match('/offline');
+                return caches.match('/offline') || new Response('Offline', { status: 503 });
             }
+            return new Response('Network error', { status: 408 });
         })
     );
 });
-
