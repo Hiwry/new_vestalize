@@ -930,6 +930,7 @@ class OrderWizardService
                 'is_sublimation_total' => true,
                 'type' => $validated['sublimation_type'],
                 'type_label' => $typeLabel,
+                'tecido_id' => $typeModel?->tecido_id,
                 'fabric_type' => $fabricType,
                 'fabric_custom' => $fabricType === 'OUTRO' ? ($fabricCustom !== '' ? $fabricCustom : null) : null,
                 'fabric_color' => $fabricColor !== '' ? $fabricColor : 'BRANCO',
@@ -1058,6 +1059,7 @@ class OrderWizardService
                 'is_sublimation_total' => true,
                 'type' => $validated['sublimation_type'],
                 'type_label' => $typeLabel,
+                'tecido_id' => $typeModel?->tecido_id,
                 'fabric_type' => $fabricType,
                 'fabric_custom' => $fabricType === 'OUTRO' ? ($fabricCustom !== '' ? $fabricCustom : null) : null,
                 'fabric_color' => $fabricColor !== '' ? $fabricColor : 'BRANCO',
@@ -1360,9 +1362,14 @@ class OrderWizardService
             $tecidoId = $printDesc['tecido_id'] ?? null;
 
             // Se não tem tecido no print_desc, tenta pegar o padrão do tipo
+            // Inclui tipos globais (tenant_id = null) e do tenant
             if (!$tecidoId) {
                 $productTypeObj = \App\Models\SublimationProductType::where('slug', $type)
-                    ->where('tenant_id', $order->tenant_id)
+                    ->where(function ($q) use ($order) {
+                        $q->where('tenant_id', $order->tenant_id)
+                          ->orWhereNull('tenant_id');
+                    })
+                    ->orderByRaw('CASE WHEN tenant_id IS NOT NULL THEN 0 ELSE 1 END')
                     ->first();
                 $tecidoId = $productTypeObj?->tecido_id;
             }
