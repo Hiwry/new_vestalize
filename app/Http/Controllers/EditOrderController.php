@@ -310,17 +310,19 @@ class EditOrderController extends Controller
                 }
             }
 
-            // Buscar tecidos e cores para controle de estoque
-            $fabrics = ProductOption::where('type', 'tecido')
-                ->where('active', true)
-                ->orderBy('name')
-                ->get();
-            $colors = ProductOption::where('type', 'cor')
-                ->where('active', true)
-                ->orderBy('name')
-                ->get();
+            // Buscar tipos SUB. TOTAL para o tenant
+            $user = Auth::user();
+            $sublimationTypes = \App\Models\SublimationProductType::getForTenant($user->tenant_id);
+            // Habilitar se: tenant habilitou OU se existem tipos cadastrados (para super admin)
+            $sublimationEnabled = ($user->tenant && $user->tenant->sublimation_total_enabled) || $sublimationTypes->isNotEmpty();
+            
+            $preselectedTypes = [];
+            $preselectedIds = [];
+            
+            // Buscar tecidos reais para Sublimação Total
+            $tecidos = \App\Models\Tecido::where('active', true)->orderBy('name')->get();
 
-            return view('orders.wizard.sewing', compact('order', 'editData', 'fabrics', 'colors'));
+            return view('orders.wizard.sewing', compact('order', 'editData', 'fabrics', 'colors', 'tecidos', 'sublimationTypes', 'sublimationEnabled', 'preselectedTypes', 'preselectedIds'));
         } catch (\Exception $e) {
             Log::error('Error in sewing method: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Erro: ' . $e->getMessage());

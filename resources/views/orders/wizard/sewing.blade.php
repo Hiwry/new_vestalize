@@ -4525,24 +4525,40 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         setFullpageUploadActiveState(input, true);
     }
 
+    // List of fabrics available from backend
+    const fullpageSubFabrics = @json($tecidos ?? []);
+
     function populateFullpageFabricOptions() {
         const fabricSelect = document.getElementById('fullpage_sub_fabric_type');
         if (!fabricSelect) return;
 
         const currentValue = fabricSelect.value || '';
         const defaultFabricName = fullpageSubTypeMeta.defaultFabricName || 'Tecido padrão';
+        const defaultFabricId = fullpageSubTypeMeta.tecido_id || '';
 
-        fabricSelect.innerHTML = `
-            <option value="">Selecione</option>
-            <option value="PADRAO">${defaultFabricName}</option>
-            <option value="PP">PP</option>
-            <option value="CACHARREL">CACHARREL</option>
-            <option value="OUTRO">OUTRO TECIDO</option>
-        `;
+        let html = `<option value="">Selecione</option>`;
+        
+        // Option for default fabric
+        html += `<option value="PADRAO" data-tecido-id="${defaultFabricId}">${defaultFabricName} (Correto)</option>`;
+        
+        // Dynamic options from $tecidos
+        fullpageSubFabrics.forEach(f => {
+            // Avoid duplicating the default fabric if it's already there
+            if (f.id != defaultFabricId) {
+                html += `<option value="${f.id}" data-tecido-id="${f.id}">${f.name}</option>`;
+            }
+        });
 
-        fabricSelect.value = ['PADRAO', 'PP', 'CACHARREL', 'OUTRO'].includes(currentValue)
-            ? currentValue
-            : (fullpageSubTypeMeta.defaultFabricName ? 'PADRAO' : '');
+        html += `<option value="OUTRO">OUTRO TECIDO (Acréscimo)</option>`;
+
+        fabricSelect.innerHTML = html;
+
+        // Try to restore previous value or default to PADRAO if available
+        if (currentValue) {
+            fabricSelect.value = currentValue;
+        } else if (defaultFabricId) {
+            fabricSelect.value = 'PADRAO';
+        }
     }
 
     async function populateFullpageSubFormFromItem(item, isDuplicate = true) {

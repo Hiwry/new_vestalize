@@ -206,8 +206,11 @@ class OrderWizardController extends Controller
             
             $preselectedTypes = [];
             $preselectedIds = [];
+
+            // Buscar tecidos reais para Sublimação Total
+            $tecidos = \App\Models\Tecido::where('active', true)->orderBy('name')->get();
             
-            return view('orders.wizard.sewing', compact('order', 'fabrics', 'colors', 'personalizationOptions', 'currentStoreId', 'sublimationTypes', 'sublimationEnabled', 'preselectedTypes', 'preselectedIds', 'fabricPieces'));
+            return view('orders.wizard.sewing', compact('order', 'fabrics', 'colors', 'personalizationOptions', 'currentStoreId', 'sublimationTypes', 'sublimationEnabled', 'preselectedTypes', 'preselectedIds', 'fabricPieces', 'tecidos'));
         }
 
         $action = $request->input('action', 'add');
