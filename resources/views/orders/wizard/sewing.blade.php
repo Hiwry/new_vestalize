@@ -1505,9 +1505,6 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                         </div>
                                                     </div>
 
-                                                    <button type="button" id="submit-button" onclick="submitSewingWizard()" class="w-full py-4 mt-6 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all transform hover:scale-[1.02]">
-                                                        Confirmar e Adicionar Item
-                                                    </button>
                                                 </div>
                                             </div>
 
@@ -1521,6 +1518,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                             <div class="flex gap-2">
                                                 <button type="button" id="wizard-next-btn" onclick="wizardNextStep()" class="px-6 py-2 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white text-sm font-bold rounded-lg transition-all shadow-md shadow-purple-500/20">
                                                     Pr&oacute;ximo
+                                                </button>
+                                                <button type="button" id="wizard-submit-btn" onclick="submitSewingWizard()" class="hidden px-6 py-2 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white text-sm font-bold rounded-lg transition-all shadow-md shadow-purple-500/20">
+                                                    Salvar Alterações
                                                 </button>
                                             </div>
                                         </div>
@@ -2165,11 +2165,11 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     function openSewingWizard() {
         const modal = ensureSewingWizardPortal();
         if (modal) {
-            const submitButton = document.getElementById('submit-button');
+            const submitButton = document.getElementById('wizard-submit-btn');
             const formAction = document.getElementById('form-action')?.value;
             if (submitButton) {
                 submitButton.innerHTML = formAction === 'update_item'
-                    ? 'Salvar Alteracoes'
+                    ? 'Salvar Alterações'
                     : 'Confirmar e Adicionar Item';
             }
 
@@ -3319,9 +3319,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const formTitle = document.getElementById('form-title');
         if (formTitle) formTitle.textContent = isDuplicate ? 'Duplicar Item' : 'Editar Item';
 
-        const submitButton = document.getElementById('submit-button');
+        const submitButton = document.getElementById('wizard-submit-btn');
         if (submitButton) {
-            submitButton.innerHTML = isDuplicate ? 'Confirmar e Adicionar Item' : 'Salvar Alteracoes';
+            submitButton.innerHTML = isDuplicate ? 'Confirmar e Adicionar Item' : 'Salvar Alterações';
         }
         
         let printDesc = {};
@@ -3527,7 +3527,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const editingItemId = document.getElementById('editing-item-id');
         const formAction = document.getElementById('form-action');
         const formTitle = document.getElementById('form-title');
-        const submitButton = document.getElementById('submit-button');
+        const submitButton = document.getElementById('wizard-submit-btn');
         const sewingForm = document.getElementById('sewing-form');
         const coverPreviewContainer = document.getElementById('cover-image-preview-container');
         const coverPreview = document.getElementById('cover-image-preview');
