@@ -90,7 +90,10 @@ class TermsCondition extends Model
             ->whereNull('fabric_type_id');
             
         if ($tenantId) {
-            $generalQuery->where('tenant_id', $tenantId);
+            $generalQuery->where(function($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId)
+                  ->orWhereNull('tenant_id');
+            });
         }
         
         $general = $generalQuery->latest()->first();
@@ -121,7 +124,10 @@ class TermsCondition extends Model
                                 ->whereNull('fabric_type_id');
                             
                             if ($tenantId) {
-                                $pTermQuery->where('tenant_id', $tenantId);
+                                $pTermQuery->where(function($q) use ($tenantId) {
+                                    $q->where('tenant_id', $tenantId)
+                                      ->orWhereNull('tenant_id');
+                                });
                             }
                                 
                             $personalizationTerm = $pTermQuery->latest()->first();
@@ -149,7 +155,10 @@ class TermsCondition extends Model
                             ->where('fabric_type_id', $fabricId);
                             
                         if ($tenantId) {
-                            $fTermQuery->where('tenant_id', $tenantId);
+                            $fTermQuery->where(function($q) use ($tenantId) {
+                                $q->where('tenant_id', $tenantId)
+                                  ->orWhereNull('tenant_id');
+                            });
                         }
                             
                         $fabricTerm = $fTermQuery->latest()->first();
@@ -171,7 +180,10 @@ class TermsCondition extends Model
                                         ->where('fabric_type_id', $fabricId);
                                         
                                     if ($tenantId) {
-                                        $cTermQuery->where('tenant_id', $tenantId);
+                                        $cTermQuery->where(function($q) use ($tenantId) {
+                                            $q->where('tenant_id', $tenantId)
+                                              ->orWhereNull('tenant_id');
+                                        });
                                     }
                                         
                                     $combinedTerm = $cTermQuery->latest()->first();

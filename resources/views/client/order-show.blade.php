@@ -705,7 +705,16 @@
                             content.innerHTML = '<div class="text-center py-6 text-yellow-600 font-medium">Termos carregados, mas conteúdo vazio. (success=true)</div>';
                         }
                     } else {
-                        content.innerHTML = `<div class="text-center py-6 text-gray-500 font-medium">${data.message || 'Termos e condições não encontrados.'}</div>`;
+                        let debugInfo = data.debug ? `<div class="mt-4 pt-4 border-t border-gray-100 dark:border-slate-800 text-[10px] text-gray-400 font-mono text-left">
+                            <p>DEBUG INFO:</p>
+                            <p>Tenant ID: ${data.debug.tenant_id}</p>
+                            <p>Store ID: ${data.debug.store_id}</p>
+                            <p>Settings Has Terms: ${data.debug.store_settings_has_terms}</p>
+                        </div>` : '';
+                        content.innerHTML = `<div class="text-center py-6 text-gray-500 font-medium">
+                            <p>${data.message || 'Termos e condições não encontrados.'}</p>
+                            ${debugInfo}
+                        </div>`;
                     }
                 })
                 .catch(error => {

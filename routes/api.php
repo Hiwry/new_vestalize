@@ -129,7 +129,13 @@ Route::get('/terms-conditions', function (Request $request) {
     
     return response()->json([
         'success' => false,
-        'message' => 'Termos e condições não encontrados'
+        'message' => 'Termos e condições não encontrados',
+        'debug' => [
+            'order_id' => $orderId,
+            'tenant_id' => $order->tenant_id ?? null,
+            'store_id' => $order->store_id ?? null,
+            'store_settings_has_terms' => ($storeSettings && !empty($storeSettings->terms_conditions))
+        ]
     ]);
 });
 

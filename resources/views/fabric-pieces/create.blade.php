@@ -53,8 +53,15 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fornecedor</label>
-                        <input type="text" name="supplier" value="{{ old('supplier') }}" placeholder="Nome do fornecedor"
-                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg">
+                        <select name="supplier" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg">
+                            <option value="">Selecione...</option>
+                            @php
+                                $suppliers = ['EVETEX', 'BRASIL', 'ATUAL', 'MENEGOTTI', '4K', 'KANXA', 'AVIL', 'EF', 'MANTOS', 'CEDRO', 'KIRIN'];
+                            @endphp
+                            @foreach($suppliers as $supplier)
+                                <option value="{{ $supplier }}" {{ old('supplier') == $supplier ? 'selected' : '' }}>{{ $supplier }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número da Nota Fiscal</label>
