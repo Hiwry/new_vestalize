@@ -1529,14 +1529,31 @@ class EditOrderController extends Controller
             $orderId = session('edit_order_id');
             $order = Order::with('items')->findOrFail($orderId);
             $dbItem = OrderItem::findOrFail($validated['editing_item_id']);
-            
+
+            // Resolver nomes de campos, mantendo valor existente do banco quando não enviado
+            $fabricName = !empty($validated['tecido'] ?? null)
+                ? $this->getProductOptionName($validated['tecido'], 'tecido')
+                : $dbItem->fabric;
+            $colorName = !empty($validated['cor'] ?? null)
+                ? $this->getProductOptionName($validated['cor'], 'cor')
+                : $dbItem->color;
+            $collarName = !empty($validated['gola'] ?? null)
+                ? $this->getProductOptionName($validated['gola'], 'gola')
+                : $dbItem->collar;
+            $modelName = !empty($validated['tipo_corte'] ?? null)
+                ? $this->getProductOptionName($validated['tipo_corte'], 'tipo_corte')
+                : $dbItem->model;
+            $detailName = !empty($validated['detalhe'] ?? null)
+                ? implode(', ', array_map(fn($id) => $this->getProductOptionName(trim($id), 'detalhe'), explode(',', $validated['detalhe'])))
+                : $dbItem->detail;
+
             // Preparar dados atualizados (usando tipos corretos em português!)
             $updatedData = [
-                'fabric' => $this->getProductOptionName($validated['tecido'], 'tecido'),
-                'color' => $this->getProductOptionName($validated['cor'], 'cor'),
-                'collar' => $this->getProductOptionName($validated['gola'], 'gola'),
-                'model' => $this->getProductOptionName($validated['tipo_corte'], 'tipo_corte'),
-                'detail' => $validated['detalhe'] ? implode(', ', array_map(fn($id) => $this->getProductOptionName(trim($id), 'detalhe'), explode(',', $validated['detalhe']))) : '',
+                'fabric' => $fabricName,
+                'color' => $colorName,
+                'collar' => $collarName,
+                'model' => $modelName,
+                'detail' => $detailName,
                 'print_type' => implode(', ', $printTypeNames),
                 'print_desc' => implode(', ', $printTypeNames),
                 'art_name' => 'Arte ' . time(),
