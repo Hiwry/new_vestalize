@@ -319,10 +319,38 @@ class EditOrderController extends Controller
             $preselectedTypes = [];
             $preselectedIds = [];
             
+            // Buscar tecidos e cores para controle de estoque
+            $fabrics = ProductOption::where('type', 'tecido')->where('active', true)->orderBy('name')->get();
+            $colors = ProductOption::where('type', 'cor')->where('active', true)->orderBy('name')->get();
+            $personalizationOptions = ProductOption::where('type', 'personalizacao')->where('active', true)->orderBy('name')->get();
+
+            // Loja atual do tenant
+            $currentStoreId = null;
+            if ($user->tenant_id) {
+                $tenantStore = \App\Models\Store::where('tenant_id', $user->tenant_id)->where('is_main', true)->first()
+                    ?? \App\Models\Store::where('tenant_id', $user->tenant_id)->first();
+                if ($tenantStore) {
+                    $currentStoreId = $tenantStore->id;
+                }
+            }
+
+            // Peças de tecido disponíveis
+            $fabricPieces = \App\Models\FabricPiece::with(['store', 'fabric', 'fabricType', 'color'])
+                ->availableForChannel('orders')
+                ->whereIn('status', ['aberta', 'fechada'])
+                ->hasAvailableQuantity()
+                ->whereHas('store', function ($query) use ($user) {
+                    if ($user->tenant_id) {
+                        $query->withoutGlobalScopes()->where('tenant_id', $user->tenant_id);
+                    }
+                })
+                ->orderByDesc('updated_at')
+                ->get();
+
             // Buscar tecidos reais para Sublimação Total
             $tecidos = \App\Models\Tecido::where('active', true)->orderBy('name')->get();
 
-            return view('orders.wizard.sewing', compact('order', 'editData', 'fabrics', 'colors', 'tecidos', 'sublimationTypes', 'sublimationEnabled', 'preselectedTypes', 'preselectedIds'));
+            return view('orders.wizard.sewing', compact('order', 'editData', 'fabrics', 'colors', 'personalizationOptions', 'currentStoreId', 'tecidos', 'sublimationTypes', 'sublimationEnabled', 'preselectedTypes', 'preselectedIds', 'fabricPieces'));
         } catch (\Exception $e) {
             Log::error('Error in sewing method: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Erro: ' . $e->getMessage());
