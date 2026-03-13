@@ -37,40 +37,40 @@ class CompanySetting extends Model
     /**
      * Obter as configurações (sempre retorna o primeiro registro ou por store_id)
      */
-    public static function getSettings($storeId = null)
+    public static function getSettings($storeId = null, $tenantId = null)
     {
         if ($storeId) {
             // Primeiro tenta buscar as configurações da loja específica
             $settings = self::where('store_id', $storeId)->first();
             
-            if ($settings) {
-                \Log::info("CompanySettings encontradas para loja ID: {$storeId}", [
-                    'store_id' => $storeId,
-                    'company_name' => $settings->company_name,
-                    'logo_path' => $settings->logo_path
-                ]);
+            if ($settings && !empty($settings->terms_conditions)) {
                 return $settings;
             }
             
-            // Se não encontrou, tenta buscar da loja principal
-            $mainStore = \App\Models\Store::where('is_main', true)->first();
+            // Se não encontrou ou os termos estão vazios, tenta buscar da loja principal DO TENANT
+            $mainStoreQuery = \App\Models\Store::where('is_main', true);
+            
+            if ($tenantId) {
+                $mainStoreQuery->where('tenant_id', $tenantId);
+            } else if ($storeId) {
+                // Tenta inferir o tenant_id da loja fornecida
+                $providedStore = \App\Models\Store::find($storeId);
+                if ($providedStore) {
+                    $mainStoreQuery->where('tenant_id', $providedStore->tenant_id);
+                }
+            }
+
+            $mainStore = $mainStoreQuery->first();
+
             if ($mainStore && $mainStore->id != $storeId) {
                 $mainSettings = self::where('store_id', $mainStore->id)->first();
                 if ($mainSettings) {
-                    \Log::info("CompanySettings não encontradas para loja ID: {$storeId}, usando loja principal ID: {$mainStore->id}", [
-                        'requested_store_id' => $storeId,
-                        'main_store_id' => $mainStore->id,
-                        'company_name' => $mainSettings->company_name
-                    ]);
                     return $mainSettings;
                 }
             }
             
-            // Se ainda não encontrou, retorna uma instância vazia
-            \Log::warning("CompanySettings não encontradas para loja ID: {$storeId} e nem para loja principal", [
-                'store_id' => $storeId
-            ]);
-            return new self(['store_id' => $storeId]);
+            // Retorna o que encontrou inicialmente ou uma instância vazia
+            return $settings ?: new self(['store_id' => $storeId]);
         }
         
         // Se não foi passado store_id, busca configurações globais ou da loja principal
@@ -79,7 +79,12 @@ class CompanySetting extends Model
             return $globalSettings;
         }
         
-        $mainStore = \App\Models\Store::where('is_main', true)->first();
+        $mainStoreQuery = \App\Models\Store::where('is_main', true);
+        if ($tenantId) {
+            $mainStoreQuery->where('tenant_id', $tenantId);
+        }
+        
+        $mainStore = $mainStoreQuery->first();
         if ($mainStore) {
             $mainSettings = self::where('store_id', $mainStore->id)->first();
             if ($mainSettings) {

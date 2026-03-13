@@ -56,12 +56,14 @@ Route::get('/terms-conditions', function (Request $request) {
     $combinedContent = '';
     $termsFound = false;
     
-    // 1. Buscar Termos da Loja (CompanySetting) - NOVO
+    // 1. Buscar Termos da Loja (CompanySetting) - NOVO (Tenant-Aware)
     $storeSettings = null;
+    $tenantId = null;
     if ($orderId) {
         $order = \App\Models\Order::find($orderId);
         if ($order) {
-            $storeSettings = \App\Models\CompanySetting::getSettings($order->store_id);
+            $tenantId = $order->tenant_id;
+            $storeSettings = \App\Models\CompanySetting::getSettings($order->store_id, $tenantId);
         }
     } else {
         $storeSettings = \App\Models\CompanySetting::getSettings();
