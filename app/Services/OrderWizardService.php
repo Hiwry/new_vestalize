@@ -469,7 +469,6 @@ class OrderWizardService
                 'discount' => $discountAmount,
                 'total' => $total,
                 'cover_image' => $orderCoverImagePath,
-                'is_pdv' => true,
             ]);
             
             // Pagamentos
