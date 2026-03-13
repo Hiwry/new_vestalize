@@ -784,11 +784,10 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                         <form method="POST" action="{{ isset($editData) ? route('orders.edit.sewing') : route('orders.wizard.sewing') }}" data-action-url="{{ isset($editData) ? route('orders.edit.sewing') : route('orders.wizard.sewing') }}" id="sewing-form" class="space-y-5" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="action" value="add_item" id="form-action">
-                    <input type="hidden" name="editing_item_id" id="fullpage_editing_item_id" value="">
                 <input type="hidden" name="existing_cover_image" id="fullpage_existing_cover_image" value="">
                 <input type="hidden" name="existing_corel_file" id="fullpage_existing_corel_file" value="">
                 <input type="hidden" name="tecido_id" id="fullpage_tecido_id" value="">
-                            <input type="hidden" name="editing_item_id" value="" id="editing-item-id">
+                <input type="hidden" name="editing_item_id" value="" id="editing-item-id">
 
                             <!-- PersonalizaÃ§Ã£o agora Ã© selecionada dentro do modal -->
                             <div id="hidden-personalizacao-container"></div>
@@ -3146,13 +3145,12 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const sizeContainer = document.getElementById('hidden-sizes-container');
         if (sizeContainer) {
             sizeContainer.innerHTML = '';
-            getWizardDetalhes().forEach(detail => {
-                const detailInput = document.createElement('input');
-                detailInput.type = 'hidden';
-                detailInput.name = 'detalhe[]';
-                detailInput.value = detail.id;
-                sizeContainer.appendChild(detailInput);
-            });
+            const detailIds = getWizardDetalhes().map(detail => detail.id);
+            const detalheInput = document.createElement('input');
+            detalheInput.type = 'hidden';
+            detalheInput.name = 'detalhe';
+            detalheInput.value = detailIds.join(',');
+            sizeContainer.appendChild(detalheInput);
 
             if (wizardData.individual_detail_colors) {
                 Object.entries(wizardData.detail_colors || {}).forEach(([detailId, colorId]) => {
