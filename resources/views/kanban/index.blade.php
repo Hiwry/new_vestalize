@@ -588,7 +588,7 @@
         @endphp
 
         @if($hasFilters)
-        <div x-show="view === 'kanban'" class="animate-fade-in-up delay-200 mb-12">
+        <div x-show="view === 'kanban' || view === 'calendar'" class="animate-fade-in-up delay-200 mb-12">
             <div class="flex items-center justify-between mb-8">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center text-white border border-purple-500/20 shadow-lg shadow-purple-500/5">
@@ -995,7 +995,7 @@
                             Dia
                         </button>
                     </div>
-                </div>
+
 
                 <!-- Dias da Semana (Header) - Hide on Day view -->
                 <div x-show="calendarView !== 'day'" class="grid grid-cols-7 mb-1 border-b border-gray-200 dark:border-gray-700">
