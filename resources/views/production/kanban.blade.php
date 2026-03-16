@@ -782,11 +782,11 @@
                         </a>
                         ${totalFiles > 0 ? `
                         <button onclick="downloadAllFiles(${order.id})"
-                                class="flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition">
+                                class="flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition" style="color: white !important;">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
                             </svg>
-                            Arquivos da Arte (${totalFiles})
+                            <span style="color: white !important;">Arquivos da Arte (${totalFiles})</span>
                         </button>
                         ` : ''}
                     </div>
