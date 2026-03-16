@@ -2881,9 +2881,45 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
     function loadWizardOptionsForStep(step) {
         switch (step) {
-            case 1:
-                renderWizardPersonalizacao();
+            case 8:
+                renderWizardCollarColorOptions();
                 break;
+            function renderWizardCollarColorOptions() {
+                const container = document.getElementById('wizard-options-cor-gola');
+                if (!container) return;
+
+                const colors = getOptionList(['cor']);
+                if (!document.getElementById('different_collar_color_cb')?.checked) {
+                    container.innerHTML = '<p class="col-span-full text-center text-gray-500">A gola usará a mesma cor do tecido.</p>';
+                    return;
+                }
+
+                if (!colors.length) {
+                    container.innerHTML = '<p class="col-span-full text-center text-gray-500">Nenhuma cor disponível.</p>';
+                    return;
+                }
+
+                const selectedColorId = (wizardData.collar_color?.id || '').toString();
+                container.innerHTML = colors.map(color => {
+                    const activeClass = selectedColorId === color.id.toString() ? 'ring-2 ring-[#7c3aed] bg-purple-50 dark:bg-purple-900/20 shadow-sm' : '';
+                    return `
+                        <button type="button" class="wizard-option-card p-3 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-[#7c3aed] transition-all ${activeClass}"
+                            onclick="selectWizardCollarColor('${color.id}')">
+                            <div class="w-8 h-8 mx-auto rounded-full shadow-sm ring-2 ring-gray-100 dark:ring-slate-800" style="background-color: ${color.color_hex || color.hex_code || getColorHex(color.name)}"></div>
+                            <div class="mt-2 text-xs font-bold text-center text-gray-700 dark:text-slate-300">${color.name}</div>
+                        </button>
+                    `;
+                }).join('');
+            }
+            window.renderWizardCollarColorOptions = renderWizardCollarColorOptions;
+
+            function selectWizardCollarColor(colorId) {
+                const color = getOptionList(['cor']).find(item => item.id == colorId);
+                if (!color) return;
+                wizardData.collar_color = { id: color.id, name: color.name };
+                renderWizardCollarColorOptions();
+            }
+            window.selectWizardCollarColor = selectWizardCollarColor;
             case 2:
                 loadWizardTecidos();
                 break;
