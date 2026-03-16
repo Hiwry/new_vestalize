@@ -1855,7 +1855,7 @@
                 const persType = pers.application_type.toUpperCase();
                 
                 // Buscar o ID do tipo de personalização
-                const persId = await fetch(`/api/product-options?type=personalizacao&name=${encodeURIComponent(persType)}`, {
+                const persId = await fetch(`/api/product-options/find?type=personalizacao&name=${encodeURIComponent(persType)}`, {
                     headers: {
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,

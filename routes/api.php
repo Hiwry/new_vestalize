@@ -154,8 +154,9 @@ Route::post('/personalization-prices/multiple', [\App\Http\Controllers\Api\Perso
 // });
 
 
-// Product Options
-Route::get('/product-options', function (Request $request) {
+// Product Options (lookup by type+name)
+// NOTE: Keep this endpoint distinct from the web-session API that returns the full grouped list.
+Route::get('/product-options/find', function (Request $request) {
     $type = $request->input('type');
     $name = $request->input('name');
     
