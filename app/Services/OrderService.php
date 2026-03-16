@@ -594,7 +594,10 @@ class OrderService
         return str_pad($order->id, 6, '0', STR_PAD_LEFT);
     }
 
-    private static function appendReceiptAttachment(Payment $payment, UploadedFile $receipt): string
+    /**
+     * Anexar um comprovante de pagamento
+     */
+    public static function appendReceiptAttachment(Payment $payment, UploadedFile $receipt): string
     {
         \Log::info('Entering appendReceiptAttachment', ['payment_id' => $payment->id, 'filename' => $receipt->getClientOriginalName()]);
         $attachments = $payment->receipt_attachments_list;
