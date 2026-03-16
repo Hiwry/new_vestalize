@@ -1121,8 +1121,19 @@
                 </div>
             `;
             
-            document.getElementById('modal-title').textContent = `Pedido #${String(order.id).padStart(6, '0')}`;
-            document.getElementById('modal-content').innerHTML = html;
+            const modalTitle = document.getElementById('modal-title');
+            if (modalTitle) {
+                modalTitle.textContent = `Pedido #${String(order.id).padStart(6, '0')}`;
+            } else {
+                console.warn('VESTALIZE: Elemento #modal-title não encontrado no DOM');
+            }
+
+            const modalContent = document.getElementById('modal-content');
+            if (modalContent) {
+                modalContent.innerHTML = html;
+            } else {
+                console.warn('VESTALIZE: Elemento #modal-content não encontrado no DOM');
+            }
         }
 
         function addComment(orderId) {

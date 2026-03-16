@@ -2648,22 +2648,31 @@
             
             // Criar título com OS e data à esquerda, nome da arte centralizado (se existir)
             const modalTitle = document.getElementById('modal-title');
-            modalTitle.innerHTML = `
-                <div class="flex items-start justify-between w-full">
-                    <div class="flex flex-col">
-                        <span class="text-2xl font-bold text-gray-900 dark:text-gray-100">OS ${String(order.id).padStart(2, '0')}</span>
-                        <span class="text-base font-semibold ${isEvent ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}">${deliveryDate}${isEvent ? ' - EVENTO' : ''}</span>
+            if (modalTitle) {
+                modalTitle.innerHTML = `
+                    <div class="flex items-start justify-between w-full">
+                        <div class="flex flex-col">
+                            <span class="text-2xl font-bold text-gray-900 dark:text-gray-100">OS ${String(order.id).padStart(2, '0')}</span>
+                            <span class="text-base font-semibold ${isEvent ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}">${deliveryDate}${isEvent ? ' - EVENTO' : ''}</span>
+                        </div>
+                        ${firstArtName ? `
+                        <div class="flex-1 flex justify-center">
+                            <span class="text-3xl font-bold text-gray-900 dark:text-gray-100">${firstArtName}</span>
+                        </div>
+                        ` : ''}
+                        <div class="w-24"></div>
                     </div>
-                    ${firstArtName ? `
-                    <div class="flex-1 flex justify-center">
-                        <span class="text-3xl font-bold text-gray-900 dark:text-gray-100">${firstArtName}</span>
-                    </div>
-                    ` : ''}
-                    <div class="w-24"></div>
-                </div>
-            `;
+                `;
+            } else {
+                console.warn('VESTALIZE: Elemento #modal-title não encontrado no DOM');
+            }
             
-            document.getElementById('modal-content').innerHTML = html;
+            const modalContent = document.getElementById('modal-content');
+            if (modalContent) {
+                modalContent.innerHTML = html;
+            } else {
+                console.warn('VESTALIZE: Elemento #modal-content não encontrado no DOM');
+            }
             
             // Configurar o select de status após inserir o HTML
             const statusSelect = document.getElementById('move-status-select');
