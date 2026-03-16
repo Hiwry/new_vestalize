@@ -1529,7 +1529,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
                             <!-- Tamanhos (Moved above) -->
 
-                            <!-- <!-- BotÃµes (Removido - controllado pelo Wizard) -->
+                            <!-- <!-- Botões (Removido - controllado pelo Wizard) -->
                             <!-- <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-slate-700"> ... </div> -->
                         </form>
                     </div>
@@ -1542,7 +1542,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             </div>
         </div>
     </div>
-    <!-- Modal de ConfirmaÃ§Ã£o de ExclusÃ£o -->
+    <!-- Modal de Confirmação de Exclusão -->
     <div id="delete-modal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl max-w-md w-full border border-gray-200 dark:border-slate-700 transform transition-all scale-100 opacity-100">
             <div class="p-6 text-center">
@@ -1552,7 +1552,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                     </svg>
                 </div>
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Remover Item?</h3>
-                <p class="text-sm text-gray-500 dark:text-slate-400 mb-6">Esta aÃ§Ã£o nÃ£o pode ser desfeita. O item serÃ¡ removido permanentemente do pedido.</p>
+                <p class="text-sm text-gray-500 dark:text-slate-400 mb-6">Esta ação não pode ser desfeita. O item será removido permanentemente do pedido.</p>
                 <div class="flex justify-center space-x-3">
                     <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 font-medium transition-colors">
                         Cancelar
@@ -1844,8 +1844,8 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 alert('Erro ao remover item: ' + (data.message || 'Erro desconhecido'));
             }
         } catch (error) {
-            console.error('Erro na exclusÃ£o:', error);
-            alert('Erro ao processar a exclusÃ£o.');
+            console.error('Erro na exclusão:', error);
+            alert('Erro ao processar a exclusão.');
         } finally {
             if (btn) {
                 btn.innerText = originalText;
