@@ -2,33 +2,60 @@
 
 @push('styles')
 <style>
+    /* Dashboard Premium Animations */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(40px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulse-soft {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+    .animate-slide-in-right { animation: slideInRight 0.5s ease-out forwards; }
+    .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
+    /* Glassmorphism & Hover Effects */
+    .glass-card {
+        background: #1e293b;
+        border: 1px solid rgba(148, 163, 184, 0.1);
+        border-radius: 12px;
+    }
+    .dark .glass-card {
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .hover-lift {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .hover-lift:hover {
+        transform: translateY(-5px) scale(1.01);
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Original Kanban Styles */
     [x-cloak] { display: none !important; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     
-    /* Hide scrollbar for horizontal scroll on mobile */
-    .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-    }
-    .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-    
-    /* Custom Scrollbar for Calendar Events */
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
-    }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb {
         background-color: #cbd5e1;
         border-radius: 20px;
     }
-    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-        background-color: #4b5563;
-    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #4b5563; }
 
-    /* Order modal visual polish */
     #order-modal .order-modal-card {
         background: #ffffff;
         border: 1px solid #e5e7eb;
@@ -40,13 +67,14 @@
         border-color: #1f2937;
         box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
     }
+    /* ... rest of modal styles ... */
     #order-modal .order-modal-card.accent {
-        background: linear-gradient(135deg, #f8fafc, #eef2ff);
-        border-color: #e0e7ff;
+        background: #f8fafc;
+        border-color: #e2e8f0;
     }
     .dark #order-modal .order-modal-card.accent {
-        background: linear-gradient(135deg, rgba(79, 70, 229, 0.16), rgba(124, 58, 237, 0.16));
-        border-color: #312e81;
+        background: rgba(30, 41, 59, 0.4);
+        border-color: rgba(255, 255, 255, 0.05);
     }
     #order-modal .order-modal-title {
         display: flex;
@@ -78,10 +106,35 @@
     }
     #order-modal .btn-modern:hover { transform: translateY(-1px); }
     #order-modal .btn-modern svg { color: currentColor; }
-    #order-modal .btn-primary { background: linear-gradient(135deg, #4f46e5, #7c3aed); }
-    #order-modal .btn-warning { background: linear-gradient(135deg, #f59e0b, #f97316); box-shadow: 0 12px 25px rgba(249, 115, 22, 0.22); }
-    #order-modal .btn-success { background: linear-gradient(135deg, #16a34a, #22c55e); box-shadow: 0 12px 25px rgba(34, 197, 94, 0.22); }
-    #order-modal .btn-rose { background: linear-gradient(135deg, #ec4899, #db2777); box-shadow: 0 12px 25px rgba(236, 72, 153, 0.22); }
+    #order-modal .btn-primary { 
+        background: #4f46e5; 
+        box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.1), 0 2px 4px -1px rgba(79, 70, 229, 0.06);
+    }
+    #order-modal .btn-primary:active { background: #4338ca; }
+    
+    #order-modal .btn-warning,
+    #order-modal .btn-rose { 
+        background: transparent; 
+        color: #1f2937;
+        border: 1px solid #d1d5db; 
+        box-shadow: none; 
+    }
+    .dark #order-modal .btn-warning,
+    .dark #order-modal .btn-rose {
+        background: rgba(255, 255, 255, 0.03);
+        color: #e5e7eb;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    #order-modal .btn-warning:hover,
+    #order-modal .btn-rose:hover { background: #f3f4f6; }
+    .dark #order-modal .btn-warning:hover,
+    .dark #order-modal .btn-rose:hover { background: rgba(255, 255, 255, 0.08); }
+
+    #order-modal .btn-success { 
+        background: #10b981; 
+        box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1);
+    }
+    #order-modal .btn-success:active { background: #059669; }
     #order-modal .btn-neutral {
         background: #fff;
         color: #111827;
@@ -410,193 +463,162 @@
 
         <div x-data="kanbanBoardIndex({{ Js::from($calendarData) }}, '{{ $startDate }}')" x-cloak>
 
-        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Kanban de {{ $viewType === 'personalized' ? 'Personalizados' : 'Produção' }}</h1>
-                <div class="text-sm text-gray-700 mt-1 dark:text-gray-500">
-                    Total de Pedidos: <strong>{{ $ordersByStatus->flatten()->count() }}</strong>
+        <!-- Header Premium com Animação -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 animate-fade-in-up">
+            <div class="space-y-1">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500 border border-purple-500/20 shadow-lg shadow-purple-500/5">
+                        <i class="fa-solid fa-columns-pivot text-xl sm:text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+                            Kanban <span class="text-purple-500">{{ $viewType === 'personalized' ? 'Personalizados' : 'Produção' }}</span>
+                        </h1>
+                        <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] sm:tracking-[0.3em]">
+                            Total de Pedidos: <span class="text-purple-500/80">{{ $ordersByStatus->flatten()->count() }}</span>
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex items-center gap-3">
-                <!-- View Toggle -->
-                <div class="flex items-center bg-white border border-gray-200 p-1 rounded-full shadow-sm dark:bg-[#0f111a] dark:border-[#1d2331]">
+            <div class="flex items-center gap-3 animate-slide-in-right">
+                <div class="glass-card p-1 rounded-2xl flex items-center bg-gray-100/50 dark:bg-slate-800/40">
                     <button @click="view = 'kanban'" 
-                            :class="{ 'bg-gray-100 text-gray-900 shadow dark:bg-[#1b1f2b] dark:text-white': view === 'kanban', 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200': view !== 'kanban' }"
-                            class="px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            :class="{ 'bg-purple-600 dark:bg-purple-500 text-white shadow-md': view === 'kanban', 'text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white': view !== 'kanban' }"
+                            class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-table-columns"></i>
                         Kanban
                     </button>
                     <button @click="view = 'calendar'" 
-                            :class="{ 'bg-gray-100 text-gray-900 shadow dark:bg-[#1b1f2b] dark:text-white': view === 'calendar', 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200': view !== 'calendar' }"
-                            class="px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            :class="{ 'bg-purple-600 dark:bg-purple-500 text-white shadow-md': view === 'calendar', 'text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white': view !== 'calendar' }"
+                            class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-days"></i>
                         Calendário
                     </button>
                 </div>
 
                 @if(Auth::user()->isAdmin() || Auth::user()->isProducao())
                 <a href="{{ route('kanban.columns.index') }}" 
-                   class="px-4 py-2 bg-[#7c3aed] text-white dark:text-white rounded-full hover:bg-[#6d28d9] flex items-center space-x-2 shadow-md transition-colors" style="color: white !important;">
-                    <i class="fa-solid fa-gear text-white text-sm" style="color: white !important;"></i>
-                    <span class="text-white font-bold text-sm" style="color: white !important;">Gerenciar Colunas</span>
+                   class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-lg hover:shadow-purple-600/30 transition-all active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders-up"></i>
+                    <span>Gerenciar Colunas</span>
                 </a>
                 @endif
             </div>
         </div>
 
         <!-- Barra de Busca e Filtros -->
-        <div class="rounded-2xl p-5 md:p-6 mb-6 animate-fade-in-down border border-gray-200 bg-white shadow-[0_12px_40px_-24px_rgba(0,0,0,0.08)] dark:border-[#1d2331] dark:bg-[#0d111a] dark:shadow-[0_12px_40px_-24px_rgba(0,0,0,0.8)]">
-            <form method="GET" action="{{ route('kanban.index') }}" class="space-y-4">
+        <!-- Barra de Busca e Filtros Premium -->
+        <div class="glass-card p-4 sm:p-6 mb-8 animate-fade-in-up delay-100 border border-gray-100/50 dark:border-white/5 bg-white/50 dark:bg-slate-900/40 backdrop-blur-xl shadow-2xl">
+            <form method="GET" action="{{ route('kanban.index') }}" class="space-y-6">
                 <input type="hidden" name="type" value="{{ $viewType }}">
-                <!-- Busca -->
-                <div class="flex flex-col md:flex-row gap-3">
+                
+                <!-- Busca Principal -->
+                <div class="flex flex-col md:flex-row gap-4">
                     <div class="flex-1 relative group">
-                        <div class="absolute left-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-gray-500 group-focus-within:text-gray-900 dark:group-focus-within:text-white transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
+                        <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-purple-500 transition-colors">
+                            <i class="fa-solid fa-magnifying-glass text-lg"></i>
                         </div>
                         <input type="text" 
                                name="search" 
                                id="search-input"
                                value="{{ $search ?? '' }}"
-                               placeholder="Buscar por nº do pedido..." 
-                               class="w-full pl-12 pr-4 h-[52px] rounded-full border border-gray-200 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition-all text-sm md:text-base dark:border-[#1f2533] dark:bg-[#0a0d15] dark:text-gray-100">
+                               placeholder="Buscar por nº do pedido, cliente ou item..." 
+                               class="w-full pl-12 pr-6 h-[56px] rounded-2xl border-none bg-gray-100/50 dark:bg-slate-800/50 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/50 transition-all text-sm font-bold tracking-tight">
                     </div>
                     <button type="submit" 
-                            class="px-6 md:px-10 py-3 bg-[#7c3aed] text-white stay-white dark:text-white rounded-full hover:bg-[#6d28d9] whitespace-nowrap font-bold transition-all shadow-lg shadow-purple-700/30 flex items-center justify-center gap-2 text-sm md:text-base">
-                        <span class="text-white stay-white">Buscar Pedido</span>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                        </svg>
+                            class="px-8 md:px-12 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-lg shadow-purple-600/20 hover:shadow-xl hover:shadow-purple-600/40 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3">
+                        <span>Buscar Pedido</span>
+                        <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
                 
-                <!-- Filtros -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-2 flex items-center gap-2 uppercase tracking-wide dark:text-gray-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                            </svg>
-                            Tipo de Personalização
-                        </label>
-                        <select name="personalization_type" class="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white text-gray-900 focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition dark:border-[#1f2533] dark:bg-[#0a0d15] dark:text-gray-100">
-                            <option value="">Todas as Personalizações</option>
-                            @foreach($personalizationTypes ?? [] as $key => $name)
-                                <option value="{{ $key }}" {{ request('personalization_type') == $key ? 'selected' : '' }}>
-                                    {{ $name }}
-                                </option>
-                            @endforeach
-                        </select>
+                <!-- Filtros Secundários -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Tipo de Personalização</label>
+                        <div class="relative">
+                            <select name="personalization_type" class="w-full pl-4 pr-10 py-3.5 rounded-xl border-none bg-gray-100/50 dark:bg-slate-800/50 text-gray-700 dark:text-slate-200 text-xs font-bold focus:ring-2 focus:ring-purple-500/50 transition appearance-none cursor-pointer">
+                                <option value="">Todas as Personalizações</option>
+                                @foreach($personalizationTypes ?? [] as $key => $name)
+                                    <option value="{{ $key }}" {{ request('personalization_type') == $key ? 'selected' : '' }}>{{ $name }}</option>
+                                @endforeach
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-[10px]"></i>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-2 flex items-center gap-2 uppercase tracking-wide dark:text-gray-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            Data do pedido (início / fim)
-                        </label>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <div class="relative">
-                                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <input type="date" name="start_date" value="{{ request('start_date') }}" class="w-full pl-12 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-gray-900 focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition placeholder-gray-500 dark:border-[#1f2533] dark:bg-[#0a0d15] dark:text-gray-100">
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Período de Entrega</label>
+                        <div class="flex items-center gap-3">
+                            <div class="relative flex-1">
+                                <input type="date" name="start_date" value="{{ request('start_date') }}" class="w-full px-4 py-3.5 rounded-xl border-none bg-gray-100/50 dark:bg-slate-800/50 text-gray-700 dark:text-slate-200 text-xs font-bold focus:ring-2 focus:ring-purple-500/50 transition">
                             </div>
-                            <div class="relative">
-                                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <input type="date" name="end_date" value="{{ request('end_date') }}" class="w-full pl-12 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-gray-900 focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] transition placeholder-gray-500 dark:border-[#1f2533] dark:bg-[#0a0d15] dark:text-gray-100">
+                            <span class="text-gray-400 font-black text-[10px] uppercase">a</span>
+                            <div class="relative flex-1">
+                                <input type="date" name="end_date" value="{{ request('end_date') }}" class="w-full px-4 py-3.5 rounded-xl border-none bg-gray-100/50 dark:bg-slate-800/50 text-gray-700 dark:text-slate-200 text-xs font-bold focus:ring-2 focus:ring-purple-500/50 transition">
                             </div>
                         </div>
                     </div>
                     
-                    <div class="flex items-end gap-2">
+                    <div class="flex items-end gap-3">
                         <button type="submit" formaction="{{ route('production.pdf') }}" formtarget="_blank"
-                                class="px-6 py-2.5 bg-indigo-50 text-indigo-700 rounded-full hover:bg-indigo-100 transition font-semibold flex items-center justify-center gap-2 border border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            PDF
+                                class="flex-1 py-3.5 bg-white/80 dark:bg-slate-800/80 text-gray-600 dark:text-slate-300 rounded-xl hover:bg-white dark:hover:bg-slate-700 transition font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-gray-100 dark:border-white/5 shadow-sm">
+                            <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                            Exportar PDF
                         </button>
                         @if($search || request('personalization_type') || request('start_date') || request('end_date'))
                         <a href="{{ route('kanban.index', ['type' => $viewType]) }}" 
-                           class="w-full px-6 py-2.5 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 whitespace-nowrap transition font-semibold flex items-center justify-center gap-2 border border-gray-200 dark:bg-[#111724] dark:text-gray-200 dark:hover:bg-[#131a29] dark:border-[#1f2533]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                            Limpar Filtros
+                           class="flex-1 py-3.5 bg-rose-500/10 text-rose-500 rounded-xl hover:bg-rose-500/20 transition font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-rose-500/20">
+                            <i class="fa-solid fa-trash-can"></i>
+                            Limpar
                         </a>
                         @endif
                     </div>
                 </div>
-                
-                @if($search || request('personalization_type') || request('start_date') || request('end_date'))
-                <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                    <div class="flex flex-wrap gap-2 items-center">
-                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Filtros ativos:</span>
-                        @if($search)
-                        <span class="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 rounded-full text-sm font-medium flex items-center gap-2">
-                            Busca: "{{ $search }}"
-                            <a href="{{ route('kanban.index', array_merge(request()->except('search'), ['personalization_type' => request('personalization_type')])) }}" 
-                               class="hover:text-indigo-600 dark:hover:text-indigo-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </a>
-                        </span>
-                        @endif
-                        @if(request('personalization_type'))
-                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium flex items-center gap-2">
-                            Personalização: {{ $personalizationTypes[request('personalization_type')] ?? request('personalization_type') }}
-                            <a href="{{ route('kanban.index', array_merge(request()->except('personalization_type'), ['search' => request('search')])) }}" 
-                               class="hover:text-purple-600 dark:hover:text-purple-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </a>
-                        </span>
-                        @endif
-                        @if(request('start_date') || request('end_date'))
-                        <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium flex items-center gap-2">
-                            Pedido: {{ request('start_date') ? \Carbon\Carbon::parse(request('start_date'))->format('d/m/Y') : '-' }} a {{ request('end_date') ? \Carbon\Carbon::parse(request('end_date'))->format('d/m/Y') : '-' }}
-                            <a href="{{ route('kanban.index', array_merge(request()->except(['start_date', 'end_date']), ['search' => request('search'), 'personalization_type' => request('personalization_type')])) }}" 
-                               class="hover:text-blue-600 dark:hover:text-blue-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </a>
-                        </span>
-                        @endif
-                    </div>
-                </div>
-                @endif
             </form>
         </div>
+
 
         @php
             $hasFilters = request('start_date') || request('end_date') || ($personalizationType ?? request('personalization_type')) || ($search ?? request('search'));
         @endphp
 
         @if($hasFilters)
-        <div x-show="view === 'kanban'" class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-semibold text-gray-900">Agenda por data de entrega</h3>
-                <a href="{{ route('kanban.index', ['type' => $viewType]) }}" class="text-sm text-indigo-600 font-semibold hover:text-indigo-500">Voltar ao Kanban</a>
+        <div x-show="view === 'kanban'" class="animate-fade-in-up delay-200 mb-12">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 border border-indigo-500/20 shadow-lg shadow-indigo-500/5">
+                        <i class="fa-solid fa-calendar-list text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Agenda <span class="text-indigo-500">Planejada</span></h3>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Visualização cronológica por data de entrega</p>
+                    </div>
+                </div>
+                <a href="{{ route('kanban.index', ['type' => $viewType]) }}" 
+                   class="px-5 py-2.5 bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:text-indigo-500 transition-all flex items-center gap-2 border border-gray-200 dark:border-white/5">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Voltar ao Kanban
+                </a>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 @forelse(($ordersForCalendar ?? collect())->groupBy(fn($o) => optional($o->delivery_date)->format('Y-m-d') ?? 'sem_data') as $dateKey => $group)
                     @php $isNoDate = $dateKey === 'sem_data'; @endphp
-                    <div class="border border-gray-200 rounded-lg shadow-sm bg-white">
-                        <div class="px-3 py-2 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
-                            <span class="text-sm font-semibold text-gray-800">
-                                {{ $isNoDate ? 'Sem data' : \Carbon\Carbon::parse($dateKey)->format('d/m/Y') }}
-                            </span>
-                            <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">{{ $group->count() }}</span>
+                    <div class="glass-card rounded-[2rem] border border-gray-100/50 dark:border-white/5 bg-white/50 dark:bg-slate-900/40 backdrop-blur-xl shadow-xl overflow-hidden flex flex-col h-full hover:shadow-2xl transition-all duration-500 group/agenda">
+                        <div class="px-6 py-5 border-b border-gray-100/50 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                                    <i class="fa-solid fa-calendar-day text-xs"></i>
+                                </div>
+                                <span class="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-widest">
+                                    {{ $isNoDate ? 'Sem data' : \Carbon\Carbon::parse($dateKey)->format('d/M/Y') }}
+                                </span>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-indigo-500/10 text-[10px] font-black text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shadow-sm">{{ $group->count() }}</span>
                         </div>
-                        <div class="p-3 space-y-3">
+                        <div class="p-4 space-y-4 flex-1">
                             @foreach($group as $order)
                                 @php
                                     $firstItem = $order->items->first();
@@ -605,29 +627,32 @@
                                     $storeName = $order->store?->name ?? 'Loja Principal';
                                     $coverImage = $order->cover_image_url ?: $coverItem?->cover_image_url;
                                 @endphp
-                                <div class="border border-gray-200 rounded-md p-3 bg-white shadow-sm hover:shadow-md transition-shadow">
-                                    <div class="flex items-start gap-3">
+                                <div onclick="openOrderModal({{ $order->id }})" 
+                                     class="group/item relative p-4 rounded-2xl border border-gray-100 dark:border-white/5 bg-white dark:bg-slate-800/50 hover:bg-indigo-500/5 hover:border-indigo-500/30 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md">
+                                    <div class="flex items-start gap-4">
                                         @if($coverImage)
-                                        <div class="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-gray-100 border border-gray-200">
-                                            <img src="{{ $coverImage }}" class="w-full h-full object-cover">
+                                        <div class="flex-shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-white/10 shadow-inner">
+                                            <img src="{{ $coverImage }}" class="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500">
+                                        </div>
+                                        @else
+                                        <div class="flex-shrink-0 w-14 h-14 rounded-xl bg-gray-100/50 dark:bg-slate-900/50 flex items-center justify-center text-gray-300 dark:text-gray-700 border border-dashed border-gray-200 dark:border-white/5">
+                                            <i class="fa-solid fa-image text-xl"></i>
                                         </div>
                                         @endif
                                         <div class="flex-1 min-w-0">
-                                            <div class="flex items-center justify-between mb-1">
-                                                <a href="{{ route('orders.show', $order->id) }}" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded hover:bg-indigo-100">
+                                            <div class="flex items-center justify-between mb-1.5">
+                                                <span class="px-2 py-0.5 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-black border border-indigo-500/20">
                                                     #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
-                                                </a>
+                                                </span>
                                                 @if($order->priority)
-                                                    <span class="text-[11px] px-2 py-0.5 rounded-full font-semibold
-                                                        @if($order->priority === 'alta') bg-red-100 text-red-800
-                                                        @elseif($order->priority === 'media') bg-yellow-100 text-yellow-800
-                                                        @else bg-green-100 text-green-800 @endif">
-                                                        {{ ucfirst($order->priority) }}
-                                                    </span>
+                                                    <div class="w-2 h-2 rounded-full shadow-lg pulse-soft
+                                                        @if($order->priority === 'alta') bg-rose-500 shadow-rose-500/50
+                                                        @elseif($order->priority === 'media') bg-amber-500 shadow-amber-500/50
+                                                        @else bg-emerald-500 shadow-emerald-500/50 @endif"></div>
                                                 @endif
                                             </div>
-                                            <p class="text-sm font-semibold text-gray-900 truncate" title="{{ $displayName }}">{{ $displayName }}</p>
-                                            <p class="text-xs text-gray-500 truncate" title="{{ $storeName }}">{{ $storeName }}</p>
+                                            <p class="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight truncate mb-0.5" title="{{ $displayName }}">{{ $displayName }}</p>
+                                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest truncate" title="{{ $storeName }}">{{ $storeName }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -635,7 +660,13 @@
                         </div>
                     </div>
                 @empty
-                    <div class="col-span-full text-center text-sm text-gray-500 py-6">Nenhum pedido para a data filtrada.</div>
+                    <div class="col-span-full py-20 flex flex-col items-center justify-center text-center glass-card border-dashed">
+                        <div class="w-20 h-20 rounded-[2rem] bg-gray-100/50 dark:bg-slate-800/50 flex items-center justify-center text-gray-300 mb-4 border border-gray-200 dark:border-white/5">
+                            <i class="fa-solid fa-calendar-xmark text-3xl"></i>
+                        </div>
+                        <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest">Nenhum pedido encontrado</h4>
+                        <p class="text-[10px] font-bold text-gray-500 dark:text-gray-600 mt-2">Tente ajustar seus filtros de busca</p>
+                    </div>
                 @endforelse
             </div>
         </div>
@@ -649,17 +680,24 @@
                     $isBlue = str_contains($baseColor, '3b82f6') || str_contains($baseColor, 'blue');
                     $gradient = "linear-gradient(135deg, {$baseColor}, " . ($status->color_secondary ?? $baseColor) . ")";
                 @endphp
-                <div class="glass-card rounded-xl flex-shrink-0 overflow-hidden snap-start border border-gray-200 flex flex-col transition-all duration-300 bg-white dark:border-white/5 dark:bg-[rgba(18,24,34,0.95)]" style="min-width: 320px; max-width: 320px;">
-                    <div class="px-5 py-4 font-bold flex flex-col justify-center text-gray-800 relative dark:text-gray-100">
-                        <div class="flex items-center justify-between mb-1">
-                             <span class="truncate tracking-wider uppercase text-[12px] font-black text-gray-800 dark:text-gray-100">{{ $status->name }}</span>
-                             <button class="text-gray-500 hover:text-white transition-colors">
-                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                             </button>
+                <div class="glass-card rounded-2xl flex-shrink-0 overflow-hidden snap-start border border-gray-200/50 flex flex-col transition-all duration-300 bg-white/80 dark:border-white/5 dark:bg-slate-900/60 backdrop-blur-xl shadow-lg hover:shadow-2xl animate-fade-in-up" 
+                     style="min-width: 340px; max-width: 340px; animation-delay: {{ $loop->index * 100 }}ms">
+                    
+                    <div class="px-6 py-5 flex flex-col justify-center border-b border-gray-100/50 dark:border-white/5">
+                        <div class="flex items-center justify-between mb-2">
+                             <div class="flex items-center gap-3">
+                                 <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-white border border-purple-500/20">
+                                     <i class="fa-solid fa-layer-group text-xs"></i>
+                                 </div>
+                                 <div>
+                                     <h2 class="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-[0.2em]">{{ $status->name }}</h2>
+                                     <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Produção Planejada</p>
+                                 </div>
+                             </div>
+                             <span class="px-3 py-1 rounded-full bg-purple-500/10 dark:bg-purple-500/20 text-[10px] font-black text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                                {{ ($ordersByStatus[$status->id] ?? collect())->count() }}
+                             </span>
                         </div>
-                        <span class="text-[11px] font-medium text-gray-600 dark:text-gray-500">
-                            {{ ($ordersByStatus[$status->id] ?? collect())->count() }} {{ ($ordersByStatus[$status->id] ?? collect())->count() === 1 ? 'cartão corresponde' : 'cartões correspondem' }} aos filtros
-                        </span>
                     </div>
                     <div class="kanban-column p-4 space-y-4 overflow-y-auto bg-transparent scrollbar-thin" style="height: calc(100vh - 400px); min-height: 500px;" data-status-id="{{ $status->id }}">
                         @foreach(($ordersByStatus[$status->id] ?? collect()) as $order)
@@ -717,207 +755,176 @@
                                     }
                                 }
                             @endphp
-                            <div class="kanban-card custom-card-shadow group/card bg-white border border-gray-200 text-gray-900 rounded-xl overflow-hidden cursor-pointer hover:bg-gray-50 hover:border-indigo-300 transition-all duration-200 dark:bg-[#22272e] dark:border-[#373e47] dark:text-gray-100 dark:hover:bg-[#2d333b] dark:hover:border-indigo-500/40" 
-                                 style="box-shadow: var(--kanban-card-shadow) !important;"
+                            <div class="kanban-card group bg-white/50 dark:bg-slate-800/60 rounded-2xl border border-gray-100 dark:border-white/5 p-0 shadow-sm hover-lift cursor-pointer relative overflow-hidden animate-fade-in-up transition-all duration-300" 
+                                 style="box-shadow: var(--kanban-card-shadow) !important; animation-delay: {{ ($loop->parent->index * 100) + ($loop->index * 50) }}ms"
                                  data-order-id="{{ $order->id }}">
                                 
-                                {{-- Imagem de Capa --}}
+                                <!-- Efeito Shimmer no Hover -->
+                                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none"></div>
+
+                                {{-- Imagem de Capa Premium --}}
                                 @if($coverImage)
-                                <div class="px-2 pt-2">
-                                    <div class="h-44 bg-gray-100 overflow-hidden rounded-lg border border-gray-200 dark:bg-[#0b1221] dark:border-[#0b1221]">
+                                <div class="px-3 pt-3">
+                                    <div class="h-44 bg-gray-100/50 dark:bg-slate-900/50 overflow-hidden rounded-xl border border-gray-200 dark:border-white/5 relative group-hover/img shadow-inner">
                                         <img src="{{ $coverImage }}" 
                                              alt="Capa do Pedido" 
-                                             class="w-full h-full object-cover"
-                                             onerror="this.parentElement.innerHTML='<div class=\'h-full w-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center\'><svg class=\'w-12 h-12 text-white/10\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg></div>'">
+                                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                             onerror="this.parentElement.innerHTML='<div class=\'h-full w-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 flex items-center justify-center\'><i class=\'fa-solid fa-image text-purple-500/20 text-3xl\'></i></div>'">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                     </div>
                                 </div>
                                 @endif
 
-                                <!-- Conteúdo do Card -->
-                                <div class="p-3 space-y-3">
-                                    <div class="flex items-start justify-between gap-2">
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <span class="px-2 py-1 bg-gray-100 text-gray-900 rounded-md text-[11px] font-semibold border border-gray-200 dark:bg-[#111827] dark:text-gray-200 dark:border-[#2f3844]">
-                                                #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
-                                            </span>
-                                            @if($order->edit_status === 'requested')
-                                                <span class="px-2 py-1 rounded-md text-[11px] font-semibold bg-orange-500/20 text-orange-200 border border-orange-400/40">Editado</span>
-                                            @endif
+                                <!-- Conteúdo do Card Premium -->
+                                <div class="p-4 space-y-4">
+                                    <div class="flex flex-col gap-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <span class="px-2.5 py-1 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-lg text-[10px] font-black border border-purple-500/20 uppercase tracking-widest">
+                                                    #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
+                                                </span>
+                                                @if($order->edit_status === 'requested')
+                                                    <span class="px-2 py-1 rounded-lg text-[9px] font-black bg-amber-500/10 text-amber-600 border border-amber-500/20 uppercase tracking-widest">Editado</span>
+                                                @endif
+                                            </div>
+                                            <div class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">
+                                                {{ $order->created_at->format('d/m/Y') }}
+                                            </div>
+                                        </div>
                                             @php
-                                                $stockPillLabel = 'Estoque pendente';
-                                                $stockPillClass = 'bg-amber-500 !text-white border-amber-400 shadow-sm shadow-amber-500/30';
-                                                $stockPillStyle = 'color: #fff !important;';
+                                                $stockBadgeLabel = 'Pendente';
+                                                $stockBadgeColor = 'amber';
+                                                $stockIcon = 'box';
                                                 
                                                 if ($order->stock_separation_status === 'in_separation') {
-                                                    $stockPillLabel = 'Em Separação';
-                                                    $stockPillClass = 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-600/20 dark:text-blue-100 dark:border-blue-500/40';
+                                                    $stockBadgeLabel = 'Em Separação';
+                                                    $stockBadgeColor = 'blue';
+                                                    $stockIcon = 'hand-holding-box';
                                                 } elseif ($order->stock_status === 'none') {
-                                                    $stockPillLabel = 'Sem estoque';
-                                                    $stockPillClass = 'bg-red-600 !text-white border-red-500 shadow-sm shadow-red-500/30 dark:bg-red-500 dark:border-red-400';
-                                                    $stockPillStyle = 'color: #fff !important;';
+                                                    $stockBadgeLabel = 'Sem Estoque';
+                                                    $stockBadgeColor = 'rose';
+                                                    $stockIcon = 'circle-xmark';
                                                 } elseif ($order->stock_status === 'total') {
-                                                    $stockPillLabel = 'Estoque ok';
-                                                    $stockPillClass = 'bg-green-100 text-green-700 border-green-200 dark:bg-green-500/15 dark:text-green-200 dark:border-green-400/30';
+                                                    $stockBadgeLabel = 'Estoque OK';
+                                                    $stockBadgeColor = 'emerald';
+                                                    $stockIcon = 'circle-check';
                                                 } elseif ($order->stock_status === 'partial') {
-                                                    $stockPillLabel = 'Estoque parcial';
-                                                    $stockPillClass = 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-100 dark:border-yellow-400/40';
+                                                    $stockBadgeLabel = 'Parcial';
+                                                    $stockBadgeColor = 'orange';
+                                                    $stockIcon = 'triangle-exclamation';
                                                 } elseif ($order->stock_separation_status === 'completed') {
-                                                    $stockPillLabel = 'Separado';
-                                                    $stockPillClass = 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-600/20 dark:text-emerald-100 dark:border-emerald-500/40';
+                                                    $stockBadgeLabel = 'Separado';
+                                                    $stockBadgeColor = 'indigo';
+                                                    $stockIcon = 'box-check';
                                                 }
                                             @endphp
-                                            <span class="px-2 py-1 rounded-md text-[11px] font-semibold {{ $stockPillClass }}" style="{{ $stockPillStyle }}">
-                                                {{ $stockPillLabel }}
-                                            </span>
-                                            @if($order->is_event)
-                                                <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-gradient-to-r from-fuchsia-600 to-violet-600 !text-white border border-fuchsia-500 shadow-sm shadow-fuchsia-500/30 dark:from-fuchsia-500 dark:to-violet-500 dark:border-fuchsia-400" style="color: #fff !important;">
-                                                    Evento
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <span class="px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 border
+                                                    @if($stockBadgeColor == 'amber') bg-amber-500/10 text-amber-600 border-amber-500/20
+                                                    @elseif($stockBadgeColor == 'blue') bg-blue-500/10 text-blue-600 border-blue-500/20
+                                                    @elseif($stockBadgeColor == 'rose') bg-rose-500/10 text-rose-600 border-rose-500/20 animate-pulse-soft
+                                                    @elseif($stockBadgeColor == 'emerald') bg-emerald-500/10 text-emerald-600 border-emerald-500/20
+                                                    @elseif($stockBadgeColor == 'orange') bg-orange-500/10 text-orange-600 border-orange-500/20
+                                                    @elseif($stockBadgeColor == 'indigo') bg-indigo-500/10 text-indigo-600 border-indigo-500/20
+                                                    @endif">
+                                                    <i class="fa-solid fa-{{ $stockIcon }}"></i>
+                                                    {{ $stockBadgeLabel }}
                                                 </span>
-                                            @endif
-                                        </div>
-                                        <div class="flex items-center gap-2 text-gray-600 text-[11px] dark:text-gray-400">
-                                            <div class="flex items-center gap-1 px-1.5 py-0.5 rounded-md border {{ $filesCount > 0 ? 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-500/15 dark:text-sky-200 dark:border-sky-400/30' : 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-400/30' }}">
-                                                <span>{{ $filesCount }} arq.</span>
+                                                @if($order->is_event)
+                                                    <span class="px-2 py-1 rounded-lg text-[9px] font-black bg-fuchsia-500/10 text-fuchsia-600 border border-fuchsia-500/20 uppercase tracking-widest flex items-center gap-1.5">
+                                                        <i class="fa-solid fa-star"></i> Evento
+                                                    </span>
+                                                @endif
                                             </div>
-                                            <div id="comment-badge-{{ $order->id }}"
-                                                 data-count="{{ $commentsCount }}"
-                                                 class="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-500/20 dark:text-amber-200 dark:border-amber-400/40 {{ $commentsCount > 0 ? '' : 'hidden' }}"
-                                                 title="{{ $commentsCount }} comentarios">
-                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-2 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
-                                                    </svg>
+                                        </div>
+
+                                        <!-- Informações de Arquivos e Comentários -->
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="flex items-center gap-1.5 px-2 py-1 rounded-lg border {{ $filesCount > 0 ? 'bg-sky-500/10 text-sky-600 border-sky-500/20' : 'bg-gray-100/50 text-gray-400 border-gray-200 dark:border-white/5' }} text-[9px] font-black uppercase tracking-widest">
+                                                    <i class="fa-solid fa-file-pdf"></i>
+                                                    <span>{{ $filesCount }}</span>
+                                                </div>
+                                                <div id="comment-badge-{{ $order->id }}"
+                                                     data-count="{{ $commentsCount }}"
+                                                     class="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-purple-500/10 text-purple-600 border border-purple-500/20 text-[9px] font-black uppercase tracking-widest {{ $commentsCount > 0 ? '' : 'hidden' }}">
+                                                    <i class="fa-solid fa-comment-dots"></i>
                                                     <span data-comment-count>{{ $commentsCount }}</span>
+                                                </div>
                                             </div>
                                             @if(Auth::user()->isAdmin() || Auth::user()->isProducao())
-                                                <span class="kanban-drag-handle flex items-center justify-center w-6 h-6 rounded-md border border-transparent text-gray-400 hover:text-purple-400 hover:border-purple-400/40 cursor-grab active:cursor-grabbing" title="Arrastar" onclick="event.stopPropagation();">
-                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                                        <circle cx="8" cy="6" r="1.5"></circle>
-                                                        <circle cx="16" cy="6" r="1.5"></circle>
-                                                        <circle cx="8" cy="12" r="1.5"></circle>
-                                                        <circle cx="16" cy="12" r="1.5"></circle>
-                                                        <circle cx="8" cy="18" r="1.5"></circle>
-                                                        <circle cx="16" cy="18" r="1.5"></circle>
-                                                    </svg>
+                                                <span class="kanban-drag-handle p-2 rounded-lg text-gray-300 hover:text-purple-500 hover:bg-purple-500/10 transition-colors cursor-grab active:cursor-grabbing" onclick="event.stopPropagation();">
+                                                    <i class="fa-solid fa-grip-vertical"></i>
                                                 </span>
                                             @endif
                                         </div>
-                                    </div>
 
                                     {{-- Status indicators removed for cleaner design --}}
                                     
-                                    <!-- Informações Texto -->
-                                    <div class="space-y-1">
-                                        <h3 class="font-bold text-gray-900 text-[13px] leading-[1.3] dark:text-gray-100">
-                                            {{ $displayName }}
-                                        </h3>
-                                        <p class="text-xs text-gray-600 flex items-center gap-2 dark:text-gray-400">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9-4 9 4-9 4-9-4zm9 4v9"></path></svg>
-                                            <span class="truncate">{{ $storeName }}</span>
-                                        </p>
-                                    </div>
-
-                                    <div class="grid grid-cols-1 gap-1 text-[11px] text-gray-600 dark:text-gray-300">
-                                        @if($viewType === 'personalized')
-                                            <div class="flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
-                                                <span class="text-gray-800 font-semibold dark:text-gray-200">Produto:</span>
-                                                <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $productName }}</span>
-                                            </div>
-                                            <div class="flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                                <span class="text-gray-800 font-semibold dark:text-gray-200">Personalização:</span>
-                                                <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $personalizationLabel }}</span>
-                                            </div>
-                                            <div class="flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16h6"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                                <span class="text-gray-800 font-semibold dark:text-gray-200">Cliente:</span>
-                                                <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $order->client?->name ?? 'Sem cliente' }}</span>
-                                            </div>
-                                        @else
-                                        <div class="flex items-center gap-2">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
-                                            <span class="text-gray-800 font-semibold dark:text-gray-200">Tecido:</span>
-                                            <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $firstItem?->fabric ?? 'N/A' }}</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422A12.083 12.083 0 0118 20.944a12.08 12.08 0 01-6 1.722 12.08 12.08 0 01-6-1.722A12.083 12.083 0 015.84 10.578L12 14z"></path></svg>
-                                            <span class="text-gray-800 font-semibold dark:text-gray-200">Gola:</span>
-                                            <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $firstItem?->collar ?? 'N/A' }}</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"></path></svg>
-                                            <span class="text-gray-800 font-semibold dark:text-gray-200">Corte:</span>
-                                            <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $firstItem?->model ?? 'N/A' }}</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h8M8 11h8m-6 4h6"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                            <span class="text-gray-800 font-semibold dark:text-gray-200">Personalização:</span>
-                                            <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $printType }}</span>
-                                        </div>
-                                        @endif
-                                        <div class="flex items-center gap-2">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2a3 3 0 00-.879-2.121M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2a3 3 0 01.879-2.121M12 12a4 4 0 100-8 4 4 0 000 8z"></path></svg>
-                                            <span class="text-gray-800 font-semibold dark:text-gray-200">Vendedor:</span>
-                                            <span class="min-w-0 whitespace-normal break-words leading-snug">{{ $order->user?->name ?? 'Sem vendedor' }}{{ $order->store ? ' - ' . $order->store->name : '' }}</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9 4 9-4M4 10v6l8 4 8-4v-6"></path></svg>
-                                            <span class="text-gray-800 font-semibold dark:text-gray-200">Qtd:</span>
-                                            <span>{{ $quantityTotal }} unid</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                                            <span class="text-gray-800 font-semibold dark:text-gray-200">Estoque:</span>
-                                            @php
-                                                $stockLabel = 'Aguardando verificação';
-                                                $stockColorClass = 'text-amber-600 dark:text-amber-400';
-                                                
-                                                if ($order->stock_separation_status === 'in_separation') {
-                                                    $stockLabel = 'Em separação';
-                                                    $stockColorClass = 'text-blue-600 dark:text-blue-400';
-                                                } elseif ($order->stock_status === 'none') {
-                                                    $stockLabel = 'Sem estoque / Indisponível';
-                                                    $stockColorClass = 'text-rose-600 dark:text-rose-400';
-                                                } elseif ($order->stock_status === 'total') {
-                                                    $stockLabel = 'Com estoque / Disponível';
-                                                    $stockColorClass = 'text-emerald-600 dark:text-emerald-400';
-                                                } elseif ($order->stock_status === 'partial') {
-                                                    $stockLabel = 'Disponível parcial';
-                                                    $stockColorClass = 'text-amber-600 dark:text-amber-400';
-                                                } elseif ($order->stock_separation_status === 'completed') {
-                                                    $stockLabel = 'Separado / Reservado';
-                                                    $stockColorClass = 'text-teal-600 dark:text-teal-400';
-                                                }
-                                            @endphp
-                                            <span class="font-bold {{ $stockColorClass }}">{{ $stockLabel }}</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Footer do Card -->
-                                    <div class="flex items-start justify-between text-[11px] font-medium text-gray-600 border-t border-gray-200 pt-3 dark:text-gray-400 dark:border-[#2f3844]">
+                                    <!-- Informações Texto Premium -->
+                                    <div class="space-y-4">
                                         <div class="space-y-1">
-                                            @if($entryDate)
-                                                <div class="flex items-center gap-1">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                                    </svg>
-                                                    <span>Pedido: {{ $entryDate->format('d/m/Y') }}</span>
-                                                </div>
-                                            @endif
-                                            @if($deliveryDate)
-                                                <div class="flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                    </svg>
-                                                    <span>Entrega: {{ $deliveryDate->format('d/m/Y') }}</span>
-                                                </div>
-                                            @endif
+                                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cliente / Identificação</p>
+                                            <h3 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wide truncate">
+                                                {{ $displayName }}
+                                            </h3>
+                                            <div class="flex items-center gap-2 text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                                <i class="fa-solid fa-shop text-[8px]"></i>
+                                                {{ $storeName }}
+                                            </div>
                                         </div>
-                                        
-                                        <div class="text-right space-y-1">
-                                            <span class="block text-[12px] text-gray-400">Total</span>
-                                            <div class="text-emerald-500 font-bold text-base">
-                                                R$ {{ number_format($order->total, 2, ',', '.') }}
+
+                                        <div class="grid grid-cols-1 gap-2.5 text-[10px]">
+                                            @if($viewType === 'personalized')
+                                                <div class="flex flex-col gap-0.5">
+                                                    <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Produto</span>
+                                                    <span class="font-bold text-gray-700 dark:text-gray-300">{{ $productName }}</span>
+                                                </div>
+                                                <div class="flex flex-col gap-0.5">
+                                                    <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Personalização</span>
+                                                    <span class="font-bold text-gray-700 dark:text-gray-300 truncate">{{ $personalizationLabel }}</span>
+                                                </div>
+                                            @else
+                                                <div class="grid grid-cols-2 gap-3">
+                                                    <div class="flex flex-col gap-0.5">
+                                                        <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Tecido</span>
+                                                        <span class="font-bold text-gray-700 dark:text-gray-300 truncate">{{ $firstItem?->fabric ?? 'N/A' }}</span>
+                                                    </div>
+                                                    <div class="flex flex-col gap-0.5">
+                                                        <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Gola</span>
+                                                        <span class="font-bold text-gray-700 dark:text-gray-300 truncate">{{ $firstItem?->collar ?? 'N/A' }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="flex flex-col gap-0.5">
+                                                    <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Modelo / Corte</span>
+                                                    <span class="font-bold text-gray-700 dark:text-gray-300">{{ $firstItem?->model ?? 'N/A' }}</span>
+                                                </div>
+                                            @endif
+                                            
+                                            <div class="pt-2 flex items-center justify-between border-t border-gray-100 dark:border-white/5">
+                                                <div class="flex flex-col gap-0.5">
+                                                    <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Quantidade</span>
+                                                    <span class="font-black text-purple-600 dark:text-purple-400">{{ $quantityTotal }} UNID</span>
+                                                </div>
+                                                <div class="flex flex-col items-end gap-0.5">
+                                                    <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Total</span>
+                                                    <span class="font-black text-emerald-500">R$ {{ number_format($order->total, 2, ',', '.') }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Datas de Prazo Premium -->
+                                        <div class="flex items-center gap-3 pt-3 border-t border-gray-100 dark:border-white/5">
+                                            @if($deliveryDate)
+                                                <div class="flex-1 px-3 py-2 rounded-xl bg-purple-500/5 border border-purple-500/10 flex flex-col gap-0.5">
+                                                    <span class="text-[7px] font-black text-purple-500/60 uppercase tracking-widest leading-none">Prazo de Entrega</span>
+                                                    <span class="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase">
+                                                        {{ $deliveryDate->format('d/m/Y') }}
+                                                    </span>
+                                                </div>
+                                            @endif
+                                            <div class="w-10 h-10 rounded-xl bg-gray-100/50 dark:bg-slate-700/30 flex items-center justify-center text-gray-400 group-hover:bg-purple-500 group-hover:text-white transition-all shadow-inner">
+                                                <i class="fa-solid fa-arrow-right-long transition-transform group-hover:translate-x-1"></i>
                                             </div>
                                         </div>
                                     </div>
@@ -930,37 +937,42 @@
             </div>
 
 
-        <!-- Calendar View -->
+        <!-- Calendar View Premium -->
         <div x-show="view === 'calendar'" 
-             class="calendar-container" 
+             class="calendar-container animate-fade-in-up" 
              style="display: none;"
              x-transition:enter="transition ease-out duration-300" 
              x-transition:enter-start="opacity-0 transform scale-95" 
              x-transition:enter-end="opacity-100 transform scale-100">
              
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 flex flex-col h-[calc(100vh-250px)] min-h-[600px] p-4">
+            <div class="glass-card shadow-2xl border border-gray-100 dark:border-white/5 flex flex-col h-[calc(100vh-250px)] min-h-[600px] p-6 bg-white/50 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl">
                 
-                <!-- Cabeçalho do Calendário -->
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mb-4 border-b border-gray-200 dark:border-gray-700 pb-4 gap-4">
-                    <div class="flex flex-wrap items-center gap-3">
-                        <h2 class="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight" 
-                            x-text="currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1)"></h2>
-                        <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1 shrink-0">
-                            <button @click="prev()" class="p-1 hover:bg-white dark:hover:bg-gray-600 rounded-md transition-colors">
-                                <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                                </svg>
-                            </button>
-                            <button @click="goToToday()" class="px-2 md:px-3 py-1 text-xs md:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                                Hoje
-                            </button>
-                            <button @click="next()" class="p-1 hover:bg-white dark:hover:bg-gray-600 rounded-md transition-colors">
-                                <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                </svg>
-                            </button>
+                <!-- Cabeçalho do Calendário Premium -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mb-6 border-b border-gray-100 dark:border-white/5 pb-6 gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500 border border-purple-500/20">
+                            <i class="fa-solid fa-calendar-star text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl md:text-2xl font-black text-gray-900 dark:text-white leading-tight tracking-tight uppercase" 
+                                x-text="currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1)"></h2>
+                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Planejamento Mensal de entregas</p>
                         </div>
                     </div>
+
+                    <div class="flex items-center gap-2 bg-gray-100/50 dark:bg-slate-800/50 rounded-xl p-1 shrink-0 border border-gray-200 dark:border-white/5">
+                        <button @click="prev()" class="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all text-gray-400 hover:text-purple-500">
+                            <i class="fa-solid fa-chevron-left text-sm"></i>
+                        </button>
+                        <button @click="today()" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-slate-300 hover:text-purple-500 transition-colors">
+                            Hoje
+                        </button>
+                        <button @click="next()" class="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all text-gray-400 hover:text-purple-500">
+                            <i class="fa-solid fa-chevron-right text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
                     
                     <!-- View Switcher -->
                     <div class="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
@@ -989,40 +1001,40 @@
                     </template>
                 </div>
 
-                <!-- Grid do Calendário -->
-                <div class="grid gap-px bg-gray-200 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden flex-1"
+                <!-- Grid do Calendário Premium -->
+                <div class="grid gap-px bg-gray-200/30 dark:bg-white/5 border border-gray-200/50 dark:border-white/5 rounded-2xl overflow-hidden flex-1 backdrop-blur-md"
                      :class="{ 'grid-cols-7': calendarView !== 'day', 'grid-cols-1': calendarView === 'day' }">
                     <template x-for="day in calendarDays" :key="day.date.toISOString()">
-                        <div class="bg-white dark:bg-gray-800 p-1 sm:p-2 transition-colors relative group overflow-hidden flex flex-col"
+                        <div class="bg-white/60 dark:bg-slate-900/40 p-2 sm:p-3 transition-all relative group overflow-hidden flex flex-col min-h-[100px] sm:min-h-[120px]"
                              :class="{ 
-                                'bg-gray-50 dark:bg-gray-800/50 text-gray-400': !day.isCurrentMonth && calendarView === 'month',
-                                'bg-blue-50/30 dark:bg-blue-900/10': day.isToday
+                                'bg-gray-50/50 dark:bg-slate-900/20 text-gray-300 dark:text-gray-600': !day.isCurrentMonth && calendarView === 'month',
+                                'ring-2 ring-inset ring-purple-500/30 dark:ring-purple-500/20 bg-purple-500/5': day.isToday
                              }">
                              
-                            <!-- Data -->
-                            <div class="flex items-center justify-between mb-1 sm:mb-2 flex-shrink-0">
-                                <span class="text-xs sm:text-sm font-medium w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full"
+                            <!-- Data Premium -->
+                            <div class="flex items-center justify-between mb-3 flex-shrink-0">
+                                <span class="text-[10px] sm:text-xs font-black w-7 h-7 flex items-center justify-center rounded-lg transition-all"
                                       :class="{ 
-                                        'bg-blue-600 text-white': day.isToday,
-                                        'text-gray-700 dark:text-gray-300': !day.isToday && (day.isCurrentMonth || calendarView !== 'month'),
-                                        'text-gray-400 dark:text-gray-600': !day.isToday && !day.isCurrentMonth && calendarView === 'month'
+                                        'bg-purple-600 text-white shadow-lg shadow-purple-600/30': day.isToday,
+                                        'text-gray-900 dark:text-white': !day.isToday && (day.isCurrentMonth || calendarView !== 'month'),
+                                        'text-gray-400 dark:text-gray-700': !day.isToday && !day.isCurrentMonth && calendarView === 'month'
                                       }" 
                                       x-text="day.date.getDate()">
                                 </span>
-                                <span x-show="calendarView === 'day'" class="text-sm text-gray-500 dark:text-gray-400 font-medium" x-text="day.date.toLocaleDateString('pt-BR', { weekday: 'long' })"></span>
+                                <span x-show="calendarView === 'day'" class="text-[10px] font-black text-gray-400 uppercase tracking-widest" x-text="day.date.toLocaleDateString('pt-BR', { weekday: 'long' })"></span>
                             </div>
 
-                            <!-- Eventos -->
-                            <div class="space-y-1 overflow-y-auto custom-scrollbar flex-1">
+                            <!-- Eventos Premium -->
+                            <div class="space-y-2 overflow-y-auto custom-scrollbar flex-1 pr-1">
                                 <template x-for="event in getEventsForDay(day.date)">
                                     <div @click.stop="openOrderModal(event.id)"
-                                         class="px-1.5 sm:px-3 py-1 sm:py-2 rounded mdCursorPointer transition-all border-l-2 sm:border-l-4 shadow-sm relative overflow-hidden mb-1"
-                                         :style="`background-color: ${event.status_color}25; border-left-color: ${event.status_color};`">
+                                         class="px-2 py-2 rounded-xl border border-white/10 shadow-sm transition-all hover:scale-[1.02] cursor-pointer relative overflow-hidden group/event"
+                                         :style="`background-color: ${event.status_color}15; border-left: 3px solid ${event.status_color};`">
                                         
-                                        <div class="flex items-center sm:items-start gap-1.5 sm:gap-3">
-                                            <!-- Miniatura da Imagem -->
+                                        <div class="flex items-center gap-2">
+                                            <!-- Miniatura da Imagem Premium -->
                                             <template x-if="event.cover_image">
-                                                <div class="flex-shrink-0 w-6 h-6 sm:w-10 sm:h-10 rounded-md overflow-hidden bg-gray-100 dark:bg-gray-700 border border-black/5">
+                                                <div class="flex-shrink-0 w-8 h-8 rounded-lg overflow-hidden bg-gray-100 dark:bg-slate-800 border border-white/5">
                                                     <img :src="event.cover_image" 
                                                          class="w-full h-full object-cover"
                                                          x-on:error="$el.style.display='none'">
@@ -1030,19 +1042,19 @@
                                             </template>
 
                                             <div class="flex-1 min-w-0">
-                                                <div class="font-bold text-[10px] sm:text-sm truncate leading-tight" 
+                                                <div class="font-black text-[9px] uppercase tracking-wide truncate leading-tight" 
                                                      :style="`color: ${event.status_color}`"
                                                      x-text="event.title"></div>
-                                                <div class="hidden sm:flex justify-between items-center mt-1">
-                                                    <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400 opacity-90" x-text="'#' + event.id.toString().padStart(5, '0')"></span>
-                                                    <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400 opacity-90" x-text="event.items_count + ' pçs'"></span>
+                                                <div class="flex items-center justify-between mt-0.5">
+                                                    <span class="text-[8px] font-bold text-gray-400 uppercase tracking-tighter" x-text="'#' + event.id"></span>
+                                                    <span class="text-[8px] font-bold text-purple-500 uppercase tracking-tighter" x-text="event.items_count + ' pçs'"></span>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!-- Detalhes extras apenas na visão de Dia -->
-                                        <div x-show="calendarView === 'day'" class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700/50">
-                                            <div class="text-xs text-gray-700 dark:text-gray-300 font-medium truncate" x-text="event.client"></div>
+                                        <!-- Detalhes em visão de Dia -->
+                                        <div x-show="calendarView === 'day'" class="mt-2 pt-2 border-t border-white/5">
+                                            <p class="text-[9px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest truncate" x-text="event.client"></p>
                                         </div>
                                     </div>
                                 </template>
@@ -1057,362 +1069,334 @@
         </div> <!-- Close x-data -->
     </div> <!-- Close max-w -->
 
-    <!-- Modal de Detalhes do Pedido -->
-    <div id="order-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[200]">
-        <div class="relative top-5 mx-auto p-5 border border-gray-200 dark:border-gray-700 w-full max-w-7xl shadow-lg dark:shadow-gray-900/25 rounded-md bg-white dark:bg-gray-800 mb-5">
-            <div class="flex justify-between items-start mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-                <div id="modal-title" class="flex-1 mr-4">Detalhes do Pedido</div>
-                <button onclick="closeOrderModal()" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 flex-shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
+    <!-- Modal de Detalhes do Pedido Premium -->
+    <div id="order-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md overflow-y-auto h-full w-full hidden z-[200] transition-all duration-500">
+        <div class="relative top-5 mx-auto p-0 border border-white/10 w-full max-w-7xl shadow-2xl rounded-3xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl mb-10 animate-slide-in-bottom">
+            <div class="flex justify-between items-center p-8 border-b border-gray-100 dark:border-white/5">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-500 border border-purple-500/20">
+                        <i class="fa-solid fa-file-invoice text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 id="modal-title" class="text-xl md:text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Detalhes do Pedido</h2>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Informações detalhadas e acompanhamento</p>
+                    </div>
+                </div>
+                <button onclick="closeOrderModal()" class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-400 hover:text-rose-500 hover:bg-rose-500/10 transition-all flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
             
-            <div id="modal-content" class="space-y-6">
+            <div id="modal-content" class="p-8 space-y-8">
                 <!-- Será preenchido via JavaScript - Layout em 2 colunas -->
             </div>
         </div>
     </div>
 
-    <!-- Modal de Confirmacao para Remover Arquivo -->
-    <div id="delete-file-modal" class="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-[250] hidden">
-        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl dark:shadow-2xl dark:shadow-black/20 max-w-md w-full mx-4 border border-gray-200 dark:border-slate-800">
-            <div class="p-6">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
-                        <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
+    <!-- Modal de Confirmacao para Remover Arquivo Premium -->
+    <div id="delete-file-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xl flex items-center justify-center z-[250] hidden transition-all">
+        <div class="bg-white/95 dark:bg-slate-900/95 rounded-[2rem] shadow-2xl max-w-md w-full mx-4 border border-white/10 backdrop-blur-2xl transform transition-all">
+            <div class="p-8">
+                <div class="flex flex-col items-center text-center mb-8">
+                    <div class="w-20 h-20 bg-rose-500/10 dark:bg-rose-500/20 rounded-[2rem] flex items-center justify-center text-rose-500 mb-6 border border-rose-500/20">
+                        <i class="fa-solid fa-trash-can-clock text-3xl"></i>
                     </div>
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">
                         Remover arquivo
                     </h2>
+                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed px-4">
+                        Tem certeza que deseja remover <span id="delete-file-name" class="text-rose-500"></span>? Esta ação não pode ser desfeita.
+                    </p>
                 </div>
 
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                    Tem certeza que deseja remover <span id="delete-file-name" class="font-semibold text-gray-900 dark:text-white"></span>? Esta acao nao pode ser desfeita.
-                </p>
-
-                <div class="flex justify-end gap-3">
+                <div class="grid grid-cols-2 gap-4">
                     <button type="button"
                             onclick="closeDeleteFileModal()"
-                            class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            class="px-6 py-4 bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-300 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-gray-200 dark:hover:bg-slate-700 transition-all">
                         Cancelar
                     </button>
                     <button type="button"
                             id="delete-file-confirm-btn"
                             onclick="confirmDeleteFile()"
-                            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors shadow-lg shadow-red-500/20">
-                        Confirmar remocao
+                            class="px-6 py-4 bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-rose-600/30">
+                        Confirmar
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Pagamento Adicional -->
-    <div id="payment-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[200]">
-        <div class="relative top-20 mx-auto p-6 border border-gray-200 dark:border-gray-700 w-full max-w-lg shadow-xl dark:shadow-gray-900/25 rounded-lg bg-white dark:bg-gray-800">
-            <!-- Header do Modal -->
-            <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
-                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mr-3">
-                        <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
+    <!-- Modal de Pagamento Adicional Premium -->
+    <div id="payment-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xl overflow-y-auto h-full w-full hidden z-[200] transition-all duration-500">
+        <div class="relative top-20 mx-auto p-0 border border-white/10 w-full max-w-lg shadow-2xl rounded-[2.5rem] bg-white dark:bg-slate-900 overflow-hidden animate-slide-in-bottom">
+            <!-- Header do Modal Premium -->
+            <div class="flex justify-between items-center p-8 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-500 border border-emerald-500/20">
+                        <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
                     </div>
-                    Registrar Pagamento
-                </h3>
-                <button onclick="closePaymentModal()" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
+                    <div>
+                        <h3 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Pagamento</h3>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Registrar nova transação</p>
+                    </div>
+                </div>
+                <button onclick="closePaymentModal()" class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-400 hover:text-rose-500 transition-all flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
             
-            <form id="payment-form" onsubmit="submitPayment(event)" class="space-y-5">
+            <form id="payment-form" onsubmit="submitPayment(event)" class="p-8 space-y-6">
                 <input type="hidden" id="payment-order-id" name="order_id">
                 
-                <!-- Valor Restante -->
-                <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4 border border-orange-200 dark:border-orange-600/30">
-                    <label class="block text-xs text-orange-700 dark:text-orange-400 font-medium mb-1">Valor Restante</label>
-                    <div class="text-2xl font-bold text-orange-600 dark:text-orange-400" id="remaining-amount">R$ 0,00</div>
+                <!-- Valor Restante Premium -->
+                <div class="p-6 rounded-3xl bg-purple-500/5 border border-purple-500/10 flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-black text-purple-500/60 uppercase tracking-widest mb-1">Valor Restante</p>
+                        <div class="text-3xl font-black text-purple-600 dark:text-purple-400 tracking-tight" id="remaining-amount">R$ 0,00</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-500">
+                        <i class="fa-solid fa-scale-balanced text-xl"></i>
+                    </div>
                 </div>
 
-                <!-- Valor a Pagar -->
-                <div class="space-y-2">
-                    <label for="payment-amount" class="block text-xs text-gray-600 dark:text-gray-300 font-medium">Valor a Pagar *</label>
-                    <div class="bg-gray-50 dark:bg-gray-900/50 rounded-md p-4">
+                <!-- Valor a Pagar Premium -->
+                <div class="space-y-3">
+                    <label for="payment-amount" class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Valor a Liquidar *</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-purple-500 transition-colors">
+                            <span class="text-sm font-black">R$</span>
+                        </div>
                         <input type="number" 
                                id="payment-amount" 
                                name="amount" 
                                step="0.01" 
                                min="0.01"
                                required
-                               class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:border-green-500 dark:focus:border-green-500 focus:ring-1 focus:ring-green-500 dark:focus:ring-green-500 text-sm"
+                               class="w-full pl-12 pr-6 py-4 rounded-2xl border border-gray-100 dark:border-white/5 dark:bg-slate-800/50 dark:text-white dark:placeholder-gray-500 focus:border-purple-500 dark:focus:border-purple-500 focus:ring-0 transition-all text-base font-bold shadow-inner"
                                placeholder="0,00">
                     </div>
                 </div>
 
-                <!-- Forma de Pagamento -->
-                <div class="space-y-2">
-                    <label for="payment-method" class="block text-xs text-gray-600 dark:text-gray-300 font-medium">Forma de Pagamento *</label>
-                    <div class="bg-gray-50 dark:bg-gray-900/50 rounded-md p-4">
-                        <select id="payment-method" 
-                                name="payment_method" 
-                                required
-                                class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-green-500 dark:focus:border-green-500 focus:ring-1 focus:ring-green-500 dark:focus:ring-green-500 text-sm">
-                            <option value="">Selecione...</option>
-                            <option value="dinheiro">Dinheiro</option>
-                            <option value="pix">PIX</option>
-                            <option value="cartao">Cartão</option>
-                            <option value="transferencia">Transferência</option>
-                            <option value="boleto">Boleto</option>
-                        </select>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <!-- Forma de Pagamento Premium -->
+                    <div class="space-y-3">
+                        <label for="payment-method" class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Meio de Pagamento *</label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-purple-500 transition-colors">
+                                <i class="fa-solid fa-credit-card"></i>
+                            </div>
+                            <select id="payment-method" 
+                                    name="payment_method" 
+                                    required
+                                    class="w-full pl-12 pr-10 py-4 rounded-2xl border border-gray-100 dark:border-white/5 dark:bg-slate-800/50 dark:text-white focus:border-purple-500 dark:focus:border-purple-500 focus:ring-0 transition-all text-sm font-bold appearance-none shadow-inner cursor-pointer">
+                                <option value="">Selecione...</option>
+                                <option value="dinheiro">Dinheiro</option>
+                                <option value="pix">PIX</option>
+                                <option value="cartao">Cartão</option>
+                                <option value="transferencia">Transferência</option>
+                                <option value="boleto">Boleto</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Data do Pagamento Premium -->
+                    <div class="space-y-3">
+                        <label for="payment-date" class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Data *</label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-purple-500 transition-colors">
+                                <i class="fa-solid fa-calendar-day"></i>
+                            </div>
+                            <input type="date" 
+                                   id="payment-date" 
+                                   name="payment_date" 
+                                   required
+                                   value="{{ date('Y-m-d') }}"
+                                   class="w-full pl-12 pr-6 py-4 rounded-2xl border border-gray-100 dark:border-white/5 dark:bg-slate-800/50 dark:text-white focus:border-purple-500 dark:focus:border-purple-500 focus:ring-0 transition-all text-sm font-bold shadow-inner">
+                        </div>
                     </div>
                 </div>
 
-                <!-- Data do Pagamento -->
-                <div class="space-y-2">
-                    <label for="payment-date" class="block text-xs text-gray-600 dark:text-gray-300 font-medium">Data do Pagamento *</label>
-                    <div class="bg-gray-50 dark:bg-gray-900/50 rounded-md p-4">
-                        <input type="date" 
-                               id="payment-date" 
-                               name="payment_date" 
-                               required
-                               value="{{ date('Y-m-d') }}"
-                               class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-green-500 dark:focus:border-green-500 focus:ring-1 focus:ring-green-500 dark:focus:ring-green-500 text-sm">
-                    </div>
-                </div>
-
-                <!-- Botões -->
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <button type="button" 
-                            onclick="closePaymentModal()"
-                            class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition">
-                        Cancelar
-                    </button>
+                <div class="flex flex-col gap-3 pt-4">
                     <button type="submit" 
-                            class="px-6 py-2.5 bg-green-600 dark:bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 dark:hover:bg-green-700 transition flex items-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        Registrar Pagamento
+                            class="w-full py-5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-purple-600/20 active:scale-[0.98]">
+                        Confirmar Pagamento
+                    </button>
+                    <button type="button" 
+                            onclick="closePaymentModal()" 
+                            class="w-full py-5 bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-300 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-gray-200 dark:hover:bg-slate-700 transition-all">
+                        Cancelar
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal de Edição de Imagem de Capa -->
-    <div id="cover-image-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[200]">
-        <div class="relative top-20 mx-auto p-6 border border-gray-200 dark:border-gray-700 w-full max-w-lg shadow-xl dark:shadow-gray-900/25 rounded-lg bg-white dark:bg-gray-800">
-            <!-- Header do Modal -->
-            <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
-                    <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center mr-3">
-                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
+    <!-- Modal de Edição de Imagem de Capa Premium -->
+    <div id="cover-image-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xl overflow-y-auto h-full w-full hidden z-[200] transition-all duration-500">
+        <div class="relative top-20 mx-auto p-0 border border-white/10 w-full max-w-lg shadow-2xl rounded-[2.5rem] bg-white dark:bg-slate-900 overflow-hidden animate-slide-in-bottom">
+            <!-- Header do Modal Premium -->
+            <div class="flex justify-between items-center p-8 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-2xl flex items-center justify-center text-indigo-500 border border-indigo-500/20">
+                        <i class="fa-solid fa-image text-xl"></i>
                     </div>
-                    Editar Imagem de Capa
-                </h3>
-                <button onclick="closeCoverImageModal()" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
+                    <div>
+                        <h3 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Capa</h3>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Personalizar visual do item</p>
+                    </div>
+                </div>
+                <button onclick="closeCoverImageModal()" class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-400 hover:text-rose-500 transition-all flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
             
-            <form id="cover-image-form" enctype="multipart/form-data" onsubmit="submitCoverImage(event)" class="space-y-5">
+            <form id="cover-image-form" enctype="multipart/form-data" onsubmit="submitCoverImage(event)" class="p-8 space-y-6">
                 @csrf
                 <input type="hidden" id="cover-item-id" name="item_id">
                 
-                <!-- Informação sobre tamanho recomendado -->
-                <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-600/30">
-                    <div class="flex items-start">
-                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <div>
-                            <p class="text-xs text-blue-700 dark:text-blue-400 font-medium">Tamanho Recomendado</p>
-                            <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">794 x 1123 pixels (A4 em 96 DPI)</p>
-                        </div>
+                <!-- Informação Premium -->
+                <div class="flex items-start gap-4 p-5 rounded-3xl bg-blue-500/5 border border-blue-500/10 shadow-inner">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
+                        <i class="fa-solid fa-circle-info"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest leading-none mb-1">Recomendação</p>
+                        <p class="text-[11px] font-bold text-gray-500 dark:text-gray-400">794 x 1123 pixels (A4 em 96 DPI)</p>
                     </div>
                 </div>
                 
-                <!-- Selecionar Imagem -->
-                <div class="space-y-2">
-                    <label for="cover-image-input" class="block text-xs text-gray-600 dark:text-gray-300 font-medium">
-                        Selecione uma imagem *
-                    </label>
-                    <input type="file" 
-                           id="cover-image-input" 
-                           name="cover_image" 
-                           accept="image/*" 
-                           onchange="previewCoverImage(this)"
-                           class="hidden"
-                           data-paste-upload="true"
-                           data-paste-images-only="true"
-                           data-paste-max-size="10"
-                           data-paste-extensions="jpg,jpeg,png,gif">
-                      <button type="button" 
-                              onclick="window.openCoverImagePicker ? window.openCoverImagePicker() : document.getElementById('cover-image-input')?.click()"
-                              class="w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white !text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
-                              style="color: #fff;">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                        </svg>
-                        Adicionar Imagem (Ctrl+V, Arraste ou Clique)
+                <!-- Selecionar Imagem Premium -->
+                <div class="space-y-4">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Selecione o Arquivo *</label>
+                    <div class="relative group">
+                        <input type="file" 
+                               id="cover-image-input" 
+                               name="cover_image" 
+                               accept="image/*" 
+                               onchange="previewCoverImage(this)"
+                               class="hidden"
+                               data-paste-upload="true"
+                               data-paste-images-only="true"
+                               data-paste-max-size="10"
+                               data-paste-extensions="jpg,jpeg,png,gif">
+                        
+                        <button type="button" 
+                                onclick="window.openCoverImagePicker ? window.openCoverImagePicker() : document.getElementById('cover-image-input')?.click()"
+                                class="w-full flex flex-col items-center justify-center h-48 rounded-[2rem] border-2 border-dashed border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 hover:bg-purple-500/5 hover:border-purple-500/30 transition-all cursor-pointer group/upload">
+                            <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 shadow-sm border border-gray-100 dark:border-white/10 flex items-center justify-center text-gray-300 group-hover/upload:text-purple-500 group-hover/upload:scale-110 transition-all mb-4">
+                                <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+                            </div>
+                            <span class="text-[10px] font-black text-gray-400 group-hover/upload:text-purple-500 uppercase tracking-widest">Ctrl+V, Arraste ou Clique</span>
+                        </button>
+                    </div>
+                    <div id="cover-image-preview" class="hidden mt-4 rounded-2xl overflow-hidden border border-gray-100 dark:border-white/5 shadow-lg">
+                        <img id="cover-preview-img" src="" alt="Preview" class="w-full h-auto">
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-3 pt-4">
+                    <button type="submit" 
+                            class="w-full py-5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-purple-600/20 active:scale-[0.98]">
+                        Salvar Nova Capa
                     </button>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-2 inline-flex items-center justify-center gap-1.5 w-full">
-                        <svg class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                        <span>Use Ctrl+V para colar da área de transferência!</span>
-                    </p>
-                </div>
-                
-                <!-- Preview da Imagem -->
-                <div id="cover-preview" class="hidden">
-                    <label class="block text-xs text-gray-600 dark:text-gray-300 font-medium mb-2">Visualização</label>
-                    <div class="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                        <img id="cover-preview-img" src="" alt="Preview" class="max-w-full max-h-64 mx-auto object-contain rounded-lg">
-                    </div>
-                </div>
-                
-                <!-- Botões -->
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <button type="button" onclick="closeCoverImageModal()" 
-                            class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition">
+                    <button type="button" 
+                            onclick="closeCoverImageModal()" 
+                            class="w-full py-5 bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-300 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-gray-200 dark:hover:bg-slate-700 transition-all">
                         Cancelar
-                    </button>
-                      <button type="submit" 
-                              class="px-6 py-2.5 bg-indigo-600 dark:bg-indigo-600 text-white !text-white text-sm font-medium rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition flex items-center"
-                              style="color: #fff;">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        Salvar Imagem
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal de Confirmação de Movimentação -->
-    <div id="move-confirm-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[200]">
-        <div class="relative top-20 mx-auto p-6 border border-gray-200 dark:border-gray-700 w-full max-w-md shadow-xl dark:shadow-gray-900/25 rounded-lg bg-white dark:bg-gray-800">
-            <!-- Header do Modal -->
-            <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
-                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mr-3">
-                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                        </svg>
+
+
+    <!-- Modal de Confirmação de Movimentação Premium -->
+    <div id="move-confirm-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xl flex items-center justify-center z-[250] hidden transition-all">
+        <div class="bg-white/95 dark:bg-slate-900/95 rounded-[2.5rem] shadow-2xl max-w-md w-full mx-4 border border-white/10 backdrop-blur-2xl transform transition-all animate-slide-in-bottom">
+            <div class="p-8">
+                <div class="flex flex-col items-center text-center mb-8">
+                    <div class="w-20 h-20 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-[2rem] flex items-center justify-center text-indigo-500 mb-6 border border-indigo-500/20">
+                        <i class="fa-solid fa-arrows-spin text-3xl"></i>
                     </div>
-                    Confirmar Movimentação
-                </h3>
-                <button onclick="closeMoveConfirmModal()" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            
-            <!-- Conteúdo -->
-            <div class="mb-6">
-                <p class="text-gray-700 dark:text-gray-300 mb-4">
-                    Tem certeza que deseja mover este pedido para <strong id="move-confirm-status-name" class="text-indigo-600 dark:text-indigo-400"></strong>?
-                </p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Esta ação atualizará o status do pedido no kanban.
-                </p>
-            </div>
-            
-            <!-- Botões -->
-            <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <button type="button" onclick="closeMoveConfirmModal()" 
-                        class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition">
-                    Cancelar
-                </button>
-                <button type="button" onclick="confirmMoveCard()" 
-                        class="px-6 py-2.5 bg-indigo-600 dark:bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-700 transition flex items-center">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    Confirmar Movimentação
-                </button>
+                    <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">
+                        Mover Pedido
+                    </h2>
+                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed px-4">
+                        Tem certeza que deseja mover este pedido para <span id="move-confirm-status-name" class="text-indigo-600 dark:text-indigo-400"></span>?
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <button type="button"
+                            onclick="closeMoveConfirmModal()"
+                            class="px-6 py-4 bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-300 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-gray-200 dark:hover:bg-slate-700 transition-all">
+                        Cancelar
+                    </button>
+                    <button type="button"
+                            onclick="confirmMoveCard()"
+                            class="px-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-indigo-600/30">
+                        Confirmar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Solicitação de Edição -->
-    <div id="editRequestModal" class="hidden fixed inset-0 bg-gray-600 dark:bg-gray-900 bg-opacity-50 dark:bg-opacity-75 overflow-y-auto h-full w-full z-[200]">
-        <div class="relative top-20 mx-auto p-5 border border-gray-300 dark:border-gray-700 w-full max-w-md shadow-lg rounded-md bg-white dark:bg-gray-800">
-            <div class="mt-3">
-                <!-- Header -->
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center">
-                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 dark:bg-orange-900/30">
-                            <svg class="h-6 w-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                            </svg>
+    <!-- Modal de Solicitação de Edição Premium -->
+    <div id="editRequestModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xl flex items-center justify-center z-[250] hidden transition-all">
+        <div class="bg-white/95 dark:bg-slate-900/95 rounded-[2.5rem] shadow-2xl max-w-lg w-full mx-4 border border-white/10 backdrop-blur-2xl overflow-hidden animate-slide-in-bottom">
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-amber-500/10 dark:bg-amber-500/20 rounded-2xl flex items-center justify-center text-amber-500 border border-amber-500/20">
+                            <i class="fa-solid fa-pen-to-square text-xl"></i>
                         </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Solicitar Edição</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Pedido <span id="modalEditOrderId" class="font-semibold"></span></p>
+                        <div>
+                            <h3 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Solicitar Edição</h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Pedido #<span id="modalEditOrderId"></span></p>
                         </div>
                     </div>
-                    <button onclick="closeEditRequestModal()" class="text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
+                    <button onclick="closeEditRequestModal()" class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-400 hover:text-rose-500 transition-all flex items-center justify-center">
+                        <i class="fa-solid fa-xmark text-lg"></i>
                     </button>
                 </div>
 
-                <!-- Content -->
-                <div class="mt-4">
-                    <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-600 p-4 mb-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-blue-400 dark:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm text-blue-700 dark:text-blue-300">
-                                    Esta solicitação será enviada para aprovação do administrador.
-                                </p>
-                            </div>
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4 p-5 rounded-3xl bg-blue-500/5 border border-blue-500/10 shadow-inner">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
+                            <i class="fa-solid fa-shield-halved"></i>
                         </div>
+                        <p class="text-[11px] font-bold text-blue-700 dark:text-blue-400">
+                            Esta solicitação será enviada para aprovação do administrador do sistema.
+                        </p>
                     </div>
 
-                    <label for="editRequestReason" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Motivo da Edição <span class="text-red-500 dark:text-red-400">*</span>
-                    </label>
-                    <textarea 
-                        id="editRequestReason" 
-                        rows="4" 
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="Descreva o motivo pelo qual este pedido precisa ser editado..."
-                        maxlength="1000"></textarea>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Máximo de 1000 caracteres</p>
-                    <p id="editReasonError" class="mt-1 text-xs text-red-600 dark:text-red-400 hidden">O motivo é obrigatório</p>
+                    <div class="space-y-3">
+                        <label for="editRequestReason" class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                            Motivo da Edição *
+                        </label>
+                        <textarea 
+                            id="editRequestReason" 
+                            rows="4" 
+                            class="w-full px-6 py-4 rounded-3xl border border-gray-100 dark:border-white/5 dark:bg-slate-800/50 dark:text-white dark:placeholder-gray-500 focus:border-purple-500 dark:focus:border-purple-500 focus:ring-0 transition-all text-sm font-bold shadow-inner resize-none"
+                            placeholder="Descreva detalhadamente o motivo..."
+                            maxlength="1000"></textarea>
+                        <div class="flex justify-between items-center px-2">
+                            <p id="editReasonError" class="text-[10px] font-bold text-rose-500 uppercase tracking-widest hidden">O motivo é obrigatório</p>
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-auto">Máx. 1000 chars</p>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Footer -->
-                <div class="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <button 
-                        onclick="closeEditRequestModal()" 
-                        class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 transition">
+                <div class="flex flex-col gap-3 pt-8">
+                    <button onclick="submitEditRequest()" 
+                            class="w-full py-5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-purple-600/20 active:scale-[0.98]">
+                        Enviar Solicitação
+                    </button>
+                    <button onclick="closeEditRequestModal()" 
+                            class="w-full py-5 bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-300 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-gray-200 dark:hover:bg-slate-700 transition-all">
                         Cancelar
-                    </button>
-                    <button 
-                        onclick="submitEditRequest()" 
-                        class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
-                        Solicitar Edição
                     </button>
                 </div>
             </div>
@@ -1420,84 +1404,77 @@
     </div>
 
     <!-- Modal de Solicitação de Antecipação -->
-    <div id="delivery-request-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[1000]">
-        <div class="relative top-20 mx-auto p-6 border border-gray-200 dark:border-gray-700 w-full max-w-lg shadow-xl dark:shadow-gray-900/25 rounded-lg bg-white dark:bg-gray-800">
-            <!-- Header do Modal -->
-            <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
-                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mr-3">
-                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                        </svg>
+    <!-- Modal de Solicitação de Antecipação Premium -->
+    <div id="delivery-request-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xl flex items-center justify-center z-[250] hidden transition-all">
+        <div class="bg-white/95 dark:bg-slate-900/95 rounded-[2.5rem] shadow-2xl max-w-lg w-full mx-4 border border-white/10 backdrop-blur-2xl overflow-hidden animate-slide-in-bottom">
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-blue-500/10 dark:bg-blue-500/20 rounded-2xl flex items-center justify-center text-blue-500 border border-blue-500/20">
+                            <i class="fa-solid fa-clock-rotate-left text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Antecipação</h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Solicitar prioridade de entrega</p>
+                        </div>
                     </div>
-                    Solicitar Antecipação
-                </h3>
-                <button onclick="closeDeliveryRequestModal()" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            
-            <form id="delivery-request-form" onsubmit="submitDeliveryRequest(event)" class="space-y-5">
-                <input type="hidden" id="delivery-order-id" name="order_id">
-                <input type="hidden" id="current-delivery-date" name="current_delivery_date">
-                
-                <!-- Data de Entrega Atual -->
-                <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4 border border-orange-200 dark:border-orange-600/30">
-                    <label class="block text-xs text-orange-700 dark:text-orange-400 font-medium mb-1">Data de Entrega Atual</label>
-                    <div class="text-lg font-bold text-orange-600 dark:text-orange-400" id="current-delivery-display">-</div>
+                    <button onclick="closeDeliveryRequestModal()" class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-400 hover:text-rose-500 transition-all flex items-center justify-center">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
                 </div>
 
-                <!-- Nova Data Solicitada -->
-                <div class="space-y-2">
-                    <label for="requested-delivery-date" class="block text-xs text-gray-600 dark:text-gray-300 font-medium">Nova Data Solicitada *</label>
-                    <div class="bg-gray-50 dark:bg-gray-900/50 rounded-md p-4">
-                        <input type="date" 
-                               id="requested-delivery-date" 
-                               name="requested_delivery_date" 
-                               required
-                               class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-500 text-sm">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center">
-                            <svg class="w-3 h-3 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            A data deve ser anterior à data de entrega atual
-                        </p>
+                <form id="delivery-request-form" onsubmit="submitDeliveryRequest(event)" class="space-y-6">
+                    <input type="hidden" id="delivery-order-id" name="order_id">
+                    <input type="hidden" id="current-delivery-date" name="current_delivery_date">
+                    
+                    <div class="p-6 rounded-3xl bg-amber-500/5 border border-amber-500/10 flex items-center justify-between translate-y-[-8px]">
+                        <div>
+                            <p class="text-[10px] font-black text-amber-500/60 uppercase tracking-widest mb-1">Entrega Atual</p>
+                            <div class="text-2xl font-black text-amber-600 dark:text-amber-400 tracking-tight" id="current-delivery-display">-</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+                            <i class="fa-solid fa-calendar-check text-xl"></i>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Motivo da Solicitação -->
-                <div class="space-y-2">
-                    <label for="delivery-reason" class="block text-xs text-gray-600 dark:text-gray-300 font-medium">Motivo da Solicitação *</label>
-                    <div class="bg-gray-50 dark:bg-gray-900/50 rounded-md p-4">
+                    <div class="space-y-3">
+                        <label for="requested-delivery-date" class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nova Data Desejada *</label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-purple-500 transition-colors">
+                                <i class="fa-solid fa-calendar-plus"></i>
+                            </div>
+                            <input type="date" 
+                                   id="requested-delivery-date" 
+                                   name="requested_delivery_date" 
+                                   required
+                                   class="w-full pl-12 pr-6 py-4 rounded-2xl border border-gray-100 dark:border-white/5 dark:bg-slate-800/50 dark:text-white focus:border-purple-500 dark:focus:border-purple-500 focus:ring-0 transition-all text-sm font-bold shadow-inner">
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label for="delivery-reason" class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Motivo da Prioridade *</label>
                         <textarea id="delivery-reason" 
                                   name="reason" 
-                                  rows="4"
+                                  rows="3"
                                   required
                                   maxlength="500"
-                                  placeholder="Explique o motivo da antecipação..."
-                                  class="w-full px-4 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-500 text-sm resize-none"></textarea>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 text-right">Máximo 500 caracteres</p>
+                                  class="w-full px-6 py-4 rounded-3xl border border-gray-100 dark:border-white/5 dark:bg-slate-800/50 dark:text-white dark:placeholder-gray-500 focus:border-purple-500 dark:focus:border-purple-500 focus:ring-0 transition-all text-sm font-bold shadow-inner resize-none"
+                                  placeholder="Explique o motivo..."></textarea>
                     </div>
-                </div>
 
-                <!-- Botões -->
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <button type="button" 
-                            onclick="closeDeliveryRequestModal()"
-                            class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition">
-                        Cancelar
-                    </button>
-                    <button type="submit" 
-                            class="px-6 py-2.5 bg-blue-600 dark:bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 dark:hover:bg-blue-700 transition flex items-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                        </svg>
-                        Enviar Solicitação
-                    </button>
-                </div>
-            </form>
+                    <div class="flex flex-col gap-3 pt-4">
+                        <button type="submit" 
+                                class="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-[0.98]">
+                            Enviar Solicitação
+                        </button>
+                        <button type="button" 
+                                onclick="closeDeliveryRequestModal()" 
+                                class="w-full py-5 bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-300 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-gray-200 dark:hover:bg-slate-700 transition-all">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -1614,6 +1591,14 @@
                 .then(response => response.json())
                 .then(data => {
                     displayOrderDetails(data);
+                    
+                    // Inicializar paginação se houver itens
+                    if (data.items && data.items.length > 0) {
+                        currentModalItemIndex = 0;
+                        modalItemsCount = data.items.length;
+                        setTimeout(updateModalItemVisibility, 50);
+                    }
+                    
                     orderModal.classList.remove('hidden');
                 })
                 .catch(error => {
@@ -1622,6 +1607,49 @@
                 });
         }
         
+        // Lógica de paginação de itens no modal
+        let currentModalItemIndex = 0;
+        let modalItemsCount = 0;
+
+        function updateModalItemVisibility() {
+            for (let i = 0; i < modalItemsCount; i++) {
+                const el = document.getElementById(`modal-item-${i}`);
+                if (el) {
+                    if (i === currentModalItemIndex) {
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                }
+            }
+            const counterEl = document.getElementById('modal-item-counter');
+            if (counterEl) {
+                counterEl.textContent = `Item ${currentModalItemIndex + 1} de ${modalItemsCount}`;
+            }
+            
+            const prevBtn = document.getElementById('modal-item-prev-btn');
+            const nextBtn = document.getElementById('modal-item-next-btn');
+            if (prevBtn) prevBtn.disabled = currentModalItemIndex === 0;
+            if (nextBtn) nextBtn.disabled = currentModalItemIndex === modalItemsCount - 1;
+        }
+
+        function nextModalItem() {
+            if (currentModalItemIndex < modalItemsCount - 1) {
+                currentModalItemIndex++;
+                updateModalItemVisibility();
+            }
+        }
+
+        function prevModalItem() {
+            if (currentModalItemIndex > 0) {
+                currentModalItemIndex--;
+                updateModalItemVisibility();
+            }
+        }
+
+        window.nextModalItem = nextModalItem;
+        window.prevModalItem = prevModalItem;
+
         // Expor funções globalmente
         window.openOrderModal = openOrderModal;
         
@@ -1915,9 +1943,7 @@
                             <div class="order-action-grid">
                                 <button onclick="openEditRequestModal(${order.id})" 
                                         class="btn-modern btn-warning min-w-[180px]">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                    </svg>
+                                    <i class="fa-solid fa-pen-to-square"></i>
                                     Editar Pedido
                                 </button>
                                 @if(Auth::user()->isAdmin() || Auth::user()->isProducao())
@@ -1933,9 +1959,7 @@
                                     </select>
                                     <button onclick="moveCardToColumn(${order.id})" 
                                             class="btn-modern btn-primary h-[46px] min-w-[140px]">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
+                                        <i class="fa-solid fa-arrow-right"></i>
                                         Mover
                                     </button>
                                 </div>
@@ -1948,9 +1972,7 @@
                                     </select>
                                     <button onclick="transferOrder(${order.id})"
                                             class="btn-modern btn-warning h-[46px] min-w-[140px]">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 5H4m0 0l4 4m-4-4l4-4"></path>
-                                        </svg>
+                                        <i class="fa-solid fa-arrow-right-arrow-left"></i>
                                         Transferir
                                     </button>
                                 </div>
@@ -1969,16 +1991,12 @@
                             <div class="flex flex-wrap gap-2" id="downloads-list-${order.id}">
                                 <a href="/kanban/download-costura/${order.id}" target="_blank"
                                    class="btn-modern btn-primary">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
-                                    </svg>
+                                    <i class="fa-solid fa-download"></i>
                                     ${isPersonalized ? 'Folha Personalizado (A4)' : 'Folha Costura (A4)'}
                                 </a>
                                 <a href="/kanban/download-personalizacao/${order.id}" target="_blank"
                                    class="btn-modern btn-rose">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
-                                    </svg>
+                                    <i class="fa-solid fa-download"></i>
                                     Folha Personalização (A4)
                                 </a>
                                 ${totalFiles > 0 ? `
@@ -1986,9 +2004,7 @@
                                         id="btn-download-files-${order.id}"
                                         data-count="${totalFiles}"
                                         class="btn-modern btn-success">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
-                                    </svg>
+                                    <i class="fa-solid fa-file-zipper"></i>
                                     <span class="btn-text text-white">Arquivos da Arte (${totalFiles})</span>
                                 </button>
                                 ` : ''}
@@ -2028,12 +2044,25 @@
 
                     <!-- Itens do Pedido -->
                 <div class="space-y-6">
-                    <h4 class="font-bold text-lg text-gray-900 dark:text-gray-100 flex items-center">
-                        <svg class="w-6 h-6 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                        </svg>
-                        Itens do Pedido (${order.items.length})
-                    </h4>
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-bold text-lg text-gray-900 dark:text-gray-100 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            Itens do Pedido (${order.items.length})
+                        </h4>
+                        ${order.items.length > 1 ? `
+                        <div class="flex items-center gap-2">
+                            <button id="modal-item-prev-btn" onclick="prevModalItem()" class="btn-modern btn-neutral btn-compact px-3 disabled:opacity-50 disabled:cursor-not-allowed" title="Anterior">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <span class="text-sm font-bold text-gray-600 dark:text-gray-400 min-w-[80px] text-center" id="modal-item-counter">Item 1 de ${order.items.length}</span>
+                            <button id="modal-item-next-btn" onclick="nextModalItem()" class="btn-modern btn-neutral btn-compact px-3 disabled:opacity-50 disabled:cursor-not-allowed" title="Próximo">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        ` : ''}
+                    </div>
                     
                     ${order.items.map((item, index) => {
                         // Verificar se tem tamanhos definidos (além de Único)
@@ -2070,8 +2099,8 @@
                                 : null);
 
                         return `
-                    <div class="order-modal-card accent p-6 space-y-5">
-                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-indigo-300 dark:border-indigo-600/30">
+                    <div id="modal-item-${index}" class="order-modal-card accent p-6 space-y-5 ${index === 0 ? '' : 'hidden'} fade-in">
+                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-200 dark:border-white/5">
                             <h5 class="text-xl font-bold text-indigo-900 dark:text-indigo-300">Item ${item.item_number || index + 1}</h5>
                             <span class="text-sm bg-indigo-600 dark:bg-indigo-600 !text-white px-3 py-1 rounded-full font-semibold" style="color: #fff !important;">${item.quantity} peças</span>
                         </div>

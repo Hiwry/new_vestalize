@@ -162,8 +162,21 @@
     <div class="flex items-center h-20 border-b border-border bg-card-bg transition-all duration-300 relative"
          :class="expanded ? 'justify-between px-4' : 'justify-center'">
         <div class="flex items-center overflow-hidden" x-show="expanded">
-            <img src="{{ asset('vestalize.svg') }}"
-                 alt="Vestalize"
+            @php
+                $tenant = auth()->user()?->tenant;
+                $logoUrl = asset('vestalize.svg');
+                if ($tenant && $tenant->logo_path) {
+                    if (str_starts_with($tenant->logo_path, 'http')) {
+                        $logoUrl = $tenant->logo_path;
+                    } elseif (file_exists(public_path($tenant->logo_path))) {
+                        $logoUrl = asset($tenant->logo_path);
+                    } elseif (file_exists(public_path('storage/' . $tenant->logo_path))) {
+                        $logoUrl = asset('storage/' . $tenant->logo_path);
+                    }
+                }
+            @endphp
+            <img src="{{ $logoUrl }}"
+                 alt="{{ $tenant->name ?? 'Vestalize' }}"
                  class="h-10 w-auto object-contain">
         </div>
         <div class="flex items-center" :class="expanded ? 'gap-2' : ''">
@@ -366,39 +379,16 @@
             @endif
 
              @if((Auth::user()->isAdmin() || Auth::user()->isCaixa()) && (Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('financial')))
-            <div class="mt-1">
-                <button @click="toggleGroup('financeiro')"
-                        class="flex items-center w-full text-sm font-bold text-muted rounded-2xl hover:bg-white/5 hover:text-white transition-all duration-300 group"
-                        :class="expanded ? 'px-4 py-3.5 justify-between' : 'justify-center p-3.5 mx-auto'"
-                        title="Financeiro">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                            <i class="fa-solid fa-coins text-lg group-hover:text-primary transition-colors"></i>
-                        </div>
-                        <span class="ml-4" x-show="expanded">Financeiro</span>
+            <div class="mt-2 text-nowrap">
+                <a href="{{ route('financial.index') }}"
+                   class="group flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('financial.*', 'cash.*', 'admin.invoices.*', 'admin.invoice-config.*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   title="Financeiro">
+                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                        <i class="fa-solid fa-coins text-lg group-hover:text-primary transition-colors"></i>
                     </div>
-                    <i x-show="expanded" class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" :class="openGroups.financeiro ? 'rotate-90 text-primary' : ''"></i>
-                </button>
-                
-                <div x-show="openGroups.financeiro && expanded" x-collapse x-cloak class="space-y-1 my-1 px-2">
-                    <a href="{{ route('financial.dashboard') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('financial.dashboard') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Dashboard
-                    </a>
-                    <a href="{{ route('cash.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('cash.index') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Caixa
-                    </a>
-                    <a href="{{ route('cash.approvals.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('cash.approvals.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Aprovações PDV
-                    </a>
-                    @if(Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('invoices'))
-                    <a href="{{ route('admin.invoices.index') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.invoices.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Notas Fiscais
-                    </a>
-                    <a href="{{ route('admin.invoice-config.edit') }}" class="flex items-center pl-10 pr-4 py-2.5 text-xs font-bold rounded-xl transition-all {{ request()->routeIs('admin.invoice-config.*') ? 'active-link bg-primary/20 text-primary border border-primary/20' : 'text-muted hover:text-white hover:bg-white/5' }}">
-                        Configuração NF-e
-                    </a>
-                    @endif
-                </div>
+                    <span class="ml-4" x-show="expanded">Financeiro</span>
+                </a>
             </div>
             @endif
 

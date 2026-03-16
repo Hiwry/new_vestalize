@@ -199,6 +199,8 @@
         $logoPath = null;
         if (isset($settings->logo_path) && $settings->logo_path && file_exists(public_path($settings->logo_path))) {
             $logoPath = public_path($settings->logo_path);
+        } elseif ($budget->tenant?->logo_path && file_exists(public_path('storage/'.$budget->tenant->logo_path))) {
+            $logoPath = public_path('storage/'.$budget->tenant->logo_path);
         } else {
             $logoPath = public_path('vestalize.svg');
         }

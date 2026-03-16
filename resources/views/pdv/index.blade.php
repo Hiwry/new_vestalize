@@ -2088,6 +2088,86 @@
 </div> <!-- End Min-H-Screen -->
 
 <script>
+// Fabric group modal toggle
+window.openFabricGroupModal = async function(fabricId, fabricName) {
+    const modal = document.getElementById('fabric-group-modal');
+    const title = document.getElementById('fabric-group-modal-title');
+    const list = document.getElementById('fabric-pieces-list');
+    
+    title.textContent = `Selecionar Cor: ${fabricName}`;
+    list.innerHTML = `
+        <div class="p-12 text-center text-gray-500">
+            <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-3 text-indigo-500"></i>
+            <p>Buscando peças para ${fabricName}...</p>
+        </div>
+    `;
+    
+    modal.classList.remove('hidden');
+    
+    try {
+        const response = await fetch(`/pdv/fabric-pieces/${fabricId}`, {
+            headers: { 'Accept': 'application/json' }
+        });
+        const pieces = await response.json();
+        
+        if (!pieces || pieces.length === 0) {
+            list.innerHTML = `
+                <div class="p-12 text-center text-gray-500">
+                    <i class="fa-solid fa-exclamation-triangle text-2xl mb-3 text-orange-400"></i>
+                    <p>Nenhuma peça disponível para este tecido no momento.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        list.innerHTML = pieces.map(piece => {
+            // Register item in pageItems so openAddProductModal can find it
+            if (window.pageItems && !window.pageItems.find(p => p.id == piece.id && p.type === 'fabric_piece')) {
+                window.pageItems.push(piece);
+            }
+
+            const colorSwatch = piece.color_hex
+                ? `<span class="w-8 h-8 rounded-full border border-gray-200 shadow-sm" style="background:${piece.color_hex}"></span>`
+                : `<span class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center"><i class="fa-solid fa-palette text-xs text-gray-400"></i></span>`;
+            
+            const unitLabel = piece.control_unit === 'metros' ? 'm' : 'kg';
+            
+            return `
+                <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors flex items-center justify-between gap-4" 
+                     onclick="closeFabricGroupModal(); openAddProductModal(${piece.id}, 'fabric_piece')">
+                    <div class="flex items-center gap-4">
+                        ${colorSwatch}
+                        <div>
+                            <p class="font-bold text-gray-900 dark:text-gray-100">${piece.color_name}</p>
+                            <div class="flex items-center gap-2 mt-0.5 text-xs text-gray-500">
+                                <span class="pdv-modal-badge !bg-gray-100 !text-gray-600 !border-gray-200">Ref: ${piece.reference || 'N/A'}</span>
+                                <span>Estoque: <strong>${piece.available_label}</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-extrabold text-indigo-600 dark:text-indigo-400">R$ ${parseFloat(piece.price).toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2})}/${unitLabel}</p>
+                        <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mt-1">Clique para Adicionar</p>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+    } catch (error) {
+        console.error('Erro ao buscar peças:', error);
+        list.innerHTML = `
+            <div class="p-12 text-center text-red-500">
+                <i class="fa-solid fa-circle-xmark text-2xl mb-3"></i>
+                <p>Erro ao carregar peças. Tente novamente.</p>
+            </div>
+        `;
+    }
+};
+
+window.closeFabricGroupModal = function() {
+    document.getElementById('fabric-group-modal').classList.add('hidden');
+};
+
 // Mobile cart toggle
 function toggleMobileCart() {
     const drawer = document.getElementById('mobile-cart-drawer');
@@ -2124,6 +2204,31 @@ function toggleMobileCart() {
         </div>
     </div>
 </div>
+
+<!-- Modal Selecionar Peça de Tecido -->
+<div id="fabric-group-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="pdv-card bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all">
+        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center pdv-card bg-gray-50/50">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100" id="fabric-group-modal-title">Selecionar Peça</h3>
+            <button onclick="closeFabricGroupModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <div id="fabric-group-modal-content" class="p-0 max-h-[calc(80vh-4rem)] overflow-y-auto">
+            <div id="fabric-pieces-list" class="divide-y divide-gray-100 dark:divide-gray-800">
+                <!-- Preenchido via JS -->
+                <div class="p-12 text-center text-gray-500">
+                    <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-3"></i>
+                    <p>Carregando peças disponíveis...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <!-- Modal de Confirmação para Limpar Carrinho -->
 <div id="clear-cart-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center" onclick="if(event.target === this) closeClearCartModal()">
@@ -2897,7 +3002,8 @@ window.openAddProductModal = function openAddProductModal(itemId, type = 'produc
     if (isFabricPiece) {
         const availableQuantity = parseFloat(product.available_quantity || 0);
         quantityLabel = `Quantidade (${getFabricPieceUnitLabel(product)})`;
-        quantityValue = availableQuantity > 0 && availableQuantity < 1 ? availableQuantity : '1';
+        // CORREÇÃO: Sugerir a peça inteira por padrão para garantir que o peso/metro real seja enviado
+        quantityValue = availableQuantity; 
         quantityStep = getFabricPieceStep(product);
         quantityMin = getFabricPieceStep(product);
         isQuantityReadonly = false;

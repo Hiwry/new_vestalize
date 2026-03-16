@@ -96,7 +96,8 @@ Route::middleware('auth')->group(function () {
     
     // Tutoriais
     Route::get('/tutoriais', [\App\Http\Controllers\TutorialController::class, 'index'])->name('tutorials.index');
-    Route::get('/financeiro', [\App\Http\Controllers\FinancialController::class, 'index'])->name('financial.dashboard')->middleware('plan:financial');
+    Route::get('/financeiro/dashboard', [\App\Http\Controllers\FinancialController::class, 'index'])->name('financial.dashboard')->middleware('plan:financial');
+    Route::view('/financeiro', 'financial.index')->name('financial.index')->middleware('plan:financial');
     Route::get('/financeiro/nfe', [\App\Http\Controllers\Admin\InvoiceController::class, 'index'])->name('admin.invoices.index')->middleware('plan:financial');
     
     // Links Rápidos
@@ -553,6 +554,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('pdv')->name('pdv.')->middleware('plan:pdv')->group(function () {
         Route::get('/', [\App\Http\Controllers\PDVController::class, 'index'])->name('index');
         Route::get('/fabric-pieces/search', [\App\Http\Controllers\PDVController::class, 'searchFabricPieces'])->name('fabric-pieces.search');
+        Route::get('/fabric-pieces/{fabricId}', [\App\Http\Controllers\PDVController::class, 'getFabricPieces'])->name('fabric-pieces.pieces');
         Route::get('/vendas', [\App\Http\Controllers\PDVController::class, 'sales'])->name('sales');
         Route::get('/vendas/{id}/editar', [\App\Http\Controllers\PDVController::class, 'editSale'])->name('sales.edit');
         Route::put('/vendas/{id}', [\App\Http\Controllers\PDVController::class, 'updateSale'])->name('sales.update');

@@ -13,6 +13,13 @@
             'icon' => 'fa-clipboard-list',
         ],
         [
+            'title' => 'Estoque Padrão (Loja)',
+            'desc' => 'Visão simplificada do estoque de produtos e tamanhos prontas para venda.',
+            'route' => route('stocks.view'),
+            'accent' => '#6d28d9',
+            'icon' => 'fa-store',
+        ],
+        [
             'title' => 'Estoque de Tecidos',
             'desc' => 'Acompanhe rolos e pecas de tecido com peso, metragem e status.',
             'route' => route('fabric-pieces.index'),
@@ -109,22 +116,16 @@
     .sh-action:hover { transform: translateY(-1px); filter: brightness(1.03); }
     .sh-action-primary { background: linear-gradient(135deg, var(--sh-action-primary), var(--sh-action-primary-hover)); box-shadow: 0 10px 20px rgba(109, 40, 217, 0.25); }
     .sh-action-success { background: linear-gradient(135deg, var(--sh-action-success), var(--sh-action-success-hover)); box-shadow: 0 10px 20px rgba(5, 150, 105, 0.25); }
-    .sh-intro { background: var(--sh-card-bg); border: 1px solid var(--sh-card-border); border-radius: 14px; box-shadow: var(--sh-card-shadow); padding: 14px 16px; margin-bottom: 14px; }
-    .sh-intro p { font-size: 14px; color: var(--sh-text-secondary); font-weight: 600; }
-    .sh-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-    .sh-card { display: flex; flex-direction: column; gap: 12px; min-height: 190px; background: var(--sh-card-bg); border: 1px solid var(--sh-card-border); border-radius: 14px; box-shadow: var(--sh-card-shadow); padding: 16px; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
-    .sh-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--sh-accent) 40%, var(--sh-card-border)); box-shadow: 0 16px 28px rgba(15, 23, 42, 0.1); }
-    .sh-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .sh-icon { width: 42px; height: 42px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--sh-accent) 35%, transparent); background: color-mix(in srgb, var(--sh-accent) 14%, transparent); color: var(--sh-accent); display: inline-flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-    .sh-card-title { font-size: 20px; line-height: 1.1; font-weight: 800; letter-spacing: -0.02em; color: var(--sh-text-primary); }
-    .sh-card-desc { font-size: 13px; line-height: 1.45; color: var(--sh-text-secondary); font-weight: 600; }
-    .sh-card-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--sh-card-border); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .sh-card-link { font-size: 12px; font-weight: 700; color: var(--sh-text-secondary); }
-    .sh-card-arrow { width: 30px; height: 30px; border-radius: 999px; border: 1px solid var(--sh-card-border); display: inline-flex; align-items: center; justify-content: center; color: var(--sh-text-secondary); }
-    .sh-card:hover .sh-card-link, .sh-card:hover .sh-card-arrow { color: var(--sh-accent); border-color: color-mix(in srgb, var(--sh-accent) 40%, var(--sh-card-border)); }
-    @media (max-width: 1200px) {
-        .sh-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
+        .sh-intro { display: none; }
+    .sh-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+    .sh-card { display: flex; flex-direction: row; align-items: center; gap: 14px; background: var(--sh-card-bg); border: 1px solid var(--sh-card-border); border-radius: 12px; box-shadow: var(--sh-card-shadow); padding: 14px; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+    .sh-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--sh-accent) 40%, var(--sh-card-border)); box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08); }
+    .sh-icon { width: 44px; height: 44px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--sh-accent) 35%, transparent); background: color-mix(in srgb, var(--sh-accent) 14%, transparent); color: var(--sh-accent); display: inline-flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .sh-card-content { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .sh-card-title { font-size: 15px; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; color: var(--sh-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sh-card-desc { font-size: 12px; line-height: 1.4; color: var(--sh-text-secondary); font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .sh-card-arrow { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--sh-card-border); display: inline-flex; align-items: center; justify-content: center; color: var(--sh-text-secondary); flex-shrink: 0; transition: all .2s ease; }
+    .sh-card:hover .sh-card-arrow { color: var(--sh-accent); border-color: color-mix(in srgb, var(--sh-accent) 40%, var(--sh-card-border)); background: color-mix(in srgb, var(--sh-accent) 8%, transparent); }
 
     @media (max-width: 760px) {
         .stocks-hub { padding: 14px; border-radius: 16px; }
@@ -165,21 +166,16 @@
         <div class="sh-grid">
             @foreach($cards as $card)
                 <a href="{{ $card['route'] }}" class="sh-card" style="--sh-accent: {{ $card['accent'] }}">
-                    <div class="sh-card-head">
-                        <span class="sh-icon">
-                            <i class="fa-solid {{ $card['icon'] }}"></i>
-                        </span>
-                    </div>
+                    <span class="sh-icon">
+                        <i class="fa-solid {{ $card['icon'] }}"></i>
+                    </span>
 
-                    <div>
+                    <div class="sh-card-content">
                         <h2 class="sh-card-title">{{ $card['title'] }}</h2>
                         <p class="sh-card-desc">{{ $card['desc'] }}</p>
                     </div>
 
-                    <div class="sh-card-foot">
-                        <span class="sh-card-link">Ir agora</span>
-                        <span class="sh-card-arrow"><i class="fa-solid fa-arrow-right"></i></span>
-                    </div>
+                    <span class="sh-card-arrow"><i class="fa-solid fa-arrow-right text-[11px]"></i></span>
                 </a>
             @endforeach
         </div>

@@ -300,9 +300,28 @@
                         @endif
                     </td>
                     <td>
-                        {{ number_format($item->quantity, 2, ',', '.') }}
-                        @if($item->print_type === 'Peça de Tecido' || (isset($item->sale_type) && $item->sale_type === 'kg'))
-                            kg
+                        @php
+                            $displayQty = $item->quantity;
+                            $unit = 'un';
+                            
+                            // Tentar buscar do FabricPieceSale (garante precisão para tecidos)
+                            if ($item->print_type === 'Venda de tecido' || $item->print_type === 'Peça de Tecido') {
+                                if ($item->fabricPieceSale) {
+                                    $displayQty = $item->fabricPieceSale->quantity;
+                                    $unit = $item->fabricPieceSale->unit === 'metros' ? 'm' : $item->fabricPieceSale->unit;
+                                } else {
+                                    $desc = json_decode($item->print_desc, true);
+                                    $unit = $desc['fabric_piece_sale']['unit'] ?? ($item->sale_type === 'metro' ? 'm' : 'kg');
+                                }
+                                if ($unit === 'metros') $unit = 'm';
+                            } elseif (isset($item->sale_type) && ($item->sale_type === 'kg' || $item->sale_type === 'metro')) {
+                                $unit = $item->sale_type === 'metro' ? 'm' : 'kg';
+                            }
+                        @endphp
+                        
+                        {{ number_format($displayQty, 2, ',', '.') }}
+                        @if($unit !== 'un')
+                            {{ $unit }}
                         @endif
                     </td>
                     <td>R$ {{ number_format($item->unit_price, 2, ',', '.') }}</td>

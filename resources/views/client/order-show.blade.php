@@ -6,9 +6,21 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Meu Pedido #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }} - {{ $companySettings->company_name ?? $order->tenant->name }}</title>
     
-    <!-- Dynamic Favicon -->
+    <!-- Dynamic Favicon & Logo -->
     @php
+        $tenant = $order->tenant;
         $finalLogoUrl = asset('vestalize.svg');
+        if ($tenant && $tenant->logo_path) {
+            if (str_starts_with($tenant->logo_path, 'http')) {
+                $finalLogoUrl = $tenant->logo_path;
+            } elseif (file_exists(public_path($tenant->logo_path))) {
+                $finalLogoUrl = asset($tenant->logo_path);
+            } elseif (file_exists(public_path('storage/' . $tenant->logo_path))) {
+                $finalLogoUrl = asset('storage/' . $tenant->logo_path);
+            }
+        } elseif ($companySettings->logo_path && file_exists(public_path($companySettings->logo_path))) {
+            $finalLogoUrl = asset($companySettings->logo_path);
+        }
     @endphp
     
     @if($finalLogoUrl)
@@ -135,7 +147,7 @@
     <!-- Header -->
     <div class="bg-primary text-white py-6 px-4 mobile-padding shadow-sm dark:shadow-lg dark:shadow-indigo-900/30">
         <div class="max-w-md mx-auto flex flex-col items-center">
-            <img src="{{ asset('vestalize.svg') }}" alt="Vestalize" class="h-12 w-auto mb-3 object-contain">
+            <img src="{{ $finalLogoUrl }}" alt="{{ $tenant->name ?? 'Logo' }}" class="h-12 w-auto mb-3 object-contain">
             <h1 class="text-xl font-semibold text-center">Meu Pedido</h1>
             <p class="text-center text-gray-300 dark:text-indigo-200 mobile-text-sm">#{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</p>
         </div>
@@ -189,6 +201,28 @@
                 </div>
                 @endif
             </div>
+
+            <!-- Barra de Progresso do Pedido -->
+            @if(isset($allStatuses) && $allStatuses->count() > 1)
+            @php
+                $currentIdx = $allStatuses->search(fn($s) => $s->id === $order->status_id);
+                $totalSteps = $allStatuses->count();
+                $currentStatusName = $order->status->name ?? 'Pendente';
+                $currentColor = $order->status->color ?? 'var(--primary-color)';
+            @endphp
+            <div class="mt-4">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full" style="background-color: {{ $currentColor }}"></div>
+                        <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $currentStatusName }}</span>
+                    </div>
+                    <span class="text-xs text-gray-500 dark:text-slate-400">Etapa {{ $currentIdx !== false ? $currentIdx + 1 : 1 }} de {{ $totalSteps }}</span>
+                </div>
+                <div class="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
+                    <div class="h-2 rounded-full transition-all duration-700" style="width: {{ $progressPercent }}%; background-color: {{ $currentColor }}"></div>
+                </div>
+            </div>
+            @endif
         </div>
 
         <!-- Dados do Cliente -->
@@ -237,7 +271,22 @@
         <!-- Itens do Pedido -->
         @foreach($order->items as $item)
         <div class="bg-white dark:bg-slate-900 rounded border border-gray-200 dark:border-slate-800 dark:shadow-2xl dark:shadow-black/20 p-4 mb-4">
-            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-3">Item {{ $loop->iteration }} - {{ $item->print_type }}</h2>
+            @php
+                $persTotal = $item->sublimations ? $item->sublimations->sum('final_price') : 0;
+                $persPerPiece = $item->quantity > 0 ? $persTotal / $item->quantity : 0;
+                $unitarioTotal = ($item->unit_price ?? 0) + $persPerPiece;
+            @endphp
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white">Item {{ $loop->iteration }} - {{ $item->print_type }}</h2>
+                @if($unitarioTotal > 0)
+                <span class="text-xs font-medium text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                    Unitário: R$ {{ number_format($unitarioTotal, 2, ',', '.') }}
+                    @if($persPerPiece > 0)
+                    <span class="text-[10px] text-gray-400 dark:text-slate-500">({{ number_format($item->unit_price, 2, ',', '.') }} + {{ number_format($persPerPiece, 2, ',', '.') }})</span>
+                    @endif
+                </span>
+                @endif
+            </div>
             
             @if($item->art_name)
             <div class="mb-3">
@@ -287,6 +336,12 @@
                         <span class="text-gray-500 dark:text-slate-400">Cor:</span>
                         <span class="font-semibold text-gray-900 dark:text-white">{{ $item->color }}</span>
                     </div>
+                    @if($item->model)
+                    <div>
+                        <span class="text-gray-500 dark:text-slate-400">Tipo de Corte:</span>
+                        <span class="font-semibold text-gray-900 dark:text-white">{{ $item->model }}</span>
+                    </div>
+                    @endif
                 </div>
             </div>
 

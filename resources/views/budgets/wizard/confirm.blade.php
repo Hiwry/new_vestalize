@@ -25,22 +25,40 @@
 
 <div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6">
     <section class="bw-shell">
-        <div class="bw-progress mb-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bw-step-badge rounded-xl flex items-center justify-center text-sm font-bold">4</div>
+        <!-- Progress Bar Stepper -->
+        <div class="mb-10 b-progress-stepper">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bw-step-badge rounded-xl flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-500/20">4</div>
                     <div>
-                        <span class="text-lg font-bold text-gray-900 dark:text-white">Confirmação do Orçamento</span>
-                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa 4 de 4</p>
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">Confirmação do Orçamento</h1>
+                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Etapa Final • Revise os detalhes antes de finalizar</p>
                     </div>
                 </div>
-                <div class="text-left sm:text-right">
-                    <div class="text-xs text-gray-500 dark:text-slate-400 font-medium">Progresso</div>
-                    <div class="text-2xl font-bold text-[#7c3aed] dark:text-[#a78bfa]">100%</div>
+                <div class="text-right hidden sm:block">
+                    <div class="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] mb-1">Status</div>
+                    <div class="text-2xl font-black text-[#7c3aed]">REVISÃO</div>
                 </div>
             </div>
-            <div class="w-full h-2.5 bw-progress-track">
-                <div class="h-2.5 bw-progress-fill" style="width: 100%"></div>
+            
+            <div class="relative mt-8">
+                <div class="flex items-center justify-between w-full mb-2">
+                    @foreach(['Início', 'Produtos', 'Personalizar', 'Confirmação'] as $stepIdx => $stepLabel)
+                        <div class="flex flex-col items-center z-10">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold {{ $stepIdx < 3 ? 'bg-[#7c3aed] text-white' : 'bg-[#7c3aed] text-white ring-4 ring-purple-500/20' }}">
+                                @if($stepIdx < 3)
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                @else
+                                    4
+                                @endif
+                            </div>
+                            <span class="text-[10px] font-bold mt-2 uppercase tracking-tighter {{ $stepIdx <= 3 ? 'text-[#7c3aed]' : 'text-gray-400' }}">{{ $stepLabel }}</span>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="absolute top-4 left-0 w-full h-[2px] bg-gray-200 dark:bg-gray-700 -z-0">
+                    <div class="h-full bg-[#7c3aed] transition-all duration-1000" style="width: 100%"></div>
+                </div>
             </div>
         </div>
 
@@ -147,6 +165,59 @@
                                         <p class="text-[11px] uppercase tracking-wide font-semibold text-gray-500 dark:text-slate-400 mb-1">Detalhe</p>
                                         <p class="text-base font-bold text-gray-900 dark:text-white">{{ $item['detail'] ?? 'Sem detalhe' }}</p>
                                     </div>
+                                </div>
+
+                                <!-- Detalhes de Tamanhos e Acréscimos -->
+                                @php
+                                    $itemSizes = $item['tamanhos'] ?? $item['sizes'] ?? [];
+                                    if (is_string($itemSizes)) $itemSizes = json_decode($itemSizes, true) ?? [];
+                                    $availableSizes = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3', 'un'];
+                                    $itemSurcharges = [];
+                                    foreach($availableSizes as $size) {
+                                        $qty = (int)($itemSizes[$size] ?? $itemSizes[strtolower($size)] ?? $itemSizes[strtoupper($size)] ?? 0);
+                                        if ($qty > 0) {
+                                            $surchargeModel = \App\Models\SizeSurcharge::getSurchargeForSize($size, $item['unit_price'] ?? 0);
+                                            if ($surchargeModel && $surchargeModel->surcharge > 0) {
+                                                $itemSurcharges[$size] = [
+                                                    'qty' => $qty,
+                                                    'unit' => (float)$surchargeModel->surcharge,
+                                                    'total' => (float)$surchargeModel->surcharge * $qty
+                                                ];
+                                            }
+                                        }
+                                    }
+                                @endphp
+
+                                <div class="mt-4 space-y-3">
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($availableSizes as $size)
+                                            @php
+                                                $qty = (int)($itemSizes[$size] ?? $itemSizes[strtolower($size)] ?? $itemSizes[strtoupper($size)] ?? 0);
+                                            @endphp
+                                            @if($qty > 0)
+                                                <span class="px-2.5 py-1 bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-300 text-[10px] font-black rounded-lg border border-gray-200 dark:border-slate-800 uppercase">
+                                                    {{ $size }}: {{ $qty }}
+                                                </span>
+                                            @endif
+                                        @endforeach
+                                    </div>
+
+                                    @if(!empty($itemSurcharges))
+                                        <div class="bg-gray-50 dark:bg-slate-900/40 rounded-xl p-3 border border-dashed border-gray-200 dark:border-slate-800">
+                                            <span class="text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2 block">Acréscimos de Tamanho Especial:</span>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
+                                                @foreach($itemSurcharges as $size => $data)
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-[11px] font-bold text-gray-600 dark:text-slate-400">{{ $size }}</span>
+                                                        <span class="text-[11px] font-medium text-gray-500 dark:text-slate-500">
+                                                            {{ $data['qty'] }}x R$ {{ number_format($data['unit'], 2, ',', '.') }} = 
+                                                            <span class="text-[#7c3aed] dark:text-purple-400 font-bold">R$ {{ number_format($data['total'], 2, ',', '.') }}</span>
+                                                        </span>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 @if(count($itemCustomizations) > 0)

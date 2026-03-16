@@ -34,9 +34,24 @@
 
     <!-- Meta Tags & Branding -->
     @php
+        $tenant = auth()->user()?->tenant;
         $brandLogoUrl = asset('vestalize.svg');
-        $faviconUrl = $brandLogoUrl;
         $companyName = config('app.name');
+
+        if ($tenant) {
+            $companyName = $tenant->name;
+            if ($tenant->logo_path) {
+                // Tenta buscar no storage ou caminho direto
+                if (str_starts_with($tenant->logo_path, 'http')) {
+                    $brandLogoUrl = $tenant->logo_path;
+                } elseif (file_exists(public_path($tenant->logo_path))) {
+                    $brandLogoUrl = asset($tenant->logo_path);
+                } elseif (file_exists(public_path('storage/' . $tenant->logo_path))) {
+                    $brandLogoUrl = asset('storage/' . $tenant->logo_path);
+                }
+            }
+        }
+        $faviconUrl = $brandLogoUrl;
     @endphp
     
     <link rel="icon" type="image/x-icon" href="{{ $faviconUrl }}">

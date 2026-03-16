@@ -98,25 +98,40 @@
 @section('content')
 <div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6">
     <section class="ow-shell">
-        <!-- Top Bar (Estilo Sales Hub) -->
-        <div class="flex items-center justify-between mb-8">
-            <div class="flex items-center gap-4">
-                <span class="ow-step-badge">5</span>
-                <div>
-                    <h1 class="sh-title">Confirmação do Pedido</h1>
-                    <p class="sh-subtitle">Etapa 5 de 5 • Revise os detalhes antes de finalizar</p>
+        <!-- Progress Bar Stepper -->
+        <div class="mb-10">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-4">
+                    <span class="ow-step-badge">5</span>
+                    <div>
+                        <h1 class="sh-title">Confirmação do Pedido</h1>
+                        <p class="sh-subtitle">Etapa Final • Revise os detalhes antes de finalizar</p>
+                    </div>
+                </div>
+                <div class="text-right hidden sm:block">
+                    <div class="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] mb-1">Status do Pedido</div>
+                    <div class="text-2xl font-black text-[#7c3aed]">PRONTO</div>
                 </div>
             </div>
-            <div class="text-right hidden sm:block">
-                <div class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Passo Atual</div>
-                <div class="text-2xl font-black text-[#7c3aed]">100%</div>
-            </div>
-        </div>
-
-        <!-- Progress Widget -->
-        <div class="ow-progress p-4 mb-8">
-            <div class="w-full bg-[var(--sh-input-bg)] rounded-full h-2">
-                <div class="ow-progress-fill h-2 rounded-full transition-all duration-700" style="width: 100%"></div>
+            
+            <div class="relative">
+                <div class="flex items-center justify-between w-full mb-2">
+                    @foreach(['Início', 'Produtos', 'Arte', 'Pagamento', 'Confirmação'] as $stepIdx => $stepLabel)
+                        <div class="flex flex-col items-center z-10">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold {{ $stepIdx < 4 ? 'bg-[#7c3aed] text-white' : 'bg-[#7c3aed] text-white ring-4 ring-purple-500/20' }}">
+                                @if($stepIdx < 4)
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                @else
+                                    5
+                                @endif
+                            </div>
+                            <span class="text-[10px] font-bold mt-2 uppercase tracking-tighter {{ $stepIdx <= 4 ? 'text-[#7c3aed]' : 'text-gray-400' }}">{{ $stepLabel }}</span>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="absolute top-4 left-0 w-full h-[2px] bg-gray-200 dark:bg-gray-700 -z-0">
+                    <div class="h-full bg-[#7c3aed] transition-all duration-1000" style="width: 100%"></div>
+                </div>
             </div>
         </div>
 
@@ -174,8 +189,11 @@
                     @endphp
                     <div class="border border-gray-100 dark:border-slate-700/50 rounded-xl p-4 ow-field-panel">
                         <div class="flex items-center justify-between mb-3">
-                            <span class="text-xs font-semibold text-[#7c3aed] dark:text-purple-400">ITEM {{ $index + 1 }}</span>
-                            <span class="text-lg font-bold text-gray-900 dark:text-white">R$ {{ number_format($itemTotal, 2, ',', '.') }}</span>
+                            <div class="flex flex-col">
+                                <span class="text-xs font-semibold text-[#7c3aed] dark:text-purple-400 uppercase tracking-widest">ITEM {{ $index + 1 }}</span>
+                                <span class="text-[11px] font-medium text-gray-500 dark:text-gray-400 mt-0.5">Valor Unitário: R$ {{ number_format($item->unit_price, 2, ',', '.') }}</span>
+                            </div>
+                            <span class="text-xl font-black text-gray-900 dark:text-white">R$ {{ number_format($itemTotal, 2, ',', '.') }}</span>
                         </div>
                         
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-3">
@@ -217,22 +235,54 @@
                         </div>
                         @endif
 
-                        <!-- Tamanhos -->
-                        <div class="flex flex-wrap gap-2">
-                            @php
-                                $availableSizes = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3', 'un'];
-                            @endphp
-                            @foreach($availableSizes as $size)
+                        <!-- Tamanhos e Acréscimos -->
+                        <div class="space-y-2">
+                            <div class="flex flex-wrap gap-2">
                                 @php
-                                    $qty = $itemSizes[$size] ?? $itemSizes[strtolower($size)] ?? $itemSizes[strtoupper($size)] ?? 0;
-                                    $qty = (int)$qty;
+                                    $availableSizes = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3', 'un'];
+                                    $itemSurcharges = [];
                                 @endphp
-                                @if($qty > 0)
-                                <span class="px-3 py-1 bg-white dark:bg-[var(--sh-input-bg)] text-gray-700 dark:text-gray-300 text-[11px] font-black rounded-lg border border-gray-200 dark:border-slate-700/50 shadow-sm uppercase">
-                                    {{ $size }}: {{ $qty }}
-                                </span>
-                                @endif
-                            @endforeach
+                                @foreach($availableSizes as $size)
+                                    @php
+                                        $qty = $itemSizes[$size] ?? $itemSizes[strtolower($size)] ?? $itemSizes[strtoupper($size)] ?? 0;
+                                        $qty = (int)$qty;
+                                        
+                                        // Calcular acréscimo se houver
+                                        if ($qty > 0) {
+                                            $surchargeModel = \App\Models\SizeSurcharge::getSurchargeForSize($size, $item->unit_price);
+                                            if ($surchargeModel && $surchargeModel->surcharge > 0) {
+                                                $itemSurcharges[$size] = [
+                                                    'qty' => $qty,
+                                                    'unit' => (float)$surchargeModel->surcharge,
+                                                    'total' => (float)$surchargeModel->surcharge * $qty
+                                                ];
+                                            }
+                                        }
+                                    @endphp
+                                    @if($qty > 0)
+                                    <span class="px-3 py-1 bg-white dark:bg-[var(--sh-input-bg)] text-gray-700 dark:text-gray-300 text-[11px] font-black rounded-lg border border-gray-200 dark:border-slate-700/50 shadow-sm uppercase">
+                                        {{ $size }}: {{ $qty }}
+                                    </span>
+                                    @endif
+                                @endforeach
+                            </div>
+
+                            @if(!empty($itemSurcharges))
+                            <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2 border border-dashed border-gray-200 dark:border-gray-700">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1 block">Acréscimos de Tamanho Especial:</span>
+                                <div class="flex flex-wrap gap-x-4 gap-y-1">
+                                    @foreach($itemSurcharges as $size => $data)
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-[11px] font-bold text-gray-600 dark:text-gray-400">{{ $size }}:</span>
+                                            <span class="text-[11px] font-medium text-gray-500 dark:text-gray-500">
+                                                {{ $data['qty'] }}x R$ {{ number_format($data['unit'], 2, ',', '.') }} = 
+                                                <span class="text-[#7c3aed] dark:text-purple-400 font-bold">R$ {{ number_format($data['total'], 2, ',', '.') }}</span>
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
                         </div>
 
                         <!-- Personalizações -->

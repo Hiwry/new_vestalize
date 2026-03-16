@@ -1167,9 +1167,19 @@ html:not(.dark) .avento-theme .border-white\/10 {
 .dark.avento-theme p,
 .dark.avento-theme .text-gray-600,
 .dark.avento-theme .text-slate-600,
-.dark.avento-theme span,
+.dark.avento-theme span:not(.pf-action *):not(.pf-modal-button *):not(.pf-inline-button *):not([style*="color"]),
 .dark.avento-theme td {
     color: #94a3b8 !important;
+}
+
+/* Preserve white text on action buttons in production/delivery-requests */
+.dark.avento-theme .pf-action span,
+.dark.avento-theme .pf-modal-button span,
+.dark.avento-theme .pf-inline-button span,
+.dark.avento-theme .pf-action i,
+.dark.avento-theme .pf-modal-button i,
+.dark.avento-theme .pf-inline-button i {
+    color: inherit !important;
 }
 
 /* Bordas e Divisores */

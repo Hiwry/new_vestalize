@@ -86,4 +86,10 @@ class ProductOption extends Model
             'option_id'
         )->withTimestamps();
     }
+
+    // Relacionamento com peças de tecido
+    public function fabricPieces()
+    {
+        return $this->hasMany(FabricPiece::class, 'fabric_id');
+    }
 }

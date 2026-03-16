@@ -61,7 +61,17 @@ class ClientOrderController extends Controller
         }
         $companySettings = \App\Models\CompanySetting::getSettings($storeId);
 
-        return view('client.order-show', compact('order', 'payment', 'companySettings'));
+        // Buscar todos os status do tenant para a barra de progresso
+        $allStatuses = Status::where('tenant_id', $order->tenant_id)
+            ->orderBy('position')
+            ->get();
+        
+        // Calcular progresso percentual
+        $totalStatuses = $allStatuses->count();
+        $currentPosition = $allStatuses->search(fn($s) => $s->id === $order->status_id);
+        $progressPercent = $totalStatuses > 1 ? round(($currentPosition / ($totalStatuses - 1)) * 100) : 0;
+
+        return view('client.order-show', compact('order', 'payment', 'companySettings', 'allStatuses', 'progressPercent'));
     }
 
     public function confirm(Request $request, $token): RedirectResponse

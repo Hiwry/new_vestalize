@@ -56,7 +56,7 @@
     .pf-topbar, .pf-brand, .pf-actions, .pf-kpis, .pf-tabs, .pf-request-meta, .pf-request-actions, .pf-modal-actions { display: flex; gap: 14px; flex-wrap: wrap; }
     .pf-topbar { justify-content: space-between; align-items: center; margin-bottom: 18px; }
     .pf-brand { align-items: center; flex: 1 1 320px; min-width: 0; }
-    .pf-logo { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #6d28d9, #8b5cf6); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .pf-logo { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #6d28d9, #8b5cf6); color: #fff !important; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
     .pf-title { font-size: 18px; font-weight: 700; letter-spacing: -0.015em; }
     .pf-subtitle { color: var(--pf-text-secondary); font-size: 12px; font-weight: 600; margin-top: 2px; }
     .pf-actions { align-items: center; }
@@ -73,6 +73,7 @@
         border: 0;
         cursor: pointer;
         transition: transform .18s ease, box-shadow .2s ease, filter .2s ease;
+        color: #fff !important;
     }
     .pf-action:hover, .pf-modal-button:hover { transform: translateY(-1px); filter: brightness(1.03); }
     .pf-action-primary { background: linear-gradient(135deg, #6d28d9, #7c3aed); color: #fff !important; box-shadow: 0 10px 20px rgba(109, 40, 217, 0.25); }
@@ -80,13 +81,14 @@
     .pf-action-muted, .pf-modal-button-muted { background: var(--pf-input-bg); color: var(--pf-input-text); border: 1px solid var(--pf-input-border); }
     .pf-modal-button-success { background: linear-gradient(135deg, #059669, #10b981); color: #fff; box-shadow: 0 10px 20px rgba(5, 150, 105, 0.22); }
     .pf-modal-button-danger { background: linear-gradient(135deg, #dc2626, #ef4444); color: #fff; box-shadow: 0 10px 20px rgba(220, 38, 38, 0.22); }
-    .pf-card { background: var(--pf-card-bg); border: 1px solid var(--pf-card-border); border-radius: 14px; padding: 16px; box-shadow: var(--pf-card-shadow); }
+    .pf-card { background: var(--pf-card-bg); border: 1px solid var(--pf-card-border); border-radius: 14px; padding: 16px; box-shadow: var(--pf-card-shadow); color: #fff; }
     .pf-kpis { margin-bottom: 14px; }
     .pf-kpi { flex: 1 1 220px; min-height: 132px; position: relative; overflow: hidden; }
-    .pf-kpi-value { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; color: var(--pf-text-primary); margin-top: 10px; }
-    .pf-kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--pf-text-secondary); font-weight: 700; }
-    .pf-kpi-note { font-size: 12px; color: var(--pf-text-secondary); margin-top: 8px; font-weight: 600; }
-    .pf-kpi-icon { width: 48px; height: 48px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; }
+    .pf-kpi-value { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; color: #fff !important; margin-top: 10px; }
+    .pf-kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #fff !important; font-weight: 700; opacity: 0.9; }
+    .pf-kpi-note { font-size: 12px; color: #fff !important; margin-top: 8px; font-weight: 600; opacity: 0.7; }
+    .pf-kpi-icon i, .pf-logo i { color: #fff !important; }
+    .pf-kpi-icon { width: 48px; height: 48px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; color: #fff !important; font-size: 18px; }
     .pf-banner { margin-bottom: 14px; border-radius: 14px; border: 1px solid rgba(16, 185, 129, 0.25); background: rgba(16, 185, 129, 0.1); color: #065f46; padding: 14px 16px; font-size: 13px; font-weight: 700; }
     .dark .pf-banner { color: #a7f3d0; background: rgba(16, 185, 129, 0.14); }
     .pf-tabs { margin-bottom: 14px; }
@@ -365,52 +367,52 @@
 </div>
 
 <script>
-    function showTab(status) {
+    window.showTab = function(status) {
         document.querySelectorAll('.tab-content').forEach((content) => content.classList.add('hidden'));
         document.querySelectorAll('.pf-tab').forEach((tab) => tab.classList.remove('is-active'));
 
         document.getElementById(`content-${status}`)?.classList.remove('hidden');
         document.getElementById(`tab-${status}`)?.classList.add('is-active');
-    }
+    };
 
-    function openApproveModal(requestId) {
+    window.openApproveModal = function(requestId) {
         const action = "{{ route('production.delivery-requests.approve', ['deliveryRequest' => '__ID__']) }}".replace('__ID__', requestId);
         document.getElementById('approve-form').action = action;
         document.getElementById('approve-modal').classList.add('is-open');
         document.body.classList.add('overflow-hidden');
-    }
+    };
 
-    function closeApproveModal() {
+    window.closeApproveModal = function() {
         document.getElementById('approve-modal').classList.remove('is-open');
         document.getElementById('approve-form').reset();
         document.body.classList.remove('overflow-hidden');
-    }
+    };
 
-    function openRejectModal(requestId) {
+    window.openRejectModal = function(requestId) {
         const action = "{{ route('production.delivery-requests.reject', ['deliveryRequest' => '__ID__']) }}".replace('__ID__', requestId);
         document.getElementById('reject-form').action = action;
         document.getElementById('reject-modal').classList.add('is-open');
         document.body.classList.add('overflow-hidden');
-    }
+    };
 
-    function closeRejectModal() {
+    window.closeRejectModal = function() {
         document.getElementById('reject-modal').classList.remove('is-open');
         document.getElementById('reject-form').reset();
         document.body.classList.remove('overflow-hidden');
-    }
+    };
 
     document.getElementById('approve-modal')?.addEventListener('click', function (event) {
-        if (event.target === this) closeApproveModal();
+        if (event.target === this) window.closeApproveModal();
     });
 
     document.getElementById('reject-modal')?.addEventListener('click', function (event) {
-        if (event.target === this) closeRejectModal();
+        if (event.target === this) window.closeRejectModal();
     });
 
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
-            closeApproveModal();
-            closeRejectModal();
+            window.closeApproveModal();
+            window.closeRejectModal();
         }
     });
 </script>

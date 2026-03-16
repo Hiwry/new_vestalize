@@ -193,6 +193,8 @@
                     $finalLogo = null;
                     if (isset($companySettings->logo_path) && $companySettings->logo_path && file_exists(public_path($companySettings->logo_path))) {
                         $finalLogo = public_path($companySettings->logo_path);
+                    } elseif ($order->tenant?->logo_path && file_exists(public_path('storage/'.$order->tenant->logo_path))) {
+                        $finalLogo = public_path('storage/'.$order->tenant->logo_path);
                     } else {
                         $finalLogo = public_path('vestalize.svg');
                     }

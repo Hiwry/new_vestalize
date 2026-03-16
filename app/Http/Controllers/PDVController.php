@@ -95,6 +95,9 @@ class PDVController extends Controller
                             $q->where('title', 'like', "%{$search}%")
                               ->orWhereHas('category', function($q) use ($search) {
                                   $q->where('name', 'like', "%{$search}%");
+                              })
+                              ->orWhereHas('tecido', function($q) use ($search) {
+                                  $q->where('name', 'like', "%{$search}%");
                               });
                         });
                     }
@@ -112,39 +115,47 @@ class PDVController extends Controller
             }
         } 
         elseif ($type === 'fabric_pieces') {
-            if (Schema::hasTable('fabric_pieces')) {
-                $query = \App\Models\FabricPiece::with(['fabric', 'fabricType', 'color'])
-                    ->availableForChannel('pdv')
-                    ->whereIn('status', ['aberta', 'fechada'])
-                    ->hasAvailableQuantity();
+            // Agrupar por tecido (ProductOption de tipo 'tecido')
+            // Só mostramos tecidos que possuem peças disponíveis no PDV
+            $fabricPiecesQuery = \App\Models\FabricPiece::active()
+                ->hasAvailableQuantity()
+                ->availableForChannel('pdv');
                 
-                // Filtrar por loja apenas para usuários não-admin
-                if ($currentStoreId && !$user->isAdmin() && !$user->isAdminGeral()) {
-                    $query->where('store_id', $currentStoreId);
-                }
-
-                if ($search) {
-                    $query->where(function($q) use ($search) {
-                        $q->whereHas('fabric', fn($q) => $q->where('name', 'like', "%{$search}%"))
-                          ->orWhereHas('fabricType', fn($q) => $q->where('name', 'like', "%{$search}%"))
-                          ->orWhereHas('color', fn($q) => $q->where('name', 'like', "%{$search}%"))
-                          ->orWhere('supplier', 'like', "%{$search}%")
-                          ->orWhere('invoice_number', 'like', "%{$search}%");
-                    });
-                }
-                $items = $query->get()->map(function($piece) {
-                    $piece->title = $piece->display_name;
-                    $piece->price = $piece->sale_price > 0 ? $piece->sale_price : 0;
-                    $piece->type_label = 'Peça de Tecido';
-                    $piece->supplier_name = $piece->supplier;
-                    $piece->fabric_type_name = $piece->fabricType->name ?? null;
-                    $piece->stock_quantity = $piece->available_quantity;
-                    $piece->stock_label = number_format((float) $piece->available_quantity, $piece->control_unit === 'metros' ? 2 : 3, ',', '.')
-                        . ' '
-                        . ($piece->control_unit === 'metros' ? 'm' : 'kg');
-                    return $piece;
-                });
+            if ($currentStoreId && !$user->isAdmin() && !$user->isAdminGeral()) {
+                $fabricPiecesQuery->where('store_id', $currentStoreId);
             }
+            
+            $fabricIdsWithPieces = $fabricPiecesQuery->pluck('fabric_id')->unique();
+
+            $query = ProductOption::whereIn('id', $fabricIdsWithPieces);
+
+            if ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            }
+
+            $items = $query->get()->map(function($fabric) use ($currentStoreId, $user) {
+                $fabric->title = $fabric->name;
+                $fabric->type = 'fabric_group'; // Tipo especial para o front agrupar
+                $fabric->type_label = 'Grupo de Tecido';
+                $fabric->price = 0;
+                $fabric->price_label = 'Ver peças';
+                
+                // Contagem de peças disponíveis
+                $piecesQuery = \App\Models\FabricPiece::where('fabric_id', $fabric->id)
+                    ->active()
+                    ->hasAvailableQuantity()
+                    ->availableForChannel('pdv');
+                    
+                if ($currentStoreId && !$user->isAdmin() && !$user->isAdminGeral()) {
+                    $piecesQuery->where('store_id', $currentStoreId);
+                }
+                
+                $count = $piecesQuery->count();
+                $fabric->pieces_count = $count;
+                $fabric->stock_label = $count . ($count == 1 ? ' peça disp.' : ' peças disp.');
+                
+                return $fabric;
+            });
         }
         elseif ($type === 'machines') {
              if (Schema::hasTable('sewing_machines')) {
@@ -278,13 +289,13 @@ class PDVController extends Controller
         // Serializar itens para JavaScript
         $jsItems = $paginatedItems->map(function($item) use ($type, $productOptionsWithSublocal) {
             // Determinar tipo singular
-            $itemType = 'product';
+            $itemType = $item->type ?? 'product';
             if ($type == 'products') {
                 $itemType = ($item instanceof \App\Models\Product) ? 'product' : 'product_option';
             } elseif ($type == 'supplies') {
                 $itemType = 'supply';
-            } else {
-                $itemType = substr($type, 0, -1); // fabric_pieces -> fabric_piece
+            } elseif ($type == 'fabric_pieces' && !isset($item->type)) {
+                $itemType = 'fabric_piece';
             }
 
             $data = [
@@ -319,9 +330,9 @@ class PDVController extends Controller
                 $data['sale_price'] = $data['available_quantity'] * $data['price_per_unit'];
                 $data['store_id'] = $item->store_id ?? null;
                 $data['supplier_name'] = $item->supplier ?? 'N/A';
-                $data['fabric_type_name'] = $item->fabricType->name ?? ($item->fabric->name ?? 'Tecido');
-                $data['color_name'] = $item->color->name ?? null;
-                $data['color_hex'] = $item->color->color_hex ?? null;
+                $data['fabric_type_name'] = $item->fabricType?->name ?? ($item->fabric?->name ?? 'Tecido');
+                $data['color_name'] = $item->color?->name;
+                $data['color_hex'] = $item->color?->color_hex;
                 $data['status'] = $item->status ?? null;
             } elseif ($itemType == 'machine') {
                 $data['price'] = $item->purchase_price ?? 0;
@@ -1097,9 +1108,32 @@ class PDVController extends Controller
      */
     public function checkout(Request $request)
     {
-        // Normalizar client_id antes da validação
-        if (in_array($request->input('client_id'), ['', null, 'null', 0, '0'], true)) {
+        // Normalizar inputs antes da validação (necessário pois FormData envia tudo como string/blob)
+        
+        // 1. Normalizar client_id
+        if (in_array($request->input('client_id'), ['', null, 'null', 'undefined', 0, '0'], true)) {
             $request->merge(['client_id' => null]);
+        }
+        
+        // 2. Normalizar payment_methods (pode vir como string JSON via FormData)
+        $paymentMethods = $request->input('payment_methods');
+        if (is_string($paymentMethods)) {
+            try {
+                $decoded = json_decode($paymentMethods, true);
+                if (is_array($decoded)) {
+                    $request->merge(['payment_methods' => $decoded]);
+                }
+            } catch (\Exception $e) {
+                \Log::warning('Falha ao decodificar payment_methods JSON', ['error' => $e->getMessage()]);
+            }
+        }
+
+        // 3. Normalizar valores numéricos (garantir que sejam float/null e não strings vazias)
+        foreach (['discount', 'delivery_fee'] as $field) {
+            $val = $request->input($field);
+            if ($val === '' || $val === 'null' || $val === 'undefined') {
+                $request->merge([$field => 0]);
+            }
         }
         
         $validated = $request->validate([
@@ -1501,7 +1535,49 @@ class PDVController extends Controller
 
         return redirect()->route('pdv.sales')->with('success', 'Venda cancelada com sucesso! As transações de caixa foram revertidas.');
     }
-    
+
+    /**
+     * Buscar peças de um tecido agrupado
+     */
+    public function getFabricPieces($fabricId)
+    {
+        $user = Auth::user();
+        $currentStoreId = $user->store_id;
+
+        try {
+            $pieces = \App\Models\FabricPiece::with(['fabric', 'fabricType', 'color'])
+                ->where('fabric_id', $fabricId)
+                ->active()
+                ->hasAvailableQuantity()
+                ->availableForChannel('pdv')
+                ->when($currentStoreId && !$user->isAdmin() && !$user->isAdminGeral(), function($q) use ($currentStoreId) {
+                    return $q->where('store_id', $currentStoreId);
+                })
+                ->get()
+                ->map(function($piece) {
+                    // Preparar dados para o mesmo formato que o openAddProductModal espera
+                    $piece->title = $piece->display_name;
+                    $piece->type = 'fabric_piece';
+                    $piece->price = (float) ($piece->sale_price > 0 ? $piece->sale_price : 0);
+                    $piece->price_per_unit = (float) ($piece->sale_price > 0 ? $piece->sale_price : 0);
+                    $piece->sale_price = (float) (($piece->sale_price > 0 ? $piece->sale_price : 0) * $piece->available_quantity);
+                    $piece->type_label = 'Peça de Tecido';
+                    $piece->stock_quantity = $piece->available_quantity;
+                    $piece->available_label = $piece->available_quantity . ($piece->control_unit === 'metros' ? 'm' : 'kg');
+                    $piece->color_name = $piece->color?->name ?? 'Sem cor';
+                    $piece->color_hex = $piece->color?->color_hex;
+                    $piece->control_unit = $piece->control_unit;
+                    $piece->sale_type = $piece->control_unit === 'metros' ? 'metro' : 'kg';
+                    return $piece;
+                });
+
+            return response()->json($pieces);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao buscar peças de tecido no PDV: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     /**
      * Descontar estoque após venda
      * Retorna true se conseguiu descontar, false se não havia estoque suficiente

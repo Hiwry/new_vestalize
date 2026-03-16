@@ -344,7 +344,7 @@
     </div>
 
     <script>
-        function showTab(status) {
+        window.showTab = function(status) {
             // Esconder todos os conteúdos
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             
@@ -361,46 +361,46 @@
             const activeBtn = document.getElementById('tab-' + status);
             activeBtn.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
             activeBtn.classList.add('border-indigo-500', 'dark:border-indigo-400', 'text-indigo-600', 'dark:text-indigo-400');
-        }
+        };
 
-        function openApproveModal(requestId) {
+        window.openApproveModal = function(requestId) {
             document.getElementById('approve-form').action = `/delivery-requests/${requestId}/approve`;
             document.getElementById('approve-modal').classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
-        }
+        };
 
-        function closeApproveModal() {
+        window.closeApproveModal = function() {
             document.getElementById('approve-modal').classList.add('hidden');
             document.getElementById('approve-form').reset();
             document.body.classList.remove('overflow-hidden');
-        }
+        };
 
-        function openRejectModal(requestId) {
+        window.openRejectModal = function(requestId) {
             document.getElementById('reject-form').action = `/delivery-requests/${requestId}/reject`;
             document.getElementById('reject-modal').classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
-        }
+        };
 
-        function closeRejectModal() {
+        window.closeRejectModal = function() {
             document.getElementById('reject-modal').classList.add('hidden');
             document.getElementById('reject-form').reset();
             document.body.classList.remove('overflow-hidden');
-        }
+        };
 
         // Fechar modais ao clicar fora
         document.getElementById('approve-modal').addEventListener('click', function(e) {
-            if (e.target === this) closeApproveModal();
+            if (e.target === this) window.closeApproveModal();
         });
 
         document.getElementById('reject-modal').addEventListener('click', function(e) {
-            if (e.target === this) closeRejectModal();
+            if (e.target === this) window.closeRejectModal();
         });
 
         // Fechar modais com ESC
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                closeApproveModal();
-                closeRejectModal();
+                window.closeApproveModal();
+                window.closeRejectModal();
             }
         });
     </script>

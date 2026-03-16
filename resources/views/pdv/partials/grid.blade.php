@@ -136,13 +136,20 @@
                         @endif
                     </div>
 
-                    <button onclick="openAddProductModal({{ $item->id }}, '{{ substr($type, 0, -1) }}')"
+                    @php
+                        $itemType = isset($item->type) ? $item->type : substr($type, 0, -1);
+                        $clickAction = "openAddProductModal({$item->id}, '{$itemType}')";
+                        if ($itemType === 'fabric_group') {
+                            $clickAction = "openFabricGroupModal({$item->id}, '{$item->name}')";
+                        }
+                    @endphp
+                    <button onclick="{{ $clickAction }}"
                             class="pdv-grid-action pdv-product-action py-3 rounded-xl font-semibold flex items-center justify-center gap-2 text-sm"
                             style="color: white !important;">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: white !important;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
-                        <span style="color: white !important;">Adicionar</span>
+                        <span style="color: white !important;">{{ $itemType === 'fabric_group' ? 'Ver Peças' : 'Adicionar' }}</span>
                     </button>
                 </div>
             </div>

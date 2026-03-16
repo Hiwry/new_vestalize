@@ -68,6 +68,7 @@
         border: 0;
         cursor: pointer;
         transition: transform .18s ease, box-shadow .2s ease, filter .2s ease;
+        color: #fff !important;
     }
     .pf-action:hover, .pf-modal-button:hover, .pf-inline-button:hover { transform: translateY(-1px); filter: brightness(1.03); }
     .pf-action-primary { background: linear-gradient(135deg, #6d28d9, #7c3aed); color: #fff !important; box-shadow: 0 10px 20px rgba(109, 40, 217, 0.25); }
@@ -75,12 +76,12 @@
     .pf-action-muted, .pf-modal-button-muted { background: var(--pf-input-bg); color: var(--pf-input-text); border: 1px solid var(--pf-input-border); }
     .pf-modal-button-success { background: linear-gradient(135deg, #059669, #10b981); color: #fff; box-shadow: 0 10px 20px rgba(5, 150, 105, 0.22); }
     .pf-modal-button-danger { background: linear-gradient(135deg, #dc2626, #ef4444); color: #fff; box-shadow: 0 10px 20px rgba(220, 38, 38, 0.22); }
-    .pf-card { background: var(--pf-card-bg); border: 1px solid var(--pf-card-border); border-radius: 14px; padding: 16px; box-shadow: var(--pf-card-shadow); }
+    .pf-card { background: var(--pf-card-bg); border: 1px solid var(--pf-card-border); border-radius: 14px; padding: 16px; box-shadow: var(--pf-card-shadow); color: #fff; }
     .pf-kpis { margin-bottom: 14px; }
     .pf-kpi { flex: 1 1 220px; min-height: 132px; position: relative; overflow: hidden; }
-    .pf-kpi-value { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; color: var(--pf-text-primary); margin-top: 10px; }
-    .pf-kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--pf-text-secondary); font-weight: 700; }
-    .pf-kpi-note { font-size: 12px; color: var(--pf-text-secondary); margin-top: 8px; font-weight: 600; }
+    .pf-kpi-value { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; color: #fff !important; margin-top: 10px; }
+    .pf-kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #fff !important; font-weight: 700; opacity: 0.9; }
+    .pf-kpi-note { font-size: 12px; color: #fff !important; margin-top: 8px; font-weight: 600; opacity: 0.7; }
     .pf-kpi-icon { width: 48px; height: 48px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; }
     .pf-banner { margin-bottom: 14px; border-radius: 14px; padding: 14px 16px; font-size: 13px; font-weight: 700; }
     .pf-banner-success { border: 1px solid rgba(16, 185, 129, 0.25); background: rgba(16, 185, 129, 0.1); color: #065f46; }

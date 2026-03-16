@@ -122,7 +122,13 @@ class FabricPiece extends Model
 
     public function getDisplayNameAttribute(): string
     {
-        $name = $this->fabricType?->name ?? $this->fabric?->name ?? 'Tecido';
+        $type = $this->fabricType?->name;
+        $fabric = $this->fabric?->name;
+        
+        $name = ($type && $fabric && $type !== $fabric) 
+            ? "{$type} ({$fabric})" 
+            : ($type ?: ($fabric ?: 'Tecido'));
+
         $color = $this->color?->name ? ' - ' . $this->color->name : '';
         $reference = $this->invoice_number ?: ('Peça #' . $this->id);
 

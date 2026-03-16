@@ -529,8 +529,8 @@ class PDVService
                         $orderItemData['model'] = 'Peça de tecido';
                         $orderItemData['detail'] = $piece->invoice_number ? 'NF ' . $piece->invoice_number : null;
                         $orderItemData['print_type'] = 'Venda de tecido';
-                        $orderItemData['quantity'] = 1;
-                        $orderItemData['unit_price'] = $cartItem['total_price'];
+                        $orderItemData['quantity'] = $soldQuantity;
+                        $orderItemData['unit_price'] = (float) ($cartItem['price_per_unit'] ?? $cartItem['unit_price'] ?? 0);
                         $orderItemData['total_price'] = $cartItem['total_price'];
                         $orderItemData['print_desc'] = json_encode([
                             'fabric_piece_sale' => [

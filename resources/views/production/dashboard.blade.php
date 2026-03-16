@@ -74,17 +74,18 @@
     .pf-subtitle { color: var(--pf-text-secondary); font-size: 12px; font-weight: 600; margin-top: 2px; }
     .pf-actions { align-items: center; }
     .pf-action { height: 38px; border-radius: 12px; padding: 0 14px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; text-decoration: none; color: #fff !important; }
-    .pf-action-primary { background: linear-gradient(135deg, #6d28d9, #7c3aed); box-shadow: 0 10px 20px rgba(109, 40, 217, 0.25); }
-    .pf-action-success { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 10px 20px rgba(5, 150, 105, 0.25); }
-    .pf-card { background: var(--pf-card-bg); border: 1px solid var(--pf-card-border); border-radius: 14px; padding: 16px; box-shadow: var(--pf-card-shadow); }
+    .pf-action:hover { transform: translateY(-1px); filter: brightness(1.03); }
+    .pf-action-primary { background: linear-gradient(135deg, #6d28d9, #7c3aed); box-shadow: 0 10px 20px rgba(109, 40, 217, 0.25); color: #fff !important; }
+    .pf-action-success { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 10px 20px rgba(5, 150, 105, 0.25); color: #fff !important; }
+    .pf-card { background: var(--pf-card-bg); border: 1px solid var(--pf-card-border); border-radius: 14px; padding: 16px; box-shadow: var(--pf-card-shadow); color: #fff; }
     .pf-tools { align-items: center; margin-bottom: 14px; }
     .pf-select, .pf-date, .pf-button { height: 38px; border-radius: 10px; border: 1px solid var(--pf-input-border); background: var(--pf-input-bg); color: var(--pf-input-text); padding: 0 12px; font-size: 12px; font-weight: 700; }
     .pf-button { background: linear-gradient(135deg, #6d28d9, #7c3aed); color: #fff; border: 0; padding: 0 14px; }
     .pf-kpis { margin-bottom: 14px; }
     .pf-kpi { flex: 1 1 220px; min-height: 132px; position: relative; overflow: hidden; }
-    .pf-kpi-value { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; color: var(--pf-text-primary); margin-top: 10px; }
-    .pf-kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--pf-text-secondary); font-weight: 700; }
-    .pf-kpi-note { font-size: 12px; color: var(--pf-text-secondary); margin-top: 8px; font-weight: 600; }
+    .pf-kpi-value { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; color: #fff !important; margin-top: 10px; }
+    .pf-kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #fff !important; font-weight: 700; opacity: 0.9; }
+    .pf-kpi-note { font-size: 12px; color: #fff !important; margin-top: 8px; font-weight: 600; opacity: 0.7; }
     .pf-kpi-icon { width: 48px; height: 48px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; }
     .pf-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px; }
     .pf-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }

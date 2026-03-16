@@ -502,14 +502,23 @@
 @endphp
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    (function initKanbanColumns() {
         const sortableContainer = document.getElementById('sortable-columns');
         if (sortableContainer) {
-            new Sortable(sortableContainer, {
-                animation: 150,
-                ghostClass: 'opacity-50',
-                handle: '.kc-item-handle'
-            });
+            if (typeof Sortable !== 'undefined') {
+                if (!sortableContainer.hasAttribute('data-sortable-initialized')) {
+                    new Sortable(sortableContainer, {
+                        animation: 150,
+                        ghostClass: 'opacity-50',
+                        handle: '.kc-item-handle'
+                    });
+                    sortableContainer.setAttribute('data-sortable-initialized', 'true');
+                }
+            } else {
+                // Wait for Sortable to load (happens occasionally on AJAX loads)
+                setTimeout(initKanbanColumns, 100);
+                return;
+            }
         }
 
         const chartPayload = @json($columnChartPayload);
@@ -534,7 +543,10 @@
         }
 
         function buildColumnCharts() {
-            if (typeof Chart === 'undefined') return;
+            if (typeof Chart === 'undefined') {
+                setTimeout(buildColumnCharts, 100);
+                return;
+            }
             destroyColumnCharts();
             window.kanbanColumnCharts = {};
             const colors = palette();
@@ -611,9 +623,14 @@
         }
 
         buildColumnCharts();
-        window.addEventListener('dark-mode-toggled', buildColumnCharts);
-        document.addEventListener('ajax-content-loaded', buildColumnCharts);
-    });
+        
+        // Ensure event listeners are not duplicating on multiple AJAX visits
+        if (!window._kanbanColumnsEventsBound) {
+            window.addEventListener('dark-mode-toggled', buildColumnCharts);
+            document.addEventListener('ajax-content-loaded', buildColumnCharts);
+            window._kanbanColumnsEventsBound = true;
+        }
+    })();
 
     function saveOrder() {
         const statusIds = Array.from(document.querySelectorAll('[data-status-id]'))

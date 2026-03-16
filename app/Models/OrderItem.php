@@ -58,6 +58,11 @@ class OrderItem extends Model
         return $this->hasMany(OrderSublimation::class, 'order_item_id');
     }
 
+    public function fabricPieceSale()
+    {
+        return $this->hasOne(FabricPieceSale::class, 'order_item_id');
+    }
+
     public function files()
     {
         return $this->hasMany(OrderFile::class, 'order_item_id');

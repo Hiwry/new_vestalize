@@ -146,60 +146,62 @@
         </div>
     @endif
 
-    <section class="stay-white relative overflow-hidden rounded-[32px] border border-slate-200/70 bg-gradient-to-br from-slate-950 via-indigo-950 to-cyan-900 px-6 py-6 text-white shadow-2xl shadow-slate-900/20 md:px-8 md:py-8">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,.16),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(45,212,191,.18),transparent_32%)]"></div>
+    <section class="relative overflow-hidden rounded-[32px] px-6 py-4 md:px-6 md:py-5 bg-slate-900 dark:bg-transparent border border-slate-800 dark:border-white/5">
         <div class="relative z-10 flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
             <div class="max-w-3xl space-y-5">
                 <div class="flex flex-wrap items-center gap-2">
-                    <span class="stay-white inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-cyan-100">
+                    <span class="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-slate-300">
                         Operacao de producao
                     </span>
-                    <span class="stay-white inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-semibold text-slate-100">
+                    <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-semibold text-white">
                         {{ $periodLabel }}
                         @if($periodRange)
-                            <span class="stay-white rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.18em] text-cyan-100">{{ $periodRange }}</span>
+                            <span class="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.18em] text-slate-200 border border-white/15">{{ $periodRange }}</span>
                         @endif
                     </span>
                 </div>
 
                 <div>
-                    <h1 class="stay-white max-w-2xl text-3xl font-black tracking-[-0.04em] text-white md:text-5xl">Lista operacional com foco em prioridade, prazo e proximo passo.</h1>
-                    <p class="stay-white mt-3 max-w-2xl text-sm text-slate-200/85 md:text-base">
-                        A pagina concentra urgencias, distribuicao da fila, filtros de acesso rapido e uma leitura mais clara da lista para uso continuo pela producao.
-                    </p>
+                    <h1 class="max-w-2xl text-2xl font-black tracking-[-0.03em] text-white md:text-3xl">Lista operacional com foco em prioridade, prazo e proximo passo.</h1>
                 </div>
 
                 <div class="flex flex-wrap gap-3">
-                    <a href="{{ route('orders.wizard.start') }}" class="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-900 transition hover:-translate-y-0.5 hover:bg-cyan-50">
+                    <a href="{{ route('orders.wizard.start') }}" class="stay-white inline-flex items-center gap-2 rounded-2xl bg-white/10 border border-white/15 px-5 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-white/20">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                         Novo pedido
                     </a>
-                    <a href="{{ route('kanban.index') }}" class="stay-white inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-white/15">
+                    <a href="{{ route('kanban.index') }}" class="stay-white inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/15 px-5 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-white/25">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
                         Abrir kanban
                     </a>
-                    <a href="{{ route('production.pdf') }}?{{ http_build_query(request()->except('page')) }}" target="_blank" class="stay-white inline-flex items-center gap-2 rounded-2xl border border-emerald-300/20 bg-emerald-400/15 px-5 py-3 text-sm font-black text-emerald-50 transition hover:-translate-y-0.5 hover:bg-emerald-400/20">
+                    <a href="{{ route('production.pdf') }}?{{ http_build_query(request()->except('page')) }}" target="_blank" class="stay-white inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-white/20">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         Exportar PDF
                     </a>
                 </div>
             </div>
 
-            <div class="grid w-full max-w-xl grid-cols-1 gap-3 sm:grid-cols-3 xl:max-w-md">
-                <div class="rounded-3xl border border-white/10 bg-white/10 p-4 backdrop-blur">
-                    <p class="stay-white text-[11px] font-black uppercase tracking-[0.24em] text-slate-200">Entrega hoje</p>
-                    <p class="stay-white mt-3 text-3xl font-black text-white">{{ $dueTodayCount }}</p>
-                    <p class="stay-white mt-2 text-xs font-semibold text-slate-200/80">Pedidos com vencimento no dia.</p>
+            <div class="flex flex-wrap gap-3 w-full xl:w-auto mt-4 xl:mt-0">
+                <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur shadow-sm dark:shadow-none">
+                    <div class="text-3xl font-black text-white leading-none">{{ $dueTodayCount }}</div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 leading-tight">Entrega hoje</span>
+                        <span class="text-[10px] font-bold text-slate-400 leading-tight">No prazo</span>
+                    </div>
                 </div>
-                <div class="rounded-3xl border border-white/10 bg-rose-400/12 p-4 backdrop-blur">
-                    <p class="stay-white text-[11px] font-black uppercase tracking-[0.24em] text-rose-100">Atrasados</p>
-                    <p class="stay-white mt-3 text-3xl font-black text-rose-100">{{ $lateOrdersCount }}</p>
-                    <p class="stay-white mt-2 text-xs font-semibold text-rose-50/80">Fila que pede repriorizacao.</p>
+                <div class="flex items-center gap-3 rounded-2xl border border-rose-500/20 bg-rose-500/10 px-4 py-3 backdrop-blur shadow-sm dark:shadow-none">
+                    <div class="text-3xl font-black text-rose-400 leading-none">{{ $lateOrdersCount }}</div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-rose-200 leading-tight">Atrasados</span>
+                        <span class="text-[10px] font-bold text-rose-300 leading-tight">Urgencia</span>
+                    </div>
                 </div>
-                <div class="rounded-3xl border border-white/10 bg-amber-400/12 p-4 backdrop-blur">
-                    <p class="stay-white text-[11px] font-black uppercase tracking-[0.24em] text-amber-100">Sem data</p>
-                    <p class="stay-white mt-3 text-3xl font-black text-amber-50">{{ $ordersWithoutDate }}</p>
-                    <p class="stay-white mt-2 text-xs font-semibold text-amber-50/80">Pedidos sem prazo definido.</p>
+                <div class="flex items-center gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 backdrop-blur shadow-sm dark:shadow-none">
+                    <div class="text-3xl font-black text-amber-400 leading-none">{{ $ordersWithoutDate }}</div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200 leading-tight">Sem data</span>
+                        <span class="text-[10px] font-bold text-amber-300 leading-tight">A planejar</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -522,10 +524,10 @@
                                 $firstItem = $order->items->first();
                                 $deliveryDate = $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date) : null;
                                 $deliveryTone = $deliveryDate
-                                    ? ($deliveryDate->isBefore($today) ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-200'
-                                    : ($deliveryDate->isSameDay($today) ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-200'
-                                    : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200'))
-                                    : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+                                    ? ($deliveryDate->isBefore($today) ? 'text-rose-600 dark:text-rose-400'
+                                    : ($deliveryDate->isSameDay($today) ? 'text-amber-600 dark:text-amber-400'
+                                    : 'text-emerald-600 dark:text-emerald-400'))
+                                    : 'text-slate-500 dark:text-slate-400';
                             @endphp
                             <tr>
                                 <td>
@@ -562,7 +564,7 @@
                                 <td>
                                     <div class="space-y-2">
                                         <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Entrega</p>
-                                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-black {{ $deliveryTone }}">
+                                        <span class="text-sm font-black {{ $deliveryTone }}">
                                             {{ $deliveryDate ? $deliveryDate->format('d/m/Y') : 'Sem data' }}
                                         </span>
                                     </div>
@@ -589,10 +591,10 @@
                         $firstItem = $order->items->first();
                         $deliveryDate = $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date) : null;
                         $deliveryTone = $deliveryDate
-                            ? ($deliveryDate->isBefore($today) ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-200'
-                            : ($deliveryDate->isSameDay($today) ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-200'
-                            : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200'))
-                            : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+                            ? ($deliveryDate->isBefore($today) ? 'text-rose-600 dark:text-rose-400'
+                            : ($deliveryDate->isSameDay($today) ? 'text-amber-600 dark:text-amber-400'
+                            : 'text-emerald-600 dark:text-emerald-400'))
+                            : 'text-slate-500 dark:text-slate-400';
                     @endphp
                     <article class="rounded-3xl border border-slate-200/70 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-950/40">
                         <div class="flex items-start justify-between gap-3">
@@ -611,7 +613,7 @@
                         <div class="mt-4 grid grid-cols-2 gap-3">
                             <div>
                                 <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Entrega</p>
-                                <span class="mt-2 inline-flex rounded-full px-3 py-1 text-xs font-black {{ $deliveryTone }}">{{ $deliveryDate ? $deliveryDate->format('d/m/Y') : 'Sem data' }}</span>
+                                <span class="mt-2 text-sm font-black {{ $deliveryTone }}">{{ $deliveryDate ? $deliveryDate->format('d/m/Y') : 'Sem data' }}</span>
                             </div>
                             <div>
                                 <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Total</p>
