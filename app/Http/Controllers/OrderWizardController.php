@@ -142,7 +142,8 @@ class OrderWizardController extends Controller
             $personalizationOptions = \App\Models\ProductOption::where('type', 'personalizacao')
                 ->where('active', true)
                 ->orderBy('name')
-                ->get();
+                ->get()
+                ->toArray();
 
             // Obter loja atual do usuário (respeitando isolamento de tenant)
             $user = Auth::user();
