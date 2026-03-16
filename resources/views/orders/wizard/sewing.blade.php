@@ -3171,11 +3171,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         if (sizeContainer) {
             sizeContainer.innerHTML = '';
             const detailIds = getWizardDetalhes().map(detail => detail.id);
-            const detalheInput = document.createElement('input');
-            detalheInput.type = 'hidden';
-            detalheInput.name = 'detalhe';
-            detalheInput.value = detailIds.join(',');
-            sizeContainer.appendChild(detalheInput);
+            detailIds.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'detalhe[]';
+                input.value = id;
+                sizeContainer.appendChild(input);
+            });
 
             if (wizardData.individual_detail_colors) {
                 Object.entries(wizardData.detail_colors || {}).forEach(([detailId, colorId]) => {
