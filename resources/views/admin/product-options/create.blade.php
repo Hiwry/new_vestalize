@@ -113,7 +113,7 @@ Para criar vários, separe por vírgula ou pule linhas (cole sua lista aqui).">{
 
                         @push('scripts')
                         <script>
-                            document.addEventListener('DOMContentLoaded', function() {
+                            (function() {
                                 const selectAllCb = document.getElementById('select_all_parents');
                                 const parentCbs = document.querySelectorAll('[data-parent-checkbox]');
 
@@ -139,7 +139,7 @@ Para criar vários, separe por vírgula ou pule linhas (cole sua lista aqui).">{
                                     // Initial state
                                     updateSelectAllState();
                                 }
-                            });
+                            })();
                         </script>
                         @endpush
                         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Selecione um ou mais {{ strtolower($parentLabel) }}(s) para associar</p>
