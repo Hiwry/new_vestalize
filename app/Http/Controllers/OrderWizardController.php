@@ -145,6 +145,8 @@ class OrderWizardController extends Controller
                 ->get()
                 ->toArray();
 
+                \Log::info('Personalizacoes do wizard:', $personalizationOptions);
+
             // Obter loja atual do usuário (respeitando isolamento de tenant)
             $user = Auth::user();
             $currentStoreId = null;
