@@ -596,8 +596,11 @@ class OrderService
 
     private static function appendReceiptAttachment(Payment $payment, UploadedFile $receipt): string
     {
+        \Log::info('Entering appendReceiptAttachment', ['payment_id' => $payment->id, 'filename' => $receipt->getClientOriginalName()]);
         $attachments = $payment->receipt_attachments_list;
+        \Log::info('Existing attachments count: ' . count($attachments));
         $path = $receipt->store('receipts', 'public');
+        \Log::info('File stored at: ' . $path);
 
         $attachments[] = [
             'path' => $path,

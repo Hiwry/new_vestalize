@@ -353,7 +353,9 @@ class OrderWizardService
      */
     public function processSavePayment(Order $order, array $validated, ?string $orderCoverImagePath = null, array $receiptAttachments = []): array
     {
+        \Log::info('Entering processSavePayment', ['order_id' => $order->id, 'attachments_count' => count($receiptAttachments)]);
         return DB::transaction(function () use ($order, $validated, $orderCoverImagePath, $receiptAttachments) {
+            \Log::info('Inside DB transaction of processSavePayment');
             // Apply item price overrides (dilution) if provided
             if (!empty($validated['item_price_overrides'])) {
                 $overrides = is_string($validated['item_price_overrides'])

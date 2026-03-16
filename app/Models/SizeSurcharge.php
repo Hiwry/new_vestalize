@@ -50,9 +50,11 @@ class SizeSurcharge extends Model
 
     public static function getSurchargeForSize($size, $totalPrice)
     {
-        // Garantir que os valores estejam atualizados (apenas uma vez por requisição)
+        // Só garantir valores se a tabela estiver vazia
         if (!self::$valuesEnsured) {
-            self::ensureUpdatedValues();
+            if (\DB::table('size_surcharges')->count() === 0) {
+                self::ensureUpdatedValues();
+            }
             self::$valuesEnsured = true;
         }
         

@@ -994,16 +994,27 @@ class OrderWizardController extends Controller
             'receipt_attachments.*' => 'nullable|file|max:10240',
         ]);
 
+        \Log::info('Payment wizard submission started', [
+            'request_data' => $request->except(['order_cover_image', 'receipt_attachments']),
+            'has_cover_image' => $request->hasFile('order_cover_image'),
+            'receipt_attachments_count' => count($request->file('receipt_attachments', []))
+        ]);
+
         $order = Order::with('items')->findOrFail(session('current_order_id'));
+        
+        \Log::info('Order found for payment', ['order_id' => $order->id]);
         
         // Processar upload da imagem de capa do pedido
         $orderCoverImagePath = $order->cover_image;
         if ($request->hasFile('order_cover_image')) {
+            \Log::info('Processing order cover image');
             $orderCoverImagePath = $this->imageProcessor->processAndStore(
                 $request->file('order_cover_image'),
                 'orders/covers'
             );
         }
+        
+        \Log::info('Proceeding to processSavePayment');
         
         $receiptAttachments = $request->file('receipt_attachments', []);
         
