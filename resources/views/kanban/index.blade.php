@@ -298,7 +298,10 @@
             },
 
             getEventsForDay(date) {
-                const dateString = date.toISOString().split('T')[0];
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const dateString = `${year}-${month}-${day}`;
                 return this.events.filter(event => event.date === dateString);
             },
 
@@ -467,8 +470,8 @@
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 animate-fade-in-up">
             <div class="space-y-1">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500 border border-purple-500/20 shadow-lg shadow-purple-500/5">
-                        <i class="fa-solid fa-columns-pivot text-xl sm:text-2xl"></i>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-600 flex items-center justify-center text-white border border-purple-500/20 shadow-lg shadow-purple-500/5">
+                        <i class="fa-solid fa-table-columns text-xl sm:text-2xl"></i>
                     </div>
                     <div>
                         <h1 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
@@ -588,7 +591,7 @@
         <div x-show="view === 'kanban'" class="animate-fade-in-up delay-200 mb-12">
             <div class="flex items-center justify-between mb-8">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 border border-indigo-500/20 shadow-lg shadow-indigo-500/5">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center text-white border border-purple-500/20 shadow-lg shadow-purple-500/5">
                         <i class="fa-solid fa-calendar-list text-2xl"></i>
                     </div>
                     <div>
@@ -950,8 +953,8 @@
                 <!-- Cabeçalho do Calendário Premium -->
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mb-6 border-b border-gray-100 dark:border-white/5 pb-6 gap-4">
                     <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500 border border-purple-500/20">
-                            <i class="fa-solid fa-calendar-star text-lg"></i>
+                        <div class="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center text-white border border-purple-500/20">
+                            <i class="fa-solid fa-calendar-days text-lg"></i>
                         </div>
                         <div>
                             <h2 class="text-xl md:text-2xl font-black text-gray-900 dark:text-white leading-tight tracking-tight uppercase" 
@@ -1074,7 +1077,7 @@
         <div class="relative top-5 mx-auto p-0 border border-white/10 w-full max-w-7xl shadow-2xl rounded-3xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl mb-10 animate-slide-in-bottom">
             <div class="flex justify-between items-center p-8 border-b border-gray-100 dark:border-white/5">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-500 border border-purple-500/20">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center text-white border border-purple-500/20">
                         <i class="fa-solid fa-file-invoice text-xl"></i>
                     </div>
                     <div>
