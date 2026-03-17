@@ -68,8 +68,8 @@
 </div>
 
 <!-- Tabela -->
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 overflow-hidden">
-    <div class="overflow-x-auto">
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25">
+    <div class="overflow-x-auto w-full"  style="min-width:0;">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50 dark:bg-gray-700">
                 <tr>
