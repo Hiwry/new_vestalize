@@ -1,5 +1,42 @@
 @extends('layouts.admin')
 
+@once
+@push('styles')
+<style>
+    .custom-toggle-track {
+        height: 1.75rem;
+        width: 3.5rem;
+        border-radius: 9999px;
+        border-width: 1px;
+        border-color: rgba(255, 255, 255, 0.2);
+        background-color: rgba(255, 255, 255, 0.1);
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+        position: relative;
+        cursor: pointer;
+        box-sizing: border-box;
+    }
+    .custom-toggle-thumb {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        height: calc(1.75rem - 6px);
+        width: calc(1.75rem - 6px);
+        border-radius: 9999px;
+        background-color: #ffffff;
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    input:checked + .custom-toggle-track {
+        background-color: #7c3aed;
+        border-color: #7c3aed;
+    }
+    input:checked + .custom-toggle-track .custom-toggle-thumb {
+        transform: translateX(calc(3.5rem - 1.75rem + 2px));
+    }
+</style>
+@endpush
+@endonce
+
 @section('content')
 <div class="flex justify-between items-center mb-6">
     <div>
@@ -117,44 +154,6 @@
                                 @endif
                                 <!-- Ordem visual removida -->
                                 <td class="px-6 py-4 whitespace-nowrap">
-@push('styles')
-<style>
-    .custom-toggle-track {
-        height: 1.75rem; /* 28px */
-        width: 3.5rem;   /* 56px */
-        border-radius: 9999px;
-        border-width: 1px;
-        border-color: rgba(255, 255, 255, 0.2);
-        background-color: rgba(255, 255, 255, 0.1);
-        transition: all .3s cubic-bezier(.4,0,.2,1);
-        position: relative;
-        cursor: pointer;
-        box-sizing: border-box;
-    }
-    
-    .custom-toggle-thumb {
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        height: calc(1.75rem - 6px); /* 22px */
-        width: calc(1.75rem - 6px);  /* 22px */
-        border-radius: 9999px;
-        background-color: #ffffff;
-        transition: all .3s cubic-bezier(.4,0,.2,1);
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    }
-
-    input:checked + .custom-toggle-track {
-        background-color: #7c3aed; /* --primary provided by user */
-        border-color: #7c3aed;
-    }
-
-    input:checked + .custom-toggle-track .custom-toggle-thumb {
-        transform: translateX(calc(3.5rem - 1.75rem + 2px)); /* Move strictly to the right */
-    }
-</style>
-@endpush
-
                                     <label class="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" value="" class="sr-only toggle-status" data-id="{{ $option->id }}" {{ $option->active ? 'checked' : '' }}>
                                         <div class="custom-toggle-track">
