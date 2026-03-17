@@ -166,6 +166,9 @@
                  alt="Vestalize"
                  class="h-10 w-auto object-contain">
         </div>
+        <div class="flex items-center justify-center" x-show="!expanded" x-cloak>
+            <span class="text-2xl font-extrabold text-primary leading-none select-none">V</span>
+        </div>
         <div class="flex items-center" :class="expanded ? 'gap-2' : ''">
             <button @click="toggle()" 
                     class="flex items-center justify-center p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all duration-200"
