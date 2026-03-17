@@ -51,10 +51,9 @@
                 }
             }
         }
-        $faviconUrl = $brandLogoUrl;
     @endphp
     
-    <link rel="icon" type="image/x-icon" href="{{ $faviconUrl }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('vestalize.svg') }}">
     <meta property="og:title" content="{{ $companyName }} - Painel Administrativo">
     <meta property="og:type" content="website">
     <meta property="og:image" content="{{ $brandLogoUrl }}">
