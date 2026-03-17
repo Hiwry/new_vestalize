@@ -151,6 +151,32 @@
             <button onclick="window.openReportDetailed()" class="cf-btn cf-btn-blue">
                 <i class="fa-solid fa-file-lines"></i><span>Detalhado</span>
             </button>
+            {{-- Fechamento de Caixa PDF --}}
+            <div x-data="{ openFech: false, fechPeriod: 'day', fechDate: '{{ now()->format('Y-m-d') }}' }" class="relative">
+                <button @click="openFech = !openFech" class="cf-btn cf-btn-amber">
+                    <i class="fa-solid fa-file-pdf"></i><span>Fechamento PDF</span>
+                </button>
+                <div x-show="openFech" x-cloak @click.away="openFech = false"
+                     class="absolute right-0 top-10 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl p-4 w-64">
+                    <p class="text-xs font-bold text-gray-600 dark:text-gray-300 mb-2">FECHAMENTO DE CAIXA</p>
+                    <div class="mb-2">
+                        <label class="text-xs text-gray-500 dark:text-gray-400">Período</label>
+                        <select x-model="fechPeriod" class="w-full mt-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            <option value="day">Diário</option>
+                            <option value="week">Semanal</option>
+                            <option value="month">Mensal</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-xs text-gray-500 dark:text-gray-400">Data de referência</label>
+                        <input type="date" x-model="fechDate" class="w-full mt-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                    </div>
+                    <a :href="`{{ route('cash.fechamento.pdf') }}?period=${fechPeriod}&date=${fechDate}`" target="_blank"
+                       class="cf-btn cf-btn-purple w-full justify-center">
+                        <i class="fa-solid fa-file-pdf"></i><span>Gerar PDF</span>
+                    </a>
+                </div>
+            </div>
             <a href="{{ route('cash.create') }}" class="cf-btn cf-btn-purple">
                 <i class="fa-solid fa-plus"></i><span>Nova Transação</span>
             </a>

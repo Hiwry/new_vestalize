@@ -549,6 +549,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/cash/{cash}/status', [\App\Http\Controllers\CashController::class, 'updateStatus'])->name('cash.update-status')->middleware(['cash', 'plan:financial']);
     Route::get('/cash/report/simplified', [\App\Http\Controllers\CashController::class, 'reportSimplified'])->name('cash.report.simplified')->middleware('cash');
     Route::get('/cash/report/detailed', [\App\Http\Controllers\CashController::class, 'reportDetailed'])->name('cash.report.detailed')->middleware(['cash', 'plan:reports_complete']);
+    Route::get('/cash/fechamento/pdf', [\App\Http\Controllers\CashController::class, 'fechamentoCaixaPdf'])->name('cash.fechamento.pdf')->middleware(['cash', 'plan:financial']);
 
     // PDV - Ponto de Venda
     Route::prefix('pdv')->name('pdv.')->middleware('plan:pdv')->group(function () {

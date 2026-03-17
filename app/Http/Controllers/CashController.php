@@ -7,6 +7,8 @@ use App\Models\CashTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class CashController extends Controller
 {
@@ -783,5 +785,198 @@ class CashController extends Controller
                 'message' => 'Erro ao gerar relatório: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /* =====================================================================
+     * FECHAMENTO DE CAIXA — PDF (3 páginas)
+     * GET /cash/fechamento/pdf?period=day|week|month&date=YYYY-MM-DD
+     * ===================================================================== */
+    public function fechamentoCaixaPdf(Request $request)
+    {
+        if (!Auth::user()->isAdmin() && !Auth::user()->isCaixa()) {
+            abort(403);
+        }
+
+        $period = in_array($request->get('period'), ['day','week','month']) ? $request->get('period') : 'day';
+        $referenceDate = Carbon::parse($request->get('date', Carbon::now()->format('Y-m-d')));
+
+        switch ($period) {
+            case 'week':
+                $startFilter  = $referenceDate->copy()->startOfWeek(Carbon::MONDAY)->startOfDay();
+                $endFilter    = $referenceDate->copy()->endOfWeek(Carbon::SUNDAY)->endOfDay();
+                $periodLabel  = 'Semana: ' . $startFilter->format('d/m/Y') . ' a ' . $endFilter->format('d/m/Y');
+                break;
+            case 'month':
+                $startFilter  = $referenceDate->copy()->startOfMonth()->startOfDay();
+                $endFilter    = $referenceDate->copy()->endOfMonth()->endOfDay();
+                $periodLabel  = $referenceDate->locale('pt_BR')->isoFormat('MMMM [de] YYYY');
+                break;
+            default: // day
+                $startFilter  = $referenceDate->copy()->startOfDay();
+                $endFilter    = $referenceDate->copy()->endOfDay();
+                $periodLabel  = $referenceDate->format('d/m/Y');
+                break;
+        }
+
+        $q = CashTransaction::with(['order.user', 'order.items', 'user'])
+            ->whereBetween('transaction_date', [$startFilter, $endFilter])
+            ->where('status', 'confirmado')
+            ->orderBy('transaction_date');
+        StoreHelper::applyStoreFilter($q);
+        $transactions = $q->get();
+
+        // Separar categorias
+        $sangrias      = $transactions->filter(fn($t) => strtolower($t->category ?? '') === 'sangria');
+        $suprimentosTx = $transactions->filter(fn($t) => in_array(strtolower($t->category ?? ''), ['suprimento', 'suprimentos']));
+        $vendas        = $transactions->filter(fn($t) =>
+            $t->type === 'entrada' &&
+            !in_array(strtolower($t->category ?? ''), ['sangria', 'suprimento', 'suprimentos'])
+        );
+
+        // Totais de cashback
+        $cashbackConcedido = $transactions->filter(fn($t) => str_contains(strtolower($t->category ?? ''), 'cashback_concedido'))->sum('amount');
+        $cashbackUtilizado = $transactions->filter(fn($t) => str_contains(strtolower($t->category ?? ''), 'cashback_utilizado'))->sum('amount');
+
+        $paymentTotals  = $this->normalizePaymentMethodTotals($vendas);
+        $totalVendas    = $vendas->sum('amount');
+        $totalSangria   = $sangrias->sum('amount');
+        $totalSuprimentos = $suprimentosTx->sum('amount');
+        $saldoCaixa     = $totalVendas - $totalSangria + $totalSuprimentos;
+
+        // Entradas finalizadas / vendas debitadas / pagamento débito (categorias auxiliares)
+        $entradasFinalizadas = $transactions->filter(fn($t) => str_contains(strtolower($t->category ?? ''), 'entrada_finalizada'))->sum('amount');
+        $vendasDebitadas     = $transactions->filter(fn($t) => str_contains(strtolower($t->category ?? ''), 'venda_debitada'))->sum('amount');
+        $pagamentoDebito     = $transactions->filter(fn($t) => str_contains(strtolower($t->category ?? ''), 'pagamento_debito'))->sum('amount');
+
+        // Agrupamento por vendedor — preservando a ordem de inserção
+        $vendasPorVendedor = [];
+        foreach ($vendas as $t) {
+            $vid   = $t->order?->user_id ?? $t->user_id ?? 0;
+            $vnome = $t->order?->user?->name ?? $t->user?->name ?? $t->user_name ?? 'Sem vendedor';
+            if (!isset($vendasPorVendedor[$vid])) {
+                $vendasPorVendedor[$vid] = ['nome' => $vnome, 'total' => 0, 'transacoes' => []];
+            }
+            $vendasPorVendedor[$vid]['total'] += floatval($t->amount);
+            $vendasPorVendedor[$vid]['transacoes'][] = $t;
+        }
+
+        // Configurações da empresa
+        $storeId = null;
+        if (Auth::user()->isAdminLoja()) {
+            $storeId = Auth::user()->getStoreIds()[0] ?? null;
+        }
+        $companySettings = \App\Models\CompanySetting::getSettings($storeId);
+
+        $html = view('cash.pdf.fechamento', compact(
+            'paymentTotals',
+            'totalVendas',
+            'totalSangria',
+            'totalSuprimentos',
+            'saldoCaixa',
+            'vendasPorVendedor',
+            'vendas',
+            'periodLabel',
+            'period',
+            'startFilter',
+            'endFilter',
+            'companySettings',
+            'cashbackConcedido',
+            'cashbackUtilizado',
+            'entradasFinalizadas',
+            'vendasDebitadas',
+            'pagamentoDebito'
+        ))->render();
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        $options->set('isRemoteEnabled', true);
+        $options->set('chroot', public_path());
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        $filename = 'fechamento-caixa-' . $period . '-' . $referenceDate->format('Y-m-d') . '.pdf';
+        return response($dompdf->output(), 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"',
+        ]);
+    }
+
+    /**
+     * Normaliza payment_methods de uma coleção de transações em totais por linha da tabela.
+     */
+    private function normalizePaymentMethodTotals($transactions): array
+    {
+        $map = [
+            'dinheiro'             => 'dinheiro',
+            'cheque'               => 'cheque_boleto',
+            'boleto'               => 'cheque_boleto',
+            'cheque_boleto'        => 'cheque_boleto',
+            'pix'                  => 'entradas',
+            'entrada_dinheiro'     => 'entradas',
+            'transferencia'        => 'transferencia',
+            'transferencia_bancaria' => 'transferencia',
+            'visa_credito'         => 'visa_credito',
+            'credito_visa'         => 'visa_credito',
+            'visa_debito'          => 'visa_debito',
+            'debito_visa'          => 'visa_debito',
+            'master_credito'       => 'master_credito',
+            'mastercard_credito'   => 'master_credito',
+            'credito_master'       => 'master_credito',
+            'master_debito'        => 'master_debito',
+            'mastercard_debito'    => 'master_debito',
+            'debito_master'        => 'master_debito',
+            'elo_credito'          => 'elo_credito',
+            'credito_elo'          => 'elo_credito',
+            'elo_debito'           => 'elo_debito',
+            'debito_elo'           => 'elo_debito',
+            'hiper'                => 'hiper',
+            'hiper_credito'        => 'hiper',
+            'hipercard'            => 'hiper',
+            'amex'                 => 'amex',
+            'amex_credito'         => 'amex',
+            'american_express'     => 'amex',
+            'credito_conta'        => 'outros_credito',
+            'outros_credito'       => 'outros_credito',
+            'cartao'               => 'outros_credito',
+            'cartao_credito'       => 'outros_credito',
+            'multiplo'             => 'outros_credito',
+            'debito_conta'         => 'outros_debito',
+            'outros_debito'        => 'outros_debito',
+            'cartao_debito'        => 'outros_debito',
+        ];
+
+        $totals = array_fill_keys([
+            'dinheiro','cheque_boleto','entradas','transferencia',
+            'visa_credito','visa_debito','master_credito','master_debito',
+            'elo_credito','elo_debito','hiper','amex',
+            'outros_credito','outros_debito','cashback',
+        ], 0.0);
+
+        foreach ($transactions as $t) {
+            $methods = [];
+            if (!empty($t->payment_methods) && is_array($t->payment_methods)) {
+                $methods = $t->payment_methods;
+            } elseif (!empty($t->payment_method)) {
+                $methods = [['method' => $t->payment_method, 'amount' => floatval($t->amount)]];
+            }
+            if (empty($methods)) {
+                $methods = [['method' => 'outros_credito', 'amount' => floatval($t->amount)]];
+            }
+
+            foreach ($methods as $m) {
+                $key    = strtolower($m['method'] ?? 'outros_credito');
+                $amount = floatval($m['amount'] ?? 0);
+                $group  = $map[$key] ?? 'outros_credito';
+                if (array_key_exists($group, $totals)) {
+                    $totals[$group] += $amount;
+                }
+            }
+        }
+
+        return $totals;
     }
 }
