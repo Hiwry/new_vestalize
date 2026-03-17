@@ -8,8 +8,8 @@
         width: 3.5rem;
         border-radius: 9999px;
         border-width: 1px;
-        border-color: rgba(255, 255, 255, 0.2);
-        background-color: rgba(255, 255, 255, 0.1);
+        border-color: #6b7280;
+        background-color: #6b7280;
         transition: all .3s cubic-bezier(.4,0,.2,1);
         position: relative;
         cursor: pointer;
