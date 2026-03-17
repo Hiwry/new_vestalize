@@ -84,6 +84,18 @@ Para criar vários, separe por vírgula ou pule linhas (cole sua lista aqui).">{
                 <input type="hidden" name="cost" value="0">
                 @endif
 
+                @if($type === 'tipo_corte')
+                <div class="flex items-center">
+                    <input type="checkbox" id="sem_acrescimo" name="sem_acrescimo"
+                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-slate-600 rounded"
+                           {{ old('sem_acrescimo') ? 'checked' : '' }}>
+                    <label for="sem_acrescimo" class="ml-2 block text-sm text-gray-900 dark:text-white">
+                        Sem acréscimo de GG / EXG / Especial
+                    </label>
+                    <p class="ml-4 text-xs text-gray-500 dark:text-gray-400">Marque se este modelo não cobra acréscimo por tamanho especial.</p>
+                </div>
+                @endif
+
 
                 @if(count($parents) > 0)
                     <div>

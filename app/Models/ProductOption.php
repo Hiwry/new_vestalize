@@ -19,6 +19,7 @@ class ProductOption extends Model
         'parent_id',
         'active',
         'is_pinned',
+        'sem_acrescimo',
         'order',
         'color_hex',
     ];
@@ -28,6 +29,7 @@ class ProductOption extends Model
         'cost' => 'decimal:2',
         'active' => 'boolean',
         'is_pinned' => 'boolean',
+        'sem_acrescimo' => 'boolean',
     ];
 
     /**

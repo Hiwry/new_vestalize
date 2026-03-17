@@ -54,6 +54,9 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Pai</th>
                             @endif
                             <!-- Ordem removida do header pois é visual (drag) -->
+                            @if($type === 'tipo_corte')
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Sem Acréscimo</th>
+                            @endif
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ações</th>
                         </tr>
@@ -97,6 +100,20 @@
                                             @endif
                                         </div>
                                     </td>
+                                @endif
+                                <!-- Sem Acréscimo toggle somente para tipo_corte -->
+                                @if($type === 'tipo_corte')
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" value="" class="sr-only toggle-surcharge" data-id="{{ $option->id }}" {{ $option->sem_acrescimo ? 'checked' : '' }}>
+                                        <div class="custom-toggle-track">
+                                            <div class="custom-toggle-thumb"></div>
+                                        </div>
+                                        <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300 surcharge-label w-14">
+                                            {{ $option->sem_acrescimo ? 'Sim' : 'Não' }}
+                                        </span>
+                                    </label>
+                                </td>
                                 @endif
                                 <!-- Ordem visual removida -->
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -203,6 +220,36 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script>
+        // Toggle Sem Acréscimo
+        document.querySelectorAll('.toggle-surcharge').forEach(toggle => {
+            toggle.addEventListener('change', async function() {
+                const id = this.dataset.id;
+                const label = this.closest('label').querySelector('.surcharge-label');
+
+                try {
+                    const response = await fetch(`/admin/product-options/${id}/toggle-surcharge`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        label.textContent = data.sem_acrescimo ? 'Sim' : 'Não';
+                    } else {
+                        this.checked = !this.checked;
+                        alert('Erro ao atualizar');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.checked = !this.checked;
+                }
+            });
+        });
+
         // Toggle Status
         document.querySelectorAll('.toggle-status').forEach(toggle => {
             toggle.addEventListener('change', async function() {

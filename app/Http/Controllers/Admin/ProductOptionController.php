@@ -108,6 +108,7 @@ class ProductOptionController extends Controller
         $validated['cost'] = $validated['cost'] ?? 0;
         $validated['active'] = $request->has('active');
         $validated['is_pinned'] = $request->has('is_pinned');
+        $validated['sem_acrescimo'] = $request->has('sem_acrescimo');
         $validated['order'] = $validated['order'] ?? 0;
         if (Schema::hasColumn('product_options', 'tenant_id')) {
             $validated['tenant_id'] = Auth::user()?->tenant_id;
@@ -223,6 +224,7 @@ class ProductOptionController extends Controller
         $validated['cost'] = $validated['cost'] ?? 0;
         $validated['active'] = $request->has('active');
         $validated['is_pinned'] = $request->has('is_pinned');
+        $validated['sem_acrescimo'] = $request->has('sem_acrescimo');
         $validated['order'] = $validated['order'] ?? 0;
 
         // Manter parent_id para compatibilidade (usar o primeiro pai)
@@ -279,5 +281,17 @@ class ProductOptionController extends Controller
         $option->save();
 
         return response()->json(['success' => true, 'active' => $option->active]);
+    }
+
+    public function toggleSurcharge($id)
+    {
+        $option = ProductOption::findOrFail($id);
+        if (!Schema::hasColumn('product_options', 'sem_acrescimo')) {
+            return response()->json(['success' => false, 'message' => 'Coluna não existe. Execute a migration.'], 400);
+        }
+        $option->sem_acrescimo = !$option->sem_acrescimo;
+        $option->save();
+
+        return response()->json(['success' => true, 'sem_acrescimo' => $option->sem_acrescimo]);
     }
 }

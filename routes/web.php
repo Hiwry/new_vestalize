@@ -741,6 +741,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // AJAX Routes for Product Options - MUST be before resource
     Route::post('product-options/reorder', [\App\Http\Controllers\Admin\ProductOptionController::class, 'reorder'])->name('product-options.reorder');
     Route::post('product-options/{option}/toggle-status', [\App\Http\Controllers\Admin\ProductOptionController::class, 'toggleStatus'])->name('product-options.toggle-status');
+    Route::post('product-options/{option}/toggle-surcharge', [\App\Http\Controllers\Admin\ProductOptionController::class, 'toggleSurcharge'])->name('product-options.toggle-surcharge');
     
     Route::resource('product-options', \App\Http\Controllers\Admin\ProductOptionController::class);
     Route::resource('catalog-items', \App\Http\Controllers\Admin\CatalogItemController::class)->names('catalog-items');
