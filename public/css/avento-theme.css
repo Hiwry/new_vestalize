@@ -1182,6 +1182,12 @@ html:not(.dark) .avento-theme .border-white\/10 {
     color: inherit !important;
 }
 
+/* Preserve white text on cash flow action buttons (.cf-btn) */
+.dark.avento-theme .cf-btn span,
+.dark.avento-theme .cf-btn i {
+    color: #ffffff !important;
+}
+
 /* Bordas e Divisores */
 .dark.avento-theme .border,
 .dark.avento-theme .border-b,
