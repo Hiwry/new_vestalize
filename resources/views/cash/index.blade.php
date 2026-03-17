@@ -113,15 +113,22 @@
     .cf-modal-close { width:34px; height:34px; border-radius:10px; border:1px solid var(--cf-input-border); background:var(--cf-input-bg); color:var(--cf-muted); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:14px; }
     .cf-modal-close:hover { color:var(--cf-text); }
     /* Report KPI */
-    .cf-rpt-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+    .cf-rpt-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
     @media (max-width:520px) { .cf-rpt-grid { grid-template-columns:1fr; } }
-    .cf-rpt-kpi { background:var(--cf-input-bg); border:1px solid var(--cf-input-border); border-radius:10px; padding:14px; }
-    .cf-rpt-label { font-size:10px; text-transform:uppercase; letter-spacing:.07em; color:var(--cf-muted); font-weight:700; margin-bottom:5px; }
-    .cf-rpt-value { font-size:20px; font-weight:800; letter-spacing:-.02em; }
+    .cf-rpt-kpi { background:var(--cf-input-bg); border:1px solid var(--cf-input-border); border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; gap:4px; }
+    .cf-rpt-kpi-icon { width:34px; height:34px; border-radius:9px; display:inline-flex; align-items:center; justify-content:center; font-size:13px; margin-bottom:6px; flex-shrink:0; }
+    .cf-rpt-label { font-size:10px; text-transform:uppercase; letter-spacing:.07em; color:var(--cf-muted) !important; font-weight:700; }
+    .cf-rpt-value { font-size:20px; font-weight:800; letter-spacing:-.02em; line-height:1.1; }
+    .cf-rpt-section { margin-bottom:12px; background:var(--cf-input-bg); border:1px solid var(--cf-input-border); border-radius:12px; overflow:hidden; }
+    .cf-rpt-section-hd { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:var(--cf-text) !important; padding:10px 12px; border-bottom:1px solid var(--cf-card-border); display:flex; align-items:center; gap:7px; background:rgba(148,163,184,.04); }
+    .cf-rpt-section-hd i { opacity:.6; }
     .cf-rpt-table { width:100%; border-collapse:collapse; font-size:12px; }
-    .cf-rpt-table th { text-align:left; padding:7px 10px; border-bottom:1px solid var(--cf-card-border); color:var(--cf-muted); font-weight:800; text-transform:uppercase; letter-spacing:.06em; font-size:10px; }
-    .cf-rpt-table td { padding:7px 10px; border-bottom:1px solid var(--cf-row-border); color:var(--cf-text); }
+    .cf-rpt-table th { text-align:left; padding:7px 12px; color:var(--cf-muted); font-weight:800; text-transform:uppercase; letter-spacing:.06em; font-size:10px; }
+    .cf-rpt-table td { padding:9px 12px; border-bottom:1px solid var(--cf-row-border); color:var(--cf-text) !important; font-weight:600; }
     .cf-rpt-table tr:last-child td { border-bottom:0; }
+    .cf-rpt-table tbody tr:hover td { background:rgba(148,163,184,.05); }
+    .cf-rpt-pill { display:inline-flex; align-items:center; gap:6px; background:var(--cf-input-bg); border:1px solid var(--cf-input-border); border-radius:20px; padding:5px 12px; font-size:11px; font-weight:700; color:var(--cf-text) !important; margin-bottom:14px; }
+    .cf-rpt-pill i { color:var(--cf-muted); font-size:10px; }
     @media (max-width:640px) {
         .cf-root { padding:14px; border-radius:14px; }
         .cf-topbar { flex-direction:column; align-items:flex-start; }
@@ -509,50 +516,65 @@
     }
 
     // ─── Reports ─────────────────────────────────
+    function rptKpi(icon, iconColor, iconBg, label, value, valueColor) {
+        return '<div class="cf-rpt-kpi">'
+             + '<div class="cf-rpt-kpi-icon" style="background:' + iconBg + ';color:' + iconColor + ' !important;"><i class="fa-solid ' + icon + '"></i></div>'
+             + '<div class="cf-rpt-label">' + label + '</div>'
+             + '<div class="cf-rpt-value" style="color:' + valueColor + ' !important;">' + value + '</div>'
+             + '</div>';
+    }
+
     function loadSimplifiedReport() {
         const period = document.getElementById('report-simplified-period')?.value || 'month';
         const date   = document.getElementById('report-simplified-date')?.value  || '{{ $latestCashReferenceDate ?? date("Y-m-d") }}';
         const box    = document.getElementById('report-simplified-content');
         if (!box) return;
-        box.innerHTML = '<div style="text-align:center;padding:24px;color:var(--cf-muted);">Carregando…</div>';
+        box.innerHTML = '<div style="text-align:center;padding:32px 0;"><i class="fa-solid fa-spinner fa-spin" style="color:var(--cf-muted);font-size:20px;"></i></div>';
         fetch('{{ route("cash.report.simplified") }}?period=' + period + '&date=' + date)
             .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
             .then(function(data) {
-                if (!data.success) { box.innerHTML = '<p style="color:red;text-align:center;">Erro ao carregar</p>'; return; }
+                if (!data.success) { box.innerHTML = '<div style="text-align:center;padding:24px;color:#dc2626;"><i class="fa-solid fa-circle-exclamation"></i> Erro ao carregar dados.</div>'; return; }
                 const pm  = Object.entries(data.resumo?.por_meio_pagamento || {});
                 const vs  = Array.isArray(data.resumo?.comissoes_por_vendedor) ? data.resumo.comissoes_por_vendedor : [];
                 const pl  = periodLabel(data.periodo);
-                var html  = pl ? '<div style="font-size:12px;color:var(--cf-muted);font-weight:600;margin-bottom:12px;">' + pl + '</div>' : '';
+                var html  = pl ? '<div class="cf-rpt-pill"><i class="fa-regular fa-calendar"></i>' + pl + '</div>' : '';
                 html += '<div class="cf-rpt-grid">'
-                     + '<div class="cf-rpt-kpi"><div class="cf-rpt-label">Entradas</div><div class="cf-rpt-value" style="color:#059669;">' + fmtBRL(data.resumo.total_entradas) + '</div></div>'
-                     + '<div class="cf-rpt-kpi"><div class="cf-rpt-label">Saídas</div><div class="cf-rpt-value" style="color:#dc2626;">' + fmtBRL(data.resumo.total_saidas) + '</div></div>'
-                     + '<div class="cf-rpt-kpi"><div class="cf-rpt-label">Saldo</div><div class="cf-rpt-value" style="color:#3b82f6;">' + fmtBRL(data.resumo.saldo) + '</div></div>'
-                     + '<div class="cf-rpt-kpi"><div class="cf-rpt-label">Descontos</div><div class="cf-rpt-value" style="color:#7c3aed;">' + fmtBRL(data.resumo.total_descontos) + '</div></div>'
+                     + rptKpi('fa-arrow-trend-up', '#059669', 'rgba(5,150,105,.15)', 'Entradas', fmtBRL(data.resumo.total_entradas), '#059669')
+                     + rptKpi('fa-arrow-trend-down', '#dc2626', 'rgba(220,38,38,.15)', 'Saídas', fmtBRL(data.resumo.total_saidas), '#dc2626')
+                     + rptKpi('fa-scale-balanced', '#3b82f6', 'rgba(59,130,246,.15)', 'Saldo', fmtBRL(data.resumo.saldo), '#3b82f6')
+                     + rptKpi('fa-tag', '#7c3aed', 'rgba(124,58,237,.15)', 'Descontos', fmtBRL(data.resumo.total_descontos), '#7c3aed')
                      + '</div>';
-                html += '<div style="margin-bottom:14px;">'
-                     + '<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--cf-muted);margin-bottom:8px;">Por Meio de Pagamento</div>'
+                html += '<div class="cf-rpt-section">'
+                     + '<div class="cf-rpt-section-hd"><i class="fa-solid fa-credit-card"></i>Por Meio de Pagamento</div>'
                      + '<table class="cf-rpt-table"><thead><tr><th>Meio</th><th style="text-align:right">Entradas</th><th style="text-align:right">Saídas</th></tr></thead><tbody>';
                 if (!pm.length) {
-                    html += '<tr><td colspan="3" style="text-align:center;color:var(--cf-muted);">Sem movimentação</td></tr>';
+                    html += '<tr><td colspan="3" style="text-align:center;padding:18px;color:var(--cf-muted) !important;">Sem movimentação</td></tr>';
                 } else {
                     pm.forEach(function(entry) {
-                        html += '<tr><td style="text-transform:capitalize">' + entry[0].replace(/_/g, ' ') + '</td>'
-                              + '<td style="text-align:right;color:#059669;">' + fmtBRL(entry[1].entradas) + '</td>'
-                              + '<td style="text-align:right;color:#dc2626;">' + fmtBRL(entry[1].saidas) + '</td></tr>';
+                        html += '<tr>'
+                              + '<td style="text-transform:capitalize;color:var(--cf-text) !important;">' + entry[0].replace(/_/g, ' ') + '</td>'
+                              + '<td style="text-align:right;color:#059669 !important;">' + fmtBRL(entry[1].entradas) + '</td>'
+                              + '<td style="text-align:right;color:#dc2626 !important;">' + fmtBRL(entry[1].saidas) + '</td>'
+                              + '</tr>';
                     });
                 }
                 html += '</tbody></table></div>';
                 if (vs.length) {
-                    html += '<div><div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--cf-muted);margin-bottom:8px;">Comissões por Vendedor</div>'
+                    html += '<div class="cf-rpt-section">'
+                         + '<div class="cf-rpt-section-hd"><i class="fa-solid fa-users"></i>Comissões por Vendedor</div>'
                          + '<table class="cf-rpt-table"><thead><tr><th>Vendedor</th><th style="text-align:right">Total</th><th style="text-align:right">Transações</th></tr></thead><tbody>';
                     vs.forEach(function(vend) {
-                        html += '<tr><td>' + vend.nome + '</td><td style="text-align:right;color:#059669;">' + fmtBRL(vend.total) + '</td><td style="text-align:right;color:var(--cf-muted);">' + vend.transacoes + '</td></tr>';
+                        html += '<tr>'
+                              + '<td style="color:var(--cf-text) !important;">' + vend.nome + '</td>'
+                              + '<td style="text-align:right;color:#059669 !important;">' + fmtBRL(vend.total) + '</td>'
+                              + '<td style="text-align:right;color:var(--cf-muted) !important;font-weight:700;">' + vend.transacoes + '</td>'
+                              + '</tr>';
                     });
                     html += '</tbody></table></div>';
                 }
                 box.innerHTML = html;
             })
-            .catch(function(e) { box.innerHTML = '<p style="color:red;text-align:center;">Erro: ' + e + '</p>'; });
+            .catch(function(e) { box.innerHTML = '<div style="text-align:center;padding:24px;color:#dc2626;"><i class="fa-solid fa-circle-exclamation"></i> Erro: ' + e + '</div>'; });
     }
 
     function loadDetailedReport() {
