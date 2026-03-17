@@ -1167,7 +1167,7 @@ html:not(.dark) .avento-theme .border-white\/10 {
 .dark.avento-theme p,
 .dark.avento-theme .text-gray-600,
 .dark.avento-theme .text-slate-600,
-.dark.avento-theme span:not(.pf-action *):not(.pf-modal-button *):not(.pf-inline-button *):not(.ft-action *):not(.ft-button *):not([style*="color"]),
+.dark.avento-theme span:not(.pf-action *):not(.pf-modal-button *):not(.pf-inline-button *):not(.ft-action *):not(.ft-button *):not(.cf-btn *):not([style*="color"]),
 .dark.avento-theme td {
     color: #94a3b8 !important;
 }
