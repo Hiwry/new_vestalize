@@ -102,15 +102,13 @@ html.avento-theme.dark {
 /* ============================================
    Sidebar Styles
    ============================================ */
-.avento-theme #sidebar,
-.avento-theme aside {
+.avento-theme #sidebar {
     background: var(--avento-sidebar-bg) !important;
     border-right: 1px solid var(--avento-border) !important;
 }
 
 /* Sidebar header */
-.avento-theme #sidebar .border-b,
-.avento-theme aside .border-b {
+.avento-theme #sidebar .border-b {
     border-color: var(--avento-border) !important;
     background: var(--avento-sidebar-bg) !important;
 }
@@ -392,21 +390,21 @@ html.avento-theme.dark {
 
 .avento-theme .bg-green-100,
 .avento-theme .bg-green-50 {
-    background: rgba(16, 185, 129, 0.15) !important;
-    color: #34d399 !important;
+    background: rgba(16, 185, 129, 0.12) !important;
+    color: #047857 !important;
 }
 
 .avento-theme .bg-red-100,
 .avento-theme .bg-red-50 {
-    background: rgba(239, 68, 68, 0.15) !important;
-    color: #f87171 !important;
+    background: rgba(239, 68, 68, 0.10) !important;
+    color: #b91c1c !important;
 }
 
 .avento-theme .bg-orange-100,
 .avento-theme .bg-amber-100,
 .avento-theme .bg-orange-50 {
-    background: rgba(245, 158, 11, 0.15) !important;
-    color: #fbbf24 !important;
+    background: rgba(245, 158, 11, 0.12) !important;
+    color: #92400e !important;
 }
 
 .avento-theme .bg-indigo-100,
@@ -415,6 +413,26 @@ html.avento-theme.dark {
 .avento-theme .bg-blue-50 {
     background: var(--avento-primary-light) !important;
     color: var(--avento-primary) !important;
+}
+
+/* Dark mode badge overrides */
+.dark.avento-theme .bg-green-100,
+.dark.avento-theme .bg-green-50 {
+    background: rgba(16, 185, 129, 0.15) !important;
+    color: #34d399 !important;
+}
+
+.dark.avento-theme .bg-red-100,
+.dark.avento-theme .bg-red-50 {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+}
+
+.dark.avento-theme .bg-orange-100,
+.dark.avento-theme .bg-amber-100,
+.dark.avento-theme .bg-orange-50 {
+    background: rgba(245, 158, 11, 0.15) !important;
+    color: #fbbf24 !important;
 }
 
 /* ============================================
@@ -747,34 +765,29 @@ html:not(.dark) .avento-theme .border-white\/10 {
    ============================================ */
 
 /* Sidebar base */
-.avento-theme #sidebar,
-.avento-theme aside {
+.avento-theme #sidebar {
     background: var(--avento-bg-secondary) !important;
     border-right: 1px solid var(--avento-border) !important;
     transition: background 0.3s ease, border-color 0.3s ease !important;
 }
 
-.dark.avento-theme #sidebar,
-.dark.avento-theme aside {
+.dark.avento-theme #sidebar {
     background: #0c1628 !important;
     border-right: 1px solid rgba(148, 163, 184, 0.08) !important;
 }
 
 /* Sidebar header */
-.avento-theme #sidebar>div:first-child,
-.avento-theme aside>div:first-child {
+.avento-theme #sidebar>div:first-child {
     background: transparent !important;
     border-bottom: 1px solid var(--avento-border) !important;
 }
 
 /* Forçar fundo branco no sidebar Light */
-.avento-theme #sidebar,
-.avento-theme aside {
+.avento-theme #sidebar {
     background: #ffffff !important;
 }
 
-.dark.avento-theme #sidebar,
-.dark.avento-theme aside {
+.dark.avento-theme #sidebar {
     background: #0c1628 !important;
 }
 
@@ -1115,7 +1128,6 @@ html:not(.dark) .avento-theme .border-white\/10 {
 .dark.avento-theme body,
 .dark.avento-theme #main-content,
 .dark.avento-theme main,
-.dark.avento-theme aside,
 .dark.avento-theme [class*="bg-slate-9"],
 .dark.avento-theme [class*="bg-gray-9"],
 .dark.avento-theme [class*="bg-zinc-9"],
