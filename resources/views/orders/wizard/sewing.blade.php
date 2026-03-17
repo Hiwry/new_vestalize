@@ -5166,7 +5166,11 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         formData.append('sublimation_type', typeSlug);
         formData.append('art_name', artName);
 
+        const fabricSelectEl = document.getElementById('fullpage_sub_fabric_type');
+        const selectedFabricOption = fabricSelectEl?.options[fabricSelectEl?.selectedIndex];
+        const tecidoIdToSend = selectedFabricOption?.dataset?.tecidoId || fullpageSubTypeMeta?.tecido_id || '';
         formData.append('fabric_type', fabricType);
+        if (tecidoIdToSend) formData.append('tecido_id', tecidoIdToSend);
         formData.append('fabric_custom', fabricCustom);
         formData.append('fabric_color', fabricColor);
         formData.append('model_type', modelType);

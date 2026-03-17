@@ -841,11 +841,12 @@ class OrderWizardService
         $fabricSurcharge = (float) ($validated['fabric_surcharge'] ?? 0);
         $hasAddonColors = (bool) ($validated['has_addon_colors'] ?? false);
 
-        $fabricName = match ($fabricType) {
-            'PADRAO' => ($defaultFabricName !== '' ? $defaultFabricName : 'TECIDO PADRÃO'),
-            'PP' => 'PP',
-            'CACHARREL' => 'CACHARREL',
-            'OUTRO' => ($fabricCustom !== '' ? $fabricCustom : 'OUTRO TECIDO'),
+        $fabricName = match (true) {
+            $fabricType === 'PADRAO' => ($defaultFabricName !== '' ? $defaultFabricName : 'TECIDO PADRÃO'),
+            $fabricType === 'PP' => 'PP',
+            $fabricType === 'CACHARREL' => 'CACHARREL',
+            $fabricType === 'OUTRO' => ($fabricCustom !== '' ? $fabricCustom : 'OUTRO TECIDO'),
+            is_numeric($fabricType) => (\App\Models\Tecido::find((int) $fabricType)?->name ?? ('TECIDO #' . $fabricType)),
             default => ($fabricType !== '' ? $fabricType : 'SUB. TOTAL - ' . $typeLabel),
         };
 
@@ -972,11 +973,12 @@ class OrderWizardService
         $fabricSurcharge = (float) ($validated['fabric_surcharge'] ?? 0);
         $hasAddonColors = (bool) ($validated['has_addon_colors'] ?? false);
 
-        $fabricName = match ($fabricType) {
-            'PADRAO' => ($defaultFabricName !== '' ? $defaultFabricName : 'TECIDO PADRAO'),
-            'PP' => 'PP',
-            'CACHARREL' => 'CACHARREL',
-            'OUTRO' => ($fabricCustom !== '' ? $fabricCustom : 'OUTRO TECIDO'),
+        $fabricName = match (true) {
+            $fabricType === 'PADRAO' => ($defaultFabricName !== '' ? $defaultFabricName : 'TECIDO PADRAO'),
+            $fabricType === 'PP' => 'PP',
+            $fabricType === 'CACHARREL' => 'CACHARREL',
+            $fabricType === 'OUTRO' => ($fabricCustom !== '' ? $fabricCustom : 'OUTRO TECIDO'),
+            is_numeric($fabricType) => (\App\Models\Tecido::find((int) $fabricType)?->name ?? ('TECIDO #' . $fabricType)),
             default => ($fabricType !== '' ? $fabricType : 'SUB. TOTAL - ' . $typeLabel),
         };
 
