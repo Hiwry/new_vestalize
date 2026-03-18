@@ -5102,6 +5102,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
     async function calculateFullpageSubTotal() {
         const typeSlug = document.getElementById('fullpage_sub_type')?.value;
+        const sizeInputs = document.querySelectorAll('.fullpage-sub-size');
         let totalQty = 0;
 
         sizeInputs.forEach(input => {
