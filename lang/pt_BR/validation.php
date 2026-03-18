@@ -154,6 +154,8 @@ return [
         'company_name' => 'nome da empresa',
         'plan_id' => 'plano',
         'status' => 'status',
+        'sublimation_type' => 'tipo de produto',
+        'model_type' => 'modelo',
     ],
 
 ];

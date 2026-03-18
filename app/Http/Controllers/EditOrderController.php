@@ -1354,6 +1354,7 @@ class EditOrderController extends Controller
         try {
             $validated = $request->validate([
                 'sublimation_type' => 'required|string|max:50',
+                'model_type' => 'nullable|string|max:50',
                 'sublimation_addons' => 'nullable|array',
                 'sublimation_addons.*' => 'integer',
                 'art_name' => 'required|string|max:255',
@@ -1404,6 +1405,14 @@ class EditOrderController extends Controller
                 $addonsLabel = $addons->join(', ');
             }
 
+            $modelType = trim((string) ($validated['model_type'] ?? ''));
+            $modelType = function_exists('mb_strtoupper')
+                ? mb_strtoupper($modelType, 'UTF-8')
+                : strtoupper($modelType);
+            $modelLabel = $modelType !== ''
+                ? trim($typeLabel . ' - ' . $modelType, ' -')
+                : $typeLabel;
+
             $itemNumber = $order->items()->count() + 1;
 
             // Criar item SUB. TOTAL no banco
@@ -1413,7 +1422,7 @@ class EditOrderController extends Controller
                 'fabric' => $fabricName,
                 'color' => 'Branco',
                 'collar' => $addonsLabel ?: '-',
-                'model' => $typeLabel,
+                'model' => $modelLabel,
                 'detail' => null,
                 'print_type' => 'SUB. TOTAL',
                 'art_name' => $validated['art_name'],
@@ -1429,6 +1438,12 @@ class EditOrderController extends Controller
                 'is_sublimation_total' => true,
                 'sublimation_type' => $validated['sublimation_type'],
                 'sublimation_addons' => $validated['sublimation_addons'] ?? [],
+                'print_desc' => json_encode([
+                    'is_sublimation_total' => true,
+                    'type' => $validated['sublimation_type'],
+                    'type_label' => $typeLabel,
+                    'model_type' => $modelType ?: null,
+                ]),
             ]);
             $order->items()->save($item);
             $item->refresh();

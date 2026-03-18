@@ -389,10 +389,10 @@ class OrderWizardService
             $sizeQuantities = [];
             
             foreach ($order->items as $item) {
-                $model = strtoupper($item->model ?? '');
-                $detail = strtoupper($item->detail ?? '');
-                $isRestricted = str_contains($model, 'INFANTIL') || str_contains($model, 'BABY LOOK') || 
-                                str_contains($detail, 'INFANTIL') || str_contains($detail, 'BABY LOOK');
+                $modelKey = $this->normalizeRestrictionKey($item->model ?? '');
+                $detailKey = $this->normalizeRestrictionKey($item->detail ?? '');
+                $isRestricted = in_array($modelKey, ['INFANTIL', 'BABYLOOK'], true)
+                    || in_array($detailKey, ['INFANTIL', 'BABYLOOK'], true);
                 
                 $printDesc = is_string($item->print_desc) ? json_decode($item->print_desc, true) : $item->print_desc;
                 $applySurcharge = filter_var($printDesc['apply_surcharge'] ?? false, FILTER_VALIDATE_BOOLEAN);
@@ -1439,6 +1439,16 @@ class OrderWizardService
         $type = $printDesc['type'] ?? null;
 
         return is_string($type) && $type !== '' ? $type : null;
+    }
+
+    private function normalizeRestrictionKey(?string $value): string
+    {
+        $value = trim((string) $value);
+        $value = function_exists('mb_strtoupper')
+            ? mb_strtoupper($value, 'UTF-8')
+            : strtoupper($value);
+
+        return preg_replace('/[^A-Z0-9]+/', '', $value) ?? '';
     }
 
     /**

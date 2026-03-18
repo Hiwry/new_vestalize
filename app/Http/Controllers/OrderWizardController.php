@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 use App\Services\ImageProcessor;
 
@@ -318,6 +319,8 @@ class OrderWizardController extends Controller
      */
     private function addSublimationItem(Request $request)
     {
+        $allowedModels = $this->getAllowedSublimationModels((string) $request->input('sublimation_type'));
+
         $validated = $request->validate([
             'sublimation_type' => 'required|string|max:50',
             'tecido_id' => 'nullable|exists:tecidos,id',
@@ -327,7 +330,7 @@ class OrderWizardController extends Controller
             'fabric_type' => 'required|string|max:50',
             'fabric_custom' => 'nullable|string|max:120',
             'fabric_color' => 'nullable|string|max:50',
-            'model_type' => 'required|string|in:BASICA,BABYLOOK,INFANTIL',
+            'model_type' => ['required', 'string', Rule::in($allowedModels)],
             'base_collar' => 'nullable|string|max:50',
             'fabric_surcharge' => 'nullable|numeric|min:0',
             'has_addon_colors' => 'nullable|boolean',
@@ -457,6 +460,8 @@ class OrderWizardController extends Controller
 
     private function updateSublimationItem(Request $request, Order $order, OrderItem $item)
     {
+        $allowedModels = $this->getAllowedSublimationModels((string) $request->input('sublimation_type'));
+
         $validated = $request->validate([
             'editing_item_id' => 'required|exists:order_items,id',
             'sublimation_type' => 'required|string|max:50',
@@ -467,7 +472,7 @@ class OrderWizardController extends Controller
             'fabric_type' => 'required|string|max:50',
             'fabric_custom' => 'nullable|string|max:120',
             'fabric_color' => 'nullable|string|max:50',
-            'model_type' => 'required|string|in:BASICA,BABYLOOK,INFANTIL',
+            'model_type' => ['required', 'string', Rule::in($allowedModels)],
             'base_collar' => 'nullable|string|max:50',
             'fabric_surcharge' => 'nullable|numeric|min:0',
             'has_addon_colors' => 'nullable|boolean',
@@ -617,6 +622,41 @@ class OrderWizardController extends Controller
         }
 
         return redirect()->route('orders.wizard.customization');
+    }
+
+    /**
+     * Resolve a lista de modelos permitidos para um tipo SUB. TOTAL.
+     *
+     * Quando o tipo não tem modelos configurados, usa os padrões do sistema.
+     */
+    private function getAllowedSublimationModels(?string $typeSlug): array
+    {
+        $tenantId = Auth::user()?->tenant_id;
+
+        $type = \App\Models\SublimationProductType::query()
+            ->where('slug', $typeSlug)
+            ->where(function ($query) use ($tenantId) {
+                $query->whereNull('tenant_id')
+                    ->orWhere('tenant_id', $tenantId);
+            })
+            ->first();
+
+        $models = collect($type?->models ?? [])
+            ->map(function ($model) {
+                $model = trim((string) $model);
+
+                return function_exists('mb_strtoupper')
+                    ? mb_strtoupper($model, 'UTF-8')
+                    : strtoupper($model);
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        return !empty($models)
+            ? $models
+            : ['BASICA', 'BABYLOOK', 'INFANTIL'];
     }
 
     public function customization(Request $request)

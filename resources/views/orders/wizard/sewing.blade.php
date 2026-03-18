@@ -4141,6 +4141,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         startingPrice: 0,
         startingQuantityFrom: null,
         typeLabel: '',
+        models: [],
     };
     let fullpageSubCurrentStep = 1;
 
@@ -4337,6 +4338,24 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             .toUpperCase();
     }
 
+    function getFullpageAvailableModelOptions() {
+        const models = Array.isArray(fullpageSubTypeMeta?.models)
+            ? fullpageSubTypeMeta.models
+            : [];
+
+        const normalizedModels = Array.from(new Set(models
+            .map(model => String(model || '').trim().toUpperCase())
+            .filter(Boolean)));
+
+        return normalizedModels.length > 0
+            ? normalizedModels
+            : ['BASICA', 'BABYLOOK', 'INFANTIL'];
+    }
+
+    function normalizeFullpageModelValue(value) {
+        return normalizeFullpageLookupValue(value).replace(/[^A-Z0-9]/g, '');
+    }
+
     function parseFullpageItemPrintDesc(item) {
         if (!item) return {};
         if (item.print_desc && typeof item.print_desc === 'object') {
@@ -4403,15 +4422,27 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     }
 
     function resolveFullpageModelType(item, printDesc = parseFullpageItemPrintDesc(item)) {
-        const modelType = String(printDesc.model_type || '').toUpperCase();
-        if (['BASICA', 'BABYLOOK', 'INFANTIL'].includes(modelType)) {
-            return modelType;
+        const availableModels = getFullpageAvailableModelOptions();
+        const normalizedModels = availableModels.map(model => ({
+            value: model,
+            key: normalizeFullpageModelValue(model),
+        }));
+
+        const modelType = String(printDesc.model_type || '').trim();
+        if (modelType) {
+            const normalizedType = normalizeFullpageModelValue(modelType);
+            const matchedType = normalizedModels.find(model => model.key === normalizedType);
+            if (matchedType) return matchedType.value;
         }
 
-        const modelName = String(item?.model || '').toUpperCase();
-        if (modelName.includes('BABYLOOK')) return 'BABYLOOK';
-        if (modelName.includes('INFANTIL')) return 'INFANTIL';
-        if (modelName.includes('BASICA')) return 'BASICA';
+        const modelName = String(item?.model || '').trim();
+        if (modelName) {
+            const modelTail = modelName.includes(' - ') ? modelName.split(' - ').pop() : modelName;
+            const normalizedName = normalizeFullpageModelValue(modelTail);
+            const matchedName = normalizedModels.find(model => model.key === normalizedName);
+            if (matchedName) return matchedName.value;
+        }
+
         return '';
     }
 
@@ -4926,6 +4957,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 startingPrice: 0,
                 startingQuantityFrom: null,
                 typeLabel: '',
+                models: [],
             };
             populateFullpageFabricOptions();
             renderFullpageAddonColorFields();
@@ -4940,12 +4972,18 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             const response = await fetch(`/api/sublimation-total/addons/${typeSlug}`);
             payload = await response.json();
             const addons = Array.isArray(payload?.addons) ? payload.addons : (Array.isArray(payload?.data) ? payload.data : []);
+            const models = Array.isArray(payload?.models)
+                ? Array.from(new Set(payload.models
+                    .map(model => String(model || '').trim().toUpperCase())
+                    .filter(Boolean)))
+                : [];
             fullpageSubTypeMeta = {
                 defaultFabricName: payload?.default_fabric_name || '',
                 tecido_id: payload?.tecido_id ?? null,
                 startingPrice: parseFloat(payload?.starting_price || 0) || 0,
                 startingQuantityFrom: payload?.starting_quantity_from ?? null,
                 typeLabel: payload?.type_name || typeSlug,
+                models,
             };
             populateFullpageFabricOptions();
 
@@ -4978,6 +5016,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 startingPrice: 0,
                 startingQuantityFrom: null,
                 typeLabel: typeSlug,
+                models: [],
             };
             populateFullpageFabricOptions();
             container.innerHTML = '<p class="text-sm text-red-500 col-span-full text-center py-4">Erro ao carregar adicionais</p>';
@@ -4992,9 +5031,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const modelSelect = document.getElementById('fullpage_sub_model');
         if (modelSelect) {
             const currentVal = modelSelect.value;
-            const models = (payload && Array.isArray(payload.models) && payload.models.length > 0)
-                ? payload.models
-                : ['BASICA', 'BABYLOOK', 'INFANTIL']; // defaults
+            const models = getFullpageAvailableModelOptions();
 
             modelSelect.innerHTML = '<option value="">Selecione</option>';
             models.forEach(m => {
@@ -5328,6 +5365,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             startingPrice: 0,
             startingQuantityFrom: null,
             typeLabel: '',
+            models: [],
         };
 
         if (fabricTypeSelect) {
