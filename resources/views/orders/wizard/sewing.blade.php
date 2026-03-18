@@ -5118,7 +5118,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             typeSlug,
             fullpageSubMode === 'update' ? fullpageSubEditingItemId : null
         );
-        const pricingQty = totalQty;
+        const pricingQty = totalQty + groupedExistingQty;
 
         fullpageSubFabricSurcharge = getFullpageFabricSurcharge();
 

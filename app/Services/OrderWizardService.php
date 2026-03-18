@@ -1350,6 +1350,15 @@ class OrderWizardService
 
         $sublimationItems = $items->filter(fn (OrderItem $item) => $this->isGroupedSublimationTotalItem($item));
 
+        // Pre-calculate total quantity per sublimation type so all items in the same
+        // group use bulk pricing based on the combined order quantity (not individual qty).
+        $totalQtyPerType = [];
+        foreach ($sublimationItems as $item) {
+            $type = $this->resolveGroupedSublimationType($item);
+            if (!$type) continue;
+            $totalQtyPerType[$type] = ($totalQtyPerType[$type] ?? 0) + (int) $item->quantity;
+        }
+
         foreach ($sublimationItems as $item) {
             $type = $this->resolveGroupedSublimationType($item);
             if (!$type) {
@@ -1360,6 +1369,9 @@ class OrderWizardService
             if ($quantity <= 0) {
                 continue;
             }
+
+            // Use the combined quantity for the entire group for the price tier lookup
+            $pricingQty = $totalQtyPerType[$type] ?? $quantity;
 
             $printDesc = $this->decodeOrderItemPrintDesc($item);
             $tecidoId = $printDesc['tecido_id'] ?? null;
@@ -1377,10 +1389,10 @@ class OrderWizardService
                 $tecidoId = $productTypeObj?->tecido_id;
             }
 
-            $basePrice = \App\Models\SublimationProductPrice::getPriceFor($type, $quantity, $order->tenant_id, $tecidoId);
+            $basePrice = \App\Models\SublimationProductPrice::getPriceFor($type, $pricingQty, $order->tenant_id, $tecidoId);
             if ($basePrice === null) {
                 // Tenta buscar sem o tecido_id se não encontrou com ele (fallback para manter compatibilidade)
-                $basePrice = \App\Models\SublimationProductPrice::getPriceFor($type, $quantity, $order->tenant_id, null);
+                $basePrice = \App\Models\SublimationProductPrice::getPriceFor($type, $pricingQty, $order->tenant_id, null);
                 
                 if ($basePrice === null) {
                     continue;
