@@ -480,6 +480,68 @@
             </div>
         </aside>
 
+        {{-- ═══ Modelos disponíveis para este tipo ═══ --}}
+        <aside class="stp-panel rounded-[24px] xl:col-span-full">
+            <div class="border-b border-slate-300/10 px-6 py-5">
+                <p class="text-xs font-bold uppercase tracking-[0.24em] stp-muted">Modelos</p>
+                <h3 class="mt-2 text-xl font-semibold text-white">Modelos de {{ $typeLabel }}</h3>
+                <p class="mt-2 text-sm stp-muted">Modelos que aparecerao no dropdown do wizard para este tipo de produto.</p>
+            </div>
+
+            <div class="space-y-6 p-6">
+                <form method="POST" action="{{ route('admin.sublimation-products.models.update', $type) }}" id="models-form">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="space-y-3" id="models-list">
+                        @php $currentModels = $productType->models ?? []; @endphp
+                        @forelse($currentModels as $index => $model)
+                            <div class="flex items-center gap-3 rounded-[22px] stp-soft px-4 py-3" data-model-row>
+                                <input type="text" name="models[]" value="{{ $model }}" readonly
+                                       class="stp-field flex-1 rounded-2xl px-4 py-2.5 text-sm font-extrabold text-white uppercase">
+                                <button type="button" onclick="removeModelRow(this)"
+                                        class="inline-flex h-10 w-10 items-center justify-center rounded-full stp-danger-btn transition-colors flex-shrink-0"
+                                        title="Remover modelo">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        @empty
+                            <div id="models-empty" class="rounded-[22px] stp-soft px-4 py-8 text-center text-sm font-semibold stp-muted">
+                                Nenhum modelo cadastrado. Os modelos padrao (BASICA, BABYLOOK, INFANTIL) serao usados.
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <div class="border-t border-slate-300/10 pt-6 mt-6">
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input type="text" id="new-model-name" placeholder="Nome do modelo (ex: POLO)"
+                                   class="stp-field flex-1 rounded-2xl px-4 py-3 text-white uppercase"
+                                   onkeydown="if(event.key==='Enter'){event.preventDefault();addModelRow();}">
+                            <button type="button" onclick="addModelRow()"
+                                    class="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl stp-success px-5 text-sm font-bold text-white transition-colors">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <button type="submit"
+                                class="inline-flex w-full min-h-[48px] items-center justify-center gap-2 rounded-2xl stp-primary px-5 text-sm font-bold text-white transition-colors">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Salvar Modelos
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
+
         <div id="edit-addon-modal" class="stp-modal-backdrop hidden" onclick="if (event.target === this) closeEditAddonModal()">
             <div class="stp-modal-card overflow-hidden">
                 <div class="flex items-start justify-between gap-4 border-b border-slate-300/10 px-6 py-5">
@@ -772,5 +834,62 @@
     }
 
     document.addEventListener('ajax-content-loaded', window.__editTypeAjaxInitHandler);
+
+    // ══════ Models management ══════
+    window.addModelRow = function() {
+        const input = document.getElementById('new-model-name');
+        if (!input) return;
+        const name = input.value.trim().toUpperCase();
+        if (!name) { input.focus(); return; }
+
+        // Check duplicate
+        const existing = document.querySelectorAll('#models-list input[name="models[]"]');
+        for (const el of existing) {
+            if (el.value.toUpperCase() === name) {
+                alert('Este modelo já existe.');
+                input.focus();
+                return;
+            }
+        }
+
+        // Remove empty state
+        const emptyEl = document.getElementById('models-empty');
+        if (emptyEl) emptyEl.remove();
+
+        const list = document.getElementById('models-list');
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-3 rounded-[22px] stp-soft px-4 py-3';
+        row.setAttribute('data-model-row', '');
+        row.innerHTML = `
+            <input type="text" name="models[]" value="${name}" readonly
+                   class="stp-field flex-1 rounded-2xl px-4 py-2.5 text-sm font-extrabold text-white uppercase">
+            <button type="button" onclick="removeModelRow(this)"
+                    class="inline-flex h-10 w-10 items-center justify-center rounded-full stp-danger-btn transition-colors flex-shrink-0"
+                    title="Remover modelo">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        `;
+        list.appendChild(row);
+        input.value = '';
+        input.focus();
+    };
+
+    window.removeModelRow = function(button) {
+        const row = button.closest('[data-model-row]');
+        if (row) row.remove();
+
+        // Show empty state if no models left
+        const remaining = document.querySelectorAll('#models-list [data-model-row]');
+        if (remaining.length === 0) {
+            const list = document.getElementById('models-list');
+            const empty = document.createElement('div');
+            empty.id = 'models-empty';
+            empty.className = 'rounded-[22px] stp-soft px-4 py-8 text-center text-sm font-semibold stp-muted';
+            empty.textContent = 'Nenhum modelo cadastrado. Os modelos padrao (BASICA, BABYLOOK, INFANTIL) serao usados.';
+            list.appendChild(empty);
+        }
+    };
 </script>
 @endsection

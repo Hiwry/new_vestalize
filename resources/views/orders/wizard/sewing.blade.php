@@ -4935,9 +4935,10 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
         container.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center py-4"><i class="fa-solid fa-spinner animate-spin mr-2"></i>Carregando...</p>';
 
+        let payload = null;
         try {
             const response = await fetch(`/api/sublimation-total/addons/${typeSlug}`);
-            const payload = await response.json();
+            payload = await response.json();
             const addons = Array.isArray(payload?.addons) ? payload.addons : (Array.isArray(payload?.data) ? payload.data : []);
             fullpageSubTypeMeta = {
                 defaultFabricName: payload?.default_fabric_name || '',
@@ -4986,6 +4987,24 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         syncFullpageSpecialFabricPricing();
         renderFullpageAddonColorFields();
         calculateFullpageSubTotal();
+
+        // ── Populate model dropdown from API response ──
+        const modelSelect = document.getElementById('fullpage_sub_model');
+        if (modelSelect) {
+            const currentVal = modelSelect.value;
+            const models = (payload && Array.isArray(payload.models) && payload.models.length > 0)
+                ? payload.models
+                : ['BASICA', 'BABYLOOK', 'INFANTIL']; // defaults
+
+            modelSelect.innerHTML = '<option value="">Selecione</option>';
+            models.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = m;
+                if (m === currentVal) opt.selected = true;
+                modelSelect.appendChild(opt);
+            });
+        }
     }
     window.loadFullpageSubAddons = loadFullpageSubAddons;
 

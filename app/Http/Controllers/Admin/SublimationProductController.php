@@ -215,6 +215,34 @@ class SublimationProductController extends Controller
     }
 
     /**
+     * Atualizar modelos de um tipo de produto
+     */
+    public function updateModels(Request $request, string $type): RedirectResponse
+    {
+        $tenantId = auth()->user()->tenant_id;
+        $productType = $this->resolveProductTypeForTenant($type, $tenantId);
+
+        // Se o tenant não é dono do tipo, cria uma cópia para o tenant
+        if ($productType->tenant_id !== $tenantId) {
+            $productType = $productType->replicate();
+            $productType->tenant_id = $tenantId;
+            $productType->save();
+        }
+
+        $models = $request->input('models', []);
+        // Normalizar: uppercase e remover vazios
+        $models = array_values(array_filter(array_map(function ($m) {
+            return strtoupper(trim($m));
+        }, $models)));
+
+        $productType->update(['models' => $models]);
+
+        return redirect()
+            ->route('admin.sublimation-products.edit-type', $type)
+            ->with('success', 'Modelos atualizados com sucesso.');
+    }
+
+    /**
      * Adicionar addon para um tipo de produto
      */
     public function storeAddon(Request $request, string $type): RedirectResponse

@@ -516,6 +516,7 @@ Route::middleware('auth')->group(function () {
                     'type_name' => $productType?->name,
                     'default_fabric_name' => $productType?->tecido?->name,
                     'tecido_id' => $productType?->tecido_id,
+                    'models' => $productType?->models ?? [],
                     'starting_price' => $startingPriceRow ? (float) $startingPriceRow->price : 0,
                     'starting_quantity_from' => $startingPriceRow?->quantity_from,
                 ]);
@@ -897,6 +898,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         
         // Toggle habilitar/desabilitar SUB. TOTAL
         Route::post('/toggle-enabled', [\App\Http\Controllers\Admin\SublimationProductController::class, 'toggleEnabled'])->name('toggle-enabled');
+        
+        // Modelos por tipo
+        Route::put('/type/{type}/models', [\App\Http\Controllers\Admin\SublimationProductController::class, 'updateModels'])->name('models.update');
     });
 
     // Produtos Sublimação Local
