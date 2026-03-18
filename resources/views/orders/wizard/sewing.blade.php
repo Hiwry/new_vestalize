@@ -999,7 +999,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                 </div>
                                                 <div>
                                                     <label class="block text-xs font-semibold text-gray-600 dark:text-slate-300 mb-1">Gola Padrão</label>
-                                                    <input type="text" id="fullpage_sub_base_collar" value="REDONDA" readonly class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white text-sm">
+                                                    <select id="fullpage_sub_base_collar" class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400 focus:border-gray-400">
+                                                        <option value="REDONDA">REDONDA</option>
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
@@ -2889,6 +2891,19 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     window.selectWizardDetailColor = selectWizardDetailColor;
 
     function renderWizardGolas() {
+        if (wizardData.is_sublimation_total && wizardData.tipo_sublimacao_total) {
+            const typeSlug = wizardData.tipo_sublimacao_total.id;
+            const cache = sublimationAddonsCache[typeSlug];
+            if (cache && Array.isArray(cache.collars) && cache.collars.length > 0) {
+                const items = cache.collars.map(c => ({
+                    id: c,
+                    name: c,
+                    price: 0
+                }));
+                renderSelectableOptionCards('wizard-options-gola', items, wizardData.gola?.id, 'selectWizardGola');
+                return;
+            }
+        }
         console.log('VESTALIZE: Rendering Golas. Current Cut ID:', wizardData.tipo_corte?.id);
         const allGolas = getOptionList(['gola']);
         console.log('VESTALIZE: Total Gola options available:', allGolas.length);
@@ -2914,7 +2929,15 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     window.renderWizardGolas = renderWizardGolas;
 
     function selectWizardGola(id) {
-        const collar = getOptionList(['gola']).find(item => item.id == id);
+        let collar = getOptionList(['gola']).find(item => item.id == id);
+        
+        if (!collar && wizardData.is_sublimation_total && wizardData.tipo_sublimacao_total) {
+            const typeSlug = wizardData.tipo_sublimacao_total.id;
+            const cache = sublimationAddonsCache[typeSlug];
+            if (cache && Array.isArray(cache.collars) && cache.collars.includes(id)) {
+                collar = { id: id, name: id, price: 0 };
+            }
+        }
         if (!collar) return;
         wizardData.gola = { id: collar.id, name: collar.name, price: parseFloat(collar.price || 0) };
         updateWizardUI();
@@ -3748,7 +3771,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         }
         
         if (sublimationAddonsCache[typeSlug]) {
-            renderSublimationAddons(sublimationAddonsCache[typeSlug]);
+            renderSublimationAddons(sublimationAddonsCache[typeSlug].addons);
             return;
         }
         
@@ -3758,8 +3781,8 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             const response = await fetch(`/api/sublimation-total/addons/${typeSlug}`);
             const data = await response.json();
             if (data.success) {
-                sublimationAddonsCache[typeSlug] = data.data;
-                renderSublimationAddons(data.data);
+                sublimationAddonsCache[typeSlug] = { addons: data.data || [], models: data.models || [], collars: data.collars || [] };
+                renderSublimationAddons(sublimationAddonsCache[typeSlug].addons);
                 calculateSublimationPrice();
             } else {
                 container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Nenhum adicional</p>';
@@ -4958,6 +4981,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 startingQuantityFrom: null,
                 typeLabel: '',
                 models: [],
+                collars: [],
             };
             populateFullpageFabricOptions();
             renderFullpageAddonColorFields();
@@ -4984,6 +5008,11 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 startingQuantityFrom: payload?.starting_quantity_from ?? null,
                 typeLabel: payload?.type_name || typeSlug,
                 models,
+                collars: Array.isArray(payload?.collars)
+                    ? Array.from(new Set(payload.collars
+                        .map(collar => String(collar || '').trim().toUpperCase())
+                        .filter(Boolean)))
+                    : [],
             };
             populateFullpageFabricOptions();
 
@@ -5017,6 +5046,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 startingQuantityFrom: null,
                 typeLabel: typeSlug,
                 models: [],
+                collars: [],
             };
             populateFullpageFabricOptions();
             container.innerHTML = '<p class="text-sm text-red-500 col-span-full text-center py-4">Erro ao carregar adicionais</p>';
@@ -5027,11 +5057,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         renderFullpageAddonColorFields();
         calculateFullpageSubTotal();
 
-        // ── Populate model dropdown from API response ──
+        // ── Populate model and collar dropdowns from API response ──
         const modelSelect = document.getElementById('fullpage_sub_model');
+        const collarSelect = document.getElementById('fullpage_sub_base_collar');
+
         if (modelSelect) {
             const currentVal = modelSelect.value;
-            const models = getFullpageAvailableModelOptions();
+            const models = fullpageSubTypeMeta.models || [];
 
             modelSelect.innerHTML = '<option value="">Selecione</option>';
             models.forEach(m => {
@@ -5042,12 +5074,34 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 modelSelect.appendChild(opt);
             });
         }
+
+        if (collarSelect) {
+            const currentVal = collarSelect.value;
+            const collars = fullpageSubTypeMeta.collars || [];
+
+            collarSelect.innerHTML = '<option value="">Selecione</option>';
+            collars.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                if (c === currentVal) opt.selected = true;
+                collarSelect.appendChild(opt);
+            });
+            
+            // Fallback for default if empty
+            if (collarSelect.options.length <= 1) {
+                const opt = document.createElement('option');
+                opt.value = 'REDONDA';
+                opt.textContent = 'REDONDA';
+                if (currentVal === 'REDONDA') opt.selected = true;
+                collarSelect.appendChild(opt);
+            }
+        }
     }
     window.loadFullpageSubAddons = loadFullpageSubAddons;
 
     async function calculateFullpageSubTotal() {
         const typeSlug = document.getElementById('fullpage_sub_type')?.value;
-        const sizeInputs = document.querySelectorAll('.fullpage-sub-size');
         let totalQty = 0;
 
         sizeInputs.forEach(input => {

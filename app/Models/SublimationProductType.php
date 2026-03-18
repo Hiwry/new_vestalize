@@ -15,11 +15,13 @@ class SublimationProductType extends Model
         'active',
         'order',
         'models',
+        'collars',
     ];
 
     protected $casts = [
         'active' => 'boolean',
         'models' => 'array',
+        'collars' => 'array',
     ];
 
     /**

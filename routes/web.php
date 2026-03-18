@@ -517,6 +517,7 @@ Route::middleware('auth')->group(function () {
                     'default_fabric_name' => $productType?->tecido?->name,
                     'tecido_id' => $productType?->tecido_id,
                     'models' => $productType?->models ?? [],
+                    'collars' => $productType?->collars ?? [],
                     'starting_price' => $startingPriceRow ? (float) $startingPriceRow->price : 0,
                     'starting_quantity_from' => $startingPriceRow?->quantity_from,
                 ]);
@@ -901,6 +902,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         
         // Modelos por tipo
         Route::put('/type/{type}/models', [\App\Http\Controllers\Admin\SublimationProductController::class, 'updateModels'])->name('models.update');
+        
+        // Golas por tipo
+        Route::put('/type/{type}/collars', [\App\Http\Controllers\Admin\SublimationProductController::class, 'updateCollars'])->name('collars.update');
     });
 
     // Produtos Sublimação Local

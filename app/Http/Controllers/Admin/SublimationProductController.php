@@ -242,6 +242,31 @@ class SublimationProductController extends Controller
             ->with('success', 'Modelos atualizados com sucesso.');
     }
 
+    public function updateCollars(Request $request, string $type): RedirectResponse
+    {
+        $tenantId = auth()->user()->tenant_id;
+        $productType = $this->resolveProductTypeForTenant($type, $tenantId);
+
+        // Se o tenant não é dono do tipo, cria uma cópia para o tenant
+        if ($productType->tenant_id !== $tenantId) {
+            $productType = $productType->replicate();
+            $productType->tenant_id = $tenantId;
+            $productType->save();
+        }
+
+        $collars = $request->input('collars', []);
+        // Normalizar: uppercase e remover vazios
+        $collars = array_values(array_filter(array_map(function ($m) {
+            return strtoupper(trim($m));
+        }, $collars)));
+
+        $productType->update(['collars' => $collars]);
+
+        return redirect()
+            ->route('admin.sublimation-products.edit-type', $type)
+            ->with('success', 'Golas atualizadas com sucesso.');
+    }
+
     /**
      * Adicionar addon para um tipo de produto
      */

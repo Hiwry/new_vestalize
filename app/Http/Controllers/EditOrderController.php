@@ -15,11 +15,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Services\ImageProcessor;
+use App\Services\OrderWizardService;
+use Illuminate\Validation\Rule;
 
 class EditOrderController extends Controller
 {
-    public function __construct(private readonly ImageProcessor $imageProcessor)
-    {
+    public function __construct(
+        private readonly ImageProcessor $imageProcessor,
+        private readonly OrderWizardService $orderWizardService,
+    ) {
     }
 
     public function start($id)
@@ -1352,144 +1356,100 @@ class EditOrderController extends Controller
     private function addSublimationItem(Request $request)
     {
         try {
+            $allowedModels = $this->getAllowedSublimationModels((string) $request->input('sublimation_type'));
+
             $validated = $request->validate([
-                'sublimation_type' => 'required|string|max:50',
-                'model_type' => 'nullable|string|max:50',
-                'sublimation_addons' => 'nullable|array',
-                'sublimation_addons.*' => 'integer',
-                'art_name' => 'required|string|max:255',
-                'tamanhos' => 'required|array',
-                'quantity' => 'required|integer|min:1',
-                'unit_price' => 'required|numeric|min:0',
-                'unit_cost' => 'nullable|numeric|min:0',
-                'item_cover_image' => 'nullable|image|max:10240',
-                'corel_file' => 'nullable|file|max:51200',
-                'art_notes' => 'nullable|string|max:1000',
+                'sublimation_type'     => 'required|string|max:50',
+                'tecido_id'            => 'nullable|exists:tecidos,id',
+                'sublimation_addons'   => 'nullable|array',
+                'sublimation_addons.*' => 'integer|exists:sublimation_product_addons,id',
+                'art_name'             => 'required|string|max:255',
+                'fabric_type'          => 'required|string|max:50',
+                'fabric_custom'        => 'nullable|string|max:120',
+                'fabric_color'         => 'nullable|string|max:50',
+                'model_type'           => ['required', 'string', Rule::in($allowedModels)],
+                'base_collar'          => 'nullable|string|max:50',
+                'fabric_surcharge'     => 'nullable|numeric|min:0',
+                'has_addon_colors'     => 'nullable|boolean',
+                'addon_color_map'      => 'nullable|string',
+                'tamanhos'             => 'required|array',
+                'quantity'             => 'required|integer|min:1',
+                'unit_price'           => 'required|numeric|min:0',
+                'unit_cost'            => 'nullable|numeric|min:0',
+                'item_cover_image'     => 'nullable|image|max:10240',
+                'corel_file'           => 'nullable|file|max:51200',
+                'art_notes'            => 'nullable|string|max:1000',
             ]);
 
             $orderId = session('edit_order_id');
-            $order = Order::with('items')->findOrFail($orderId);
+            $order   = Order::with('items')->findOrFail($orderId);
             $editData = session('edit_order_data', []);
 
-            // Processar upload da imagem de capa
             $coverImagePath = null;
             if ($request->hasFile('item_cover_image')) {
                 $coverImagePath = $this->imageProcessor->processAndStore(
                     $request->file('item_cover_image'),
                     'orders/items/covers',
-                    [
-                        'max_width' => 1200,
-                        'max_height' => 1200,
-                        'quality' => 85,
-                    ]
+                    ['max_width' => 1200, 'max_height' => 1200, 'quality' => 85]
                 );
             }
 
-            // Processar upload do arquivo Corel
             $corelFilePath = null;
             if ($request->hasFile('corel_file')) {
-                $corelFile = $request->file('corel_file');
-                $fileName = time() . '_' . uniqid() . '_' . $corelFile->getClientOriginalName();
+                $corelFile     = $request->file('corel_file');
+                $fileName      = time() . '_' . uniqid() . '_' . $corelFile->getClientOriginalName();
                 $corelFilePath = $corelFile->storeAs('orders/corel_files', $fileName, 'public');
             }
 
-            // Buscar tipo para label e tecido padrão
-            $typeModel = \App\Models\SublimationProductType::with('tecido')->where('slug', $validated['sublimation_type'])->first();
-            $typeLabel = $typeModel ? $typeModel->name : $validated['sublimation_type'];
-            $fabricName = ($typeModel && $typeModel->tecido) ? $typeModel->tecido->name : ('SUB. TOTAL - ' . $typeLabel);
+            $item = $this->orderWizardService->processAddSublimationItem($order, $validated, $coverImagePath, $corelFilePath);
 
-            // Buscar adicionais selecionados para descrição
-            $addonsLabel = '';
-            if (!empty($validated['sublimation_addons'])) {
-                $addons = \App\Models\SublimationProductAddon::whereIn('id', $validated['sublimation_addons'])->pluck('name');
-                $addonsLabel = $addons->join(', ');
-            }
+            $order->refresh();
+            $order->load('items');
 
-            $modelType = trim((string) ($validated['model_type'] ?? ''));
-            $modelType = function_exists('mb_strtoupper')
-                ? mb_strtoupper($modelType, 'UTF-8')
-                : strtoupper($modelType);
-            $modelLabel = $modelType !== ''
-                ? trim($typeLabel . ' - ' . $modelType, ' -')
-                : $typeLabel;
-
-            $itemNumber = $order->items()->count() + 1;
-
-            // Criar item SUB. TOTAL no banco
-            $item = new OrderItem([
-                'order_id' => $orderId,
-                'item_number' => $itemNumber,
-                'fabric' => $fabricName,
-                'color' => 'Branco',
-                'collar' => $addonsLabel ?: '-',
-                'model' => $modelLabel,
-                'detail' => null,
-                'print_type' => 'SUB. TOTAL',
-                'art_name' => $validated['art_name'],
-                'sizes' => $validated['tamanhos'],
-                'quantity' => $validated['quantity'],
-                'unit_price' => $validated['unit_price'],
-                'total_price' => $validated['unit_price'] * $validated['quantity'],
-                'unit_cost' => $validated['unit_cost'] ?? 0,
-                'total_cost' => ($validated['unit_cost'] ?? 0) * $validated['quantity'],
-                'cover_image' => $coverImagePath,
-                'corel_file_path' => $corelFilePath,
-                'art_notes' => $validated['art_notes'] ?? null,
-                'is_sublimation_total' => true,
-                'sublimation_type' => $validated['sublimation_type'],
-                'sublimation_addons' => $validated['sublimation_addons'] ?? [],
-                'print_desc' => json_encode([
-                    'is_sublimation_total' => true,
-                    'type' => $validated['sublimation_type'],
-                    'type_label' => $typeLabel,
-                    'model_type' => $modelType ?: null,
-                ]),
-            ]);
-            $order->items()->save($item);
-            $item->refresh();
-
-            // Atualizar totais do pedido
-            $order->update([
-                'subtotal' => $order->items()->sum('total_price'),
-                'total_items' => $order->items()->sum('quantity'),
-            ]);
-
-            // Adicionar na sessão de edição
-            $newItem = [
-                'id' => $item->id,
+            // Sync edit session data
+            $editData['items'][] = [
+                'id'          => $item->id,
                 'item_number' => $item->item_number,
-                'fabric' => $item->fabric,
-                'color' => $item->color,
-                'collar' => $item->collar,
-                'model' => $item->model,
-                'detail' => $item->detail,
-                'print_type' => $item->print_type,
-                'print_desc' => $item->print_type,
-                'art_name' => $item->art_name,
-                'sizes' => $validated['tamanhos'],
-                'quantity' => $item->quantity,
-                'unit_price' => $item->unit_price,
+                'fabric'      => $item->fabric,
+                'color'       => $item->color,
+                'collar'      => $item->collar,
+                'model'       => $item->model,
+                'detail'      => $item->detail,
+                'print_type'  => $item->print_type,
+                'print_desc'  => $item->print_desc,
+                'art_name'    => $item->art_name,
+                'sizes'       => $item->sizes,
+                'quantity'    => $item->quantity,
+                'unit_price'  => $item->unit_price,
                 'total_price' => $item->total_price,
-                'unit_cost' => $item->unit_cost,
-                'total_cost' => $item->total_cost,
-                'art_notes' => $item->art_notes,
+                'unit_cost'   => $item->unit_cost,
+                'total_cost'  => $item->total_cost,
+                'art_notes'   => $item->art_notes,
                 'cover_image' => $item->cover_image,
             ];
-
-            $editData['items'][] = $newItem;
             session(['edit_order_data' => $editData]);
 
             if ($request->wantsJson()) {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Item SUB. TOTAL #' . $itemNumber . ' adicionado!',
-                    'items_count' => count($editData['items'])
+                    'success'    => true,
+                    'message'    => 'Item SUB. TOTAL #' . $item->item_number . ' adicionado!',
+                    'html'       => view('orders.wizard.partials.items_sidebar', compact('order'))->render(),
+                    'items_data' => $order->items->toArray(),
                 ]);
             }
 
-            return redirect()->back()->with('success', 'Item SUB. TOTAL #' . $itemNumber . ' adicionado!');
+            return redirect()->back()->with('success', 'Item SUB. TOTAL #' . $item->item_number . ' adicionado!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error adding sublimation item', ['errors' => $e->errors()]);
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Erro de validação', 'errors' => $e->errors()], 422);
+            }
+            throw $e;
         } catch (\Exception $e) {
             Log::error('Error adding sublimation item: ' . $e->getMessage());
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Erro ao adicionar item: ' . $e->getMessage()], 500);
+            }
             return redirect()->back()->with('error', 'Erro ao adicionar item de sublimação: ' . $e->getMessage());
         }
     }
@@ -1501,7 +1461,14 @@ class EditOrderController extends Controller
             'action' => $request->input('action'),
             'all_inputs' => $request->except(['_token'])
         ]);
-        
+
+        // Delegate sublimation items to dedicated handler
+        $editingItemId = $request->input('editing_item_id');
+        $checkItem = $editingItemId ? OrderItem::find($editingItemId) : null;
+        if ($checkItem && $checkItem->is_sublimation_total) {
+            return $this->updateSublimationItem($request, $checkItem);
+        }
+
         try {
             $validated = $request->validate([
                 'editing_item_id' => 'required|string',
@@ -1693,6 +1660,151 @@ class EditOrderController extends Controller
             }
             return redirect()->back()->with('error', 'Erro ao atualizar item: ' . $e->getMessage());
         }
+    }
+
+    private function updateSublimationItem(Request $request, OrderItem $item)
+    {
+        try {
+            $allowedModels = $this->getAllowedSublimationModels((string) $request->input('sublimation_type'));
+
+            $validated = $request->validate([
+                'editing_item_id'   => 'required|exists:order_items,id',
+                'sublimation_type'  => 'required|string|max:50',
+                'tecido_id'         => 'nullable|exists:tecidos,id',
+                'sublimation_addons'   => 'nullable|array',
+                'sublimation_addons.*' => 'integer|exists:sublimation_product_addons,id',
+                'art_name'          => 'required|string|max:255',
+                'fabric_type'       => 'required|string|max:50',
+                'fabric_custom'     => 'nullable|string|max:120',
+                'fabric_color'      => 'nullable|string|max:50',
+                'model_type'        => ['required', 'string', Rule::in($allowedModels)],
+                'base_collar'       => 'nullable|string|max:50',
+                'fabric_surcharge'  => 'nullable|numeric|min:0',
+                'has_addon_colors'  => 'nullable|boolean',
+                'addon_color_map'   => 'nullable|string',
+                'tamanhos'          => 'required|array',
+                'quantity'          => 'required|integer|min:1',
+                'unit_price'        => 'required|numeric|min:0',
+                'unit_cost'         => 'nullable|numeric|min:0',
+                'item_cover_image'  => 'nullable|image|max:10240',
+                'corel_file'        => 'nullable|file|max:51200',
+                'existing_cover_image' => 'nullable|string',
+                'existing_corel_file'  => 'nullable|string',
+                'art_notes'         => 'nullable|string|max:1000',
+            ]);
+
+            $coverImagePath = filled($validated['existing_cover_image'] ?? null)
+                ? $validated['existing_cover_image']
+                : $item->cover_image;
+
+            if ($request->hasFile('item_cover_image')) {
+                $newPath = $this->imageProcessor->processAndStore(
+                    $request->file('item_cover_image'),
+                    'orders/items/covers',
+                    ['max_width' => 1200, 'max_height' => 1200, 'quality' => 85]
+                );
+                if ($newPath) {
+                    if ($coverImagePath) {
+                        $this->imageProcessor->delete($coverImagePath);
+                    }
+                    $coverImagePath = $newPath;
+                }
+            }
+
+            $corelFilePath = filled($validated['existing_corel_file'] ?? null)
+                ? $validated['existing_corel_file']
+                : $item->corel_file_path;
+
+            if ($request->hasFile('corel_file')) {
+                $corelFile  = $request->file('corel_file');
+                $fileName   = time() . '_' . uniqid() . '_' . $corelFile->getClientOriginalName();
+                $newCorelPath = $corelFile->storeAs('orders/corel_files', $fileName, 'public');
+                if ($newCorelPath) {
+                    if ($corelFilePath && $corelFilePath !== $newCorelPath) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($corelFilePath);
+                    }
+                    $corelFilePath = $newCorelPath;
+                }
+            }
+
+            $this->orderWizardService->processUpdateSublimationItem($item, $validated, $coverImagePath, $corelFilePath);
+
+            $order = Order::with('items')->findOrFail(session('edit_order_id'));
+
+            // Sync edit session data
+            $editData = session('edit_order_data', []);
+            foreach ($editData['items'] as &$sessionItem) {
+                if ($sessionItem['id'] == $item->id) {
+                    $item->refresh();
+                    $sessionItem = array_merge($sessionItem, [
+                        'fabric'      => $item->fabric,
+                        'color'       => $item->color,
+                        'collar'      => $item->collar,
+                        'model'       => $item->model,
+                        'detail'      => $item->detail,
+                        'art_name'    => $item->art_name,
+                        'sizes'       => $item->sizes,
+                        'quantity'    => $item->quantity,
+                        'unit_price'  => $item->unit_price,
+                        'total_price' => $item->total_price,
+                        'unit_cost'   => $item->unit_cost,
+                        'total_cost'  => $item->total_cost,
+                        'art_notes'   => $item->art_notes,
+                        'cover_image' => $item->cover_image,
+                        'print_desc'  => $item->print_desc,
+                    ]);
+                    break;
+                }
+            }
+            unset($sessionItem);
+            session(['edit_order_data' => $editData]);
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success'    => true,
+                    'message'    => 'Item SUB. TOTAL atualizado com sucesso!',
+                    'html'       => view('orders.wizard.partials.items_sidebar', compact('order'))->render(),
+                    'items_data' => $order->items->toArray(),
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Item SUB. TOTAL atualizado com sucesso!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error updating sublimation item', ['errors' => $e->errors()]);
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Erro de validação', 'errors' => $e->errors()], 422);
+            }
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('Error updating sublimation item: ' . $e->getMessage());
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Erro ao atualizar item: ' . $e->getMessage()], 500);
+            }
+            return redirect()->back()->with('error', 'Erro ao atualizar item: ' . $e->getMessage());
+        }
+    }
+
+    private function getAllowedSublimationModels(?string $typeSlug): array
+    {
+        $tenantId = Auth::user()?->tenant_id;
+
+        $type = \App\Models\SublimationProductType::query()
+            ->where('slug', $typeSlug)
+            ->where(function ($query) use ($tenantId) {
+                $query->whereNull('tenant_id')
+                    ->orWhere('tenant_id', $tenantId);
+            })
+            ->first();
+
+        $models = collect($type?->models ?? [])
+            ->map(fn($m) => mb_strtoupper(trim((string) $m), 'UTF-8'))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        return !empty($models) ? $models : ['BASICA', 'BABYLOOK', 'INFANTIL'];
     }
 
     private function deleteItem(Request $request)

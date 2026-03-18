@@ -541,6 +541,68 @@
                 </form>
             </div>
         </aside>
+        
+        {{-- ═══ Golas disponíveis para este tipo ═══ --}}
+        <aside class="stp-panel rounded-[24px] xl:col-span-full mt-6">
+            <div class="border-b border-slate-300/10 px-6 py-5">
+                <p class="text-xs font-bold uppercase tracking-[0.24em] stp-muted">Golas</p>
+                <h3 class="mt-2 text-xl font-semibold text-white">Golas de {{ $typeLabel }}</h3>
+                <p class="mt-2 text-sm stp-muted">Opções de gola que aparecerão no dropdown do wizard para este tipo de produto.</p>
+            </div>
+
+            <div class="space-y-6 p-6">
+                <form method="POST" action="{{ route('admin.sublimation-products.collars.update', $type) }}" id="collars-form">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="space-y-3" id="collars-list">
+                        @php $currentCollars = $productType->collars ?? []; @endphp
+                        @forelse($currentCollars as $index => $collar)
+                            <div class="flex items-center gap-3 rounded-[22px] stp-soft px-4 py-3" data-collar-row>
+                                <input type="text" name="collars[]" value="{{ $collar }}" readonly
+                                       class="stp-field flex-1 rounded-2xl px-4 py-2.5 text-sm font-extrabold text-white uppercase">
+                                <button type="button" onclick="removeCollarRow(this)"
+                                        class="inline-flex h-10 w-10 items-center justify-center rounded-full stp-danger-btn transition-colors flex-shrink-0"
+                                        title="Remover gola">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        @empty
+                            <div id="collars-empty" class="rounded-[22px] stp-soft px-4 py-8 text-center text-sm font-semibold stp-muted">
+                                Nenhuma gola cadastrada. As golas padrão serão usadas.
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <div class="border-t border-slate-300/10 pt-6 mt-6">
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input type="text" id="new-collar-name" placeholder="Nome da gola (ex: CARECA, V, POLO)"
+                                   class="stp-field flex-1 rounded-2xl px-4 py-3 text-white uppercase"
+                                   onkeydown="if(event.key==='Enter'){event.preventDefault();addCollarRow();}">
+                            <button type="button" onclick="addCollarRow()"
+                                    class="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl stp-success px-5 text-sm font-bold text-white transition-colors">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <button type="submit"
+                                class="inline-flex w-full min-h-[48px] items-center justify-center gap-2 rounded-2xl stp-primary px-5 text-sm font-bold text-white transition-colors">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Salvar Golas
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
 
         <div id="edit-addon-modal" class="stp-modal-backdrop hidden" onclick="if (event.target === this) closeEditAddonModal()">
             <div class="stp-modal-card overflow-hidden">
@@ -888,6 +950,63 @@
             empty.id = 'models-empty';
             empty.className = 'rounded-[22px] stp-soft px-4 py-8 text-center text-sm font-semibold stp-muted';
             empty.textContent = 'Nenhum modelo cadastrado. Os modelos padrao (BASICA, BABYLOOK, INFANTIL) serao usados.';
+            list.appendChild(empty);
+        }
+    };
+
+    // ══════ Collars management ══════
+    window.addCollarRow = function() {
+        const input = document.getElementById('new-collar-name');
+        if (!input) return;
+        const name = input.value.trim().toUpperCase();
+        if (!name) { input.focus(); return; }
+
+        // Check duplicate
+        const existing = document.querySelectorAll('#collars-list input[name="collars[]"]');
+        for (const el of existing) {
+            if (el.value.toUpperCase() === name) {
+                alert('Esta gola já existe.');
+                input.focus();
+                return;
+            }
+        }
+
+        // Remove empty state
+        const emptyEl = document.getElementById('collars-empty');
+        if (emptyEl) emptyEl.remove();
+
+        const list = document.getElementById('collars-list');
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-3 rounded-[22px] stp-soft px-4 py-3';
+        row.setAttribute('data-collar-row', '');
+        row.innerHTML = `
+            <input type="text" name="collars[]" value="${name}" readonly
+                   class="stp-field flex-1 rounded-2xl px-4 py-2.5 text-sm font-extrabold text-white uppercase">
+            <button type="button" onclick="removeCollarRow(this)"
+                    class="inline-flex h-10 w-10 items-center justify-center rounded-full stp-danger-btn transition-colors flex-shrink-0"
+                    title="Remover gola">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        `;
+        list.appendChild(row);
+        input.value = '';
+        input.focus();
+    };
+
+    window.removeCollarRow = function(button) {
+        const row = button.closest('[data-collar-row]');
+        if (row) row.remove();
+
+        // Show empty state if no collars left
+        const remaining = document.querySelectorAll('#collars-list [data-collar-row]');
+        if (remaining.length === 0) {
+            const list = document.getElementById('collars-list');
+            const empty = document.createElement('div');
+            empty.id = 'collars-empty';
+            empty.className = 'rounded-[22px] stp-soft px-4 py-8 text-center text-sm font-semibold stp-muted';
+            empty.textContent = 'Nenhuma gola cadastrada. As golas padrão serão usadas.';
             list.appendChild(empty);
         }
     };
