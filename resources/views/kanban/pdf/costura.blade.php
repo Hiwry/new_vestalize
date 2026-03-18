@@ -144,8 +144,42 @@
                         <div class="box" style="margin-bottom: 5px;">
                             <div class="box-title" style="color: #ef4444;">Detalhes</div>
                             @if($item->collar_color)<div style="font-size: 11px; color: #0369a1; margin-bottom: 2px;">• Gola: {{ $item->collar_color }}</div>@endif
-                            @if($item->detail_color)<div style="font-size: 11px; color: #0369a1; margin-bottom: 2px;">• Detalhe: {{ $item->detail_color }}</div>@endif
-                            
+
+                            @php
+                                // Montar lista de detalhes com cores individuais quando disponível
+                                $printDescParsed = is_array($item->print_desc) ? $item->print_desc : json_decode($item->print_desc, true);
+                                $wizardIds = $printDescParsed['wizard_ids'] ?? [];
+                                $detalheIds = $wizardIds['detalhe'] ?? [];
+                                $detailColorMap = $wizardIds['detail_color_map'] ?? [];
+                                $individualColors = !empty($wizardIds['individual_detail_colors']);
+
+                                $detalheDisplay = [];
+                                if (!empty($detalheIds)) {
+                                    $detalheOptions = \App\Models\ProductOption::whereIn('id', $detalheIds)->get()->keyBy('id');
+                                    foreach ($detalheIds as $did) {
+                                        $dName = $detalheOptions[$did]->name ?? null;
+                                        if (!$dName) continue;
+                                        if ($individualColors && isset($detailColorMap[$did])) {
+                                            $colorOpt = \App\Models\ProductOption::find($detailColorMap[$did]);
+                                            $dColor = $colorOpt ? $colorOpt->name : ($item->detail_color ?? '-');
+                                        } else {
+                                            $dColor = $item->detail_color ?? '-';
+                                        }
+                                        $detalheDisplay[] = ['name' => $dName, 'color' => $dColor];
+                                    }
+                                } elseif ($item->detail) {
+                                    foreach (array_filter(explode(', ', $item->detail)) as $dName) {
+                                        $detalheDisplay[] = ['name' => trim($dName), 'color' => $item->detail_color ?? '-'];
+                                    }
+                                }
+                            @endphp
+                            @foreach($detalheDisplay as $d)
+                                <div style="font-size: 11px; color: #0369a1; margin-bottom: 2px;">• {{ $d['name'] }}: {{ $d['color'] }}</div>
+                            @endforeach
+                            @if(empty($detalheDisplay) && $item->detail_color)
+                                <div style="font-size: 11px; color: #0369a1; margin-bottom: 2px;">• Detalhe: {{ $item->detail_color }}</div>
+                            @endif
+
                             @php
                                 $sublimationAddons = is_array($item->sublimation_addons) ? $item->sublimation_addons : json_decode($item->sublimation_addons, true);
                             @endphp
@@ -155,7 +189,7 @@
                                     <div style="font-size: 9px; color: #991b1b; background: #fee2e2; padding: 2px; border-radius: 3px; margin-bottom: 2px;">+ {{ $name }}</div>
                                 @endforeach
                             @endif
-                            @if(!$item->collar_color && !$item->detail_color && !$sublimationAddons)
+                            @if(!$item->collar_color && empty($detalheDisplay) && !$item->detail_color && !$sublimationAddons)
                                 <div style="color: #cbd5e1; font-size: 9px; text-align: center;">Nenhum detalhe extra</div>
                             @endif
                         </div>
