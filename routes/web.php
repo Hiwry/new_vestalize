@@ -484,6 +484,10 @@ Route::middleware('auth')->group(function () {
                     ->where(function($q) use ($tenantId) {
                         $q->whereNull('tenant_id')->orWhere('tenant_id', $tenantId);
                     })
+                    ->orderByRaw(
+                        'CASE WHEN tenant_id = ? THEN 0 WHEN tenant_id IS NULL THEN 1 ELSE 2 END',
+                        [$tenantId]
+                    )
                     ->first();
 
                 $tecidoIdForStarting = $productType?->tecido_id;
