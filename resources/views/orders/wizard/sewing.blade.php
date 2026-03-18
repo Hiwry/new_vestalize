@@ -4167,6 +4167,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         models: [],
     };
     let fullpageSubCurrentStep = 1;
+    let fullpageSubTotalRequestId = 0;
 
     function getFullpageSubmitIdleHtml() {
         if (fullpageSubMode === 'update') {
@@ -5101,12 +5102,17 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     window.loadFullpageSubAddons = loadFullpageSubAddons;
 
     async function calculateFullpageSubTotal() {
-        const typeSlug = document.getElementById('fullpage_sub_type')?.value;
-        const sizeInputs = document.querySelectorAll('.fullpage-sub-size');
-        let totalQty = 0;
+        const requestId = ++fullpageSubTotalRequestId;
 
-        sizeInputs.forEach(input => {
-            totalQty += parseInt(input.value, 10) || 0;
+        const typeSlug = document.getElementById('fullpage_sub_type')?.value;
+
+        // Snapshot sizes BEFORE any await so both qty and surcharge loops use the same values
+        const sizeSnapshot = [];
+        let totalQty = 0;
+        document.querySelectorAll('.fullpage-sub-size').forEach(input => {
+            const qty = parseInt(input.value, 10) || 0;
+            sizeSnapshot.push({ size: input.dataset.size, qty });
+            totalQty += qty;
         });
 
         const qtyEl = document.getElementById('fullpage-total-qty');
@@ -5148,14 +5154,15 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             }
         }
 
+        // Discard this result if a newer calculation was started while we were awaiting
+        if (requestId !== fullpageSubTotalRequestId) return;
+
         fullpageSubUnitPrice = fullpageSubBaseUnitPrice + fullpageSubAddonsAdjustment + fullpageSubFabricSurcharge;
         if (fullpageSubUnitPrice < 0) fullpageSubUnitPrice = 0;
 
-        // Calcular acréscimos por tamanho (igual ao backend calculateItemTotalPrice)
+        // Calcular acréscimos por tamanho usando o snapshot capturado antes do await
         let totalSizeSurcharge = 0;
-        sizeInputs.forEach(input => {
-            const qty = parseInt(input.value, 10) || 0;
-            const size = input.dataset.size;
+        sizeSnapshot.forEach(({ size, qty }) => {
             if (qty > 0 && size) {
                 totalSizeSurcharge += getFullpageSizeSurcharge(size, fullpageSubUnitPrice) * qty;
             }
