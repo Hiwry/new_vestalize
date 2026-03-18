@@ -222,11 +222,18 @@ class SublimationProductController extends Controller
         $tenantId = auth()->user()->tenant_id;
         $productType = $this->resolveProductTypeForTenant($type, $tenantId);
 
-        // Se o tenant não é dono do tipo, cria uma cópia para o tenant
+        // Se o tenant não é dono do tipo, cria ou busca uma cópia para o tenant
         if ($productType->tenant_id !== $tenantId) {
-            $productType = $productType->replicate();
-            $productType->tenant_id = $tenantId;
-            $productType->save();
+            $existing = SublimationProductType::where('slug', $type)
+                ->where('tenant_id', $tenantId)
+                ->first();
+            if ($existing) {
+                $productType = $existing;
+            } else {
+                $productType = $productType->replicate();
+                $productType->tenant_id = $tenantId;
+                $productType->save();
+            }
         }
 
         $models = $request->input('models', []);
@@ -247,11 +254,18 @@ class SublimationProductController extends Controller
         $tenantId = auth()->user()->tenant_id;
         $productType = $this->resolveProductTypeForTenant($type, $tenantId);
 
-        // Se o tenant não é dono do tipo, cria uma cópia para o tenant
+        // Se o tenant não é dono do tipo, cria ou busca uma cópia para o tenant
         if ($productType->tenant_id !== $tenantId) {
-            $productType = $productType->replicate();
-            $productType->tenant_id = $tenantId;
-            $productType->save();
+            $existing = SublimationProductType::where('slug', $type)
+                ->where('tenant_id', $tenantId)
+                ->first();
+            if ($existing) {
+                $productType = $existing;
+            } else {
+                $productType = $productType->replicate();
+                $productType->tenant_id = $tenantId;
+                $productType->save();
+            }
         }
 
         $collars = $request->input('collars', []);
