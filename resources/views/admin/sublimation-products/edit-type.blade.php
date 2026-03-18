@@ -592,7 +592,7 @@
                     </div>
 
                     <div class="mt-5">
-                        <button type="submit"
+                        <button type="button" onclick="submitCollarsForm()"
                                 class="inline-flex w-full min-h-[48px] items-center justify-center gap-2 rounded-2xl stp-primary px-5 text-sm font-bold text-white transition-colors">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -1009,6 +1009,15 @@
             empty.textContent = 'Nenhuma gola cadastrada. As golas padrão serão usadas.';
             list.appendChild(empty);
         }
+    };
+
+    window.submitCollarsForm = function() {
+        // Auto-adiciona o que estiver digitado no input antes de submeter
+        const input = document.getElementById('new-collar-name');
+        if (input && input.value.trim()) {
+            addCollarRow();
+        }
+        document.getElementById('collars-form').submit();
     };
 </script>
 @endsection
