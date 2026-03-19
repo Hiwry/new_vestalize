@@ -107,6 +107,29 @@
     html.dark .stp-modal-copy strong { color: #ffffff !important; }
     .stp-link-disabled { opacity: .45; pointer-events: none; }
     .stp-table-wrap { background: var(--stp-soft-bg) !important; }
+    /* Toggle switch para acrescimo GG/EXG */
+    .stp-toggle-wrap { display: inline-flex; align-items: center; cursor: pointer; flex-shrink: 0; }
+    .stp-toggle-track {
+        position: relative;
+        width: 56px;
+        height: 28px;
+        background-color: #475569;
+        border-radius: 9999px;
+        transition: background-color 0.25s;
+        cursor: pointer;
+    }
+    .stp-toggle-thumb {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 20px;
+        height: 20px;
+        background-color: #ffffff;
+        border-radius: 9999px;
+        transition: transform 0.25s;
+    }
+    #apply_size_surcharge:checked + .stp-toggle-track { background-color: #7c3aed; }
+    #apply_size_surcharge:checked + .stp-toggle-track .stp-toggle-thumb { transform: translateX(28px); }
     .stp-page-shell,
     .stp-page-shell h1,
     .stp-page-shell h2,
@@ -353,13 +376,14 @@
                             <h4 class="text-lg font-semibold text-white">Cobrar acréscimo GG / EXG automaticamente</h4>
                             <p class="text-sm stp-muted">Quando ativado, o sistema calcula e adiciona os acréscimos de tamanho no resumo do pedido. Desative se os acréscimos já estão incluídos como itens de corte separados.</p>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                        <label class="stp-toggle-wrap">
                             <input type="hidden" name="apply_size_surcharge" value="0">
                             <input type="checkbox" name="apply_size_surcharge" value="1" id="apply_size_surcharge"
-                                class="sr-only peer"
+                                style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;"
                                 {{ ($productType->apply_size_surcharge ?? true) ? 'checked' : '' }}>
-                            <div class="w-14 h-7 bg-slate-600 peer-checked:bg-[#7c3aed] rounded-full transition-colors duration-200 peer-focus:outline-none"></div>
-                            <div class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-7"></div>
+                            <div class="stp-toggle-track">
+                                <div class="stp-toggle-thumb"></div>
+                            </div>
                         </label>
                     </div>
                 </section>
