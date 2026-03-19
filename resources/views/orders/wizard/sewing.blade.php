@@ -3028,39 +3028,63 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
          if(!container) return;
          
          let items = getOptionList(['cor']);
-         const tecidoId = wizardData.tecido ? wizardData.tecido.id : null;
-         const tipoTecidoId = wizardData.tipo_tecido ? wizardData.tipo_tecido.id : null;
+         const tecidoId = wizardData.tecido ? wizardData.tecido.id.toString() : null;
+         const tipoTecidoId = wizardData.tipo_tecido ? wizardData.tipo_tecido.id.toString() : null;
+         const allTipoTecidos = getOptionList(['tipo_tecido']);
 
-         // Include all tipo_tecido IDs that are children of the selected tecido so that
-         // colors linked to any subtype of the fabric are shown, not just the single
-         // tipo_tecido the user may (or may not) have picked yet.
-         const allTipoTecidoForFabric = tecidoId
-             ? filterByParent(getOptionList(['tipo_tecido']), tecidoId).map(t => t.id.toString())
+         // Find tipo_tecido options that are direct children of the selected tecido.
+         // filterByParent already handles the case where tipo_tecido items have no parent
+         // set (returns them for any fabric), so we intersect by matching parent_ids.
+         const tipoTecidoForFabric = tecidoId
+             ? allTipoTecidos.filter(t =>
+                 Array.isArray(t.parent_ids)
+                     ? t.parent_ids.some(pid => pid.toString() === tecidoId)
+                     : (t.parent_id != null && t.parent_id.toString() === tecidoId)
+               ).map(t => t.id.toString())
              : [];
 
+         // If the DB has no explicit tipo_tecido→tecido links, fall back to ALL
+         // tipo_tecido IDs so that colors are not erroneously hidden.
+         const effectiveTipoTecidoIds = tipoTecidoForFabric.length > 0
+             ? tipoTecidoForFabric
+             : allTipoTecidos.map(t => t.id.toString());
+
+         // Build allowed parent ID set:
+         // personalizacao IDs + tecido ID + (specific tipo_tecido if chosen, else all)
          const allowedParentIds = [
-             ...(selectedPersonalizacoes || []),
-             ...(tecidoId ? [tecidoId.toString()] : []),
-             ...(tipoTecidoId ? [tipoTecidoId.toString()] : []),
-             ...allTipoTecidoForFabric
-         ].filter((v, i, a) => a.indexOf(v) === i); // deduplicate
-         
+             ...(selectedPersonalizacoes || []).map(id => id.toString()),
+             ...(tecidoId ? [tecidoId] : []),
+             ...(tipoTecidoId ? [tipoTecidoId] : effectiveTipoTecidoIds),
+         ].filter((v, i, a) => a.indexOf(v) === i);
+
+         console.log('[VESTALIZE] loadWizardCores | tecidoId:', tecidoId,
+             '| tipoTecidoId:', tipoTecidoId,
+             '| tipoTecidoForFabric:', tipoTecidoForFabric,
+             '| effectiveTipoTecidoIds:', effectiveTipoTecidoIds,
+             '| allowedParentIds:', allowedParentIds,
+             '| allCores:', items.map(c => ({id: c.id, name: c.name, parent_ids: c.parent_ids})));
+
          if (allowedParentIds.length > 0) {
             items = items.filter(cor => {
                 if (!cor.parent_ids || cor.parent_ids.length === 0) return true;
                 return cor.parent_ids.some(pid => allowedParentIds.includes(pid.toString()));
             });
          }
-         
-         // Filter to only Branco (white) if sublimation personalization is selected
+
+         console.log('[VESTALIZE] cores após filtro:', items.map(c => c.name));
+
+         // Filter to only Branco (white) if sublimation personalization is selected.
+         // Use a narrow match to avoid false positives from other option names.
          const personalizacaoOptions = getOptionList(['personalizacao']);
          const selectedPersonalizacoesNames = (selectedPersonalizacoes || []).map(id => {
              const p = personalizacaoOptions.find(opt => opt.id.toString() === id.toString());
              return p ? p.name.toUpperCase() : '';
          });
-         
-         const isSublimacaoSelected = selectedPersonalizacoesNames.some(name => 
-             name.includes('SUB') || name.includes('SUBLIMACAO') || name.includes('SUBLIMAÇÃO')
+
+         const isSublimacaoSelected = selectedPersonalizacoesNames.some(name =>
+             name === 'SUBLIMAÇÃO' || name === 'SUBLIMACAO' ||
+             name.startsWith('SUBLIM') ||
+             name.includes('SUBLIMAÇÃO') || name.includes('SUBLIMACAO')
          );
          
          if (isSublimacaoSelected) {
