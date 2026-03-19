@@ -321,10 +321,10 @@
     .orders-ft .orders-ft-scroll-top {
         overflow-x: auto;
         overflow-y: hidden;
-        height: 12px;
+        height: 20px;
         border-radius: 999px;
         background: color-mix(in srgb, var(--of-table-head) 70%, transparent);
-        scrollbar-width: thin;
+        scrollbar-width: auto;
         scrollbar-color: #7c3aed color-mix(in srgb, var(--of-table-head) 70%, transparent);
     }
 
@@ -334,7 +334,7 @@
     }
 
     .orders-ft .orders-ft-scroll-top::-webkit-scrollbar {
-        height: 10px;
+        height: 18px;
     }
 
     .orders-ft .orders-ft-scroll-top::-webkit-scrollbar-track {
@@ -1259,10 +1259,22 @@
     }
 
     // Inicializar event listeners quando o DOM estiver pronto
-    document.addEventListener('DOMContentLoaded', function() {
+    // Suporta tanto carregamento normal quanto navegação AJAX (DOMContentLoaded já disparou)
+    function _setupOrdersScroll() {
         initOrdersHorizontalScroll();
-        setTimeout(initOrdersHorizontalScroll, 120);
+        setTimeout(initOrdersHorizontalScroll, 150);
+        setTimeout(initOrdersHorizontalScroll, 400);
+        setTimeout(initOrdersHorizontalScroll, 800);
         window.addEventListener('resize', initOrdersHorizontalScroll);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', _setupOrdersScroll);
+    } else {
+        _setupOrdersScroll();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
 
         // Fechar modais ao clicar fora deles
         const cancellationModalEl = document.getElementById('cancellationModal');
