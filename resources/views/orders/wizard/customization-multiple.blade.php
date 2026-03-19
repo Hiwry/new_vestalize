@@ -2625,6 +2625,15 @@
             if (quantityField) {
                 quantity = parseInt(quantityField.value) || 1;
             }
+
+            // Se houver itens vinculados, usar a quantidade total para determinar a faixa de preço
+            let quantityForPriceTier = quantity;
+            const linkedChecked = document.querySelectorAll('.link-item-checkbox:checked');
+            if (linkedChecked.length > 1) {
+                let totalLinkedQty = 0;
+                linkedChecked.forEach(cb => { totalLinkedQty += itemQuantitiesMap[cb.value] || 0; });
+                if (totalLinkedQty > 0) quantityForPriceTier = totalLinkedQty;
+            }
             
             if (persType === 'SUB TOTAL') {
                 if (!persType || quantity === 0) {
@@ -2658,7 +2667,7 @@
             
             try {
                 const sizeForApi = persTypeRaw === 'SUB. TOTAL' ? 'CACHARREL' : size;
-                const apiUrl = `/api/personalization-prices/price?type=${apiType}&size=${encodeURIComponent(sizeForApi)}&quantity=${quantity}`;
+                const apiUrl = `/api/personalization-prices/price?type=${apiType}&size=${encodeURIComponent(sizeForApi)}&quantity=${quantityForPriceTier}`;
                 
                 const response = await fetch(apiUrl, {
                     headers: {
@@ -2719,7 +2728,7 @@
                             try {
                                 if (apiType === 'SERIGRAFIA') {
                                     // SERIGRAFIA: Use PersonalizationPrice API
-                                    const colorPriceUrl = `/api/personalization-prices/price?type=${apiType}&size=COR&quantity=${quantity}`;
+                                    const colorPriceUrl = `/api/personalization-prices/price?type=${apiType}&size=COR&quantity=${quantityForPriceTier}`;
                                     const colorResp = await fetch(colorPriceUrl, { headers: { 'Accept': 'application/json' } });
                                     const colorData = await colorResp.json();
                                     
@@ -2779,7 +2788,9 @@
                     const total = unitPrice * qty;
                     
                     let formulaText = `R$ ${unitPrice.toFixed(2).replace('.', ',')} × ${qty} ${qty === 1 ? 'peça' : 'peças'}`;
-                    
+                    if (quantityForPriceTier !== qty) {
+                        formulaText += ` (faixa calculada sobre ${quantityForPriceTier} peças no total)`;
+                    }
                     
                     document.getElementById('unitPrice').textContent = `R$ ${unitPrice.toFixed(2).replace('.', ',')}`;
                     document.getElementById('totalPrice').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
