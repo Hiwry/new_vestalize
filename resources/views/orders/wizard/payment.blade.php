@@ -497,13 +497,19 @@
     window.sizeSurcharges = {};
     window.orderItems = @json($order->items);
     window.itemPriceOverrides = {}; // id -> { unit_price, total_price }
-    // Mapa de tipos de produto SUB. TOTAL: slug -> array de modelos com acréscimo desativado
-    window.sublimationTypeSurcharges = @json(
-        \App\Models\SublimationProductType::query()
-            ->where(function($q) { $q->whereNull('tenant_id')->orWhere('tenant_id', auth()->user()->tenant_id ?? 0); })
+    @php
+        $tenantId = auth()->user()->tenant_id ?? 0;
+        $sublimationTypeSurcharges = \App\Models\SublimationProductType::query()
+            ->where(function($q) use ($tenantId) {
+                $q->whereNull('tenant_id')->orWhere('tenant_id', $tenantId);
+            })
             ->get(['slug', 'models_surcharge_disabled'])
-            ->mapWithKeys(fn($t) => [$t->slug => array_map('strtoupper', $t->models_surcharge_disabled ?? [])])
-    );
+            ->mapWithKeys(function($t) {
+                return [$t->slug => array_map('strtoupper', $t->models_surcharge_disabled ?? [])];
+            });
+    @endphp
+    // Mapa de tipos de produto SUB. TOTAL: slug -> array de modelos com acréscimo desativado
+    window.sublimationTypeSurcharges = @json($sublimationTypeSurcharges);
     window.discountType = 'none';
     window.discountValue = 0;
 
