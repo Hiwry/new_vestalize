@@ -369,24 +369,37 @@
                 </section>
 
                 {{-- Acréscimo GG/EXG toggle --}}
-                <section class="rounded-[24px] stp-soft p-5">
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="space-y-1">
-                            <p class="text-xs font-bold uppercase tracking-[0.24em] stp-muted">Acréscimo de Tamanho</p>
-                            <h4 class="text-lg font-semibold text-white">Cobrar acréscimo GG / EXG automaticamente</h4>
-                            <p class="text-sm stp-muted">Quando ativado, o sistema calcula e adiciona os acréscimos de tamanho no resumo do pedido. Desative se os acréscimos já estão incluídos como itens de corte separados.</p>
+                <section style="background:var(--stp-soft-bg);border:1px solid var(--stp-card-border);border-radius:24px;padding:20px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+                        <div>
+                            <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.24em;color:var(--stp-text-secondary);margin:0 0 4px;">Acréscimo de Tamanho</p>
+                            <h4 style="font-size:18px;font-weight:600;margin:0 0 6px;">Cobrar acréscimo GG / EXG automaticamente</h4>
+                            <p style="font-size:13px;color:var(--stp-text-secondary);margin:0;">Quando ativado, o sistema calcula e adiciona os acréscimos de tamanho GG/EXG no resumo do pedido. Desative se esses valores já estão incluídos nos itens de corte.</p>
                         </div>
-                        <label class="stp-toggle-wrap">
+                        <div style="flex-shrink:0;">
                             <input type="hidden" name="apply_size_surcharge" value="0">
                             <input type="checkbox" name="apply_size_surcharge" value="1" id="apply_size_surcharge"
                                 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;"
                                 {{ ($productType->apply_size_surcharge ?? true) ? 'checked' : '' }}>
-                            <div class="stp-toggle-track">
-                                <div class="stp-toggle-thumb"></div>
+                            <div id="surcharge-toggle-track"
+                                onclick="toggleSurcharge()"
+                                style="width:56px;height:28px;border-radius:9999px;cursor:pointer;position:relative;transition:background-color 0.25s;background-color:{{ ($productType->apply_size_surcharge ?? true) ? '#7c3aed' : '#475569' }};">
+                                <div id="surcharge-toggle-thumb"
+                                    style="position:absolute;top:4px;width:20px;height:20px;background-color:#ffffff;border-radius:9999px;transition:left 0.25s;left:{{ ($productType->apply_size_surcharge ?? true) ? '32px' : '4px' }};"></div>
                             </div>
-                        </label>
+                        </div>
                     </div>
                 </section>
+                <script>
+                function toggleSurcharge() {
+                    var cb = document.getElementById('apply_size_surcharge');
+                    var track = document.getElementById('surcharge-toggle-track');
+                    var thumb = document.getElementById('surcharge-toggle-thumb');
+                    cb.checked = !cb.checked;
+                    track.style.backgroundColor = cb.checked ? '#7c3aed' : '#475569';
+                    thumb.style.left = cb.checked ? '32px' : '4px';
+                }
+                </script>
 
                 <section class="rounded-[24px] stp-soft p-5 space-y-5">
                     <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
