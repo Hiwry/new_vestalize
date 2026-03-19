@@ -56,6 +56,13 @@
         return doc.querySelector('title')?.textContent || document.title;
     }
 
+    // Função para extrair styles do <head> da página carregada
+    function extractPageHeadStyles(html) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        return Array.from(doc.querySelectorAll('head style')).map(s => s.textContent);
+    }
+
     // Função para atualizar o estado ativo dos links da sidebar
     function updateActiveLink(url) {
         const sidebarLinks = document.querySelectorAll('#sidebar nav a');
@@ -189,6 +196,18 @@
             // Remover scripts do tempDiv antes de mover (para não duplicar)
             tempDiv.querySelectorAll('script').forEach(script => script.remove());
             
+            // Remover styles anteriores injetados via AJAX (de página anterior)
+            document.querySelectorAll('style[data-ajax-page-style]').forEach(s => s.remove());
+
+            // Injetar styles do <head> da nova página (ex: @push('styles'))
+            const pageHeadStyles = extractPageHeadStyles(html);
+            pageHeadStyles.forEach(styleText => {
+                const styleEl = document.createElement('style');
+                styleEl.setAttribute('data-ajax-page-style', 'true');
+                styleEl.textContent = styleText;
+                document.head.appendChild(styleEl);
+            });
+
             // Limpar o conteúdo atual
             mainContent.innerHTML = '';
             
