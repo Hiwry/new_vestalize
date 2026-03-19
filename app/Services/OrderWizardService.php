@@ -1115,20 +1115,11 @@ class OrderWizardService
     }
 
     /**
-     * Calcula o preço total do item considerando acréscimos por tamanho
+     * Calcula o preço total do item (sem acréscimos de tamanho, que são calculados separadamente na etapa de pagamento)
      */
     private function calculateItemTotalPrice(float $basePrice, int $totalQuantity, array $tamanhos): float
     {
-        $totalSurcharge = 0;
-        foreach ($tamanhos as $size => $quantity) {
-            if ($quantity > 0) {
-                $surchargeModel = \App\Models\SizeSurcharge::getSurchargeForSize($size, $basePrice);
-                if ($surchargeModel) {
-                    $totalSurcharge += $surchargeModel->surcharge * $quantity;
-                }
-            }
-        }
-        return ($basePrice * $totalQuantity) + $totalSurcharge;
+        return (float)($basePrice * $totalQuantity);
     }
 
     private function buildSelectedFabricPiece(array $validated): ?array
