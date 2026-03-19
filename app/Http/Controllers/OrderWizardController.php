@@ -266,8 +266,7 @@ class OrderWizardController extends Controller
             'tipo_tecido' => 'nullable|exists:product_options,id',
             'cor' => 'required|exists:product_options,id',
             'tipo_corte' => 'required|exists:product_options,id',
-            'detalhe' => 'nullable|array',
-            'detalhe.*' => 'exists:product_options,id',
+            'detalhe' => 'nullable',
             'gola' => 'nullable|exists:product_options,id',
             'tamanhos' => 'required|array',
             'quantity' => 'required|integer|min:1',
@@ -286,6 +285,15 @@ class OrderWizardController extends Controller
             'is_client_modeling' => 'nullable|boolean',
             'existing_cover_image' => 'nullable|string'
         ]);
+
+        // Normalize detalhe: may arrive as array (old form) or comma-separated string (wizard)
+        if (!empty($validated['detalhe'])) {
+            $validated['detalhe'] = is_array($validated['detalhe'])
+                ? $validated['detalhe']
+                : array_filter(array_map('trim', explode(',', $validated['detalhe'])));
+        } else {
+            $validated['detalhe'] = [];
+        }
 
         $order = Order::with('items')->findOrFail(session('current_order_id'));
 
@@ -403,8 +411,7 @@ class OrderWizardController extends Controller
             'tipo_tecido' => 'nullable|exists:product_options,id',
             'cor' => 'required|exists:product_options,id',
             'tipo_corte' => 'required|exists:product_options,id',
-            'detalhe' => 'nullable|array',
-            'detalhe.*' => 'exists:product_options,id',
+            'detalhe' => 'nullable',
             'gola' => 'nullable|exists:product_options,id',
             'tamanhos' => 'required|array',
             'quantity' => 'required|integer|min:1',
@@ -423,6 +430,15 @@ class OrderWizardController extends Controller
             'is_client_modeling' => 'nullable|boolean',
             'existing_cover_image' => 'nullable|string'
         ]);
+
+        // Normalize detalhe: may arrive as array (old form) or comma-separated string (wizard)
+        if (!empty($validated['detalhe'])) {
+            $validated['detalhe'] = is_array($validated['detalhe'])
+                ? $validated['detalhe']
+                : array_filter(array_map('trim', explode(',', $validated['detalhe'])));
+        } else {
+            $validated['detalhe'] = [];
+        }
 
         $coverImagePath = $item->cover_image;
         if ($request->hasFile('item_cover_image')) {
