@@ -526,9 +526,9 @@
                             <div class="flex items-center gap-3 rounded-[22px] stp-soft px-4 py-3" data-model-row>
                                 <input type="text" name="models[]" value="{{ $model }}" readonly
                                        class="stp-field flex-1 rounded-2xl px-4 py-2.5 text-sm font-extrabold text-white uppercase">
-                                {{-- Toggle acréscimo GG/EXG por modelo --}}
+                                {{-- Toggle acréscimo GG+ por modelo --}}
                                 <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-                                    <span style="font-size:11px;font-weight:600;color:var(--stp-text-secondary);white-space:nowrap;">GG/EXG</span>
+                                    <span style="font-size:11px;font-weight:600;color:var(--stp-text-secondary);white-space:nowrap;">GG/EXG/G1/G2/G3/Esp</span>
                                     @if(!$isDisabled)
                                         <input type="hidden" name="models_surcharge_disabled[]" value="" class="surcharge-disabled-input" disabled>
                                     @else
@@ -968,7 +968,7 @@
             <input type="text" name="models[]" value="${name}" readonly
                    class="stp-field flex-1 rounded-2xl px-4 py-2.5 text-sm font-extrabold text-white uppercase">
             <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-                <span style="font-size:11px;font-weight:600;color:var(--stp-text-secondary);white-space:nowrap;">GG/EXG</span>
+                <span style="font-size:11px;font-weight:600;color:var(--stp-text-secondary);white-space:nowrap;">GG/EXG/G1/G2/G3/Esp</span>
                 <input type="hidden" name="models_surcharge_disabled[]" value="" class="surcharge-disabled-input" disabled>
                 <div onclick="toggleModelSurcharge(this)"
                     data-model="${name}"
