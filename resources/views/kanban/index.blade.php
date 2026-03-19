@@ -566,8 +566,7 @@
                     
                     <div class="flex items-end gap-3">
                         <button type="submit" formaction="{{ route('production.pdf') }}" formtarget="_blank"
-                                class="flex-1 py-3.5 bg-white/80 dark:bg-slate-800/80 text-gray-600 dark:text-slate-300 rounded-xl hover:bg-white dark:hover:bg-slate-700 transition font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-gray-100 dark:border-white/5 shadow-sm">
-                            <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                                class="flex-1 py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:shadow-lg hover:shadow-purple-600/30 hover:scale-[1.02] active:scale-95 transition font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm">
                             Exportar PDF
                         </button>
                         @if($search || request('personalization_type') || request('start_date') || request('end_date'))
