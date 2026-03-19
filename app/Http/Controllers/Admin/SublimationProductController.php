@@ -244,7 +244,16 @@ class SublimationProductController extends Controller
             return strtoupper(trim($m));
         }, $models)));
 
-        $productType->update(['models' => $models]);
+        // Modelos com acréscimo desativado
+        $surchargeDisabled = $request->input('models_surcharge_disabled', []);
+        $surchargeDisabled = array_values(array_filter(array_map(function ($m) {
+            return strtoupper(trim($m));
+        }, $surchargeDisabled)));
+
+        $productType->update([
+            'models' => $models,
+            'models_surcharge_disabled' => $surchargeDisabled,
+        ]);
 
         return redirect()
             ->route('admin.sublimation-products.edit-type', $type)

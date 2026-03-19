@@ -16,6 +16,7 @@ class SublimationProductType extends Model
         'apply_size_surcharge',
         'order',
         'models',
+        'models_surcharge_disabled',
         'collars',
     ];
 
@@ -23,6 +24,7 @@ class SublimationProductType extends Model
         'active' => 'boolean',
         'apply_size_surcharge' => 'boolean',
         'models' => 'array',
+        'models_surcharge_disabled' => 'array',
         'collars' => 'array',
     ];
 

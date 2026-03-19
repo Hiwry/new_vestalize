@@ -368,39 +368,6 @@
                     </a>
                 </section>
 
-                {{-- Acréscimo GG/EXG toggle --}}
-                <section style="background:var(--stp-soft-bg);border:1px solid var(--stp-card-border);border-radius:24px;padding:20px;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
-                        <div>
-                            <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.24em;color:var(--stp-text-secondary);margin:0 0 4px;">Acréscimo de Tamanho</p>
-                            <h4 style="font-size:18px;font-weight:600;margin:0 0 6px;">Cobrar acréscimo GG / EXG automaticamente</h4>
-                            <p style="font-size:13px;color:var(--stp-text-secondary);margin:0;">Quando ativado, o sistema calcula e adiciona os acréscimos de tamanho GG/EXG no resumo do pedido. Desative se esses valores já estão incluídos nos itens de corte.</p>
-                        </div>
-                        <div style="flex-shrink:0;">
-                            <input type="hidden" name="apply_size_surcharge" value="0">
-                            <input type="checkbox" name="apply_size_surcharge" value="1" id="apply_size_surcharge"
-                                style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;"
-                                {{ ($productType->apply_size_surcharge ?? true) ? 'checked' : '' }}>
-                            <div id="surcharge-toggle-track"
-                                onclick="toggleSurcharge()"
-                                style="width:56px;height:28px;border-radius:9999px;cursor:pointer;position:relative;transition:background-color 0.25s;background-color:{{ ($productType->apply_size_surcharge ?? true) ? '#7c3aed' : '#475569' }};">
-                                <div id="surcharge-toggle-thumb"
-                                    style="position:absolute;top:4px;width:20px;height:20px;background-color:#ffffff;border-radius:9999px;transition:left 0.25s;left:{{ ($productType->apply_size_surcharge ?? true) ? '32px' : '4px' }};"></div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <script>
-                function toggleSurcharge() {
-                    var cb = document.getElementById('apply_size_surcharge');
-                    var track = document.getElementById('surcharge-toggle-track');
-                    var thumb = document.getElementById('surcharge-toggle-thumb');
-                    cb.checked = !cb.checked;
-                    track.style.backgroundColor = cb.checked ? '#7c3aed' : '#475569';
-                    thumb.style.left = cb.checked ? '32px' : '4px';
-                }
-                </script>
-
                 <section class="rounded-[24px] stp-soft p-5 space-y-5">
                     <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                         <div class="space-y-1">
@@ -550,11 +517,30 @@
                     @method('PUT')
 
                     <div class="space-y-3" id="models-list">
-                        @php $currentModels = $productType->models ?? []; @endphp
+                        @php 
+                            $currentModels = $productType->models ?? [];
+                            $surchargeDisabled = array_map('strtoupper', $productType->models_surcharge_disabled ?? []);
+                        @endphp
                         @forelse($currentModels as $index => $model)
+                            @php $isDisabled = in_array(strtoupper($model), $surchargeDisabled); @endphp
                             <div class="flex items-center gap-3 rounded-[22px] stp-soft px-4 py-3" data-model-row>
                                 <input type="text" name="models[]" value="{{ $model }}" readonly
                                        class="stp-field flex-1 rounded-2xl px-4 py-2.5 text-sm font-extrabold text-white uppercase">
+                                {{-- Toggle acréscimo GG/EXG por modelo --}}
+                                <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                                    <span style="font-size:11px;font-weight:600;color:var(--stp-text-secondary);white-space:nowrap;">GG/EXG</span>
+                                    @if(!$isDisabled)
+                                        <input type="hidden" name="models_surcharge_disabled[]" value="" class="surcharge-disabled-input" disabled>
+                                    @else
+                                        <input type="hidden" name="models_surcharge_disabled[]" value="{{ $model }}" class="surcharge-disabled-input">
+                                    @endif
+                                    <div onclick="toggleModelSurcharge(this)"
+                                        data-model="{{ $model }}"
+                                        data-enabled="{{ $isDisabled ? '0' : '1' }}"
+                                        style="width:44px;height:24px;border-radius:9999px;cursor:pointer;position:relative;transition:background-color 0.2s;background-color:{{ $isDisabled ? '#475569' : '#7c3aed' }};flex-shrink:0;">
+                                        <div style="position:absolute;top:3px;width:18px;height:18px;background:#fff;border-radius:9999px;transition:left 0.2s;left:{{ $isDisabled ? '3px' : '23px' }};"></div>
+                                    </div>
+                                </div>
                                 <button type="button" onclick="removeModelRow(this)"
                                         class="inline-flex h-10 w-10 items-center justify-center rounded-full stp-danger-btn transition-colors flex-shrink-0"
                                         title="Remover modelo">
@@ -981,6 +967,16 @@
         row.innerHTML = `
             <input type="text" name="models[]" value="${name}" readonly
                    class="stp-field flex-1 rounded-2xl px-4 py-2.5 text-sm font-extrabold text-white uppercase">
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                <span style="font-size:11px;font-weight:600;color:var(--stp-text-secondary);white-space:nowrap;">GG/EXG</span>
+                <input type="hidden" name="models_surcharge_disabled[]" value="" class="surcharge-disabled-input" disabled>
+                <div onclick="toggleModelSurcharge(this)"
+                    data-model="${name}"
+                    data-enabled="1"
+                    style="width:44px;height:24px;border-radius:9999px;cursor:pointer;position:relative;transition:background-color 0.2s;background-color:#7c3aed;flex-shrink:0;">
+                    <div style="position:absolute;top:3px;width:18px;height:18px;background:#fff;border-radius:9999px;transition:left 0.2s;left:23px;"></div>
+                </div>
+            </div>
             <button type="button" onclick="removeModelRow(this)"
                     class="inline-flex h-10 w-10 items-center justify-center rounded-full stp-danger-btn transition-colors flex-shrink-0"
                     title="Remover modelo">
@@ -992,6 +988,30 @@
         list.appendChild(row);
         input.value = '';
         input.focus();
+    };
+
+    window.toggleModelSurcharge = function(trackEl) {
+        const isEnabled = trackEl.getAttribute('data-enabled') === '1';
+        const newEnabled = !isEnabled;
+        const modelName = trackEl.getAttribute('data-model');
+        const thumb = trackEl.querySelector('div');
+        const hiddenInput = trackEl.closest('[data-model-row]').querySelector('.surcharge-disabled-input');
+
+        trackEl.setAttribute('data-enabled', newEnabled ? '1' : '0');
+        trackEl.style.backgroundColor = newEnabled ? '#7c3aed' : '#475569';
+        if (thumb) thumb.style.left = newEnabled ? '23px' : '3px';
+
+        if (hiddenInput) {
+            if (newEnabled) {
+                // surcharge enabled: disabled input (not submitted)
+                hiddenInput.value = '';
+                hiddenInput.disabled = true;
+            } else {
+                // surcharge disabled: submit model name in the disabled list
+                hiddenInput.value = modelName;
+                hiddenInput.disabled = false;
+            }
+        }
     };
 
     window.removeModelRow = function(button) {
