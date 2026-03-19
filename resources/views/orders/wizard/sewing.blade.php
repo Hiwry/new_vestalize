@@ -3030,11 +3030,20 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
          let items = getOptionList(['cor']);
          const tecidoId = wizardData.tecido ? wizardData.tecido.id : null;
          const tipoTecidoId = wizardData.tipo_tecido ? wizardData.tipo_tecido.id : null;
+
+         // Include all tipo_tecido IDs that are children of the selected tecido so that
+         // colors linked to any subtype of the fabric are shown, not just the single
+         // tipo_tecido the user may (or may not) have picked yet.
+         const allTipoTecidoForFabric = tecidoId
+             ? filterByParent(getOptionList(['tipo_tecido']), tecidoId).map(t => t.id.toString())
+             : [];
+
          const allowedParentIds = [
              ...(selectedPersonalizacoes || []),
-             ...(tecidoId ? [tecidoId] : []),
-             ...(tipoTecidoId ? [tipoTecidoId] : [])
-         ].map(id => id.toString());
+             ...(tecidoId ? [tecidoId.toString()] : []),
+             ...(tipoTecidoId ? [tipoTecidoId.toString()] : []),
+             ...allTipoTecidoForFabric
+         ].filter((v, i, a) => a.indexOf(v) === i); // deduplicate
          
          if (allowedParentIds.length > 0) {
             items = items.filter(cor => {
