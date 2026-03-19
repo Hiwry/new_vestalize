@@ -1915,11 +1915,15 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
             const actionUrl = form.dataset.actionUrl || form.getAttribute('action');
             
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
+                || document.querySelector('input[name="_token"]')?.value
+                || '';
             const response = await fetch(actionUrl, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken
                 },
                 body: formData
             });
@@ -1927,7 +1931,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             if (!response.ok) {
                 const text = await response.text();
                 console.error('Erro HTTP na submissão:', response.status, text);
-                alert('Erro ao salvar item: ' + (response.statusText || 'erro HTTP'));
+                if (response.status === 419) {
+                    if (confirm('Sua sessão expirou. A página será recarregada para você tentar novamente.')) {
+                        location.reload();
+                    }
+                } else {
+                    alert('Erro ao salvar item: ' + (response.statusText || 'Erro HTTP ' + response.status));
+                }
                 return;
             }
 
