@@ -128,9 +128,17 @@
                                      <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
                                          Aprovado
                                      </span>
-                         @else
+                                @elseif($editRequest->status === 'completed')
+                                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
+                                         Concluído
+                                     </span>
+                                @elseif($editRequest->status === 'rejected')
                                      <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300">
                                          Rejeitado
+                                     </span>
+                                 @else
+                                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
+                                         {{ $editRequest->status }}
                                      </span>
                                  @endif
                              </td>

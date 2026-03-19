@@ -497,6 +497,13 @@
     window.sizeSurcharges = {};
     window.orderItems = @json($order->items);
     window.itemPriceOverrides = {}; // id -> { unit_price, total_price }
+    // Mapa de tipos de produto SUB. TOTAL: slug -> apply_size_surcharge
+    window.sublimationTypeSurcharges = @json(
+        \App\Models\SublimationProductType::query()
+            ->where(function($q) { $q->whereNull('tenant_id')->orWhere('tenant_id', auth()->user()->tenant_id ?? 0); })
+            ->get(['slug', 'apply_size_surcharge'])
+            ->mapWithKeys(fn($t) => [$t->slug => (bool)($t->apply_size_surcharge ?? true)])
+    );
     window.discountType = 'none';
     window.discountValue = 0;
 
@@ -644,9 +651,20 @@
             } catch (e) { return false; }
         };
 
+        // Check if this item's sublimation product type has GG/EXG surcharge enabled
+        const typeAllowsSurcharge = (item) => {
+            const typeSlug = item.sublimation_type;
+            if (!typeSlug) return true; // items sem tipo sublimação: aplicar normalmente
+            if (window.sublimationTypeSurcharges && typeSlug in window.sublimationTypeSurcharges) {
+                return window.sublimationTypeSurcharges[typeSlug];
+            }
+            return true; // default: aplicar
+        };
+
         let sizeQuantities = {};
         window.orderItems.forEach(item => {
             if (isRestricted(item) && !shouldApplySurcharge(item)) return;
+            if (!typeAllowsSurcharge(item)) return; // tipo sublimação sem acréscimo GG/EXG
             const sizes = typeof item.sizes === 'string' ? JSON.parse(item.sizes) : item.sizes;
             if (sizes) {
                 Object.entries(sizes).forEach(([size, qty]) => {

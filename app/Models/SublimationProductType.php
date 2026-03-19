@@ -13,6 +13,7 @@ class SublimationProductType extends Model
         'slug',
         'name',
         'active',
+        'apply_size_surcharge',
         'order',
         'models',
         'collars',
@@ -20,6 +21,7 @@ class SublimationProductType extends Model
 
     protected $casts = [
         'active' => 'boolean',
+        'apply_size_surcharge' => 'boolean',
         'models' => 'array',
         'collars' => 'array',
     ];

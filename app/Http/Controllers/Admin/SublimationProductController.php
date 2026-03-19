@@ -153,6 +153,7 @@ class SublimationProductController extends Controller
         $tenantId = auth()->user()->tenant_id;
         $validated = $request->validate([
             'tecido_id' => 'required|exists:tecidos,id',
+            'apply_size_surcharge' => 'nullable|boolean',
             'prices' => 'nullable|array',
             'prices.*.id' => 'nullable|integer',
             'prices.*.quantity_from' => 'nullable|integer|min:1',
@@ -163,6 +164,7 @@ class SublimationProductController extends Controller
         $productType = $this->resolveProductTypeForTenant($type, $tenantId);
         $productType->update([
             'tecido_id' => $validated['tecido_id'],
+            'apply_size_surcharge' => $request->boolean('apply_size_surcharge', true),
         ]);
 
         SublimationProductPrice::where('tenant_id', $tenantId)
