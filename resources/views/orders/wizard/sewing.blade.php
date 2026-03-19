@@ -2750,7 +2750,39 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const container = document.getElementById('wizard-options-detalhe');
         if (!container) return;
 
-        const items = filterByParent(getOptionList(['detalhe']), wizardData.tipo_corte?.id || null);
+        const allDetalhes = getOptionList(['detalhe']);
+        const tipoCorteId = wizardData.tipo_corte?.id ? wizardData.tipo_corte.id.toString() : null;
+        const allTipoCortes = getOptionList(['tipo_corte', 'corte']);
+
+        // Build all eligible tipo_corte IDs from the current fabric context (same
+        // approach as the color filter so items aren't hidden by broken hierarchy links).
+        const contextTipoCorteIds = getEligibleCutParentIds(); // already includes tipo_tecido / tecido derived IDs
+        // Also fetch tipo_corte that are direct children of the eligible tipo_tecido/tecido IDs
+        const tipoCorteLinkedToContext = allTipoCortes.filter(tc => {
+            if (!tc.parent_ids || tc.parent_ids.length === 0) return true;
+            return tc.parent_ids.some(pid => contextTipoCorteIds.includes(pid.toString()));
+        }).map(tc => tc.id.toString());
+
+        // Fall back to ALL tipo_corte if the hierarchy yields nothing specific.
+        const effectiveTipoCorteIds = tipoCorteLinkedToContext.length > 0
+            ? tipoCorteLinkedToContext
+            : allTipoCortes.map(tc => tc.id.toString());
+
+        // Preferred: selected tipo_corte first; remainder from context fallback.
+        const allowedIds = tipoCorteId
+            ? [tipoCorteId, ...effectiveTipoCorteIds].filter((v, i, a) => a.indexOf(v) === i)
+            : effectiveTipoCorteIds;
+
+        let items;
+        if (allowedIds.length > 0) {
+            items = allDetalhes.filter(d => {
+                if (!d.parent_ids || d.parent_ids.length === 0) return true;
+                return d.parent_ids.some(pid => allowedIds.includes(pid.toString()));
+            });
+        } else {
+            items = allDetalhes;
+        }
+
         if (!items.length) {
             container.innerHTML = '<p class="col-span-full text-center text-gray-500">Nenhum detalhe disponível.</p>';
             return;
