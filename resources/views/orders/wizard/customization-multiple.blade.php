@@ -1578,10 +1578,15 @@
             const sizeSelect = document.getElementById('size');
             sizeSelect.innerHTML = '<option value="">Selecione...</option>';
             
-            // Normalizar a chave do tipo (remover espaços, pontos, etc se necessário para bater com as chaves do array)
-            // Mas aqui as chaves parecem ser strings diretas como 'DTF', 'SERIGRAFIA', etc.
+            // Tenta chave exata, depois normalizada, depois busca por chave normalizada no objeto
+            // (ex: 'SUB. LOCAL' é armazenado com ponto mas normalizeTypeKey o converte para 'SUB LOCAL')
             const typeKey = normalizeTypeKey(type);
-            const typeData = personalizationSizes[typeKey] || personalizationSizes[type];
+            let typeData = personalizationSizes[type] || personalizationSizes[typeKey];
+            // Fallback: varrer todas as chaves comparando formas normalizadas
+            if (!typeData) {
+                const matchingKey = Object.keys(personalizationSizes).find(k => normalizeTypeKey(k) === typeKey);
+                if (matchingKey) typeData = personalizationSizes[matchingKey];
+            }
             
             if (typeData && typeData.sizes) {
                 // Verificar se \?\? um array antes de iterar
@@ -1702,7 +1707,7 @@
             
             // Mostrar/ocultar campos baseado no tipo de personalização
             // NOTA: Adicionais agora aparecem para TODOS os tipos de personalização
-            if (normalizedType === 'SUB. TOTAL') {
+            if (normalizedType === 'SUB TOTAL') {
                 // Para SUB. TOTAL: ocultar localização, tamanho único e detalhes das cores, mostrar quantidade e adicionais
                 document.getElementById('locationField').classList.add('hidden');
                 document.getElementById('sizeField').classList.add('hidden');
@@ -1728,7 +1733,7 @@
                 document.getElementById('quantity').value = itemQty;
 
                 loadAddons();
-            } else if (normalizedType === 'SUB. LOCAL') {
+            } else if (normalizedType === 'SUB LOCAL') {
                 // Para SUB. LOCAL: mostrar localização e tamanho único, ocultar detalhes das cores
                 document.getElementById('locationField').classList.remove('hidden');
                 document.getElementById('sizeField').classList.remove('hidden');
@@ -1954,7 +1959,7 @@
             let isValid = true;
             let errorMessage = '';
             
-            if (normalizedType === 'SUB. TOTAL') {
+            if (normalizedType === 'SUB TOTAL') {
                 const artFilesElement = document.getElementById('art_files');
                 const artFiles = artFilesElement ? artFilesElement.files.length : 0;
                 
@@ -2016,7 +2021,7 @@
                             isSubmitting = false;
                             if (submitBtn) {
                                 submitBtn.disabled = false;
-                                submitBtn.innerHTML = normalizedType === 'SUB. TOTAL' ? 'Salvar Alterações' : 'Adicionar Personalização';
+                                submitBtn.innerHTML = normalizedType === 'SUB TOTAL' ? 'Salvar Alterações' : 'Adicionar Personalização';
                             }
                             alert('Erro: ' + (data.message || 'Erro desconhecido'));
                         }
@@ -2621,7 +2626,7 @@
                 quantity = parseInt(quantityField.value) || 1;
             }
             
-            if (persType === 'SUB. TOTAL') {
+            if (persType === 'SUB TOTAL') {
                 if (!persType || quantity === 0) {
                     document.getElementById('priceDisplay').classList.add('hidden');
                     return;
@@ -2632,6 +2637,11 @@
                         size = 'ESCUDO';
                     } else if (persType === 'EMBORRACHADO') {
                         size = 'ESCUDO';
+                    } else if (persType === 'SUB LOCAL') {
+                        // Para SUB. LOCAL sem tamanho selecionado, não forcça tamanho
+                        // (impede requisição inválida com tamanho A4 genérico)
+                        document.getElementById('priceDisplay').classList.add('hidden');
+                        return;
                     } else {
                         size = 'A4';
                     }
@@ -2643,12 +2653,11 @@
                 }
             }
             
-            let apiType = persType;
-            if (persType === 'SUB. LOCAL') apiType = 'SUB. LOCAL';
-            if (persType === 'SUB. TOTAL') apiType = 'SUB. TOTAL';
+            // Usar o tipo original (com pontos) para a API, não a versão normalizada
+            let apiType = persTypeRaw;
             
             try {
-                const sizeForApi = persType === 'SUB. TOTAL' ? 'CACHARREL' : size;
+                const sizeForApi = persTypeRaw === 'SUB. TOTAL' ? 'CACHARREL' : size;
                 const apiUrl = `/api/personalization-prices/price?type=${apiType}&size=${encodeURIComponent(sizeForApi)}&quantity=${quantity}`;
                 
                 const response = await fetch(apiUrl, {
@@ -2797,8 +2806,9 @@
                 'SERIGRAFIA': 5.00,
                 'BORDADO': 10.00,
                 'EMBORRACHADO': 15.00,
-                'SUBLIMAÇÃO': 8.00,
-                'SUB. TOTAL': 2.50,
+                'SUBLIMACAO': 8.00,  // forma normalizada (sem acento)
+                'SUB TOTAL': 2.50,   // forma normalizada de 'SUB. TOTAL'
+                'SUB LOCAL': 3.00,   // forma normalizada de 'SUB. LOCAL'
                 'DTF': 4.00
             };
             
@@ -2811,7 +2821,7 @@
             const baseSizeInput = document.getElementById('base_size_price');
             if (baseSizeInput) baseSizeInput.value = unitPrice;
 
-            if (normalizedType === 'SUB. TOTAL') {
+            if (normalizedType === 'SUB TOTAL') {
                 const addonsSelect = document.getElementById('addons');
                 let addonsTotal = 0;
                 
@@ -3058,7 +3068,7 @@
                     if (effectsField) effectsField.classList.add('hidden');
                 }
                 
-                if (normalizedType === 'SUB. TOTAL') {
+                if (normalizedType === 'SUB TOTAL') {
                     document.getElementById('locationField').classList.add('hidden');
                     document.getElementById('sizeField').classList.add('hidden');
                     document.getElementById('colorDetailsField').classList.add('hidden');
@@ -3072,7 +3082,7 @@
                     loadAddons();
                 }
                 
-                loadSizes(normalizedType);
+                loadSizes(persType);
                 await new Promise(resolve => setTimeout(resolve, 150));
                 
                 if (pers.location_id) document.getElementById('location').value = pers.location_id;
