@@ -1328,14 +1328,15 @@ class EditOrderController extends Controller
                 'order_id' => $orderId
             ]);
 
+            $order->load(['items' => function($q) { $q->orderBy('is_pinned', 'desc')->orderBy('id', 'asc'); }]);
+
             if ($request->ajax() || $request->wantsJson()) {
-                // Ao adicionar, geralmente recarregamos a lista ou damos feedback
-                // O frontend do wizard espera JSON para atualizar o estado local
                 return response()->json([
                     'success' => true,
                     'message' => 'Item adicionado com sucesso!',
                     'item' => $newItem,
-                    'items_data' => $editData['items']
+                    'html' => view('orders.wizard.partials.items_sidebar', compact('order', 'editData'))->render(),
+                    'items_data' => $order->items->toArray()
                 ]);
             }
 
@@ -1433,7 +1434,7 @@ class EditOrderController extends Controller
                 return response()->json([
                     'success'    => true,
                     'message'    => 'Item SUB. TOTAL #' . $item->item_number . ' adicionado!',
-                    'html'       => view('orders.wizard.partials.items_sidebar', compact('order'))->render(),
+                    'html'       => view('orders.wizard.partials.items_sidebar', compact('order', 'editData'))->render(),
                     'items_data' => $order->items->toArray(),
                 ]);
             }
@@ -1621,12 +1622,15 @@ class EditOrderController extends Controller
                 'new_data' => $dbItem->toArray()
             ]);
 
+            $order->load(['items' => function($q) { $q->orderBy('is_pinned', 'desc')->orderBy('id', 'asc'); }]);
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Item atualizado com sucesso!',
                     'item' => $updatedData,
-                    'items_data' => $editData['items']
+                    'html' => view('orders.wizard.partials.items_sidebar', compact('order', 'editData'))->render(),
+                    'items_data' => $order->items->toArray()
                 ]);
             }
 
@@ -1763,7 +1767,7 @@ class EditOrderController extends Controller
                 return response()->json([
                     'success'    => true,
                     'message'    => 'Item SUB. TOTAL atualizado com sucesso!',
-                    'html'       => view('orders.wizard.partials.items_sidebar', compact('order'))->render(),
+                    'html'       => view('orders.wizard.partials.items_sidebar', compact('order', 'editData'))->render(),
                     'items_data' => $order->items->toArray(),
                 ]);
             }
@@ -1853,9 +1857,11 @@ class EditOrderController extends Controller
             Log::info('Item removido do banco de dados', ['item_id' => $itemId, 'order_id' => $orderId]);
 
             if ($request->ajax() || $request->wantsJson()) {
+                $freshOrder = Order::with(['items' => function($q) { $q->orderBy('is_pinned', 'desc')->orderBy('id', 'asc'); }])->find($orderId);
                 return response()->json([
                     'success' => true,
                     'message' => 'Item removido com sucesso!',
+                    'html' => $freshOrder ? view('orders.wizard.partials.items_sidebar', ['order' => $freshOrder, 'editData' => $editData])->render() : null,
                     'items_data' => $editData['items']
                 ]);
             }
