@@ -107,7 +107,17 @@
                 <i class="fa-solid fa-chart-bar text-sm"></i>
                 Relatório
             </a>
+            <a href="{{ route('fabric-pieces.stock-summary') }}"
+               class="glass-card px-4 py-2.5 text-emerald-400 rounded-xl hover:text-emerald-300 hover:border-emerald-500/30 transition-all flex items-center gap-2 text-xs font-black uppercase tracking-widest">
+                <i class="fa-solid fa-table-cells text-sm"></i>
+                Por Cor
+            </a>
             @if(!Auth::user()->isVendedor())
+            <a href="{{ route('fabric-pieces.bulk-create') }}"
+               class="px-4 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:shadow-violet-600/30 transition-all flex items-center gap-2 text-xs font-black uppercase tracking-widest active:scale-95">
+                <i class="fa-solid fa-layer-group text-sm"></i>
+                Lote
+            </a>
             <a href="{{ route('fabric-pieces.create') }}"
                class="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:shadow-lg hover:shadow-purple-600/30 transition-all flex items-center gap-2 text-xs font-black uppercase tracking-widest active:scale-95">
                 <i class="fa-solid fa-plus text-sm"></i>

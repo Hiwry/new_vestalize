@@ -296,6 +296,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('plan:kanban')->group(function () {
         Route::get('/kanban', [\App\Http\Controllers\KanbanController::class, 'index'])->name('kanban.index');
         Route::get('/kanban/load-more', [\App\Http\Controllers\KanbanController::class, 'loadMoreOrders'])->name('kanban.load-more');
+        Route::get('/kanban/calendar-data', [\App\Http\Controllers\KanbanController::class, 'calendarData'])->name('kanban.calendar-data');
         Route::post('/kanban/update-status', [\App\Http\Controllers\KanbanController::class, 'updateStatus'])->name('kanban.update-status');
         Route::get('/kanban/order/{id}', [\App\Http\Controllers\KanbanController::class, 'getOrderDetails']);
         Route::post('/kanban/order/{id}/comment', [\App\Http\Controllers\KanbanController::class, 'addComment']);
@@ -919,6 +920,10 @@ Route::middleware('auth')->prefix('fabric-pieces')->name('fabric-pieces.')->grou
     Route::get('/create', [\App\Http\Controllers\FabricPieceController::class, 'create'])->name('create');
     Route::post('/', [\App\Http\Controllers\FabricPieceController::class, 'store'])->name('store');
     Route::post('/import', [\App\Http\Controllers\FabricPieceController::class, 'import'])->name('import');
+    Route::get('/bulk-create', [\App\Http\Controllers\FabricPieceController::class, 'bulkCreate'])->name('bulk-create');
+    Route::post('/bulk', [\App\Http\Controllers\FabricPieceController::class, 'bulkStore'])->name('bulk-store');
+    Route::get('/stock-summary', [\App\Http\Controllers\FabricPieceController::class, 'stockSummary'])->name('stock-summary');
+    Route::get('/stock-summary/pieces', [\App\Http\Controllers\FabricPieceController::class, 'stockSummaryPieces'])->name('stock-summary.pieces');
     Route::get('/{id}/edit', [\App\Http\Controllers\FabricPieceController::class, 'edit'])->name('edit');
     Route::put('/{id}', [\App\Http\Controllers\FabricPieceController::class, 'update'])->name('update');
     Route::delete('/{id}', [\App\Http\Controllers\FabricPieceController::class, 'destroy'])->name('destroy');

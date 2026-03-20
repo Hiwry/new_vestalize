@@ -152,6 +152,193 @@ class FabricPieceController extends Controller
         ));
     }
 
+    public function bulkCreate(): View
+    {
+        $userStoreIds = StoreHelper::getUserStoreIds();
+        $stores = Store::whereIn('id', $userStoreIds)->get();
+        $fabricTypes = ProductOption::where('type', 'tipo_tecido')->orderBy('name')->get();
+        $colors = ProductOption::where('type', 'cor')->orderBy('name')->get();
+
+        return view('fabric-pieces.bulk-create', compact('stores', 'fabricTypes', 'colors'));
+    }
+
+    public function bulkStore(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'store_id' => 'required|exists:stores,id',
+            'fabric_type_id' => 'nullable|exists:product_options,id',
+            'supplier' => 'nullable|string|max:255',
+            'invoice_number' => 'nullable|string|max:50',
+            'invoice_key' => 'nullable|string|max:44',
+            'control_unit' => 'required|in:kg,metros',
+            'received_at' => 'nullable|date',
+            'sale_price' => 'nullable|numeric|min:0',
+            'min_quantity_alert' => 'nullable|numeric|min:0',
+            'pieces' => 'required|array|min:1',
+            'pieces.*.color_id' => 'nullable|exists:product_options,id',
+            'pieces.*.weight' => 'nullable|numeric|min:0',
+            'pieces.*.meters' => 'nullable|numeric|min:0',
+            'pieces.*.barcode' => 'nullable|string|max:50',
+            'pieces.*.shelf' => 'nullable|string|max:50',
+            'pieces.*.notes' => 'nullable|string',
+        ]);
+
+        $controlUnit = $request->input('control_unit');
+        $fabricTypeId = $request->input('fabric_type_id');
+        $fabricId = $this->resolveFabricId($fabricTypeId ? (int) $fabricTypeId : null);
+        $createdCount = 0;
+
+        $baseData = [
+            'store_id' => $request->input('store_id'),
+            'fabric_type_id' => $fabricTypeId,
+            'fabric_id' => $fabricId,
+            'supplier' => $request->input('supplier'),
+            'invoice_number' => $request->input('invoice_number'),
+            'invoice_key' => $request->input('invoice_key'),
+            'control_unit' => $controlUnit,
+            'received_at' => $request->input('received_at') ?? now(),
+            'sale_price' => $request->input('sale_price') ?? 0,
+            'min_quantity_alert' => $request->input('min_quantity_alert') ?? 0,
+            'available_in_pdv' => $request->boolean('available_in_pdv'),
+            'available_in_catalog' => $request->boolean('available_in_catalog'),
+            'available_in_orders' => $request->boolean('available_in_orders'),
+            'status' => 'fechada',
+            'purchase_price' => 0,
+        ];
+
+        foreach ($request->input('pieces', []) as $row) {
+            $qty = $controlUnit === 'metros'
+                ? (float) ($row['meters'] ?? 0)
+                : (float) ($row['weight'] ?? 0);
+
+            if ($qty <= 0) {
+                continue; // pula linhas sem quantidade
+            }
+
+            $pieceData = array_merge($baseData, [
+                'color_id' => $row['color_id'] ?: null,
+                'barcode' => $row['barcode'] ?? null,
+                'shelf' => $row['shelf'] ?? null,
+                'notes' => $row['notes'] ?? null,
+            ]);
+
+            if ($controlUnit === 'metros') {
+                $pieceData['meters'] = $qty;
+                $pieceData['meters_current'] = $qty;
+            } else {
+                $pieceData['weight'] = $qty;
+                $pieceData['weight_current'] = $qty;
+            }
+
+            FabricPiece::create($pieceData);
+            $createdCount++;
+        }
+
+        if ($createdCount === 0) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Nenhuma peça foi cadastrada. Verifique se há quantidade informada nas linhas.');
+        }
+
+        return redirect()->route('fabric-pieces.index')
+            ->with('success', "{$createdCount} peça(s) cadastrada(s) com sucesso!");
+    }
+
+    public function stockSummary(Request $request): View
+    {
+        $userStoreIds = StoreHelper::getUserStoreIds();
+        $stores = Store::whereIn('id', $userStoreIds)->get();
+        $fabricTypes = ProductOption::where('type', 'tipo_tecido')->orderBy('name')->get();
+
+        $selectedFabricTypeId = $request->input('fabric_type_id', $fabricTypes->first()?->id);
+        $selectedStoreId = $request->input('store_id');
+
+        return view('fabric-pieces.stock-summary', compact(
+            'stores',
+            'fabricTypes',
+            'selectedFabricTypeId',
+            'selectedStoreId'
+        ));
+    }
+
+    public function stockSummaryPieces(Request $request): JsonResponse
+    {
+        $userStoreIds = StoreHelper::getUserStoreIds();
+        $fabricTypeId = $request->input('fabric_type_id');
+        $storeId = $request->input('store_id');
+
+        $query = FabricPiece::with(['store', 'color'])
+            ->whereIn('store_id', $userStoreIds)
+            ->whereIn('status', ['fechada', 'aberta']);
+
+        if ($fabricTypeId) {
+            $query->where('fabric_type_id', $fabricTypeId);
+        }
+
+        if ($storeId) {
+            $query->where('store_id', $storeId);
+        }
+
+        $pieces = $query->orderBy('store_id')->orderBy('color_id')->get();
+
+        // Agrupar por cor e loja
+        $byColor = [];
+        foreach ($pieces as $piece) {
+            $colorId = $piece->color_id ?? 0;
+            $colorName = $piece->color?->name ?? 'Sem Cor';
+            $sid = $piece->store_id;
+
+            if (!isset($byColor[$colorId])) {
+                $byColor[$colorId] = [
+                    'color_id' => $colorId,
+                    'color_name' => $colorName,
+                    'stores' => [],
+                    'total_qty' => 0,
+                    'total_pieces' => 0,
+                    'control_unit' => $piece->control_unit,
+                ];
+            }
+
+            if (!isset($byColor[$colorId]['stores'][$sid])) {
+                $byColor[$colorId]['stores'][$sid] = [
+                    'store_name' => $piece->store?->name ?? '-',
+                    'pieces' => [],
+                    'qty' => 0,
+                    'count' => 0,
+                ];
+            }
+
+            $qty = $piece->available_quantity;
+            $byColor[$colorId]['stores'][$sid]['pieces'][] = [
+                'id' => $piece->id,
+                'qty' => $qty,
+                'unit' => $piece->control_unit,
+                'status' => $piece->status,
+                'invoice_number' => $piece->invoice_number,
+                'supplier' => $piece->supplier,
+                'received_at' => $piece->received_at?->format('d/m/Y'),
+                'sale_price' => $piece->sale_price,
+            ];
+            $byColor[$colorId]['stores'][$sid]['qty'] += $qty;
+            $byColor[$colorId]['stores'][$sid]['count']++;
+            $byColor[$colorId]['total_qty'] += $qty;
+            $byColor[$colorId]['total_pieces']++;
+        }
+
+        // Ordenar por nome da cor
+        usort($byColor, fn ($a, $b) => strcmp($a['color_name'], $b['color_name']));
+
+        // Converter stores para array indexado
+        foreach ($byColor as &$row) {
+            $row['stores'] = array_values($row['stores']);
+        }
+
+        return response()->json([
+            'rows' => array_values($byColor),
+            'stores' => $stores ?? Store::whereIn('id', $userStoreIds)->get()->map(fn ($s) => ['id' => $s->id, 'name' => $s->name]),
+        ]);
+    }
+
     public function create(): View
     {
         $userStoreIds = StoreHelper::getUserStoreIds();
