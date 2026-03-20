@@ -70,6 +70,8 @@
                 html.classList.remove('dark');
                 html.style.colorScheme = 'light';
             }
+            // Com Vite, CSS é carregado de forma síncrona — marcar imediatamente
+            html.classList.add('tailwind-loaded');
         })();
     </script>
     
@@ -494,61 +496,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-    <!-- Suprimir aviso do Tailwind CDN ANTES de carregar o script -->
-    <script>
-        // Suprimir aviso do Tailwind CDN em produção
-        if (typeof console !== 'undefined' && console.warn) {
-            const originalWarn = console.warn;
-            console.warn = function(...args) {
-                if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
-                    return; // Suprimir aviso do Tailwind CDN
-                }
-                originalWarn.apply(console, args);
-            };
-        }
-    </script>
-    
-    <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        // Configuração do Tailwind após carregar o CDN
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif']
-                    },
-                    fontWeight: {
-                        normal: '400',
-                        medium: '400',
-                        semibold: '500',
-                        bold: '500',
-                        extrabold: '600',
-                        black: '600'
-                    }
-                }
-            }
-        };
-        
-        // Marcar Tailwind como carregado e garantir dark mode
-        (function() {
-            const html = document.documentElement;
-            const isDarkMode = localStorage.getItem('dark') === 'true';
-            
-            // Garantir que a classe dark está aplicada após Tailwind carregar
-            if (isDarkMode) {
-                html.classList.add('dark');
-                html.style.colorScheme = 'dark';
-            } else {
-                html.classList.remove('dark');
-                html.style.colorScheme = 'light';
-            }
-            
-            // Mostrar conteúdo (remove visibility: hidden)
-            html.classList.add('tailwind-loaded');
-        })();
-    </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Aggressive font-weight override BUT excluding icons -->
     <style>
         /* Aplicar fonte Inter globalmente, EXCETO em ícones */
@@ -673,11 +621,7 @@
     
     @stack('styles')
     
-    <!-- Alpine.js para componentes interativos -->
-    <!-- Alpine.js Plugins -->
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-    <!-- Alpine.js Core -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    {{-- Alpine.js (com plugin Collapse) carregado via @vite (resources/js/app.js) --}}    
     <!-- Kanban Component -->
 
     

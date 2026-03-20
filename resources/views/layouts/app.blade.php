@@ -92,28 +92,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-        <!-- Tailwind CSS via CDN (enquanto npm não estiver disponível) -->
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script>
-            tailwind.config = {
-                darkMode: 'class',
-                theme: {
-                    extend: {
-                        fontFamily: {
-                            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif']
-                        },
-                        fontWeight: {
-                            normal: '400',
-                            medium: '400',
-                            semibold: '500',
-                            bold: '500',
-                            extrabold: '600',
-                            black: '600'
-                        }
-                    }
-                }
-            }
-        </script>
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
         
         <!-- Aggressive font-weight override BUT excluding icons -->
         <style>
@@ -136,8 +115,7 @@
             .far, .fal { font-weight: 400 !important; }
         </style>
         
-        <!-- Alpine.js para componentes interativos -->
-        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        {{-- Alpine.js carregado via @vite (resources/js/app.js) --}}
         
         <!-- Dark Mode Script -->
         <script src="{{ asset('js/dark-mode.js') }}"></script>

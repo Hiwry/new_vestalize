@@ -152,6 +152,7 @@ class OrderController extends Controller
             'client',
             'user',
             'store',
+            'status',
             'items.sublimations.size',
             'items.sublimations.location',
             'items.sublimations.files',

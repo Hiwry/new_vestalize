@@ -5,6 +5,9 @@
       $viewType     – 'production' | 'personalized'
       $columnIndex  – (optional) column position for staggered animation (default 0)
 --}}
+@php
+    $compactOnly = $compactOnly ?? false;
+@endphp
 @foreach($orders as $order)
     @php
         $firstItem = $order->items->first();
@@ -18,7 +21,7 @@
             ? ($order->client?->name ?? $productName)
             : ($artName ?? ($order->client?->name ?? 'Sem cliente'));
         $storeName = $order->store?->name ?? 'Loja Principal';
-        $filesCount = $order->items->sum(fn($item) => $item->files->count() + ($item->corel_file_path ? 1 : 0));
+        $filesCount = $order->items->sum(fn($item) => (int) ($item->files_count ?? 0) + ($item->corel_file_path ? 1 : 0));
         $commentsCount = (int) ($order->comments_count ?? 0);
         $printType = $order->items
             ->pluck('print_type')
@@ -62,9 +65,11 @@
 
         $animDelay = (($columnIndex ?? 0) * 100) + ($loop->index * 50);
     @endphp
-    <div class="kanban-card group bg-white/50 dark:bg-slate-800/60 rounded-2xl border border-gray-100 dark:border-white/5 p-0 shadow-sm hover-lift cursor-pointer relative overflow-hidden animate-fade-in-up transition-all duration-300"
+    <div class="kanban-card group bg-white/50 dark:bg-slate-800/60 rounded-2xl border border-gray-100 dark:border-white/5 p-0 shadow-sm hover-lift relative overflow-hidden animate-fade-in-up transition-all duration-300"
          style="box-shadow: var(--kanban-card-shadow) !important; animation-delay: {{ $animDelay }}ms"
-         data-order-id="{{ $order->id }}">
+         data-order-id="{{ $order->id }}"
+         x-data="{ expanded: false }"
+         :class="expanded ? 'ring-1 ring-purple-500/20 border-purple-500/20' : ''">
 
         <!-- Efeito Shimmer no Hover -->
         <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none"></div>
@@ -179,7 +184,19 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-2.5 text-[10px]">
+                <div class="grid grid-cols-2 gap-3 text-[10px] pt-2 border-t border-gray-100 dark:border-white/5">
+                    <div class="flex flex-col gap-0.5">
+                        <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Quantidade</span>
+                        <span class="font-black text-purple-600 dark:text-purple-400">{{ $quantityTotal }} UNID</span>
+                    </div>
+                    <div class="flex flex-col items-end gap-0.5">
+                        <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Prazo</span>
+                        <span class="font-black text-purple-600 dark:text-purple-400">{{ $deliveryDate ? $deliveryDate->format('d/m/Y') : 'Sem data' }}</span>
+                    </div>
+                </div>
+
+                @if(!$compactOnly)
+                <div x-show="expanded" x-transition.opacity.duration.200ms class="grid grid-cols-1 gap-2.5 text-[10px]">
                     @if($viewType === 'personalized')
                         <div class="flex flex-col gap-0.5">
                             <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Produto</span>
@@ -206,31 +223,33 @@
                         </div>
                     @endif
 
-                    <div class="pt-2 flex items-center justify-between border-t border-gray-100 dark:border-white/5">
-                        <div class="flex flex-col gap-0.5">
-                            <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Quantidade</span>
-                            <span class="font-black text-purple-600 dark:text-purple-400">{{ $quantityTotal }} UNID</span>
-                        </div>
+                    <div class="pt-2 flex items-center justify-end border-t border-gray-100 dark:border-white/5">
                         <div class="flex flex-col items-end gap-0.5">
                             <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Total</span>
                             <span class="font-black text-emerald-500">R$ {{ number_format($order->total, 2, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>
+                @endif
 
                 <!-- Datas de Prazo Premium -->
                 <div class="flex items-center gap-3 pt-3 border-t border-gray-100 dark:border-white/5">
-                    @if($deliveryDate)
-                        <div class="flex-1 px-3 py-2 rounded-xl bg-purple-500/5 border border-purple-500/10 flex flex-col gap-0.5">
+                    @if($deliveryDate && !$compactOnly)
+                        <div x-show="expanded" x-transition.opacity.duration.200ms class="flex-1 px-3 py-2 rounded-xl bg-purple-500/5 border border-purple-500/10 flex flex-col gap-0.5">
                             <span class="text-[7px] font-black text-purple-500/60 uppercase tracking-widest leading-none">Prazo de Entrega</span>
                             <span class="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase">
                                 {{ $deliveryDate->format('d/m/Y') }}
                             </span>
                         </div>
                     @endif
-                    <div class="w-10 h-10 rounded-xl bg-gray-100/50 dark:bg-slate-700/30 flex items-center justify-center text-gray-400 group-hover:bg-purple-500 group-hover:text-white transition-all shadow-inner">
-                        <i class="fa-solid fa-arrow-right-long transition-transform group-hover:translate-x-1"></i>
-                    </div>
+                    @if(!$compactOnly)
+                    <button type="button"
+                            @click.stop="expanded = !expanded"
+                            class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-gray-100/50 dark:bg-slate-700/30 text-gray-500 dark:text-gray-300 hover:bg-purple-500/10 hover:text-purple-600 dark:hover:text-purple-400 transition-all shadow-inner">
+                        <span class="text-[9px] font-black uppercase tracking-widest" x-text="expanded ? 'Fechar detalhes' : 'Abrir detalhes'"></span>
+                        <i class="fa-solid fa-chevron-down transition-transform duration-200" :class="expanded ? 'rotate-180' : ''"></i>
+                    </button>
+                    @endif
                 </div>
             </div>
         </div>

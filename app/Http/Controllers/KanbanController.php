@@ -189,10 +189,8 @@ class KanbanController extends Controller
         $perPage = 20;
 
         if ($search) {
-            // When searching, load all matching results (expected to be small)
-            $orders = (clone $baseQuery)
-                ->with(['client','user','store','items.files','items.sublimations.location','items.sublimations','pendingCancellation','pendingEditRequest'])
-                ->withCount('comments')
+            // Search is expected to return a smaller set, but still keep card payload lean.
+            $orders = $this->applyKanbanCardListRelations(clone $baseQuery)
                 ->orderBy('created_at', 'desc')
                 ->get();
             $countsByStatus = $orders->groupBy('status_id')->map->count();
@@ -209,8 +207,7 @@ class KanbanController extends Controller
             if ($neededIds->isEmpty()) {
                 $orders = collect();
             } else {
-                $orders = Order::with(['client','user','store','items.files','items.sublimations.location','items.sublimations','pendingCancellation','pendingEditRequest'])
-                    ->withCount('comments')
+                $orders = $this->applyKanbanCardListRelations(Order::query())
                     ->whereIn('id', $neededIds)
                     ->orderBy('created_at', 'desc')
                     ->get();
@@ -239,13 +236,7 @@ class KanbanController extends Controller
         // Buscar tipos de personalização disponíveis
         $personalizationTypes = \App\Models\PersonalizationPrice::getPersonalizationTypes();
 
-        // Calendar: all orders with minimal relationships (avoids loading heavy item data for every order)
-        $ordersForCalendar = (clone $baseQuery)
-            ->with(['client:id,name', 'store:id,name', 'status:id,color', 'items:id,order_id,art_name,cover_image,quantity', 'items.sublimations:id,order_item_id,art_name'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-        
-        return view('kanban.index', compact('statuses', 'ordersByStatus', 'search', 'autoOpenOrderId', 'personalizationType', 'personalizationTypes', 'ordersForCalendar', 'viewType', 'period', 'startDate', 'endDate', 'countsByStatus', 'perPage'));
+        return view('kanban.index', compact('statuses', 'ordersByStatus', 'search', 'autoOpenOrderId', 'personalizationType', 'personalizationTypes', 'viewType', 'period', 'startDate', 'endDate', 'countsByStatus', 'perPage'));
     }
 
     /**
@@ -286,9 +277,7 @@ class KanbanController extends Controller
             $entryDateFilter, $hasEntryDateColumn, $search
         );
 
-        $orders = (clone $baseQuery)
-            ->with(['client','user','store','items.files','items.sublimations.location','items.sublimations','pendingCancellation','pendingEditRequest'])
-            ->withCount('comments')
+        $orders = $this->applyKanbanCardListRelations(clone $baseQuery)
             ->where('status_id', $statusId)
             ->orderBy('created_at', 'desc')
             ->skip(($page - 1) * $perPage)
@@ -313,6 +302,120 @@ class KanbanController extends Controller
             'html'    => $html,
             'count'   => $orders->count(),
             'hasMore' => $orders->count() === $perPage,
+        ]);
+    }
+
+    private function applyKanbanCardListRelations($query)
+    {
+        return $query
+            ->select([
+                'id',
+                'client_id',
+                'store_id',
+                'status_id',
+                'created_at',
+                'delivery_date',
+                'total',
+                'cover_image',
+                'edit_status',
+                'stock_status',
+                'stock_separation_status',
+                'is_event',
+                'origin',
+            ])
+            ->with([
+                'client:id,name',
+                'store:id,name',
+                'status:id,name,color',
+                'items' => function ($itemQuery) {
+                    $itemQuery
+                        ->select([
+                            'id',
+                            'order_id',
+                            'art_name',
+                            'print_type',
+                            'print_desc',
+                            'art_notes',
+                            'fabric',
+                            'collar',
+                            'model',
+                            'quantity',
+                            'cover_image',
+                            'corel_file_path',
+                        ])
+                        ->withCount('files');
+                },
+            ])
+            ->withCount('comments');
+    }
+
+    /**
+     * AJAX: load lightweight agenda/calendar data on demand.
+     */
+    public function calendarData(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $tenant = $user->tenant;
+        if ($tenant && !$tenant->canAccess('kanban')) {
+            return response()->json(['success' => false, 'message' => 'Acesso negado.'], 403);
+        }
+
+        $search              = $request->get('search');
+        $personalizationType = $request->get('personalization_type');
+        $entryDateFilter     = $request->get('entry_date');
+        $rangeStart          = $request->get('start_date');
+        $rangeEnd            = $request->get('end_date');
+        if ($rangeStart && !$rangeEnd) {
+            $rangeEnd = $rangeStart;
+        }
+        if ($rangeEnd && !$rangeStart) {
+            $rangeStart = $rangeEnd;
+        }
+
+        $hasEntryDateColumn = Cache::remember('schema_orders_entry_date', 86400, fn() => Schema::hasColumn('orders', 'entry_date'));
+        $viewType = $request->get('type', 'production');
+        if (!in_array($viewType, ['production', 'personalized'], true)) {
+            $viewType = 'production';
+        }
+
+        $orders = $this->buildOrdersQuery(
+            $viewType,
+            $personalizationType,
+            $rangeStart,
+            $rangeEnd,
+            $entryDateFilter,
+            $hasEntryDateColumn,
+            $search
+        )->with([
+            'client:id,name',
+            'store:id,name',
+            'status:id,color',
+            'items:id,order_id,art_name,cover_image,quantity',
+            'items.sublimations:id,order_item_id,art_name',
+        ])->orderBy('created_at', 'desc')
+          ->get();
+
+        $events = $orders->map(function ($order) {
+            $firstItem = $order->items->first();
+            $coverItem = $order->items->first(fn($item) => filled($item->cover_image));
+            $coverImage = $order->cover_image_url ?: $coverItem?->cover_image_url;
+
+            return [
+                'id' => $order->id,
+                'title' => $firstItem?->art_name ?? ($order->client?->name ?? 'Cliente'),
+                'client' => $order->client?->name ?? 'N/A',
+                'store' => $order->store?->name ?? 'Loja Principal',
+                'date' => $order->delivery_date ? Carbon::parse($order->delivery_date)->format('Y-m-d') : null,
+                'items_count' => (int) $order->items->sum('quantity'),
+                'status_color' => $order->status->color ?? '#ccc',
+                'cover_image' => $coverImage,
+                'priority' => $order->priority,
+            ];
+        })->values();
+
+        return response()->json([
+            'success' => true,
+            'events' => $events,
         ]);
     }
 

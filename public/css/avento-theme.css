@@ -280,6 +280,35 @@ html.avento-theme.dark {
     color: #ffffff !important;
 }
 
+/* Preserve white foreground on primary buttons and purple action chips in admin views */
+.avento-theme .text-white,
+.avento-theme .stay-white,
+.avento-theme .bg-indigo-600,
+.avento-theme .bg-blue-600,
+.avento-theme .bg-purple-600,
+.avento-theme .btn-primary,
+.avento-theme .btn-primary-gradient,
+.avento-theme button[type="submit"],
+.avento-theme [class*="from-purple-600"][class*="to-indigo-600"],
+.avento-theme [class*="from-purple-600"][class*="to-purple-600"] {
+    color: #ffffff !important;
+}
+
+.avento-theme .text-white *,
+.avento-theme .stay-white *,
+.avento-theme .bg-indigo-600 *,
+.avento-theme .bg-blue-600 *,
+.avento-theme .bg-purple-600 *,
+.avento-theme .btn-primary *,
+.avento-theme .btn-primary-gradient *,
+.avento-theme button[type="submit"] *,
+.avento-theme [class*="from-purple-600"][class*="to-indigo-600"] *,
+.avento-theme [class*="from-purple-600"][class*="to-purple-600"] * {
+    color: inherit !important;
+    fill: currentColor !important;
+    stroke: currentColor;
+}
+
 .avento-theme .btn-primary,
 .avento-theme button[type="submit"] {
     border: none !important;

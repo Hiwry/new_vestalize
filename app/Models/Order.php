@@ -96,10 +96,6 @@ class Order extends Model
         'terms_accepted_at' => 'datetime',
     ];
 
-    /**
-     * Relacionamentos que devem ser sempre carregados
-     */
-    protected $with = ['status'];
     protected $appends = ['cover_image_url'];
 
     public function client(): BelongsTo

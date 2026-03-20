@@ -203,12 +203,16 @@
 <script>
     // Definir componente globalmente para garantir acesso via x-data
     // Movido para dentro do content para funcionar com o sistema de navegação AJAX
-    window.kanbanBoardIndex = function(ordersData, startDate) {
+    window.kanbanBoardIndex = function(config) {
         return {
+            hasAgenda: !!config.hasAgenda,
             view: 'kanban', // 'kanban' | 'calendar'
             calendarView: 'month', // 'month' | 'week' | 'day'
-            currentDate: startDate ? new Date(startDate + 'T12:00:00') : new Date(),
-            events: ordersData,
+            currentDate: config.startDate ? new Date(config.startDate + 'T12:00:00') : new Date(),
+            events: [],
+            eventsLoaded: false,
+            eventsLoading: false,
+            eventsError: null,
             
             get currentMonthName() {
                 if (this.calendarView === 'day') {
@@ -305,6 +309,59 @@
                 return this.events.filter(event => event.date === dateString);
             },
 
+            get agendaGroups() {
+                const grouped = this.events.reduce((acc, event) => {
+                    const key = event.date || 'sem_data';
+                    if (!acc[key]) acc[key] = [];
+                    acc[key].push(event);
+                    return acc;
+                }, {});
+
+                return Object.keys(grouped)
+                    .sort((a, b) => {
+                        if (a === 'sem_data') return 1;
+                        if (b === 'sem_data') return -1;
+                        return a.localeCompare(b);
+                    })
+                    .map(key => ({
+                        key,
+                        label: key === 'sem_data'
+                            ? 'Sem data'
+                            : new Date(key + 'T12:00:00').toLocaleDateString('pt-BR', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
+                            }),
+                        orders: grouped[key],
+                    }));
+            },
+
+            async ensureCalendarDataLoaded() {
+                if (this.eventsLoaded || this.eventsLoading) return;
+
+                this.eventsLoading = true;
+                this.eventsError = null;
+
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    const response = await fetch('{{ route('kanban.calendar-data') }}?' + params.toString(), {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Erro ' + response.status);
+                    }
+
+                    const data = await response.json();
+                    this.events = Array.isArray(data.events) ? data.events : [];
+                    this.eventsLoaded = true;
+                } catch (error) {
+                    this.eventsError = 'Nao foi possivel carregar a agenda.';
+                } finally {
+                    this.eventsLoading = false;
+                }
+            },
+
             prev() {
                 if (this.calendarView === 'month') {
                     this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
@@ -329,14 +386,23 @@
                 }
             },
             
-            goToToday() {
+            today() {
                 this.currentDate = new Date();
             },
 
             init() {
                 const savedView = localStorage.getItem('kanban_view_mode');
                 if (savedView) this.view = savedView;
-                this.$watch('view', value => localStorage.setItem('kanban_view_mode', value));
+                this.$watch('view', value => {
+                    localStorage.setItem('kanban_view_mode', value);
+                    if (value === 'calendar') {
+                        this.ensureCalendarDataLoaded();
+                    }
+                });
+
+                if (this.hasAgenda || this.view === 'calendar') {
+                    this.ensureCalendarDataLoaded();
+                }
             }
         };
     };
@@ -434,51 +500,27 @@
 </style>
 
 <div class="max-w-[1800px] mx-auto">
-        <!-- Calendar Data Preparation -->
         @php
-            $calendarData = ($ordersForCalendar ?? collect())->map(function($order) {
-                $firstItem = $order->items->first();
-                $coverItem = $order->items->first(fn($item) => filled($item->cover_image));
-                $artName = null;
-                if ($firstItem && $firstItem->sublimations) {
-                    $firstSublimation = $firstItem->sublimations->first();
-                    if ($firstSublimation) $artName = $firstSublimation->art_name;
-                }
-                $title = $firstItem?->art_name ?? ($order->client->name ?? 'Cliente');
-                
-                // Buscar imagem de capa
-                $coverImage = $order->cover_image_url ?: $coverItem?->cover_image_url;
-
-                return [
-                    'id' => $order->id,
-                    'title' => $title,
-                    'client' => $order->client?->name ?? 'N/A',
-                    'date' => $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('Y-m-d') : null,
-                    'items_count' => $order->items->sum('quantity'),
-                    'status_color' => $order->status->color ?? '#ccc',
-                    'cover_image' => $coverImage,
-                ];
-            })->values();
-
-            // Default start date from filter or today
-            $startDate = request('start_date') ?? null;
+            $hasFilters = request('start_date') || request('end_date') || ($personalizationType ?? request('personalization_type')) || ($search ?? request('search'));
+            $boardTotal = collect($countsByStatus ?? [])->sum();
+            $initialStartDate = request('start_date') ?? null;
         @endphp
 
-        <div x-data="kanbanBoardIndex({{ Js::from($calendarData) }}, '{{ $startDate }}')" x-cloak>
+        <div x-data="kanbanBoardIndex({ hasAgenda: {{ $hasFilters ? 'true' : 'false' }}, startDate: '{{ $initialStartDate }}' })" x-cloak>
 
         <!-- Header Premium com Animação -->
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 animate-fade-in-up">
             <div class="space-y-1">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-600 flex items-center justify-center text-white border border-purple-500/20 shadow-lg shadow-purple-500/5">
-                        <i class="fa-solid fa-table-columns text-xl sm:text-2xl"></i>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-600 flex items-center justify-center text-white border border-purple-500/20 shadow-lg shadow-purple-500/5" style="color: #ffffff !important;">
+                        <i class="fa-solid fa-table-columns text-xl sm:text-2xl" style="color: #ffffff !important;"></i>
                     </div>
                     <div>
                         <h1 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
                             Kanban <span class="text-purple-500">{{ $viewType === 'personalized' ? 'Personalizados' : 'Produção' }}</span>
                         </h1>
                         <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] sm:tracking-[0.3em]">
-                            Total de Pedidos: <span class="text-purple-500/80">{{ $ordersByStatus->flatten()->count() }}</span>
+                            Total de Pedidos: <span class="text-purple-500/80">{{ $boardTotal }}</span>
                         </p>
                     </div>
                 </div>
@@ -488,23 +530,26 @@
                 <div class="glass-card p-1 rounded-2xl flex items-center bg-gray-100/50 dark:bg-slate-800/40">
                     <button @click="view = 'kanban'" 
                             :class="{ 'bg-purple-600 dark:bg-purple-500 text-white shadow-md': view === 'kanban', 'text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white': view !== 'kanban' }"
+                            :style="view === 'kanban' ? 'color: #ffffff !important;' : ''"
                             class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
-                        <i class="fa-solid fa-table-columns"></i>
-                        Kanban
+                        <i class="fa-solid fa-table-columns" :style="view === 'kanban' ? 'color: #ffffff !important;' : ''"></i>
+                        <span :style="view === 'kanban' ? 'color: #ffffff !important;' : ''">Kanban</span>
                     </button>
                     <button @click="view = 'calendar'" 
                             :class="{ 'bg-purple-600 dark:bg-purple-500 text-white shadow-md': view === 'calendar', 'text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white': view !== 'calendar' }"
+                            :style="view === 'calendar' ? 'color: #ffffff !important;' : ''"
                             class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
-                        <i class="fa-solid fa-calendar-days"></i>
+                        <i class="fa-solid fa-calendar-days" :style="view === 'calendar' ? 'color: #ffffff !important;' : ''"></i>
                         Calendário
                     </button>
                 </div>
 
                 @if(Auth::user()->isAdmin() || Auth::user()->isProducao())
                 <a href="{{ route('kanban.columns.index') }}" 
-                   class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-lg hover:shadow-purple-600/30 transition-all active:scale-95 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders-up"></i>
-                    <span>Gerenciar Colunas</span>
+                   class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-lg hover:shadow-purple-600/30 transition-all active:scale-95 flex items-center gap-2"
+                   style="color: #ffffff !important;">
+                    <i class="fa-solid fa-sliders-up" style="color: #ffffff !important;"></i>
+                    <span style="color: #ffffff !important;">Gerenciar Colunas</span>
                 </a>
                 @endif
             </div>
@@ -530,9 +575,10 @@
                                class="w-full pl-12 pr-6 h-[56px] rounded-2xl border-none bg-gray-100/50 dark:bg-slate-800/50 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/50 transition-all text-sm font-bold tracking-tight">
                     </div>
                     <button type="submit" 
-                            class="px-8 md:px-12 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-lg shadow-purple-600/20 hover:shadow-xl hover:shadow-purple-600/40 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3">
-                        <span>Buscar Pedido</span>
-                        <i class="fa-solid fa-arrow-right"></i>
+                            class="px-8 md:px-12 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-lg shadow-purple-600/20 hover:shadow-xl hover:shadow-purple-600/40 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
+                            style="color: #ffffff !important;">
+                        <span style="color: #ffffff !important;">Buscar Pedido</span>
+                        <i class="fa-solid fa-arrow-right" style="color: #ffffff !important;"></i>
                     </button>
                 </div>
                 
@@ -566,8 +612,9 @@
                     
                     <div class="flex items-end gap-3">
                         <button type="submit" formaction="{{ route('production.pdf') }}" formtarget="_blank"
-                                class="flex-1 py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:shadow-lg hover:shadow-purple-600/30 hover:scale-[1.02] active:scale-95 transition font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm">
-                            Exportar PDF
+                                class="flex-1 py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:shadow-lg hover:shadow-purple-600/30 hover:scale-[1.02] active:scale-95 transition font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm"
+                                style="color: #ffffff !important;">
+                            <span style="color: #ffffff !important;">Exportar PDF</span>
                         </button>
                         @if($search || request('personalization_type') || request('start_date') || request('end_date'))
                         <a href="{{ route('kanban.index', ['type' => $viewType]) }}" 
@@ -580,11 +627,6 @@
                 </div>
             </form>
         </div>
-
-
-        @php
-            $hasFilters = request('start_date') || request('end_date') || ($personalizationType ?? request('personalization_type')) || ($search ?? request('search'));
-        @endphp
 
         @if($hasFilters)
         <div x-show="view === 'kanban' || view === 'calendar'" class="animate-fade-in-up delay-200 mb-12">
@@ -606,62 +648,25 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                @forelse(($ordersForCalendar ?? collect())->groupBy(fn($o) => optional($o->delivery_date)->format('Y-m-d') ?? 'sem_data') as $dateKey => $group)
-                    @php $isNoDate = $dateKey === 'sem_data'; @endphp
-                    <div class="glass-card rounded-[2rem] border border-gray-100/50 dark:border-white/5 bg-white/50 dark:bg-slate-900/40 backdrop-blur-xl shadow-xl overflow-hidden flex flex-col h-full hover:shadow-2xl transition-all duration-500 group/agenda">
-                        <div class="px-6 py-5 border-b border-gray-100/50 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 flex items-center justify-between">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500">
-                                    <i class="fa-solid fa-calendar-day text-xs"></i>
-                                </div>
-                                <span class="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-widest">
-                                    {{ $isNoDate ? 'Sem data' : \Carbon\Carbon::parse($dateKey)->format('d/M/Y') }}
-                                </span>
-                            </div>
-                            <span class="px-3 py-1 rounded-full bg-indigo-500/10 text-[10px] font-black text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shadow-sm">{{ $group->count() }}</span>
+                <template x-if="eventsLoading">
+                    <div class="col-span-full py-20 flex flex-col items-center justify-center text-center glass-card border-dashed">
+                        <div class="w-20 h-20 rounded-[2rem] bg-gray-100/50 dark:bg-slate-800/50 flex items-center justify-center text-gray-300 mb-4 border border-gray-200 dark:border-white/5">
+                            <i class="fa-solid fa-spinner animate-spin text-3xl"></i>
                         </div>
-                        <div class="p-4 space-y-4 flex-1">
-                            @foreach($group as $order)
-                                @php
-                                    $firstItem = $order->items->first();
-                                    $coverItem = $order->items->first(fn($item) => filled($item->cover_image));
-                                    $displayName = $firstItem?->art_name ?? ($order->client?->name ?? 'Sem cliente');
-                                    $storeName = $order->store?->name ?? 'Loja Principal';
-                                    $coverImage = $order->cover_image_url ?: $coverItem?->cover_image_url;
-                                @endphp
-                                <div onclick="openOrderModal({{ $order->id }})" 
-                                     class="group/item relative p-4 rounded-2xl border border-gray-100 dark:border-white/5 bg-white dark:bg-slate-800/50 hover:bg-indigo-500/5 hover:border-indigo-500/30 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md">
-                                    <div class="flex items-start gap-4">
-                                        @if($coverImage)
-                                        <div class="flex-shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-white/10 shadow-inner">
-                                            <img src="{{ $coverImage }}" class="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500">
-                                        </div>
-                                        @else
-                                        <div class="flex-shrink-0 w-14 h-14 rounded-xl bg-gray-100/50 dark:bg-slate-900/50 flex items-center justify-center text-gray-300 dark:text-gray-700 border border-dashed border-gray-200 dark:border-white/5">
-                                            <i class="fa-solid fa-image text-xl"></i>
-                                        </div>
-                                        @endif
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex items-center justify-between mb-1.5">
-                                                <span class="px-2 py-0.5 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-black border border-indigo-500/20">
-                                                    #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
-                                                </span>
-                                                @if($order->priority)
-                                                    <div class="w-2 h-2 rounded-full shadow-lg pulse-soft
-                                                        @if($order->priority === 'alta') bg-rose-500 shadow-rose-500/50
-                                                        @elseif($order->priority === 'media') bg-amber-500 shadow-amber-500/50
-                                                        @else bg-emerald-500 shadow-emerald-500/50 @endif"></div>
-                                                @endif
-                                            </div>
-                                            <p class="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight truncate mb-0.5" title="{{ $displayName }}">{{ $displayName }}</p>
-                                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest truncate" title="{{ $storeName }}">{{ $storeName }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
+                        <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest">Carregando agenda</h4>
                     </div>
-                @empty
+                </template>
+
+                <template x-if="eventsError && !eventsLoading">
+                    <div class="col-span-full py-20 flex flex-col items-center justify-center text-center glass-card border-dashed">
+                        <div class="w-20 h-20 rounded-[2rem] bg-rose-500/10 flex items-center justify-center text-rose-400 mb-4 border border-rose-500/20">
+                            <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
+                        </div>
+                        <h4 class="text-xs font-black text-rose-500 uppercase tracking-widest" x-text="eventsError"></h4>
+                    </div>
+                </template>
+
+                <template x-if="!eventsLoading && !eventsError && agendaGroups.length === 0">
                     <div class="col-span-full py-20 flex flex-col items-center justify-center text-center glass-card border-dashed">
                         <div class="w-20 h-20 rounded-[2rem] bg-gray-100/50 dark:bg-slate-800/50 flex items-center justify-center text-gray-300 mb-4 border border-gray-200 dark:border-white/5">
                             <i class="fa-solid fa-calendar-xmark text-3xl"></i>
@@ -669,7 +674,59 @@
                         <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest">Nenhum pedido encontrado</h4>
                         <p class="text-[10px] font-bold text-gray-500 dark:text-gray-600 mt-2">Tente ajustar seus filtros de busca</p>
                     </div>
-                @endforelse
+                </template>
+
+                <template x-for="group in agendaGroups" :key="group.key">
+                    <div class="glass-card rounded-[2rem] border border-gray-100/50 dark:border-white/5 bg-white/50 dark:bg-slate-900/40 backdrop-blur-xl shadow-xl overflow-hidden flex flex-col h-full hover:shadow-2xl transition-all duration-500 group/agenda">
+                        <div class="px-6 py-5 border-b border-gray-100/50 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                                    <i class="fa-solid fa-calendar-day text-xs"></i>
+                                </div>
+                                <span class="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-widest">
+                                    <span x-text="group.label"></span>
+                                </span>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-indigo-500/10 text-[10px] font-black text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shadow-sm" x-text="group.orders.length"></span>
+                        </div>
+                        <div class="p-4 space-y-4 flex-1">
+                            <template x-for="order in group.orders" :key="order.id">
+                                <div x-on:click="openOrderModal(order.id)" 
+                                     class="group/item relative p-4 rounded-2xl border border-gray-100 dark:border-white/5 bg-white dark:bg-slate-800/50 hover:bg-indigo-500/5 hover:border-indigo-500/30 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md">
+                                    <div class="flex items-start gap-4">
+                                        <template x-if="order.cover_image">
+                                            <div class="flex-shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-white/10 shadow-inner">
+                                                <img :src="order.cover_image" class="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500">
+                                            </div>
+                                        </template>
+                                        <template x-if="!order.cover_image">
+                                            <div class="flex-shrink-0 w-14 h-14 rounded-xl bg-gray-100/50 dark:bg-slate-900/50 flex items-center justify-center text-gray-300 dark:text-gray-700 border border-dashed border-gray-200 dark:border-white/5">
+                                                <i class="fa-solid fa-image text-xl"></i>
+                                            </div>
+                                        </template>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between mb-1.5">
+                                                <span class="px-2 py-0.5 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-black border border-indigo-500/20">
+                                                    #<span x-text="String(order.id).padStart(6, '0')"></span>
+                                                </span>
+                                                <template x-if="order.priority">
+                                                    <div class="w-2 h-2 rounded-full shadow-lg pulse-soft"
+                                                         :class="{
+                                                             'bg-rose-500 shadow-rose-500/50': order.priority === 'alta',
+                                                             'bg-amber-500 shadow-amber-500/50': order.priority === 'media',
+                                                             'bg-emerald-500 shadow-emerald-500/50': order.priority && !['alta', 'media'].includes(order.priority)
+                                                         }"></div>
+                                                </template>
+                                            </div>
+                                            <p class="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight truncate mb-0.5" :title="order.title" x-text="order.title"></p>
+                                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest truncate" :title="order.store" x-text="order.store"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
             </div>
         </div>
         @endif
@@ -697,7 +754,7 @@
                                  </div>
                              </div>
                              <span class="px-3 py-1 rounded-full bg-purple-500/10 dark:bg-purple-500/20 text-[10px] font-black text-purple-600 dark:text-purple-400 border border-purple-500/20">
-                                {{ ($ordersByStatus[$status->id] ?? collect())->count() }}
+                                {{ $countsByStatus[$status->id] ?? 0 }}
                              </span>
                         </div>
                     </div>
@@ -706,6 +763,7 @@
                             'orders'      => ($ordersByStatus[$status->id] ?? collect()),
                             'viewType'    => $viewType,
                             'columnIndex' => $loop->index,
+                            'compactOnly' => in_array(\Illuminate\Support\Str::lower($status->name), ['concluído', 'concluido', 'entregue'], true),
                         ])
 
                         {{-- Load More button — only when there are more orders beyond the initial page --}}
@@ -3331,6 +3389,10 @@
                 tmp.innerHTML = data.html;
                 while (tmp.firstChild) {
                     column.insertBefore(tmp.firstChild, container);
+                }
+
+                if (window.Alpine && typeof window.Alpine.initTree === 'function') {
+                    window.Alpine.initTree(column);
                 }
             }
 
