@@ -19,6 +19,7 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Cache;
 use ZipArchive;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -37,7 +38,7 @@ class KanbanController extends Controller
         $entryDateFilter = $request->get('entry_date');
         $rangeStart = $request->get('start_date');
         $rangeEnd = $request->get('end_date');
-        $hasEntryDateColumn = Schema::hasColumn('orders', 'entry_date');
+        $hasEntryDateColumn = Cache::remember('schema_orders_entry_date', 86400, fn() => Schema::hasColumn('orders', 'entry_date'));
         if ($rangeStart && !$rangeEnd) {
             $rangeEnd = $rangeStart;
         }
@@ -179,17 +180,156 @@ class KanbanController extends Controller
             }
         }])->orderBy('position')->get();
         
-        $query = Order::with([
-            'client', 
-            'user', 
-            'store',
-            'items.files',
-            'items.sublimations.location',
-            'items.sublimations',
-            'pendingCancellation', 
-            'pendingEditRequest'
-        ])->withCount('comments')->notDrafts() 
-          ->where('is_cancelled', false);
+        // Build base query (without eager loading) using the shared helper
+        $baseQuery = $this->buildOrdersQuery(
+            $viewType, $personalizationType, $rangeStart, $rangeEnd,
+            $entryDateFilter, $hasEntryDateColumn, $search
+        );
+
+        $perPage = 20;
+
+        if ($search) {
+            // When searching, load all matching results (expected to be small)
+            $orders = (clone $baseQuery)
+                ->with(['client','user','store','items.files','items.sublimations.location','items.sublimations','pendingCancellation','pendingEditRequest'])
+                ->withCount('comments')
+                ->orderBy('created_at', 'desc')
+                ->get();
+            $countsByStatus = $orders->groupBy('status_id')->map->count();
+        } else {
+            // Paginated: first do a lightweight ID+status_id query, then load full data for first page only
+            $allIdStatusPairs = (clone $baseQuery)
+                ->orderBy('created_at', 'desc')
+                ->pluck('status_id', 'id'); // [order_id => status_id]
+
+            $groupedIds     = $allIdStatusPairs->groupBy(fn($sid) => $sid, preserveKeys: true); // [status_id => Collection<order_id => status_id>]
+            $countsByStatus = $groupedIds->map->count();                     // [status_id => total]
+            $neededIds      = $groupedIds->map(fn($g) => $g->keys()->take($perPage))->flatten()->unique()->values();
+
+            if ($neededIds->isEmpty()) {
+                $orders = collect();
+            } else {
+                $orders = Order::with(['client','user','store','items.files','items.sublimations.location','items.sublimations','pendingCancellation','pendingEditRequest'])
+                    ->withCount('comments')
+                    ->whereIn('id', $neededIds)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            }
+        }
+
+        // Verificar existência das imagens de capa
+        foreach ($orders as $order) {
+            $firstItem = $order->items->first();
+            $coverImageUrl = $order->cover_image_url ?: $firstItem?->cover_image_url;
+
+            $order->cover_image_exists = (bool) $coverImageUrl;
+            $order->cover_image_url = $coverImageUrl;
+        }
+        
+        $ordersByStatus = $orders->groupBy('status_id');
+        
+        // Se houver pesquisa e apenas um resultado, passar o ID do pedido para abrir automaticamente
+        $autoOpenOrderId = null;
+        if ($search && $orders->count() === 1) {
+            $autoOpenOrderId = $orders->first()->id;
+        } elseif ($search && $orders->count() > 1) {
+            $autoOpenOrderId = $orders->first()->id;
+        }
+
+        // Buscar tipos de personalização disponíveis
+        $personalizationTypes = \App\Models\PersonalizationPrice::getPersonalizationTypes();
+
+        // Calendar: all orders with minimal relationships (avoids loading heavy item data for every order)
+        $ordersForCalendar = (clone $baseQuery)
+            ->with(['client:id,name', 'store:id,name', 'status:id,color', 'items:id,order_id,art_name,cover_image,quantity', 'items.sublimations:id,order_item_id,art_name'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return view('kanban.index', compact('statuses', 'ordersByStatus', 'search', 'autoOpenOrderId', 'personalizationType', 'personalizationTypes', 'ordersForCalendar', 'viewType', 'period', 'startDate', 'endDate', 'countsByStatus', 'perPage'));
+    }
+
+    /**
+     * AJAX: load the next page of orders for a given status column.
+     */
+    public function loadMoreOrders(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'status_id' => 'required|integer|exists:statuses,id',
+            'page'      => 'nullable|integer|min:1',
+        ]);
+
+        $user = Auth::user();
+        $tenant = $user->tenant;
+        if ($tenant && !$tenant->canAccess('kanban')) {
+            return response()->json(['success' => false, 'message' => 'Acesso negado.'], 403);
+        }
+
+        $statusId  = (int) $validated['status_id'];
+        $page      = max(1, (int) $request->get('page', 1));
+        $perPage   = 20;
+
+        $search              = $request->get('search');
+        $personalizationType = $request->get('personalization_type');
+        $entryDateFilter     = $request->get('entry_date');
+        $rangeStart          = $request->get('start_date');
+        $rangeEnd            = $request->get('end_date');
+        if ($rangeStart && !$rangeEnd) $rangeEnd = $rangeStart;
+        if ($rangeEnd && !$rangeStart) $rangeStart = $rangeEnd;
+        $hasEntryDateColumn  = Cache::remember('schema_orders_entry_date', 86400, fn() => Schema::hasColumn('orders', 'entry_date'));
+        $viewType = $request->get('type', 'production');
+        if (!in_array($viewType, ['production', 'personalized'])) {
+            $viewType = 'production';
+        }
+
+        $baseQuery = $this->buildOrdersQuery(
+            $viewType, $personalizationType, $rangeStart, $rangeEnd,
+            $entryDateFilter, $hasEntryDateColumn, $search
+        );
+
+        $orders = (clone $baseQuery)
+            ->with(['client','user','store','items.files','items.sublimations.location','items.sublimations','pendingCancellation','pendingEditRequest'])
+            ->withCount('comments')
+            ->where('status_id', $statusId)
+            ->orderBy('created_at', 'desc')
+            ->skip(($page - 1) * $perPage)
+            ->take($perPage)
+            ->get();
+
+        foreach ($orders as $order) {
+            $firstItem = $order->items->first();
+            $coverImageUrl = $order->cover_image_url ?: $firstItem?->cover_image_url;
+            $order->cover_image_exists = (bool) $coverImageUrl;
+            $order->cover_image_url = $coverImageUrl;
+        }
+
+        $html = view('kanban.partials.order-cards', [
+            'orders'      => $orders,
+            'viewType'    => $viewType,
+            'columnIndex' => 0,
+        ])->render();
+
+        return response()->json([
+            'success' => true,
+            'html'    => $html,
+            'count'   => $orders->count(),
+            'hasMore' => $orders->count() === $perPage,
+        ]);
+    }
+
+    /**
+     * Build a base Eloquent query for orders with all active filters applied.
+     * Does NOT include eager-loading — callers add ->with() as needed.
+     */
+    private function buildOrdersQuery(
+        string  $viewType,
+        ?string $personalizationType,
+        ?string $rangeStart,
+        ?string $rangeEnd,
+        ?string $entryDateFilter,
+        bool    $hasEntryDateColumn,
+        ?string $search
+    ): \Illuminate\Database\Eloquent\Builder {
+        $query = Order::notDrafts()->where('is_cancelled', false);
 
         // Filter by origin based on view type
         if ($viewType === 'personalized') {
@@ -201,21 +341,18 @@ class KanbanController extends Controller
             });
         }
 
-        // Aplicar filtro de loja
+        // Store isolation
         StoreHelper::applyStoreFilter($query);
 
-        // Se for vendedor, mostrar apenas os pedidos que ele criou
+        // Vendedores see only their own orders
         if (Auth::user()->isVendedor()) {
             $query->byUser(Auth::id());
         }
-        
-        // Filtrar vendas do PDV: excluir vendas PDV que não têm sublimação local
-        // ONLY APPLY THIS LOGIC FOR PRODUCTION VIEW? Or both?
-        // Let's assume personalized module items are always relevant if in personalized status.
-        // But for consistency:
+
+        // Exclude PDV sales without a local sublimation (production view only)
         if ($viewType === 'production') {
-             $query->where(function($q) {
-                $q->where('is_pdv', false) 
+            $query->where(function($q) {
+                $q->where('is_pdv', false)
                   ->orWhere(function($subQ) {
                       $subQ->where('is_pdv', true)
                            ->whereHas('items', function($itemQuery) {
@@ -229,10 +366,10 @@ class KanbanController extends Controller
                   });
             });
         }
-        
-        // Aplicar filtro de personalização
+
+        // Personalization type filter
         if ($personalizationType) {
-             $query->where(function($q) use ($personalizationType) {
+            $query->where(function($q) use ($personalizationType) {
                 $q->whereHas('items', function($itemQuery) use ($personalizationType) {
                     $itemQuery->where(function($subQuery) use ($personalizationType) {
                         $subQuery->where('print_type', 'like', "%{$personalizationType}%")
@@ -252,6 +389,7 @@ class KanbanController extends Controller
             });
         }
 
+        // Date range filters
         if ($rangeStart && $rangeEnd) {
             if ($hasEntryDateColumn) {
                 $query->where(function($q) use ($rangeStart, $rangeEnd) {
@@ -275,39 +413,13 @@ class KanbanController extends Controller
                 $query->whereDate('created_at', $entryDateFilter);
             }
         }
-        
-        // Aplicar busca usando scope otimizado
+
+        // Full-text search
         if ($search) {
             $query->search($search);
         }
-        
-        $orders = $query->orderBy('created_at', 'desc')->get();
-        
-        // Verificar existência das imagens de capa
-        foreach ($orders as $order) {
-            $firstItem = $order->items->first();
-            $coverImageUrl = $order->cover_image_url ?: $firstItem?->cover_image_url;
 
-            $order->cover_image_exists = (bool) $coverImageUrl;
-            $order->cover_image_url = $coverImageUrl;
-        }
-        
-        $ordersByStatus = $orders->groupBy('status_id');
-        
-        // Se houver pesquisa e apenas um resultado, passar o ID do pedido para abrir automaticamente
-        $autoOpenOrderId = null;
-        if ($search && $orders->count() === 1) {
-            $autoOpenOrderId = $orders->first()->id;
-        } elseif ($search && $orders->count() > 1) {
-            $autoOpenOrderId = $orders->first()->id;
-        }
-
-        // Buscar tipos de personalização disponíveis
-        $personalizationTypes = \App\Models\PersonalizationPrice::getPersonalizationTypes();
-        
-        $ordersForCalendar = $orders;
-        
-        return view('kanban.index', compact('statuses', 'ordersByStatus', 'search', 'autoOpenOrderId', 'personalizationType', 'personalizationTypes', 'ordersForCalendar', 'viewType', 'period', 'startDate', 'endDate'));
+        return $query;
     }
 
     public function updateStatus(Request $request): JsonResponse

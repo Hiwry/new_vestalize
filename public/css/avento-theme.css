@@ -545,6 +545,24 @@ html:not(.dark) .avento-theme .bg-\[#7c3aed\] .text-white {
     color: #ffffff !important;
 }
 
+/* Gradient buttons: force white for the element itself AND all child text/icons */
+html:not(.dark) .avento-theme [class*="bg-gradient-to-r"][class*="from-purple"],
+html:not(.dark) .avento-theme [class*="bg-gradient-to-r"][class*="from-indigo"],
+html:not(.dark) .avento-theme [class*="bg-gradient-to-r"][class*="from-blue"],
+html:not(.dark) .avento-theme [class*="bg-gradient-to-r"][class*="from-green"],
+html:not(.dark) .avento-theme [class*="bg-gradient-to-r"][class*="from-violet"],
+html:not(.dark) .avento-theme [class*="bg-gradient-to-r"][class*="from-fuchsia"] {
+    color: #ffffff !important;
+}
+html:not(.dark) .avento-theme [class*="bg-gradient-to-r"][class*="from-purple"] *,
+html:not(.dark) .avento-theme [class*="bg-gradient-to-r"][class*="from-indigo"] *,
+html:not(.dark) .avento-theme [class*="bg-gradient-to-r"][class*="from-blue"] *,
+html:not(.dark) .avento-theme [class*="bg-gradient-to-r"][class*="from-green"] *,
+html:not(.dark) .avento-theme [class*="bg-gradient-to-r"][class*="from-violet"] *,
+html:not(.dark) .avento-theme [class*="bg-gradient-to-r"][class*="from-fuchsia"] * {
+    color: #ffffff !important;
+}
+
 /* CTA buttons/links: force white label + icon color consistently */
 .avento-theme :is(a, button, [role="button"]).ft-action,
 .avento-theme :is(a, button, [role="button"]).sh-action,

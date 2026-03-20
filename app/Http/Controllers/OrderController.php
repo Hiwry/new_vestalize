@@ -28,16 +28,6 @@ class OrderController extends Controller
     {
         $user = Auth::user();
         
-        // DEBUG: Log para rastrear problema de filtro por tenant
-        \Log::info('OrderController::index DEBUG', [
-            'user_id' => $user->id,
-            'user_name' => $user->name,
-            'user_tenant_id' => $user->tenant_id,
-            'user_role' => $user->role,
-            'isAdminGeral' => $user->isAdminGeral(),
-            'isAdmin' => $user->isAdmin(),
-        ]);
-        
         // Super Admin (tenant_id === null) agora verá pedidos do sistema ou do tenant selecionado via StoreHelper
         // O bloco redundante foi removido para permitir a execução normal da query.
 
@@ -89,14 +79,6 @@ class OrderController extends Controller
 
         $orders = $query->orderBy('created_at', 'desc')->paginate(8)->withQueryString();
         
-        // DEBUG: Log para ver resultados da query
-        \Log::info('OrderController::index RESULTADOS', [
-            'total_orders' => $orders->total(),
-            'orders_tenant_ids' => $orders->pluck('tenant_id')->unique()->values()->toArray(),
-            'orders_store_ids' => $orders->pluck('store_id')->unique()->values()->toArray(),
-            'orders_ids' => $orders->pluck('id')->toArray(),
-        ]);
-        
         $statuses = Status::orderBy('position')->get();
 
         return view('orders.index', compact('orders', 'statuses', 'search', 'status', 'startDate', 'endDate', 'dateType'));
@@ -108,16 +90,6 @@ class OrderController extends Controller
         if ($user->tenant_id !== null && $user->tenant && !$user->tenant->canAccess('personalized')) {
             abort(403, 'Seu plano não inclui o módulo de Personalizados.');
         }
-
-        // DEBUG: Log para rastrear problema de filtro por tenant
-        \Log::info('OrderController::indexPersonalized DEBUG', [
-            'user_id' => $user->id,
-            'user_name' => $user->name,
-            'user_tenant_id' => $user->tenant_id,
-            'user_role' => $user->role,
-            'isAdminGeral' => $user->isAdminGeral(),
-            'isAdmin' => $user->isAdmin(),
-        ]);
 
         $search = $request->get('search');
         $status = $request->get('status');
@@ -165,14 +137,6 @@ class OrderController extends Controller
         }
 
         $orders = $query->orderBy('created_at', 'desc')->paginate(8)->withQueryString();
-
-        // DEBUG: Log para ver resultados da query
-        \Log::info('OrderController::indexPersonalized RESULTADOS', [
-            'total_orders' => $orders->total(),
-            'orders_tenant_ids' => $orders->pluck('tenant_id')->unique()->values()->toArray(),
-            'orders_store_ids' => $orders->pluck('store_id')->unique()->values()->toArray(),
-            'orders_ids' => $orders->pluck('id')->toArray(),
-        ]);
 
         $statuses = Status::where('type', 'personalized')->orderBy('position')->get();
         if ($statuses->isEmpty()) {
@@ -379,34 +343,15 @@ class OrderController extends Controller
 
         $payment = Payment::where('order_id', $id)->first();
         
-        // Log para debug
-        \Log::info("Gerando PDF da nota do pedido", [
-            'order_id' => $order->id,
-            'store_id' => $order->store_id,
-            'store_name' => $order->store ? $order->store->name : 'N/A'
-        ]);
-        
         // Se o pedido não tem store_id, tentar buscar da loja principal
         $storeId = $order->store_id;
         if (!$storeId) {
             $mainStore = \App\Models\Store::where('is_main', true)->first();
             $storeId = $mainStore ? $mainStore->id : null;
-            \Log::warning("Pedido #{$order->id} não tem store_id, usando loja principal", [
-                'order_id' => $order->id,
-                'main_store_id' => $storeId
-            ]);
         }
         
         // Buscar configurações da loja do pedido
         $companySettings = \App\Models\CompanySetting::getSettings($storeId);
-        
-        \Log::info("Configurações da empresa carregadas", [
-            'store_id' => $order->store_id,
-            'company_name' => $companySettings->company_name,
-            'logo_path' => $companySettings->logo_path,
-            'company_phone' => $companySettings->company_phone,
-            'company_email' => $companySettings->company_email
-        ]);
 
         try {
             // Gerar HTML da view

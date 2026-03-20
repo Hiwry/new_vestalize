@@ -651,6 +651,7 @@
                 <tr>
                     <th data-sticky class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Pedido</th>
                     <th data-sticky class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Cliente</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Vendedor</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Nome da Arte</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Status</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Data</th>
@@ -689,6 +690,11 @@
                         @else
                         <div class="text-sm text-gray-400 italic">Sem cliente</div>
                         @endif
+                    </td>
+                    <td class="px-6 py-5">
+                        <div class="text-sm text-gray-600 dark:text-gray-300 max-w-[150px] truncate" title="{{ $order->user?->name ?? '' }}">
+                            {{ $order->user?->name ?? '-' }}
+                        </div>
                     </td>
                     <td class="px-6 py-5">
                         @php

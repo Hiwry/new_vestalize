@@ -13,15 +13,8 @@ Route::get('/imagens-aplicacao/{filename}', [\App\Http\Controllers\StorageContro
     ->name('application.image')
     ->middleware([]);
 
-// Rota temporária para executar migrações via navegador (Shared Hosting Fix)
-Route::get('/run-migrations', function () {
-    try {
-        Artisan::call('migrate', ['--force' => true]);
-        return "Migrações executadas com sucesso!<br><pre>" . Artisan::output() . "</pre>";
-    } catch (\Exception $e) {
-        return "Erro ao executar migrações: " . $e->getMessage();
-    }
-});
+// ROTA REMOVIDA: /run-migrations era pública e permitia execução de migrações sem autenticação.
+// Use: php artisan migrate --force via SSH/terminal.
 
 // Landing Page para Personalizados (subdomain em produção - DEVE VIR ANTES da rota principal)
 Route::domain('personalizados.vestalize.com')->group(function () {
@@ -302,6 +295,7 @@ Route::middleware('auth')->group(function () {
     // Kanban
     Route::middleware('plan:kanban')->group(function () {
         Route::get('/kanban', [\App\Http\Controllers\KanbanController::class, 'index'])->name('kanban.index');
+        Route::get('/kanban/load-more', [\App\Http\Controllers\KanbanController::class, 'loadMoreOrders'])->name('kanban.load-more');
         Route::post('/kanban/update-status', [\App\Http\Controllers\KanbanController::class, 'updateStatus'])->name('kanban.update-status');
         Route::get('/kanban/order/{id}', [\App\Http\Controllers\KanbanController::class, 'getOrderDetails']);
         Route::post('/kanban/order/{id}/comment', [\App\Http\Controllers\KanbanController::class, 'addComment']);
@@ -546,6 +540,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\CashApprovalController::class, 'index'])->name('index');
         Route::get('/{orderId}/receipt', [\App\Http\Controllers\CashApprovalController::class, 'viewReceipt'])->name('view-receipt');
         Route::post('/{orderId}/approve', [\App\Http\Controllers\CashApprovalController::class, 'approve'])->name('approve');
+        Route::post('/{orderId}/approve-entry', [\App\Http\Controllers\CashApprovalController::class, 'approveEntry'])->name('approve-entry');
+        Route::post('/{orderId}/approve-remaining', [\App\Http\Controllers\CashApprovalController::class, 'approveRemaining'])->name('approve-remaining');
         Route::post('/{orderId}/attach-receipt', [\App\Http\Controllers\CashApprovalController::class, 'attachReceipt'])->name('attach-receipt');
         Route::post('/{orderId}/remove-receipt', [\App\Http\Controllers\CashApprovalController::class, 'removeReceipt'])->name('remove-receipt');
         Route::post('/approve-multiple', [\App\Http\Controllers\CashApprovalController::class, 'approveMultiple'])->name('approve-multiple');

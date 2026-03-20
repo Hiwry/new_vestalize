@@ -70,30 +70,22 @@
         
         sidebarLinks.forEach(link => {
             const linkPath = new URL(link.href, window.location.origin).pathname;
-            const isActive = currentPath === linkPath || 
-                            (linkPath !== '/' && currentPath.startsWith(linkPath));
+            const isExactMatch = currentPath === linkPath;
+            const isPrefixMatch = linkPath !== '/' && linkPath !== '/dashboard' && currentPath.startsWith(linkPath);
+            const isSalesMatch = (linkPath === '/sales' || linkPath === '/vendas') &&
+                (currentPath.startsWith('/sales') || currentPath.startsWith('/vendas'));
+            const isActive = isExactMatch || isPrefixMatch || isSalesMatch;
             
-            // Atualizar classes
             if (isActive) {
-                link.classList.remove('text-gray-700', 'dark:text-gray-300', 'hover:bg-blue-50', 'dark:hover:bg-gray-700', 'hover:text-blue-600', 'dark:hover:text-white');
-                link.classList.add('bg-blue-600', 'text-white');
-                
-                // Atualizar ícone
-                const icon = link.querySelector('svg');
-                if (icon) {
-                    icon.classList.remove('text-gray-500', 'dark:text-gray-400');
-                    icon.classList.add('text-white');
-                }
+                link.classList.add('active-link');
+                link.classList.remove('text-muted', 'hover:bg-white/5', 'hover:text-white');
+                // Limpar classes legacy
+                link.classList.remove('bg-blue-600', 'bg-purple-600', 'text-gray-700', 'dark:text-gray-300');
             } else {
-                link.classList.remove('bg-blue-600', 'text-white');
-                link.classList.add('text-gray-700', 'dark:text-gray-300', 'hover:bg-blue-50', 'dark:hover:bg-gray-700', 'hover:text-blue-600', 'dark:hover:text-white');
-                
-                // Atualizar ícone
-                const icon = link.querySelector('svg');
-                if (icon) {
-                    icon.classList.remove('text-white');
-                    icon.classList.add('text-gray-500', 'dark:text-gray-400');
-                }
+                link.classList.remove('active-link');
+                link.classList.add('text-muted', 'hover:bg-white/5', 'hover:text-white');
+                // Limpar classes legacy
+                link.classList.remove('bg-blue-600', 'bg-purple-600', 'text-white');
             }
         });
     }

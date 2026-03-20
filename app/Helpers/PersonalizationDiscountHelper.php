@@ -137,11 +137,6 @@ class PersonalizationDiscountHelper
                 'final_price' => $priceWithDiscount * $personalization->quantity,
             ]);
         }
-
-        \Log::info(' Descontos aplicados por tipo', [
-            'type' => $setting->personalization_type,
-            'total' => $personalizations->count(),
-        ]);
     }
 
     /**
@@ -175,11 +170,5 @@ class PersonalizationDiscountHelper
             ]);
         }
 
-        \Log::info(' Total do item recalculado', [
-            'item_id' => $itemId,
-            'base_price' => $basePrice,
-            'personalizations_total' => $totalPersonalizations,
-            'new_total' => $newTotalPrice,
-        ]);
     }
 }

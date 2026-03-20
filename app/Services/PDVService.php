@@ -476,10 +476,17 @@ class PDVService
             // Status finalizado - Tentar 'Entregue', depois 'Pronto', senão o primeiro da fila (geralmente Pendente)
             $status = Status::where('name', 'Entregue')->first() ?? Status::where('name', 'Pronto')->first() ?? Status::orderBy('position', 'asc')->first();
 
+            // Usar seller_id selecionado (admin/caixa podem escolher o vendedor)
+            $sellerId = null;
+            if (!empty($validated['seller_id'])) {
+                $sellerId = (int) $validated['seller_id'];
+            }
+            $orderUserId = $sellerId ?? $user->id;
+
             // Criar pedido
             $order = Order::create([
                 'client_id' => $validated['client_id'] ?? null,
-                'user_id' => $user->id,
+                'user_id' => $orderUserId,
                 'store_id' => $storeId,
                 'status_id' => $status?->id,
                 'order_date' => now(),

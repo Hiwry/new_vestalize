@@ -33,9 +33,10 @@ class BudgetController extends Controller
         $user = Auth::user();
         
         // AUTO-FIX: Check if quick budget columns are missing and add them
-        // This is a self-healing block to fix the DB without needing artisan
+        // Cached to avoid hitting information_schema on every request
+        $hasQuickColumn = \Illuminate\Support\Facades\Cache::remember('schema_budgets_is_quick', 86400, fn() => \Illuminate\Support\Facades\Schema::hasColumn('budgets', 'is_quick'));
         try {
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('budgets', 'is_quick')) {
+            if (!$hasQuickColumn) {
                 \Illuminate\Support\Facades\Schema::table('budgets', function (\Illuminate\Database\Schema\Blueprint $table) {
                     $table->boolean('is_quick')->default(false)->after('status');
                     $table->string('contact_name')->nullable()->after('is_quick');

@@ -10,6 +10,7 @@ use App\Models\SublimationLocation;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
@@ -53,16 +54,7 @@ class ProductionController extends Controller
         $rangeStart = $request->get('start_date');
         $rangeEnd = $request->get('end_date');
         $entryDate = $request->get('entry_date');
-        $hasEntryDateColumn = Schema::hasColumn('orders', 'entry_date');
-        if ($rangeStart && !$rangeEnd) {
-            $rangeEnd = $rangeStart;
-        }
-        if ($rangeEnd && !$rangeStart) {
-            $rangeStart = $rangeEnd;
-        }
-        if (!$request->has('period') && empty($rangeStart) && empty($rangeEnd)) {
-            $period = 'all';
-        }
+        $hasEntryDateColumn = Cache::remember('schema_orders_entry_date', 86400, fn() => Schema::hasColumn('orders', 'entry_date'));
 
         if ($rangeStart && !$rangeEnd) {
             $rangeEnd = $rangeStart;
@@ -382,7 +374,7 @@ class ProductionController extends Controller
         $period = $request->get('period', 'week'); // Default: semana (segunda a sexta)
         $rangeStart = $request->get('start_date');
         $rangeEnd = $request->get('end_date');
-        $hasEntryDateColumn = Schema::hasColumn('orders', 'entry_date');
+        $hasEntryDateColumn = Cache::remember('schema_orders_entry_date', 86400, fn() => Schema::hasColumn('orders', 'entry_date'));
 
         if ($rangeStart && !$rangeEnd) {
             $rangeEnd = $rangeStart;

@@ -267,6 +267,25 @@ class PDVController extends Controller
 
         $clients = Client::orderBy('name')->get();
         $cart = Session::get('pdv_cart', []);
+
+        // Carregar vendedores da loja para admin/caixa
+        $sellers = collect();
+        if ($user->isAdmin() || $user->isCaixa()) {
+            $sellersQuery = User::where('role', 'vendedor');
+            if ($user->isAdminGeral()) {
+                // Admin Geral vê vendedores de todas as lojas do tenant
+                if ($user->tenant_id) {
+                    $sellersQuery->whereHas('stores', function ($q) use ($user) {
+                        $q->where('stores.tenant_id', $user->tenant_id);
+                    });
+                }
+            } elseif ($currentStoreId) {
+                $sellersQuery->whereHas('stores', function ($q) use ($currentStoreId) {
+                    $q->where('stores.id', $currentStoreId);
+                });
+            }
+            $sellers = $sellersQuery->orderBy('name')->get();
+        }
         
         // Carregar dados auxiliares
         // Locations (SublimationLocation or ProductOption type localizacao?? leaving as empty for now if not critical, or using SublimationLocation)
@@ -362,19 +381,20 @@ class PDVController extends Controller
 
         return view('pdv.index', compact(
             'paginatedItems',
-            'type', // Novo
-            'items', // Passando a collection bruta se precisar (opcional)
-            'clients', 
-            'cart', 
-            'locations', 
-            'subLocalPersonalizationId', 
+            'type',
+            'items',
+            'clients',
+            'cart',
+            'locations',
+            'subLocalPersonalizationId',
             'productOptionsWithSublocal',
             'fabrics',
             'colors',
             'currentStoreId',
             'search',
             'jsItems',
-            'currentTypeLabel'
+            'currentTypeLabel',
+            'sellers'
         ));
     }
 
@@ -1138,6 +1158,7 @@ class PDVController extends Controller
         
         $validated = $request->validate([
             'client_id' => 'nullable|exists:clients,id',
+            'seller_id' => 'nullable|exists:users,id',
             'discount' => 'nullable|numeric|min:0',
             'delivery_fee' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string|max:1000',

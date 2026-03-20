@@ -1963,6 +1963,20 @@
                                     <input type="text" id="notes-input" placeholder="Adicionar observacoes..." class="pdv-summary-input pdv-summary-notes">
                                 </div>
                             </div>
+
+                            @if(Auth::user()->isAdmin() || Auth::user()->isCaixa())
+                            <div class="pdv-summary-field">
+                                <label>Vendedor</label>
+                                <div class="pdv-summary-input-wrap">
+                                    <select id="seller_id" class="pdv-summary-input" style="background: transparent;">
+                                        <option value="">Selecionar vendedor...</option>
+                                        @foreach($sellers as $seller)
+                                            <option value="{{ $seller->id }}">{{ $seller->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            @endif
                         </div>
 
                         <div class="pdv-summary-breakdown">
@@ -4729,6 +4743,7 @@ window.checkout = async function checkout() {
         // Salvar dados do checkout
         checkoutData = {
             client_id: clientId,
+            seller_id: document.getElementById('seller_id')?.value || null,
             discount: discount,
             delivery_fee: deliveryFee,
             notes: document.getElementById('notes-input')?.value || '',
@@ -4805,6 +4820,7 @@ window.checkoutWithoutClient = async function checkoutWithoutClient() {
         // Salvar dados do checkout SEM CLIENTE (client_id = null)
         checkoutData = {
             client_id: null,
+            seller_id: document.getElementById('seller_id')?.value || null,
             discount: discount,
             delivery_fee: deliveryFee,
             notes: document.getElementById('notes-input')?.value || '',

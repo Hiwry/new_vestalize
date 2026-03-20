@@ -101,14 +101,6 @@ class PersonalizationPriceController extends Controller
                 ->orderBy('quantity_from')
                 ->get();
 
-            // Debug: Log dos dados carregados
-            \Log::info('=== SERIGRAFIA EDIT DEBUG ===');
-            \Log::info('Sizes loaded:', $sizes->toArray());
-            \Log::info('Prices loaded:', $prices->toArray());
-            \Log::info('Color prices loaded:', $colorPrices->toArray());
-            \Log::info('Prices count: ' . $prices->count());
-            \Log::info('Color prices count: ' . $colorPrices->count());
-
             return view('admin.personalization-prices.edit-serigraphy', compact('type', 'types', 'sizes', 'prices', 'colorPrices'));
         }
 
@@ -134,14 +126,6 @@ class PersonalizationPriceController extends Controller
                 ->where('size_name', 'COR')
                 ->orderBy('quantity_from')
                 ->get();
-
-            // Debug: Log dos dados carregados
-            \Log::info('=== EMBORRACHADO EDIT DEBUG ===');
-            \Log::info('Sizes loaded:', $sizes->toArray());
-            \Log::info('Prices loaded:', $prices->toArray());
-            \Log::info('Color prices loaded:', $colorPrices->toArray());
-            \Log::info('Prices count: ' . $prices->count());
-            \Log::info('Color prices count: ' . $colorPrices->count());
 
             return view('admin.personalization-prices.edit-emborrachado', compact('type', 'types', 'sizes', 'prices', 'colorPrices'));
         }
@@ -178,9 +162,6 @@ class PersonalizationPriceController extends Controller
             ->get();
 
         // Debug: log dos dados carregados
-        \Log::info('=== EDIT DEBUG FOR ' . $type . ' ===');
-        \Log::info('Prices loaded:', $prices->toArray());
-        \Log::info('Prices count: ' . $prices->count());
 
         return view('admin.personalization-prices.edit', compact('type', 'types', 'sizes', 'prices'));
     }
@@ -189,40 +170,17 @@ class PersonalizationPriceController extends Controller
     {
         // Lógica unificada para todos os tipos
 
-        // Debug: log dos dados recebidos
-        \Log::info('=== UPDATE DEBUG FOR ' . $type . ' ===');
-        \Log::info('Request all data:', $request->all());
-        \Log::info('Prices data:', $request->prices ?? []);
-        \Log::info('Base prices data:', $request->base_prices ?? []);
-        \Log::info('Base prices count:', ['count' => count($request->base_prices ?? [])]);
-        
         // Validação específica para SUB. TOTAL
         if ($type === 'SUB. TOTAL' && $request->has('base_prices')) {
-            \Log::info('Validating SUB. TOTAL base_prices');
-            \Log::info('Base prices raw data:', $request->base_prices);
-            
-            // Verificar se os dados estão vazios
+
             if (empty($request->base_prices)) {
-                \Log::info('Base prices is empty array');
                 return redirect()->back()->with('error', 'Nenhum preço base foi enviado');
             }
             
-            // Filtrar apenas faixas com dados válidos
             $validBasePrices = array_filter($request->base_prices, function($priceData) {
-                $isValid = !empty($priceData['quantity_from']) && !empty($priceData['price']) && 
-                          is_numeric($priceData['quantity_from']) && is_numeric($priceData['price']);
-                \Log::info('Checking price data validity:', [
-                    'data' => $priceData, 
-                    'is_valid' => $isValid,
-                    'quantity_from_empty' => empty($priceData['quantity_from']),
-                    'price_empty' => empty($priceData['price']),
-                    'quantity_from_numeric' => is_numeric($priceData['quantity_from']),
-                    'price_numeric' => is_numeric($priceData['price'])
-                ]);
-                return $isValid;
+                return !empty($priceData['quantity_from']) && !empty($priceData['price']) && 
+                       is_numeric($priceData['quantity_from']) && is_numeric($priceData['price']);
             });
-            
-            \Log::info('Valid base prices count:', ['count' => count($validBasePrices)]);
             
             if (empty($validBasePrices)) {
                 return redirect()->back()->with('error', 'Nenhuma faixa de preço válida foi encontrada');
@@ -235,14 +193,10 @@ class PersonalizationPriceController extends Controller
                 'base_prices.*.quantity_to' => 'nullable|integer',
                 'base_prices.*.price' => 'nullable|numeric',
             ]);
-            \Log::info('Validation passed for SUB. TOTAL');
-            \Log::info('Validated data:', $validated);
         }
         
         // Detectar formato dos dados (novo ou antigo)
         $isNewFormat = isset($request->prices[0]['quantity_from']);
-        \Log::info('isNewFormat:', ['value' => $isNewFormat]);
-        \Log::info('request->prices:', ['prices' => $request->prices ?? 'null']);
         
         // Só processar validação padrão se não for SUB. TOTAL com base_prices
         if (!($type === 'SUB. TOTAL' && $request->has('base_prices'))) {
@@ -265,23 +219,15 @@ class PersonalizationPriceController extends Controller
             }
         }
         
-        \Log::info('Validated data:', $validated);
-
         // Processar preços base se for SUB. TOTAL
         if ($type === 'SUB. TOTAL' && $request->has('base_prices')) {
-            \Log::info('=== SUB. TOTAL BASE PRICES DEBUG ===');
-            \Log::info('Request base_prices:', $request->base_prices);
-            
             try {
                 // Deletar preços existentes para SUB. TOTAL
                 $deleted = PersonalizationPrice::where('personalization_type', $type)->delete();
-                \Log::info('Deleted existing prices count:', ['count' => $deleted]);
                 
                 // Criar novos preços base usando apenas faixas válidas
                 foreach ($validBasePrices as $priceData) {
-                    \Log::info('Processing valid price data:', ['data' => $priceData]);
-                    \Log::info('Creating new price record...');
-                    $created = PersonalizationPrice::create([
+                    PersonalizationPrice::create([
                         'personalization_type' => $type,
                         'size_name' => 'CACHARREL',
                         'size_dimensions' => null,
@@ -292,12 +238,7 @@ class PersonalizationPriceController extends Controller
                         'active' => true,
                         'order' => 0,
                     ]);
-                    \Log::info('Created price record:', ['record' => $created->toArray()]);
                 }
-                
-                // Verificar se os dados foram salvos
-                $savedPrices = PersonalizationPrice::where('personalization_type', $type)->get();
-                \Log::info('Saved prices after creation:', ['prices' => $savedPrices->toArray()]);
                 
                 return redirect()->back()->with('success', 'Preços base atualizados com sucesso!');
             } catch (\Exception $e) {
@@ -308,8 +249,6 @@ class PersonalizationPriceController extends Controller
 
         // Processar preços de cores separadas PRIMEIRO se for SERIGRAFIA ou EMBORRACHADO
         if (in_array($type, ['SERIGRAFIA', 'EMBORRACHADO']) && $request->has('color_prices')) {
-            \Log::info('Processing separate color prices for SERIGRAFIA:', $request->color_prices);
-            
             // Limpar preços de cor existentes para este tipo
             PersonalizationPrice::where('personalization_type', $type)
                 ->where('size_name', 'COR')
@@ -328,8 +267,6 @@ class PersonalizationPriceController extends Controller
                         'price' => $colorData['price'],
                         'cost' => $colorData['cost'] ?? 0,
                     ]);
-                    
-                    \Log::info("Created color price for range {$colorData['from']}-{$colorData['to']} to {$colorData['price']}");
                 }
             }
         }
@@ -342,7 +279,6 @@ class PersonalizationPriceController extends Controller
                 $existingSizeDimensions[$existingPrice->size_name] = $existingPrice->size_dimensions;
             }
         }
-        \Log::info('Preserved size dimensions:', $existingSizeDimensions);
 
         // Deletar preços existentes para este tipo (exceto cores se for SERIGRAFIA ou EMBORRACHADO)
         if (in_array($type, ['SERIGRAFIA', 'EMBORRACHADO'])) {
@@ -385,8 +321,6 @@ class PersonalizationPriceController extends Controller
                             'price' => $priceValue,
                             'cost' => $costValue,
                         ]);
-                        
-                        \Log::info('Created price record (new format):', $newPrice->toArray());
                     }
                 }
             } else {
@@ -398,7 +332,7 @@ class PersonalizationPriceController extends Controller
                 $sizes = ['ESCUDO', 'A4', 'A3'];
                 foreach ($sizes as $size) {
                     if (isset($priceData[$size]) && !empty($priceData[$size])) {
-                        $newPrice = PersonalizationPrice::create([
+                        PersonalizationPrice::create([
                             'personalization_type' => $type,
                             'size_name' => $size,
                             'size_dimensions' => $existingSizeDimensions[$size] ?? null,
@@ -406,17 +340,11 @@ class PersonalizationPriceController extends Controller
                             'quantity_to' => $quantityTo,
                             'price' => $priceData[$size],
                         ]);
-                        
-                        \Log::info('Created price record (old format):', $newPrice->toArray());
                     }
                 }
             }
         }
         
-        // Debug: verificar se os dados foram salvos
-        $savedPrices = PersonalizationPrice::where('personalization_type', $type)->get();
-        \Log::info('Total prices saved for ' . $type . ':', $savedPrices->toArray());
-
         return redirect()->route('admin.personalization-prices.edit', $type)
             ->with('success', 'Preços atualizados com sucesso!');
     }

@@ -15,7 +15,6 @@ class ImageHelper
     public static function resolveCoverImageUrl(?string $path): ?string
     {
         if (!$path) {
-            \Log::debug('ImageHelper: Path vazio');
             return null;
         }
         
@@ -61,12 +60,7 @@ class ImageHelper
         // Primeiro, verificar se a imagem está em public/images (novo local, sem symlink)
         $publicImagesPath = public_path('images/' . $normalizedPath);
         if (file_exists($publicImagesPath)) {
-            $url = asset('images/' . $normalizedPath);
-            \Log::debug('ImageHelper: Imagem encontrada em public/images', [
-                'path' => $normalizedPath,
-                'url' => $url
-            ]);
-            return $url;
+            return asset('images/' . $normalizedPath);
         }
         
         // Se não encontrou em public/images, tentar em storage/app/public (compatibilidade com imagens antigas)
@@ -78,9 +72,6 @@ class ImageHelper
         ]);
 
         if (!$relativePath) {
-            \Log::warning('ImageHelper: Não foi possível resolver o caminho da imagem', [
-                'original_path' => $path
-            ]);
             return null;
         }
         
@@ -104,7 +95,6 @@ class ImageHelper
                     }
                 } catch (\Exception $e) {
                     // Erro ao ler symlink, usar rota
-                    \Log::warning('ImageHelper: Erro ao verificar symlink', ['error' => $e->getMessage()]);
                 }
             } elseif (is_dir($linkPath)) {
                 // É um diretório, verificar se é o diretório correto (pode ser uma cópia)
@@ -118,25 +108,10 @@ class ImageHelper
         }
         
         if ($useSymlink) {
-            // Symlink válido, usar asset()
             $url = asset('storage/' . $relativePath);
         } else {
-            // Sem symlink válido, usar URL direta que será capturada pela rota
-            // Usar url() diretamente para evitar problemas com route() não disponível
             $url = url('/storage/' . $relativePath);
-            
-            \Log::info('ImageHelper: Usando URL de storage (symlink não encontrado ou inválido)', [
-                'relative_path' => $relativePath,
-                'url' => $url
-            ]);
         }
-        
-        \Log::debug('ImageHelper: URL gerada', [
-            'original_path' => $path,
-            'resolved_path' => $relativePath,
-            'url' => $url,
-            'using_symlink' => $useSymlink
-        ]);
 
         return $url;
     }

@@ -26,6 +26,12 @@ class Payment extends Model
         'cash_approved',
         'approved_by',
         'approved_at',
+        'entry_approved',
+        'entry_approved_by',
+        'entry_approved_at',
+        'remaining_approved',
+        'remaining_approved_by',
+        'remaining_approved_at',
     ];
 
     protected $casts = [
@@ -39,6 +45,10 @@ class Payment extends Model
         'remaining_amount' => 'decimal:2',
         'cash_approved' => 'boolean',
         'approved_at' => 'datetime',
+        'entry_approved' => 'boolean',
+        'entry_approved_at' => 'datetime',
+        'remaining_approved' => 'boolean',
+        'remaining_approved_at' => 'datetime',
     ];
 
     public function order(): BelongsTo
@@ -49,6 +59,16 @@ class Payment extends Model
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function entryApprovedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'entry_approved_by');
+    }
+
+    public function remainingApprovedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'remaining_approved_by');
     }
 
     public function getReceiptUrlAttribute(): ?string

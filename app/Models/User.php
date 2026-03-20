@@ -152,6 +152,40 @@ class User extends Authenticatable
     }
 
     /**
+     * Rótulo legível da função do usuário
+     */
+    public function getRoleLabelAttribute(): string
+    {
+        return match ($this->role) {
+            'admin', 'admin_geral' => 'Admin Geral',
+            'admin_loja'           => 'Admin Loja',
+            'vendedor'             => 'Vendedor',
+            'caixa'                => 'Caixa',
+            'producao'             => 'Produção',
+            'estoque'              => 'Estoque',
+            'designer'             => 'Designer',
+            default                => ucfirst($this->role ?? 'Usuário'),
+        };
+    }
+
+    /**
+     * Classes Tailwind de cor para o badge da função
+     */
+    public function getRoleColorAttribute(): string
+    {
+        return match ($this->role) {
+            'admin', 'admin_geral' => 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+            'admin_loja'           => 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
+            'vendedor'             => 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300',
+            'caixa'                => 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300',
+            'producao'             => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
+            'estoque'              => 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+            'designer'             => 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
+            default                => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+        };
+    }
+
+    /**
      * Obter IDs das lojas que o usuário pode acessar (incluindo sub-lojas)
      */
     public function getStoreIds(): array

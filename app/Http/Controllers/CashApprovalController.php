@@ -23,7 +23,7 @@ class CashApprovalController extends Controller
         $type = $request->get('type', 'todos');
         $search = $request->get('search');
 
-        $query = Order::with(['client', 'user', 'store', 'payment.approvedBy', 'status'])
+        $query = Order::with(['client', 'user', 'store', 'payment.approvedBy', 'payment.entryApprovedBy', 'payment.remainingApprovedBy', 'status'])
             ->where('is_draft', false)
             ->where('is_cancelled', false)
             ->has('payment');
@@ -119,6 +119,93 @@ class CashApprovalController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Pagamento aprovado e baixa realizada com sucesso!',
+        ]);
+    }
+
+    /**
+     * Aprovar entrada (1ª etapa) de um pedido.
+     */
+    public function approveEntry(Request $request, $orderId): JsonResponse
+    {
+        $order = Order::with('payment')->findOrFail($orderId);
+        $payment = $order->payment;
+
+        if (!$payment) {
+            return response()->json(['error' => 'Pagamento nao encontrado'], 404);
+        }
+
+        if ($payment->entry_approved) {
+            return response()->json(['error' => 'Entrada ja aprovada'], 400);
+        }
+
+        $payment->update([
+            'entry_approved' => true,
+            'entry_approved_by' => Auth::id(),
+            'entry_approved_at' => now(),
+        ]);
+
+        // Se não há restante, marca como totalmente aprovado também
+        if (($payment->remaining_amount ?? 0) <= 0) {
+            $payment->update([
+                'cash_approved' => true,
+                'approved_by' => Auth::id(),
+                'approved_at' => now(),
+                'status' => 'pago',
+            ]);
+            CashTransaction::where('order_id', $order->id)
+                ->where('status', 'pendente')
+                ->update([
+                    'status' => 'confirmado',
+                    'notes' => 'Aprovado por: ' . Auth::user()->name . ' em ' . now()->format('d/m/Y H:i'),
+                ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Entrada aprovada com sucesso!',
+        ]);
+    }
+
+    /**
+     * Aprovar restante (2ª etapa) de um pedido.
+     */
+    public function approveRemaining(Request $request, $orderId): JsonResponse
+    {
+        $order = Order::with('payment')->findOrFail($orderId);
+        $payment = $order->payment;
+
+        if (!$payment) {
+            return response()->json(['error' => 'Pagamento nao encontrado'], 404);
+        }
+
+        if ($payment->remaining_approved) {
+            return response()->json(['error' => 'Restante ja aprovado'], 400);
+        }
+
+        $payment->update([
+            'remaining_approved' => true,
+            'remaining_approved_by' => Auth::id(),
+            'remaining_approved_at' => now(),
+        ]);
+
+        // Quando o restante é aprovado, marca o pagamento como totalmente aprovado
+        $payment->update([
+            'cash_approved' => true,
+            'approved_by' => Auth::id(),
+            'approved_at' => now(),
+            'status' => 'pago',
+        ]);
+
+        CashTransaction::where('order_id', $order->id)
+            ->where('status', 'pendente')
+            ->update([
+                'status' => 'confirmado',
+                'notes' => 'Aprovado (restante) por: ' . Auth::user()->name . ' em ' . now()->format('d/m/Y H:i'),
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Restante aprovado! Pedido totalmente quitado.',
         ]);
     }
 
