@@ -66,37 +66,7 @@
 .store-badge.has-stock { background: rgba(139,92,246,0.1); border-color: rgba(139,92,246,0.25); color: #c4b5fd; }
 .store-badge .qty { font-size: 0.8rem; font-weight: 900; color: #e2e8f0; }
 
-/* Sell Button */
-.btn-sell {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 0.3rem 0.75rem; border-radius: 8px;
-    font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
-    cursor: pointer; transition: all 0.2s; border: none; outline: none;
-    background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.2);
-}
-.btn-sell:hover { background: rgba(16,185,129,0.2); color: #6ee7b7; }
 
-/* Modal */
-#sell-modal {
-    display: none; position: fixed; inset: 0; z-index: 9999;
-    align-items: center; justify-content: center;
-    background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
-}
-#sell-modal.open { display: flex; }
-.modal-box {
-    background: #0f172a; border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px; padding: 2rem; width: 100%; max-width: 540px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.5);
-    animation: fadeInUp 0.25s ease-out;
-}
-.field-input {
-    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px; color: #e2e8f0; padding: 0.5rem 0.75rem; width: 100%;
-    font-size: 0.875rem; transition: border-color 0.15s;
-}
-.field-input:focus { outline: none; border-color: rgba(139,92,246,0.6); box-shadow: 0 0 0 2px rgba(139,92,246,0.15); }
-.field-input option { background: #1e293b; }
-.field-label { display: block; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; margin-bottom: 0.35rem; }
 
 /* Loading skeleton */
 .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
@@ -146,15 +116,17 @@
 
     {{-- Tabs de Tecido --}}
     <div class="glass-card overflow-hidden anim-in" style="animation-delay:0.1s;opacity:0;">
-        <div class="flex items-center gap-1 px-4 py-3 overflow-x-auto scrollbar-hide border-b" style="border-color:rgba(255,255,255,0.06);">
-            @foreach($fabricTypes as $ft)
-                <button type="button"
-                        class="tab-btn fabric-tab {{ $selectedFabricTypeId == $ft->id ? 'active' : '' }}"
-                        data-fabric-id="{{ $ft->id }}"
-                        onclick="selectFabric({{ $ft->id }}, this)">
-                    {{ $ft->name }}
-                </button>
-            @endforeach
+        <div class="overflow-x-auto border-b" style="border-color:rgba(255,255,255,0.06);scrollbar-width:thin;scrollbar-color:rgba(139,92,246,0.4) transparent;">
+            <div class="flex items-center gap-1 px-4 py-3" style="min-width:max-content;">
+                @foreach($fabricTypes as $ft)
+                    <button type="button"
+                            class="tab-btn fabric-tab {{ $selectedFabricTypeId == $ft->id ? 'active' : '' }}"
+                            data-fabric-id="{{ $ft->id }}"
+                            onclick="selectFabric({{ $ft->id }}, this)">
+                        {{ $ft->name }}
+                    </button>
+                @endforeach
+            </div>
         </div>
 
         {{-- Conteúdo da aba selecionada --}}
@@ -190,67 +162,13 @@
     </div>
 </div>
 
-{{-- ===================== MODAL DE VENDA ===================== --}}
-<div id="sell-modal">
-    <div class="modal-box" onclick="event.stopPropagation()">
-        <div class="flex items-start justify-between mb-5">
-            <div>
-                <h2 class="text-lg font-bold text-white">Vender Tecido</h2>
-                <p class="text-xs text-gray-500 mt-0.5" id="modal-subtitle">-</p>
-            </div>
-            <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:text-white hover:bg-white/10 transition">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
 
-        {{-- Resumo de disponibilidade --}}
-        <div id="modal-stock-info" class="mb-5 p-3 rounded-xl text-sm" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
-            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Peças disponíveis</p>
-            <div id="modal-pieces-list" class="space-y-1 max-h-32 overflow-y-auto"></div>
-        </div>
-
-        <form id="sell-form" onsubmit="submitSell(event)">
-            <div class="space-y-4">
-                <div>
-                    <label class="field-label">Selecionar Peça *</label>
-                    <select id="modal-piece-id" class="field-input" required onchange="updateModalPieceInfo()">
-                        <option value="">Selecione a peça...</option>
-                    </select>
-                </div>
-                <div id="piece-info-bar" class="hidden p-2 rounded-lg text-xs" style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);">
-                    Disponível: <strong id="piece-available" class="text-purple-300">-</strong>
-                </div>
-                <div>
-                    <label class="field-label" id="modal-qty-label">Quantidade *</label>
-                    <input type="number" id="modal-qty" step="0.001" min="0.001" class="field-input" placeholder="0,000" required>
-                </div>
-                <div>
-                    <label class="field-label">Observações</label>
-                    <input type="text" id="modal-notes" class="field-input" placeholder="Opcional...">
-                </div>
-            </div>
-            <div class="flex gap-3 mt-6">
-                <button type="button" onclick="closeModal()"
-                        class="flex-1 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest text-gray-400 hover:text-gray-200 transition"
-                        style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
-                    Cancelar
-                </button>
-                <button type="submit" id="modal-submit-btn"
-                        class="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl text-sm font-black uppercase tracking-widest hover:shadow-lg hover:shadow-emerald-600/30 transition active:scale-95 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-check"></i>
-                    Confirmar Venda
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
 
 @push('scripts')
 <script>
 let currentFabricId = {{ $selectedFabricTypeId ?? 'null' }};
 let currentStoreId = {{ $selectedStoreId ?? 'null' }};
 let storeList = @json($stores->map(fn($s) => ['id' => $s->id, 'name' => $s->name]));
-let modalPieces = [];
 
 // ─── Carregamento de dados ───────────────────────────────────────────
 async function loadStockData(fabricId, storeId) {
@@ -307,7 +225,6 @@ function renderTable(rows, filteredStoreId) {
             <th style="min-width:160px;">Cor</th>
             ${displayStores.map(n => `<th class="center" style="min-width:130px;">${n}</th>`).join('')}
             <th class="center" style="min-width:100px;">Total</th>
-            <th class="center" style="min-width:80px;">Ações</th>
         </tr></thead>
         <tbody>`;
 
@@ -348,8 +265,6 @@ function renderTable(rows, filteredStoreId) {
             ? row.total_qty.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})
             : row.total_qty.toLocaleString('pt-BR', {minimumFractionDigits:3, maximumFractionDigits:3});
 
-        const piecesJson = encodeURIComponent(JSON.stringify(row.stores.flatMap(st => st.pieces.map(p => Object.assign({}, p, {store_name: st.store_name})))));
-
         html += `<tr>
             <td>
                 <div class="flex items-center gap-2">
@@ -361,12 +276,6 @@ function renderTable(rows, filteredStoreId) {
             <td class="center">
                 <span class="text-sm font-black text-white">${totalFmt}</span>
                 <span class="text-[10px] text-gray-500"> ${totalUnit}</span>
-            </td>
-            <td class="center">
-                <button class="btn-sell"
-                        onclick="openSellModal(${row.color_id}, '${escapeHtml(row.color_name)}', '${piecesJson}')">
-                    <i class="fa-solid fa-tag text-xs"></i> Vender
-                </button>
             </td>
         </tr>`;
     });
@@ -405,129 +314,7 @@ function filterStore(storeId, el) {
     if (currentFabricId) loadStockData(currentFabricId, currentStoreId);
 }
 
-// ─── Modal de Venda ───────────────────────────────────────────────────
-function openSellModal(colorId, colorName, piecesEncoded) {
-    const pieces = JSON.parse(decodeURIComponent(piecesEncoded));
-    modalPieces = pieces;
 
-    document.getElementById('modal-subtitle').textContent = colorName + (currentFabricId ? '' : '');
-    document.getElementById('sell-modal').classList.add('open');
-
-    // Preencher select de peças
-    const sel = document.getElementById('modal-piece-id');
-    sel.innerHTML = '<option value="">Selecione a peça...</option>';
-    pieces.forEach(p => {
-        const unit = p.unit === 'metros' ? 'm' : 'kg';
-        const qty = p.unit === 'metros'
-            ? parseFloat(p.qty).toLocaleString('pt-BR', {minimumFractionDigits:2})
-            : parseFloat(p.qty).toLocaleString('pt-BR', {minimumFractionDigits:3});
-        const label = `[${p.store_name}] NF ${p.invoice_number || '–'} – ${qty} ${unit} (${p.status})`;
-        sel.innerHTML += `<option value="${p.id}" data-qty="${p.qty}" data-unit="${p.unit}">${label}</option>`;
-    });
-
-    // Lista de todas as peças
-    const list = document.getElementById('modal-pieces-list');
-    list.innerHTML = pieces.map(p => {
-        const unit = p.unit === 'metros' ? 'm' : 'kg';
-        const qty = p.unit === 'metros'
-            ? parseFloat(p.qty).toLocaleString('pt-BR', {minimumFractionDigits:2})
-            : parseFloat(p.qty).toLocaleString('pt-BR', {minimumFractionDigits:3});
-        const statusColor = p.status === 'aberta' ? 'text-emerald-400' : 'text-blue-400';
-        return `<div class="flex items-center justify-between text-xs py-1 border-b border-white/5 last:border-0">
-            <span class="text-gray-400">${p.store_name} · NF ${p.invoice_number || '–'}</span>
-            <span class="font-bold text-white">${qty} ${unit}</span>
-            <span class="${statusColor} font-semibold">${p.status}</span>
-        </div>`;
-    }).join('');
-
-    document.getElementById('piece-info-bar').classList.add('hidden');
-    document.getElementById('modal-qty').value = '';
-    document.getElementById('modal-notes').value = '';
-}
-
-function updateModalPieceInfo() {
-    const sel = document.getElementById('modal-piece-id');
-    const opt = sel.selectedOptions[0];
-    const bar = document.getElementById('piece-info-bar');
-
-    if (!opt || !opt.value) { bar.classList.add('hidden'); return; }
-
-    const qty = parseFloat(opt.dataset.qty);
-    const unit = opt.dataset.unit === 'metros' ? 'm' : 'kg';
-    const qtyFmt = opt.dataset.unit === 'metros'
-        ? qty.toLocaleString('pt-BR', {minimumFractionDigits:2})
-        : qty.toLocaleString('pt-BR', {minimumFractionDigits:3});
-
-    document.getElementById('piece-available').textContent = `${qtyFmt} ${unit}`;
-    document.getElementById('modal-qty-label').textContent = `Quantidade * (máx ${qtyFmt} ${unit})`;
-    document.getElementById('modal-qty').max = qty;
-    document.getElementById('modal-qty').step = opt.dataset.unit === 'metros' ? '0.01' : '0.001';
-    bar.classList.remove('hidden');
-}
-
-function closeModal() {
-    document.getElementById('sell-modal').classList.remove('open');
-}
-
-// Fechar ao clicar no backdrop
-document.getElementById('sell-modal').addEventListener('click', closeModal);
-
-async function submitSell(e) {
-    e.preventDefault();
-    const pieceId = document.getElementById('modal-piece-id').value;
-    const qty = parseFloat(document.getElementById('modal-qty').value);
-    const notes = document.getElementById('modal-notes').value;
-
-    if (!pieceId || !qty || qty <= 0) {
-        alert('Selecione a peça e informe uma quantidade válida.');
-        return;
-    }
-
-    const btn = document.getElementById('modal-submit-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
-
-    try {
-        const res = await fetch(`/fabric-pieces/${pieceId}/sell-partial`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-            },
-            body: JSON.stringify({ quantity: qty, channel: 'manual', notes }),
-        });
-        const data = await res.json();
-
-        if (data.success) {
-            closeModal();
-            showToast('Venda registrada com sucesso!', 'success');
-            loadStockData(currentFabricId, currentStoreId);
-        } else {
-            showToast(data.message || 'Erro ao registrar venda.', 'error');
-        }
-    } catch (err) {
-        showToast('Erro na comunicação com o servidor.', 'error');
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-check"></i> Confirmar Venda';
-    }
-}
-
-// ─── Toast ────────────────────────────────────────────────────────────
-function showToast(msg, type) {
-    const colors = type === 'success'
-        ? 'background:rgba(16,185,129,0.12);border-left:4px solid #10b981;color:#34d399;'
-        : 'background:rgba(239,68,68,0.12);border-left:4px solid #ef4444;color:#f87171;';
-    const el = document.createElement('div');
-    el.style = `position:fixed;bottom:1.5rem;right:1.5rem;z-index:99999;padding:1rem 1.25rem;border-radius:12px;font-size:0.875rem;font-weight:600;max-width:360px;${colors}`;
-    el.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-xmark'} mr-2"></i>${msg}`;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 4000);
-}
-
-function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
 
 // ─── Inicialização ────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {

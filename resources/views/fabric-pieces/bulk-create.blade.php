@@ -132,7 +132,11 @@
                     <select name="fabric_type_id" id="fabric_type_id" required class="field-input">
                         <option value="">Selecione...</option>
                         @foreach($fabricTypes as $ft)
-                            <option value="{{ $ft->id }}" {{ old('fabric_type_id') == $ft->id ? 'selected' : '' }}>{{ $ft->name }}</option>
+                            <option value="{{ $ft->id }}"
+                                    data-base-price="{{ (float) $ft->price }}"
+                                    {{ old('fabric_type_id') == $ft->id ? 'selected' : '' }}>
+                                {{ $ft->parent ? $ft->parent->name . ' - ' . $ft->name : $ft->name }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -306,6 +310,26 @@
 const colors = @json($colors->map(fn($c) => ['id' => $c->id, 'name' => $c->name]));
 let rowCount = 0;
 
+function syncBulkSalePriceFromFabric(force = false) {
+    const fabricSelect = document.getElementById('fabric_type_id');
+    const salePriceInput = document.querySelector('input[name="sale_price"]');
+
+    if (!fabricSelect || !salePriceInput) {
+        return;
+    }
+
+    if (!force && salePriceInput.dataset.touched === '1') {
+        return;
+    }
+
+    const selectedOption = fabricSelect.options[fabricSelect.selectedIndex];
+    const basePrice = parseFloat(selectedOption?.dataset.basePrice || 0);
+
+    if (basePrice > 0) {
+        salePriceInput.value = basePrice.toFixed(2);
+    }
+}
+
 function getTemplate(idx) {
     const tpl = document.getElementById('row-template').innerHTML;
     return tpl.replaceAll('__IDX__', idx).replaceAll('__NUM__', idx + 1);
@@ -417,7 +441,29 @@ document.getElementById('bulk-form').addEventListener('submit', function(e) {
 });
 
 // Init
+const bulkFabricSelect = document.getElementById('fabric_type_id');
+const bulkSalePriceInput = document.querySelector('input[name="sale_price"]');
+
+if (bulkFabricSelect) {
+    bulkFabricSelect.addEventListener('change', () => syncBulkSalePriceFromFabric());
+}
+
+if (bulkSalePriceInput) {
+    if (bulkSalePriceInput.value !== '') {
+        bulkSalePriceInput.dataset.touched = '1';
+    }
+
+    bulkSalePriceInput.addEventListener('input', () => {
+        bulkSalePriceInput.dataset.touched = '1';
+    });
+}
+
 updateState();
+updateQtyHeaders();
+
+if (!bulkSalePriceInput || bulkSalePriceInput.value === '') {
+    syncBulkSalePriceFromFabric(true);
+}
 </script>
 @endpush
 @endsection

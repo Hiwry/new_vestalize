@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Schema;
 
 class FabricPiece extends Model
 {
+    protected static array $channelAvailabilityColumnCache = [];
+
     protected $fillable = [
         'store_id',
         'fabric_id',
@@ -301,7 +304,19 @@ class FabricPiece extends Model
             default => 'available_in_pdv',
         };
 
+        // Older databases may not have the channel flags yet. In that case,
+        // treat the piece as available instead of breaking catalog/PDV queries.
+        if (!static::hasChannelAvailabilityColumn($column)) {
+            return $query;
+        }
+
         return $query->where($column, true);
+    }
+
+    protected static function hasChannelAvailabilityColumn(string $column): bool
+    {
+        return static::$channelAvailabilityColumnCache[$column]
+            ??= Schema::hasColumn((new static())->getTable(), $column);
     }
 
     public function scopeByStore($query, $storeId)

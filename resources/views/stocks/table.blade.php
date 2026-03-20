@@ -52,12 +52,16 @@ $criticalGroups = $statusStats['low_stock'] + $statusStats['out_stock'];
 .dark .fsb-metric-value{color:#f1f5f9}
 .fsb-toolbar{margin-top:14px;border-radius:18px;border:1px solid #d6deea;padding:14px;background:rgba(255,255,255,.9);box-shadow:0 16px 34px rgba(15,23,42,.06)}
 .dark .fsb-toolbar{border-color:rgba(148,163,184,.22);background:rgba(15,23,42,.74);box-shadow:none}
-.fsb-fields{display:grid;grid-template-columns:minmax(240px,1.35fr) repeat(5,minmax(130px,1fr));gap:10px}
-.fsb-input,.fsb-select{height:42px;width:100%;border-radius:12px;border:1px solid #cfd8e6;background:#fff;padding:0 12px;font-size:13px;font-weight:600;color:#0f172a}
+.fsb-fields{display:grid;grid-template-columns:minmax(220px,1.2fr) minmax(150px,.95fr) minmax(210px,1.15fr) repeat(3,minmax(150px,.9fr));gap:10px}
+.fsb-input,.fsb-select{height:44px;width:100%;border-radius:12px;border:1px solid #cfd8e6;background:#fff;padding:0 12px;font-size:13px;font-weight:600;line-height:1.2;color:#0f172a}
 .dark .fsb-input,.dark .fsb-select{border-color:rgba(148,163,184,.28);background:rgba(15,23,42,.86);color:#e2e8f0}
 .fsb-search{position:relative}
-.fsb-search .fa-magnifying-glass{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:13px}
-.fsb-search .fsb-input{padding-left:34px}
+.fsb-search-btn{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:30px;height:30px;border:0;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#94a3b8;cursor:pointer;transition:background-color .18s ease,color .18s ease}
+.fsb-search-btn:hover{background:rgba(148,163,184,.12);color:#475569}
+.dark .fsb-search-btn:hover{background:rgba(148,163,184,.16);color:#e2e8f0}
+.fsb-search .fsb-input{padding-left:44px}
+.fsb-select{appearance:none;-webkit-appearance:none;-moz-appearance:none;padding-right:38px;background-image:linear-gradient(45deg,transparent 50%,#64748b 50%),linear-gradient(135deg,#64748b 50%,transparent 50%);background-position:calc(100% - 18px) calc(50% - 3px),calc(100% - 12px) calc(50% - 3px);background-size:6px 6px,6px 6px;background-repeat:no-repeat;text-overflow:ellipsis}
+.dark .fsb-select{background-image:linear-gradient(45deg,transparent 50%,#94a3b8 50%),linear-gradient(135deg,#94a3b8 50%,transparent 50%)}
 .fsb-toolbar-foot{margin-top:12px;padding-top:12px;border-top:1px dashed #d7dfeb;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .dark .fsb-toolbar-foot{border-color:rgba(148,163,184,.25)}
 .fsb-checkbox{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#334155}
@@ -125,13 +129,13 @@ $criticalGroups = $statusStats['low_stock'] + $statusStats['out_stock'];
     <section class="fsb-shell">
         <div class="fsb-top">
             <div>
-                <p class="fsb-kicker">StockFlow / Tecidos</p>
-                <h1 class="fsb-title">Inventory Management</h1>
-                <p class="fsb-subtitle">Total itens: {{ number_format($totalGroups, 0, ',', '.') }} <span class="mx-1">|</span> Alertas: {{ number_format($criticalGroups, 0, ',', '.') }}</p>
+                <p class="fsb-kicker">Estoque / Tecidos</p>
+                <h1 class="fsb-title">Gestao de Estoque</h1>
+                <p class="fsb-subtitle">Total de itens: {{ number_format($totalGroups, 0, ',', '.') }} <span class="mx-1">|</span> Alertas: {{ number_format($criticalGroups, 0, ',', '.') }}</p>
             </div>
 
             <div class="fsb-actions">
-                <a href="{{ route('stocks.dashboard') }}" class="fsb-btn fsb-btn-soft"><i class="fa-solid fa-chart-pie"></i>Dashboard</a>
+                <a href="{{ route('stocks.dashboard') }}" class="fsb-btn fsb-btn-soft"><i class="fa-solid fa-chart-pie"></i>Painel</a>
                 <a href="{{ route('stocks.history') }}" class="fsb-btn fsb-btn-soft"><i class="fa-solid fa-clock-rotate-left"></i>Historico</a>
                 <a href="{{ route('stock-requests.index') }}" class="fsb-btn fsb-btn-soft"><i class="fa-solid fa-file-invoice"></i>Solicitacoes</a>
                 <a href="{{ route('stocks.create') }}" class="fsb-btn fsb-btn-primary"><i class="fa-solid fa-plus"></i>Adicionar Item</a>
@@ -149,7 +153,9 @@ $criticalGroups = $statusStats['low_stock'] + $statusStats['out_stock'];
             <form method="GET" action="{{ route('stocks.index') }}">
                 <div class="fsb-fields">
                     <div class="fsb-search">
-                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <button type="submit" class="fsb-search-btn" aria-label="Buscar no estoque">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
                         <input type="text" name="search_id" value="{{ request('search_id') }}" placeholder="Buscar por ID do estoque..." class="fsb-input">
                     </div>
 
@@ -206,8 +212,8 @@ $criticalGroups = $statusStats['low_stock'] + $statusStats['out_stock'];
         <div class="fsb-table-card">
             <div class="fsb-table-head">
                 <div>
-                    <h2>Fabric Rolls Inventory</h2>
-                    <p>Visualizacao de tecidos por loja, cor e categoria.</p>
+                    <h2>Estoque de Rolos de Tecido</h2>
+                    <p>Visualizacao dos tecidos por loja, cor e categoria.</p>
                 </div>
                 <p>Registros: {{ number_format($totalGroups, 0, ',', '.') }}</p>
             </div>
@@ -422,7 +428,7 @@ $criticalGroups = $statusStats['low_stock'] + $statusStats['out_stock'];
             <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
         </div>
 
-        <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2">Excluir Item?</h3>
+        <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2">Excluir item?</h3>
         <p id="delete-message" class="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">Esta acao removera permanentemente o estoque selecionado.</p>
 
         <form id="delete-form" method="POST" class="flex gap-3">

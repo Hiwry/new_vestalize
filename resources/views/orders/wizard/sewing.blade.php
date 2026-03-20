@@ -2626,7 +2626,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             }
 
             select.innerHTML = '<option value="">Selecione o tecido</option>' + 
-                items.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
+                items.map(item => `<option value="${item.id}" data-price="${parseFloat(item.price || 0)}">${item.name}</option>`).join('');
         }
 
         if (wizardData.tecido) {
@@ -2649,10 +2649,14 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
              return;
          }
          
-          const fabricName = select.options[select.selectedIndex].text;
+         const selectedOption = select.options[select.selectedIndex];
+         const fabricName = selectedOption.text;
+         const fabricPrice = parseFloat(selectedOption.dataset.price || 0);
           
           if (!wizardData.tecido || wizardData.tecido.id != fabricId) {
-              wizardData.tecido = { id: fabricId, name: fabricName, price: 0 };
+              wizardData.tecido = { id: fabricId, name: fabricName, price: fabricPrice };
+          } else {
+              wizardData.tecido.price = fabricPrice;
           }
           
           const subItems = filterByParent(getOptionList(['tipo_tecido']), fabricId);

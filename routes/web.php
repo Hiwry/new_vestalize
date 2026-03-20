@@ -941,6 +941,15 @@ Route::middleware('auth')->prefix('fabric-pieces')->name('fabric-pieces.')->grou
     Route::get('/report', [\App\Http\Controllers\FabricPieceController::class, 'report'])->name('report');
 });
 
+Route::middleware(['auth', 'plan:stock'])->prefix('stock-fabrics')->name('stock-fabrics.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\StockFabricController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\StockFabricController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\StockFabricController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [\App\Http\Controllers\StockFabricController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [\App\Http\Controllers\StockFabricController::class, 'update'])->name('update');
+    Route::delete('/{id}', [\App\Http\Controllers\StockFabricController::class, 'destroy'])->name('destroy');
+});
+
 // Máquinas de Costura
 Route::middleware('auth')->prefix('sewing-machines')->name('sewing-machines.')->group(function () {
     Route::resource('/', \App\Http\Controllers\SewingMachineController::class)->parameters(['' => 'sewingMachine']);

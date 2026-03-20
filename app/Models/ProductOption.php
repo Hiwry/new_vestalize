@@ -94,4 +94,9 @@ class ProductOption extends Model
     {
         return $this->hasMany(FabricPiece::class, 'fabric_id');
     }
+
+    public function fabricTypePieces()
+    {
+        return $this->hasMany(FabricPiece::class, 'fabric_type_id');
+    }
 }

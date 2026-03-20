@@ -83,7 +83,6 @@
                         <tr>
                             <th class="w-10 px-6 py-3"></th> <!-- Drag Handle -->
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nome</th>
-                            <!-- Preço removido para a maioria, mas exibido para tipo_corte, detalhe e gola -->
                             @if(in_array($type, ['tipo_corte', 'detalhe', 'gola']))
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Preço</th>
                             @endif
@@ -113,7 +112,6 @@
                                     </div>
                                     <div class="text-xs text-gray-500 dark:text-gray-400 sm:hidden">Ordem: {{ $option->order }}</div>
                                 </td>
-                                <!-- Preço exibido para tipo_corte, detalhe e gola -->
                                 @if(in_array($type, ['tipo_corte', 'detalhe', 'gola']))
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                                         R$ {{ number_format($option->price, 2, ',', '.') }}

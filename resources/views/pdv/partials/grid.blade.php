@@ -113,6 +113,11 @@
                             <div class="min-w-0 flex-1">
                                 <span class="pdv-product-label">{{ $item->type_label ?? 'Item' }}</span>
                                 <h3 class="pdv-product-title line-clamp-2">{{ $item->title }}</h3>
+                                @if($type === 'fabric_pieces' && !empty($item->parent_name))
+                                    <p class="mt-1 text-xs text-gray-500 dark:text-[var(--pdv-text-secondary)]">
+                                        Tecido base: {{ $item->parent_name }}
+                                    </p>
+                                @endif
                             </div>
                         </div>
 
@@ -128,11 +133,13 @@
 
                 <div class="pdv-product-footer">
                     <div>
-                        <p class="pdv-product-price-label">Preco</p>
+                        <p class="pdv-product-price-label">{{ $item->price_unit_label ?? 'Preco' }}</p>
                         @if(isset($item->price) && $item->price > 0)
-                            <p class="pdv-product-price">R$ {{ number_format($item->price, 2, ',', '.') }}</p>
+                            <p class="pdv-product-price">
+                                R$ {{ number_format($item->price, 2, ',', '.') }}{{ $item->price_unit_suffix ?? '' }}
+                            </p>
                         @else
-                            <p class="text-sm text-gray-500 italic mt-1">Definir valor</p>
+                            <p class="text-sm text-gray-500 italic mt-1">{{ $item->empty_price_label ?? 'Definir valor' }}</p>
                         @endif
                     </div>
 
@@ -140,7 +147,8 @@
                         $itemType = isset($item->type) ? $item->type : substr($type, 0, -1);
                         $clickAction = "openAddProductModal({$item->id}, '{$itemType}')";
                         if ($itemType === 'fabric_group') {
-                            $clickAction = "openFabricGroupModal({$item->id}, '{$item->name}')";
+                            $groupTitle = $item->parent_name ? $item->parent_name . ' - ' . $item->title : $item->title;
+                            $clickAction = 'openFabricGroupModal(' . json_encode((string) $item->id) . ', ' . json_encode($groupTitle) . ')';
                         }
                     @endphp
                     <button onclick="{{ $clickAction }}"

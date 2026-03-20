@@ -34,10 +34,14 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo de Tecido</label>
-                        <select name="fabric_type_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg">
+                        <select name="fabric_type_id" id="fabric_type_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg">
                             <option value="">Selecione...</option>
                             @foreach($fabricTypes as $fabricType)
-                                <option value="{{ $fabricType->id }}" {{ old('fabric_type_id', $piece->fabric_type_id) == $fabricType->id ? 'selected' : '' }}>{{ $fabricType->name }}</option>
+                                <option value="{{ $fabricType->id }}"
+                                        data-base-price="{{ (float) $fabricType->price }}"
+                                        {{ old('fabric_type_id', $piece->fabric_type_id) == $fabricType->id ? 'selected' : '' }}>
+                                    {{ $fabricType->parent ? $fabricType->parent->name . ' - ' . $fabricType->name : $fabricType->name }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -177,6 +181,7 @@
                         <label id="sale-price-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Preço por Kg (Venda)</label>
                         <input type="number" step="0.01" name="sale_price" value="{{ old('sale_price', $piece->sale_price) }}"
                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg">
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Se o campo ainda não tiver sido ajustado manualmente, o valor base do tecido pode ser reaplicado ao trocar a seleção.</p>
                     </div>
                     <div>
                         <label id="alert-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Alerta mínimo (kg)</label>
@@ -254,6 +259,26 @@
 
 @push('scripts')
 <script>
+    function syncSalePriceFromFabric(force = false) {
+        const fabricSelect = document.getElementById('fabric_type_id');
+        const salePriceInput = document.querySelector('input[name="sale_price"]');
+
+        if (!fabricSelect || !salePriceInput) {
+            return;
+        }
+
+        if (!force && salePriceInput.dataset.touched === '1') {
+            return;
+        }
+
+        const selectedOption = fabricSelect.options[fabricSelect.selectedIndex];
+        const basePrice = parseFloat(selectedOption?.dataset.basePrice || 0);
+
+        if (basePrice > 0) {
+            salePriceInput.value = basePrice.toFixed(2);
+        }
+    }
+
     function toggleControlUnitFields() {
         const unit = document.getElementById('control_unit')?.value || 'kg';
         const salePriceLabel = document.getElementById('sale-price-label');
@@ -284,8 +309,29 @@
 
     // Inicializar estado ao carregar a página
     document.addEventListener('DOMContentLoaded', function() {
+        const fabricSelect = document.getElementById('fabric_type_id');
+        const salePriceInput = document.querySelector('input[name="sale_price"]');
+
+        if (fabricSelect) {
+            fabricSelect.addEventListener('change', () => syncSalePriceFromFabric());
+        }
+
+        if (salePriceInput) {
+            if (salePriceInput.value !== '') {
+                salePriceInput.dataset.touched = '1';
+            }
+
+            salePriceInput.addEventListener('input', () => {
+                salePriceInput.dataset.touched = '1';
+            });
+        }
+
         toggleStoreSelectors();
         toggleControlUnitFields();
+
+        if (!salePriceInput || salePriceInput.value === '') {
+            syncSalePriceFromFabric(true);
+        }
     });
 </script>
 @endpush

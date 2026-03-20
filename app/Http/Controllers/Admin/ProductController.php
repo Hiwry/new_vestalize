@@ -6,9 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Subcategory;
-use App\Models\Tecido;
-use App\Models\Personalizacao;
-use App\Models\Modelo;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -63,9 +60,9 @@ class ProductController extends Controller
         try {
             $categories = Category::where('active', true)->orderBy('name')->get();
             $subcategories = Subcategory::where('active', true)->orderBy('name')->get();
-            $tecidos = Tecido::where('active', true)->orderBy('name')->get();
-            $personalizacoes = Personalizacao::where('active', true)->orderBy('name')->get();
-            $modelos = Modelo::where('active', true)->orderBy('name')->get();
+            $tecidos = \App\Models\ProductOption::withoutGlobalScopes()->where('type', 'tecido')->where('active', true)->orderBy('name')->get();
+            $personalizacoes = \App\Models\ProductOption::withoutGlobalScopes()->where('type', 'personalizacao')->where('active', true)->orderBy('name')->get();
+            $modelos = \App\Models\ProductOption::withoutGlobalScopes()->where('type', 'detalhe')->where('active', true)->orderBy('name')->get();
             $cutTypes = \App\Models\ProductOption::withoutGlobalScopes()->where('type', 'tipo_corte')->where('active', true)->orderBy('name')->get();
         } catch (\Exception $e) {
             $categories = collect([]);

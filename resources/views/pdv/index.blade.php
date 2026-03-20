@@ -2108,7 +2108,7 @@ window.openFabricGroupModal = async function(fabricId, fabricName) {
     const title = document.getElementById('fabric-group-modal-title');
     const list = document.getElementById('fabric-pieces-list');
     
-    title.textContent = `Selecionar Cor: ${fabricName}`;
+    title.textContent = `Selecionar tipo: ${fabricName}`;
     list.innerHTML = `
         <div class="p-12 text-center text-gray-500">
             <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-3 text-indigo-500"></i>
@@ -2128,7 +2128,7 @@ window.openFabricGroupModal = async function(fabricId, fabricName) {
             list.innerHTML = `
                 <div class="p-12 text-center text-gray-500">
                     <i class="fa-solid fa-exclamation-triangle text-2xl mb-3 text-orange-400"></i>
-                    <p>Nenhuma peça disponível para este tecido no momento.</p>
+                    <p>Nenhuma peça disponível para este tipo de tecido no momento.</p>
                 </div>
             `;
             return;
@@ -2136,8 +2136,13 @@ window.openFabricGroupModal = async function(fabricId, fabricName) {
         
         list.innerHTML = pieces.map(piece => {
             // Register item in pageItems so openAddProductModal can find it
-            if (window.pageItems && !window.pageItems.find(p => p.id == piece.id && p.type === 'fabric_piece')) {
-                window.pageItems.push(piece);
+            if (window.pageItems) {
+                const existingIndex = window.pageItems.findIndex(p => p.id == piece.id && p.type === 'fabric_piece');
+                if (existingIndex >= 0) {
+                    window.pageItems[existingIndex] = piece;
+                } else {
+                    window.pageItems.push(piece);
+                }
             }
 
             const colorSwatch = piece.color_hex
@@ -5364,6 +5369,12 @@ async function fetchProducts(type, search, options = {}) {
 
         if (!response.ok) throw new Error(`Erro HTTP ${response.status}`);
 
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+            const responseText = await response.text();
+            throw new Error(`Resposta inesperada do servidor (${response.status} ${contentType}): ${responseText.slice(0, 180)}`);
+        }
+
         const data = await response.json();
         
         // Update Grid HTML
@@ -5475,8 +5486,13 @@ async function fetchFabricAutocomplete(q) {
                 : `<span class="text-gray-400 text-xs">Preço não definido</span>`;
 
             // Register item in pageItems so openAddProductModal can find it
-            if (window.pageItems && !window.pageItems.find(p => p.id == piece.id && p.type === 'fabric_piece')) {
-                window.pageItems.push(piece);
+            if (window.pageItems) {
+                const existingIndex = window.pageItems.findIndex(p => p.id == piece.id && p.type === 'fabric_piece');
+                if (existingIndex >= 0) {
+                    window.pageItems[existingIndex] = piece;
+                } else {
+                    window.pageItems.push(piece);
+                }
             }
 
             return `

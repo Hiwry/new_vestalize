@@ -91,7 +91,7 @@
                             <div>
                                 <div class="flex items-center justify-between mb-2">
                                     <label for="tecido_id" class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tecido</label>
-                                    <a href="{{ route('admin.tecidos.create') }}" class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline"><i class="fa-solid fa-plus"></i></a>
+                                    <a href="{{ route('admin.product-options.index') }}" class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline"><i class="fa-solid fa-plus"></i></a>
                                 </div>
                                 <select id="tecido_id" name="tecido_id" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 dark:text-white appearance-none">
                                     <option value="">Nenhum</option>

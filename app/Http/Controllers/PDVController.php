@@ -31,6 +31,17 @@ use Dompdf\Options;
 
 class PDVController extends Controller
 {
+    private function resolveFabricPieceUnitPrice($piece): float
+    {
+        $fabricTypePrice = (float) ($piece->fabricType?->price ?? 0);
+
+        if ($fabricTypePrice > 0) {
+            return $fabricTypePrice;
+        }
+
+        return (float) ($piece->sale_price ?? 0);
+    }
+
     /**
      * Exibir página do PDV
      */
@@ -115,8 +126,8 @@ class PDVController extends Controller
             }
         } 
         elseif ($type === 'fabric_pieces') {
-            // Agrupar por tecido (ProductOption de tipo 'tecido')
-            // Só mostramos tecidos que possuem peças disponíveis no PDV
+            // Agrupar por tipo de tecido (ProductOption de tipo 'tipo_tecido')
+            // Só mostramos tipos que possuem peças disponíveis no PDV
             $fabricPiecesQuery = \App\Models\FabricPiece::active()
                 ->hasAvailableQuantity()
                 ->availableForChannel('pdv');
@@ -124,24 +135,35 @@ class PDVController extends Controller
             if ($currentStoreId && !$user->isAdmin() && !$user->isAdminGeral()) {
                 $fabricPiecesQuery->where('store_id', $currentStoreId);
             }
-            
-            $fabricIdsWithPieces = $fabricPiecesQuery->pluck('fabric_id')->unique();
 
-            $query = ProductOption::whereIn('id', $fabricIdsWithPieces);
+            $fabricTypeIdsWithPieces = $fabricPiecesQuery
+                ->whereNotNull('fabric_type_id')
+                ->pluck('fabric_type_id')
+                ->unique();
+
+            $query = ProductOption::with('parent')
+                ->where('type', 'tipo_tecido')
+                ->whereIn('id', $fabricTypeIdsWithPieces);
 
             if ($search) {
-                $query->where('name', 'like', "%{$search}%");
+                $query->where(function ($builder) use ($search) {
+                    $builder->where('name', 'like', "%{$search}%")
+                        ->orWhereHas('parent', function ($parentQuery) use ($search) {
+                            $parentQuery->where('name', 'like', "%{$search}%");
+                        });
+                });
             }
 
-            $items = $query->get()->map(function($fabric) use ($currentStoreId, $user) {
-                $fabric->title = $fabric->name;
-                $fabric->type = 'fabric_group'; // Tipo especial para o front agrupar
-                $fabric->type_label = 'Grupo de Tecido';
-                $fabric->price = 0;
-                $fabric->price_label = 'Ver peças';
+            $items = $query->orderBy('name')->get()->map(function($fabricType) use ($currentStoreId, $user) {
+                $fabricType->title = $fabricType->name;
+                $fabricType->type = 'fabric_group';
+                $fabricType->type_label = 'Tipo de Tecido';
+                $fabricType->price = (float) ($fabricType->price ?? 0);
+                $fabricType->price_label = 'Ver peças';
+                $fabricType->parent_name = $fabricType->parent?->name;
                 
                 // Contagem de peças disponíveis
-                $piecesQuery = \App\Models\FabricPiece::where('fabric_id', $fabric->id)
+                $piecesQuery = \App\Models\FabricPiece::where('fabric_type_id', $fabricType->id)
                     ->active()
                     ->hasAvailableQuantity()
                     ->availableForChannel('pdv');
@@ -151,10 +173,16 @@ class PDVController extends Controller
                 }
                 
                 $count = $piecesQuery->count();
-                $fabric->pieces_count = $count;
-                $fabric->stock_label = $count . ($count == 1 ? ' peça disp.' : ' peças disp.');
+                $unit = (clone $piecesQuery)->value('control_unit') ?: 'kg';
+                $fabricType->pieces_count = $count;
+                $fabricType->stock_quantity = $count;
+                $fabricType->stock_label = $count . ($count == 1 ? ' peça disp.' : ' peças disp.');
+                $fabricType->control_unit = $unit;
+                $fabricType->price_unit_label = $unit === 'metros' ? 'Preço por metro' : 'Preço por kg';
+                $fabricType->price_unit_suffix = $unit === 'metros' ? '/m' : '/kg';
+                $fabricType->empty_price_label = $unit === 'metros' ? 'Definir valor por metro' : 'Definir valor por kg';
                 
-                return $fabric;
+                return $fabricType;
             });
         }
         elseif ($type === 'machines') {
@@ -342,9 +370,11 @@ class PDVController extends Controller
                 $data['fabric_id'] = $sublocalInfo ? ($sublocalInfo['fabric_id'] ?? null) : null;
             } elseif ($itemType == 'fabric_piece') {
                 // Propriedades específicas de peça de tecido
+                $unitPrice = $this->resolveFabricPieceUnitPrice($item);
                 $data['sale_type'] = ($item->control_unit ?? 'kg') === 'metros' ? 'metro' : 'kg';
                 $data['control_unit'] = $item->control_unit ?? 'kg';
-                $data['price_per_unit'] = $item->sale_price ?? 0;
+                $data['price_per_unit'] = $unitPrice;
+                $data['price'] = $unitPrice;
                 $data['available_quantity'] = $item->available_quantity;
                 $data['sale_price'] = $data['available_quantity'] * $data['price_per_unit'];
                 $data['store_id'] = $item->store_id ?? null;
@@ -361,7 +391,7 @@ class PDVController extends Controller
             return $data;
         })->values();
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->expectsJson() || $request->wantsJson()) {
             $html = view('pdv.partials.catalog', compact(
                 'paginatedItems',
                 'type',
@@ -1304,6 +1334,7 @@ class PDVController extends Controller
             $unit = $piece->control_unit === 'metros' ? 'm' : 'kg';
             $decimals = $piece->control_unit === 'metros' ? 2 : 3;
             $qty = number_format((float) $piece->available_quantity, $decimals, ',', '.');
+            $unitPrice = $this->resolveFabricPieceUnitPrice($piece);
 
             return [
                 'id'                 => $piece->id,
@@ -1316,9 +1347,9 @@ class PDVController extends Controller
                 'available_label'    => "{$qty} {$unit}",
                 'control_unit'       => $piece->control_unit,
                 'sale_type'          => $piece->control_unit === 'metros' ? 'metro' : 'kg',
-                'price'              => (float) ($piece->sale_price > 0 ? $piece->sale_price : 0),
-                'price_per_unit'     => (float) ($piece->sale_price > 0 ? $piece->sale_price : 0),
-                'sale_price'         => (float) ($piece->sale_price > 0 ? $piece->sale_price : 0),
+                'price'              => $unitPrice,
+                'price_per_unit'     => $unitPrice,
+                'sale_price'         => $unitPrice,
                 'status'             => $piece->status,
                 'status_label'       => $piece->status_label,
             ];
@@ -1567,24 +1598,28 @@ class PDVController extends Controller
 
         try {
             $pieces = \App\Models\FabricPiece::with(['fabric', 'fabricType', 'color'])
-                ->where('fabric_id', $fabricId)
+                ->where('fabric_type_id', $fabricId)
                 ->active()
                 ->hasAvailableQuantity()
                 ->availableForChannel('pdv')
                 ->when($currentStoreId && !$user->isAdmin() && !$user->isAdminGeral(), function($q) use ($currentStoreId) {
                     return $q->where('store_id', $currentStoreId);
                 })
+                ->orderBy('status')
                 ->get()
                 ->map(function($piece) {
                     // Preparar dados para o mesmo formato que o openAddProductModal espera
+                    $decimals = $piece->control_unit === 'metros' ? 2 : 3;
+                    $unitPrice = $this->resolveFabricPieceUnitPrice($piece);
                     $piece->title = $piece->display_name;
                     $piece->type = 'fabric_piece';
-                    $piece->price = (float) ($piece->sale_price > 0 ? $piece->sale_price : 0);
-                    $piece->price_per_unit = (float) ($piece->sale_price > 0 ? $piece->sale_price : 0);
-                    $piece->sale_price = (float) (($piece->sale_price > 0 ? $piece->sale_price : 0) * $piece->available_quantity);
+                    $piece->price = $unitPrice;
+                    $piece->price_per_unit = $unitPrice;
+                    $piece->sale_price = (float) ($unitPrice * $piece->available_quantity);
                     $piece->type_label = 'Peça de Tecido';
                     $piece->stock_quantity = $piece->available_quantity;
-                    $piece->available_label = $piece->available_quantity . ($piece->control_unit === 'metros' ? 'm' : 'kg');
+                    $piece->available_label = number_format((float) $piece->available_quantity, $decimals, ',', '.') . ' ' . ($piece->control_unit === 'metros' ? 'm' : 'kg');
+                    $piece->reference = $piece->invoice_number ?: ('Peça #' . $piece->id);
                     $piece->color_name = $piece->color?->name ?? 'Sem cor';
                     $piece->color_hex = $piece->color?->color_hex;
                     $piece->control_unit = $piece->control_unit;

@@ -156,7 +156,10 @@ class FabricPieceController extends Controller
     {
         $userStoreIds = StoreHelper::getUserStoreIds();
         $stores = Store::whereIn('id', $userStoreIds)->get();
-        $fabricTypes = ProductOption::where('type', 'tipo_tecido')->orderBy('name')->get();
+        $fabricTypes = ProductOption::with('parent')
+            ->where('type', 'tipo_tecido')
+            ->orderBy('name')
+            ->get();
         $colors = ProductOption::where('type', 'cor')->orderBy('name')->get();
 
         return view('fabric-pieces.bulk-create', compact('stores', 'fabricTypes', 'colors'));
@@ -343,7 +346,10 @@ class FabricPieceController extends Controller
     {
         $userStoreIds = StoreHelper::getUserStoreIds();
         $stores = Store::whereIn('id', $userStoreIds)->get();
-        $fabricTypes = ProductOption::where('type', 'tipo_tecido')->orderBy('name')->get();
+        $fabricTypes = ProductOption::with('parent')
+            ->where('type', 'tipo_tecido')
+            ->orderBy('name')
+            ->get();
         $colors = ProductOption::where('type', 'cor')->orderBy('name')->get();
 
         return view('fabric-pieces.create', compact('stores', 'fabricTypes', 'colors'));
@@ -401,7 +407,10 @@ class FabricPieceController extends Controller
 
         $userStoreIds = StoreHelper::getUserStoreIds();
         $stores = Store::whereIn('id', $userStoreIds)->get();
-        $fabricTypes = ProductOption::where('type', 'tipo_tecido')->orderBy('name')->get();
+        $fabricTypes = ProductOption::with('parent')
+            ->where('type', 'tipo_tecido')
+            ->orderBy('name')
+            ->get();
         $colors = ProductOption::where('type', 'cor')->orderBy('name')->get();
 
         return view('fabric-pieces.edit', compact('piece', 'stores', 'fabricTypes', 'colors'));
