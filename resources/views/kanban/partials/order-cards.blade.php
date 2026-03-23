@@ -76,8 +76,8 @@
 
         {{-- Imagem de Capa Premium --}}
         @if($coverImage)
-        <div class="px-3 pt-3">
-            <div class="h-44 bg-gray-100/50 dark:bg-slate-900/50 overflow-hidden rounded-xl border border-gray-200 dark:border-white/5 relative group-hover/img shadow-inner">
+        <div class="px-3 pt-3" data-card-cover-wrapper="true">
+            <div class="h-44 bg-gray-100/50 dark:bg-slate-900/50 overflow-hidden rounded-xl border border-gray-200 dark:border-white/5 relative group-hover/img shadow-inner" data-card-cover-container="true">
                 <img src="{{ $coverImage }}"
                      alt="Capa do Pedido"
                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -88,7 +88,7 @@
         @endif
 
         <!-- Conteúdo do Card Premium -->
-        <div class="p-4 space-y-4">
+        <div class="p-4 space-y-4" data-card-content="true">
             <div class="flex flex-col gap-3">
                 <div class="flex items-center justify-between">
                     <div class="flex flex-wrap items-center gap-2">

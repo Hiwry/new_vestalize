@@ -1920,11 +1920,11 @@
                         </h4>
                         ${order.items.length > 1 ? `
                         <div class="flex items-center gap-2">
-                            <button id="modal-item-prev-btn" onclick="prevModalItem()" class="btn-modern btn-neutral btn-compact px-3 disabled:opacity-50 disabled:cursor-not-allowed" title="Anterior">
+                            <button type="button" id="modal-item-prev-btn" onclick="prevModalItem()" class="btn-modern btn-neutral btn-compact px-3 disabled:opacity-50 disabled:cursor-not-allowed" title="Anterior">
                                 <i class="fa-solid fa-chevron-left"></i>
                             </button>
                             <span class="text-sm font-bold text-gray-600 dark:text-gray-400 min-w-[80px] text-center" id="modal-item-counter">Item 1 de ${order.items.length}</span>
-                            <button id="modal-item-next-btn" onclick="nextModalItem()" class="btn-modern btn-neutral btn-compact px-3 disabled:opacity-50 disabled:cursor-not-allowed" title="Próximo">
+                            <button type="button" id="modal-item-next-btn" onclick="nextModalItem()" class="btn-modern btn-neutral btn-compact px-3 disabled:opacity-50 disabled:cursor-not-allowed" title="Próximo">
                                 <i class="fa-solid fa-chevron-right"></i>
                             </button>
                         </div>
@@ -2534,6 +2534,14 @@
             const modalContent = document.getElementById('modal-content');
             if (modalContent) {
                 modalContent.innerHTML = html;
+
+                modalItemsCount = Array.isArray(order.items) ? order.items.length : 0;
+                if (modalItemsCount === 0) {
+                    currentModalItemIndex = 0;
+                } else if (currentModalItemIndex >= modalItemsCount) {
+                    currentModalItemIndex = modalItemsCount - 1;
+                }
+                updateModalItemVisibility();
             } else {
                 console.warn('VESTALIZE: Elemento #modal-content não encontrado no DOM');
             }
@@ -3058,6 +3066,69 @@
             });
         }
 
+        function createKanbanCardImagePlaceholder() {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'h-full w-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 flex items-center justify-center';
+            placeholder.innerHTML = '<i class="fa-solid fa-image text-purple-500/20 text-3xl"></i>';
+            return placeholder;
+        }
+
+        function createKanbanCardImageElement(imageUrl) {
+            const image = document.createElement('img');
+            image.src = imageUrl;
+            image.alt = 'Capa do Pedido';
+            image.className = 'w-full h-full object-cover transition-transform duration-500 group-hover:scale-110';
+            return image;
+        }
+
+        function createKanbanCardImageOverlay() {
+            const overlay = document.createElement('div');
+            overlay.className = 'absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none';
+            return overlay;
+        }
+
+        function ensureKanbanCardImageContainer(card) {
+            let imageContainer = card.querySelector('[data-card-cover-container]');
+            if (imageContainer) {
+                return imageContainer;
+            }
+
+            const contentContainer = card.querySelector('[data-card-content]');
+            if (!contentContainer) {
+                return null;
+            }
+
+            let wrapper = card.querySelector('[data-card-cover-wrapper]');
+            if (!wrapper) {
+                wrapper = document.createElement('div');
+                wrapper.className = 'px-3 pt-3';
+                wrapper.setAttribute('data-card-cover-wrapper', 'true');
+                card.insertBefore(wrapper, contentContainer);
+            }
+
+            imageContainer = document.createElement('div');
+            imageContainer.className = 'h-44 bg-gray-100/50 dark:bg-slate-900/50 overflow-hidden rounded-xl border border-gray-200 dark:border-white/5 relative group-hover/img shadow-inner';
+            imageContainer.setAttribute('data-card-cover-container', 'true');
+            wrapper.appendChild(imageContainer);
+
+            return imageContainer;
+        }
+
+        function renderKanbanCardImage(imageContainer, imageUrl) {
+            const image = createKanbanCardImageElement(imageUrl);
+
+            image.addEventListener('error', function() {
+                console.error('Erro ao carregar imagem:', imageUrl);
+                imageContainer.replaceChildren(createKanbanCardImagePlaceholder());
+            }, { once: true });
+
+            image.addEventListener('load', function() {
+                console.log('Imagem carregada com sucesso:', imageUrl);
+            }, { once: true });
+
+            imageContainer.replaceChildren(image, createKanbanCardImageOverlay());
+        }
+
         function updateKanbanCardImage(orderId, imageUrl) {
             console.log('updateKanbanCardImage chamado:', orderId, imageUrl);
             
@@ -3069,7 +3140,7 @@
             }
             
             // Encontrar o container da imagem no card
-            const imageContainer = card.querySelector('.h-48');
+            const imageContainer = ensureKanbanCardImageContainer(card);
             if (!imageContainer) {
                 console.warn('Container de imagem não encontrado no card');
                 return;
@@ -3079,23 +3150,8 @@
             const imageUrlWithTimestamp = imageUrl + (imageUrl.includes('?') ? '&' : '?') + '_t=' + Date.now();
             
             // Atualizar a imagem
-            const img = imageContainer.querySelector('img');
-            if (img) {
-                console.log('Atualizando imagem existente:', imageUrlWithTimestamp);
-                img.src = imageUrlWithTimestamp;
-                img.onerror = function() {
-                    console.error('Erro ao carregar imagem:', imageUrlWithTimestamp);
-                    // Se a imagem falhar ao carregar, mostrar placeholder
-                    this.parentElement.innerHTML = '<div class=\'h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center\'><svg class=\'w-12 h-12 text-white opacity-50\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg></div>';
-                };
-                img.onload = function() {
-                    console.log('Imagem carregada com sucesso:', imageUrlWithTimestamp);
-                };
-            } else {
-                // Se não houver imagem, criar uma nova
-                console.log('Criando nova imagem:', imageUrlWithTimestamp);
-                imageContainer.innerHTML = `<img src="${imageUrlWithTimestamp}" alt="Capa do Pedido" class="w-full h-48 object-cover" style="object-fit: cover; object-position: center;" onerror="this.parentElement.innerHTML='<div class=\'h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center\'><svg class=\'w-12 h-12 text-white opacity-50\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg></div>'">`;
-            }
+            console.log('Atualizando imagem do card:', imageUrlWithTimestamp);
+            renderKanbanCardImage(imageContainer, imageUrlWithTimestamp);
         }
 
         function saveArtName(itemId) {
