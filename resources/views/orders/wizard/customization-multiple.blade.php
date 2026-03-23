@@ -12,7 +12,7 @@
         --sh-accent: #7c3aed;
         --sh-accent-strong: #6d28d9;
         
-        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%);
+        background: var(--sh-surface-from);
         border: 1px solid var(--sh-surface-border);
         border-radius: 24px;
         padding: 24px;
@@ -31,7 +31,7 @@
         --sh-card-shadow: none;
         --sh-input-bg: #162847;
 
-        background: linear-gradient(180deg, var(--sh-surface-from) 0%, var(--sh-surface-to) 100%) !important;
+        background: var(--sh-surface-from) !important;
         box-shadow: none !important;
         border-color: var(--sh-surface-border) !important;
     }
@@ -60,7 +60,7 @@
     }
 
     .ow-card-header {
-        background: color-mix(in srgb, var(--sh-card-bg) 96%, var(--sh-accent) 4%) !important;
+        background: var(--sh-card-bg) !important;
         border-bottom: 1px solid var(--sh-card-border) !important;
     }
 
@@ -83,7 +83,7 @@
 
 
     .ow-progress-fill {
-        background: linear-gradient(90deg, var(--sh-accent), #a78bfa);
+        background: var(--sh-accent);
         box-shadow: none !important;
     }
 
@@ -99,24 +99,19 @@
     }
 
     .ow-guide-card {
-        background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(255, 255, 255, 0.92));
+        background: var(--sh-card-bg);
     }
 
     .dark .ow-guide-card {
-        background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(16, 32, 58, 0.96));
+        background: var(--sh-card-bg);
     }
 
     .ow-aside-card {
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 96%, var(--sh-accent) 4%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 88%, var(--sh-input-bg, #f8fafc) 12%) 100%);
+        background: var(--sh-card-bg);
     }
 
     .dark.avento-theme .ow-aside-card {
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 92%, #1d4ed8 8%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 82%, var(--sh-input-bg, #162847) 18%) 100%) !important;
-        border-color: color-mix(in srgb, var(--sh-card-border) 78%, #60a5fa 22%) !important;
+        background: var(--sh-card-bg) !important;
     }
 
     .ow-aside-stack {
@@ -131,31 +126,23 @@
     }
 
     .ow-mobile-nav {
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 94%, var(--sh-accent) 6%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 86%, var(--sh-input-bg, #f8fafc) 14%) 100%) !important;
-        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        background: var(--sh-card-bg) !important;
+        border: 1px solid var(--sh-card-border) !important;
     }
 
     .dark.avento-theme .ow-mobile-nav {
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 90%, #1d4ed8 10%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 80%, var(--sh-input-bg, #162847) 20%) 100%) !important;
-        border-color: color-mix(in srgb, var(--sh-card-border) 78%, #60a5fa 22%) !important;
+        background: var(--sh-card-bg) !important;
+        border-color: var(--sh-card-border) !important;
     }
 
     .ow-soft-panel {
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 86%, var(--sh-input-bg, #f8fafc) 14%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 94%, var(--sh-accent) 6%) 100%) !important;
-        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, transparent) !important;
+        background: var(--sh-card-bg) !important;
+        border: 1px solid var(--sh-card-border) !important;
     }
 
     .ow-soft-panel:hover {
-        border-color: color-mix(in srgb, var(--sh-card-border) 60%, var(--sh-accent) 40%) !important;
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 80%, var(--sh-input-bg, #f8fafc) 20%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 88%, var(--sh-accent) 12%) 100%) !important;
+        border-color: var(--sh-accent) !important;
+        background: var(--sh-card-bg) !important;
     }
 
     .ow-soft-pill {
@@ -219,11 +206,11 @@
 
     .ow-item-frame {
         overflow: hidden;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98));
+        background: var(--sh-card-bg);
     }
 
     .dark .ow-item-frame {
-        background: linear-gradient(180deg, rgba(16, 32, 58, 0.98), rgba(11, 19, 34, 0.98));
+        background: var(--sh-card-bg);
     }
 
     .ow-item-metric {
@@ -237,62 +224,51 @@
     }
 
     .ow-art-summary {
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 90%, var(--sh-accent) 10%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 82%, var(--sh-input-bg, #162847) 18%) 100%) !important;
-        border: 1px solid color-mix(in srgb, var(--sh-card-border) 82%, #60a5fa 18%) !important;
+        background: var(--sh-card-bg) !important;
+        border: 1px solid var(--sh-card-border) !important;
         border-radius: 1rem !important;
         color: var(--sh-text-primary) !important;
         box-shadow: none !important;
     }
 
     .dark.avento-theme .ow-art-summary {
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 88%, #1d4ed8 12%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 76%, var(--sh-input-bg, #162847) 24%) 100%) !important;
-        border-color: color-mix(in srgb, var(--sh-card-border) 76%, #60a5fa 24%) !important;
+        background: var(--sh-card-bg) !important;
+        border-color: var(--sh-card-border) !important;
     }
 
     .ow-personalization-entry {
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 92%, var(--sh-accent) 8%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 84%, var(--sh-input-bg, #162847) 16%) 100%) !important;
-        border: 1px solid color-mix(in srgb, var(--sh-card-border) 80%, #60a5fa 20%) !important;
+        background: var(--sh-card-bg) !important;
+        border: 1px solid var(--sh-card-border) !important;
         border-radius: 1.25rem !important;
         box-shadow: none !important;
     }
 
     .dark.avento-theme .ow-personalization-entry {
-        background: linear-gradient(180deg,
-            color-mix(in srgb, var(--sh-card-bg) 90%, #1d4ed8 10%) 0%,
-            color-mix(in srgb, var(--sh-card-bg) 78%, var(--sh-input-bg, #162847) 22%) 100%) !important;
-        border-color: color-mix(in srgb, var(--sh-card-border) 74%, #60a5fa 26%) !important;
+        background: var(--sh-card-bg) !important;
+        border-color: var(--sh-card-border) !important;
     }
 
     #personalizationModal {
-        background: linear-gradient(180deg, rgba(3, 8, 20, 0.8) 0%, rgba(3, 8, 20, 0.92) 100%) !important;
+        background: rgba(15, 23, 42, 0.5) !important;
         backdrop-filter: blur(18px);
         -webkit-backdrop-filter: blur(18px);
     }
 
     .dark.avento-theme #personalizationModal {
-        background:
-            radial-gradient(circle at top right, rgba(124, 58, 237, 0.16), transparent 32%),
-            radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 26%),
-            rgba(3, 8, 20, 0.92) !important;
+        background: rgba(3, 8, 20, 0.92) !important;
     }
 
     .pm-panel {
-        background: linear-gradient(180deg, #112548 0%, #0b1730 100%) !important;
-        border: 1px solid rgba(96, 165, 250, 0.18) !important;
+        background: #ffffff !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
         border-radius: 28px !important;
-        box-shadow: 0 30px 90px rgba(2, 6, 23, 0.58), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
     }
 
-    .dark.avento-theme .pm-panel {
-        background: linear-gradient(180deg, #112548 0%, #0b1730 100%) !important;
+    .dark .pm-panel {
+        background: #0f1f42 !important;
         border-color: rgba(96, 165, 250, 0.2) !important;
-        box-shadow: 0 30px 90px rgba(2, 6, 23, 0.62), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+        box-shadow: 0 30px 90px rgba(2, 6, 23, 0.62) !important;
     }
 
     .pm-header {
@@ -300,10 +276,15 @@
         top: 0;
         z-index: 10;
         padding: 1.5rem 1.75rem;
-        background: linear-gradient(180deg, rgba(18, 37, 72, 0.98) 0%, rgba(12, 24, 48, 0.97) 100%) !important;
-        border-bottom: 1px solid rgba(96, 165, 250, 0.14) !important;
+        background: #f8fafc !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
+    }
+
+    .dark .pm-header {
+        background: #0c1c45 !important;
+        border-bottom-color: rgba(96, 165, 250, 0.14) !important;
     }
 
     .pm-icon {
@@ -313,7 +294,7 @@
         align-items: center;
         justify-content: center;
         border-radius: 1.1rem;
-        background: linear-gradient(135deg, var(--sh-accent) 0%, #8b5cf6 100%) !important;
+        background: var(--sh-accent) !important;
         border: 1px solid rgba(255, 255, 255, 0.16);
     }
 
@@ -348,7 +329,11 @@
 
     .pm-body {
         padding: 1.5rem 1.75rem 1.75rem;
-        background: linear-gradient(180deg, #0c1730 0%, #091326 100%) !important;
+        background: #f1f5f9 !important;
+    }
+
+    .dark .pm-body {
+        background: #091326 !important;
     }
 
     .pm-grid {
@@ -359,29 +344,57 @@
     .pm-upload-card {
         padding: 1rem 1.05rem;
         border-radius: 1.25rem;
-        border: 1px solid rgba(96, 165, 250, 0.14);
-        background: linear-gradient(180deg, #112340 0%, #0d1d39 100%) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        background: #ffffff !important;
+    }
+
+    .dark .pm-control-group,
+    .dark .pm-upload-card {
+        border-color: rgba(96, 165, 250, 0.14);
+        background: #0d1d39 !important;
     }
 
     .pm-section-card {
         border-radius: 1.25rem;
-        border: 1px solid rgba(96, 165, 250, 0.14);
-        background: linear-gradient(180deg, #112340 0%, #0d1d39 100%) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        background: #ffffff !important;
+    }
+
+    .dark .pm-section-card {
+        border-color: rgba(96, 165, 250, 0.14);
+        background: #0d1d39 !important;
     }
 
     .pm-section-card--accent {
-        background: linear-gradient(180deg, #152547 0%, #101c37 100%) !important;
+        background: #f5f3ff !important;
+        border-color: rgba(124, 58, 237, 0.2) !important;
+    }
+
+    .dark .pm-section-card--accent {
+        background: #101c37 !important;
         border-color: rgba(167, 139, 250, 0.22) !important;
     }
 
     .pm-section-card--emerald {
-        background: linear-gradient(180deg, #0f2336 0%, #0b1c2c 100%) !important;
+        background: #f0fdf4 !important;
+        border-color: rgba(52, 211, 153, 0.3) !important;
+    }
+
+    .dark .pm-section-card--emerald {
+        background: #0b1c2c !important;
         border-color: rgba(52, 211, 153, 0.22) !important;
     }
 
     .pm-section-card--price {
-        background: linear-gradient(135deg, #182b4f 0%, #10203d 100%) !important;
+        background: #eff6ff !important;
+        border-color: rgba(99, 102, 241, 0.2) !important;
+        box-shadow: 0 14px 32px -24px rgba(15, 23, 42, 0.18), 0 6px 18px -18px rgba(99, 102, 241, 0.18);
+    }
+
+    .dark .pm-section-card--price {
+        background: #10203d !important;
         border-color: rgba(129, 140, 248, 0.26) !important;
+        box-shadow: 0 16px 34px -26px rgba(2, 6, 23, 0.34), 0 6px 18px -18px rgba(96, 165, 250, 0.16);
     }
 
     .pm-control-group label,
@@ -394,10 +407,18 @@
     #personalizationModal textarea {
         min-height: 3.25rem;
         border-radius: 1rem !important;
-        border: 1px solid rgba(96, 165, 250, 0.18) !important;
+        border: 1px solid rgba(0, 0, 0, 0.12) !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        box-shadow: none !important;
+    }
+
+    .dark #personalizationModal select,
+    .dark #personalizationModal input:not([type="checkbox"]):not([type="file"]):not([type="hidden"]),
+    .dark #personalizationModal textarea {
+        border-color: rgba(96, 165, 250, 0.18) !important;
         background: #162847 !important;
         color: var(--sh-text-primary) !important;
-        box-shadow: none !important;
     }
 
     #personalizationModal textarea {
@@ -418,6 +439,11 @@
     }
 
     #personalizationModal input[readonly] {
+        background: #f1f5f9 !important;
+        color: #64748b !important;
+    }
+
+    .dark #personalizationModal input[readonly] {
         background: #132240 !important;
         color: var(--sh-text-secondary) !important;
     }
@@ -431,27 +457,47 @@
     }
 
     #personalizationModal #linkItemsSection {
-        background: linear-gradient(180deg, #152547 0%, #101d38 100%) !important;
-        border: 1px solid rgba(167, 139, 250, 0.24) !important;
+        background: #f5f3ff !important;
+        border: 1px solid rgba(124, 58, 237, 0.2) !important;
+    }
+
+    .dark #personalizationModal #linkItemsSection {
+        background: #101d38 !important;
+        border-color: rgba(167, 139, 250, 0.24) !important;
     }
 
     #personalizationModal .link-item-label {
         padding: 0.9rem 1rem !important;
         border-radius: 1.15rem !important;
-        border: 1px solid rgba(96, 165, 250, 0.12) !important;
-        background: linear-gradient(180deg, #0f1c36 0%, #0c1730 100%) !important;
-        transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        background: #ffffff !important;
+        transition: border-color 0.2s ease, transform 0.2s ease !important;
+    }
+
+    .dark #personalizationModal .link-item-label {
+        border-color: rgba(96, 165, 250, 0.12) !important;
+        background: #0c1730 !important;
     }
 
     #personalizationModal .link-item-label:hover {
-        border-color: rgba(167, 139, 250, 0.36) !important;
-        background: linear-gradient(180deg, #142246 0%, #0f1b37 100%) !important;
+        border-color: rgba(124, 58, 237, 0.3) !important;
+        background: #f5f3ff !important;
         transform: translateY(-1px);
     }
 
+    .dark #personalizationModal .link-item-label:hover {
+        border-color: rgba(167, 139, 250, 0.36) !important;
+        background: #0f1b37 !important;
+    }
+
     #personalizationModal .link-item-label.ring-2 {
+        border-color: rgba(124, 58, 237, 0.5) !important;
+        background: #ede9fe !important;
+    }
+
+    .dark #personalizationModal .link-item-label.ring-2 {
         border-color: rgba(167, 139, 250, 0.52) !important;
-        background: linear-gradient(180deg, #1a2b54 0%, #142246 100%) !important;
+        background: #142246 !important;
     }
 
     #personalizationModal .link-item-checkbox {
@@ -459,36 +505,67 @@
     }
 
     #personalizationModal #linkedItemsSummary {
-        background: linear-gradient(180deg, #102c2f 0%, #0b2022 100%) !important;
-        border: 1px solid rgba(16, 185, 129, 0.28) !important;
+        background: #f0fdf4 !important;
+        border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    }
+
+    .dark #personalizationModal #linkedItemsSummary {
+        background: #0b2022 !important;
+        border-color: rgba(16, 185, 129, 0.28) !important;
     }
 
     #personalizationModal #addonsField > div {
-        background: linear-gradient(180deg, #0f2336 0%, #0b1c2c 100%) !important;
-        border: 1px solid rgba(52, 211, 153, 0.22) !important;
+        background: #f0fdf4 !important;
+        border: 1px solid rgba(52, 211, 153, 0.3) !important;
+    }
+
+    .dark #personalizationModal #addonsField > div {
+        background: #0b1c2c !important;
+        border-color: rgba(52, 211, 153, 0.22) !important;
     }
 
     #personalizationModal #addAddonBtn {
         border-radius: 1rem !important;
         border-style: dashed !important;
+        border-color: rgba(16, 185, 129, 0.4) !important;
+        background: #f0fdf4 !important;
+        color: #059669 !important;
+    }
+
+    .dark #personalizationModal #addAddonBtn {
         border-color: rgba(52, 211, 153, 0.42) !important;
         background: #0d2232 !important;
         color: #6ee7b7 !important;
     }
 
     #personalizationModal #addAddonBtn:hover {
+        background: #dcfce7 !important;
+        border-color: rgba(16, 185, 129, 0.6) !important;
+    }
+
+    .dark #personalizationModal #addAddonBtn:hover {
         background: #123047 !important;
         border-color: rgba(110, 231, 183, 0.56) !important;
     }
 
     #personalizationModal #colorCountField > div {
-        background: linear-gradient(180deg, #16284b 0%, #11213d 100%) !important;
-        border: 1px solid rgba(167, 139, 250, 0.24) !important;
+        background: #f5f3ff !important;
+        border: 1px solid rgba(124, 58, 237, 0.2) !important;
+    }
+
+    .dark #personalizationModal #colorCountField > div {
+        background: #11213d !important;
+        border-color: rgba(167, 139, 250, 0.24) !important;
     }
 
     #personalizationModal #priceDisplay > div {
-        background: linear-gradient(135deg, #182b4f 0%, #11223f 100%) !important;
-        border: 1px solid rgba(129, 140, 248, 0.26) !important;
+        background: #eff6ff !important;
+        border: 1px solid rgba(99, 102, 241, 0.2) !important;
+    }
+
+    .dark #personalizationModal #priceDisplay > div {
+        background: #11223f !important;
+        border-color: rgba(129, 140, 248, 0.26) !important;
     }
 
     #personalizationModal #priceDisplay span,
@@ -498,25 +575,46 @@
 
     #personalizationModal #application_image_dropzone {
         border-radius: 1.25rem !important;
+        border-color: rgba(0, 0, 0, 0.1) !important;
+        background: #f8fafc !important;
+    }
+
+    .dark #personalizationModal #application_image_dropzone {
         border-color: rgba(96, 165, 250, 0.22) !important;
         background: #10213e !important;
     }
 
     #personalizationModal #application_image_dropzone:hover {
+        border-color: rgba(124, 58, 237, 0.3) !important;
+        background: #f5f3ff !important;
+    }
+
+    .dark #personalizationModal #application_image_dropzone:hover {
         border-color: rgba(167, 139, 250, 0.44) !important;
         background: #13274a !important;
     }
 
     #personalizationModal #application_image_placeholder label span {
         border-radius: 999px !important;
-        border: 1px solid rgba(96, 165, 250, 0.24) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        background: #ffffff !important;
+        color: #374151 !important;
+    }
+
+    .dark #personalizationModal #application_image_placeholder label span {
+        border-color: rgba(96, 165, 250, 0.24) !important;
         background: #172a48 !important;
         color: var(--sh-text-primary) !important;
     }
 
     #personalizationModal #application_image_preview > div {
+        background: #f0fdf4 !important;
+        border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    }
+
+    .dark #personalizationModal #application_image_preview > div {
         background: #102b2f !important;
-        border: 1px solid rgba(16, 185, 129, 0.28) !important;
+        border-color: rgba(16, 185, 129, 0.28) !important;
     }
 
     .pm-footer {
@@ -537,12 +635,23 @@
     .pm-cancel-btn {
         padding: 0.82rem 1.25rem;
         border-radius: 999px;
-        border: 1px solid rgba(96, 165, 250, 0.14) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        background: #f1f5f9 !important;
+        color: #64748b !important;
+    }
+
+    .pm-cancel-btn:hover {
+        background: #e2e8f0 !important;
+        color: #374151 !important;
+    }
+
+    .dark .pm-cancel-btn {
+        border-color: rgba(96, 165, 250, 0.14) !important;
         background: #132443 !important;
         color: var(--sh-text-secondary) !important;
     }
 
-    .pm-cancel-btn:hover {
+    .dark .pm-cancel-btn:hover {
         background: #1a2d52 !important;
         color: var(--sh-text-primary) !important;
     }
@@ -550,7 +659,7 @@
     .pm-submit-btn {
         padding: 0.86rem 1.45rem;
         border-radius: 999px;
-        background: linear-gradient(90deg, var(--sh-accent) 0%, #8b5cf6 100%) !important;
+        background: var(--sh-accent) !important;
         color: #ffffff !important;
         box-shadow: none !important;
     }
@@ -875,7 +984,7 @@
                         <div id="item-card-{{ $item->id }}" class="ow-item-frame">
                             
                             <!-- Item Header -->
-                            <div class="px-5 py-5 border-b border-gray-200 dark:border-slate-700 bg-gradient-to-r from-white to-gray-50 dark:from-slate-900 dark:to-slate-800/70">
+                            <div class="px-5 py-5 border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900">
                                 <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                                     <div class="space-y-3">
                                         <div class="flex flex-wrap items-center gap-2">
@@ -1329,21 +1438,21 @@
 
                 <!-- Preço Calculado -->
                 <div id="priceDisplay" class="hidden">
-                    <div class="pm-section-card pm-section-card--price bg-gradient-to-r from-purple-600/20 to-purple-600/10 border border-purple-500/30 rounded-xl p-5 ring-1 ring-purple-500/20">
+                    <div class="pm-section-card pm-section-card--price rounded-xl p-5">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 <span class="text-sm font-semibold text-gray-700 dark:text-slate-300">Preço por Aplicação:</span>
                             </div>
-                            <span class="text-2xl font-bold text-indigo-400" id="unitPrice">R$ 0,00</span>
+                            <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400" id="unitPrice">R$ 0,00</span>
                         </div>
-                        <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-700/50">
-                            <span class="text-sm text-slate-400">Total desta Aplicação:</span>
-                            <span class="text-lg font-bold text-white" id="totalPrice">R$ 0,00</span>
+                        <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-200 dark:border-slate-700/50">
+                            <span class="text-sm text-slate-500 dark:text-slate-400">Total desta Aplicação:</span>
+                            <span class="text-lg font-bold text-gray-900 dark:text-white" id="totalPrice">R$ 0,00</span>
                         </div>
-                        <div class="text-xs text-slate-500 mt-3 text-center" id="priceFormula">
+                        <div class="text-xs text-slate-500 dark:text-slate-400 mt-3 text-center" id="priceFormula">
                             <!-- Será preenchido via JavaScript -->
                         </div>
                     </div>

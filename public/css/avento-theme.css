@@ -309,6 +309,15 @@ html.avento-theme.dark {
     stroke: currentColor;
 }
 
+/* Stroke-only SVG icons (fill="none"): restore fill:none so paths render as outlines, not solid blobs */
+.avento-theme svg.stay-white[fill="none"] path,
+.avento-theme svg.stay-white[fill="none"] circle,
+.avento-theme svg.stay-white[fill="none"] line,
+.avento-theme svg.stay-white[fill="none"] polyline,
+.avento-theme svg.stay-white[fill="none"] rect {
+    fill: none !important;
+}
+
 .avento-theme .btn-primary,
 .avento-theme button[type="submit"] {
     border: none !important;
@@ -1226,9 +1235,23 @@ html:not(.dark) .avento-theme .border-white\/10 {
 .dark.avento-theme p,
 .dark.avento-theme .text-gray-600,
 .dark.avento-theme .text-slate-600,
-.dark.avento-theme span:not(.pf-action *):not(.pf-modal-button *):not(.pf-inline-button *):not(.ft-action *):not(.ft-button *):not(.cf-btn *):not([style*="color"]),
+.dark.avento-theme span:not(.pf-action *):not(.pf-modal-button *):not(.pf-inline-button *):not(.ft-action *):not(.ft-button *):not(.cf-btn *):not(.kc-action *):not(.kc-kpi-icon):not(.kc-kpi-icon *):not([style*="color"]),
 .dark.avento-theme td {
     color: #94a3b8 !important;
+}
+
+/* Preserve white text on kanban column action buttons (.kc-action) */
+.dark.avento-theme .kc-action span,
+.dark.avento-theme .kc-action i,
+.dark.avento-theme .kc-action * {
+    color: #ffffff !important;
+}
+
+/* Preserve white icons inside KPI icon badges (.kc-kpi-icon) */
+.dark.avento-theme .kc-kpi-icon,
+.dark.avento-theme .kc-kpi-icon i,
+.dark.avento-theme .kc-kpi-icon * {
+    color: #ffffff !important;
 }
 
 /* Preserve white text on action buttons in production/delivery-requests */

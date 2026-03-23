@@ -3,22 +3,100 @@
 @push('styles')
     @include('budgets.wizard.partials.order-theme')
     <style>
+        /* Modal — Light */
         #item-modal .budget-modal-shell {
-            background: var(--bw-card-bg);
-            border: 1px solid var(--bw-card-border);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
             border-radius: 24px;
-            box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+            box-shadow: 0 30px 80px rgba(15, 23, 42, 0.22);
         }
 
         #item-modal .budget-modal-header,
         #item-modal .budget-modal-footer,
         #item-modal .budget-modal-stepper {
-            background: color-mix(in srgb, var(--bw-card-bg) 94%, var(--bw-accent) 6%);
-            border-color: var(--bw-card-border);
+            background: #f8fafb;
+            border-color: #e2e8f0;
         }
 
         #item-modal .budget-modal-body {
-            background: var(--bw-card-bg);
+            background: #ffffff;
+        }
+
+        /* Modal — Dark */
+        .dark #item-modal .budget-modal-shell {
+            background: #0f172a;
+            border-color: rgba(148, 163, 184, 0.18);
+            box-shadow: 0 30px 80px rgba(2, 6, 23, 0.65);
+        }
+
+        .dark #item-modal .budget-modal-header,
+        .dark #item-modal .budget-modal-footer,
+        .dark #item-modal .budget-modal-stepper {
+            background: #111827;
+            border-color: rgba(148, 163, 184, 0.13);
+        }
+
+        .dark #item-modal .budget-modal-body {
+            background: #0f172a;
+        }
+
+        /* Títulos e labels no modal — Dark */
+        .dark #item-modal h3.text-gray-900 {
+            color: #f1f5f9 !important;
+        }
+
+        .dark #item-modal h4.text-gray-900 {
+            color: #f1f5f9 !important;
+        }
+
+        .dark #item-modal .text-gray-700,
+        .dark #item-modal label.text-gray-700 {
+            color: #cbd5e1 !important;
+        }
+
+        .dark #item-modal .text-gray-500 {
+            color: #94a3b8 !important;
+        }
+
+        /* Inputs e selects dentro do modal — Dark */
+        .dark #item-modal select,
+        .dark #item-modal input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+        .dark #item-modal textarea {
+            background-color: #1e293b !important;
+            border-color: rgba(148, 163, 184, 0.22) !important;
+            color: #e2e8f0 !important;
+        }
+
+        .dark #item-modal select option {
+            background-color: #1e293b;
+            color: #e2e8f0;
+        }
+
+        /* Cartões de personalização renderizados via JS — Dark */
+        .dark #personalizacao-options > div {
+            background: #1e293b !important;
+            border-color: rgba(148, 163, 184, 0.18) !important;
+            color: #e2e8f0 !important;
+        }
+
+        .dark #personalizacao-options > div span {
+            color: #e2e8f0 !important;
+        }
+
+        .dark #personalizacao-options > div:hover {
+            border-color: rgba(124, 58, 237, 0.55) !important;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12) !important;
+        }
+
+        /* Painel de preço no step 4 — Dark */
+        .dark #item-modal #price-total-display {
+            color: #c4b5fd !important;
+        }
+
+        /* Botão stepper inativo — Dark */
+        .dark #item-modal .step-indicator div.bg-gray-200 {
+            background-color: #1e293b !important;
+            color: #94a3b8 !important;
         }
 
         #item-modal .budget-modal-overlay {

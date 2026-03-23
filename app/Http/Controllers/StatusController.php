@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Status;
+use App\Helpers\StoreHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -12,12 +13,28 @@ use Illuminate\Support\Facades\Log;
 
 class StatusController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         if (!Auth::user()->isAdmin() && !Auth::user()->isProducao()) {
             abort(403, 'Acesso negado.');
         }
-        $statuses = Status::withCount('orders')->orderBy('position')->get();
+
+        $viewType = $request->get('type', 'production');
+        if (!in_array($viewType, ['production', 'personalized'])) {
+            $viewType = 'production';
+        }
+
+        $statuses = Status::withCount(['orders' => function ($query) use ($viewType) {
+            $query->notDrafts()->where('is_cancelled', false);
+            StoreHelper::applyStoreFilter($query);
+            if ($viewType === 'personalized') {
+                $query->where('origin', 'personalized');
+            } else {
+                $query->where(function ($q) {
+                    $q->where('origin', '!=', 'personalized')->orWhereNull('origin');
+                });
+            }
+        }])->where('type', $viewType)->orderBy('position')->get();
 
         $nameCounts = $statuses->countBy(function ($status) {
             return trim((string) $status->name);
@@ -78,7 +95,8 @@ class StatusController extends Controller
             'emptyColumnsCount',
             'avgOrdersPerColumn',
             'busiestStatus',
-            'columnLoadSeries'
+            'columnLoadSeries',
+            'viewType'
         ));
     }
 

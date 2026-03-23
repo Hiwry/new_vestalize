@@ -61,12 +61,12 @@
     overflow-x: hidden;
 }
 
-/* Background gradient */
+/* Background */
 .landing-bg {
     position: fixed;
     inset: 0;
     z-index: -1;
-    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, var(--glow-opacity)), transparent);
+    background: transparent;
 }
 
 /* Wrapper */

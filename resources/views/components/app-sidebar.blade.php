@@ -493,7 +493,7 @@
                 class="flex items-center rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all group w-full"
                 :class="expanded ? 'p-2 justify-start' : 'justify-center mx-auto py-2'"
                 title="Meu Perfil">
-            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white stay-white font-black text-xs shadow-lg group-hover:scale-105 transition-transform">
+            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-black text-xs group-hover:scale-105 transition-transform">
                 {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
             </div>
             <div class="flex flex-col items-start ml-3 overflow-hidden text-nowrap" x-show="expanded">
@@ -530,13 +530,13 @@
          x-transition:leave-start="opacity-100 scale-100 translate-y-0"
          x-transition:leave-end="opacity-0 scale-95 translate-y-4">
         
-        <!-- Header com gradiente -->
-        <div class="relative h-32 bg-gradient-to-br from-primary via-purple-600 to-indigo-700">
-            <button @click="showProfileModal = false" class="absolute top-4 right-4 text-white/50 hover:text-white transition-colors h-8 w-8 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-md">
+        <!-- Header -->
+        <div class="relative h-32 bg-primary/10 border-b border-primary/20">
+            <button @click="showProfileModal = false" class="absolute top-4 right-4 text-muted hover:text-adaptive transition-colors h-8 w-8 flex items-center justify-center rounded-full bg-primary/10 hover:bg-primary/20">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="absolute -bottom-10 left-6">
-                 <div class="flex items-center justify-center h-20 w-20 rounded-2xl bg-card-bg border-4 border-black text-primary text-3xl font-black shadow-2xl">
+                 <div class="flex items-center justify-center h-20 w-20 rounded-2xl bg-card-bg border-4 border-border text-primary text-3xl font-black shadow-md">
                     {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
                 </div>
             </div>

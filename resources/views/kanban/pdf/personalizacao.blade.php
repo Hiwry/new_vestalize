@@ -27,11 +27,12 @@
         }
         .item-container {
             width: 100%;
-            height: 48%; /* Tenta ocupar metade da area util */
-            margin-bottom: 5px;
-            padding-bottom: 5px;
-            border-bottom: 2px dashed #ccc;
+            height: 48.5%;
+            margin-bottom: 2px;
+            padding-bottom: 2px;
+            border-bottom: 1px dashed #ccc;
             display: block;
+            overflow: hidden;
         }
         .header-table {
             width: 100%;
@@ -92,7 +93,7 @@
         @foreach($chunk as $item)
         <div class="item-container">
             <!-- Corpo com Borda e Margens Internas -->
-            <div style="border: 2px solid #cbd5e1; border-radius: 8px; padding: 15px; margin-top: 5px; height: 95%;">
+            <div style="border: 2px solid #cbd5e1; border-radius: 8px; padding: 6px 8px 4px 8px; margin-top: 2px; height: 98%;">
                 
                 <!-- Header Compacto -->
                 <table class="header-table">
@@ -119,7 +120,7 @@
                     </tr>
                 </table>
 
-                <table class="main-content" style="width: 100%; height: 85%;">
+                <table class="main-content" style="width: 100%; height: 88%;">
                     <tr>
                     <!-- Coluna Esquerda: Detalhes da Personalização (30%) -->
                     <td style="width: 30%; vertical-align: top;">
@@ -129,6 +130,9 @@
                             <table style="width: 100%; font-size: 13px;">
                                 <tr><td style="color: #64748b;">Qtd:</td><td style="font-weight: bold; font-size: 16px;">{{ $item->quantity }}</td></tr>
                                 <tr><td style="color: #64748b;">Tipo:</td><td style="font-weight: bold;">{{ $item->print_type }}</td></tr>
+                                @if($item->model)
+                                    <tr><td style="color: #64748b;">Corte:</td><td style="font-weight: bold;">{{ $item->model }}</td></tr>
+                                @endif
                                 @if($item->is_sublimation_total)
                                     @php
                                         $printDesc = is_array($item->print_desc) ? $item->print_desc : (is_string($item->print_desc) ? json_decode($item->print_desc, true) : []);
@@ -204,23 +208,37 @@
                             @endif
                         </div>
 
-                        <!-- Tamanhos do Item (NOVIDADE) -->
-                        <div class="box" style="margin-bottom: 5px;">
+                        <!-- Tamanhos do Item -->
+                        <div class="box" style="margin-bottom: 4px;">
                             <div class="box-title">Tamanhos da Costura</div>
                             <div style="font-size: 11px;">
                                 @php
-                                    $itemSizes = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) ? json_decode($item->sizes, true) : []);
+                                    $rawSizes = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) ? json_decode($item->sizes, true) : []);
                                     $sizeOrder = ['PP','P','M','G','GG','EXG','G1','G2','G3','ESPECIAL'];
+                                    // Normalise all keys to uppercase first
+                                    $itemSizes = [];
+                                    foreach ((array)$rawSizes as $k => $v) {
+                                        $itemSizes[strtoupper(trim($k))] = $v;
+                                    }
+                                    // Build ordered list then append unknowns
+                                    $sortedSizes = [];
+                                    foreach ($sizeOrder as $sk) {
+                                        if (isset($itemSizes[$sk]) && $itemSizes[$sk] > 0) {
+                                            $sortedSizes[$sk] = $itemSizes[$sk];
+                                        }
+                                    }
+                                    foreach ($itemSizes as $sk => $v) {
+                                        if (!isset($sortedSizes[$sk]) && $v > 0) {
+                                            $sortedSizes[$sk] = $v;
+                                        }
+                                    }
                                 @endphp
                                 <table style="width: 100%; border-collapse: collapse;">
-                                    @foreach($sizeOrder as $sizeKey)
-                                        @php $qty = $itemSizes[$sizeKey] ?? $itemSizes[strtolower($sizeKey)] ?? 0; @endphp
-                                        @if($qty > 0)
-                                            <tr>
-                                                <td style="padding: 1px 4px; border-bottom: 1px solid #f1f5f9; font-weight: bold;">{{ $sizeKey }}</td>
-                                                <td style="padding: 1px 4px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold; font-size: 16px;">{{ $qty }}</td>
-                                            </tr>
-                                        @endif
+                                    @foreach($sortedSizes as $sizeKey => $qty)
+                                        <tr>
+                                            <td style="padding: 1px 4px; border-bottom: 1px solid #f1f5f9; font-weight: bold;">{{ $sizeKey }}</td>
+                                            <td style="padding: 1px 4px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold; font-size: 15px;">{{ $qty }}</td>
+                                        </tr>
                                     @endforeach
                                 </table>
                             </div>
@@ -234,7 +252,7 @@
 
                     <!-- Coluna Direita: Imagem Horizontal Grande (70%) -->
                     <td style="width: 70%; vertical-align: top;">
-                         <div class="box" style="height: 340px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; position: relative;">
+                         <div class="box" style="height: 290px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; position: relative;">
                              @php
                                 $imageData = $itemImages[$item->id] ?? [];
                                 $coverImageUrl = $imageData['coverImageUrl'] ?? null;

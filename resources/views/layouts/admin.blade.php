@@ -131,8 +131,7 @@
             color: var(--foreground);
         }
         .landing-bg {
-            background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, var(--glow-opacity)), transparent),
-                        var(--background);
+            background: var(--background);
             opacity: 1;
         }
         /* Backgrounds - Respeita o tema */
@@ -301,7 +300,7 @@
         }
         
         .dark #sidebar {
-            background: linear-gradient(180deg, rgba(12, 20, 40, 0.98) 0%, #0c1628 60%, #0a1220 100%) !important;
+            background: var(--background) !important;
             border-right: 1px solid rgba(148, 163, 184, 0.08) !important;
         }
 

@@ -24,6 +24,14 @@
     .animate-slide-in-right { animation: slideInRight 0.5s ease-out forwards; }
     .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
 
+    /* Fix: avento-theme.css overrides pl-12 on search input */
+    #search-input {
+        padding-left: 3rem !important;
+        padding-right: 1.5rem !important;
+        border: none !important;
+        border-radius: 1rem !important;
+    }
+
     /* Glassmorphism & Hover Effects */
     .glass-card {
         background: #1e293b;
@@ -562,7 +570,7 @@
                 <input type="hidden" name="type" value="{{ $viewType }}">
                 
                 <!-- Busca Principal -->
-                <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
                     <div class="flex-1 relative group">
                         <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-purple-500 transition-colors">
                             <i class="fa-solid fa-magnifying-glass text-lg"></i>
@@ -575,10 +583,10 @@
                                class="w-full pl-12 pr-6 h-[56px] rounded-2xl border-none bg-gray-100/50 dark:bg-slate-800/50 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/50 transition-all text-sm font-bold tracking-tight">
                     </div>
                     <button type="submit" 
-                            class="px-8 md:px-12 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-lg shadow-purple-600/20 hover:shadow-xl hover:shadow-purple-600/40 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
+                            class="h-[56px] px-6 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-lg shadow-purple-600/20 hover:shadow-xl hover:shadow-purple-600/40 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 shrink-0"
                             style="color: #ffffff !important;">
-                        <span style="color: #ffffff !important;">Buscar Pedido</span>
-                        <i class="fa-solid fa-arrow-right" style="color: #ffffff !important;"></i>
+                        <i class="fa-solid fa-magnifying-glass" style="color: #ffffff !important;"></i>
+                        <span style="color: #ffffff !important;">Buscar</span>
                     </button>
                 </div>
                 
@@ -927,8 +935,8 @@
         <div class="relative top-5 mx-auto p-0 border border-white/10 w-full max-w-7xl shadow-2xl rounded-3xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl mb-10 animate-slide-in-bottom">
             <div class="flex justify-between items-center p-8 border-b border-gray-100 dark:border-white/5">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center text-white border border-purple-500/20">
-                        <i class="fa-solid fa-file-invoice text-xl"></i>
+                    <div class="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center text-white border border-purple-500/20" style="color: #ffffff !important;">
+                        <i class="fa-solid fa-file-invoice text-xl" style="color: #ffffff !important;"></i>
                     </div>
                     <div>
                         <h2 id="modal-title" class="text-xl md:text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Detalhes do Pedido</h2>
@@ -1085,13 +1093,13 @@
     </div>
 
     <!-- Modal de Edição de Imagem de Capa Premium -->
-    <div id="cover-image-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xl overflow-y-auto h-full w-full hidden z-[200] transition-all duration-500">
-        <div class="relative top-20 mx-auto p-0 border border-white/10 w-full max-w-lg shadow-2xl rounded-[2.5rem] bg-white dark:bg-slate-900 overflow-hidden animate-slide-in-bottom">
+    <div id="cover-image-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xl flex items-center justify-center p-4 hidden z-[200] transition-all duration-500 overflow-y-auto">
+        <div class="relative my-auto mx-auto p-0 border border-white/10 w-full max-w-lg shadow-2xl rounded-[2.5rem] bg-white dark:bg-slate-900 overflow-hidden animate-slide-in-bottom">
             <!-- Header do Modal Premium -->
             <div class="flex justify-between items-center p-8 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-2xl flex items-center justify-center text-indigo-500 border border-indigo-500/20">
-                        <i class="fa-solid fa-image text-xl"></i>
+                    <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white border border-indigo-400/30">
+                        <i class="fa-solid fa-image text-base"></i>
                     </div>
                     <div>
                         <h3 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Capa</h3>
@@ -1108,9 +1116,9 @@
                 <input type="hidden" id="cover-item-id" name="item_id">
                 
                 <!-- Informação Premium -->
-                <div class="flex items-start gap-4 p-5 rounded-3xl bg-blue-500/5 border border-blue-500/10 shadow-inner">
-                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
-                        <i class="fa-solid fa-circle-info"></i>
+                <div class="flex items-start gap-4 p-5 rounded-3xl bg-blue-500/10 border border-blue-500/20 shadow-inner">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center text-white flex-shrink-0">
+                        <i class="fa-solid fa-circle-info text-sm"></i>
                     </div>
                     <div>
                         <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest leading-none mb-1">Recomendação</p>
@@ -2825,7 +2833,7 @@
           function closeCoverImageModal() {
               document.getElementById('cover-image-modal').classList.add('hidden');
               document.getElementById('cover-image-form').reset();
-              document.getElementById('cover-preview').classList.add('hidden');
+              document.getElementById('cover-image-preview').classList.add('hidden');
           }
 
           function openCoverImagePicker() {
@@ -2837,7 +2845,7 @@
           }
 
         function previewCoverImage(input) {
-            const preview = document.getElementById('cover-preview');
+            const preview = document.getElementById('cover-image-preview');
             const previewImg = document.getElementById('cover-preview-img');
             
             if (input.files && input.files.length > 0) {
@@ -2860,6 +2868,31 @@
             if (coverImageInput) {
                 coverImageInput.addEventListener('change', function() {
                     previewCoverImage(this);
+                });
+            }
+
+            // Drag-and-drop support for the cover image dropzone
+            const dropzoneBtn = document.querySelector('#cover-image-modal button[onclick*="openCoverImagePicker"]');
+            if (dropzoneBtn) {
+                dropzoneBtn.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('border-purple-500/50', 'bg-purple-500/10');
+                });
+                dropzoneBtn.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('border-purple-500/50', 'bg-purple-500/10');
+                });
+                dropzoneBtn.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('border-purple-500/50', 'bg-purple-500/10');
+                    const input = document.getElementById('cover-image-input');
+                    if (!input || !e.dataTransfer.files.length) return;
+                    const file = e.dataTransfer.files[0];
+                    if (!file.type.startsWith('image/')) return;
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    input.files = dt.files;
+                    previewCoverImage(input);
                 });
             }
 

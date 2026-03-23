@@ -179,8 +179,8 @@
                 <!-- Resumo do Pedido -->
                 <div class="bg-[var(--sh-card-bg)] rounded-xl border border-[var(--sh-card-border)] p-6 mb-6 shadow-sm">
                     <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-8 h-8 bg-[#7c3aed] rounded-full flex items-center justify-center shadow-sm">
-                            <svg class="w-4 h-4 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-9 h-9 bg-[#7c3aed] rounded-full flex items-center justify-center shadow-sm">
+                            <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                             </svg>
                         </div>
@@ -286,8 +286,8 @@
                     <!-- Data de Entrada -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-8 h-8 bg-purple-500 dark:bg-purple-600 rounded-full flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-9 h-9 bg-[#7c3aed] rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
                             </div>
@@ -303,10 +303,9 @@
                     <!-- Taxa de Entrega -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-8 h-8 bg-purple-500 dark:bg-purple-600 rounded-full flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zm10 0a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H3a1 1 0 00-1 1v10h1a2 2 0 114 0h6a2 2 0 114 0h1V9a1 1 0 00-.293-.707L16 6h-3z"></path>
+                            <div class="w-9 h-9 bg-[#7c3aed] rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
                                 </svg>
                             </div>
                             <h3 class="text-sm font-medium text-gray-900 dark:text-white">Taxa de Entrega</h3>
@@ -323,8 +322,8 @@
                     <!-- Desconto -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-8 h-8 bg-purple-500 dark:bg-purple-600 rounded-full flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-9 h-9 bg-[#7c3aed] rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                                 </svg>
                             </div>
@@ -368,8 +367,8 @@
                     <!-- Formas de Pagamento -->
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2">
-                            <div class="w-8 h-8 bg-purple-500 dark:bg-purple-600 rounded-full flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-9 h-9 bg-[#7c3aed] rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white stay-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                                 </svg>
                             </div>
@@ -427,10 +426,10 @@
                                         </div>
                                         <span class="text-xl font-bold text-[#7c3aed] dark:text-purple-400" id="suggested-amount">R$ 0,00</span>
                                     </div>
-                                    <button type="button" onclick="useSuggestedAmount()" style="color: white !important;" 
-                                            class="w-full mt-2 px-4 py-2 bg-[#7c3aed] text-white stay-white rounded-md text-sm font-semibold transition-all flex items-center justify-center gap-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    <button type="button" onclick="useSuggestedAmount()" 
+                                            class="w-full mt-2 px-4 py-2 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 shadow-sm">
+                                        <svg class="w-4 h-4 stay-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                                         </svg>
                                         Aplicar Valor Sugerido
                                     </button>

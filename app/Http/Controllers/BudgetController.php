@@ -463,6 +463,43 @@ class BudgetController extends Controller
                 return is_numeric($addonId) ? (int) $addonId : $addonId;
             }, $addons);
             $regataDiscount = !empty($data['regata_discount']);
+
+            $allowedSpecialSizes = ['GG', 'EXG', 'G1', 'G2', 'G3'];
+            $sizeSurchargeQuantities = collect($data['size_surcharge_quantities'] ?? [])
+                ->mapWithKeys(function ($qty, $size) {
+                    return [strtoupper(trim((string) $size)) => max(0, (int) $qty)];
+                })
+                ->filter(function ($qty, $size) use ($allowedSpecialSizes) {
+                    return $qty > 0 && in_array($size, $allowedSpecialSizes, true);
+                })
+                ->all();
+
+            $budgetItems = session('budget_items', []);
+            $currentItem = $budgetItems[$itemIndex] ?? [];
+            $currentItemQuantity = max(1, (int) ($currentItem['quantity'] ?? 0));
+            $itemUnitPrice = isset($currentItem['unit_price'])
+                ? (float) $currentItem['unit_price']
+                : ($currentItemQuantity > 0 ? (float) (($currentItem['item_total'] ?? 0) / $currentItemQuantity) : 0.0);
+
+            $sizeSurchargeDetails = [];
+            $sizeSurchargeTotal = 0.0;
+
+            foreach ($sizeSurchargeQuantities as $size => $qty) {
+                $surchargeModel = \App\Models\SizeSurcharge::getSurchargeForSize($size, $itemUnitPrice);
+                $surchargePerUnit = (float) ($surchargeModel->surcharge ?? 0);
+
+                if ($surchargePerUnit <= 0) {
+                    continue;
+                }
+
+                $lineTotal = $surchargePerUnit * $qty;
+                $sizeSurchargeDetails[$size] = [
+                    'qty' => $qty,
+                    'unit' => $surchargePerUnit,
+                    'total' => $lineTotal,
+                ];
+                $sizeSurchargeTotal += $lineTotal;
+            }
             
             $customizations[] = [
                 'item_index' => $itemIndex,
@@ -480,6 +517,9 @@ class BudgetController extends Controller
                 'notes' => $data['seller_notes'] ?? '',
                 'addons' => $addons,
                 'regata_discount' => $regataDiscount,
+                'size_surcharge_quantities' => $sizeSurchargeQuantities,
+                'size_surcharge_details' => $sizeSurchargeDetails,
+                'size_surcharge_total' => $sizeSurchargeTotal,
             ];
             
             // Aplicar descontos automáticos
@@ -525,6 +565,7 @@ class BudgetController extends Controller
                     'id' => $index,
                     'item_number' => $index + 1,
                     'quantity' => $item['quantity'] ?? 0,
+                    'unit_price' => $item['unit_price'] ?? (($item['quantity'] ?? 0) > 0 ? (($item['item_total'] ?? 0) / max(1, (int) ($item['quantity'] ?? 0))) : 0),
                     'fabric' => $item['fabric'] ?? '',
                     'color' => $item['color'] ?? '',
                     'print_type' => $item['print_type'] ?? '',

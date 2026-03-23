@@ -520,11 +520,9 @@
                         <form action="{{ route('budget.approve', $budget->id) }}" method="POST">
                             @csrf
                             <button type="submit"
-                                    class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-green-600 dark:bg-green-600 text-white text-center rounded-md hover:bg-green-700 dark:hover:bg-green-700 text-sm font-medium transition-colors" style="color: white !important;">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                Aprovar Orçamento
+                                    class="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-green-600 dark:bg-green-600 text-white text-center rounded-md hover:bg-green-700 dark:hover:bg-green-700 text-sm font-medium transition-colors" style="color: white !important;">
+                                <i class="fa-solid fa-check text-sm" style="color: white !important; line-height: 1;"></i>
+                                <span style="color: white !important;">Aprovar Orçamento</span>
                             </button>
                         </form>
                         
@@ -532,11 +530,9 @@
                             @csrf
                             <button type="submit"
                                     onclick="return confirm('Tem certeza que deseja rejeitar este orçamento?')"
-                                    class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-red-600 dark:bg-red-600 text-white text-center rounded-md hover:bg-red-700 dark:hover:bg-red-700 text-sm font-medium transition-colors" style="color: white !important;">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                                Rejeitar Orçamento
+                                    class="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-red-600 dark:bg-red-600 text-white text-center rounded-md hover:bg-red-700 dark:hover:bg-red-700 text-sm font-medium transition-colors" style="color: white !important;">
+                                <i class="fa-solid fa-xmark text-sm" style="color: white !important; line-height: 1;"></i>
+                                <span style="color: white !important;">Rejeitar Orçamento</span>
                             </button>
                         </form>
                         @endif

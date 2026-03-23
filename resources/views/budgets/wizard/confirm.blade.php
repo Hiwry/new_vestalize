@@ -225,6 +225,10 @@
                                         <p class="text-[11px] uppercase tracking-wide font-semibold text-purple-600 dark:text-purple-300 mb-3">Personalizações do item</p>
                                         <div class="space-y-3">
                                             @foreach($itemCustomizations as $custom)
+                                                @php
+                                                    $customSizeSurchargeDetails = $custom['size_surcharge_details'] ?? [];
+                                                    $customSizeSurchargeTotal = (float) ($custom['size_surcharge_total'] ?? 0);
+                                                @endphp
                                                 <div class="rounded-xl border border-white/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/50 px-4 py-3">
                                                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                                         <div>
@@ -239,6 +243,27 @@
                                                         </div>
                                                         <p class="text-sm font-bold text-[#7c3aed] dark:text-[#a78bfa]">R$ {{ number_format($custom['final_price'] ?? 0, 2, ',', '.') }}</p>
                                                     </div>
+
+                                                    @if(!empty($customSizeSurchargeDetails))
+                                                        <div class="mt-3 rounded-lg border border-emerald-200/80 dark:border-emerald-900/40 bg-emerald-50/70 dark:bg-emerald-900/10 px-3 py-2.5">
+                                                            <p class="text-[10px] uppercase tracking-wide font-semibold text-emerald-700 dark:text-emerald-300 mb-2">Acréscimos de tamanhos especiais</p>
+                                                            <div class="space-y-1">
+                                                                @foreach($customSizeSurchargeDetails as $size => $data)
+                                                                    <div class="flex items-center justify-between text-[11px]">
+                                                                        <span class="font-semibold text-gray-700 dark:text-slate-300">{{ $size }}</span>
+                                                                        <span class="text-gray-500 dark:text-slate-400">
+                                                                            {{ $data['qty'] ?? 0 }}x R$ {{ number_format((float) ($data['unit'] ?? 0), 2, ',', '.') }} =
+                                                                            <span class="font-bold text-emerald-600 dark:text-emerald-400">R$ {{ number_format((float) ($data['total'] ?? 0), 2, ',', '.') }}</span>
+                                                                        </span>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                            <div class="mt-2 pt-2 border-t border-emerald-200/70 dark:border-emerald-900/40 flex items-center justify-between text-[11px]">
+                                                                <span class="font-semibold text-gray-700 dark:text-slate-300">Total dos acréscimos</span>
+                                                                <span class="font-bold text-emerald-600 dark:text-emerald-400">R$ {{ number_format($customSizeSurchargeTotal, 2, ',', '.') }}</span>
+                                                            </div>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             @endforeach
                                         </div>

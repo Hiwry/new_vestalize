@@ -52,13 +52,13 @@
                 circle.className = "w-8 h-8 rounded-full flex items-center justify-center bg-green-500 text-white font-bold text-sm";
                 circle.innerHTML = "";
                 circle.style.setProperty('color', 'white', 'important');
-                label.className = "text-xs font-medium mt-2 text-green-600";
+                label.className = "text-xs font-medium mt-2 text-green-600 dark:text-green-400";
             } else {
-                circle.className = "w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-500 font-bold text-sm";
+                circle.className = "w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-bold text-sm";
                 circle.innerHTML = step;
                 circle.style.color = "";
                 circle.style.cssText = "";
-                label.className = "text-xs font-medium mt-2 text-gray-500";
+                label.className = "text-xs font-medium mt-2 text-gray-500 dark:text-gray-400";
             }
         });
 
@@ -165,7 +165,7 @@
 
             return `
             <div onclick="togglePersonalizacao(${item.id})"
-                 class="relative flex flex-col items-center p-4 border rounded-xl cursor-pointer hover:border-[#7c3aed] transition-all group hover:shadow-lg ${borderClass} bg-white dark:bg-gray-800">
+                 class="relative flex flex-col items-center p-4 border rounded-xl cursor-pointer hover:border-[#7c3aed] transition-all group hover:shadow-lg hover:shadow-purple-500/10 ${borderClass} bg-white dark:bg-slate-800">
 
                 ${isSelected ? `
                 <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#7c3aed] text-white flex items-center justify-center">
@@ -238,8 +238,10 @@
         const current = selectedValue || select.value;
         const defaultTxt = select.options[0] ? select.options[0].text : 'Selecione...';
 
+        const showPriceLabel = id !== 'tipo_tecido';
+
         select.innerHTML = `<option value="">${defaultTxt}</option>` +
-            filtered.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name} ${i.price > 0 ? '(+R$' + i.price + ')' : ''}</option>`).join('');
+            filtered.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name}${showPriceLabel && i.price > 0 ? ' (+R$' + i.price + ')' : ''}</option>`).join('');
 
         if (current && filtered.find(x => x.id == current)) select.value = current;
     }

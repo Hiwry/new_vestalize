@@ -44,7 +44,7 @@
         box-shadow: none !important;
     }
 
-    .dark.avento-theme .ow-shell input:not([type="color"]),
+    .dark.avento-theme .ow-shell input:not([type="color"]):not([type="checkbox"]):not([type="radio"]),
     .dark.avento-theme .ow-shell select,
     .dark.avento-theme .ow-shell textarea,
     .dark.avento-theme .ow-btn-ghost,
@@ -83,9 +83,9 @@
 
     /* Absolute Zero Shadow Kill - FINAL OVERRIDE */
     html.dark.avento-theme .ow-shell,
-    html.dark.avento-theme .ow-shell *,
-    html.dark.avento-theme .ow-shell *::before,
-    html.dark.avento-theme .ow-shell *::after {
+    html.dark.avento-theme .ow-shell *:not(input):not(label):not(button),
+    html.dark.avento-theme .ow-shell *:not(input):not(label):not(button)::before,
+    html.dark.avento-theme .ow-shell *:not(input):not(label):not(button)::after {
         box-shadow: none !important;
         text-shadow: none !important;
         filter: none !important;
@@ -377,8 +377,19 @@
                 <form method="POST" action="{{ request()->routeIs('orders.edit.*') ? route('orders.edit.finalize') : route('orders.wizard.finalize') }}" id="finalize-form" class="mt-6" enctype="multipart/form-data">
                     @csrf
                     
-                    <label class="flex items-center gap-3 p-3 bg-purple-500/5 dark:bg-purple-500/10 rounded-full cursor-pointer mb-4 border border-purple-200/30 dark:border-purple-500/20 transition-all hover:bg-purple-500/10 dark:hover:bg-purple-500/20">
-                        <input type="checkbox" name="is_event" value="1" {{ old('is_event', ($order->is_event ?? false)) ? 'checked' : '' }} class="w-4 h-4 text-[#7c3aed] rounded-full border-purple-300">
+                    <label for="is_event_cb" class="flex items-center gap-3 p-3 bg-purple-500/5 dark:bg-purple-500/10 rounded-full cursor-pointer mb-4 border border-purple-200/30 dark:border-purple-500/20 hover:bg-purple-500/10 dark:hover:bg-purple-500/20 transition-colors select-none">
+                        <input type="checkbox" name="is_event" value="1" id="is_event_cb"
+                               {{ old('is_event', ($order->is_event ?? false)) ? 'checked' : '' }}
+                               onchange="updateEventToggle(this.checked)" class="sr-only">
+                        <!-- Custom toggle track -->
+                        <div id="event-track"
+                             class="relative w-11 h-6 rounded-full flex-shrink-0 transition-colors duration-200 flex items-center"
+                             style="background-color: {{ old('is_event', ($order->is_event ?? false)) ? '#7c3aed' : '' }};"
+                             data-off-class="1">
+                            <div id="event-thumb"
+                                 class="absolute w-5 h-5 bg-white rounded-full shadow transition-transform duration-200"
+                                 style="top: 2px; left: 2px; transform: translateX({{ old('is_event', ($order->is_event ?? false)) ? '20px' : '0px' }});"></div>
+                        </div>
                         <div>
                             <span class="text-xs font-black text-gray-900 dark:text-white block uppercase tracking-tight">Prioridade Evento</span>
                             <span class="text-[9px] text-purple-600 dark:text-purple-400 uppercase font-black tracking-widest">Produção acelerada</span>
@@ -491,11 +502,38 @@
     };
     window._confirmInitSetup();
 
+    window.updateEventToggle = function(checked) {
+        const track = document.getElementById('event-track');
+        const thumb = document.getElementById('event-thumb');
+        if (!track || !thumb) return;
+        if (checked) {
+            track.style.backgroundColor = '#7c3aed';
+            thumb.style.transform = 'translateX(20px)';
+        } else {
+            track.style.backgroundColor = '#d1d5db'; // gray-300
+            // in dark mode override to slate-600
+            if (document.documentElement.classList.contains('dark')) {
+                track.style.backgroundColor = '#475569';
+            }
+            thumb.style.transform = 'translateX(0px)';
+        }
+    };
+
+    // Init toggle visual state on load
+    function initEventToggle() {
+        const cb = document.getElementById('is_event_cb');
+        const track = document.getElementById('event-track');
+        if (cb && track && !cb.checked && !track.style.backgroundColor) {
+            track.style.backgroundColor = document.documentElement.classList.contains('dark') ? '#475569' : '#d1d5db';
+        }
+    }
+
     // DOMContentLoaded
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initConfirmPage);
+        document.addEventListener('DOMContentLoaded', function() { initConfirmPage(); initEventToggle(); });
     } else {
         initConfirmPage();
+        initEventToggle();
     }
 })();
 </script>

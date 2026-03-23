@@ -8,7 +8,7 @@
                 <div class="budget-modal-header px-4 py-4 sm:px-6 border-b flex justify-between items-center">
                     <div>
                         <h3 class="text-lg font-semibold leading-6 text-gray-900 dark:text-gray-100" id="modal-title">Configurar Item</h3>
-                        <p class="text-xs text-gray-500 mt-1">Passo <span id="current-step-label">1</span> de 4</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Passo <span id="current-step-label">1</span> de 4</p>
                     </div>
                     <button type="button" onclick="closeItemModal()" class="text-gray-400 hover:text-gray-500 focus:outline-none">
                         <span class="sr-only">Fechar</span>
@@ -27,17 +27,17 @@
                         <div class="flex-1 h-0.5 bg-gray-200 dark:bg-gray-700 mx-2 step-line" data-to="2"></div>
                         <div class="flex flex-col items-center step-indicator" data-step="2">
                             <div class="w-8 h-8 rounded-full flex items-center justify-center bg-purple-600 text-white font-bold text-sm ring-4 ring-purple-100 dark:ring-purple-900/30" style="color: white !important;">2</div>
-                            <span class="text-xs font-medium mt-2 text-gray-500">Tecido</span>
+                            <span class="text-xs font-medium mt-2 text-gray-500 dark:text-gray-400">Tecido</span>
                         </div>
                         <div class="flex-1 h-0.5 bg-gray-200 dark:bg-gray-700 mx-2 step-line" data-to="3"></div>
                         <div class="flex flex-col items-center step-indicator" data-step="3">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-500 font-bold text-sm">3</div>
-                            <span class="text-xs font-medium mt-2 text-gray-500">Modelo</span>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-bold text-sm">3</div>
+                            <span class="text-xs font-medium mt-2 text-gray-500 dark:text-gray-400">Modelo</span>
                         </div>
                         <div class="flex-1 h-0.5 bg-gray-200 dark:bg-gray-700 mx-2 step-line" data-to="4"></div>
                         <div class="flex flex-col items-center step-indicator" data-step="4">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-500 font-bold text-sm">4</div>
-                            <span class="text-xs font-medium mt-2 text-gray-500">Qtd</span>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-bold text-sm">4</div>
+                            <span class="text-xs font-medium mt-2 text-gray-500 dark:text-gray-400">Qtd</span>
                         </div>
                     </div>
                 </div>
@@ -65,19 +65,19 @@
                             <div class="space-y-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tecido *</label>
-                                    <select name="tecido" id="tecido" onchange="loadTiposTecido()" class="w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                                    <select name="tecido" id="tecido" onchange="loadTiposTecido()" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white py-3 shadow-sm focus:ring-purple-500 focus:border-purple-500">
                                         <option value="">Selecione...</option>
                                     </select>
                                 </div>
                                 <div id="tipo-tecido-container" class="hidden">
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo de Tecido</label>
-                                    <select name="tipo_tecido" id="tipo_tecido" onchange="renderAllDropdowns()" class="w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                                    <select name="tipo_tecido" id="tipo_tecido" onchange="renderAllDropdowns()" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white py-3 shadow-sm focus:ring-purple-500 focus:border-purple-500">
                                         <option value="">Selecione...</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cor *</label>
-                                    <select name="cor" id="cor" class="w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                                    <select name="cor" id="cor" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white py-3 shadow-sm focus:ring-purple-500 focus:border-purple-500">
                                         <option value="">Selecione...</option>
                                     </select>
                                 </div>
@@ -90,20 +90,20 @@
                             <div class="space-y-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo de Corte *</label>
-                                    <select name="tipo_corte" id="tipo_corte" onchange="renderAllDropdowns()" class="w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                                    <select name="tipo_corte" id="tipo_corte" onchange="renderAllDropdowns()" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white py-3 shadow-sm focus:ring-purple-500 focus:border-purple-500">
                                         <option value="">Selecione...</option>
                                     </select>
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gola</label>
-                                        <select name="gola" id="gola" onchange="updatePrice()" class="w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                                        <select name="gola" id="gola" onchange="updatePrice()" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white py-3 shadow-sm focus:ring-purple-500 focus:border-purple-500">
                                             <option value="">Selecione...</option>
                                         </select>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Detalhe</label>
-                                        <select name="detalhe" id="detalhe" onchange="updatePrice()" class="w-full rounded-lg border-gray-300 dark:border-gray-600 py-3 shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                                        <select name="detalhe" id="detalhe" onchange="updatePrice()" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white py-3 shadow-sm focus:ring-purple-500 focus:border-purple-500">
                                             <option value="">Selecione...</option>
                                         </select>
                                     </div>
@@ -122,13 +122,13 @@
                                 </div>
                                 <div class="w-32">
                                     <label class="block text-xs text-gray-500 mb-1">Quantidade *</label>
-                                    <input type="number" name="quantity" id="quantity" min="1" value="1" required class="w-full rounded-md border-gray-300 text-center font-bold text-lg py-2 focus:ring-purple-500 focus:border-purple-500">
+                                    <input type="number" name="quantity" id="quantity" min="1" value="1" required class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white text-center font-bold text-lg py-2 focus:ring-purple-500 focus:border-purple-500">
                                 </div>
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Observações (Opcional)</label>
-                                <textarea name="notes" rows="3" class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:ring-purple-500 focus:border-purple-500" placeholder="Algum detalhe específico?"></textarea>
+                                <textarea name="notes" rows="3" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm focus:ring-purple-500 focus:border-purple-500" placeholder="Algum detalhe específico?"></textarea>
                             </div>
 
                             <input type="hidden" name="unit_price" id="unit_price" value="0">
@@ -136,13 +136,13 @@
                     </div>
 
                     <div class="budget-modal-footer px-6 py-4 border-t flex justify-between">
-                        <button type="button" id="btn-prev" onclick="changeStep(-1)" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition hidden">
+                        <button type="button" id="btn-prev" onclick="changeStep(-1)" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition hidden">
                             Voltar
                         </button>
 
                         <div class="flex-1"></div>
 
-                        <button type="button" onclick="closeItemModal()" class="px-4 py-2 mr-3 text-gray-500 hover:text-gray-700 font-medium">
+                        <button type="button" onclick="closeItemModal()" class="px-4 py-2 mr-3 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 font-medium transition-colors">
                             Cancelar
                         </button>
 

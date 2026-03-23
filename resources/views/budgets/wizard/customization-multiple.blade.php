@@ -2,6 +2,132 @@
 
 @push('styles')
     @include('budgets.wizard.partials.order-theme')
+    <style>
+        .pm-panel {
+            background: #ffffff !important;
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
+            border-radius: 28px !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .dark .pm-panel {
+            background: #0f1f42 !important;
+            border-color: rgba(96, 165, 250, 0.2) !important;
+            box-shadow: 0 30px 90px rgba(2, 6, 23, 0.62) !important;
+        }
+
+        .pm-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            padding: 1.5rem 1.75rem;
+            background: #f8fafc !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .dark .pm-header {
+            background: #0c1c45 !important;
+            border-bottom-color: rgba(96, 165, 250, 0.14) !important;
+        }
+
+        .pm-icon {
+            width: 3.5rem;
+            height: 3.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1.1rem;
+            background: #7c3aed !important;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+        }
+
+        .pm-close {
+            width: 2.75rem;
+            height: 2.75rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--bw-card-bg) 84%, var(--bw-input-bg) 16%) !important;
+            border: 1px solid color-mix(in srgb, var(--bw-card-border) 82%, transparent) !important;
+            color: var(--bw-text-secondary) !important;
+        }
+
+        .pm-close:hover {
+            background: color-mix(in srgb, var(--bw-card-bg) 74%, var(--bw-accent) 26%) !important;
+            color: var(--bw-text-primary) !important;
+        }
+
+        #personalizationModal #modalTitle {
+            color: var(--bw-text-primary) !important;
+            font-size: 1.7rem;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+        }
+
+        #personalizationModal #modalSubtitle {
+            color: var(--bw-text-secondary) !important;
+            font-size: 0.95rem;
+        }
+
+        .pm-body {
+            padding: 1.5rem 1.75rem 1.75rem;
+            background: #f1f5f9 !important;
+        }
+
+        .dark .pm-body {
+            background: #091326 !important;
+        }
+
+        .pm-section-card {
+            border-radius: 1.25rem;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: #ffffff !important;
+        }
+
+        .dark .pm-section-card {
+            border-color: rgba(96, 165, 250, 0.14);
+            background: #0d1d39 !important;
+        }
+
+        .pm-section-card--price {
+            background: #eff6ff !important;
+            border-color: rgba(99, 102, 241, 0.2) !important;
+            box-shadow: 0 14px 32px -24px rgba(15, 23, 42, 0.18), 0 6px 18px -18px rgba(99, 102, 241, 0.18);
+        }
+
+        .dark .pm-section-card--price {
+            background: #10203d !important;
+            border-color: rgba(129, 140, 248, 0.26) !important;
+            box-shadow: 0 16px 34px -26px rgba(2, 6, 23, 0.34), 0 6px 18px -18px rgba(96, 165, 250, 0.16);
+        }
+
+        #personalizationModal #addAddonBtn {
+            border-radius: 1rem !important;
+            border-style: dashed !important;
+            border-color: rgba(16, 185, 129, 0.4) !important;
+            background: #f0fdf4 !important;
+            color: #059669 !important;
+        }
+
+        .dark #personalizationModal #addAddonBtn {
+            border-color: rgba(52, 211, 153, 0.42) !important;
+            background: #0d2232 !important;
+            color: #6ee7b7 !important;
+        }
+
+        #personalizationModal #addAddonBtn:hover {
+            background: #dcfce7 !important;
+            border-color: rgba(16, 185, 129, 0.6) !important;
+        }
+
+        .dark #personalizationModal #addAddonBtn:hover {
+            background: #123047 !important;
+            border-color: rgba(110, 231, 183, 0.56) !important;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -384,12 +510,22 @@
 
     <!-- Modal de Adicionar Personalização -->
     <div id="personalizationModal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-slate-800">
+        <div class="pm-panel max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             
             <!-- Modal Header -->
-            <div class="px-6 py-5 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-10">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white" id="modalTitle">Adicionar Personalização</h3>
-                <button type="button" onclick="closePersonalizationModal()" class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300">
+            <div class="pm-header flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="pm-icon">
+                        <svg class="w-6 h-6 text-white" style="color: white !important;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white" id="modalTitle">Adicionar Personalização</h3>
+                        <p class="text-sm text-gray-500 dark:text-slate-400 mt-0.5" id="modalSubtitle">Configure os detalhes da personalização</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closePersonalizationModal()" class="pm-close transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -397,7 +533,7 @@
             </div>
             
             <!-- Modal Body -->
-            <form id="personalizationForm" action="{{ route('budget.customization') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
+            <form id="personalizationForm" action="{{ route('budget.customization') }}" method="POST" enctype="multipart/form-data" class="pm-body flex-1 overflow-y-auto space-y-6">
                 @csrf
                 <input type="hidden" id="modal_item_id" name="item_id">
                 <input type="hidden" id="modal_personalization_type" name="personalization_type">
@@ -452,8 +588,8 @@
                     <!-- Botão para adicionar outros adicionais -->
                     <div class="mb-3">
                         <button type="button" id="addAddonBtn" 
-                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-lg text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900/30 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-colors">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="inline-flex items-center px-4 py-2.5 border-2 text-sm leading-4 font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 transition-all">
+                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
                             Adicionar Adicional
@@ -472,6 +608,35 @@
                     
                     <div id="addons-prices" class="mt-2 space-y-1">
                         <!-- Preços dos adicionais selecionados serão exibidos aqui -->
+                    </div>
+
+                    <div class="mt-4 pm-section-card rounded-xl p-4">
+                        <div class="flex items-start justify-between gap-3 mb-3">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900 dark:text-white">Acréscimos de tamanhos enviados</p>
+                                <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Use quando o cliente já informou quantidades de GG, EXG, G1, G2 ou G3.</p>
+                            </div>
+                            <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Opcional</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                            @foreach (['GG', 'EXG', 'G1', 'G2', 'G3'] as $specialSize)
+                                <label class="block">
+                                    <span class="block text-xs font-semibold text-gray-600 dark:text-slate-300 mb-1">{{ $specialSize }}</span>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                        value="0"
+                                        id="size_surcharge_{{ $specialSize }}"
+                                        name="size_surcharge_quantities[{{ $specialSize }}]"
+                                        class="size-surcharge-input w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 transition-all"
+                                        data-size="{{ $specialSize }}">
+                                </label>
+                            @endforeach
+                        </div>
+
+                        <div id="size-surcharges-summary" class="mt-3 space-y-1 text-xs text-gray-600 dark:text-slate-400"></div>
                     </div>
                 </div>
 
@@ -493,16 +658,21 @@
 
                 <!-- Preço Calculado -->
                 <div id="priceDisplay" class="hidden">
-                    <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-4">
+                    <div class="pm-section-card pm-section-card--price rounded-xl p-5">
                         <div class="flex items-center justify-between">
-                            <span class="text-sm font-semibold text-gray-700 dark:text-slate-300">Preço por Aplicação:</span>
-                            <span class="text-lg font-bold text-indigo-600 dark:text-indigo-400" id="unitPrice">R$ 0,00</span>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="text-sm font-semibold text-gray-700 dark:text-slate-300">Preço por Aplicação:</span>
+                            </div>
+                            <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400" id="unitPrice">R$ 0,00</span>
                         </div>
-                        <div class="flex items-center justify-between mt-1">
-                            <span class="text-xs text-gray-600 dark:text-slate-400">Total desta Aplicação:</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white" id="totalPrice">R$ 0,00</span>
+                        <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-200 dark:border-slate-700/50">
+                            <span class="text-sm text-slate-500 dark:text-slate-400">Total desta Aplicação:</span>
+                            <span class="text-lg font-bold text-gray-900 dark:text-white" id="totalPrice">R$ 0,00</span>
                         </div>
-                        <div class="text-xs text-gray-500 dark:text-slate-400 mt-2 text-center" id="priceFormula">
+                        <div class="text-xs text-slate-500 dark:text-slate-400 mt-3 text-center" id="priceFormula">
                             <!-- Será preenchido via JavaScript -->
                         </div>
                     </div>
@@ -510,6 +680,7 @@
                 <input type="hidden" id="unit_price" name="unit_price" value="0">
                 <input type="hidden" id="final_price" name="final_price" value="0">
                 <input type="hidden" id="base_size_price" value="0">
+                <input type="hidden" id="size_surcharge_total" name="size_surcharge_total" value="0">
 
 
 
@@ -586,6 +757,16 @@
         let cachedBasePrice = null;
         let cachedPriceParams = '';
 
+        @php
+            $budgetItemUnitPrices = collect($itemPersonalizations)->mapWithKeys(function ($entry) {
+                return [(string) ($entry['item']->id ?? '') => (float) ($entry['item']->unit_price ?? 0)];
+            })->all();
+        @endphp
+
+        const budgetItemUnitPrices = @json($budgetItemUnitPrices);
+        const specialSizeKeys = ['GG', 'EXG', 'G1', 'G2', 'G3'];
+        const specialSizeSurchargeRules = @json(\App\Models\SizeSurcharge::getDefaultSurcharges());
+
         // Dados de tamanhos por tipo
         const personalizationSizes = @json($personalizationData);
         const normalizeTypeKey = (type) => {
@@ -650,6 +831,7 @@
             const regataCheck = document.getElementById('regataCheckbox');
             const quantityInput = document.getElementById('quantity');
             const colorCountInput = document.getElementById('color_count');
+            const specialSizeInputs = document.querySelectorAll('.size-surcharge-input');
 
             // Remover listeners antigos para evitar duplicação
             if (addBtn) {
@@ -676,9 +858,18 @@
                 colorCountInput.addEventListener('change', calculatePrice);
             }
 
+            specialSizeInputs.forEach((input) => {
+                input.removeEventListener('input', handleSpecialSizeInputChange);
+                input.removeEventListener('change', handleSpecialSizeInputChange);
+                input.addEventListener('input', handleSpecialSizeInputChange);
+                input.addEventListener('change', handleSpecialSizeInputChange);
+            });
+
             if (typeof updateAvailableAddonsState === 'function') {
                 updateAvailableAddonsState();
             }
+
+            updateSpecialSizeSurchargeSummary();
         }
 
         function showAddonsField() {
@@ -720,6 +911,12 @@
             
             const regataCheck = document.getElementById('regataCheckbox');
             if(regataCheck) regataCheck.checked = false;
+
+            specialSizeKeys.forEach((sizeKey) => {
+                const input = document.getElementById(`size_surcharge_${sizeKey}`);
+                if (input) input.value = '0';
+            });
+            updateSpecialSizeSurchargeSummary();
 
             if (normalizedType === 'SERIGRAFIA' || normalizedType === 'EMBORRACHADO') {
                 const colorCountField = document.getElementById('colorCountField');
@@ -1396,6 +1593,7 @@
             }
             
             pricesContainer.innerHTML = pricesHtml;
+            updateSpecialSizeSurchargeSummary();
             calculatePrice();
         }
 
@@ -1426,6 +1624,99 @@
             });
             
             return total;
+        }
+
+        function getBudgetItemUnitPrice(itemId = currentItemId) {
+            const key = String(itemId ?? '');
+            return parseFloat(budgetItemUnitPrices[key] || 0);
+        }
+
+        function getSelectedSpecialSizeQuantities() {
+            return specialSizeKeys.reduce((accumulator, sizeKey) => {
+                const input = document.getElementById(`size_surcharge_${sizeKey}`);
+                const quantity = Math.max(0, parseInt(input?.value || 0, 10) || 0);
+
+                if (input && String(quantity) !== String(input.value || '0')) {
+                    input.value = quantity;
+                }
+
+                if (quantity > 0) {
+                    accumulator[sizeKey] = quantity;
+                }
+
+                return accumulator;
+            }, {});
+        }
+
+        function getSpecialSizeSurchargePerUnit(sizeKey, itemUnitPrice) {
+            const normalizedSize = String(sizeKey || '').toUpperCase();
+
+            const matchingRule = specialSizeSurchargeRules.find((rule) => {
+                if (String(rule.size || '').toUpperCase() !== normalizedSize) {
+                    return false;
+                }
+
+                const minPrice = parseFloat(rule.price_from || 0);
+                const maxPrice = rule.price_to === null || rule.price_to === undefined ? null : parseFloat(rule.price_to);
+
+                if (itemUnitPrice < minPrice) {
+                    return false;
+                }
+
+                return maxPrice === null || itemUnitPrice <= maxPrice;
+            });
+
+            return parseFloat(matchingRule?.surcharge || 0);
+        }
+
+        function calculateSpecialSizeSurchargeTotal(itemUnitPrice = null) {
+            const effectiveItemUnitPrice = itemUnitPrice ?? getBudgetItemUnitPrice();
+            const quantities = getSelectedSpecialSizeQuantities();
+
+            return Object.entries(quantities).reduce((total, [sizeKey, quantity]) => {
+                const surchargePerUnit = getSpecialSizeSurchargePerUnit(sizeKey, effectiveItemUnitPrice);
+                return total + (surchargePerUnit * quantity);
+            }, 0);
+        }
+
+        function updateSpecialSizeSurchargeSummary(itemUnitPrice = null) {
+            const summary = document.getElementById('size-surcharges-summary');
+            const totalInput = document.getElementById('size_surcharge_total');
+
+            if (!summary || !totalInput) {
+                return 0;
+            }
+
+            const effectiveItemUnitPrice = itemUnitPrice ?? getBudgetItemUnitPrice();
+            const quantities = getSelectedSpecialSizeQuantities();
+            const lines = [];
+            let total = 0;
+
+            Object.entries(quantities).forEach(([sizeKey, quantity]) => {
+                const surchargePerUnit = getSpecialSizeSurchargePerUnit(sizeKey, effectiveItemUnitPrice);
+
+                if (surchargePerUnit <= 0) {
+                    return;
+                }
+
+                const lineTotal = surchargePerUnit * quantity;
+                total += lineTotal;
+                lines.push(`<div>• ${sizeKey}: ${quantity}x R$ ${surchargePerUnit.toFixed(2).replace('.', ',')} = <span class="font-semibold text-emerald-600 dark:text-emerald-400">R$ ${lineTotal.toFixed(2).replace('.', ',')}</span></div>`);
+            });
+
+            if (lines.length === 0) {
+                summary.innerHTML = '<div class="text-xs text-gray-500 dark:text-slate-500">Nenhum acréscimo especial informado.</div>';
+            } else {
+                summary.innerHTML = `${lines.join('')}<div class="pt-1 font-semibold text-gray-900 dark:text-white">Total dos tamanhos especiais: R$ ${total.toFixed(2).replace('.', ',')}</div>`;
+            }
+
+            totalInput.value = total.toFixed(2);
+            return total;
+        }
+
+        function handleSpecialSizeInputChange() {
+            updateSpecialSizeSurchargeSummary();
+            calculatePrice();
         }
 
         // Calcular preço
@@ -1540,8 +1831,8 @@
                     }
 
                     unitPrice += calculateAddonsTotal(parseFloat(document.getElementById('base_size_price').value || unitPrice));
-                        
-                    const total = unitPrice * qty;
+                    const specialSizeTotal = updateSpecialSizeSurchargeSummary();
+                    const total = (unitPrice * qty) + specialSizeTotal;
                     
                     document.getElementById('unitPrice').textContent = `R$ ${unitPrice.toFixed(2).replace('.', ',')}`;
                     document.getElementById('totalPrice').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
@@ -1572,12 +1863,14 @@
 
             document.getElementById('base_size_price').value = unitPrice;
             unitPrice += calculateAddonsTotal(unitPrice);
-
-            const total = unitPrice * quantity;
+            const specialSizeTotal = updateSpecialSizeSurchargeSummary();
+            const total = (unitPrice * quantity) + specialSizeTotal;
             
             document.getElementById('unitPrice').textContent = `R$ ${unitPrice.toFixed(2).replace('.', ',')}`;
             document.getElementById('totalPrice').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
-            document.getElementById('priceFormula').textContent = `R$ ${unitPrice.toFixed(2).replace('.', ',')} × ${quantity} ${quantity === 1 ? 'peça' : 'peças'} (preço estimado)`;
+            document.getElementById('priceFormula').textContent = specialSizeTotal > 0
+                ? `R$ ${unitPrice.toFixed(2).replace('.', ',')} × ${quantity} ${quantity === 1 ? 'peça' : 'peças'} + R$ ${specialSizeTotal.toFixed(2).replace('.', ',')} de tamanhos especiais`
+                : `R$ ${unitPrice.toFixed(2).replace('.', ',')} × ${quantity} ${quantity === 1 ? 'peça' : 'peças'} (preço estimado)`;
             document.getElementById('unit_price').value = unitPrice;
             document.getElementById('final_price').value = total;
             document.getElementById('priceDisplay').classList.remove('hidden');

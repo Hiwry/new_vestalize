@@ -13,8 +13,8 @@
 
 <style>
     .kc-shell {
-        --kc-surface: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
-        --kc-surface-dark: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+        --kc-surface: #f8fafc;
+        --kc-surface-dark: #111827;
         --kc-card: rgba(255, 255, 255, 0.92);
         --kc-card-dark: rgba(17, 24, 39, 0.92);
         --kc-border: rgba(148, 163, 184, 0.22);
@@ -45,14 +45,14 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        color: #fff;
-        background: linear-gradient(135deg, #0f766e, #14b8a6);
-        box-shadow: 0 14px 28px rgba(20, 184, 166, 0.24);
+        color: #a855f7;
+        background: rgba(168, 85, 247, 0.12);
     }
     .kc-title { font-size: 22px; font-weight: 800; color: var(--kc-text); }
     .kc-subtitle { font-size: 13px; font-weight: 600; color: var(--kc-muted); }
-    .dark .kc-title { color: #e5e7eb; }
-    .dark .kc-subtitle { color: #94a3b8; }
+    .dark .kc-title { color: #ffffff !important; }
+    .dark .kc-subtitle { color: #e2e8f0 !important; }
+    .dark .kc-logo { color: #ffffff !important; background: rgba(255,255,255,0.1); }
     .kc-action {
         height: 40px;
         padding: 0 16px;
@@ -65,8 +65,11 @@
         text-decoration: none;
         color: #fff !important;
     }
+    .kc-action span,
+    .kc-action i,
+    .kc-action * { color: #fff !important; }
     .kc-action-muted { background: #475569; }
-    .kc-action-primary { background: linear-gradient(135deg, #2563eb, #3b82f6); }
+    .kc-action-primary { background: #2563eb; }
     .kc-grid-kpi {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -125,7 +128,9 @@
         color: var(--kc-muted);
         margin-top: 10px;
     }
-    .dark .kc-kpi-value { color: #f8fafc; }
+    .dark .kc-kpi-value { color: #ffffff !important; }
+    .dark .kc-kpi-label { color: #e2e8f0 !important; }
+    .dark .kc-kpi-note { color: #cbd5e1 !important; }
     .kc-chart-box { height: 320px; }
     .kc-chart-box-sm { height: 280px; }
     .kc-pill {
@@ -180,7 +185,9 @@
         color: var(--kc-muted);
         margin-top: 2px;
     }
-    .dark .kc-item-title { color: #f8fafc; }
+    .dark .kc-item-title { color: #ffffff !important; }
+    .dark .kc-item-subtitle { color: #e2e8f0 !important; }
+    .dark .kc-item-handle { color: #e2e8f0 !important; }
     .kc-badges {
         display: flex;
         gap: 8px;
@@ -235,7 +242,7 @@
         border: 0;
     }
     .kc-btn-edit { background: rgba(59, 130, 246, 0.12); color: #1d4ed8; }
-    .kc-btn-move { background: linear-gradient(135deg, #d97706, #f59e0b); color: #fff !important; }
+    .kc-btn-move { background: #d97706; color: #fff !important; }
     .kc-btn-delete { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
     .kc-btn-delete[disabled] { opacity: .5; cursor: not-allowed; }
     .kc-save-wrap { margin-top: 18px; display: flex; justify-content: center; }
@@ -247,8 +254,7 @@
         color: #fff;
         font-size: 14px;
         font-weight: 800;
-        background: linear-gradient(135deg, #059669, #10b981);
-        box-shadow: 0 18px 32px rgba(5, 150, 105, 0.24);
+        background: #059669;
     }
     @media (max-width: 1200px) {
         .kc-grid-kpi, .kc-grid-2 { grid-template-columns: 1fr 1fr; }
@@ -280,7 +286,7 @@
             <span class="kc-logo"><i class="fa-solid fa-table-columns"></i></span>
             <div>
                 <h1 class="kc-title">Colunas do Kanban</h1>
-                <p class="kc-subtitle">Visão operacional das colunas, cobertura no dashboard de produção e carga atual por etapa.</p>
+                <p class="kc-subtitle">Visão operacional das colunas e carga atual por etapa.</p>
             </div>
         </div>
         <div class="kc-actions">
@@ -295,62 +301,69 @@
         </div>
     </div>
 
+    <div style="display:flex;gap:8px;margin:18px 0 22px;">
+        <a href="{{ route('kanban.columns.index', ['type'=>'production']) }}"
+           class="kc-action {{ $viewType === 'production' ? 'kc-action-primary' : 'kc-action-muted' }}">
+            <i class="fa-solid fa-shirt"></i>
+            <span>Produção</span>
+        </a>
+        <a href="{{ route('kanban.columns.index', ['type'=>'personalized']) }}"
+           class="kc-action {{ $viewType === 'personalized' ? 'kc-action-primary' : 'kc-action-muted' }}">
+            <i class="fa-solid fa-paint-brush"></i>
+            <span>Personalizados</span>
+        </a>
+    </div>
+
+    {{-- View-type label --}}
+    <div style="margin-bottom:18px;display:flex;align-items:center;gap:10px;">
+        @if($viewType === 'personalized')
+            <span style="display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:999px;background:rgba(168,85,247,0.13);color:#a855f7;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;">
+                <i class="fa-solid fa-paint-brush"></i> Colunas Personalizadas
+            </span>
+        @else
+            <span style="display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:999px;background:rgba(37,99,235,0.11);color:#3b82f6;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;">
+                <i class="fa-solid fa-shirt"></i> Colunas de Produção
+            </span>
+        @endif
+    </div>
+
     <div class="kc-grid-kpi">
         <article class="kc-card kc-kpi">
-            <span class="kc-kpi-icon" style="background: linear-gradient(135deg, #0f766e, #14b8a6);"><i class="fa-solid fa-layer-group"></i></span>
+            <span class="kc-kpi-icon" style="background: #0d9488;"><i class="fa-solid fa-layer-group"></i></span>
             <div class="kc-kpi-label">Total de Colunas</div>
             <div class="kc-kpi-value">{{ $totalColumns }}</div>
             <div class="kc-kpi-note">Todas as etapas disponíveis no Kanban.</div>
         </article>
         <article class="kc-card kc-kpi">
-            <span class="kc-kpi-icon" style="background: linear-gradient(135deg, #2563eb, #60a5fa);"><i class="fa-solid fa-chart-line"></i></span>
-            <div class="kc-kpi-label">No Dashboard</div>
-            <div class="kc-kpi-value">{{ $dashboardColumnCount }}</div>
-            <div class="kc-kpi-note">{{ $dashboardCoverage }}% das colunas aparecem hoje no painel `/production/dashboard`.</div>
-        </article>
-        <article class="kc-card kc-kpi">
-            <span class="kc-kpi-icon" style="background: linear-gradient(135deg, #7c3aed, #a855f7);"><i class="fa-solid fa-boxes-stacked"></i></span>
+            <span class="kc-kpi-icon" style="background: #7c3aed;"><i class="fa-solid fa-boxes-stacked"></i></span>
             <div class="kc-kpi-label">Pedidos nas Colunas</div>
             <div class="kc-kpi-value">{{ $totalOrdersInColumns }}</div>
             <div class="kc-kpi-note">Média de {{ number_format($avgOrdersPerColumn, 1, ',', '.') }} por coluna.</div>
         </article>
         <article class="kc-card kc-kpi">
-            <span class="kc-kpi-icon" style="background: linear-gradient(135deg, #dc2626, #f87171);"><i class="fa-solid fa-triangle-exclamation"></i></span>
+            <span class="kc-kpi-icon" style="background: #dc2626;"><i class="fa-solid fa-triangle-exclamation"></i></span>
             <div class="kc-kpi-label">Maior Carga</div>
             <div class="kc-kpi-value">{{ $busiestOrders }}</div>
             <div class="kc-kpi-note">{{ $busiestLabel }} lidera a fila atual.</div>
         </article>
     </div>
 
-    <div class="kc-grid-2">
-        <section class="kc-card">
-            <div class="kc-card-head">
-                <div>
-                    <div class="kc-title" style="font-size: 18px;">Pedidos por Coluna</div>
-                    <div class="kc-subtitle">Comparativo direto da quantidade de pedidos em cada etapa.</div>
-                </div>
-                <span class="kc-pill"><i class="fa-solid fa-filter"></i>{{ $emptyColumnsCount }} coluna(s) vazia(s)</span>
+    <section class="kc-card">
+        <div class="kc-card-head">
+            <div>
+                <div class="kc-title" style="font-size: 18px;">Pedidos por Coluna — {{ $viewType === 'personalized' ? 'Personalizados' : 'Produção' }}</div>
+                <div class="kc-subtitle">Comparativo direto da quantidade de pedidos em cada etapa.</div>
             </div>
-            <div class="kc-chart-box"><canvas id="columnLoadChart"></canvas></div>
-        </section>
-
-        <section class="kc-card">
-            <div class="kc-card-head">
-                <div>
-                    <div class="kc-title" style="font-size: 18px;">Cobertura do Dashboard</div>
-                    <div class="kc-subtitle">Quantas colunas desta tela estão ativas no dashboard de produção.</div>
-                </div>
-                <span class="kc-pill"><i class="fa-solid fa-gauge-high"></i>{{ $dashboardColumnCount }}/{{ $totalColumns }}</span>
-            </div>
-            <div class="kc-chart-box-sm"><canvas id="dashboardCoverageChart"></canvas></div>
-        </section>
-    </div>
+            <span class="kc-pill"><i class="fa-solid fa-filter"></i>{{ $emptyColumnsCount }} coluna(s) vazia(s)</span>
+        </div>
+        <div class="kc-chart-box"><canvas id="columnLoadChart"></canvas></div>
+    </section>
 
     @if($statuses->count() > 0)
     <section class="kc-card" style="margin-top: 14px;">
         <div class="kc-list-head">
             <div>
-                <div class="kc-title" style="font-size: 18px;">Lista operacional das colunas</div>
+                <div class="kc-title" style="font-size: 18px;">Lista — {{ $viewType === 'personalized' ? 'Personalizados' : 'Produção' }}</div>
                 <div class="kc-subtitle">Arraste para reordenar. Cada card mostra posição, carga, participação e se a coluna está no dashboard.</div>
             </div>
             <span class="kc-pill"><i class="fa-solid fa-arrow-up-wide-short"></i>Ordenação manual</span>
@@ -586,40 +599,7 @@
                 });
             }
 
-            const coverageCanvas = document.getElementById('dashboardCoverageChart');
-            if (coverageCanvas) {
-                const selectedCount = chartPayload.filter((item) => item.in_dashboard).length;
-                const unselectedCount = Math.max(chartPayload.length - selectedCount, 0);
 
-                window.kanbanColumnCharts.coverage = new Chart(coverageCanvas.getContext('2d'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['No dashboard', 'Fora do dashboard'],
-                        datasets: [{
-                            data: [selectedCount, unselectedCount],
-                            backgroundColor: [colors.success, colors.muted],
-                            borderColor: [colors.border, colors.border],
-                            borderWidth: 0,
-                            cutout: '68%'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    color: colors.text,
-                                    usePointStyle: true,
-                                    boxWidth: 10,
-                                    font: { size: 12, weight: '700' }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
         }
 
         buildColumnCharts();
