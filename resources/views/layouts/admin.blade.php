@@ -1234,6 +1234,8 @@
         };
     </script>
 
-    @stack('scripts')
+    <div id="ajax-page-scripts" hidden aria-hidden="true">
+        @stack('scripts')
+    </div>
 </body>
 </html>

@@ -63,6 +63,22 @@
         return Array.from(doc.querySelectorAll('head style')).map(s => s.textContent);
     }
 
+    function extractPageScripts(html) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        return Array.from(doc.querySelectorAll('#ajax-page-scripts script')).map(script => ({
+            src: script.src,
+            text: script.textContent,
+            attributes: Array.from(script.attributes).map(attr => ({
+                name: attr.name,
+                value: attr.value
+            })),
+            async: script.async,
+            defer: script.defer
+        }));
+    }
+
     // Função para atualizar o estado ativo dos links da sidebar
     function updateActiveLink(url) {
         const sidebarLinks = document.querySelectorAll('#sidebar nav a');
@@ -174,7 +190,7 @@
             tempDiv.innerHTML = newContent;
             
             // Coletar informações dos scripts ANTES de mover o conteúdo
-            const scriptData = Array.from(tempDiv.querySelectorAll('script')).map(script => ({
+            const contentScriptData = Array.from(tempDiv.querySelectorAll('script')).map(script => ({
                 src: script.src,
                 text: script.textContent,
                 attributes: Array.from(script.attributes).map(attr => ({
@@ -184,6 +200,8 @@
                 async: script.async,
                 defer: script.defer
             }));
+            const pageScriptData = extractPageScripts(html);
+            const scriptData = [...contentScriptData, ...pageScriptData];
             
             // Remover scripts do tempDiv antes de mover (para não duplicar)
             tempDiv.querySelectorAll('script').forEach(script => script.remove());

@@ -1,61 +1,14 @@
-@extends('layouts.admin')
-
-@push('styles')
-<style>
-    .qty-col {
-        width: 90px !important;
-        max-width: 90px !important;
-        min-width: 70px !important;
-    }
-    .actions-col {
-        width: 50px !important;
-        max-width: 60px !important;
-    }
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-    input[type="number"] {
-        -moz-appearance: textfield;
-    }
-    .qty-col {
-        width: 100px !important;
-        max-width: 100px !important;
-        min-width: 90px !important;
-    }
-    .actions-col {
-        width: 60px !important;
-        max-width: 60px !important;
-    }
-    /* Aggressive overrides for Avento global theme */
-    #base-prices-tbody input, #addons-table input {
-        padding: 6px 10px !important;
-        height: 36px !important;
-        min-height: 36px !important;
-        border-radius: 8px !important;
-        font-size: 13px !important;
-    }
-    #base-prices-tbody .qty-col input {
-        padding: 6px 4px !important;
-        width: 100% !important;
-    }
-    #addons-table input[name*="[price_adjustment]"] {
-        padding-left: 30px !important;
-        padding-right: 12px !important;
-        text-align: right !important;
-    }
-</style>
-@endpush
+﻿@extends('layouts.admin')
 
 @section('content')
 <div class="max-w-7xl mx-auto">
-    <!-- Breadcrumb -->
+
+    {{-- Breadcrumb --}}
     <div class="mb-6">
         <nav class="flex" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
                 <li class="inline-flex items-center">
-                    <a href="{{ route('admin.personalization-prices.index') }}" 
+                    <a href="{{ route('admin.personalization-prices.index') }}"
                        class="inline-flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
                         <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
@@ -75,358 +28,188 @@
         </nav>
     </div>
 
-    <!-- Messages -->
+    {{-- Session Messages --}}
+    @if(session('success'))
+        <div class="mb-4 flex items-start gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200">
+            <svg class="mt-0.5 w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="mb-4 flex items-start gap-3 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-800 dark:text-red-200">
+            <svg class="mt-0.5 w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+            {{ session('error') }}
+        </div>
+    @endif
 
+    {{-- Page header --}}
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $types[$type] }}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Gerencie os tipos de produto. Cada tipo possui suas próprias faixas de preço, tecidos, adicionais e modelos — configurados de forma independente.
+        </p>
+    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        <!-- Tipos de Produto SUB.TOTAL -->
-        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 border border-gray-200 dark:border-gray-700">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Tipos de Produto (SUB. TOTAL)</h2>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Adicione aqui tipos como Conjunto Esportivo, Bandeira e Winderbanner.</p>
-                    </div>
-                    <a href="{{ route('admin.personalization-prices.edit', 'SUB. TOTAL') }}"
-                       class="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                        Atualizar
-                    </a>
-                </div>
+    {{-- Types card --}}
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+
+        {{-- Card header --}}
+        <div class="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-gray-100">Tipos de Produto</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                Adicione tipos como Conjunto Esportivo, Bandeira, Winderbanner, etc. Cada um é configurado separado.
+            </p>
+        </div>
+
+        {{-- Quick add + custom add --}}
+        @php
+            $productTypeNames = collect($productTypes ?? [])->map(fn($t) => mb_strtolower(trim($t->name ?? '')))->toArray();
+            $quickTypeNames   = ['Conjunto Esportivo', 'Bandeira', 'Winderbanner'];
+        @endphp
+
+        <div class="px-6 py-5 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">Adicionar tipo rápido</p>
+
+            <div class="flex flex-wrap gap-2 mb-5">
+                @foreach($quickTypeNames as $quickName)
+                    @php $alreadyExists = in_array(mb_strtolower($quickName), $productTypeNames, true); @endphp
+                    @if($alreadyExists)
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            {{ $quickName }}
+                        </span>
+                    @else
+                        <form method="POST" action="{{ route('admin.sublimation-products.types.store') }}">
+                            @csrf
+                            <input type="hidden" name="name" value="{{ $quickName }}">
+                            <button type="submit"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-xs font-medium text-gray-700 dark:text-gray-300 hover:border-gray-900 dark:hover:border-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                                {{ $quickName }}
+                            </button>
+                        </form>
+                    @endif
+                @endforeach
             </div>
 
-            <div class="p-6 space-y-4">
-                @php
-                    $productTypes = collect($productTypes ?? []);
-                    $existingTypeNames = $productTypes->map(function ($typeItem) {
-                        return mb_strtolower(trim($typeItem->name ?? ''));
-                    })->toArray();
-                    $quickTypeNames = ['Conjunto Esportivo', 'Bandeira', 'Winderbanner'];
-                @endphp
+            <form method="POST" action="{{ route('admin.sublimation-products.types.store') }}" class="flex flex-col sm:flex-row gap-2 max-w-lg">
+                @csrf
+                <input type="text" name="name"
+                       placeholder="Novo tipo (ex: Regata, Cropped, Mochila…)"
+                       class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:focus:border-gray-300 dark:focus:ring-gray-300 transition-colors"
+                       required maxlength="100">
+                <button type="submit"
+                        class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Adicionar Tipo
+                </button>
+            </form>
+        </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    @foreach($quickTypeNames as $quickName)
-                        @php $alreadyExists = in_array(mb_strtolower($quickName), $existingTypeNames, true); @endphp
-                        @if($alreadyExists)
-                            <div class="px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-xs font-medium text-emerald-700 dark:text-emerald-300 text-center">
-                                {{ $quickName }} ja cadastrado
-                            </div>
-                        @else
-                            <form method="POST" action="{{ route('admin.sublimation-products.types.store') }}">
-                                @csrf
-                                <input type="hidden" name="name" value="{{ $quickName }}">
-                                <button type="submit"
-                                        class="w-full px-3 py-2 rounded-lg border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20 text-xs font-semibold text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors">
-                                    + {{ $quickName }}
-                                </button>
-                            </form>
-                        @endif
-                    @endforeach
+        {{-- Types grid --}}
+        <div class="p-6">
+            @php $productTypes = collect($productTypes ?? []); @endphp
+
+            @if($productTypes->isEmpty())
+                <div class="flex flex-col items-center justify-center py-14 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
+                    <svg class="w-12 h-12 text-gray-300 dark:text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Nenhum tipo cadastrado ainda</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Use os atalhos ou o campo acima para adicionar os primeiros tipos</p>
                 </div>
+            @else
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    @foreach($productTypes as $productType)
+                        <div class="group relative flex flex-col rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 p-4 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm transition-all">
 
-                <form method="POST" action="{{ route('admin.sublimation-products.types.store') }}" class="flex flex-col sm:flex-row gap-2">
-                    @csrf
-                    <input type="text" name="name" placeholder="Novo tipo (ex: Regata, Cropped, etc)"
-                           class="flex-1 px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all"
-                           required maxlength="100">
-                    <button type="submit"
-                            class="inline-flex items-center justify-center px-4 py-2 bg-purple-600 dark:bg-purple-600 text-white stay-white text-sm font-medium rounded-md hover:bg-purple-700 dark:hover:bg-purple-700 transition-colors">
-                        Adicionar Tipo
-                    </button>
-                </form>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                    @forelse($productTypes as $productType)
-                        <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 p-3">
-                            <div class="flex items-start justify-between gap-2">
-                                <div>
-                                    <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $productType->name }}</p>
-                                    <p class="text-[11px] text-gray-500 dark:text-gray-400">{{ $productType->slug }}</p>
-                                </div>
+                            {{-- Delete / Padrão badge --}}
+                            <div class="absolute top-3 right-3">
                                 @if($productType->tenant_id === auth()->user()->tenant_id)
-                                    <form method="POST" action="{{ route('admin.sublimation-products.types.destroy', $productType) }}" onsubmit="return confirm('Excluir tipo {{ $productType->name }}?')">
+                                    {{-- Hidden delete form, submitted by the confirm modal --}}
+                                    <form id="delete-form-{{ $productType->id }}"
+                                          method="POST"
+                                          action="{{ route('admin.sublimation-products.types.destroy', $productType) }}"
+                                          class="hidden">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" title="Excluir tipo">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
-                                        </button>
                                     </form>
+                                    <button type="button"
+                                            onclick="openDeleteModal({{ $productType->id }}, '{{ addslashes($productType->name) }}')"
+                                            class="flex items-center justify-center w-7 h-7 rounded-lg border border-red-200 dark:border-red-800/50 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors opacity-0 group-hover:opacity-100"
+                                            title="Excluir tipo">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
+                                @else
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50">
+                                        Padrão
+                                    </span>
                                 @endif
                             </div>
-                            <div class="mt-3">
-                                <a href="{{ route('admin.sublimation-products.edit-type', $productType->slug) }}"
-                                   class="inline-flex items-center justify-center w-full px-3 py-2 rounded-md bg-purple-600 dark:bg-purple-600 text-white stay-white text-xs font-semibold hover:bg-purple-700 dark:hover:bg-purple-700 transition-colors">
-                                    Configurar Faixas e Adicionais
-                                </a>
+
+                            {{-- Type info --}}
+                            <div class="flex-1 pr-8 mb-4">
+                                <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-snug">{{ $productType->name }}</p>
+                                <p class="text-[11px] text-gray-400 dark:text-gray-500 font-mono mt-1">{{ $productType->slug }}</p>
                             </div>
+
+                            {{-- Configure button --}}
+                            <a href="{{ route('admin.sublimation-products.edit-type', $productType->slug) }}"
+                               class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-xs font-semibold text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                                Configurar
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </a>
                         </div>
-                    @empty
-                        <div class="md:col-span-2 xl:col-span-3 text-center py-8 text-sm text-gray-500 dark:text-gray-400 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
-                            Nenhum tipo de SUB. TOTAL cadastrado ainda.
-                        </div>
-                    @endforelse
+                    @endforeach
                 </div>
-            </div>
-        </div>
-        
-        <!-- Preços Base (CACHARREL/PP) -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 border border-gray-200 dark:border-gray-700">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Preços Base</h2>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">CACHARREL/PP - Faixas por quantidade</p>
-                    </div>
-                    <button type="button" onclick="addBasePriceRow()" 
-                            class="inline-flex items-center px-3 py-2 bg-blue-600 dark:bg-blue-600 text-white stay-white text-sm font-medium rounded-md hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        Adicionar Faixa
-                    </button>
-                </div>
-            </div>
-
-            <div class="p-6">
-                <form method="POST" action="{{ route('admin.personalization-prices.update', $type) }}" id="base-prices-form">
-                    @csrf
-                    @method('PUT')
-
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full" style="table-layout: auto !important;">
-                            <thead>
-                                <tr class="border-b border-gray-200 dark:border-gray-700">
-                                    <th class="qty-col px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">DE</th>
-                                    <th class="qty-col px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">ATÉ</th>
-                                    <th class="px-4 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                                        <div class="text-center">
-                                            <span class="text-xs font-bold">PREÇO</span>
-                                            <div class="flex justify-center gap-1 mt-1">
-                                                <span class="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-1.5 py-0.5 rounded">Venda</span>
-                                                <span class="text-[10px] font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-1.5 py-0.5 rounded">Custo</span>
-                                            </div>
-                                        </div>
-                                    </th>
-                                    <th class="actions-col px-4 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">AÇÕES</th>
-                                </tr>
-                            </thead>
-                            <tbody id="base-prices-tbody">
-                                @if(isset($prices['CACHARREL']) && $prices['CACHARREL']->count() > 0)
-                                    @foreach($prices['CACHARREL'] as $index => $price)
-                                    <tr class="price-row border-b border-gray-100 dark:border-gray-700">
-                                        <td class="qty-col px-3 py-3">
-                                            <input type="number" name="base_prices[{{ $index }}][quantity_from]" 
-                                                   value="{{ $price->quantity_from }}" min="1"
-                                                   class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all font-medium text-center">
-                                        </td>
-                                        <td class="qty-col px-3 py-3">
-                                            <input type="number" name="base_prices[{{ $index }}][quantity_to]" 
-                                                   value="{{ $price->quantity_to }}" min="1"
-                                                   placeholder="∞"
-                                                   class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all font-medium text-center">
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <div class="flex gap-1.5 items-center">
-                                                <div class="relative flex-1 min-w-[80px]">
-                                                    <span class="absolute left-2 top-1/2 -translate-y-1/2 text-emerald-500 dark:text-emerald-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
-                                                    <input type="number" name="base_prices[{{ $index }}][price]" 
-                                                           value="{{ $price->price }}" step="0.01" min="0" data-field="price"
-                                                           class="w-full pl-9 pr-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all text-right font-medium tabular-nums"
-                                                           placeholder="0,00" title="Venda">
-                                                </div>
-                                                <div class="relative flex-1 min-w-[80px]">
-                                                    <span class="absolute left-2 top-1/2 -translate-y-1/2 text-amber-500 dark:text-amber-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
-                                                    <input type="number" name="base_prices[{{ $index }}][cost]" 
-                                                           value="{{ $price->cost ?? 0 }}" step="0.01" min="0" data-field="cost"
-                                                           class="w-full pl-9 pr-2 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 transition-all text-right font-medium tabular-nums"
-                                                           placeholder="0,00" title="Custo">
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="actions-col px-4 py-3 text-center">
-                                            <button type="button" onclick="removeBasePriceRow(this)" 
-                                                    class="inline-flex items-center p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                </svg>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                @else
-                                    <tr id="empty-base-message">
-                                        <td colspan="4" class="text-center py-8 text-gray-500 dark:text-gray-400">
-                                            <svg class="w-12 h-12 mx-auto mb-3 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                                            </svg>
-                                            <p class="font-medium">Nenhuma faixa de preço base configurada</p>
-                                            <p class="text-sm mt-1">Clique no botão acima para adicionar</p>
-                                        </td>
-                                    </tr>
-                                @endif
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
-                        <button type="submit" 
-                                class="inline-flex items-center px-6 py-2 bg-blue-600 dark:bg-blue-600 text-white stay-white text-sm font-medium rounded-md hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Salvar Preços Base
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Adicionais -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 border border-gray-200 dark:border-gray-700">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Adicionais</h2>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Preços dos adicionais de sublimação</p>
-                    </div>
-                    <button type="button" onclick="addAddonRow()" 
-                            class="inline-flex items-center px-3 py-2 bg-purple-600 dark:bg-purple-600 text-white stay-white text-sm font-medium rounded-md hover:bg-purple-700 dark:hover:bg-purple-700 transition-colors">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        Adicionar Adicional
-                    </button>
-                </div>
-            </div>
-
-            <div class="p-6">
-                <form method="POST" action="{{ route('admin.addons.update') }}" id="addons-form">
-                    @csrf
-                    @method('PUT')
-
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full" style="table-layout: auto !important;">
-                            <thead>
-                                <tr class="border-b border-gray-200 dark:border-gray-700">
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider" style="width: 25%;">NOME</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider" style="width: 45%;">DESCRIÇÃO</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider" style="width: 20%;">PREÇO</th>
-                                    <th class="actions-col px-4 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">AÇÕES</th>
-                                </tr>
-                            </thead>
-                            <tbody id="addons-tbody">
-                                @if($addons->count() > 0)
-                                    @foreach($addons as $index => $addon)
-                                    <tr class="addon-row border-b border-gray-100 dark:border-gray-700">
-                                        <td class="px-4 py-3">
-                                            <input type="text" name="addons[{{ $index }}][name]" 
-                                                   value="{{ $addon->name }}"
-                                                   class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all">
-                                            <input type="hidden" name="addons[{{ $index }}][id]" value="{{ $addon->id }}">
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <input type="text" name="addons[{{ $index }}][description]" 
-                                                   value="{{ $addon->description }}"
-                                                   class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all">
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <div class="relative">
-                                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
-                                                <input type="number" name="addons[{{ $index }}][price_adjustment]" 
-                                                       value="{{ $addon->price_adjustment }}" step="0.01"
-                                                       class="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all font-medium tabular-nums text-right">
-                                            </div>
-                                        </td>
-                                        <td class="actions-col px-4 py-3 text-center">
-                                            <button type="button" onclick="removeAddonRow(this)" 
-                                                    class="inline-flex items-center p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                </svg>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                @else
-                                    <tr id="empty-addons-message">
-                                        <td colspan="4" class="text-center py-8 text-gray-500 dark:text-gray-400">
-                                            <svg class="w-12 h-12 mx-auto mb-3 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                                            </svg>
-                                            <p class="font-medium">Nenhum adicional configurado</p>
-                                            <p class="text-sm mt-1">Clique no botão acima para adicionar</p>
-                                        </td>
-                                    </tr>
-                                @endif
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
-                        <button type="submit" 
-                                class="inline-flex items-center px-6 py-2 bg-purple-600 dark:bg-purple-600 text-white stay-white text-sm font-medium rounded-md hover:bg-purple-700 dark:hover:bg-purple-700 transition-colors">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Salvar Adicionais
-                        </button>
-                    </div>
-                </form>
-            </div>
+            @endif
         </div>
     </div>
 
-    <!-- Calculadora -->
-    <div class="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25 border border-gray-200 dark:border-gray-700">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Calculadora de Preços</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Teste os preços configurados</p>
-        </div>
-        
+</div>
+
+{{-- Delete confirmation modal --}}
+<div id="delete-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl">
         <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Quantidade -->
-                <div>
-                    <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">Quantidade</label>
-                    <input type="number" id="calc-quantity" min="1" value="10" 
-                           onchange="updateCalculator()"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="flex items-center justify-center w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 shrink-0">
+                    <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    </svg>
                 </div>
-                
-                <!-- Adicionais Selecionados -->
                 <div>
-                    <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">Adicionais</label>
-                    <select id="calc-addons" multiple 
-                            onchange="updateCalculator()"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all">
-                        <!-- Será preenchido via JavaScript -->
-                    </select>
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">Excluir tipo</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                        Tem certeza que deseja excluir <strong id="delete-type-name" class="text-gray-700 dark:text-gray-200"></strong>?
+                        Esta ação não pode ser desfeita.
+                    </p>
                 </div>
-                
-                <!-- Resultado -->
-                <div>
-                    <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium">Resultado</label>
-                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
-                        <div class="text-sm text-gray-600 dark:text-gray-400">Preço base:</div>
-                        <div class="text-lg font-semibold text-gray-900 dark:text-gray-100" id="calc-base-price">R$ 0,00</div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">Adicionais:</div>
-                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100" id="calc-addons-price">R$ 0,00</div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">Total:</div>
-                        <div class="text-xl font-bold text-indigo-600 dark:text-indigo-400" id="calc-total-price">R$ 0,00</div>
-                    </div>
-                </div>
-                   <!-- Botão Voltar -->
-                   <div class="mb-4">
-                       <a href="{{ route('admin.personalization-prices.index') }}" 
-                          class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
-                           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                           </svg>
-                           Voltar
-                       </a>
-                   </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" onclick="closeDeleteModal()"
+                        class="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    Cancelar
+                </button>
+                <button type="button" onclick="confirmDelete()"
+                        class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors">
+                    Excluir
+                </button>
             </div>
         </div>
     </div>
@@ -434,267 +217,38 @@
 
 @push('scripts')
 <script>
-    let basePriceRowIndex = {{ isset($prices['CACHARREL']) ? $prices['CACHARREL']->count() : 0 }};
-    let addonRowIndex = {{ $addons->count() }};
-    
-    // Adicionais disponíveis para a calculadora
-    const availableAddons = @json($addons->toArray());
+    let _deleteFormId = null;
 
-    function hasSubTotalCalculatorElements() {
-        return !!(
-            document.getElementById('base-prices-form') &&
-            document.getElementById('addons-form') &&
-            document.getElementById('calc-quantity') &&
-            document.getElementById('calc-addons')
-        );
+    function openDeleteModal(typeId, typeName) {
+        _deleteFormId = typeId;
+        document.getElementById('delete-type-name').textContent = typeName;
+        const modal = document.getElementById('delete-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
     }
 
-    function initSubTotalPricesPage() {
-        if (!hasSubTotalCalculatorElements()) {
-            return;
-        }
-        loadCalculatorAddons();
-        updateCalculator();
+    function closeDeleteModal() {
+        _deleteFormId = null;
+        const modal = document.getElementById('delete-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
     }
 
-    if (window.__subTotalDomInitHandler) {
-        document.removeEventListener('DOMContentLoaded', window.__subTotalDomInitHandler);
-    }
-    if (window.__subTotalAjaxInitHandler) {
-        document.removeEventListener('ajax-content-loaded', window.__subTotalAjaxInitHandler);
-    }
-
-    window.__subTotalDomInitHandler = initSubTotalPricesPage;
-    window.__subTotalAjaxInitHandler = initSubTotalPricesPage;
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', window.__subTotalDomInitHandler, { once: true });
-    } else {
-        initSubTotalPricesPage();
-    }
-    document.addEventListener('ajax-content-loaded', window.__subTotalAjaxInitHandler);
-
-    // Funções para preços base
-    function addBasePriceRow() {
-        const tbody = document.getElementById('base-prices-tbody');
-        const emptyMessage = document.getElementById('empty-base-message');
-        
-        if (emptyMessage) {
-            emptyMessage.remove();
-        }
-        
-        const row = document.createElement('tr');
-        row.className = 'price-row border-b border-gray-100 dark:border-gray-700';
-        row.innerHTML = `
-            <td class="qty-col px-3 py-3">
-                <input type="number" name="base_prices[${basePriceRowIndex}][quantity_from]" 
-                       value="1" min="1"
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all font-medium text-center">
-            </td>
-            <td class="qty-col px-3 py-3">
-                <input type="number" name="base_prices[${basePriceRowIndex}][quantity_to]" 
-                       value="" min="1" placeholder="∞"
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all font-medium text-center">
-            </td>
-            <td class="px-4 py-3">
-                <div class="flex gap-1.5 items-center">
-                    <div class="relative flex-1 min-w-[80px]">
-                        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-emerald-500 dark:text-emerald-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
-                        <input type="number" name="base_prices[${basePriceRowIndex}][price]" 
-                               value="0" step="0.01" min="0" data-field="price"
-                               class="w-full pl-9 pr-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all text-right font-medium tabular-nums"
-                               placeholder="0,00" title="Venda">
-                    </div>
-                    <div class="relative flex-1 min-w-[80px]">
-                        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-amber-500 dark:text-amber-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
-                        <input type="number" name="base_prices[${basePriceRowIndex}][cost]" 
-                               value="0" step="0.01" min="0" data-field="cost"
-                               class="w-full pl-9 pr-2 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 transition-all text-right font-medium tabular-nums"
-                               placeholder="0,00" title="Custo">
-                    </div>
-                </div>
-            </td>
-            <td class="actions-col px-4 py-3 text-center">
-                <button type="button" onclick="removeBasePriceRow(this)" 
-                        class="inline-flex items-center p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                </button>
-            </td>
-        `;
-        
-        tbody.appendChild(row);
-        basePriceRowIndex++;
-    }
-
-    function removeBasePriceRow(button) {
-        const row = button.closest('tr');
-        row.remove();
-        
-        // Se não há mais linhas, mostrar mensagem vazia
-        const tbody = document.getElementById('base-prices-tbody');
-        if (tbody.children.length === 0) {
-            tbody.innerHTML = `
-                <tr id="empty-base-message">
-                    <td colspan="4" class="text-center py-8 text-gray-500 dark:text-gray-400">
-                        <svg class="w-12 h-12 mx-auto mb-3 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                        </svg>
-                        <p class="font-medium">Nenhuma faixa de preço base configurada</p>
-                        <p class="text-sm mt-1">Clique no botão acima para adicionar</p>
-                    </td>
-                </tr>
-            `;
+    function confirmDelete() {
+        if (_deleteFormId) {
+            document.getElementById('delete-form-' + _deleteFormId).submit();
         }
     }
 
-    // Funções para adicionais
-    function addAddonRow() {
-        const tbody = document.getElementById('addons-tbody');
-        const emptyMessage = document.getElementById('empty-addons-message');
-        
-        if (emptyMessage) {
-            emptyMessage.remove();
-        }
-        
-        const row = document.createElement('tr');
-        row.className = 'addon-row border-b border-gray-100 dark:border-gray-700';
-        row.innerHTML = `
-            <td class="px-4 py-3">
-                <input type="text" name="addons[${addonRowIndex}][name]" 
-                       value=""
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all">
-                <input type="hidden" name="addons[${addonRowIndex}][id]" value="">
-            </td>
-            <td class="px-4 py-3">
-                <input type="text" name="addons[${addonRowIndex}][description]" 
-                       value=""
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all">
-            </td>
-            <td class="px-4 py-3">
-                <div class="relative">
-                    <span class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-[11px] font-bold pointer-events-none z-10">R$</span>
-                    <input type="number" name="addons[${addonRowIndex}][price_adjustment]" 
-                           value="0" step="0.01"
-                           class="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all font-medium tabular-nums text-right">
-                </div>
-            </td>
-            <td class="actions-col px-4 py-3 text-center">
-                <button type="button" onclick="removeAddonRow(this)" 
-                        class="inline-flex items-center p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                </button>
-            </td>
-        `;
-        
-        tbody.appendChild(row);
-        addonRowIndex++;
-    }
+    // Close on backdrop click
+    document.getElementById('delete-modal').addEventListener('click', function (e) {
+        if (e.target === this) closeDeleteModal();
+    });
 
-    function removeAddonRow(button) {
-        const row = button.closest('tr');
-        row.remove();
-        
-        // Se não há mais linhas, mostrar mensagem vazia
-        const tbody = document.getElementById('addons-tbody');
-        if (tbody.children.length === 0) {
-            tbody.innerHTML = `
-                <tr id="empty-addons-message">
-                    <td colspan="4" class="text-center py-8 text-gray-500 dark:text-gray-400">
-                        <svg class="w-12 h-12 mx-auto mb-3 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                        </svg>
-                        <p class="font-medium">Nenhum adicional configurado</p>
-                        <p class="text-sm mt-1">Clique no botão acima para adicionar</p>
-                    </td>
-                </tr>
-            `;
-        }
-    }
-
-    // Calculadora
-    function loadCalculatorAddons() {
-        const select = document.getElementById('calc-addons');
-        if (!select) return;
-        select.innerHTML = '';
-
-        if (!Array.isArray(availableAddons)) {
-            return;
-        }
-        
-        availableAddons.forEach(addon => {
-            const option = document.createElement('option');
-            option.value = addon.id;
-            const sign = parseFloat(addon.price_adjustment) >= 0 ? '+' : '';
-            option.textContent = `${addon.name} ${sign}R$ ${Math.abs(parseFloat(addon.price_adjustment)).toFixed(2).replace('.', ',')}`;
-            select.appendChild(option);
-        });
-    }
-
-    async function updateCalculator() {
-        const quantityInput = document.getElementById('calc-quantity');
-        const addonsSelect = document.getElementById('calc-addons');
-        const basePriceEl = document.getElementById('calc-base-price');
-        const addonsPriceEl = document.getElementById('calc-addons-price');
-        const totalPriceEl = document.getElementById('calc-total-price');
-        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
-
-        if (!quantityInput || !addonsSelect || !basePriceEl || !addonsPriceEl || !totalPriceEl) {
-            return;
-        }
-
-        const quantity = parseInt(quantityInput.value) || 1;
-        const selectedAddonIds = Array.from(addonsSelect.selectedOptions).map(option => option.value);
-        
-        // Buscar preço base da API
-        let basePrice = 0;
-        try {
-            const response = await fetch(`/api/personalization-prices/price?type=SUB. TOTAL&size=CACHARREL&quantity=${quantity}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfMeta ? csrfMeta.content : ''
-                }
-            });
-            
-            const data = await response.json();
-            if (data.success && data.price) {
-                basePrice = parseFloat(data.price);
-            } else {
-                console.warn('Preço não encontrado na API, usando preço padrão');
-                basePrice = 36.00; // Preço padrão como fallback
-            }
-        } catch (error) {
-            console.error('Erro ao buscar preço:', error);
-            basePrice = 36.00; // Preço padrão como fallback
-        }
-        
-        // Calcular total dos adicionais
-        let addonsTotal = 0;
-        selectedAddonIds.forEach(addonId => {
-            const addon = availableAddons.find(a => a.id == addonId);
-            if (addon) {
-                addonsTotal += parseFloat(addon.price_adjustment);
-            }
-        });
-        
-        const totalPrice = basePrice + addonsTotal;
-        
-        // Atualizar display
-        basePriceEl.textContent = `R$ ${basePrice.toFixed(2).replace('.', ',')}`;
-        addonsPriceEl.textContent = `R$ ${addonsTotal.toFixed(2).replace('.', ',')}`;
-        totalPriceEl.textContent = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
-    }
-
-    // Expor funções para uso em handlers inline (onclick/onchange) e navegação AJAX
-    window.addBasePriceRow = addBasePriceRow;
-    window.removeBasePriceRow = removeBasePriceRow;
-    window.addAddonRow = addAddonRow;
-    window.removeAddonRow = removeAddonRow;
-    window.updateCalculator = updateCalculator;
+    window.openDeleteModal  = openDeleteModal;
+    window.closeDeleteModal = closeDeleteModal;
+    window.confirmDelete    = confirmDelete;
 </script>
 @endpush
-@endsection
 
+@endsection

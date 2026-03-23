@@ -10,6 +10,7 @@ class SublimationProductPrice extends Model
     protected $fillable = [
         'tenant_id',
         'product_type',
+        'size_key',
         'tecido_id',
         'quantity_from',
         'quantity_to',
@@ -95,5 +96,58 @@ class SublimationProductPrice extends Model
         $globalPrice = $globalQuery->orderBy('quantity_from', 'desc')->first();
         
         return $globalPrice ? (float) $globalPrice->price : null;
+    }
+
+    /**
+     * Buscar preço para um tipo e tamanho específicos (ex: bandeira)
+     */
+    public static function getPriceForSize(string $productType, string $sizeKey, ?int $tenantId = null): ?float
+    {
+        if ($tenantId) {
+            $price = static::where('product_type', $productType)
+                ->where('tenant_id', $tenantId)
+                ->where('size_key', $sizeKey)
+                ->first();
+
+            if ($price) {
+                return (float) $price->price;
+            }
+        }
+
+        $price = static::where('product_type', $productType)
+            ->whereNull('tenant_id')
+            ->where('size_key', $sizeKey)
+            ->first();
+
+        return $price ? (float) $price->price : null;
+    }
+
+    /**
+     * Retorna mapa size_key => price para um tipo de produto
+     */
+    public static function getSizePricesFor(string $productType, ?int $tenantId = null): array
+    {
+        $query = static::where('product_type', $productType)
+            ->whereNotNull('size_key');
+
+        if ($tenantId) {
+            $query->where(function ($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId)->orWhereNull('tenant_id');
+            });
+        } else {
+            $query->whereNull('tenant_id');
+        }
+
+        $rows = $query->get();
+
+        // Tenant rows override global rows
+        $map = [];
+        foreach ($rows->sortBy('tenant_id') as $row) {
+            if ($row->tenant_id !== null || !isset($map[$row->size_key])) {
+                $map[$row->size_key] = (float) $row->price;
+            }
+        }
+
+        return $map;
     }
 }

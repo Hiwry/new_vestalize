@@ -58,50 +58,62 @@
                 <!-- Tamanhos -->
                 <div class="p-4 bg-gray-50 dark:bg-[#1a2b4e]/50 rounded-lg border border-gray-200 dark:border-[#2d3d5a]">
                     <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Tamanhos e Quantidades *</label>
-                    <div class="grid grid-cols-5 gap-2 mb-2">
-                        <div>
-                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">PP</label>
-                            <input type="number" name="tamanhos[PP]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
+
+                    <!-- Grid de tamanhos de camisa (padrão) -->
+                    <div id="shirt-sizes-section">
+                        <div class="grid grid-cols-5 gap-2 mb-2">
+                            <div>
+                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">PP</label>
+                                <input type="number" name="tamanhos[PP]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">P</label>
+                                <input type="number" name="tamanhos[P]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">M</label>
+                                <input type="number" name="tamanhos[M]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G</label>
+                                <input type="number" name="tamanhos[G]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">GG</label>
+                                <input type="number" name="tamanhos[GG]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">P</label>
-                            <input type="number" name="tamanhos[P]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">M</label>
-                            <input type="number" name="tamanhos[M]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G</label>
-                            <input type="number" name="tamanhos[G]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">GG</label>
-                            <input type="number" name="tamanhos[GG]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
+                        <div class="grid grid-cols-5 gap-2">
+                            <div>
+                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">EXG</label>
+                                <input type="number" name="tamanhos[EXG]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G1</label>
+                                <input type="number" name="tamanhos[G1]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G2</label>
+                                <input type="number" name="tamanhos[G2]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G3</label>
+                                <input type="number" name="tamanhos[G3]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">Esp.</label>
+                                <input type="number" name="tamanhos[Especial]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
+                            </div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-5 gap-2">
-                        <div>
-                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">EXG</label>
-                            <input type="number" name="tamanhos[EXG]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G1</label>
-                            <input type="number" name="tamanhos[G1]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G2</label>
-                            <input type="number" name="tamanhos[G2]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G3</label>
-                            <input type="number" name="tamanhos[G3]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">Esp.</label>
-                            <input type="number" name="tamanhos[Especial]" min="0" value="0" onchange="calculateSublimationTotal()" class="sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white">
+
+                    <!-- Grid de tamanhos de bandeira (dinâmico, oculto por padrão) -->
+                    <div id="flag-sizes-section" class="hidden">
+                        <div id="flag-sizes-grid" class="grid grid-cols-3 gap-3">
+                            <p class="text-sm text-gray-500 dark:text-slate-400 col-span-3">Selecione o tipo para carregar os tamanhos.</p>
                         </div>
                     </div>
+
                     <input type="hidden" name="quantity" id="sub_quantity" value="0">
                     <div class="mt-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
                         <div class="flex items-center justify-between">

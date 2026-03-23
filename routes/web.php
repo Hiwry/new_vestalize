@@ -520,6 +520,7 @@ Route::middleware('auth')->group(function () {
                     'collars' => $productType?->collars ?? [],
                     'starting_price' => $startingPriceRow ? (float) $startingPriceRow->price : 0,
                     'starting_quantity_from' => $startingPriceRow?->quantity_from,
+                    'size_prices' => \App\Models\SublimationProductPrice::getSizePricesFor($type, $tenantId),
                 ]);
             });
 

@@ -117,14 +117,28 @@ class SublimationProductController extends Controller
         $tenantId = auth()->user()->tenant_id;
         $productType = $this->resolveProductTypeForTenant($type, $tenantId);
 
-        // Se veio um tecido_id na query string, usa ele. Caso contrrio vincula ao tecido atual do produto.
         $selectedTecidoId = $request->query('tecido_id', $productType->tecido_id);
 
-        $prices = SublimationProductPrice::where('tenant_id', $tenantId)
-            ->where('product_type', $type)
-            ->where('tecido_id', $selectedTecidoId)
-            ->orderBy('quantity_from')
-            ->get();
+        // Per-size pricing (bandeira)
+        if ($type === 'bandeira') {
+            $sizePrices = SublimationProductPrice::where(function ($q) use ($tenantId) {
+                    $q->where('tenant_id', $tenantId)->orWhereNull('tenant_id');
+                })
+                ->where('product_type', $type)
+                ->whereNotNull('size_key')
+                ->get()
+                ->sortBy('tenant_id') // globals first, tenant rows override
+                ->keyBy('size_key');
+
+            $prices = collect();
+        } else {
+            $sizePrices = collect();
+            $prices = SublimationProductPrice::where('tenant_id', $tenantId)
+                ->where('product_type', $type)
+                ->where('tecido_id', $selectedTecidoId)
+                ->orderBy('quantity_from')
+                ->get();
+        }
 
         $addons = SublimationProductAddon::where('tenant_id', $tenantId)
             ->where('product_type', $type)
@@ -140,6 +154,7 @@ class SublimationProductController extends Controller
             'typeLabel' => $productType->name,
             'typeIcon' => $productType->icon,
             'prices' => $prices,
+            'sizePrices' => $sizePrices,
             'addons' => $addons,
             'tecidos' => $tecidos,
         ]);
@@ -151,6 +166,37 @@ class SublimationProductController extends Controller
     public function updateType(Request $request, string $type): RedirectResponse
     {
         $tenantId = auth()->user()->tenant_id;
+
+        // Bandeira usa precificacao por tamanho, nao por quantidade
+        if ($type === 'bandeira') {
+            $validated = $request->validate([
+                'flag_prices' => 'nullable|array',
+                'flag_prices.*' => 'nullable|numeric|min:0',
+            ]);
+
+            $productType = $this->resolveProductTypeForTenant($type, $tenantId);
+
+            // Remove precos por tamanho anteriores do tenant
+            SublimationProductPrice::where('tenant_id', $tenantId)
+                ->where('product_type', $type)
+                ->whereNotNull('size_key')
+                ->delete();
+
+            foreach ($validated['flag_prices'] ?? [] as $sizeKey => $price) {
+                if ($price === null || $price === '') continue;
+                SublimationProductPrice::create([
+                    'tenant_id' => $tenantId,
+                    'product_type' => $type,
+                    'size_key' => $sizeKey,
+                    'price' => $price,
+                ]);
+            }
+
+            return redirect()
+                ->route('admin.sublimation-products.edit-type', $type)
+                ->with('success', 'Precos por tamanho salvos com sucesso.');
+        }
+
         $validated = $request->validate([
             'tecido_id' => 'required|exists:tecidos,id',
             'apply_size_surcharge' => 'nullable|boolean',

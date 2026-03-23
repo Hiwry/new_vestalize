@@ -3838,6 +3838,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             modal.classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
+        // Reset sizes sections back to shirt mode
+        const shirtSection = document.getElementById('shirt-sizes-section');
+        const flagSection = document.getElementById('flag-sizes-section');
+        if (shirtSection) shirtSection.classList.remove('hidden');
+        if (flagSection) flagSection.classList.add('hidden');
+        const grid = document.getElementById('flag-sizes-grid');
+        if (grid) grid.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-3">Selecione o tipo para carregar os tamanhos.</p>';
     }
     window.closeSublimationModal = closeSublimationModal;
     
@@ -3851,6 +3858,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         
         if (sublimationAddonsCache[typeSlug]) {
             renderSublimationAddons(sublimationAddonsCache[typeSlug].addons);
+            toggleFlagSizes(typeSlug, sublimationAddonsCache[typeSlug].models || []);
             return;
         }
         
@@ -3860,8 +3868,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             const response = await fetch(`/api/sublimation-total/addons/${typeSlug}`);
             const data = await response.json();
             if (data.success) {
-                sublimationAddonsCache[typeSlug] = { addons: data.data || [], models: data.models || [], collars: data.collars || [] };
+                sublimationAddonsCache[typeSlug] = { addons: data.data || [], models: data.models || [], collars: data.collars || [], size_prices: data.size_prices || {} };
                 renderSublimationAddons(sublimationAddonsCache[typeSlug].addons);
+                toggleFlagSizes(typeSlug, sublimationAddonsCache[typeSlug].models || []);
                 calculateSublimationPrice();
             } else {
                 container.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-full">Nenhum adicional</p>';
@@ -3872,6 +3881,59 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         }
     }
     window.loadSublimationAddons = loadSublimationAddons;
+
+    function toggleFlagSizes(typeSlug, models) {
+        const shirtSection = document.getElementById('shirt-sizes-section');
+        const flagSection = document.getElementById('flag-sizes-section');
+        if (!shirtSection || !flagSection) return;
+
+        const isFlag = typeSlug === 'bandeira';
+        shirtSection.classList.toggle('hidden', isFlag);
+        flagSection.classList.toggle('hidden', !isFlag);
+
+        if (isFlag) {
+            const sizePrices = sublimationAddonsCache[typeSlug]?.size_prices || {};
+            renderFlagSizes(models, sizePrices);
+            // Reset shirt size inputs so they don't submit non-zero values
+            shirtSection.querySelectorAll('input[type="number"]').forEach(inp => { inp.value = 0; });
+        } else {
+            // Clear flag size inputs when switching back to non-flag type
+            const grid = document.getElementById('flag-sizes-grid');
+            if (grid) grid.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-3">Selecione o tipo para carregar os tamanhos.</p>';
+            calculateSublimationTotal();
+        }
+    }
+    window.toggleFlagSizes = toggleFlagSizes;
+
+    function renderFlagSizes(sizes, sizePrices) {
+        const grid = document.getElementById('flag-sizes-grid');
+        if (!grid) return;
+
+        if (!sizes || sizes.length === 0) {
+            grid.innerHTML = '<p class="text-sm text-gray-500 dark:text-slate-400 col-span-3">Nenhum tamanho configurado. Adicione os tamanhos no painel admin.</p>';
+            return;
+        }
+
+        sizePrices = sizePrices || {};
+        const inputCls = 'sub-size-input w-full px-2 py-2 border border-gray-300 dark:border-[#2d3d5a] rounded-lg text-center text-sm bg-white dark:bg-[#1a2b4e] text-gray-900 dark:text-white';
+        grid.innerHTML = sizes.map(size => {
+            const unitPrice = sizePrices[size] !== undefined ? parseFloat(sizePrices[size]) : null;
+            const priceLabel = unitPrice !== null
+                ? `<span class="block text-[10px] text-gray-400 dark:text-slate-500 mt-0.5">R$ ${unitPrice.toFixed(2).replace('.', ',')}/un</span>`
+                : '';
+            return `
+            <div>
+                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">${size}${priceLabel}</label>
+                <input type="number" name="tamanhos[${size}]" min="0" value="0"
+                       data-size-key="${size}"
+                       data-unit-price="${unitPrice !== null ? unitPrice : ''}"
+                       onchange="calculateSublimationTotal()"
+                       class="${inputCls}">
+            </div>`;
+        }).join('');
+        calculateSublimationTotal();
+    }
+    window.renderFlagSizes = renderFlagSizes;
     
     function renderSublimationAddons(addons) {
         const container = document.getElementById('sublimation-addons-container');
@@ -3909,12 +3971,41 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     async function calculateSublimationPrice() {
         const typeSlug = document.getElementById('sublimation_type')?.value;
         const quantity = parseInt(document.getElementById('sub_quantity')?.value) || 0;
-        
+
         if (!typeSlug || quantity === 0) {
             updateSublimationPreview();
             return;
         }
-        
+
+        // Bandeira: preco baseado nos tamanhos selecionados x preco por tamanho
+        if (typeSlug === 'bandeira') {
+            const sizePrices = sublimationAddonsCache[typeSlug]?.size_prices || {};
+            const flagInputs = document.querySelectorAll('#flag-sizes-grid input[data-size-key]');
+            let totalPrice = 0;
+            flagInputs.forEach(inp => {
+                const qty = parseInt(inp.value) || 0;
+                if (qty > 0) {
+                    const unitP = parseFloat(inp.dataset.unitPrice) || 0;
+                    totalPrice += unitP * qty;
+                }
+            });
+            // Weighted average unit price
+            const avgUnitPrice = quantity > 0 ? totalPrice / quantity : 0;
+            const addonAdjust = Array.from(document.querySelectorAll('input[name="sublimation_addons[]"]:checked'))
+                .reduce((sum, a) => sum + parseFloat(a.dataset.price || 0), 0);
+            const unitPriceInput = document.getElementById('sub_unit_price');
+            if (unitPriceInput) unitPriceInput.value = (avgUnitPrice + addonAdjust).toFixed(2);
+            // Override total price display to be the actual total (not avg * qty)
+            const addonTotal = addonAdjust * quantity;
+            const totalEl = document.getElementById('sub-total-price');
+            if (totalEl) totalEl.textContent = 'R$ ' + (totalPrice + addonTotal).toFixed(2).replace('.', ',');
+            const unitCostInput = document.getElementById('sub_unit_cost');
+            if (unitCostInput && !unitCostInput.dataset.manuallySet) {
+                // leave cost as-is
+            }
+            return;
+        }
+
         try {
             const response = await fetch(`/api/sublimation-total/price/${typeSlug}/${quantity}`);
             const data = await response.json();
