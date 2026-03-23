@@ -500,6 +500,68 @@
         background: #142246 !important;
     }
 
+    .ow-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .ow-toggle-input {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+        pointer-events: none;
+    }
+
+    .ow-toggle-control {
+        position: relative;
+        width: 2.75rem;
+        height: 1.6rem;
+        border-radius: 9999px;
+        background: rgba(148, 163, 184, 0.22);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .ow-toggle-thumb {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 1.2rem;
+        height: 1.2rem;
+        border-radius: 9999px;
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.25);
+        transition: transform 0.2s ease;
+    }
+
+    .ow-toggle-input:focus-visible + .ow-toggle-control {
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18);
+    }
+
+    .ow-toggle-input:checked + .ow-toggle-control {
+        background: rgba(124, 58, 237, 0.92);
+        border-color: rgba(124, 58, 237, 0.92);
+    }
+
+    .ow-toggle-input:checked + .ow-toggle-control .ow-toggle-thumb {
+        transform: translateX(1.1rem);
+    }
+
+    .dark .ow-toggle-control {
+        background: rgba(30, 41, 59, 0.9);
+        border-color: rgba(148, 163, 184, 0.2);
+    }
+
+    .dark .ow-toggle-input:checked + .ow-toggle-control {
+        background: rgba(139, 92, 246, 0.9);
+        border-color: rgba(167, 139, 250, 0.75);
+    }
+
     #personalizationModal .link-item-checkbox {
         accent-color: var(--sh-accent);
     }
@@ -835,9 +897,12 @@
                     </div>
 
                     <div class="mt-3">
-                        <label class="flex items-center gap-2 text-xs text-gray-600 dark:text-slate-400">
-                            <input type="checkbox" name="apply_all_items" value="1" class="rounded border-gray-300 text-[#7c3aed] focus:ring-[#7c3aed]">
-                            Aplicar a todos os itens do pedido
+                        <label class="ow-toggle text-xs text-gray-600 dark:text-slate-400">
+                            <input type="checkbox" name="apply_all_items" value="1" class="ow-toggle-input">
+                            <span class="ow-toggle-control" aria-hidden="true">
+                                <span class="ow-toggle-thumb"></span>
+                            </span>
+                            <span>Aplicar a todos os itens do pedido</span>
                         </label>
                     </div>
                     
@@ -1306,7 +1371,10 @@
                         @foreach($order->items as $item)
                         <label class="flex items-center p-2.5 bg-white dark:bg-slate-800/50 border border-purple-200 dark:border-slate-700 rounded-lg hover:border-purple-400 dark:hover:border-purple-500/50 cursor-pointer transition-colors link-item-label" data-item-id="{{ $item->id }}">
                             <input type="checkbox" name="linked_item_ids[]" value="{{ $item->id }}" 
-                                   class="link-item-checkbox w-4 h-4 text-purple-600 dark:text-purple-500 border-gray-300 dark:border-slate-600 rounded focus:ring-purple-500 bg-white dark:bg-slate-700">
+                                   class="link-item-checkbox ow-toggle-input">
+                            <span class="ow-toggle-control" aria-hidden="true">
+                                <span class="ow-toggle-thumb"></span>
+                            </span>
                             <div class="ml-3 flex-1">
                                 <span class="text-sm font-medium text-gray-900 dark:text-white">Item {{ $item->item_number }}</span>
                                 <span class="text-xs text-gray-500 dark:text-slate-400 ml-2">{{ $item->model }} • {{ $item->quantity }} pç</span>

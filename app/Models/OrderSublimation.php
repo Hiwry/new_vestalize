@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderSublimation extends Model
 {
+    protected $appends = ['application_image_url'];
+
     protected $fillable = [
         'order_item_id',
         'application_type',

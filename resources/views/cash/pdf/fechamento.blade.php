@@ -119,6 +119,43 @@ table.det td.label-col { text-align: left; font-weight: bold; color: #333; }
 table.det tr.tot-row td { background: #FFD700; font-weight: bold; }
 table.det tr.card-row td { color: #c00; }
 table.det tr.subtotais td { background: #eee; font-weight: bold; }
+
+table.mov {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8px;
+}
+table.mov th {
+    background: #2f4858;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 4px;
+    text-align: left;
+}
+table.mov td {
+    border: 1px solid #ccc;
+    padding: 3px 4px;
+    vertical-align: top;
+}
+table.mov td.amount {
+    text-align: right;
+    white-space: nowrap;
+}
+table.mov td.small {
+    white-space: nowrap;
+}
+table.mov td.wrap {
+    white-space: normal;
+}
+table.mov tr.total-row td {
+    background: #FFD700;
+    font-weight: bold;
+}
+.section-note {
+    font-size: 9px;
+    color: #555;
+    margin-bottom: 8px;
+}
 </style>
 </head>
 <body>
@@ -295,7 +332,91 @@ $logoPath = public_path('vestalize.svg');
     </div>
 </div>
 
-{{-- ====================== PÁGINA 2: DETALHAMENTO POR VENDEDOR ====================== --}}
+{{-- ====================== PÁGINA 2: DETALHAMENTO DAS ENTRADAS ====================== --}}
+<div class="br"></div>
+
+<h2 class="page-title">DETALHAMENTO DAS ENTRADAS</h2>
+<div class="period-label">Período: {{ $periodLabel }}</div>
+<div class="section-note">Cada linha abaixo identifica a origem da entrada, o pedido relacionado e a forma de pagamento efetiva.</div>
+
+<table class="mov">
+    <thead>
+        <tr>
+            <th style="width:58px">Data</th>
+            <th style="width:42px">Hora</th>
+            <th style="width:88px">Origem</th>
+            <th style="width:65px">Pedido</th>
+            <th style="width:130px">Cliente</th>
+            <th style="width:110px">Vendedor</th>
+            <th style="width:95px">Pagamento</th>
+            <th>Descricao</th>
+            <th style="width:82px">Valor</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($entryDetails as $entry)
+        <tr>
+            <td class="small">{{ $entry['date'] }}</td>
+            <td class="small">{{ $entry['time'] }}</td>
+            <td class="wrap">{{ $entry['origin'] }}</td>
+            <td class="small">{{ $entry['order_number'] }}</td>
+            <td class="wrap">{{ $entry['client'] }}</td>
+            <td class="wrap">{{ $entry['seller'] }}</td>
+            <td class="wrap">{{ $entry['payment_method'] }}</td>
+            <td class="wrap">{{ $entry['description'] }}</td>
+            <td class="amount">{{ $fmt($entry['amount']) }}</td>
+        </tr>
+        @empty
+        <tr>
+            <td colspan="9" style="text-align:center;color:#777">Nenhuma entrada encontrada no periodo.</td>
+        </tr>
+        @endforelse
+        @if(!empty($entryDetails))
+        <tr class="total-row">
+            <td colspan="8">TOTAL DAS ENTRADAS</td>
+            <td class="amount">{{ $fmt($totalVendas) }}</td>
+        </tr>
+        @endif
+    </tbody>
+</table>
+
+@if(!empty($cashMovementDetails))
+    <br>
+    <h2 class="page-title" style="font-size:12px">SAIDAS E AJUSTES DE CAIXA</h2>
+    <div class="section-note">Sangrias e suprimentos permanecem separados para facilitar a conferencia do saldo.</div>
+    <table class="mov">
+        <thead>
+            <tr>
+                <th style="width:58px">Data</th>
+                <th style="width:42px">Hora</th>
+                <th style="width:90px">Movimento</th>
+                <th style="width:65px">Pedido</th>
+                <th style="width:110px">Responsavel</th>
+                <th>Descricao</th>
+                <th style="width:82px">Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($cashMovementDetails as $movement)
+            <tr>
+                <td class="small">{{ $movement['date'] }}</td>
+                <td class="small">{{ $movement['time'] }}</td>
+                <td class="wrap">{{ $movement['origin'] }}</td>
+                <td class="small">{{ $movement['order_number'] }}</td>
+                <td class="wrap">{{ $movement['seller'] }}</td>
+                <td class="wrap">{{ $movement['description'] }}</td>
+                <td class="amount">{{ $fmt($movement['amount']) }}</td>
+            </tr>
+            @endforeach
+            <tr class="total-row">
+                <td colspan="6">TOTAL DE SAIDAS E AJUSTES</td>
+                <td class="amount">{{ $fmt($totalSangria + $totalSuprimentos) }}</td>
+            </tr>
+        </tbody>
+    </table>
+@endif
+
+{{-- ====================== PÁGINA 3: DETALHAMENTO POR VENDEDOR ====================== --}}
 <div class="br"></div>
 
 <h2 class="page-title">DETALHAMENTO DE VENDAS POR VENDEDOR</h2>
@@ -379,7 +500,7 @@ $allVendas = $vendas->sortBy('transaction_date')->values();
     </tbody>
 </table>
 
-{{-- ====================== PÁGINA 3: RESUMO CONSOLIDADO ====================== --}}
+{{-- ====================== PÁGINA 4: RESUMO CONSOLIDADO ====================== --}}
 <div class="br"></div>
 
 <h2 class="page-title">RESUMO FINANCEIRO</h2>

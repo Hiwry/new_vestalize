@@ -95,8 +95,8 @@
                         <span class="px-2.5 py-1 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-lg text-[10px] font-black border border-purple-500/20 uppercase tracking-widest">
                             #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
                         </span>
-                        @if($order->edit_status === 'requested')
-                            <span class="px-2 py-1 rounded-lg text-[9px] font-black bg-amber-500/10 text-amber-600 border border-amber-500/20 uppercase tracking-widest">Editado</span>
+                        @if($order->edit_status === 'requested' || (($order->manual_edits_count ?? 0) > 0))
+                            <span class="px-2 py-1 rounded-lg text-[9px] font-black bg-amber-500/10 text-amber-600 border border-amber-500/20 uppercase tracking-widest">Pedido editado</span>
                         @endif
                     </div>
                     <div class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">

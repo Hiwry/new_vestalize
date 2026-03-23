@@ -1170,6 +1170,75 @@
         </div>
     </div>
 
+    <div id="application-edit-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xl flex items-center justify-center p-4 hidden z-[210] transition-all duration-500 overflow-y-auto">
+        <div class="relative my-auto mx-auto p-0 border border-white/10 w-full max-w-2xl shadow-2xl rounded-[2.5rem] bg-white dark:bg-slate-900 overflow-hidden animate-slide-in-bottom">
+            <div class="flex justify-between items-center p-8 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-white border border-amber-400/30">
+                        <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Editar Aplicação</h3>
+                        <p id="application-edit-subtitle" class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Atualize imagem e observação da cor</p>
+                    </div>
+                </div>
+                <button onclick="closeApplicationEditModal()" class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-400 hover:text-rose-500 transition-all flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="application-edit-form" enctype="multipart/form-data" onsubmit="submitApplicationEdit(event)" class="p-8 space-y-6">
+                @csrf
+                <input type="hidden" id="application-sublimation-id" name="sublimation_id">
+
+                <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6">
+                    <div class="space-y-4">
+                        <div class="p-5 rounded-3xl bg-amber-500/10 border border-amber-500/20 shadow-inner">
+                            <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-2">Observação da cor</p>
+                            <textarea id="application-color-details" name="color_details" rows="7" placeholder="Ex.: Vermelho Ferrari no logo e preto fosco no contorno" class="w-full rounded-2xl border border-amber-200/60 dark:border-amber-500/20 bg-white/90 dark:bg-slate-800/80 px-4 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-amber-500 focus:ring-0 resize-none"></textarea>
+                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Use este campo para registrar as cores exatas da aplicação.</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="rounded-3xl border border-gray-200 dark:border-white/10 p-4 bg-gray-50/70 dark:bg-slate-800/40">
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Imagem atual</p>
+                            <div id="application-current-image-wrapper" class="rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-900/70 min-h-[180px] flex items-center justify-center">
+                                <div class="text-center px-4 py-8 text-gray-400 dark:text-gray-500">
+                                    <i class="fa-solid fa-image text-2xl mb-3"></i>
+                                    <p class="text-xs font-semibold uppercase tracking-widest">Sem imagem cadastrada</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nova imagem da aplicação</label>
+                            <input type="file" id="application-image-input" name="application_image" accept="image/*" class="hidden" onchange="previewApplicationImage(this)">
+                            <button type="button" onclick="openApplicationImagePicker()" class="w-full flex flex-col items-center justify-center h-40 rounded-[2rem] border-2 border-dashed border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 hover:bg-amber-500/5 hover:border-amber-500/30 transition-all cursor-pointer">
+                                <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 shadow-sm border border-gray-100 dark:border-white/10 flex items-center justify-center text-gray-300 mb-4">
+                                    <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+                                </div>
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Clique para trocar a imagem</span>
+                            </button>
+                            <div id="application-new-image-preview" class="hidden rounded-2xl overflow-hidden border border-amber-200/60 dark:border-amber-500/20 shadow-lg">
+                                <img id="application-preview-img" src="" alt="Preview da nova aplicação" class="w-full h-auto max-h-[220px] object-contain bg-white dark:bg-slate-900/70">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-3 pt-2">
+                    <button type="submit" class="w-full py-5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-amber-600/20 active:scale-[0.98]">
+                        Salvar Aplicação
+                    </button>
+                    <button type="button" onclick="closeApplicationEditModal()" class="w-full py-5 bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-300 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-gray-200 dark:hover:bg-slate-700 transition-all">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 
 
     <!-- Modal de Confirmação de Movimentação Premium -->
@@ -1770,6 +1839,7 @@
         window.confirmDeleteFile = confirmDeleteFile;
 
         function displayOrderDetails(order) {
+            window.currentModalOrderData = order;
             const payment = order.payment;
             const isPersonalized = order.origin === 'personalized';
             // Contar arquivos das personalizações E dos itens
@@ -2102,19 +2172,26 @@
                                         : (sub.color_count > 0 ? `${sub.color_count} ${sub.color_count == 1 ? 'Cor' : 'Cores'}${sub.has_neon ? ' + Neon' : ''}` : '');
                                     
                                     return `
-                                    <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-700 rounded-md p-3 text-sm border border-gray-200 dark:border-gray-600">
-                                        <div>
+                                    <div class="flex justify-between items-start gap-4 bg-gray-50 dark:bg-gray-700 rounded-md p-3 text-sm border border-gray-200 dark:border-gray-600">
+                                        <div class="min-w-0 flex-1">
                                             <strong class="text-gray-900 dark:text-gray-200">
                                                 ${sizeName ? sizeName : appType}${sizeDimensions ? ` (${sizeDimensions})` : ''}
                                             </strong>
                                             ${locationName ? ` <span class="text-gray-600 dark:text-gray-400">- ${locationName}</span>` : ''}
                                             <span class="text-gray-600 dark:text-gray-400"> x${sub.quantity}</span>
                                             ${colorInfo ? `<br><span class="text-xs text-gray-500 dark:text-gray-400">${colorInfo}</span>` : ''}
+                                            ${colorDetails ? `<div class="mt-2 rounded-lg bg-white/80 dark:bg-slate-800/70 border border-amber-200/50 dark:border-amber-500/20 px-2.5 py-2 text-xs text-amber-700 dark:text-amber-300"><strong class="font-semibold">Obs. da cor:</strong> ${colorDetails}</div>` : ''}
+                                            ${sub.application_image_url ? `<div class="mt-2 inline-flex items-center gap-2 rounded-lg bg-white/80 dark:bg-slate-800/70 border border-indigo-200/50 dark:border-indigo-500/20 px-2.5 py-2 text-xs text-indigo-700 dark:text-indigo-300"><i class="fa-solid fa-image"></i><span>Imagem da aplicação cadastrada</span></div>` : ''}
                                         </div>
-                                        <div class="text-right">
-                                            <div class="text-gray-600 dark:text-gray-400 text-xs">R$ ${parseFloat(sub.unit_price).toFixed(2).replace('.', ',')} × ${sub.quantity}</div>
-                                            ${sub.discount_percent > 0 ? `<div class="text-xs text-green-600 dark:text-green-400">-${sub.discount_percent}%</div>` : ''}
-                                            <div class="font-bold text-gray-900 dark:text-gray-200">R$ ${parseFloat(sub.final_price).toFixed(2).replace('.', ',')}</div>
+                                        <div class="flex flex-col items-end gap-2 shrink-0">
+                                            <button type="button" data-action="edit-application" data-sublimation-id="${sub.id}" onclick="openApplicationEditModal(${sub.id})" class="btn-modern btn-warning btn-compact">
+                                                Editar aplicação
+                                            </button>
+                                            <div class="text-right">
+                                                <div class="text-gray-600 dark:text-gray-400 text-xs">R$ ${parseFloat(sub.unit_price).toFixed(2).replace('.', ',')} × ${sub.quantity}</div>
+                                                ${sub.discount_percent > 0 ? `<div class="text-xs text-green-600 dark:text-green-400">-${sub.discount_percent}%</div>` : ''}
+                                                <div class="font-bold text-gray-900 dark:text-gray-200">R$ ${parseFloat(sub.final_price).toFixed(2).replace('.', ',')}</div>
+                                            </div>
                                         </div>
                                     </div>
                                 `}).join('')}
@@ -2509,6 +2586,7 @@
             const firstArtName = order.items.find(item => item.art_name)?.art_name;
             const deliveryDate = order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('pt-BR') : 'Sem data';
             const isEvent = order.is_event;
+            const showEditedBadge = order.edit_status === 'requested' || order.has_manual_edits;
             
             // Criar título com OS e data à esquerda, nome da arte centralizado (se existir)
             const modalTitle = document.getElementById('modal-title');
@@ -2517,7 +2595,10 @@
                     <div class="flex items-start justify-between w-full">
                         <div class="flex flex-col">
                             <span class="text-2xl font-bold text-gray-900 dark:text-gray-100">OS ${String(order.id).padStart(2, '0')}</span>
-                            <span class="text-base font-semibold ${isEvent ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}">${deliveryDate}${isEvent ? ' - EVENTO' : ''}</span>
+                            <div class="flex flex-wrap items-center gap-2 mt-1">
+                                <span class="text-base font-semibold ${isEvent ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}">${deliveryDate}${isEvent ? ' - EVENTO' : ''}</span>
+                                ${showEditedBadge ? '<span class="px-2 py-1 rounded-lg text-[9px] font-black bg-amber-500/10 text-amber-600 border border-amber-500/20 uppercase tracking-widest">Pedido editado</span>' : ''}
+                            </div>
                         </div>
                         ${firstArtName ? `
                         <div class="flex-1 flex justify-center">
@@ -2740,6 +2821,12 @@
             }
         });
 
+        document.getElementById('application-edit-modal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeApplicationEditModal();
+            }
+        });
+
         document.getElementById('payment-modal')?.addEventListener('click', function(e) {
             if (e.target === this) {
                 closePaymentModal();
@@ -2763,6 +2850,24 @@
                     showNotification('Erro: Função não disponível. Recarregue a página.', 'error');
                 }
             }
+        });
+        
+        document.addEventListener('click', function(e) {
+            const applicationBtn = e.target.closest('[data-action="edit-application"]');
+            if (!applicationBtn) {
+                return;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const sublimationId = applicationBtn.getAttribute('data-sublimation-id');
+            if (!sublimationId) {
+                showNotification('Aplicação inválida para edição.', 'error');
+                return;
+            }
+
+            openApplicationEditModal(Number(sublimationId));
         });
         
         document.getElementById('delivery-request-modal')?.addEventListener('click', function(e) {
@@ -2835,6 +2940,25 @@
             document.getElementById('delivery-request-form').reset();
         }
 
+        function findCurrentSublimationById(sublimationId) {
+            const order = window.currentModalOrderData;
+            if (!order || !Array.isArray(order.items)) {
+                return null;
+            }
+
+            for (const item of order.items) {
+                const sublimation = Array.isArray(item.sublimations)
+                    ? item.sublimations.find(sub => Number(sub.id) === Number(sublimationId))
+                    : null;
+
+                if (sublimation) {
+                    return { item, sublimation };
+                }
+            }
+
+            return null;
+        }
+
         // Funções para modal de imagem de capa
         function editItemCoverImage(itemId) {
             document.getElementById('cover-item-id').value = itemId;
@@ -2855,6 +2979,44 @@
               coverInput.click();
           }
 
+        function openApplicationEditModal(sublimationId) {
+            const result = findCurrentSublimationById(sublimationId);
+            if (!result) {
+                showNotification('Aplicação não encontrada para edição.', 'error');
+                return;
+            }
+
+            const { sublimation } = result;
+            const appType = sublimation.application_type ? sublimation.application_type.toUpperCase() : 'APLICAÇÃO';
+            const locationName = sublimation.location ? sublimation.location.name : sublimation.location_name;
+            const subtitle = [appType, locationName].filter(Boolean).join(' • ');
+
+            document.getElementById('application-edit-form').reset();
+            document.getElementById('application-sublimation-id').value = sublimation.id;
+            document.getElementById('application-edit-subtitle').textContent = subtitle || 'Atualize imagem e observação da cor';
+            document.getElementById('application-color-details').value = sublimation.color_details || '';
+            document.getElementById('application-new-image-preview').classList.add('hidden');
+
+            const currentImageWrapper = document.getElementById('application-current-image-wrapper');
+            if (currentImageWrapper) {
+                currentImageWrapper.innerHTML = sublimation.application_image_url
+                    ? `<img src="${sublimation.application_image_url}" alt="Imagem atual da aplicação" class="w-full h-auto max-h-[240px] object-contain bg-white dark:bg-slate-900/70">`
+                    : `<div class="text-center px-4 py-8 text-gray-400 dark:text-gray-500"><i class="fa-solid fa-image text-2xl mb-3"></i><p class="text-xs font-semibold uppercase tracking-widest">Sem imagem cadastrada</p></div>`;
+            }
+
+            document.getElementById('application-edit-modal').classList.remove('hidden');
+        }
+
+        function closeApplicationEditModal() {
+            document.getElementById('application-edit-modal').classList.add('hidden');
+            document.getElementById('application-edit-form').reset();
+            document.getElementById('application-new-image-preview').classList.add('hidden');
+        }
+
+        function openApplicationImagePicker() {
+            document.getElementById('application-image-input')?.click();
+        }
+
         function previewCoverImage(input) {
             const preview = document.getElementById('cover-image-preview');
             const previewImg = document.getElementById('cover-preview-img');
@@ -2872,6 +3034,22 @@
                 preview.classList.add('hidden');
             }
         }
+
+        function previewApplicationImage(input) {
+            const preview = document.getElementById('application-new-image-preview');
+            const previewImg = document.getElementById('application-preview-img');
+
+            if (input.files && input.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.classList.add('hidden');
+            }
+        }
         
         // Listener para atualizar preview quando arquivo for adicionado via modal de paste
         document.addEventListener('DOMContentLoaded', function() {
@@ -2879,6 +3057,13 @@
             if (coverImageInput) {
                 coverImageInput.addEventListener('change', function() {
                     previewCoverImage(this);
+                });
+            }
+
+            const applicationImageInput = document.getElementById('application-image-input');
+            if (applicationImageInput) {
+                applicationImageInput.addEventListener('change', function() {
+                    previewApplicationImage(this);
                 });
             }
 
@@ -3030,6 +3215,10 @@
                     
                     showNotification('Imagem de capa atualizada com sucesso!', 'success');
                     closeCoverImageModal();
+
+                    if (data.order_id) {
+                        addEditedBadgeToKanbanCard(data.order_id);
+                    }
                     
                     // Recarregar detalhes do pedido no modal se estiver aberto
                     const orderModal = document.getElementById('order-modal');
@@ -3063,6 +3252,81 @@
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnText;
                 showNotification('Erro ao atualizar imagem de capa', 'error');
+            });
+        }
+
+        function addEditedBadgeToKanbanCard(orderId) {
+            const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
+            if (!orderCard) {
+                return;
+            }
+
+            const badgeContainer = orderCard.querySelector('.flex.flex-wrap.items-center.gap-2');
+            if (!badgeContainer || badgeContainer.querySelector('[data-edited-badge="true"]')) {
+                return;
+            }
+
+            badgeContainer.insertAdjacentHTML('beforeend', '<span data-edited-badge="true" class="px-2 py-1 rounded-lg text-[9px] font-black bg-amber-500/10 text-amber-600 border border-amber-500/20 uppercase tracking-widest">Pedido editado</span>');
+        }
+
+        function submitApplicationEdit(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const sublimationId = formData.get('sublimation_id');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="animate-pulse">Salvando...</span>';
+
+            fetch(`/order-sublimations/${sublimationId}/details`, {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => parseJsonResponse(response, 'atualização da aplicação'))
+            .then(data => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+
+                if (!data.success) {
+                    showNotification(data.message || 'Erro ao atualizar aplicação', 'error');
+                    return;
+                }
+
+                showNotification('Aplicação atualizada com sucesso!', 'success');
+                closeApplicationEditModal();
+
+                if (data.order_id) {
+                    addEditedBadgeToKanbanCard(data.order_id);
+                }
+
+                const orderModal = document.getElementById('order-modal');
+                const currentOrderId = orderModal ? orderModal.getAttribute('data-current-order-id') : null;
+
+                if (currentOrderId && !orderModal.classList.contains('hidden')) {
+                    fetch(`/kanban/order/${currentOrderId}`)
+                        .then(response => response.json())
+                        .then(orderData => {
+                            displayOrderDetails(orderData);
+                        })
+                        .catch(error => {
+                            console.error('Erro ao recarregar detalhes do pedido:', error);
+                        });
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao atualizar aplicação:', error);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+                showNotification(error.message || 'Erro ao atualizar aplicação', 'error');
             });
         }
 
@@ -3189,6 +3453,12 @@
                 
                 if (data.success) {
                     showNotification('Nome da arte salvo com sucesso!', 'success');
+
+                    const orderModal = document.getElementById('order-modal');
+                    const currentOrderId = orderModal ? orderModal.getAttribute('data-current-order-id') : null;
+                    if (currentOrderId) {
+                        addEditedBadgeToKanbanCard(currentOrderId);
+                    }
                     
                     // Recarregar cards do kanban para atualizar o nome no overlay
                     setTimeout(() => {
@@ -3434,6 +3704,11 @@
         window.editItemCoverImage = editItemCoverImage;
         window.closeCoverImageModal = closeCoverImageModal;
         window.submitCoverImage = submitCoverImage;
+        window.openApplicationEditModal = openApplicationEditModal;
+        window.closeApplicationEditModal = closeApplicationEditModal;
+        window.openApplicationImagePicker = openApplicationImagePicker;
+        window.previewApplicationImage = previewApplicationImage;
+        window.submitApplicationEdit = submitApplicationEdit;
         window.closeMoveConfirmModal = closeMoveConfirmModal;
         window.confirmMoveCard = confirmMoveCard;
         window.openEditRequestModal = openEditRequestModal;

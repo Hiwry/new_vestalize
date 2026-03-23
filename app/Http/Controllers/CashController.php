@@ -818,7 +818,7 @@ class CashController extends Controller
                 break;
         }
 
-        $q = CashTransaction::with(['order.user', 'order.items', 'user'])
+        $q = CashTransaction::with(['order.client', 'order.user', 'order.items', 'user'])
             ->whereBetween('transaction_date', [$startFilter, $endFilter])
             ->where('status', 'confirmado')
             ->orderBy('transaction_date');
@@ -860,6 +860,66 @@ class CashController extends Controller
             $vendasPorVendedor[$vid]['transacoes'][] = $t;
         }
 
+        $entryDetails = [];
+        foreach ($vendas as $transaction) {
+            $paymentMethods = $this->getTransactionPaymentMethods($transaction);
+            $baseDate = $transaction->transaction_date
+                ? Carbon::parse($transaction->transaction_date)->format('d/m/Y')
+                : '-';
+            $baseTime = $transaction->created_at
+                ? Carbon::parse($transaction->created_at)->format('H:i')
+                : '-';
+            $orderNumber = $transaction->order_id
+                ? str_pad((string) $transaction->order_id, 6, '0', STR_PAD_LEFT)
+                : '-';
+            $clientName = $transaction->order?->client?->name ?? '-';
+            $sellerName = $transaction->order?->user?->name
+                ?? $transaction->user?->name
+                ?? $transaction->user_name
+                ?? 'Sem vendedor';
+            $origin = $this->buildCashTransactionOrigin($transaction);
+            $description = $this->buildCashTransactionDescription($transaction);
+
+            foreach ($paymentMethods as $method) {
+                $entryDetails[] = [
+                    'date' => $baseDate,
+                    'time' => $baseTime,
+                    'origin' => $origin,
+                    'order_number' => $orderNumber,
+                    'client' => $clientName,
+                    'seller' => $sellerName,
+                    'payment_method' => $this->formatCashPaymentMethodLabel($method['method'] ?? null),
+                    'description' => $description,
+                    'amount' => floatval($method['amount'] ?? 0),
+                ];
+            }
+        }
+
+        $cashMovementDetails = $transactions
+            ->filter(fn($t) => in_array(strtolower($t->category ?? ''), ['sangria', 'suprimento', 'suprimentos']))
+            ->values()
+            ->map(function ($transaction) {
+                return [
+                    'date' => $transaction->transaction_date
+                        ? Carbon::parse($transaction->transaction_date)->format('d/m/Y')
+                        : '-',
+                    'time' => $transaction->created_at
+                        ? Carbon::parse($transaction->created_at)->format('H:i')
+                        : '-',
+                    'origin' => $this->buildCashTransactionOrigin($transaction),
+                    'order_number' => $transaction->order_id
+                        ? str_pad((string) $transaction->order_id, 6, '0', STR_PAD_LEFT)
+                        : '-',
+                    'seller' => $transaction->order?->user?->name
+                        ?? $transaction->user?->name
+                        ?? $transaction->user_name
+                        ?? 'Sistema',
+                    'description' => $this->buildCashTransactionDescription($transaction),
+                    'amount' => floatval($transaction->amount ?? 0),
+                ];
+            })
+            ->all();
+
         // Configurações da empresa
         $storeId = null;
         if (Auth::user()->isAdminLoja()) {
@@ -875,6 +935,8 @@ class CashController extends Controller
             'saldoCaixa',
             'vendasPorVendedor',
             'vendas',
+            'entryDetails',
+            'cashMovementDetails',
             'periodLabel',
             'period',
             'startFilter',
@@ -957,15 +1019,7 @@ class CashController extends Controller
         ], 0.0);
 
         foreach ($transactions as $t) {
-            $methods = [];
-            if (!empty($t->payment_methods) && is_array($t->payment_methods)) {
-                $methods = $t->payment_methods;
-            } elseif (!empty($t->payment_method)) {
-                $methods = [['method' => $t->payment_method, 'amount' => floatval($t->amount)]];
-            }
-            if (empty($methods)) {
-                $methods = [['method' => 'outros_credito', 'amount' => floatval($t->amount)]];
-            }
+            $methods = $this->getTransactionPaymentMethods($t);
 
             foreach ($methods as $m) {
                 $key    = strtolower($m['method'] ?? 'outros_credito');
@@ -978,5 +1032,156 @@ class CashController extends Controller
         }
 
         return $totals;
+    }
+
+    private function getTransactionPaymentMethods(CashTransaction $transaction): array
+    {
+        $methods = [];
+
+        if (!empty($transaction->payment_methods) && is_array($transaction->payment_methods)) {
+            $methods = $transaction->payment_methods;
+        } elseif (!empty($transaction->payment_methods) && is_string($transaction->payment_methods)) {
+            $decoded = json_decode($transaction->payment_methods, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $methods = $decoded;
+            }
+        } elseif (!empty($transaction->payment_method)) {
+            $methods = [[
+                'method' => $transaction->payment_method,
+                'amount' => floatval($transaction->amount ?? 0),
+            ]];
+        }
+
+        if (empty($methods)) {
+            $methods = [[
+                'method' => 'outros_credito',
+                'amount' => floatval($transaction->amount ?? 0),
+            ]];
+        }
+
+        return array_values(array_map(function ($method) use ($transaction) {
+            if (!is_array($method)) {
+                return [
+                    'method' => $transaction->payment_method ?? 'outros_credito',
+                    'amount' => floatval($transaction->amount ?? 0),
+                ];
+            }
+
+            return [
+                'method' => $method['method'] ?? ($transaction->payment_method ?? 'outros_credito'),
+                'amount' => floatval($method['amount'] ?? $transaction->amount ?? 0),
+            ];
+        }, $methods));
+    }
+
+    private function formatCashPaymentMethodLabel(?string $method): string
+    {
+        $labels = [
+            'dinheiro' => 'Dinheiro',
+            'entrada_dinheiro' => 'Entrada em dinheiro',
+            'pix' => 'PIX',
+            'transferencia' => 'Transferencia',
+            'transferencia_bancaria' => 'Transferencia bancaria',
+            'boleto' => 'Boleto',
+            'cheque' => 'Cheque',
+            'cheque_boleto' => 'Cheque/Boleto',
+            'visa_credito' => 'Visa credito',
+            'visa_debito' => 'Visa debito',
+            'master_credito' => 'Master credito',
+            'master_debito' => 'Master debito',
+            'mastercard_credito' => 'Master credito',
+            'mastercard_debito' => 'Master debito',
+            'elo_credito' => 'Elo credito',
+            'elo_debito' => 'Elo debito',
+            'amex' => 'Amex',
+            'hiper' => 'Hipercard',
+            'credito_conta' => 'Credito em conta',
+            'debito_conta' => 'Debito em conta',
+            'cartao' => 'Cartao',
+            'cartao_credito' => 'Cartao credito',
+            'cartao_debito' => 'Cartao debito',
+            'multiplo' => 'Multiplos meios',
+            'outros_credito' => 'Outros credito',
+            'outros_debito' => 'Outros debito',
+        ];
+
+        $key = strtolower(trim((string) $method));
+
+        return $labels[$key] ?? ucfirst(str_replace('_', ' ', $key ?: 'Nao informado'));
+    }
+
+    private function buildCashTransactionOrigin(CashTransaction $transaction): string
+    {
+        $category = strtolower(trim((string) $transaction->category));
+
+        if ($transaction->order_id) {
+            return 'Venda';
+        }
+
+        if (str_contains($category, 'sangria')) {
+            return 'Sangria';
+        }
+
+        if (str_contains($category, 'suprimento')) {
+            return 'Suprimento';
+        }
+
+        if (str_contains($category, 'cashback_concedido')) {
+            return 'Cashback concedido';
+        }
+
+        if (str_contains($category, 'cashback_utilizado')) {
+            return 'Cashback utilizado';
+        }
+
+        if (str_contains($category, 'entrada_finalizada')) {
+            return 'Entrada finalizada';
+        }
+
+        if (str_contains($category, 'venda_debitada')) {
+            return 'Venda debitada';
+        }
+
+        if (str_contains($category, 'pagamento_debito')) {
+            return 'Pagamento de debito';
+        }
+
+        return $transaction->type === 'entrada' ? 'Entrada manual' : 'Saida manual';
+    }
+
+    private function buildCashTransactionDescription(CashTransaction $transaction): string
+    {
+        $parts = [];
+
+        if (!empty($transaction->description)) {
+            $parts[] = trim((string) $transaction->description);
+        }
+
+        if ($transaction->order && $transaction->order->items && $transaction->order->items->isNotEmpty()) {
+            $itemNames = $transaction->order->items
+                ->pluck('art_name')
+                ->filter()
+                ->take(2)
+                ->values()
+                ->all();
+
+            if (!empty($itemNames)) {
+                $remaining = max(0, $transaction->order->items->count() - count($itemNames));
+                $parts[] = 'Itens: ' . implode(', ', $itemNames) . ($remaining > 0 ? ' +' . $remaining : '');
+            }
+        }
+
+        if (!empty($transaction->notes)) {
+            $notes = trim((string) $transaction->notes);
+            if ($notes !== '' && !in_array($notes, $parts, true)) {
+                $parts[] = 'Obs: ' . $notes;
+            }
+        }
+
+        if (empty($parts) && !empty($transaction->category)) {
+            $parts[] = ucfirst(str_replace('_', ' ', strtolower((string) $transaction->category)));
+        }
+
+        return implode(' | ', array_filter($parts)) ?: '-';
     }
 }

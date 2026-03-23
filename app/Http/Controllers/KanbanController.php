@@ -346,7 +346,16 @@ class KanbanController extends Controller
                         ->withCount('files');
                 },
             ])
-            ->withCount('comments');
+            ->withCount([
+                'comments',
+                'logs as manual_edits_count' => function ($query) {
+                    $query->whereIn('action', [
+                        'art_name_updated',
+                        'cover_image_updated',
+                        'sublimation_updated',
+                    ]);
+                },
+            ]);
     }
 
     /**
@@ -657,6 +666,16 @@ class KanbanController extends Controller
             'delivery_date' => $order->delivery_date ? $order->delivery_date->format('Y-m-d') : null,
             'pending_delivery_request' => $order->pendingDeliveryRequest,
             'seller' => $order->seller,
+            'edit_status' => $order->edit_status,
+            'has_manual_edits' => $order->logs->contains(function ($log) {
+                return in_array($log->action, [
+                    'art_name_updated',
+                    'cover_image_updated',
+                    'sublimation_updated',
+                ], true);
+            }),
+            'is_event' => (bool) $order->is_event,
+            'status_id' => $order->status_id,
         ]);
     }
 

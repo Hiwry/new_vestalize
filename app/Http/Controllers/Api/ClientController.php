@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\OrderItem;
+use App\Models\OrderLog;
+use App\Models\OrderSublimation;
 use App\Models\PersonalizationPrice;
 use App\Models\ProductOption;
 use App\Services\ImageProcessor;
@@ -123,6 +125,22 @@ class ClientController extends Controller
             
             // Atualizar o item com a nova imagem de capa
             $item->update(['cover_image' => $coverImagePath]);
+
+            OrderLog::create([
+                'order_id' => $item->order_id,
+                'user_id' => Auth::id(),
+                'user_name' => Auth::user()?->name ?? 'Sistema',
+                'action' => 'cover_image_updated',
+                'description' => 'Imagem de capa do item atualizada',
+                'old_value' => [
+                    'item_id' => $item->id,
+                    'cover_image' => $item->getOriginal('cover_image'),
+                ],
+                'new_value' => [
+                    'item_id' => $item->id,
+                    'cover_image' => $coverImagePath,
+                ],
+            ]);
             
             \Log::info('Item atualizado com sucesso');
             
@@ -185,9 +203,27 @@ class ClientController extends Controller
 
             $item = $this->findOrderItemForCurrentUser((int) $id);
             \Log::info('Item encontrado: ID ' . $item->id);
+
+            $previousArtName = $item->art_name;
             
             // Atualizar o nome da arte
             $item->update(['art_name' => $request->art_name]);
+
+            OrderLog::create([
+                'order_id' => $item->order_id,
+                'user_id' => Auth::id(),
+                'user_name' => Auth::user()?->name ?? 'Sistema',
+                'action' => 'art_name_updated',
+                'description' => 'Nome da arte atualizado',
+                'old_value' => [
+                    'item_id' => $item->id,
+                    'art_name' => $previousArtName,
+                ],
+                'new_value' => [
+                    'item_id' => $item->id,
+                    'art_name' => $request->art_name,
+                ],
+            ]);
             
             \Log::info('Nome da arte atualizado com sucesso: ' . $request->art_name);
             
@@ -209,6 +245,88 @@ class ClientController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Erro interno do servidor. Tente novamente mais tarde.'
+            ], 500);
+        }
+    }
+
+    public function updateSublimationDetails(Request $request, $id): JsonResponse
+    {
+        try {
+            $request->validate([
+                'color_details' => 'nullable|string|max:500',
+                'application_image' => 'nullable|image|max:10240',
+            ]);
+
+            $sublimation = $this->findOrderSublimationForCurrentUser((int) $id);
+            $previousColorDetails = $sublimation->color_details;
+            $previousApplicationImage = $sublimation->application_image;
+
+            $updates = [
+                'color_details' => filled($request->input('color_details'))
+                    ? trim((string) $request->input('color_details'))
+                    : null,
+            ];
+
+            if ($request->hasFile('application_image')) {
+                $newImagePath = $this->imageProcessor->processAndStore(
+                    $request->file('application_image'),
+                    'orders/applications',
+                    [
+                        'max_width' => 1200,
+                        'max_height' => 1200,
+                        'quality' => 85,
+                    ]
+                );
+
+                if (!$newImagePath) {
+                    throw new \RuntimeException('Falha ao processar imagem da aplicação.');
+                }
+
+                $this->imageProcessor->delete($previousApplicationImage);
+                $updates['application_image'] = $newImagePath;
+            }
+
+            $sublimation->update($updates);
+            $sublimation->refresh();
+
+            OrderLog::create([
+                'order_id' => $sublimation->orderItem->order_id,
+                'user_id' => Auth::id(),
+                'user_name' => Auth::user()?->name ?? 'Sistema',
+                'action' => 'sublimation_updated',
+                'description' => 'Aplicação atualizada no modal do kanban',
+                'old_value' => [
+                    'sublimation_id' => $sublimation->id,
+                    'color_details' => $previousColorDetails,
+                    'application_image' => $previousApplicationImage,
+                ],
+                'new_value' => [
+                    'sublimation_id' => $sublimation->id,
+                    'color_details' => $sublimation->color_details,
+                    'application_image' => $sublimation->application_image,
+                ],
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Aplicação atualizada com sucesso!',
+                'order_id' => $sublimation->orderItem->order_id,
+                'sublimation' => $sublimation,
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => implode(', ', collect($e->errors())->flatten()->all()) ?: 'Dados inválidos.',
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Erro ao atualizar aplicação no modal do kanban: ' . $e->getMessage(), [
+                'sublimation_id' => $id,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro interno do servidor. Tente novamente mais tarde.',
             ], 500);
         }
     }
@@ -390,6 +508,28 @@ class ClientController extends Controller
 
             if ($tenantId !== null) {
                 $query->whereHas('order', function ($orderQuery) use ($tenantId) {
+                    $orderQuery->where('tenant_id', $tenantId);
+                });
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        }
+
+        return $query->firstOrFail();
+    }
+
+    private function findOrderSublimationForCurrentUser(int $id): OrderSublimation
+    {
+        $query = OrderSublimation::query()
+            ->whereKey($id)
+            ->with('orderItem.order');
+
+        $user = Auth::user();
+        if (!$user || !$user->isAdminGeral()) {
+            $tenantId = $user?->tenant_id;
+
+            if ($tenantId !== null) {
+                $query->whereHas('orderItem.order', function ($orderQuery) use ($tenantId) {
                     $orderQuery->where('tenant_id', $tenantId);
                 });
             } else {

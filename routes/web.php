@@ -197,6 +197,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/order-items/{id}', [\App\Http\Controllers\Api\ClientController::class, 'getOrderItem'])->name('order-items.show');
     Route::post('/order-items/{id}/cover-image', [\App\Http\Controllers\Api\ClientController::class, 'updateItemCoverImage'])->name('order-items.cover-image.update');
     Route::post('/order-items/{id}/art-name', [\App\Http\Controllers\Api\ClientController::class, 'updateArtName'])->name('order-items.art-name.update');
+    Route::post('/order-sublimations/{id}/details', [\App\Http\Controllers\Api\ClientController::class, 'updateSublimationDetails'])->name('order-sublimations.details.update');
 
     // Wizard de Pedido (6 etapas)
     Route::prefix('pedidos')->group(function () {
