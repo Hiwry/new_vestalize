@@ -1178,7 +1178,10 @@
             <div class="p-8">
                 <div class="flex flex-col items-center text-center mb-8">
                     <div class="w-20 h-20 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-[2rem] flex items-center justify-center text-indigo-500 mb-6 border border-indigo-500/20">
-                        <i class="fa-solid fa-arrows-spin text-3xl"></i>
+                        <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h11m0 0L12 4m3 3-3 3" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 17H9m0 0 3 3m-3-3 3-3" />
+                        </svg>
                     </div>
                     <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">
                         Mover Pedido
