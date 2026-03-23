@@ -159,7 +159,7 @@
 
         /* Sub-sections and Inputs */
         .bg-gray-50,
-        input:not([type="color"]), select, textarea {
+        input:not([type="color"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), select, textarea {
             background-color: var(--input-bg);
             border-color: var(--border);
         }
@@ -186,7 +186,7 @@
 
         .dark .bg-gray-700, .dark .bg-slate-700, .dark .bg-zinc-700,
         .dark .bg-gray-50, .dark .bg-gray-600,
-        .dark input:not([type="color"]), .dark select, .dark textarea {
+        .dark input:not([type="color"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), .dark select, .dark textarea {
             background-color: var(--input-bg) !important;
             border-color: var(--border) !important;
         }
@@ -208,7 +208,7 @@
         .shadow, .shadow-sm, .shadow-md, .shadow-lg { box-shadow: var(--shadow) !important; }
         .rounded-lg, .rounded-xl, .rounded-2xl { border-radius: 16px !important; }
         /* Inputs */
-        input:not([type="color"]), select, textarea {
+        input:not([type="color"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), select, textarea {
             background-color: var(--input-bg) !important;
             color: var(--foreground);
             border-color: var(--border) !important;
@@ -416,6 +416,162 @@
         }
         .hover-scale:active {
             transform: scale(0.98);
+        }
+
+        .admin-check-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--foreground);
+            cursor: pointer;
+        }
+
+        .admin-check-label.items-start {
+            align-items: flex-start;
+        }
+
+        .admin-check-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .admin-check-ui {
+            position: relative;
+            width: 1.05rem;
+            height: 1.05rem;
+            border-radius: 0.3rem;
+            border: 2px solid rgba(51, 65, 85, 0.9);
+            background: rgba(255, 255, 255, 0.98);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 0.08rem;
+            transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .admin-check-ui::after {
+            content: '';
+            width: 0.3rem;
+            height: 0.58rem;
+            border-right: 3px solid #fff;
+            border-bottom: 3px solid #fff;
+            transform: rotate(45deg) scale(0);
+            transform-origin: center;
+            transition: transform 0.18s ease;
+            margin-top: -0.08rem;
+        }
+
+        .admin-check-input:focus-visible + .admin-check-ui {
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.18);
+        }
+
+        .admin-check-input:checked + .admin-check-ui {
+            border-color: var(--brand-primary);
+            background: var(--brand-primary);
+        }
+
+        .admin-check-input:checked + .admin-check-ui::after {
+            transform: rotate(45deg) scale(1);
+        }
+
+        .admin-check-input:indeterminate + .admin-check-ui {
+            border-color: var(--brand-primary);
+            background: var(--brand-primary);
+        }
+
+        .admin-check-input:indeterminate + .admin-check-ui::after {
+            width: 0.5rem;
+            height: 0;
+            border-right: 0;
+            border-bottom: 3px solid #fff;
+            transform: scale(1);
+            margin-top: 0;
+        }
+
+        .admin-check-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            min-width: 0;
+        }
+
+        .admin-check-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            line-height: 1.35;
+            color: var(--foreground);
+        }
+
+        .admin-check-hint {
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: var(--muted);
+        }
+
+        .admin-check-panel {
+            border: 1px solid var(--border);
+            background: var(--input-bg);
+            border-radius: 1rem;
+            padding: 0.85rem;
+        }
+
+        .admin-check-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.65rem 0.8rem;
+            border-radius: 0.9rem;
+            color: var(--foreground);
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .admin-check-option:hover {
+            background: rgba(124, 58, 237, 0.08);
+        }
+
+        .admin-check-option + .admin-check-option {
+            margin-top: 0.2rem;
+        }
+
+        .admin-check-option[data-checked='true'] {
+            background: rgba(124, 58, 237, 0.12);
+        }
+
+        .admin-check-select-all {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .dark .admin-check-option:hover {
+            background: rgba(124, 58, 237, 0.16);
+        }
+
+        .dark .admin-check-option[data-checked='true'] {
+            background: rgba(124, 58, 237, 0.2);
+        }
+
+        .dark .admin-check-ui {
+            border-color: rgba(148, 163, 184, 0.65);
+            background: rgba(15, 23, 42, 0.98);
         }
         
         /* ========================================

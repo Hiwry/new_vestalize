@@ -84,41 +84,42 @@
                 @endif
 
                 @if($option->type === 'tipo_corte')
-                <div class="flex items-center">
+                <label for="sem_acrescimo" class="admin-check-label items-start">
                     <input type="checkbox" id="sem_acrescimo" name="sem_acrescimo"
-                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-slate-600 rounded"
+                           class="admin-check-input"
                            {{ old('sem_acrescimo', $option->sem_acrescimo) ? 'checked' : '' }}>
-                    <label for="sem_acrescimo" class="ml-2 block text-sm text-gray-900 dark:text-white">
-                        Sem acréscimo de GG / EXG / Especial
-                    </label>
-                    <p class="ml-4 text-xs text-gray-500 dark:text-gray-400">Marque se este modelo não cobra acréscimo por tamanho especial.</p>
-                </div>
+                    <span class="admin-check-ui" aria-hidden="true"></span>
+                    <span class="admin-check-copy">
+                        <span class="admin-check-title">Sem acréscimo de GG / EXG / Especial</span>
+                        <span class="admin-check-hint">Marque se este modelo não cobra acréscimo por tamanho especial.</span>
+                    </span>
+                </label>
                 @endif
 
 
                 @if(count($parents) > 0)
                     <div>
-                        <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center justify-between mb-2 gap-3">
                             <label class="block text-xs text-gray-600 dark:text-slate-400 font-medium">{{ $parentLabel }} * (selecione um ou mais)</label>
-                            <label class="flex items-center cursor-pointer">
-                                <input type="checkbox" id="select_all_parents" class="h-3 w-3 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-slate-600 rounded">
-                                <span class="ml-1.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Selecionar Todos</span>
+                            <label for="select_all_parents" class="admin-check-select-all">
+                                <input type="checkbox" id="select_all_parents" class="admin-check-input">
+                                <span class="admin-check-ui" aria-hidden="true"></span>
+                                <span>Selecionar Todos</span>
                             </label>
                         </div>
-                        <div class="border border-gray-300 dark:border-slate-600 rounded-lg p-4 max-h-48 overflow-y-auto bg-white dark:bg-slate-800">
+                        <div class="admin-check-panel max-h-48 overflow-y-auto">
                             @foreach($parents as $parent)
-                                <div class="flex items-center mb-2 last:mb-0">
+                                <label for="parent_{{ $parent->id }}" class="admin-check-option" data-parent-option>
                                     <input type="checkbox" 
                                            id="parent_{{ $parent->id }}" 
                                            name="parent_ids[]" 
                                            data-parent-checkbox
                                            value="{{ $parent->id }}"
                                            {{ in_array($parent->id, old('parent_ids', $option->parents->pluck('id')->toArray())) ? 'checked' : '' }}
-                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-slate-600 rounded">
-                                    <label for="parent_{{ $parent->id }}" class="ml-2 block text-sm text-gray-900 dark:text-white">
-                                        {{ $parent->name }}
-                                    </label>
-                                </div>
+                                         class="admin-check-input">
+                                     <span class="admin-check-ui" aria-hidden="true"></span>
+                                    <span class="admin-check-title text-sm">{{ $parent->name }}</span>
+                                </label>
                             @endforeach
                         </div>
 
@@ -127,12 +128,18 @@
                             (function() {
                                 const selectAllCb = document.getElementById('select_all_parents');
                                 const parentCbs = document.querySelectorAll('[data-parent-checkbox]');
+                                const syncParentOptionState = () => {
+                                    parentCbs.forEach(cb => {
+                                        cb.closest('[data-parent-option]')?.setAttribute('data-checked', cb.checked ? 'true' : 'false');
+                                    });
+                                };
 
                                 if (selectAllCb) {
                                     selectAllCb.addEventListener('change', function() {
                                         parentCbs.forEach(cb => {
                                             cb.checked = selectAllCb.checked;
                                         });
+                                        syncParentOptionState();
                                     });
 
                                     // Update select all state based on individual checkboxes
@@ -141,6 +148,7 @@
                                         const someChecked = Array.from(parentCbs).some(cb => cb.checked);
                                         selectAllCb.checked = allChecked;
                                         selectAllCb.indeterminate = someChecked && !allChecked;
+                                        syncParentOptionState();
                                     };
 
                                     parentCbs.forEach(cb => {

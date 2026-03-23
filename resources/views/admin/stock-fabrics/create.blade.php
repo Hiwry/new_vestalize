@@ -41,9 +41,13 @@
                 </div>
             </div>
 
-            <label class="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
-                <input type="checkbox" name="active" value="1" {{ old('active', true) ? 'checked' : '' }} class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                Ativo
+            <label for="active" class="admin-check-label items-start">
+                <input type="checkbox" id="active" name="active" value="1" {{ old('active', true) ? 'checked' : '' }} class="admin-check-input">
+                <span class="admin-check-ui" aria-hidden="true"></span>
+                <span class="admin-check-copy">
+                    <span class="admin-check-title">Ativo</span>
+                    <span class="admin-check-hint">Mantém esse tipo de tecido disponível para uso no estoque e nas peças.</span>
+                </span>
             </label>
 
             <div class="flex justify-end gap-3 pt-4">
