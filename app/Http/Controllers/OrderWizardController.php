@@ -674,9 +674,6 @@ class OrderWizardController extends Controller
                     }
                     $item->sublimations()->delete();
 
-                    // Remover arquivos gerais do item e resetar nome da arte
-                    $item->files()->delete();
-                    $item->update(['art_name' => null]);
                 }
 
                 session()->put('customization_cleaned_'.$orderId, true);
@@ -763,8 +760,23 @@ class OrderWizardController extends Controller
             // Buscar configurações de personalização (charge_by_color, etc.)
             $personalizationSettings = \App\Models\PersonalizationSetting::all()->keyBy('personalization_type');
             
+            $orderArtData = [];
+            foreach ($order->items as $item) {
+                $orderArtData[$item->id] = [
+                    'art_name' => $item->art_name,
+                    'art_notes' => $item->art_notes,
+                    'cover_image' => $item->cover_image,
+                    'files' => $item->files->map(function ($file) {
+                        return [
+                            'name' => $file->file_name,
+                            'url' => asset('storage/' . ltrim($file->file_path, '/')),
+                        ];
+                    })->values(),
+                ];
+            }
+            
             // Usar view unificada que mostra todas as personalizações
-            return view('orders.wizard.customization-multiple', compact('order', 'itemPersonalizations', 'personalizationData', 'locations', 'specialOptions', 'personalizationSettings', 'personalizationLookup'));
+            return view('orders.wizard.customization-multiple', compact('order', 'itemPersonalizations', 'personalizationData', 'locations', 'specialOptions', 'personalizationSettings', 'personalizationLookup', 'orderArtData'));
         }
 
         if ($request->input('action') === 'save_order_art') {
@@ -773,7 +785,7 @@ class OrderWizardController extends Controller
                 'item_id' => 'required|exists:order_items,id',
                 'order_art_name' => 'nullable|string|max:255',
                 'order_art_files' => 'nullable|array',
-                'order_art_files.*' => 'nullable|file|max:51200',
+                'order_art_files.*' => 'nullable|file|max:51200|mimes:cdr,ai,eps,pdf,psd,jpg,jpeg,png,webp',
                 'apply_all_items' => 'nullable|boolean',
             ]);
 

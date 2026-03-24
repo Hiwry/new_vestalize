@@ -82,6 +82,56 @@ class OrderService
         return $order->fresh();
     }
 
+    public static function resetClientConfirmationAfterEdit(Order $order): Order
+    {
+        $pendenteStatus = Status::withoutGlobalScopes()
+            ->where('tenant_id', $order->tenant_id)
+            ->where('name', 'Pendente')
+            ->first();
+
+        if (!$pendenteStatus) {
+            $pendenteStatus = Status::withoutGlobalScopes()
+                ->where('tenant_id', $order->tenant_id)
+                ->orderBy('position')
+                ->first();
+        }
+
+        $oldStatus = $order->status;
+
+        $order->update([
+            'client_confirmed' => false,
+            'client_confirmed_at' => null,
+            'client_confirmation_notes' => null,
+            'status_id' => $pendenteStatus?->id ?? $order->status_id,
+        ]);
+
+        OrderLog::create([
+            'order_id' => $order->id,
+            'user_id' => Auth::id(),
+            'user_name' => Auth::user()->name ?? 'Sistema',
+            'action' => 'CLIENT_RECONFIRMATION_REQUIRED',
+            'description' => 'Pedido editado e enviado para nova confirmação do cliente.',
+        ]);
+
+        if ($pendenteStatus && $oldStatus && $oldStatus->id !== $pendenteStatus->id) {
+            OrderLog::create([
+                'order_id' => $order->id,
+                'user_id' => Auth::id(),
+                'user_name' => Auth::user()->name ?? 'Sistema',
+                'action' => 'status_changed',
+                'description' => sprintf(
+                    'Status alterado de "%s" para "%s" após edição do pedido.',
+                    $oldStatus->name ?? 'N/A',
+                    $pendenteStatus->name
+                ),
+                'old_value' => ['status' => $oldStatus->name],
+                'new_value' => ['status' => $pendenteStatus->name],
+            ]);
+        }
+
+        return $order->fresh();
+    }
+
     /**
      * Cancelar um pedido
      * 

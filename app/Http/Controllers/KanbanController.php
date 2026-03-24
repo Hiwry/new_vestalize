@@ -318,6 +318,7 @@ class KanbanController extends Controller
                 'total',
                 'cover_image',
                 'edit_status',
+                'is_modified',
                 'stock_status',
                 'stock_separation_status',
                 'is_event',
@@ -680,6 +681,7 @@ class KanbanController extends Controller
             'pending_delivery_request' => $order->pendingDeliveryRequest,
             'seller' => $order->seller,
             'edit_status' => $order->edit_status,
+            'is_modified' => (bool) $order->is_modified,
             'has_manual_edits' => $order->logs->contains(function ($log) {
                 return in_array($log->action, [
                     'art_name_updated',

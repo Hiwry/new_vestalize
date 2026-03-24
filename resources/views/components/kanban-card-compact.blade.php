@@ -106,6 +106,12 @@
                     <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded">
                         #{{ str_pad($order->id, 5, '0', STR_PAD_LEFT) }}
                     </span>
+
+                    @if($order->is_modified)
+                        <span class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 rounded font-medium">
+                            EDITADO
+                        </span>
+                    @endif
                     
                     @if($order->is_event)
                         <span class="text-[10px] px-1.5 py-0.5 bg-purple-600 text-white dark:bg-purple-600 dark:text-white rounded font-medium">

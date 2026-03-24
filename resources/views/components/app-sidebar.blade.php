@@ -493,7 +493,7 @@
                 class="flex items-center rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all group w-full"
                 :class="expanded ? 'p-2 justify-start' : 'justify-center mx-auto py-2'"
                 title="Meu Perfil">
-            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-black text-xs group-hover:scale-105 transition-transform">
+            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-white font-black text-xs group-hover:scale-105 transition-transform">
                 {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
             </div>
             <div class="flex flex-col items-start ml-3 overflow-hidden text-nowrap" x-show="expanded">

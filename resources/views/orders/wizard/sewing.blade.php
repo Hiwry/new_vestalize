@@ -1010,7 +1010,55 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                         <div id="fullpage-step-2" class="fullpage-sub-step hidden space-y-4">
                                             <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
                                                 <div class="xl:col-span-2 space-y-4">
-                                                    <div>
+                                                    <div id="fullpage-shirt-sizes-section">
+                                                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Tamanhos</label>
+                                                        <div class="grid grid-cols-5 gap-2 mb-2">
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">PP</label>
+                                                                <input type="number" data-size="PP" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-purple-400 focus:border-purple-400">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">P</label>
+                                                                <input type="number" data-size="P" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-purple-400 focus:border-purple-400">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">M</label>
+                                                                <input type="number" data-size="M" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-purple-400 focus:border-purple-400">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G</label>
+                                                                <input type="number" data-size="G" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-purple-400 focus:border-purple-400">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">GG</label>
+                                                                <input type="number" data-size="GG" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-purple-400 focus:border-purple-400">
+                                                            </div>
+                                                        </div>
+                                                        <div class="grid grid-cols-5 gap-2">
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">EXG</label>
+                                                                <input type="number" data-size="EXG" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-purple-400 focus:border-purple-400">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G1</label>
+                                                                <input type="number" data-size="G1" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-purple-400 focus:border-purple-400">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G2</label>
+                                                                <input type="number" data-size="G2" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-purple-400 focus:border-purple-400">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">G3</label>
+                                                                <input type="number" data-size="G3" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-purple-400 focus:border-purple-400">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 dark:text-slate-400 mb-1 font-medium text-center">Esp.</label>
+                                                                <input type="number" data-size="Especial" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-purple-400 focus:border-purple-400">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div id="fullpage-dimension-qty-section" class="hidden">
                                                         <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Quantidade</label>
                                                         <input type="number" data-size="QTD" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-3 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-base bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-purple-400 focus:border-purple-400">
                                                     </div>
@@ -4518,6 +4566,34 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             .toUpperCase();
     }
 
+    function fullpageSubUsesDimensionPricing(typeSlug = document.getElementById('fullpage_sub_type')?.value || '') {
+        return String(typeSlug || '').trim().toLowerCase() === 'bandeira';
+    }
+
+    function toggleFullpageQuantityMode(typeSlug = document.getElementById('fullpage_sub_type')?.value || '') {
+        const usesDimensionPricing = fullpageSubUsesDimensionPricing(typeSlug);
+        const shirtSection = document.getElementById('fullpage-shirt-sizes-section');
+        const dimensionSection = document.getElementById('fullpage-dimension-qty-section');
+
+        if (shirtSection) {
+            shirtSection.classList.toggle('hidden', usesDimensionPricing);
+            if (usesDimensionPricing) {
+                shirtSection.querySelectorAll('.fullpage-sub-size').forEach(input => {
+                    input.value = 0;
+                });
+            }
+        }
+
+        if (dimensionSection) {
+            dimensionSection.classList.toggle('hidden', !usesDimensionPricing);
+            if (!usesDimensionPricing) {
+                dimensionSection.querySelectorAll('.fullpage-sub-size').forEach(input => {
+                    input.value = 0;
+                });
+            }
+        }
+    }
+
     function getFullpageAvailableModelOptions() {
         const models = Array.isArray(fullpageSubTypeMeta?.models)
             ? fullpageSubTypeMeta.models
@@ -5004,12 +5080,20 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             }
         });
 
-        // Single quantity input: sum all sizes from the saved item
-        const qtyInput = document.querySelector('.fullpage-sub-size');
-        if (qtyInput) {
-            const totalSaved = Object.values(itemSizes).reduce((sum, v) => sum + (parseInt(v, 10) || 0), 0);
-            qtyInput.value = totalSaved || 0;
-        }
+        const usesDimensionPricing = fullpageSubUsesDimensionPricing(typeSlug);
+        const totalSaved = Object.values(itemSizes).reduce((sum, v) => sum + (parseInt(v, 10) || 0), 0);
+
+        document.querySelectorAll('.fullpage-sub-size').forEach(input => {
+            const sizeKey = String(input.dataset.size || '').trim();
+            if (!sizeKey) return;
+
+            if (usesDimensionPricing) {
+                input.value = sizeKey === 'QTD' ? (totalSaved || 0) : 0;
+                return;
+            }
+
+            input.value = parseInt(itemSizes[sizeKey], 10) || 0;
+        });
 
         const notesInput = document.getElementById('fullpage_notes');
         if (notesInput) {
@@ -5261,6 +5345,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         // ── Populate model and collar dropdowns from API response ──
         const modelSelect = document.getElementById('fullpage_sub_model');
         const collarSelect = document.getElementById('fullpage_sub_base_collar');
+        const usesDimensionPricing = fullpageSubUsesDimensionPricing(typeSlug);
 
         if (modelSelect) {
             const currentVal = modelSelect.value;
@@ -5274,7 +5359,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 opt.textContent = m;
                 // Store price directly so lookup doesn't depend on string key match
                 const p = sizePricesForOptions[m];
-                if (p != null) opt.dataset.price = p;
+                if (usesDimensionPricing && p != null) opt.dataset.price = p;
                 if (m === currentVal) opt.selected = true;
                 modelSelect.appendChild(opt);
             });
@@ -5301,6 +5386,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 });
             }
         }
+
+        toggleFullpageQuantityMode(typeSlug);
+        calculateFullpageSubTotal();
     }
     window.loadFullpageSubAddons = loadFullpageSubAddons;
 
@@ -5340,10 +5428,10 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             return sum + (addon ? (parseFloat(addon.price) || 0) : 0);
         }, 0);
         const sizePrices = fullpageSubTypeMeta.sizePrices || {};
-        const hasSizePrices = Object.keys(sizePrices).length > 0;
+        const usesDimensionPricing = fullpageSubUsesDimensionPricing(typeSlug);
 
-        if (hasSizePrices) {
-            // Model/dimension-based pricing (e.g. Bandeira): price comes from the selected model
+        if (usesDimensionPricing) {
+            // Dimension-based pricing (e.g. Bandeira): price comes from the selected model/dimension
             const modelEl = document.getElementById('fullpage_sub_model');
             const selectedModel = modelEl?.value || '';
             // Prefer data-price attribute (set on option element) to avoid key mismatch
@@ -5686,6 +5774,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         if (breakdownReviewEl) breakdownReviewEl.textContent = 'Base R$ 0,00 + Adicionais R$ 0,00 + Tecido R$ 0,00';
 
         toggleFullpageSpecialFabric();
+        toggleFullpageQuantityMode('');
         fullpageSubEditingItemId = '';
         setFullpageSubmitButtonMode('add');
         setFullpageSubStep(1);

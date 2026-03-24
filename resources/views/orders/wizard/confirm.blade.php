@@ -3,14 +3,15 @@
 @push('styles')
 <style>
     .ow-shell {
-        --sh-surface-from: #f3f4f8;
-        --sh-surface-to: #eceff4;
-        --sh-surface-border: #d8dce6;
+        --sh-surface-from: #fcfcfe;
+        --sh-surface-to: #f6f8fc;
+        --sh-surface-border: #dbe4f0;
         --sh-text-primary: #0f172a;
         --sh-text-secondary: #64748b;
         --sh-card-bg: #ffffff;
-        --sh-card-border: #dde2ea;
-        --sh-card-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        --sh-card-border: #d9e3f1;
+        --sh-card-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+        --sh-input-bg: #ffffff;
         --sh-accent: #7c3aed;
         --sh-accent-strong: #6d28d9;
         
@@ -104,7 +105,7 @@
         align-items: center;
         line-height: 1;
         text-align: center;
-        background: rgba(15, 23, 42, 0.22);
+        background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
     }
 
     .ow-size-chip-label {
@@ -124,7 +125,7 @@
         font-size: 1.15rem;
         font-weight: 900;
         line-height: 1;
-        color: #e5edf8;
+        color: #0f172a;
     }
 
     .ow-size-chip[data-size="PP"] .ow-size-chip-label { background: #ff8c00; }
@@ -142,6 +143,40 @@
     .dark .ow-size-chip {
         background: rgba(15, 23, 42, 0.38);
         border-color: rgba(148, 163, 184, 0.16);
+    }
+
+    .dark .ow-size-chip-qty {
+        color: #e5edf8;
+    }
+
+    .ow-field-panel {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%);
+        border-color: var(--sh-card-border) !important;
+        box-shadow: var(--sh-card-shadow);
+    }
+
+    .ow-item-panel {
+        background: #ffffff;
+        border-color: #e6edf7 !important;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .ow-payment-row {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        border-color: #e4ebf5 !important;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    }
+
+    .ow-surcharge-box {
+        background: #f8fbff;
+        border-color: #dbe7f5 !important;
+    }
+
+    .dark .ow-field-panel,
+    .dark .ow-item-panel,
+    .dark .ow-payment-row,
+    .dark .ow-surcharge-box {
+        box-shadow: none;
     }
 
     html.dark.avento-theme .ow-shell .ow-size-chip .ow-size-chip-label,
@@ -257,7 +292,7 @@
                         $personalizacaoSubtotal = $item->sublimations->sum('final_price');
                         $itemTotal = ($item->unit_price * $item->quantity) + $personalizacaoSubtotal;
                     @endphp
-                    <div class="border border-gray-100 dark:border-slate-700/50 rounded-xl p-4 ow-field-panel">
+                    <div class="border border-gray-100 dark:border-slate-700/50 rounded-xl p-4 ow-field-panel ow-item-panel">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex flex-col">
                                 <span class="text-xs font-semibold text-[#7c3aed] dark:text-purple-400 uppercase tracking-widest">ITEM {{ $index + 1 }}</span>
@@ -339,7 +374,7 @@
                             </div>
 
                             @if(!empty($itemSurcharges))
-                            <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2 border border-dashed border-gray-200 dark:border-gray-700">
+                            <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2 border border-dashed border-gray-200 dark:border-gray-700 ow-surcharge-box">
                                 <span class="text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1 block">Acréscimos de Tamanho Especial:</span>
                                 <div class="flex flex-wrap gap-x-4 gap-y-1">
                                     @foreach($itemSurcharges as $size => $data)
@@ -384,7 +419,7 @@
                 <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Pagamento</h2>
                 <div class="space-y-2">
                     @foreach($payment as $paymentItem)
-                    <div class="flex items-center justify-between text-sm bg-[var(--sh-input-bg)] p-3 rounded-full border border-[var(--sh-card-border)] shadow-sm">
+                    <div class="flex items-center justify-between text-sm bg-[var(--sh-input-bg)] p-3 rounded-full border border-[var(--sh-card-border)] shadow-sm ow-payment-row">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 bg-purple-500/10 rounded-full flex items-center justify-center">
                                 @php

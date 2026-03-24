@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Services\ImageProcessor;
+use App\Services\OrderService;
 use App\Services\OrderWizardService;
 use Illuminate\Validation\Rule;
 
@@ -386,7 +387,7 @@ class EditOrderController extends Controller
                             'item_id'        => 'required|exists:order_items,id',
                             'order_art_name' => 'nullable|string|max:255',
                             'order_art_files' => 'nullable|array',
-                            'order_art_files.*' => 'nullable|file|max:51200',
+                            'order_art_files.*' => 'nullable|file|max:51200|mimes:cdr,ai,eps,pdf,psd,jpg,jpeg,png,webp',
                             'apply_all_items' => 'nullable|boolean',
                         ]);
 
@@ -639,6 +640,12 @@ class EditOrderController extends Controller
                     'art_name' => $item->art_name,
                     'art_notes' => $item->art_notes,
                     'cover_image' => $item->cover_image,
+                    'files' => $item->files->map(function ($file) {
+                        return [
+                            'name' => $file->file_name,
+                            'url' => asset('storage/' . ltrim($file->file_path, '/')),
+                        ];
+                    })->values(),
                 ];
             }
             
@@ -995,6 +1002,9 @@ class EditOrderController extends Controller
             }
 
             // Capturar snapshot DEPOIS da edição e finalizar EditRequest
+            OrderService::resetClientConfirmationAfterEdit($order);
+            $order->refresh();
+
             $editRequest = $order->editRequests()->where('status', 'approved')->first();
             if ($editRequest) {
                 // Recarregar order com relacionamentos para snapshot

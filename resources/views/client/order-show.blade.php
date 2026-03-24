@@ -203,6 +203,17 @@
                     {{ $order->status->name }}
                 </span>
             </div>
+
+            @if($order->is_modified)
+            <div class="mb-3">
+                <span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                    Pedido editado
+                </span>
+                <p class="mt-2 text-xs text-amber-700 dark:text-amber-300">
+                    A confirmacao anterior foi removida porque o pedido foi editado.
+                </p>
+            </div>
+            @endif
             
             @if($order->client_confirmed)
             <div class="bg-gray-50 dark:bg-green-900/20 border border-gray-200 dark:border-green-800 rounded p-3 mb-3">
@@ -600,10 +611,15 @@
         <!-- Confirmação do Pedido -->
         @if(!$order->client_confirmed)
         <div class="bg-gray-50 dark:bg-yellow-900/20 border border-gray-200 dark:border-yellow-800 rounded p-4 mb-4">
-            <h2 class="text-base font-semibold mb-3 text-gray-900 dark:text-yellow-300">Confirme Seu Pedido</h2>
+            <h2 class="text-base font-semibold mb-3 text-gray-900 dark:text-yellow-300">{{ $order->is_modified ? 'Confirme a edição do seu pedido' : 'Confirme Seu Pedido' }}</h2>
             <p class="text-gray-600 dark:text-yellow-400 mobile-text-sm mb-4">
-                Por favor, confirme se os dados do seu pedido estão corretos. Esta confirmação é importante para prosseguirmos com a produção.
+                {{ $order->is_modified ? 'Seu pedido foi editado. Revise as alterações e confirme novamente para prosseguirmos com a produção.' : 'Por favor, confirme se os dados do seu pedido estão corretos. Esta confirmação é importante para prosseguirmos com a produção.' }}
             </p>
+            @if($order->is_modified)
+            <p class="text-xs text-amber-700 dark:text-amber-300 mb-4 font-medium">
+                A sua confirmação anterior foi cancelada automaticamente por causa da edição.
+            </p>
+            @endif
             
             <form method="POST" action="{{ route('client.order.confirm', $order->client_token) }}" id="client-confirm-form">
                 @csrf
@@ -663,7 +679,7 @@
                 
                 <button type="submit" 
                         class="w-full mt-4 bg-primary hover:opacity-90 text-white py-3 px-4 rounded dark:rounded-lg font-medium mobile-text-sm transition-colors dark:shadow-lg">
-                    Confirmar Pedido
+                    {{ $order->is_modified ? 'Confirmar edição de pedido' : 'Confirmar Pedido' }}
                 </button>
             </form>
         </div>

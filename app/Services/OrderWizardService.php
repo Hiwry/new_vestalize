@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\FabricPiece;
 use App\Models\FabricPieceSale;
 use App\Models\Order;
+use App\Models\OrderFile;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Status;
@@ -18,6 +19,7 @@ use App\Helpers\StoreHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class OrderWizardService
@@ -531,25 +533,68 @@ class OrderWizardService
      */
     public function processSaveOrderArt(OrderItem $item, array $validated, array $files = []): void
     {
+        $artName = filled($validated['order_art_name'] ?? null)
+            ? trim($validated['order_art_name'])
+            : null;
+
         $item->update([
-            'art_name' => filled($validated['order_art_name'] ?? null)
-                ? trim($validated['order_art_name'])
-                : null,
+            'art_name' => $artName,
         ]);
 
+        if ($artName !== null) {
+            $item->sublimations()->update(['art_name' => $artName]);
+        }
+
+        $uploadedFilesBySlot = [];
+
         foreach ($files as $file) {
+            if (!$file) {
+                continue;
+            }
+
+            $uploadedFilesBySlot[$this->resolveOrderArtFileSlot($file->getClientOriginalExtension())] = $file;
+        }
+
+        foreach ($uploadedFilesBySlot as $slot => $file) {
+            $existingFiles = $item->files()
+                ->get()
+                ->filter(fn (OrderFile $existingFile) => $this->resolveOrderArtFileSlot(pathinfo($existingFile->file_name ?: $existingFile->file_path, PATHINFO_EXTENSION)) === $slot);
+
+            foreach ($existingFiles as $existingFile) {
+                if ($existingFile->file_path) {
+                    Storage::disk('public')->delete($existingFile->file_path);
+                }
+
+                $existingFile->delete();
+            }
+
             $originalName = $file->getClientOriginalName();
             $fileName = time() . '_' . uniqid() . '_' . $originalName;
             $filePath = $file->storeAs('orders/art_files', $fileName, 'public');
 
-            \App\Models\OrderFile::create([
+            OrderFile::create([
                 'order_item_id' => $item->id,
                 'file_name' => $originalName,
                 'file_path' => $filePath,
                 'file_type' => $file->getMimeType(),
                 'file_size' => $file->getSize(),
             ]);
+
+            if ($slot === 'corel') {
+                $item->forceFill(['corel_file_path' => $filePath])->save();
+            }
         }
+    }
+
+    protected function resolveOrderArtFileSlot(?string $extension): string
+    {
+        return match (strtolower(trim((string) $extension))) {
+            'cdr', 'ai', 'eps' => 'corel',
+            'pdf' => 'pdf',
+            'psd' => 'psd',
+            'jpg', 'jpeg', 'png', 'webp' => 'image',
+            default => strtolower(trim((string) $extension)) ?: 'other',
+        };
     }
 
     /**
@@ -905,8 +950,9 @@ class OrderWizardService
             ->filter()
             ->join(', ');
 
+        $isFlagType = strtolower((string) ($validated['sublimation_type'] ?? '')) === 'bandeira';
         $typeHasCollars = !empty($typeModel?->collars);
-        if ($typeHasCollars) {
+        if (!$isFlagType) {
             $collarLabel = $baseCollar;
             if ($addonsLabel !== '') {
                 $collarLabel .= ' + ' . $addonsLabel;
@@ -1050,8 +1096,9 @@ class OrderWizardService
             ->filter()
             ->join(', ');
 
+        $isFlagType = strtolower((string) ($validated['sublimation_type'] ?? '')) === 'bandeira';
         $typeHasCollars = !empty($typeModel?->collars);
-        if ($typeHasCollars) {
+        if (!$isFlagType) {
             $collarLabel = $baseCollar;
             if ($addonsLabel !== '') {
                 $collarLabel .= ' + ' . $addonsLabel;

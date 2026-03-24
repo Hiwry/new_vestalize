@@ -2117,7 +2117,7 @@
                                 ${order.store ? `<div><strong class="text-gray-900 dark:text-gray-100">Loja:</strong> <span class="text-gray-700 dark:text-gray-300">${order.store.name}</span></div>` : ''}
                                 <div><strong class="text-gray-900 dark:text-gray-100">Tecido:</strong> <span class="text-gray-700 dark:text-gray-300">${item.fabric}</span></div>
                                 <div><strong class="text-gray-900 dark:text-gray-100">Cor:</strong> <span class="text-gray-700 dark:text-gray-300">${item.color}</span></div>
-                                ${item.collar ? `<div><strong class="text-gray-900 dark:text-gray-100">Gola:</strong> <span class="text-gray-700 dark:text-gray-300">${item.collar}</span></div>` : ''}
+                                ${(item.collar && String(item.collar).trim() !== '-') ? `<div><strong class="text-gray-900 dark:text-gray-100">Gola:</strong> <span class="text-gray-700 dark:text-gray-300">${item.collar}</span></div>` : ''}
                                 ${item.detail ? `<div><strong class="text-gray-900 dark:text-gray-100">Detalhe:</strong> <span class="text-gray-700 dark:text-gray-300">${item.detail}</span></div>` : ''}
                                 ${item.model ? `<div><strong class="text-gray-900 dark:text-gray-100">Tipo de Corte:</strong> <span class="text-gray-700 dark:text-gray-300">${item.model}</span></div>` : ''}
                                 <div><strong class="text-gray-900 dark:text-gray-100">Personalização:</strong> <span class="text-gray-700 dark:text-gray-300">${item.print_type}</span></div>
@@ -2587,7 +2587,7 @@
             const firstArtName = order.items.find(item => item.art_name)?.art_name;
             const deliveryDate = order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('pt-BR') : 'Sem data';
             const isEvent = order.is_event;
-            const showEditedBadge = order.edit_status === 'requested' || order.has_manual_edits;
+            const showEditedBadge = order.is_modified || order.edit_status === 'requested' || order.has_manual_edits;
             
             // Criar título com OS e data à esquerda, nome da arte centralizado (se existir)
             const modalTitle = document.getElementById('modal-title');

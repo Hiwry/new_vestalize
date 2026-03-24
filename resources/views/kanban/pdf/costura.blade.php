@@ -93,6 +93,14 @@
     @foreach($order->items->chunk(2) as $chunk)
     <div class="page">
         @foreach($chunk as $item)
+        @php
+            $printDesc = is_array($item->print_desc) ? $item->print_desc : json_decode($item->print_desc, true);
+            $itemTypeSlug = strtolower((string) ($item->sublimation_type ?? ($printDesc['type'] ?? '')));
+            $resolvedCollar = trim((string) $item->collar);
+            if (($resolvedCollar === '' || $resolvedCollar === '-') && $itemTypeSlug !== 'bandeira') {
+                $resolvedCollar = trim((string) ($printDesc['base_collar'] ?? ''));
+            }
+        @endphp
         <div class="item-container">
             <!-- Corpo com Borda e Margens Internas Compactas -->
             <div style="border: 2px solid #cbd5e1; border-radius: 8px; padding: 10px; margin-top: 2px; height: 98%;">
@@ -132,7 +140,9 @@
                             <table style="width: 100%; font-size: 12px;">
                                 <tr><td style="color: #64748b;">Tecido:</td><td style="font-weight: bold; word-break: break-word;">{{ $item->fabric }}</td></tr>
                                 <tr><td style="color: #64748b;">Cor:</td><td style="font-weight: bold; word-break: break-word;">{{ $item->color }}</td></tr>
-                                <tr><td style="color: #64748b;">Gola:</td><td style="font-weight: bold;">{{ $item->collar }}</td></tr>
+                                @if($resolvedCollar !== '' && $resolvedCollar !== '-')
+                                <tr><td style="color: #64748b;">Gola:</td><td style="font-weight: bold;">{{ $resolvedCollar }}</td></tr>
+                                @endif
                                 <tr><td style="color: #64748b;">Modelo:</td><td style="font-weight: bold;">{{ $item->model }}</td></tr>
                                 @if($item->print_type)
                                 <tr><td style="color: #64748b;">Tipo:</td><td style="font-weight: bold; color: #6366f1;">{{ $item->print_type }}</td></tr>

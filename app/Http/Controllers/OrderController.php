@@ -11,6 +11,7 @@ use App\Models\OrderFile;
 use App\Models\OrderLog;
 use App\Models\OrderSublimationFile;
 use App\Helpers\StoreHelper;
+use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -709,6 +710,8 @@ class OrderController extends Controller
         ]);
 
         // Registrar mudanças no histórico
+        OrderService::resetClientConfirmationAfterEdit($order);
+
         if (!empty($changes)) {
             \App\Models\OrderEditHistory::create([
                 'order_id' => $order->id,

@@ -7,6 +7,7 @@ use App\Models\OrderEditRequest;
 use App\Models\OrderLog;
 use App\Models\Notification;
 use App\Models\User;
+use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -517,6 +518,8 @@ class OrderEditRequestController extends Controller
                 'is_modified' => true,
                 'last_modified_at' => now()
             ]);
+
+            OrderService::resetClientConfirmationAfterEdit($editRequest->order);
 
             // Criar log detalhado com as diferenças
             OrderLog::create([

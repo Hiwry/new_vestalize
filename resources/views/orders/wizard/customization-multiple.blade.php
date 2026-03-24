@@ -859,9 +859,9 @@
                                     </svg>
                                 </div>
                                 Arquivos
-                                <span class="text-xs font-normal text-gray-400 dark:text-slate-500">(Corel, PDF)</span>
+                                <span class="text-xs font-normal text-gray-400 dark:text-slate-500">(1 por tipo: Corel, PDF, PSD, imagem)</span>
                             </label>
-                            <input id="order_art_files" type="file" name="order_art_files[]" multiple accept=".cdr,.pdf,.ai,.eps"
+                            <input id="order_art_files" type="file" name="order_art_files[]" multiple accept=".cdr,.pdf,.ai,.eps,.psd,.jpg,.jpeg,.png,.webp"
                                    class="w-full h-11 flex items-center text-sm text-gray-600 dark:text-slate-300 file:mr-3 file:h-full file:py-0 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 dark:file:bg-emerald-900/30 dark:file:text-emerald-400 hover:file:bg-emerald-100 dark:hover:file:bg-emerald-900/50 cursor-pointer border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-[#7c3aed]">
                         </div>
                         
@@ -1093,7 +1093,11 @@
                                 </div>
                             </div>
 
-                            @if($item->art_name || ($item->files && $item->files->count()))
+                            @php
+                                $itemPrintDesc = is_array($item->print_desc) ? $item->print_desc : (is_string($item->print_desc) ? json_decode($item->print_desc, true) : []);
+                                $corelPath = $item->corel_file_path ?: ($itemPrintDesc['corel_file'] ?? null);
+                            @endphp
+                            @if($item->art_name || ($item->files && $item->files->count()) || $corelPath)
                                 <div class="ow-soft-panel ow-art-summary mt-3 mx-5 p-4 rounded-2xl border border-gray-200 dark:border-slate-700">
                                     @if($item->art_name)
                                         <p class="text-sm text-gray-800 dark:text-slate-200 mb-2">
@@ -1110,6 +1114,16 @@
                                                         {{ $file->file_name }}
                                                     </a>
                                                 @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+                                    @if($corelPath)
+                                        <div class="{{ ($item->files && $item->files->count()) ? 'mt-3' : '' }}">
+                                            <p class="text-xs font-semibold text-gray-600 dark:text-slate-400 mb-2">Arquivo base do item</p>
+                                            <div class="flex flex-wrap gap-2">
+                                                <a href="{{ asset('storage/' . ltrim($corelPath, '/')) }}" target="_blank" class="inline-flex items-center px-2.5 py-1 text-xs bg-purple-50 dark:bg-purple-900/30 text-[#7c3aed] dark:text-[#a78bfa] rounded-md border border-purple-100 dark:border-purple-800 hover:bg-purple-100 dark:hover:bg-purple-800/70 transition">
+                                                    {{ basename($corelPath) }}
+                                                </a>
                                             </div>
                                         </div>
                                     @endif
@@ -1651,14 +1665,32 @@
 
 @php
     $orderArtData = $order->items->mapWithKeys(function($item) {
+        $printDesc = is_array($item->print_desc) ? $item->print_desc : (is_string($item->print_desc) ? json_decode($item->print_desc, true) : []);
+        $corelPath = $item->corel_file_path ?: ($printDesc['corel_file'] ?? null);
+        $files = $item->files->map(function($file) {
+            return [
+                'name' => $file->file_name,
+                'url' => asset('storage/' . $file->file_path),
+            ];
+        })->values()->all();
+
+        if ($corelPath) {
+            $alreadyListed = collect($files)->contains(function ($file) use ($corelPath) {
+                return ($file['url'] ?? null) === asset('storage/' . ltrim($corelPath, '/'));
+            });
+
+            if (!$alreadyListed) {
+                $files[] = [
+                    'name' => basename($corelPath),
+                    'url' => asset('storage/' . ltrim($corelPath, '/')),
+                ];
+            }
+        }
+
         return [$item->id => [
             'art_name' => $item->art_name,
-            'files' => $item->files->map(function($file) {
-                return [
-                    'name' => $file->file_name,
-                    'url' => asset('storage/' . $file->file_path),
-                ];
-            })->values(),
+            'cover_image' => $item->cover_image_url,
+            'files' => array_values($files),
         ]];
     });
 @endphp
@@ -1713,10 +1745,22 @@
             if (!artPreview) return;
             const data = orderArtData[itemId] || {};
             const files = data.files || [];
+            const coverImage = data.cover_image || '';
             let html = '';
 
             if (data.art_name) {
                 html += `<p class="mb-2 text-sm text-gray-700 dark:text-slate-200"><strong class="text-gray-900 dark:text-white">Nome da Arte:</strong> <span class="text-gray-800 dark:text-slate-200">${data.art_name}</span></p>`;
+            }
+
+            if (coverImage) {
+                html += `
+                    <div class="space-y-2 mb-3">
+                        <p class="text-xs font-semibold text-gray-600 dark:text-slate-400">Item de referencia</p>
+                        <a href="${coverImage}" target="_blank" class="inline-flex">
+                            <img src="${coverImage}" alt="Referencia do item" class="h-20 w-20 rounded-lg object-cover border border-gray-200 dark:border-slate-700">
+                        </a>
+                    </div>
+                `;
             }
 
             if (files.length) {

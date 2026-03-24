@@ -5,6 +5,41 @@
         .dark {
             color-scheme: dark;
         }
+
+        .order-edit-alert {
+            background: #fef3c7 !important;
+            border-color: #f59e0b !important;
+        }
+
+        .order-edit-alert-title {
+            color: #78350f !important;
+        }
+
+        .order-edit-alert-text {
+            color: #92400e !important;
+        }
+
+        .order-edit-alert-link {
+            color: #b45309 !important;
+        }
+
+        .dark .order-edit-alert {
+            background: rgba(120, 53, 15, 0.92) !important;
+            border-color: rgba(251, 191, 36, 0.45) !important;
+            box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.12);
+        }
+
+        .dark .order-edit-alert-title {
+            color: #fff7d6 !important;
+        }
+
+        .dark .order-edit-alert-text {
+            color: #fde68a !important;
+        }
+
+        .dark .order-edit-alert-link {
+            color: #fcd34d !important;
+        }
     </style>
 @endpush
 
@@ -12,18 +47,21 @@
 
     <div class="max-w-7xl mx-auto p-6">
         <!-- Alerta de Confirmação Pendente (apenas para pedidos normais, não PDV) -->
-        @if($order->status && $order->status->name == 'Pendente' && !$order->client_confirmed && !$order->is_pdv)
-        <div class="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 rounded-lg p-4">
+        @if(!$order->client_confirmed && !$order->is_pdv)
+        <div class="order-edit-alert mb-6 border rounded-lg p-4">
             <div class="flex items-start">
-                <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-6 h-6 text-yellow-600 dark:text-amber-300 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 <div class="flex-1">
-                    <h3 class="text-sm font-medium text-yellow-900 dark:text-yellow-300">Aguardando Confirmação do Cliente</h3>
-                    <p class="text-xs text-yellow-800 dark:text-yellow-400 mt-1">
-                        Este pedido está pendente até que o cliente confirme através do link de compartilhamento.
+                    <h3 class="order-edit-alert-title text-sm font-bold">{{ $order->is_modified ? 'Aguardando confirmacao da edicao do cliente' : 'Aguardando Confirmacao do Cliente' }}</h3>
+                    <p class="order-edit-alert-text text-xs mt-1">
+                        {{ $order->is_modified ? 'Este pedido foi editado e agora precisa ser confirmado novamente pelo cliente atraves do link de compartilhamento.' : 'Este pedido esta pendente ate que o cliente confirme atraves do link de compartilhamento.' }}
+                        @if($order->is_modified)
+                            <span class="order-edit-alert-title block mt-2 font-semibold">A confirmacao anterior foi removida porque o pedido passou por uma edicao.</span>
+                        @endif
                         @if($order->client_token)
-                            <a href="{{ route('client.order.show', $order->client_token) }}" target="_blank" class="underline font-bold text-yellow-900 dark:text-yellow-300">
+                            <a href="{{ route('client.order.show', $order->client_token) }}" target="_blank" class="order-edit-alert-link underline font-bold">
                                 Visualizar link do cliente
                             </a>
                         @else
@@ -144,8 +182,13 @@
                                     <svg class="w-4 h-4 text-gray-500 dark:text-slate-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                                     </svg>
-                                    <span class="text-sm font-medium text-gray-600 dark:text-slate-400">Pendente</span>
+                                    <span class="text-sm font-medium text-gray-600 dark:text-slate-400">{{ $order->is_modified ? 'Aguardando nova confirmacao' : 'Pendente' }}</span>
                                 </div>
+                                @if($order->is_modified)
+                                <p class="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                                    Confirmacao removida automaticamente por causa da edicao do pedido.
+                                </p>
+                                @endif
                                 @endif
                             </div>
                             
@@ -331,6 +374,14 @@
                     @endif
 
                     <!-- Detalhes da Costura -->
+                    @php
+                        $printDesc = is_array($item->print_desc) ? $item->print_desc : json_decode($item->print_desc, true);
+                        $itemTypeSlug = strtolower((string) ($item->sublimation_type ?? ($printDesc['type'] ?? '')));
+                        $resolvedCollar = trim((string) $item->collar);
+                        if (($resolvedCollar === '' || $resolvedCollar === '-') && $itemTypeSlug !== 'bandeira') {
+                            $resolvedCollar = trim((string) ($printDesc['base_collar'] ?? ''));
+                        }
+                    @endphp
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
                         @if($order->store)
                         <div>
@@ -346,10 +397,10 @@
                             <p class="text-xs text-gray-600 dark:text-slate-400">Cor</p>
                             <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->color }}</p>
                         </div>
-                        @if($item->collar)
+                        @if($resolvedCollar !== '' && $resolvedCollar !== '-')
                         <div>
                             <p class="text-xs text-gray-600 dark:text-slate-400">Gola</p>
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->collar }}</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $resolvedCollar }}</p>
                         </div>
                         @endif
                         @if($item->detail)

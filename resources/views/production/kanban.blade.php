@@ -863,7 +863,7 @@
                             <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                                 <div><strong>Tecido:</strong> ${item.fabric}</div>
                                 <div><strong>Cor:</strong> ${item.color}</div>
-                                ${item.collar ? `<div><strong>Gola:</strong> ${item.collar}</div>` : ''}
+                                ${(item.collar && String(item.collar).trim() !== '-') ? `<div><strong>Gola:</strong> ${item.collar}</div>` : ''}
                                 ${item.detail ? `<div><strong>Detalhe:</strong> ${item.detail}</div>` : ''}
                                 ${item.model ? `<div><strong>Tipo de Corte:</strong> ${item.model}</div>` : ''}
                                 <div><strong>Personalização:</strong> ${item.print_type}</div>
