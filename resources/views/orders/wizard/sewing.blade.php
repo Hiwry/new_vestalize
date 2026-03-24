@@ -5003,6 +5003,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         }
 
         const printDesc = parseFullpageItemPrintDesc(item);
+        const itemSizes = parseFullpageItemSizes(item);
         const typeSlug = resolveFullpageSublimationType(item);
         if (!typeSlug) {
             alert('Tipo de SUB. TOTAL não encontrado para este item.');
