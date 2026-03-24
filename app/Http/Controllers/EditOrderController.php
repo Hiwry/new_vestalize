@@ -1793,22 +1793,7 @@ class EditOrderController extends Controller
     {
         $tenantId = Auth::user()?->tenant_id;
 
-        $type = \App\Models\SublimationProductType::query()
-            ->where('slug', $typeSlug)
-            ->where(function ($query) use ($tenantId) {
-                $query->whereNull('tenant_id')
-                    ->orWhere('tenant_id', $tenantId);
-            })
-            ->first();
-
-        $models = collect($type?->models ?? [])
-            ->map(fn($m) => mb_strtoupper(trim((string) $m), 'UTF-8'))
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
-
-        return !empty($models) ? $models : ['BASICA', 'BABYLOOK', 'INFANTIL'];
+        return \App\Models\SublimationProductType::getEffectiveModelsForSlug($tenantId, $typeSlug);
     }
 
     private function deleteItem(Request $request)

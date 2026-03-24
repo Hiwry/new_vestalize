@@ -57,6 +57,75 @@ class SublimationProductType extends Model
         ->get();
     }
 
+    public static function getScopedBySlug(?int $tenantId, ?string $slug)
+    {
+        return static::where('slug', $slug)
+            ->where(function ($query) use ($tenantId) {
+                $query->whereNull('tenant_id');
+
+                if ($tenantId) {
+                    $query->orWhere('tenant_id', $tenantId);
+                }
+            })
+            ->orderByRaw(
+                'CASE
+                    WHEN tenant_id = ? THEN 0
+                    WHEN tenant_id IS NULL THEN 1
+                    ELSE 2
+                END',
+                [$tenantId]
+            )
+            ->get();
+    }
+
+    public static function getEffectiveModelsForSlug(?int $tenantId, ?string $slug, array $fallback = ['BASICA', 'BABYLOOK', 'INFANTIL']): array
+    {
+        $models = static::getScopedBySlug($tenantId, $slug)
+            ->pluck('models')
+            ->filter(fn ($models) => is_array($models) && !empty($models))
+            ->map(function ($models) {
+                return collect($models)
+                    ->map(function ($model) {
+                        $model = trim((string) $model);
+
+                        return function_exists('mb_strtoupper')
+                            ? mb_strtoupper($model, 'UTF-8')
+                            : strtoupper($model);
+                    })
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all();
+            })
+            ->first();
+
+        return !empty($models) ? $models : $fallback;
+    }
+
+    public static function getEffectiveCollarsForSlug(?int $tenantId, ?string $slug): array
+    {
+        $collars = static::getScopedBySlug($tenantId, $slug)
+            ->pluck('collars')
+            ->filter(fn ($collars) => is_array($collars) && !empty($collars))
+            ->map(function ($collars) {
+                return collect($collars)
+                    ->map(function ($collar) {
+                        $collar = trim((string) $collar);
+
+                        return function_exists('mb_strtoupper')
+                            ? mb_strtoupper($collar, 'UTF-8')
+                            : strtoupper($collar);
+                    })
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all();
+            })
+            ->first();
+
+        return !empty($collars) ? $collars : [];
+    }
+
     /**
      * Ícone SVG padrão
      */

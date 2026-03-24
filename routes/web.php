@@ -486,6 +486,9 @@ Route::middleware('auth')->group(function () {
                     )
                     ->first();
 
+                $effectiveModels = \App\Models\SublimationProductType::getEffectiveModelsForSlug($tenantId, $type);
+                $effectiveCollars = \App\Models\SublimationProductType::getEffectiveCollarsForSlug($tenantId, $type);
+
                 $tecidoIdForStarting = $productType?->tecido_id;
                 $startingPriceQuery = \App\Models\SublimationProductPrice::where('product_type', $type)
                     ->where(function($q) use ($tenantId) {
@@ -517,8 +520,8 @@ Route::middleware('auth')->group(function () {
                     'type_name' => $productType?->name,
                     'default_fabric_name' => $productType?->tecido?->name,
                     'tecido_id' => $productType?->tecido_id,
-                    'models' => $productType?->models ?? [],
-                    'collars' => $productType?->collars ?? [],
+                    'models' => $effectiveModels,
+                    'collars' => $effectiveCollars,
                     'starting_price' => $startingPriceRow ? (float) $startingPriceRow->price : 0,
                     'starting_quantity_from' => $startingPriceRow?->quantity_from,
                     'size_prices' => \App\Models\SublimationProductPrice::getSizePricesFor($type, $tenantId),

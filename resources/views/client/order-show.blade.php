@@ -141,6 +141,35 @@
         .dark .text-gray-400 {
             color: rgb(148 163 184) !important;
         }
+
+        .highlight-chip {
+            border: 1px solid color-mix(in srgb, var(--secondary-color) 28%, white);
+            background: color-mix(in srgb, var(--secondary-color) 10%, white);
+            color: var(--secondary-color);
+        }
+
+        .dark .highlight-chip {
+            border-color: color-mix(in srgb, var(--secondary-color) 34%, rgb(15 23 42));
+            background: color-mix(in srgb, var(--secondary-color) 16%, rgb(15 23 42));
+            color: color-mix(in srgb, var(--secondary-color) 72%, white);
+        }
+
+        .important-value {
+            color: var(--secondary-color);
+            font-weight: 700;
+        }
+
+        .size-highlight {
+            border: 1px solid color-mix(in srgb, var(--secondary-color) 24%, white);
+            background: color-mix(in srgb, var(--secondary-color) 8%, white);
+            color: var(--secondary-color);
+        }
+
+        .dark .size-highlight {
+            border-color: color-mix(in srgb, var(--secondary-color) 36%, rgb(15 23 42));
+            background: color-mix(in srgb, var(--secondary-color) 14%, rgb(15 23 42));
+            color: color-mix(in srgb, var(--secondary-color) 76%, white);
+        }
     </style>
 </head>
 <body class="client-order bg-gray-50 dark:bg-slate-950 min-h-screen transition-colors duration-200">
@@ -279,10 +308,10 @@
             <div class="flex items-center justify-between mb-3">
                 <h2 class="text-base font-semibold text-gray-900 dark:text-white">Item {{ $loop->iteration }} - {{ $item->print_type }}</h2>
                 @if($unitarioTotal > 0)
-                <span class="text-xs font-medium text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                <span class="highlight-chip text-xs font-semibold px-2 py-1 rounded">
                     Unitário: R$ {{ number_format($unitarioTotal, 2, ',', '.') }}
                     @if($persPerPiece > 0)
-                    <span class="text-[10px] text-gray-400 dark:text-slate-500">({{ number_format($item->unit_price, 2, ',', '.') }} + {{ number_format($persPerPiece, 2, ',', '.') }})</span>
+                    <span class="text-[10px] opacity-80">({{ number_format($item->unit_price, 2, ',', '.') }} + {{ number_format($persPerPiece, 2, ',', '.') }})</span>
                     @endif
                 </span>
                 @endif
@@ -291,7 +320,7 @@
             @if($item->art_name)
             <div class="mb-3">
                 <p class="text-gray-500 dark:text-slate-400 mobile-text-xs">Nome da Arte</p>
-                <p class="font-medium mobile-text-sm">{{ $item->art_name }}</p>
+                <p class="important-value mobile-text-sm">{{ $item->art_name }}</p>
             </div>
             @endif
 
@@ -330,16 +359,16 @@
                 <div class="grid grid-cols-2 gap-2 mobile-text-sm">
                     <div>
                         <span class="text-gray-500 dark:text-slate-400">Tecido:</span>
-                        <span class="font-semibold text-gray-900 dark:text-white">{{ $item->fabric }}</span>
+                        <span class="important-value">{{ $item->fabric }}</span>
                     </div>
                     <div>
                         <span class="text-gray-500 dark:text-slate-400">Cor:</span>
-                        <span class="font-semibold text-gray-900 dark:text-white">{{ $item->color }}</span>
+                        <span class="important-value">{{ $item->color }}</span>
                     </div>
                     @if($item->model)
                     <div>
                         <span class="text-gray-500 dark:text-slate-400">Tipo de Corte:</span>
-                        <span class="font-semibold text-gray-900 dark:text-white">{{ $item->model }}</span>
+                        <span class="important-value">{{ $item->model }}</span>
                     </div>
                     @endif
                 </div>
@@ -356,7 +385,7 @@
                     $appType = $sub->application_type ? strtoupper($sub->application_type) : 'APLICAÇÃO';
                 @endphp
                 <div class="bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 p-3 rounded mb-2 mobile-text-sm">
-                    <div class="font-medium">
+                    <div class="important-value">
                         {{ $index + 1 }}. 
                         @if($sizeName)
                             {{ $sizeName }}
@@ -515,14 +544,14 @@
                 <p class="text-gray-600 dark:text-slate-400 mobile-text-xs mb-2">Quantidades</p>
                 
                 @if($shouldShowTotalOnly)
-                    <div class="flex items-center justify-between bg-gray-50 dark:bg-slate-800/50 p-3 rounded border border-gray-200 dark:border-slate-700">
+                    <div class="size-highlight flex items-center justify-between p-3 rounded">
                         <span class="text-gray-700 dark:text-slate-300 font-medium text-sm">Quantidade Total</span>
-                        <span class="text-lg font-bold text-gray-900 dark:text-white">{{ $totalQuantity }}</span>
+                        <span class="text-lg font-bold">{{ $totalQuantity }}</span>
                     </div>
                 @else
                     <div class="grid grid-cols-5 gap-1 mobile-text-xs">
                         @foreach(['PP', 'P', 'M', 'G', 'GG'] as $size)
-                        <div class="text-center p-1.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded text-sm text-gray-900 dark:text-white">
+                        <div class="size-highlight text-center p-1.5 rounded text-sm">
                             <div class="font-medium">{{ $size }}</div>
                             <div>{{ $itemSizes[$size] ?? 0 }}</div>
                         </div>
@@ -532,7 +561,7 @@
                     <div class="grid grid-cols-5 gap-1 mobile-text-xs mt-1">
                         @foreach(['EXG', 'G1', 'G2', 'G3', 'ESPECIAL'] as $size)
                         @if(isset($itemSizes[$size]) && $itemSizes[$size] > 0)
-                        <div class="text-center p-1.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded text-sm text-gray-900 dark:text-white">
+                        <div class="size-highlight text-center p-1.5 rounded text-sm">
                             <div class="font-medium">{{ $size }}</div>
                             <div>{{ $itemSizes[$size] }}</div>
                         </div>

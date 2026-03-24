@@ -81,6 +81,76 @@
         box-shadow: none !important;
     }
 
+    .ow-key-value {
+        color: var(--sh-accent);
+        font-weight: 700;
+    }
+
+    .ow-sizes-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .ow-size-chip {
+        min-width: 64px;
+        min-height: 56px;
+        padding: 8px 10px;
+        border-radius: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        line-height: 1;
+        text-align: center;
+        background: rgba(15, 23, 42, 0.22);
+    }
+
+    .ow-size-chip-label {
+        font-size: 0.85rem;
+        font-weight: 400;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 1;
+        color: #fff !important;
+        border-radius: 999px;
+        padding: 4px 10px;
+        min-width: 40px;
+    }
+
+    .ow-size-chip-qty {
+        margin-top: 6px;
+        font-size: 1.15rem;
+        font-weight: 900;
+        line-height: 1;
+        color: #e5edf8;
+    }
+
+    .ow-size-chip[data-size="PP"] .ow-size-chip-label { background: #ff8c00; }
+    .ow-size-chip[data-size="P"] .ow-size-chip-label { background: #ffd700; }
+    .ow-size-chip[data-size="M"] .ow-size-chip-label { background: #4169e1; }
+    .ow-size-chip[data-size="G"] .ow-size-chip-label { background: #dc143c; }
+    .ow-size-chip[data-size="GG"] .ow-size-chip-label { background: #32cd32; }
+    .ow-size-chip[data-size="EXG"] .ow-size-chip-label { background: #8a2be2; }
+    .ow-size-chip[data-size="G1"] .ow-size-chip-label { background: #78909c; }
+    .ow-size-chip[data-size="G2"] .ow-size-chip-label { background: #607d8b; }
+    .ow-size-chip[data-size="G3"] .ow-size-chip-label { background: #455a64; }
+    .ow-size-chip[data-size="ESPECIAL"] .ow-size-chip-label { background: #e91e63; }
+    .ow-size-chip[data-size="UN"] .ow-size-chip-label { background: #0f766e; }
+
+    .dark .ow-size-chip {
+        background: rgba(15, 23, 42, 0.38);
+        border-color: rgba(148, 163, 184, 0.16);
+    }
+
+    html.dark.avento-theme .ow-shell .ow-size-chip .ow-size-chip-label,
+    html.dark .ow-shell .ow-size-chip .ow-size-chip-label,
+    .ow-shell .ow-size-chip .ow-size-chip-label {
+        color: #ffffff !important;
+        font-weight: 400 !important;
+    }
+
     /* Absolute Zero Shadow Kill - FINAL OVERRIDE */
     html.dark.avento-theme .ow-shell,
     html.dark.avento-theme .ow-shell *:not(input):not(label):not(button),
@@ -199,26 +269,26 @@
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-3">
                             <div>
                                 <span class="text-gray-500 dark:text-gray-400 text-xs block">Processo</span>
-                                <span class="text-gray-900 dark:text-white font-medium">{{ $item->print_type }}</span>
+                                <span class="ow-key-value">{{ $item->print_type }}</span>
                             </div>
                             @if($isSubLocal)
                             <div>
                                 <span class="text-gray-500 dark:text-gray-400 text-xs block">Modelo</span>
-                                <span class="text-gray-900 dark:text-white font-medium">{{ $item->model }}</span>
+                                <span class="ow-key-value">{{ $item->model }}</span>
                             </div>
                             @else
                             <div>
                                 <span class="text-gray-500 dark:text-gray-400 text-xs block">Tecido</span>
-                                <span class="text-gray-900 dark:text-white font-medium">{{ $item->fabric }}</span>
+                                <span class="ow-key-value">{{ $item->fabric }}</span>
                             </div>
                             <div>
                                 <span class="text-gray-500 dark:text-gray-400 text-xs block">Cor</span>
-                                <span class="text-gray-900 dark:text-white font-medium">{{ $item->color }}</span>
+                                <span class="ow-key-value">{{ $item->color }}</span>
                             </div>
                             @endif
                             <div>
                                 <span class="text-gray-500 dark:text-gray-400 text-xs block">Quantidade</span>
-                                <span class="text-gray-900 dark:text-white font-medium">{{ $item->quantity }} un</span>
+                                <span class="ow-key-value">{{ $item->quantity }} un</span>
                             </div>
                             @if(is_array($itemFabricPiece))
                             <div>
@@ -237,7 +307,7 @@
 
                         <!-- Tamanhos e Acréscimos -->
                         <div class="space-y-2">
-                            <div class="flex flex-wrap gap-2">
+                            <div class="ow-sizes-grid">
                                 @php
                                     $availableSizes = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3', 'un'];
                                     $itemSurcharges = [];
@@ -260,8 +330,9 @@
                                         }
                                     @endphp
                                     @if($qty > 0)
-                                    <span class="px-3 py-1 bg-white dark:bg-[var(--sh-input-bg)] text-gray-700 dark:text-gray-300 text-[11px] font-black rounded-lg border border-gray-200 dark:border-slate-700/50 shadow-sm uppercase">
-                                        {{ $size }}: {{ $qty }}
+                                    <span class="ow-size-chip" data-size="{{ strtoupper($size) }}">
+                                        <span class="ow-size-chip-label" style="color: #ffffff !important;">{{ $size }}</span>
+                                        <span class="ow-size-chip-qty">{{ $qty }}</span>
                                     </span>
                                     @endif
                                 @endforeach
