@@ -1845,7 +1845,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             formData.append('item_id', itemToDeleteId);
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
-            const response = await fetch("{{ route('orders.wizard.sewing') }}", {
+            const response = await fetch('{{ isset($editData) ? route("orders.edit.sewing") : route("orders.wizard.sewing") }}', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
