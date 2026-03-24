@@ -997,7 +997,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                     <label class="block text-xs font-semibold text-gray-600 dark:text-slate-300 mb-1">Cor do Tecido</label>
                                                     <input type="text" id="fullpage_sub_fabric_color" value="BRANCO" readonly class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white text-sm">
                                                 </div>
-                                                <div>
+                                                <div id="fullpage-collar-wrapper">
                                                     <label class="block text-xs font-semibold text-gray-600 dark:text-slate-300 mb-1">Gola Padrão</label>
                                                     <select id="fullpage_sub_base_collar" class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-gray-400 focus:border-gray-400">
                                                         <option value="REDONDA">REDONDA</option>
@@ -1011,38 +1011,24 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                             <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
                                                 <div class="xl:col-span-2 space-y-4">
                                                     <div>
-                                                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Tamanhos e Quantidades</label>
-                                                        <div class="grid grid-cols-5 gap-2 mb-2">
-                                                            @foreach(['PP', 'P', 'M', 'G', 'GG'] as $size)
-                                                            <div class="text-center">
-                                                                <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">{{ $size }}</label>
-                                                                <input type="number" data-size="{{ $size }}" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-1 py-2 border border-gray-300 dark:border-slate-600 rounded text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-gray-400">
-                                                            </div>
-                                                            @endforeach
-                                                        </div>
-                                                        <div class="grid grid-cols-5 gap-2">
-                                                            @foreach(['EXG', 'G1', 'G2', 'G3', 'Esp.'] as $size)
-                                                            <div class="text-center">
-                                                                <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">{{ $size }}</label>
-                                                                <input type="number" data-size="{{ $size == 'Esp.' ? 'Especial' : $size }}" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-1 py-2 border border-gray-300 dark:border-slate-600 rounded text-center text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-gray-400">
-                                                            </div>
-                                                            @endforeach
-                                                        </div>
+                                                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Quantidade</label>
+                                                        <input type="number" data-size="QTD" min="0" value="0" onchange="calculateFullpageSubTotal()" class="fullpage-sub-size w-full px-3 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg text-center text-base bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-purple-400 focus:border-purple-400">
                                                     </div>
 
                                                     <div>
                                                         <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Adicionais</label>
-                                                        <div id="fullpage-sub-addons" class="fullpage-sub-card grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 rounded-lg border border-gray-200 dark:border-slate-700">
-                                                            <p class="text-sm text-gray-400 col-span-full text-center py-2">Selecione um tipo primeiro</p>
+                                                        <div id="fullpage-sub-addons" class="admin-check-panel">
+                                                            <p class="text-sm text-gray-400 text-center py-2 px-1">Selecione um tipo primeiro</p>
                                                         </div>
                                                     </div>
 
-                                                    <div class="fullpage-sub-card p-3 rounded-lg border border-gray-200 dark:border-slate-700">
-                                                        <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
-                                                            <input type="checkbox" id="fullpage_has_addon_colors" onchange="renderFullpageAddonColorFields()" class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500">
-                                                            Terá cor nos adicionais?
+                                                    <div class="admin-check-panel">
+                                                        <label class="admin-check-option" id="fullpage-has-addon-colors-row">
+                                                            <input type="checkbox" id="fullpage_has_addon_colors" onchange="renderFullpageAddonColorFields(); this.closest('.admin-check-option').setAttribute('data-checked', this.checked ? 'true' : 'false')" class="admin-check-input">
+                                                            <span class="admin-check-ui" aria-hidden="true"></span>
+                                                            <span class="admin-check-title text-sm">Terá cor nos adicionais?</span>
                                                         </label>
-                                                        <div id="fullpage-addon-color-fields" class="hidden space-y-2"></div>
+                                                        <div id="fullpage-addon-color-fields" class="hidden space-y-2 mt-2"></div>
                                                     </div>
                                                 </div>
 
@@ -1079,10 +1065,10 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                     </div>
                                                     <div>
                                                         <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Imagem Capa</label>
-                                                        <label class="fullpage-sub-upload relative flex items-center justify-center w-full h-24 border border-dashed border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer transition-colors overflow-hidden">
+                                                        <label id="fullpage-cover-upload-label" class="fullpage-sub-upload relative flex items-center justify-center w-full h-24 border border-dashed border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer transition-colors overflow-hidden">
                                                             <div id="fullpage-cover-placeholder" class="flex flex-col items-center justify-center">
                                                                 <i class="fa-solid fa-image text-gray-400 text-sm mb-0.5"></i>
-                                                                <span class="text-xs text-gray-500">PNG, JPG</span>
+                                                                <span class="text-xs text-gray-500">PNG, JPG &nbsp;&middot;&nbsp; Ctrl+V para colar</span>
                                                             </div>
                                                             <div id="fullpage-cover-preview-container" class="hidden absolute inset-0">
                                                                 <img id="fullpage-cover-preview" src="" alt="Preview da capa" class="w-full h-full object-cover">
@@ -4796,6 +4782,43 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     }
     window.previewFullpageCoverImage = previewFullpageCoverImage;
 
+    // Ctrl+V paste into cover image
+    document.addEventListener('paste', function(e) {
+        const modal = document.getElementById('sublimation-fullpage-form');
+        if (!modal || modal.classList.contains('hidden')) return;
+
+        const step3 = document.getElementById('fullpage-step-3');
+        if (!step3 || step3.classList.contains('hidden')) return;
+
+        const items = e.clipboardData?.items;
+        if (!items) return;
+
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.startsWith('image/')) {
+                const file = items[i].getAsFile();
+                if (!file) continue;
+
+                const input = document.getElementById('fullpage_cover_image');
+                if (!input) continue;
+
+                const dt = new DataTransfer();
+                const namedFile = new File([file], 'capa-colada.png', { type: file.type });
+                dt.items.add(namedFile);
+                input.files = dt.files;
+                previewFullpageCoverImage(input);
+
+                // Visual flash on the upload area
+                const label = document.getElementById('fullpage-cover-upload-label');
+                if (label) {
+                    label.style.transition = 'box-shadow 0.2s';
+                    label.style.boxShadow = '0 0 0 3px rgba(124,58,237,0.45)';
+                    setTimeout(() => { label.style.boxShadow = ''; }, 700);
+                }
+                break;
+            }
+        }
+    });
+
     function setExistingFullpageCorelFile(filePath) {
         fullpageSubExistingCorelFile = String(filePath || '').trim();
 
@@ -4960,6 +4983,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const selectedAddonIds = parseFullpageItemAddonIds(item, printDesc);
         document.querySelectorAll('#fullpage-sub-addons input[type="checkbox"]').forEach(checkbox => {
             checkbox.checked = selectedAddonIds.includes(parseInt(checkbox.value, 10));
+            checkbox.closest('[data-addon-row]')?.setAttribute('data-checked', checkbox.checked ? 'true' : 'false');
         });
 
         const addonColorMap = printDesc.addon_color_map && typeof printDesc.addon_color_map === 'object'
@@ -4969,6 +4993,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const addonColorsCheckbox = document.getElementById('fullpage_has_addon_colors');
         if (addonColorsCheckbox) {
             addonColorsCheckbox.checked = hasAddonColors;
+            addonColorsCheckbox.closest('.admin-check-option')?.setAttribute('data-checked', hasAddonColors ? 'true' : 'false');
         }
 
         renderFullpageAddonColorFields();
@@ -4979,11 +5004,12 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             }
         });
 
-        const itemSizes = parseFullpageItemSizes(item);
-        document.querySelectorAll('.fullpage-sub-size').forEach(input => {
-            const sizeKey = input.dataset.size;
-            input.value = parseInt(itemSizes[sizeKey], 10) || 0;
-        });
+        // Single quantity input: sum all sizes from the saved item
+        const qtyInput = document.querySelector('.fullpage-sub-size');
+        if (qtyInput) {
+            const totalSaved = Object.values(itemSizes).reduce((sum, v) => sum + (parseInt(v, 10) || 0), 0);
+            qtyInput.value = totalSaved || 0;
+        }
 
         const notesInput = document.getElementById('fullpage_notes');
         if (notesInput) {
@@ -5144,7 +5170,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         if (!container) return;
 
         if (!typeSlug) {
-            container.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center py-4">Selecione um tipo primeiro</p>';
+            container.innerHTML = '<p class="text-sm text-gray-500 text-center py-2 px-1">Selecione um tipo primeiro</p>';;
             fullpageSubAddons = [];
             fullpageSubTypeMeta = {
                 defaultFabricName: '',
@@ -5153,6 +5179,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 typeLabel: '',
                 models: [],
                 collars: [],
+                sizePrices: {},
             };
             populateFullpageFabricOptions();
             renderFullpageAddonColorFields();
@@ -5184,6 +5211,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                         .map(collar => String(collar || '').trim().toUpperCase())
                         .filter(Boolean)))
                     : [],
+                sizePrices: (payload?.size_prices && typeof payload.size_prices === 'object') ? payload.size_prices : {},
             };
             populateFullpageFabricOptions();
 
@@ -5197,16 +5225,17 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                             ? `-R$${Math.abs(addonPrice).toFixed(2).replace('.', ',')}`
                             : '';
                     return `
-                    <label class="fullpage-sub-addon-item flex items-center gap-2 p-2.5 cursor-pointer">
-                        <input type="checkbox" name="fullpage_addons[]" value="${addon.id}" onchange="calculateFullpageSubTotal(); renderFullpageAddonColorFields();" class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500">
-                        <span class="text-sm text-gray-700 dark:text-slate-300 flex-1">${addon.name}</span>
+                    <label class="admin-check-option" data-checked="false" data-addon-row>
+                        <input type="checkbox" name="fullpage_addons[]" value="${addon.id}" onchange="calculateFullpageSubTotal(); renderFullpageAddonColorFields(); this.closest('[data-addon-row]').setAttribute('data-checked', this.checked ? 'true' : 'false');" class="admin-check-input">
+                        <span class="admin-check-ui" aria-hidden="true"></span>
+                        <span class="admin-check-title text-sm flex-1">${addon.name}</span>
                         ${priceText ? `<span class="text-xs font-bold ${addonPrice > 0 ? 'text-green-600' : 'text-red-500'}">${priceText}</span>` : ''}
                     </label>
                     `;
                 }).join('');
             } else {
                 fullpageSubAddons = [];
-                container.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center py-4">Nenhum adicional disponivel</p>';
+                container.innerHTML = '<p class="text-sm text-gray-500 text-center py-2 px-1">Nenhum adicional disponivel</p>';
             }
         } catch (error) {
             console.error('Error loading addons:', error);
@@ -5218,9 +5247,10 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 typeLabel: typeSlug,
                 models: [],
                 collars: [],
+                sizePrices: {},
             };
             populateFullpageFabricOptions();
-            container.innerHTML = '<p class="text-sm text-red-500 col-span-full text-center py-4">Erro ao carregar adicionais</p>';
+            container.innerHTML = '<p class="text-sm text-red-500 text-center py-2 px-1">Erro ao carregar adicionais</p>';
         }
 
         toggleFullpageSpecialFabric();
@@ -5235,37 +5265,40 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         if (modelSelect) {
             const currentVal = modelSelect.value;
             const models = fullpageSubTypeMeta.models || [];
+            const sizePricesForOptions = fullpageSubTypeMeta.sizePrices || {};
 
             modelSelect.innerHTML = '<option value="">Selecione</option>';
             models.forEach(m => {
                 const opt = document.createElement('option');
                 opt.value = m;
                 opt.textContent = m;
+                // Store price directly so lookup doesn't depend on string key match
+                const p = sizePricesForOptions[m];
+                if (p != null) opt.dataset.price = p;
                 if (m === currentVal) opt.selected = true;
                 modelSelect.appendChild(opt);
             });
         }
 
+        const collarWrapper = document.getElementById('fullpage-collar-wrapper');
         if (collarSelect) {
             const currentVal = collarSelect.value;
             const collars = fullpageSubTypeMeta.collars || [];
 
-            collarSelect.innerHTML = '<option value="">Selecione</option>';
-            collars.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c;
-                opt.textContent = c;
-                if (c === currentVal) opt.selected = true;
-                collarSelect.appendChild(opt);
-            });
-            
-            // Fallback for default if empty
-            if (collarSelect.options.length <= 1) {
-                const opt = document.createElement('option');
-                opt.value = 'REDONDA';
-                opt.textContent = 'REDONDA';
-                if (currentVal === 'REDONDA') opt.selected = true;
-                collarSelect.appendChild(opt);
+            if (collars.length === 0) {
+                // This type doesn't use collar (e.g. Bandeira) — hide the field
+                if (collarWrapper) collarWrapper.classList.add('hidden');
+                collarSelect.innerHTML = '<option value="">Selecione</option>';
+            } else {
+                if (collarWrapper) collarWrapper.classList.remove('hidden');
+                collarSelect.innerHTML = '<option value="">Selecione</option>';
+                collars.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    opt.textContent = c;
+                    if (c === currentVal) opt.selected = true;
+                    collarSelect.appendChild(opt);
+                });
             }
         }
     }
@@ -5306,21 +5339,40 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             const addon = fullpageSubAddons.find(a => parseInt(a.id, 10) === addonId);
             return sum + (addon ? (parseFloat(addon.price) || 0) : 0);
         }, 0);
-        fullpageSubBaseUnitPrice = fullpageSubTypeMeta.startingPrice || 0;
+        const sizePrices = fullpageSubTypeMeta.sizePrices || {};
+        const hasSizePrices = Object.keys(sizePrices).length > 0;
 
-        if (typeSlug && pricingQty > 0) {
-            try {
-                const fabricSelect = document.getElementById('fullpage_sub_fabric_type');
-                const selectedOption = fabricSelect?.options[fabricSelect?.selectedIndex];
-                const tecidoId = selectedOption?.dataset?.tecidoId || fullpageSubTypeMeta.tecido_id || null;
-                const url = `/api/sublimation-total/price/${typeSlug}/${pricingQty}${tecidoId ? `?tecido_id=${tecidoId}` : ''}`;
-                const response = await fetch(url);
-                const payload = await response.json();
-                if (payload?.success) {
-                    fullpageSubBaseUnitPrice = parseFloat(payload.price) || fullpageSubBaseUnitPrice;
+        if (hasSizePrices) {
+            // Model/dimension-based pricing (e.g. Bandeira): price comes from the selected model
+            const modelEl = document.getElementById('fullpage_sub_model');
+            const selectedModel = modelEl?.value || '';
+            // Prefer data-price attribute (set on option element) to avoid key mismatch
+            const selectedOption = modelEl?.options[modelEl?.selectedIndex];
+            const optionPrice = selectedOption?.dataset?.price;
+            if (selectedModel && optionPrice != null && optionPrice !== '') {
+                fullpageSubBaseUnitPrice = parseFloat(optionPrice) || 0;
+            } else if (selectedModel && sizePrices[selectedModel] != null) {
+                fullpageSubBaseUnitPrice = parseFloat(sizePrices[selectedModel]) || 0;
+            } else {
+                fullpageSubBaseUnitPrice = 0;
+            }
+        } else {
+            fullpageSubBaseUnitPrice = fullpageSubTypeMeta.startingPrice || 0;
+
+            if (typeSlug && pricingQty > 0) {
+                try {
+                    const fabricSelect = document.getElementById('fullpage_sub_fabric_type');
+                    const selectedOption = fabricSelect?.options[fabricSelect?.selectedIndex];
+                    const tecidoId = selectedOption?.dataset?.tecidoId || fullpageSubTypeMeta.tecido_id || null;
+                    const url = `/api/sublimation-total/price/${typeSlug}/${pricingQty}${tecidoId ? `?tecido_id=${tecidoId}` : ''}`;
+                    const response = await fetch(url);
+                    const payload = await response.json();
+                    if (payload?.success) {
+                        fullpageSubBaseUnitPrice = parseFloat(payload.price) || fullpageSubBaseUnitPrice;
+                    }
+                } catch (error) {
+                    console.error('Error fetching price:', error);
                 }
-            } catch (error) {
-                console.error('Error fetching price:', error);
             }
         }
 
@@ -5557,9 +5609,14 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
         const baseCollarInput = document.getElementById('fullpage_sub_base_collar');
         if (baseCollarInput) baseCollarInput.value = 'REDONDA';
+        const collarWrapperReset = document.getElementById('fullpage-collar-wrapper');
+        if (collarWrapperReset) collarWrapperReset.classList.remove('hidden');
 
         const hasAddonColors = document.getElementById('fullpage_has_addon_colors');
-        if (hasAddonColors) hasAddonColors.checked = false;
+        if (hasAddonColors) {
+            hasAddonColors.checked = false;
+            hasAddonColors.closest('.admin-check-option')?.setAttribute('data-checked', 'false');
+        }
 
         const addonColorFields = document.getElementById('fullpage-addon-color-fields');
         if (addonColorFields) {

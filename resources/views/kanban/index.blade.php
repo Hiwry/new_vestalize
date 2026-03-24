@@ -30,6 +30,7 @@
         padding-right: 1.5rem !important;
         border: none !important;
         border-radius: 1rem !important;
+        box-shadow: none !important;
     }
 
     /* Glassmorphism & Hover Effects */
@@ -1296,11 +1297,11 @@
                 </div>
 
                 <div class="space-y-6">
-                    <div class="flex items-start gap-4 p-5 rounded-3xl bg-blue-500/5 border border-blue-500/10 shadow-inner">
-                        <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
+                    <div class="flex items-start gap-4 p-5 rounded-3xl bg-indigo-50 dark:bg-blue-500/5 border border-indigo-200 dark:border-blue-500/10 shadow-inner">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-600 dark:bg-blue-500/10 flex items-center justify-center text-white dark:text-blue-400 flex-shrink-0">
                             <i class="fa-solid fa-shield-halved"></i>
                         </div>
-                        <p class="text-[11px] font-bold text-blue-700 dark:text-blue-400">
+                        <p class="text-[11px] font-bold text-indigo-900 dark:text-blue-400">
                             Esta solicitação será enviada para aprovação do administrador do sistema.
                         </p>
                     </div>
@@ -1324,7 +1325,7 @@
 
                 <div class="flex flex-col gap-3 pt-8">
                     <button onclick="submitEditRequest()" 
-                            class="w-full py-5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-purple-600/20 active:scale-[0.98]">
+                            class="w-full py-5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 !text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-purple-600/20 active:scale-[0.98]">
                         Enviar Solicitação
                     </button>
                     <button onclick="closeEditRequestModal()" 

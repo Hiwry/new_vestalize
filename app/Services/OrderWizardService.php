@@ -841,6 +841,14 @@ class OrderWizardService
         $fabricSurcharge = (float) ($validated['fabric_surcharge'] ?? 0);
         $hasAddonColors = (bool) ($validated['has_addon_colors'] ?? false);
 
+        // If PADRAO was selected, resolve the actual fabric name from the submitted tecido_id
+        if ($fabricType === 'PADRAO' && !empty($validated['tecido_id'])) {
+            $resolvedName = trim((string) (\App\Models\Tecido::find((int) $validated['tecido_id'])?->name ?? ''));
+            if ($resolvedName !== '') {
+                $defaultFabricName = $resolvedName;
+            }
+        }
+
         $fabricName = match (true) {
             $fabricType === 'PADRAO' => ($defaultFabricName !== '' ? $defaultFabricName : 'TECIDO PADRÃO'),
             $fabricType === 'PP' => 'PP',
@@ -897,15 +905,20 @@ class OrderWizardService
             ->filter()
             ->join(', ');
 
-        $collarLabel = $baseCollar;
-        if ($addonsLabel !== '') {
-            $collarLabel .= ' + ' . $addonsLabel;
+        $typeHasCollars = !empty($typeModel?->collars);
+        if ($typeHasCollars) {
+            $collarLabel = $baseCollar;
+            if ($addonsLabel !== '') {
+                $collarLabel .= ' + ' . $addonsLabel;
+            }
+        } else {
+            // Types without collar (e.g. Bandeira): collar field is always '-'
+            $collarLabel = '-';
         }
-
-        $itemNumber = $order->items()->count() + 1;
         $quantity = (int) $validated['quantity'];
         $unitPrice = (float) $validated['unit_price'];
         $unitCost = (float) ($validated['unit_cost'] ?? 0);
+        $itemNumber = $order->items()->count() + 1;
 
         $item = new OrderItem([
             'item_number' => $itemNumber,
@@ -973,6 +986,14 @@ class OrderWizardService
         $fabricSurcharge = (float) ($validated['fabric_surcharge'] ?? 0);
         $hasAddonColors = (bool) ($validated['has_addon_colors'] ?? false);
 
+        // If PADRAO was selected, resolve the actual fabric name from the submitted tecido_id
+        if ($fabricType === 'PADRAO' && !empty($validated['tecido_id'])) {
+            $resolvedName = trim((string) (\App\Models\Tecido::find((int) $validated['tecido_id'])?->name ?? ''));
+            if ($resolvedName !== '') {
+                $defaultFabricName = $resolvedName;
+            }
+        }
+
         $fabricName = match (true) {
             $fabricType === 'PADRAO' => ($defaultFabricName !== '' ? $defaultFabricName : 'TECIDO PADRAO'),
             $fabricType === 'PP' => 'PP',
@@ -1029,9 +1050,15 @@ class OrderWizardService
             ->filter()
             ->join(', ');
 
-        $collarLabel = $baseCollar;
-        if ($addonsLabel !== '') {
-            $collarLabel .= ' + ' . $addonsLabel;
+        $typeHasCollars = !empty($typeModel?->collars);
+        if ($typeHasCollars) {
+            $collarLabel = $baseCollar;
+            if ($addonsLabel !== '') {
+                $collarLabel .= ' + ' . $addonsLabel;
+            }
+        } else {
+            // Types without collar (e.g. Bandeira): collar field is always '-'
+            $collarLabel = '-';
         }
 
         $quantity = (int) $validated['quantity'];

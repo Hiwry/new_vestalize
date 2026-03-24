@@ -655,6 +655,7 @@ class OrderWizardController extends Controller
                 $query->whereNull('tenant_id')
                     ->orWhere('tenant_id', $tenantId);
             })
+            ->orderByRaw('CASE WHEN tenant_id = ? THEN 0 WHEN tenant_id IS NULL THEN 1 ELSE 2 END', [$tenantId])
             ->first();
 
         $models = collect($type?->models ?? [])

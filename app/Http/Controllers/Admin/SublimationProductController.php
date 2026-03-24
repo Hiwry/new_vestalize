@@ -125,6 +125,7 @@ class SublimationProductController extends Controller
                     $q->where('tenant_id', $tenantId)->orWhereNull('tenant_id');
                 })
                 ->where('product_type', $type)
+                ->where('tecido_id', $selectedTecidoId)
                 ->whereNotNull('size_key')
                 ->get()
                 ->sortBy('tenant_id') // globals first, tenant rows override
@@ -170,15 +171,18 @@ class SublimationProductController extends Controller
         // Bandeira usa precificacao por tamanho, nao por quantidade
         if ($type === 'bandeira') {
             $validated = $request->validate([
+                'tecido_id' => 'required|exists:tecidos,id',
                 'flag_prices' => 'nullable|array',
                 'flag_prices.*' => 'nullable|numeric|min:0',
             ]);
 
             $productType = $this->resolveProductTypeForTenant($type, $tenantId);
+            $productType->update(['tecido_id' => $validated['tecido_id']]);
 
-            // Remove precos por tamanho anteriores do tenant
+            // Remove precos por tamanho do tecido selecionado
             SublimationProductPrice::where('tenant_id', $tenantId)
                 ->where('product_type', $type)
+                ->where('tecido_id', $validated['tecido_id'])
                 ->whereNotNull('size_key')
                 ->delete();
 
@@ -188,12 +192,13 @@ class SublimationProductController extends Controller
                     'tenant_id' => $tenantId,
                     'product_type' => $type,
                     'size_key' => $sizeKey,
+                    'tecido_id' => $validated['tecido_id'],
                     'price' => $price,
                 ]);
             }
 
             return redirect()
-                ->route('admin.sublimation-products.edit-type', $type)
+                ->route('admin.sublimation-products.edit-type', ['type' => $type, 'tecido_id' => $validated['tecido_id']])
                 ->with('success', 'Precos por tamanho salvos com sucesso.');
         }
 

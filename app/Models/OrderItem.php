@@ -76,12 +76,30 @@ class OrderItem extends Model
     // Accessors para converter IDs em nomes automaticamente
     public function getFabricAttribute($value)
     {
-        if (!$value || !is_numeric($value)) {
+        if (!$value) {
+            $printDesc = $this->getDecodedPrintDesc();
+            $tecidoId = $printDesc['tecido_id'] ?? null;
+            if ($tecidoId) {
+                return \App\Models\Tecido::find((int) $tecidoId)?->name ?? $value;
+            }
+
             return $value;
         }
-        
-        $option = ProductOption::where('id', $value)->where('type', 'tecido')->first();
-        return $option ? $option->name : $value;
+
+        if (is_numeric($value)) {
+            $option = ProductOption::where('id', $value)->where('type', 'tecido')->first();
+            return $option ? $option->name : $value;
+        }
+
+        if (in_array(trim((string) $value), ['TECIDO PADRÃO', 'TECIDO PADRAO', 'Tecido padrão', 'Tecido Padrão'], true)) {
+            $printDesc = $this->getDecodedPrintDesc();
+            $tecidoId = $printDesc['tecido_id'] ?? null;
+            if ($tecidoId) {
+                return \App\Models\Tecido::find((int) $tecidoId)?->name ?? $value;
+            }
+        }
+
+        return $value;
     }
 
     public function getColorAttribute($value)
@@ -92,6 +110,20 @@ class OrderItem extends Model
         
         $option = ProductOption::where('id', $value)->where('type', 'cor')->first();
         return $option ? $option->name : $value;
+    }
+
+    protected function getDecodedPrintDesc(): array
+    {
+        if (is_array($this->print_desc)) {
+            return $this->print_desc;
+        }
+
+        if (is_string($this->print_desc) && $this->print_desc !== '') {
+            $decoded = json_decode($this->print_desc, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return [];
     }
 
     public function getCollarAttribute($value)

@@ -60,9 +60,12 @@ class SublimationProductPrice extends Model
     public static function getPriceFor(string $productType, int $quantity, ?int $tenantId = null, ?int $tecidoId = null): ?float
     {
         // Primeiro, tentar buscar preço específico do tenant
+        // Exclui registros com size_key (preços por dimensão/modelo, ex: Bandeira),
+        // que não devem ser usados na precificação por quantidade.
         if ($tenantId) {
             $query = static::where('product_type', $productType)
                 ->where('tenant_id', $tenantId)
+                ->whereNull('size_key')
                 ->where('quantity_from', '<=', $quantity)
                 ->where(function($q) use ($quantity) {
                     $q->whereNull('quantity_to')
@@ -83,6 +86,7 @@ class SublimationProductPrice extends Model
         // Se não encontrou preço do tenant, buscar preço global
         $globalQuery = static::where('product_type', $productType)
             ->whereNull('tenant_id')
+            ->whereNull('size_key')
             ->where('quantity_from', '<=', $quantity)
             ->where(function($q) use ($quantity) {
                 $q->whereNull('quantity_to')

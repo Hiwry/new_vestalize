@@ -81,8 +81,6 @@
 
         @if($type === 'bandeira')
         {{-- ===== BANDEIRA: Preco por Tamanho ===== --}}
-        {{-- O form de precos por tamanho depende dos tamanhos configurados abaixo.
-             Salva separado dos precos por quantidade. --}}
         <form method="POST" action="{{ route('admin.sublimation-products.update-type', $type) }}"
               id="prices-form"
               class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
@@ -100,10 +98,62 @@
             </div>
 
             <div class="space-y-5 p-6">
+
+                {{-- Selecao de Tecido --}}
+                <section class="rounded-lg bg-gray-50 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-700 p-5 space-y-4">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">Selecao de Tecido</p>
+                        <h4 class="mt-1 text-base font-semibold text-gray-900 dark:text-gray-100">Configurar precos para:</h4>
+                        @if($isDefaultFabric)
+                            <span class="mt-2 inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-700 px-3 py-1 text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                                Tecido Padrao do Produto
+                            </span>
+                        @endif
+                    </div>
+                    <div class="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                        <div>
+                            <label for="tecido_id" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Selecionar tecido</label>
+                            <select name="tecido_id" id="tecido_id" required
+                                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                <option value="">Selecione um tecido...</option>
+                                @foreach($tecidos as $tecido)
+                                    <option value="{{ $tecido->id }}" {{ (int)$selectedTecidoId === (int)$tecido->id ? 'selected' : '' }}>
+                                        {{ strtoupper($tecido->name) }} {{ (int)$productType->tecido_id === (int)$tecido->id ? '(PADRAO)' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <a href="{{ route('admin.tecidos.create') }}"
+                               class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Novo tecido
+                            </a>
+                            <a href="{{ $currentFabricEditUrl }}" id="edit-selected-fabric"
+                               data-base-url="{{ url('/admin/tecidos') }}"
+                               class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors {{ $currentFabric ? '' : 'pointer-events-none opacity-40' }}">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Editar tecido
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
                 @php $flagModels = $productType->models ?? []; @endphp
                 @if(empty($flagModels))
                     <div class="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 px-4 py-6 text-center text-sm text-amber-700 dark:text-amber-300">
-                        Nenhum tamanho cadastrado. Configure os tamanhos de bandeira na secao abaixo antes de definir os precos.
+                        <p>Nenhum tamanho cadastrado. Configure os tamanhos de bandeira antes de definir os precos.</p>
+                        <a href="#tamanhos-section"
+                           class="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 transition-colors">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Cadastrar tamanhos
+                        </a>
                     </div>
                 @else
                     <section class="rounded-lg bg-gray-50 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-700 p-5 space-y-4">
@@ -368,7 +418,7 @@
         </aside>
 
         {{-- Modelos / Tamanhos de Bandeira --}}
-        <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm xl:col-span-full">
+        <div id="tamanhos-section" class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm xl:col-span-full">
             <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
                 <p class="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">{{ $type === 'bandeira' ? 'Tamanhos de Bandeira' : 'Modelos' }}</p>
                 <h3 class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $type === 'bandeira' ? 'Tamanhos de ' . $typeLabel : 'Modelos de ' . $typeLabel }}</h3>
@@ -390,6 +440,7 @@
                             <div class="flex items-center gap-3 rounded-lg bg-gray-50 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-700 px-4 py-3" data-model-row>
                                 <input type="text" name="models[]" value="{{ $model }}" readonly
                                        class="flex-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase">
+                                @if($type !== 'bandeira')
                                 <div class="flex items-center gap-2 flex-shrink-0">
                                     <span class="text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">GG/EXG/G1/G2/G3/Esp</span>
                                     @if(!$isDisabled)
@@ -407,6 +458,7 @@
                                         <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 {{ $isDisabled ? 'translate-x-0' : 'translate-x-5' }}"></span>
                                     </button>
                                 </div>
+                                @endif
                                 <button type="button" onclick="removeModelRow(this)"
                                         class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-red-200 dark:border-red-700/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                         title="Remover modelo">
@@ -797,13 +849,12 @@
         const emptyEl = document.getElementById('models-empty');
         if (emptyEl) emptyEl.remove();
 
+        const isBandeira = {{ $type === 'bandeira' ? 'true' : 'false' }};
         const list = document.getElementById('models-list');
         const row = document.createElement('div');
         row.className = 'flex items-center gap-3 rounded-lg bg-gray-50 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-700 px-4 py-3';
         row.setAttribute('data-model-row', '');
-        row.innerHTML = `
-            <input type="text" name="models[]" value="${name}" readonly
-                   class="flex-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase">
+        const surchargeHtml = isBandeira ? '' : `
             <div class="flex items-center gap-2 flex-shrink-0">
                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">GG/EXG/G1/G2/G3/Esp</span>
                 <input type="hidden" name="models_surcharge_disabled[]" value="" class="surcharge-disabled-input" disabled>
@@ -815,7 +866,11 @@
                         role="switch" aria-checked="true">
                     <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 translate-x-5"></span>
                 </button>
-            </div>
+            </div>`;
+        row.innerHTML = `
+            <input type="text" name="models[]" value="${name}" readonly
+                   class="flex-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase">
+            ${surchargeHtml}
             <button type="button" onclick="removeModelRow(this)"
                     class="${dangerBtnCls} flex-shrink-0" title="Remover modelo">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

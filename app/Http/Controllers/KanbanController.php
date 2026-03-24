@@ -644,8 +644,21 @@ class KanbanController extends Controller
         }
 
         // Verificar existência das imagens de capa dos itens
+        // e resolver nome real do tecido para itens SUB. TOTAL legados com "TECIDO PADRÃO"
         foreach ($order->items as $item) {
             $item->cover_image_exists = (bool) $item->cover_image_url;
+
+            $rawFabric = trim((string) $item->getRawOriginal('fabric'));
+            if (in_array($rawFabric, ['TECIDO PADRÃO', 'TECIDO PADRAO', 'Tecido padrão', 'Tecido Padrão', ''], true)) {
+                $printDesc = is_string($item->print_desc) ? json_decode($item->print_desc, true) : $item->print_desc;
+                $tecidoId = $printDesc['tecido_id'] ?? null;
+                if ($tecidoId) {
+                    $resolved = \App\Models\Tecido::find((int) $tecidoId)?->name;
+                    if ($resolved) {
+                        $item->fabric = $resolved;
+                    }
+                }
+            }
         }
 
         // Retornar todos os pagamentos como array

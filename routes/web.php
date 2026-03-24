@@ -491,6 +491,7 @@ Route::middleware('auth')->group(function () {
                     ->where(function($q) use ($tenantId) {
                         $q->whereNull('tenant_id')->orWhere('tenant_id', $tenantId);
                     })
+                    ->whereNull('size_key')
                     ->orderBy('quantity_from');
                 if ($tecidoIdForStarting) {
                     $startingPriceQuery->where('tecido_id', $tecidoIdForStarting);
