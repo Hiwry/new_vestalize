@@ -435,8 +435,14 @@ class BudgetController extends Controller
             $data = $request->all();
             
             // Salvar personalização na sessão
-            $customizations = session('budget_customizations', []);
+            $customizations = array_values(session('budget_customizations', []));
             $itemIndex = $data['item_id'] ?? 0;
+            $editingIndex = $request->filled('editing_personalization_id')
+                ? (int) $request->input('editing_personalization_id')
+                : null;
+            $existingCustomization = ($editingIndex !== null && isset($customizations[$editingIndex]))
+                ? $customizations[$editingIndex]
+                : null;
             
             // Lidar com upload de imagem da aplicação
             $imagePath = null;
@@ -501,7 +507,7 @@ class BudgetController extends Controller
                 $sizeSurchargeTotal += $lineTotal;
             }
             
-            $customizations[] = [
+            $customizationPayload = [
                 'item_index' => $itemIndex,
                 'personalization_id' => $data['personalization_id'] ?? null,
                 'personalization_name' => $data['personalization_type'] ?? '',
@@ -511,8 +517,8 @@ class BudgetController extends Controller
                 'color_count' => $data['color_count'] ?? 1,
                 'unit_price' => $data['unit_price'] ?? 0,
                 'final_price' => $data['final_price'] ?? 0,
-                'image' => $imagePath,
-                'art_files' => $artFiles,
+                'image' => $imagePath ?: ($existingCustomization['image'] ?? null),
+                'art_files' => !empty($artFiles) ? $artFiles : ($existingCustomization['art_files'] ?? []),
                 'color_details' => $data['color_details'] ?? '',
                 'notes' => $data['seller_notes'] ?? '',
                 'addons' => $addons,
@@ -521,6 +527,12 @@ class BudgetController extends Controller
                 'size_surcharge_details' => $sizeSurchargeDetails,
                 'size_surcharge_total' => $sizeSurchargeTotal,
             ];
+
+            if ($editingIndex !== null && isset($customizations[$editingIndex])) {
+                $customizations[$editingIndex] = $customizationPayload;
+            } else {
+                $customizations[] = $customizationPayload;
+            }
             
             // Aplicar descontos automáticos
             $customizations = \App\Helpers\PersonalizationDiscountHelper::applySessionDiscounts($customizations, $itemIndex);

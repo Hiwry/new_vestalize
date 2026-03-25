@@ -390,11 +390,33 @@
                                                                         <span class="text-red-600 dark:text-red-400 font-semibold">R$ 0,00</span>
                                                                     @endif
                                                                 </div>
+                                                                @if(!empty($pers['size_surcharge_details']))
+                                                                    <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                                                                        <span class="font-semibold text-emerald-700 dark:text-emerald-300">Acréscimos especiais:</span>
+                                                                        @foreach(($pers['size_surcharge_details'] ?? []) as $specialSize => $specialData)
+                                                                            <span class="text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-full px-2 py-0.5">
+                                                                                {{ $specialSize }}: {{ $specialData['qty'] ?? 0 }}x
+                                                                            </span>
+                                                                        @endforeach
+                                                                        <span class="font-semibold text-emerald-700 dark:text-emerald-300">
+                                                                            +R$ {{ number_format((float) ($pers['size_surcharge_total'] ?? 0), 2, ',', '.') }}
+                                                                        </span>
+                                                                    </div>
+                                                                @endif
                                                         </div>
                                                         <div class="flex space-x-2 ml-4">
                                                             <button 
                                                                 type="button"
-                                                                onclick="removeSessionPersonalization({{ $loop->parent->index }})" 
+                                                                onclick="editSessionPersonalization({{ $persIndex }})"
+                                                                class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                                                                title="Editar personalização">
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                                </svg>
+                                                            </button>
+                                                            <button 
+                                                                type="button"
+                                                                onclick="removeSessionPersonalization({{ $persIndex }})" 
                                                                 class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                                                                 title="Remover personalização">
                                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -764,6 +786,7 @@
         @endphp
 
         const budgetItemUnitPrices = @json($budgetItemUnitPrices);
+        const budgetSessionCustomizations = @json(array_values(session('budget_customizations', [])));
         const specialSizeKeys = ['GG', 'EXG', 'G1', 'G2', 'G3'];
         const specialSizeSurchargeRules = @json(\App\Models\SizeSurcharge::getDefaultSurcharges());
 
@@ -1183,6 +1206,118 @@
             currentPersonalizationId = '';
             
             // File upload elements removed - no cleanup needed
+        }
+
+        window.removeSessionPersonalization = async function removeSessionPersonalization(index) {
+            if (!Number.isInteger(index) || index < 0) {
+                return;
+            }
+
+            const confirmed = window.confirm('Deseja remover esta personalização do orçamento?');
+            if (!confirmed) {
+                return;
+            }
+
+            const url = '{{ route("budget.customization.delete", ["index" => "__INDEX__"]) }}'.replace('__INDEX__', String(index));
+
+            try {
+                const response = await fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Erro ao remover personalização.');
+                }
+
+                window.location.reload();
+            } catch (error) {
+                console.error('Erro ao remover personalização da sessão:', error);
+                alert(error.message || 'Erro ao remover personalização.');
+            }
+        }
+
+        window.editSessionPersonalization = function editSessionPersonalization(index) {
+            const customization = budgetSessionCustomizations[index];
+            if (!customization) {
+                alert('Personalização não encontrada para edição.');
+                return;
+            }
+
+            const itemId = parseInt(customization.item_index ?? 0, 10) || 0;
+            const personalizationName = customization.personalization_name || '';
+            const personalizationId = customization.personalization_id || '';
+            const itemQuantity = parseInt(customization.quantity ?? 1, 10) || 1;
+
+            window.openPersonalizationModal(itemId, personalizationName, personalizationId, itemQuantity);
+
+            document.getElementById('editing_personalization_id').value = index;
+            document.getElementById('modalTitle').textContent = `Editar ${personalizationName}`;
+
+            const submitBtn = document.getElementById('personalizationForm')?.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.textContent = 'Salvar alterações';
+            }
+
+            const locationField = document.getElementById('location');
+            if (locationField) {
+                locationField.value = customization.location ?? '';
+
+                if (locationField.value !== String(customization.location ?? '')) {
+                    const matchingOption = Array.from(locationField.options).find((option) => option.textContent.trim() === String(customization.location ?? '').trim());
+                    if (matchingOption) {
+                        locationField.value = matchingOption.value;
+                    }
+                }
+            }
+
+            const sizeField = document.getElementById('size');
+            if (sizeField) {
+                sizeField.value = customization.size ?? '';
+            }
+
+            const quantityField = document.getElementById('quantity');
+            if (quantityField) {
+                quantityField.value = parseInt(customization.quantity ?? 1, 10) || 1;
+            }
+
+            const colorCountField = document.getElementById('color_count');
+            if (colorCountField) {
+                colorCountField.value = parseInt(customization.color_count ?? 1, 10) || 1;
+            }
+
+            const regataCheck = document.getElementById('regataCheckbox');
+            if (regataCheck) {
+                regataCheck.checked = Boolean(customization.regata_discount);
+            }
+
+            const addonsList = document.getElementById('addonsList');
+            const addonsSelect = document.getElementById('addons');
+            if (addonsList) addonsList.innerHTML = '';
+            if (addonsSelect) addonsSelect.innerHTML = '';
+
+            (customization.addons || []).forEach((addonId) => {
+                const addonData = dynamicAvailableAddons.find((addon) => String(addon.id) === String(addonId));
+                if (addonData) {
+                    appendAddonToSelection(addonData);
+                }
+            });
+
+            specialSizeKeys.forEach((sizeKey) => {
+                const input = document.getElementById(`size_surcharge_${sizeKey}`);
+                if (input) {
+                    input.value = customization.size_surcharge_quantities?.[sizeKey] ?? 0;
+                }
+            });
+
+            updateAddonsPrices();
+            updateSpecialSizeSurchargeSummary(getBudgetItemUnitPrice(itemId));
+            calculatePrice();
         }
 
         // Removed handleApplicationImageChange and handleArtFilesChange
