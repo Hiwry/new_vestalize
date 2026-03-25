@@ -1703,6 +1703,9 @@ class KanbanController extends Controller
             }
         }
 
+        // Deduplica por file_path para evitar repetir arquivos compartilhados entre itens
+        $allFiles = $allFiles->unique('file_path')->values();
+
         if ($allFiles->isEmpty()) {
             return back()->with('error', 'Nenhum arquivo encontrado para este pedido.');
         }

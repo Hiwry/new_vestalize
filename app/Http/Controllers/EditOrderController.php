@@ -399,14 +399,7 @@ class EditOrderController extends Controller
 
                         if ($applyAll) {
                             $orderItems = \App\Models\OrderItem::where('order_id', $orderId)->get();
-                            $shouldUpdateName = filled($validated['order_art_name'] ?? null);
-                            foreach ($orderItems as $orderItem) {
-                                $payload = $validated;
-                                if (!$shouldUpdateName) {
-                                    $payload['order_art_name'] = $orderItem->art_name;
-                                }
-                                $wizardService->processSaveOrderArt($orderItem, $payload, $files);
-                            }
+                            $wizardService->processSaveOrderArtForAll($orderItems, $validated, $files);
                         } else {
                             $item = \App\Models\OrderItem::where('order_id', $orderId)->findOrFail($validated['item_id']);
                             $wizardService->processSaveOrderArt($item, $validated, $files);

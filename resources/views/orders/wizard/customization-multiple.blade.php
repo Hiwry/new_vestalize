@@ -813,7 +813,7 @@
             </div>
 
             <!-- Content - Formulário de Arte -->
-            <form id="orderArtForm" action="{{ $customizationAction }}" method="POST" enctype="multipart/form-data" class="px-6 pt-6">
+            <form id="orderArtForm" action="{{ $customizationAction }}" data-url="{{ $customizationAction }}" method="POST" enctype="multipart/form-data" class="px-6 pt-6">
                 @csrf
                 <input type="hidden" name="action" value="save_order_art">
                 
@@ -833,6 +833,13 @@
                         </div>
                     </div>
 
+                    @php
+                        $allArtNames = $order->items->pluck('art_name')->filter()->unique()->values();
+                        $sharedArtName = $allArtNames->count() === 1 ? $allArtNames->first() : '';
+                        $artNamePlaceholder = $allArtNames->count() > 1
+                            ? 'Múltiplos valores — marque "Aplicar a todos" para unificar'
+                            : 'Ex: Logo Cliente, Frente PV';
+                    @endphp
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
                         
                         <!-- Nome da Arte -->
@@ -845,8 +852,8 @@
                                 </div>
                                 Nome da Arte
                             </label>
-                            <input id="order_art_name" type="text" name="order_art_name" value="{{ $order->items->first()?->art_name }}" 
-                                   placeholder="Ex: Logo Cliente, Frente PV"
+                            <input id="order_art_name" type="text" name="order_art_name" value="{{ $sharedArtName }}"
+                                   placeholder="{{ $artNamePlaceholder }}"
                                    class="w-full h-11 px-4 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-[#7c3aed] dark:focus:ring-[#7c3aed] focus:border-transparent transition-all">
                         </div>
                         
@@ -906,10 +913,184 @@
                         </label>
                     </div>
                     
-                    <!-- Preview (hidden by default) -->
-                    <div id="order_art_preview" class="ow-art-summary mt-4 text-sm text-gray-600 dark:text-slate-400 px-4 py-3 hidden"></div>
+                    <!-- Feedback de salvamento -->
+                    <div id="order_art_preview" class="mt-4 hidden" aria-live="polite"></div>
                 </div>
             </form>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var artForm = document.getElementById('orderArtForm');
+                if (!artForm) return;
+
+                artForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    var btn       = artForm.querySelector('[type="submit"]');
+                    var nameInput = document.getElementById('order_art_name');
+                    var filesInput= document.getElementById('order_art_files');
+                    var preview   = document.getElementById('order_art_preview');
+
+                    // Capture values before submit
+                    var artName   = nameInput ? nameInput.value.trim() : '';
+                    var fileNames = filesInput && filesInput.files.length
+                        ? Array.from(filesInput.files).map(function (f) { return f.name; })
+                        : [];
+
+                    // Button loading state
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Salvando...';
+                    }
+
+                    var formData = new FormData(artForm);
+
+                    fetch(artForm.dataset.url, {
+                        method: 'POST',
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                        body: formData,
+                    })
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Salvar';
+                        }
+
+                        if (data.success) {
+                            // Build feedback card
+                            var hasName  = artName.length > 0;
+                            var hasFiles = fileNames.length > 0;
+
+                            var filesHtml = '';
+                            if (hasFiles) {
+                                filesHtml = '<div class="mt-2 flex flex-wrap gap-2">' +
+                                    fileNames.map(function (fn) {
+                                        var ext = fn.split('.').pop().toLowerCase();
+                                        var colors = {
+                                            cdr: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+                                            pdf: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+                                            psd: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+                                            ai:  'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+                                        };
+                                        var cls = colors[ext] || 'bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-300';
+                                        return '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold ' + cls + '"><i class="fa-solid fa-file text-xs"></i>' + fn + '</span>';
+                                    }).join('') +
+                                '</div>';
+                            }
+
+                            preview.className = 'mt-4 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 p-4';
+                            preview.innerHTML =
+                                '<div class="flex items-start gap-3">' +
+                                    '<div class="flex-shrink-0 w-7 h-7 rounded-full bg-green-100 dark:bg-green-800/40 flex items-center justify-center">' +
+                                        '<svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>' +
+                                    '</div>' +
+                                    '<div class="flex-1 min-w-0">' +
+                                        '<p class="text-sm font-semibold text-green-800 dark:text-green-200">' + data.message + (data.apply_all ? ' <span class="ml-1 text-xs font-normal opacity-70">(todos os itens)</span>' : '') + '</p>' +
+                                        (hasName ? '<p class="mt-1 text-xs text-green-700 dark:text-green-300"><span class="font-medium">Nome:</span> ' + artName + '</p>' : '') +
+                                        (hasFiles ? filesHtml : '<p class="mt-1 text-xs text-green-600 dark:text-green-400 opacity-70">Nenhum arquivo novo enviado.</p>') +
+                                    '</div>' +
+                                '</div>';
+
+                            // Clear file input
+                            if (filesInput) filesInput.value = '';
+                        } else {
+                            preview.className = 'mt-4 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-3';
+                            preview.innerHTML = '<p class="text-sm font-semibold text-red-700 dark:text-red-300"><i class="fa-solid fa-triangle-exclamation mr-1"></i>' + (data.message || 'Erro ao salvar.') + '</p>';
+                        }
+                    })
+                    .catch(function () {
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Salvar';
+                        }
+                        if (preview) {
+                            preview.className = 'mt-4 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-3';
+                            preview.innerHTML = '<p class="text-sm font-semibold text-red-700 dark:text-red-300"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Erro de conexão. Tente novamente.</p>';
+                        }
+                    });
+                });
+
+                // --- Limpar nome da arte ---
+                document.querySelectorAll('[data-action="clear-art-name"]').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        artConfirm(
+                            'Limpar nome da arte',
+                            'O nome da arte será removido de todos os itens do pedido. Deseja continuar?',
+                            function () {
+                                var url = btn.getAttribute('data-clear-url');
+                                var csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+                                var fd = new FormData();
+                                fd.append('_token', csrfToken);
+                                fd.append('action', 'clear_art_name');
+                                btn.disabled = true;
+                                btn.textContent = 'Limpando...';
+                                fetch(url, { method: 'POST', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: fd })
+                                    .then(function (r) { return r.json(); })
+                                    .then(function (data) {
+                                        if (data.success) { location.reload(); }
+                                        else { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-times text-xs"></i> Limpar nome'; }
+                                    })
+                                    .catch(function () { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-times text-xs"></i> Limpar nome'; });
+                            }
+                        );
+                    });
+                });
+
+                // --- Excluir arquivo de arte (per-item blade cards) ---
+                document.querySelectorAll('[data-action="delete-art-file"]').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var fileId = btn.getAttribute('data-file-id');
+                        var chip = btn.closest('[data-file-chip]');
+                        artConfirm(
+                            'Remover arquivo',
+                            'O arquivo será excluído permanentemente. Deseja continuar?',
+                            function () {
+                                var csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+                                var fd = new FormData();
+                                fd.append('_token', csrfToken);
+                                fd.append('file_id', fileId);
+                                fd.append('file_type', 'item');
+                                btn.disabled = true;
+                                fetch('/pedidos/arquivo/remover', { method: 'POST', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: fd })
+                                    .then(function (r) { return r.json(); })
+                                    .then(function (data) {
+                                        if (data.success) { if (chip) chip.remove(); }
+                                        else { btn.disabled = false; }
+                                    })
+                                    .catch(function () { btn.disabled = false; });
+                            }
+                        );
+                    });
+                });
+
+                // --- Excluir arquivo base do item (per-item blade cards, corel orphan) ---
+                document.querySelectorAll('[data-action="delete-corel-file"]').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var chip = btn.closest('span');
+                        artConfirm(
+                            'Remover arquivo base',
+                            'O arquivo base do item será removido permanentemente. Deseja continuar?',
+                            function () {
+                                var url = btn.getAttribute('data-clear-url');
+                                var csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+                                var fd = new FormData();
+                                fd.append('_token', csrfToken);
+                                fd.append('action', 'clear_corel_path');
+                                btn.disabled = true;
+                                fetch(url, { method: 'POST', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: fd })
+                                    .then(function (r) { return r.json(); })
+                                    .then(function (data) {
+                                        if (data.success) { if (chip) chip.closest('div').closest('div').remove(); location.reload(); }
+                                        else { btn.disabled = false; }
+                                    })
+                                    .catch(function () { btn.disabled = false; });
+                            }
+                        );
+                    });
+                });
+            });
+            </script>
             <div class="p-6">
                 
                 @if(session('success'))
@@ -1100,30 +1281,53 @@
                             @if($item->art_name || ($item->files && $item->files->count()) || $corelPath)
                                 <div class="ow-soft-panel ow-art-summary mt-3 mx-5 p-4 rounded-2xl border border-gray-200 dark:border-slate-700">
                                     @if($item->art_name)
-                                        <p class="text-sm text-gray-800 dark:text-slate-200 mb-2">
-                                            <span class="font-semibold text-gray-900 dark:text-white">Nome da Arte:</span>
-                                            {{ $item->art_name }}
-                                        </p>
+                                        <div class="flex items-center justify-between mb-2">
+                                            <p class="text-sm text-gray-800 dark:text-slate-200">
+                                                <span class="font-semibold text-gray-900 dark:text-white">Nome da Arte:</span>
+                                                {{ $item->art_name }}
+                                            </p>
+                                            <button type="button"
+                                                    data-action="clear-art-name"
+                                                    data-clear-url="{{ $customizationAction }}"
+                                                    class="inline-flex items-center gap-1 px-2 py-1 text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition">
+                                                <i class="fa-solid fa-times text-xs"></i> Limpar nome
+                                            </button>
+                                        </div>
                                     @endif
                                     @if($item->files && $item->files->count())
                                         <div>
                                             <p class="text-xs font-semibold text-gray-600 dark:text-slate-400 mb-2">Arquivos enviados</p>
                                             <div class="flex flex-wrap gap-2">
                                                 @foreach($item->files as $file)
-                                                    <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="inline-flex items-center px-2.5 py-1 text-xs bg-purple-50 dark:bg-purple-900/30 text-[#7c3aed] dark:text-[#a78bfa] rounded-md border border-purple-100 dark:border-purple-800 hover:bg-purple-100 dark:hover:bg-purple-800/70 transition">
-                                                        {{ $file->file_name }}
-                                                    </a>
+                                                    <span data-file-chip class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs bg-purple-50 dark:bg-purple-900/30 text-[#7c3aed] dark:text-[#a78bfa] rounded-md border border-purple-100 dark:border-purple-800">
+                                                        <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="hover:underline">{{ $file->file_name }}</a>
+                                                        <button type="button"
+                                                                data-action="delete-art-file"
+                                                                data-file-id="{{ $file->id }}"
+                                                                class="text-red-400 hover:text-red-600 dark:hover:text-red-300 font-bold leading-none ml-0.5"
+                                                                title="Remover arquivo">&times;</button>
+                                                    </span>
                                                 @endforeach
                                             </div>
                                         </div>
                                     @endif
                                     @if($corelPath)
+                                        @php
+                                            $corelInFiles = $item->files && $item->files->contains(fn($f) => $f->file_path === $item->corel_file_path);
+                                        @endphp
                                         <div class="{{ ($item->files && $item->files->count()) ? 'mt-3' : '' }}">
                                             <p class="text-xs font-semibold text-gray-600 dark:text-slate-400 mb-2">Arquivo base do item</p>
                                             <div class="flex flex-wrap gap-2">
-                                                <a href="{{ asset('storage/' . ltrim($corelPath, '/')) }}" target="_blank" class="inline-flex items-center px-2.5 py-1 text-xs bg-purple-50 dark:bg-purple-900/30 text-[#7c3aed] dark:text-[#a78bfa] rounded-md border border-purple-100 dark:border-purple-800 hover:bg-purple-100 dark:hover:bg-purple-800/70 transition">
-                                                    {{ basename($corelPath) }}
-                                                </a>
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs bg-purple-50 dark:bg-purple-900/30 text-[#7c3aed] dark:text-[#a78bfa] rounded-md border border-purple-100 dark:border-purple-800">
+                                                    <a href="{{ asset('storage/' . ltrim($corelPath, '/')) }}" target="_blank" class="hover:underline">{{ basename($corelPath) }}</a>
+                                                    @if(!$corelInFiles)
+                                                        <button type="button"
+                                                                data-action="delete-corel-file"
+                                                                data-clear-url="{{ $customizationAction }}"
+                                                                class="text-red-400 hover:text-red-600 dark:hover:text-red-300 font-bold leading-none ml-0.5"
+                                                                title="Remover arquivo base">&times;</button>
+                                                    @endif
+                                                </span>
                                             </div>
                                         </div>
                                     @endif
@@ -1661,6 +1865,31 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de Confirmação para Arte (Limpar nome / Remover arquivo) -->
+    <div id="artActionConfirmModal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-[#10203a] rounded-2xl max-w-sm w-full shadow-xl border border-gray-200 dark:border-slate-700">
+            <div class="px-6 pt-6 pb-2 flex items-start gap-4">
+                <div id="artActionConfirmIcon" class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-red-100 dark:bg-red-900/30">
+                    <i class="fa-solid fa-trash-can text-red-500 dark:text-red-400"></i>
+                </div>
+                <div>
+                    <h3 id="artActionConfirmTitle" class="text-base font-semibold text-gray-900 dark:text-white">Confirmar remoção</h3>
+                    <p id="artActionConfirmBody" class="mt-1 text-sm text-gray-500 dark:text-slate-400"></p>
+                </div>
+            </div>
+            <div class="px-6 py-5 flex justify-end gap-3">
+                <button type="button" id="artActionConfirmCancel"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white transition-colors rounded-lg border border-gray-200 dark:border-slate-600 hover:border-gray-400">
+                    Cancelar
+                </button>
+                <button type="button" id="artActionConfirmOk"
+                        class="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @php
@@ -1669,8 +1898,9 @@
         $corelPath = $item->corel_file_path ?: ($printDesc['corel_file'] ?? null);
         $files = $item->files->map(function($file) {
             return [
+                'id'   => $file->id,
                 'name' => $file->file_name,
-                'url' => asset('storage/' . $file->file_path),
+                'url'  => asset('storage/' . $file->file_path),
             ];
         })->values()->all();
 
@@ -1681,16 +1911,17 @@
 
             if (!$alreadyListed) {
                 $files[] = [
+                    'id'   => null,
                     'name' => basename($corelPath),
-                    'url' => asset('storage/' . ltrim($corelPath, '/')),
+                    'url'  => asset('storage/' . ltrim($corelPath, '/')),
                 ];
             }
         }
 
         return [$item->id => [
-            'art_name' => $item->art_name,
+            'art_name'   => $item->art_name,
             'cover_image' => $item->cover_image_url,
-            'files' => array_values($files),
+            'files'      => array_values($files),
         ]];
     });
 @endphp
@@ -1741,6 +1972,27 @@
 
         // --- Functions ---
 
+        // Confirmação modal reutilizável para ações de arte
+        function artConfirm(title, body, onConfirm) {
+            const modal   = document.getElementById('artActionConfirmModal');
+            const titleEl = document.getElementById('artActionConfirmTitle');
+            const bodyEl  = document.getElementById('artActionConfirmBody');
+            const okBtn   = document.getElementById('artActionConfirmOk');
+            const cancelBtn = document.getElementById('artActionConfirmCancel');
+            if (!modal) { if (onConfirm) onConfirm(); return; }
+            titleEl.textContent = title;
+            bodyEl.textContent  = body;
+            modal.classList.remove('hidden');
+
+            const close = () => modal.classList.add('hidden');
+            const handleOk = () => { close(); if (onConfirm) onConfirm(); okBtn.removeEventListener('click', handleOk); cancelBtn.removeEventListener('click', close); };
+            const handleCancel = () => { close(); okBtn.removeEventListener('click', handleOk); cancelBtn.removeEventListener('click', close); };
+            okBtn.addEventListener('click', handleOk);
+            cancelBtn.addEventListener('click', handleCancel);
+            modal.addEventListener('click', function handleBg(e) { if (e.target === modal) { handleCancel(); modal.removeEventListener('click', handleBg); } }, { once: false });
+        }
+        window.artConfirm = artConfirm;
+
         function renderOrderArtPreview(itemId) {
             if (!artPreview) return;
             const data = orderArtData[itemId] || {};
@@ -1749,7 +2001,10 @@
             let html = '';
 
             if (data.art_name) {
-                html += `<p class="mb-2 text-sm text-gray-700 dark:text-slate-200"><strong class="text-gray-900 dark:text-white">Nome da Arte:</strong> <span class="text-gray-800 dark:text-slate-200">${data.art_name}</span></p>`;
+                html += `<div class="flex items-center justify-between mb-2">
+                    <p class="text-sm text-gray-700 dark:text-slate-200"><strong class="text-gray-900 dark:text-white">Nome da Arte:</strong> <span class="text-gray-800 dark:text-slate-200">${data.art_name}</span></p>
+                    <button type="button" id="btn-clear-art-name" class="inline-flex items-center gap-1 px-2 py-1 text-xs text-red-500 hover:text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition"><i class="fa-solid fa-times text-xs"></i> Limpar nome</button>
+                </div>`;
             }
 
             if (coverImage) {
@@ -1764,8 +2019,13 @@
             }
 
             if (files.length) {
-                const fileLinks = files.map(file => `<a href="${file.url}" target="_blank" class="inline-flex items-center px-2.5 py-1 text-xs bg-purple-50 dark:bg-purple-900/30 text-[#7c3aed] dark:text-purple-300 rounded-md border border-purple-100 dark:border-purple-800 hover:bg-purple-100 dark:hover:bg-purple-800/70 transition">${file.name}</a>`).join(' ');
-                html += `<div class="space-y-2"><p class="text-xs font-semibold text-gray-600 dark:text-slate-400">Arquivos enviados</p><div class="flex flex-wrap gap-2">${fileLinks}</div></div>`;
+                const fileChips = files.map(file => {
+                    const deleteBtn = file.id
+                        ? `<button type="button" class="btn-delete-art-file ml-0.5 text-red-400 hover:text-red-600 font-bold leading-none" data-file-id="${file.id}" title="Remover">&times;</button>`
+                        : `<button type="button" class="btn-clear-corel-file ml-0.5 text-red-400 hover:text-red-600 font-bold leading-none" title="Remover arquivo base">&times;</button>`;
+                    return `<span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-purple-50 dark:bg-purple-900/30 text-[#7c3aed] dark:text-purple-300 rounded-md border border-purple-100 dark:border-purple-800"><a href="${file.url}" target="_blank" class="hover:underline">${file.name}</a>${deleteBtn}</span>`;
+                }).join(' ');
+                html += `<div class="space-y-2"><p class="text-xs font-semibold text-gray-600 dark:text-slate-400">Arquivos enviados</p><div class="flex flex-wrap gap-2">${fileChips}</div></div>`;
             }
 
             if (!html) {
@@ -1776,6 +2036,66 @@
 
             artPreview.innerHTML = html;
             artPreview.classList.remove('hidden');
+
+            // Bind clear-name button
+            const clearBtn = document.getElementById('btn-clear-art-name');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function () {
+                    artConfirm(
+                        'Limpar nome da arte',
+                        'O nome da arte será removido de todos os itens do pedido. Deseja continuar?',
+                        function () {
+                            const url = document.getElementById('orderArtForm').getAttribute('data-url');
+                            const csrf = document.querySelector('meta[name="csrf-token"]').content;
+                            const fd = new FormData(); fd.append('_token', csrf); fd.append('action', 'clear_art_name');
+                            clearBtn.disabled = true; clearBtn.textContent = 'Limpando...';
+                            fetch(url, { method: 'POST', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: fd })
+                                .then(r => r.json()).then(d => { if (d.success) location.reload(); else { clearBtn.disabled = false; clearBtn.innerHTML = '<i class="fa-solid fa-times text-xs"></i> Limpar nome'; } })
+                                .catch(() => { clearBtn.disabled = false; clearBtn.innerHTML = '<i class="fa-solid fa-times text-xs"></i> Limpar nome'; });
+                        }
+                    );
+                });
+            }
+
+            // Bind delete-file buttons (OrderFile record)
+            artPreview.querySelectorAll('.btn-delete-art-file').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const fileId = btn.getAttribute('data-file-id');
+                    const chip = btn.closest('span');
+                    artConfirm(
+                        'Remover arquivo',
+                        'O arquivo será excluído permanentemente. Deseja continuar?',
+                        function () {
+                            const csrf = document.querySelector('meta[name="csrf-token"]').content;
+                            const fd = new FormData(); fd.append('_token', csrf); fd.append('file_id', fileId); fd.append('file_type', 'item');
+                            btn.disabled = true;
+                            fetch('/pedidos/arquivo/remover', { method: 'POST', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: fd })
+                                .then(r => r.json()).then(d => { if (d.success) chip.remove(); else { btn.disabled = false; } })
+                                .catch(() => { btn.disabled = false; });
+                        }
+                    );
+                });
+            });
+
+            // Bind clear-corel buttons (orphaned corel_file_path)
+            artPreview.querySelectorAll('.btn-clear-corel-file').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const chip = btn.closest('span');
+                    artConfirm(
+                        'Remover arquivo base',
+                        'O arquivo base do item será removido permanentemente. Deseja continuar?',
+                        function () {
+                            const url = document.getElementById('orderArtForm').getAttribute('data-url');
+                            const csrf = document.querySelector('meta[name="csrf-token"]').content;
+                            const fd = new FormData(); fd.append('_token', csrf); fd.append('action', 'clear_corel_path');
+                            btn.disabled = true;
+                            fetch(url, { method: 'POST', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: fd })
+                                .then(r => r.json()).then(d => { if (d.success) { chip.remove(); } else { btn.disabled = false; } })
+                                .catch(() => { btn.disabled = false; });
+                        }
+                    );
+                });
+            });
         }
         window.renderOrderArtPreview = renderOrderArtPreview;
 

@@ -561,11 +561,7 @@ class OrderWizardService
                 ->filter(fn (OrderFile $existingFile) => $this->resolveOrderArtFileSlot(pathinfo($existingFile->file_name ?: $existingFile->file_path, PATHINFO_EXTENSION)) === $slot);
 
             foreach ($existingFiles as $existingFile) {
-                if ($existingFile->file_path) {
-                    Storage::disk('public')->delete($existingFile->file_path);
-                }
-
-                $existingFile->delete();
+                $this->deleteOrderFileIfUnshared($existingFile);
             }
 
             $originalName = $file->getClientOriginalName();
@@ -584,6 +580,101 @@ class OrderWizardService
                 $item->forceFill(['corel_file_path' => $filePath])->save();
             }
         }
+    }
+
+    /**
+     * Aplica nome da arte e arquivos a TODOS os itens do pedido de uma só vez.
+     * Os arquivos são enviados uma única vez e o caminho é compartilhado entre todos os itens,
+     * evitando duplicação de arquivos no storage.
+     *
+     * @param \Illuminate\Support\Collection $items
+     * @param array $validated
+     * @param array $files
+     */
+    public function processSaveOrderArtForAll(\Illuminate\Support\Collection $items, array $validated, array $files = []): void
+    {
+        $artName = filled($validated['order_art_name'] ?? null)
+            ? trim($validated['order_art_name'])
+            : null;
+
+        $shouldUpdateName = $artName !== null;
+
+        // Upload each file ONCE and store the metadata keyed by slot
+        $sharedFilesBySlot = [];
+        foreach ($files as $file) {
+            if (!$file) {
+                continue;
+            }
+            $slot = $this->resolveOrderArtFileSlot($file->getClientOriginalExtension());
+            $originalName = $file->getClientOriginalName();
+            $fileName = time() . '_' . uniqid() . '_' . $originalName;
+            $filePath = $file->storeAs('orders/art_files', $fileName, 'public');
+            $sharedFilesBySlot[$slot] = [
+                'path'          => $filePath,
+                'original_name' => $originalName,
+                'mime_type'     => $file->getMimeType(),
+                'file_size'     => $file->getSize(),
+            ];
+        }
+
+        $firstItem = true;
+
+        foreach ($items as $item) {
+            $effectiveArtName = $shouldUpdateName ? $artName : $item->art_name;
+
+            $item->update(['art_name' => $effectiveArtName]);
+
+            if ($effectiveArtName !== null) {
+                $item->sublimations()->update(['art_name' => $effectiveArtName]);
+            }
+
+            foreach ($sharedFilesBySlot as $slot => $fileInfo) {
+                // Remove existing files for this slot, respecting shared paths
+                $existingFiles = $item->files()
+                    ->get()
+                    ->filter(fn (OrderFile $existingFile) => $this->resolveOrderArtFileSlot(
+                        pathinfo($existingFile->file_name ?: $existingFile->file_path, PATHINFO_EXTENSION)
+                    ) === $slot);
+
+                foreach ($existingFiles as $existingFile) {
+                    $this->deleteOrderFileIfUnshared($existingFile);
+                }
+
+                // Cria o registro OrderFile apenas para o primeiro item.
+                // Os demais itens referenciam o arquivo via corel_file_path,
+                // evitando registros duplicados para o mesmo arquivo físico.
+                if ($firstItem) {
+                    OrderFile::create([
+                        'order_item_id' => $item->id,
+                        'file_name'     => $fileInfo['original_name'],
+                        'file_path'     => $fileInfo['path'],
+                        'file_type'     => $fileInfo['mime_type'],
+                        'file_size'     => $fileInfo['file_size'],
+                    ]);
+                }
+
+                if ($slot === 'corel') {
+                    $item->forceFill(['corel_file_path' => $fileInfo['path']])->save();
+                }
+            }
+
+            $firstItem = false;
+        }
+    }
+
+    /**
+     * Exclui o registro de OrderFile e o arquivo físico apenas se nenhum outro item
+     * referenciar o mesmo caminho (arquivo compartilhado).
+     */
+    protected function deleteOrderFileIfUnshared(OrderFile $orderFile): void
+    {
+        if ($orderFile->file_path) {
+            $sharedCount = OrderFile::where('file_path', $orderFile->file_path)->count();
+            if ($sharedCount <= 1) {
+                Storage::disk('public')->delete($orderFile->file_path);
+            }
+        }
+        $orderFile->delete();
     }
 
     protected function resolveOrderArtFileSlot(?string $extension): string

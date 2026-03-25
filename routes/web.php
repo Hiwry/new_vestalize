@@ -642,6 +642,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\ProductionDashboardController::class, 'index'])->name('dashboard');
     });
 
+    // Minhas Solicitações (Vendedor) — edição e antecipação de pedidos próprios
+    Route::get('/minhas-solicitacoes', function () {
+        $user = Auth::user();
+        $editRequests = \App\Models\OrderEditRequest::with(['order.client'])
+            ->whereHas('order')
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $deliveryRequests = \App\Models\DeliveryRequest::with(['order.client'])
+            ->whereHas('order')
+            ->where('requested_by', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        return view('vendor.requests.index', compact('editRequests', 'deliveryRequests'));
+    })->name('vendor.requests.index');
+
     // Solicitações de Antecipação de Entrega
     Route::post('/delivery-requests', [\App\Http\Controllers\DeliveryRequestController::class, 'store']);
     Route::get('/delivery-requests', [\App\Http\Controllers\DeliveryRequestController::class, 'index'])->name('delivery-requests.index');

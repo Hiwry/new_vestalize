@@ -41,6 +41,7 @@
 
 
     .dark.avento-theme .ow-card, .dark.avento-theme .ow-progress, .dark.avento-theme .ow-field-panel {
+        background: var(--sh-card-bg) !important;
         background-color: var(--sh-card-bg) !important;
         box-shadow: none !important;
     }
@@ -174,8 +175,14 @@
 
     .dark .ow-field-panel,
     .dark .ow-item-panel,
-    .dark .ow-payment-row,
+    .dark .ow-payment-row {
+        background: var(--sh-card-bg) !important;
+        box-shadow: none;
+    }
+
     .dark .ow-surcharge-box {
+        background: rgba(15, 23, 42, 0.5) !important;
+        border-color: rgba(148, 163, 184, 0.15) !important;
         box-shadow: none;
     }
 

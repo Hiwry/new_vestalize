@@ -1843,27 +1843,21 @@
             window.currentModalOrderData = order;
             const payment = order.payment;
             const isPersonalized = order.origin === 'personalized';
-            // Contar arquivos das personalizações E dos itens
-            const totalFiles = order.items.reduce((sum, item) => {
-                let itemFilesCount = 0;
-                // Contar arquivos das personalizações
+            // Contar arquivos das personalizações E dos itens, deduplicando por file_path
+            const seenFilePaths = new Set();
+            order.items.forEach(item => {
+                // Arquivos das sublimações
                 if (item.sublimations) {
                     item.sublimations.forEach(sub => {
-                        if (sub.files) {
-                            itemFilesCount += sub.files.length;
-                        }
+                        if (sub.files) sub.files.forEach(f => seenFilePaths.add(f.file_path || f.url));
                     });
                 }
-                // Contar arquivos dos itens
-                if (item.files) {
-                    itemFilesCount += item.files.length;
-                }
-                // Contar arquivo corel direto no item (SUB. TOTAL)
-                if (item.corel_file_path) {
-                    itemFilesCount += 1;
-                }
-                return sum + itemFilesCount;
-            }, 0);
+                // Arquivos do item
+                if (item.files) item.files.forEach(f => seenFilePaths.add(f.file_path || f.url));
+                // corel_file_path (pode ser orphan não listado em files)
+                if (item.corel_file_path) seenFilePaths.add(item.corel_file_path);
+            });
+            const totalFiles = seenFilePaths.size;
             
             let html = `
                 <!-- Container principal com 2 colunas -->
@@ -2035,6 +2029,7 @@
                                         ? item.cover_image
                                         : `/storage/${item.cover_image.replace(/^\/+/, '')}`))
                                 : null);
+                        const corelAlreadyInFiles = item.corel_file_path && item.files && item.files.some(f => f.file_path === item.corel_file_path);
 
                         return `
                     <div id="modal-item-${index}" class="order-modal-card accent p-6 space-y-5 ${index === 0 ? '' : 'hidden'} fade-in">
@@ -2222,7 +2217,7 @@
                             </div>
                             
                             <div class="space-y-2" id="files-list-${item.id}">
-                                ${item.corel_file_path ? `
+                                ${item.corel_file_path && !corelAlreadyInFiles ? `
                                     <div class="flex items-center justify-between bg-purple-50 dark:bg-purple-900/20 rounded-md p-2 text-sm border border-purple-200 dark:border-purple-700">
                                         <div class="flex items-center">
                                             <svg class="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2286,7 +2281,7 @@
                                         </div>
                                     `).join('') : ''
                                 ).filter(f => f).join('') : ''}
-                                ${(!item.files || item.files.length === 0) && (!item.sublimations || !item.sublimations.some(sub => sub.files && sub.files.length > 0)) && !item.corel_file_path ? 
+                                ${(!item.files || item.files.length === 0) && (!item.sublimations || !item.sublimations.some(sub => sub.files && sub.files.length > 0)) && (!item.corel_file_path || corelAlreadyInFiles) ? 
                                     '<p class="file-empty-state" id="no-files-msg-' + item.id + '">Nenhum arquivo anexado.</p>' : ''
                                 }
                             </div>

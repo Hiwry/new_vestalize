@@ -205,9 +205,13 @@ class ClientController extends Controller
             \Log::info('Item encontrado: ID ' . $item->id);
 
             $previousArtName = $item->art_name;
-            
-            // Atualizar o nome da arte
-            $item->update(['art_name' => $request->art_name]);
+
+            // Atualizar o nome da arte em todos os itens do pedido
+            $item->order->items()->update(['art_name' => $request->art_name]);
+            // Também atualiza as sublimações de todos os itens
+            foreach ($item->order->items as $orderItem) {
+                $orderItem->sublimations()->update(['art_name' => $request->art_name]);
+            }
 
             OrderLog::create([
                 'order_id' => $item->order_id,

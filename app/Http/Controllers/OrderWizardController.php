@@ -18,6 +18,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
@@ -779,33 +780,83 @@ class OrderWizardController extends Controller
             return view('orders.wizard.customization-multiple', compact('order', 'itemPersonalizations', 'personalizationData', 'locations', 'specialOptions', 'personalizationSettings', 'personalizationLookup', 'orderArtData'));
         }
 
+        if ($request->input('action') === 'clear_corel_path') {
+            $orderId = session('current_order_id') ?? session('edit_order_id');
+            $order = Order::with('items')->findOrFail($orderId);
+            foreach ($order->items as $it) {
+                if ($it->corel_file_path) {
+                    Storage::disk('public')->delete($it->corel_file_path);
+                    $it->forceFill(['corel_file_path' => null])->save();
+                }
+            }
+            if ($request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'Arquivo base removido.']);
+            }
+            return redirect()->back()->with('success', 'Arquivo base removido com sucesso.');
+        }
+
+        if ($request->input('action') === 'clear_art_name') {
+            $orderId = session('current_order_id') ?? session('edit_order_id');
+            $order = Order::with('items.files', 'items.sublimations')->findOrFail($orderId);
+            $order->items()->update(['art_name' => null]);
+            foreach ($order->items as $it) {
+                $it->sublimations()->update(['art_name' => null]);
+            }
+            if ($request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'Nome da arte removido.']);
+            }
+            return redirect()->back()->with('success', 'Nome da arte removido com sucesso.');
+        }
+
         if ($request->input('action') === 'save_order_art') {
             $orderId = session('current_order_id') ?? session('edit_order_id');
             $validated = $request->validate([
                 'item_id' => 'required|exists:order_items,id',
                 'order_art_name' => 'nullable|string|max:255',
                 'order_art_files' => 'nullable|array',
-                'order_art_files.*' => 'nullable|file|max:51200|mimes:cdr,ai,eps,pdf,psd,jpg,jpeg,png,webp',
+                'order_art_files.*' => [
+                    'nullable', 'file', 'max:51200',
+                    function ($attribute, $value, $fail) {
+                        $ext = strtolower($value->getClientOriginalExtension());
+                        $allowed = ['cdr', 'ai', 'eps', 'pdf', 'psd', 'jpg', 'jpeg', 'png', 'webp'];
+                        if (!in_array($ext, $allowed)) {
+                            $fail('O arquivo deve ser do tipo: ' . implode(', ', $allowed) . '.');
+                        }
+                    },
+                ],
                 'apply_all_items' => 'nullable|boolean',
             ]);
 
             $files = $request->file('order_art_files', []);
             $applyAll = $request->boolean('apply_all_items');
 
-            if ($applyAll) {
-                $order = Order::with('items')->findOrFail($orderId);
-                $shouldUpdateName = filled($validated['order_art_name'] ?? null);
+            $order = Order::with('items')->findOrFail($orderId);
 
-                foreach ($order->items as $orderItem) {
-                    $payload = $validated;
-                    if (!$shouldUpdateName) {
-                        $payload['order_art_name'] = $orderItem->art_name;
-                    }
-                    $this->orderWizardService->processSaveOrderArt($orderItem, $payload, $files);
-                }
+            if ($applyAll) {
+                $this->orderWizardService->processSaveOrderArtForAll($order->items, $validated, $files);
             } else {
                 $item = OrderItem::where('order_id', $orderId)->findOrFail($validated['item_id']);
                 $this->orderWizardService->processSaveOrderArt($item, $validated, $files);
+
+                // O nome da arte é sempre propagado para todos os itens do pedido
+                if (filled($validated['order_art_name'] ?? null)) {
+                    $order->items()->update(['art_name' => trim($validated['order_art_name'])]);
+                    foreach ($order->items as $it) {
+                        $it->sublimations()->update(['art_name' => trim($validated['order_art_name'])]);
+                    }
+                }
+            }
+
+            $savedFileNames = collect($files)->map(fn ($f) => $f->getClientOriginalName())->values()->all();
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success'    => true,
+                    'message'    => $applyAll ? 'Arte aplicada em todos os itens!' : 'Arte salva com sucesso!',
+                    'art_name'   => $validated['order_art_name'] ?? null,
+                    'file_names' => $savedFileNames,
+                    'apply_all'  => $applyAll,
+                ]);
             }
 
             return redirect()->back()->with('success', $applyAll ? 'Arte aplicada em todos os itens com sucesso!' : 'Arte do item atualizada com sucesso!');

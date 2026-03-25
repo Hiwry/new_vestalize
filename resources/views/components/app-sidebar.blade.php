@@ -282,6 +282,21 @@
                 </a>
             </div>
 
+            <!-- LINK: MINHAS SOLICITAÇÕES (Vendedor) -->
+            @if(Auth::user()->isVendedor())
+            <div class="mt-1">
+                <a href="{{ route('vendor.requests.index') }}"
+                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('vendor.requests.*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   title="Minhas Solicitações">
+                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                        <i class="fa-solid fa-file-signature text-lg"></i>
+                    </div>
+                    <span class="ml-4" x-show="expanded">Solicitações</span>
+                </a>
+            </div>
+            @endif
+
             <!-- GRUPO: ESTOQUE -->
              @php
                 $canStock = Auth::user()->tenant_id === null || Auth::user()->tenant?->canAccess('stock');

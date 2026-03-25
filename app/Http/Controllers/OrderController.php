@@ -244,8 +244,17 @@ class OrderController extends Controller
         }
 
         $fileName = $file->file_name ?? null;
-        if ($file->file_path) {
-            Storage::disk('public')->delete($file->file_path);
+        $filePath = $file->file_path ?? null;
+        if ($filePath) {
+            Storage::disk('public')->delete($filePath);
+        }
+
+        // Limpa corel_file_path em TODOS os itens do pedido que referenciam este arquivo
+        if ($validated['file_type'] === 'item' && $filePath) {
+            $orderId = $file->orderItem->order_id ?? null;
+            if ($orderId) {
+                $order->items()->where('corel_file_path', $filePath)->update(['corel_file_path' => null]);
+            }
         }
 
         $file->delete();
