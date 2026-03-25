@@ -1266,7 +1266,7 @@ class BudgetController extends Controller
                     'unit_price' => $personalizationTypes['unit_price'] ?? 0,
                     'total_price' => $budgetItem->item_total,
                     'art_notes' => $personalizationTypes['notes'] ?? '',
-                    'sizes' => !empty($itemSizes) ? json_encode($itemSizes) : null, // Salvar apenas se houver tamanhos
+                    'sizes' => !empty($itemSizes) ? $itemSizes : null, // Salvar apenas se houver tamanhos
                     'cover_image' => $budgetItem->cover_image ? $this->copyImageFile($budgetItem->cover_image, 'orders/items/covers') : null,
                 ]);
                 

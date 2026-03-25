@@ -4285,7 +4285,9 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         formData.append('action', 'add_sublimation_item');
         formData.append('sublimation_type', typeSlug);
         formData.append('art_name', artName);
-        formData.append('tamanhos', JSON.stringify(tamanhos));
+        Object.keys(tamanhos).forEach(size => {
+            formData.append(`tamanhos[${size}]`, tamanhos[size]);
+        });
         formData.append('quantity', totalQty);
         formData.append('unit_price', subWizardUnitPrice);
         formData.append('art_notes', document.getElementById('sub_wizard_notes')?.value || '');

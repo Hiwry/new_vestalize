@@ -547,8 +547,14 @@
                 $isSimpleItem = !$hasRealSizes;
                 $printType = trim($item->print_type ?? '');
                 $fabric = trim($item->fabric ?? '');
-                
-                $shouldShowTotalOnly = (($printType === 'Sublimação Local' || $fabric === 'Produto Pronto') && $isSimpleItem);
+
+                // Quando não há tamanhos reais (padrão), mostrar apenas o total
+                $shouldShowTotalOnly = $isSimpleItem;
+
+                // Se os tamanhos estão vazios/nulos, usar a quantidade do item como fallback
+                if ($totalQuantity === 0) {
+                    $totalQuantity = (int)$item->quantity;
+                }
             @endphp
 
             <div class="mb-3">
