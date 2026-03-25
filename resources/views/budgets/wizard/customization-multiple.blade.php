@@ -325,7 +325,7 @@
                                     // Agrupar por tipo de personalização
                                     $groupedPersonalizations = $itemCustomizations->groupBy(function($custom) {
                                         return strtoupper($custom['personalization_name'] ?? $custom['personalization_type'] ?? '');
-                                    });
+                                    }, true);
                                 @endphp
                                 
                                 @foreach($persIds as $persId)
