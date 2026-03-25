@@ -781,6 +781,10 @@
                 .trim()
                 .toUpperCase();
         };
+        const personalizationSizesByType = Object.entries(personalizationSizes).reduce((acc, [type, data]) => {
+            acc[normalizeTypeKey(type)] = data;
+            return acc;
+        }, {});
 
         const personalizationForm = document.getElementById('personalizationForm');
         let listenerRegistered = false;
@@ -798,7 +802,7 @@
             // Normalizar a chave do tipo (remover espaços, pontos, etc se necessário para bater com as chaves do array)
             // Mas aqui as chaves parecem ser strings diretas como 'DTF', 'SERIGRAFIA', etc.
             const typeKey = normalizeTypeKey(type);
-            const typeData = personalizationSizes[typeKey] || personalizationSizes[type];
+            const typeData = personalizationSizesByType[typeKey] || personalizationSizes[type];
             
             if (typeData && typeData.sizes) {
                 // Verificar se ?? um array antes de iterar
@@ -938,7 +942,7 @@
             };
 
             // Mostrar/ocultar campos baseado no tipo de personalização
-            if (normalizedType === 'SUB. TOTAL') {
+            if (normalizedType === 'SUB TOTAL') {
                 toggleField('locationField', false);
                 toggleField('sizeField', false);
                 toggleField('quantityField', true);
@@ -950,7 +954,7 @@
                 toggleField('quantityField', true);
                 toggleField('colorDetailsField', false);
                 showAddonsField();
-            } else if (normalizedType === 'SUB. LOCAL') {
+            } else if (normalizedType === 'SUB LOCAL') {
                 toggleField('locationField', true);
                 toggleField('sizeField', true);
                 toggleField('quantityField', true);
@@ -1017,11 +1021,11 @@
                 return false;
             }
             
-            const persType = document.getElementById('modal_personalization_type').value;
+            const persType = normalizeTypeKey(document.getElementById('modal_personalization_type').value);
             let isValid = true;
             let errorMessage = '';
             
-            if (persType === 'SUB. TOTAL') {
+            if (persType === 'SUB TOTAL') {
                 // Validation for art files removed
                 /*
                 const artFiles = document.getElementById('art_files').files.length;
@@ -1732,7 +1736,7 @@
                 quantity = parseInt(quantityField.value) || 1;
             }
             
-            if (persType === 'SUB. TOTAL') {
+            if (persType === 'SUB TOTAL') {
                 if (!persType || quantity <= 0) {
                     document.getElementById('priceDisplay').classList.add('hidden');
                     return;
@@ -1756,11 +1760,11 @@
             }
             
             let apiType = persType;
-            if (persType === 'SUB. LOCAL') apiType = 'SUB. LOCAL';
-            if (persType === 'SUB. TOTAL') apiType = 'SUB. TOTAL';
+            if (persType === 'SUB LOCAL') apiType = 'SUB. LOCAL';
+            if (persType === 'SUB TOTAL') apiType = 'SUB. TOTAL';
             
             try {
-                const sizeForApi = persType === 'SUB. TOTAL' ? 'CACHARREL' : size;
+                const sizeForApi = persType === 'SUB TOTAL' ? 'CACHARREL' : size;
                 
                 // Verificar cache antes de chamar API
                 const currentParams = `${apiType}|${sizeForApi}|${quantity}`;
@@ -1854,7 +1858,7 @@
                 'SERIGRAFIA': 5.00,
                 'EMBORRACHADO': 8.00,
                 'SUBLIMACAO': 3.50,
-                'SUB. TOTAL': 2.50,
+                'SUB TOTAL': 2.50,
                 'BORDADO': 12.00,
                 'DTF': 4.00
             };
@@ -2146,6 +2150,7 @@
                 const pers = data.personalization;
                 
                 const persType = pers.application_type.toUpperCase();
+                const normalizedPersType = normalizeTypeKey(persType);
                 
                 // Buscar o ID do tipo de personalização
                 const persId = await fetch(`/api/product-options/find?type=personalizacao&name=${encodeURIComponent(persType)}`, {
@@ -2174,19 +2179,19 @@
                 };
 
                 // Mostrar/ocultar campos baseado no tipo
-                toggleField('colorCountField', persType === 'SERIGRAFIA' || persType === 'EMBORRACHADO');
+                toggleField('colorCountField', normalizedPersType === 'SERIGRAFIA' || normalizedPersType === 'EMBORRACHADO');
                 
-                if (persType === 'SUB. TOTAL') {
+                if (normalizedPersType === 'SUB TOTAL') {
                     toggleField('locationField', false);
                     toggleField('sizeField', false);
                     toggleField('colorDetailsField', false);
                     showAddonsField();
-                } else if (persType === 'DTF') {
+                } else if (normalizedPersType === 'DTF') {
                     toggleField('locationField', true);
                     toggleField('sizeField', true);
                     toggleField('colorDetailsField', false);
                     showAddonsField();
-                } else if (persType === 'SUB. LOCAL') {
+                } else if (normalizedPersType === 'SUB LOCAL') {
                     toggleField('locationField', true);
                     toggleField('sizeField', true);
                     toggleField('colorDetailsField', false);
