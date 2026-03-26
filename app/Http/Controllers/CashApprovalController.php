@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CashTransaction;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Services\CashApprovalSyncService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,6 +17,11 @@ use Illuminate\View\View;
 
 class CashApprovalController extends Controller
 {
+    public function __construct(
+        private CashApprovalSyncService $cashApprovalSyncService
+    ) {
+    }
+
     /**
      * Lista de pedidos e vendas pendentes de aprovacao.
      */
@@ -102,7 +108,7 @@ class CashApprovalController extends Controller
         }
 
         DB::transaction(function () use ($order, $payment) {
-            $this->syncCashTransactionsForApprovedMethods($order, $payment, 'Aprovado por');
+            $this->cashApprovalSyncService->syncApprovedPayment($order, $payment, 'Aprovado por');
 
             $payment->update([
                 'cash_approved' => true,
@@ -144,7 +150,7 @@ class CashApprovalController extends Controller
                 'entry_approved_at' => now(),
             ]);
 
-            $this->syncCashTransactionsForApprovedMethods($order, $payment, 'Entrada aprovada por');
+            $this->cashApprovalSyncService->syncApprovedPayment($order, $payment, 'Entrada aprovada por');
 
             if (($payment->remaining_amount ?? 0) <= 0) {
                 $payment->update([
@@ -208,7 +214,7 @@ class CashApprovalController extends Controller
                 'status' => 'pago',
             ]);
 
-            $this->syncCashTransactionsForApprovedMethods($order, $payment->fresh(), 'Aprovado (restante) por');
+            $this->cashApprovalSyncService->syncApprovedPayment($order, $payment->fresh(), 'Aprovado (restante) por');
         });
 
         return response()->json([
@@ -362,7 +368,7 @@ class CashApprovalController extends Controller
                 }
 
                 DB::transaction(function () use ($order) {
-                    $this->syncCashTransactionsForApprovedMethods($order, $order->payment, 'Aprovado em lote por');
+                    $this->cashApprovalSyncService->syncApprovedPayment($order, $order->payment, 'Aprovado em lote por');
 
                     $order->payment->update([
                         'cash_approved' => true,
@@ -408,140 +414,4 @@ class CashApprovalController extends Controller
         ]);
     }
 
-    private function syncCashTransactionsForApprovedMethods(Order $order, Payment $payment, string $actionLabel): void
-    {
-        $approvalTimestamp = now('America/Sao_Paulo');
-        $existingTransactions = $order->cashTransactions()
-            ->where('type', 'entrada')
-            ->where('category', 'Venda')
-            ->orderBy('id')
-            ->get();
-
-        $usedTransactionIds = [];
-        $paymentMethods = is_array($payment->payment_methods) ? $payment->payment_methods : [];
-
-        if (empty($paymentMethods) && (float) ($payment->entry_amount ?? 0) > 0) {
-            $paymentMethods[] = [
-                'id' => 'fallback-entry',
-                'method' => $payment->payment_method ?: $payment->method ?: 'pix',
-                'amount' => (float) $payment->entry_amount,
-                'date' => optional($payment->payment_date ?? $payment->entry_date)->format('Y-m-d H:i:s') ?? now()->format('Y-m-d H:i:s'),
-            ];
-        }
-
-        foreach ($paymentMethods as $method) {
-            $normalizedMethod = $this->normalizePaymentMethodData($method, $payment);
-
-            if (!$normalizedMethod) {
-                continue;
-            }
-
-            $matchingTransaction = $this->findMatchingCashTransaction(
-                $existingTransactions,
-                $normalizedMethod,
-                $usedTransactionIds
-            );
-
-            if ($matchingTransaction) {
-                $usedTransactionIds[] = $matchingTransaction->id;
-
-                $updates = [];
-
-                if ($matchingTransaction->status !== 'confirmado') {
-                    $updates['status'] = 'confirmado';
-                    $updates['transaction_date'] = $approvalTimestamp;
-                    $updates['notes'] = $this->appendApprovalNote($matchingTransaction->notes, $actionLabel);
-                }
-
-                if (empty($matchingTransaction->payment_methods)) {
-                    $updates['payment_methods'] = [[
-                        'method' => $normalizedMethod['method'],
-                        'amount' => $normalizedMethod['amount'],
-                        'date' => $normalizedMethod['date']->format('Y-m-d H:i:s'),
-                    ]];
-                }
-
-                if (!empty($updates)) {
-                    $matchingTransaction->update($updates);
-                }
-
-                continue;
-            }
-
-            $created = CashTransaction::create([
-                'store_id' => $order->store_id,
-                'type' => 'entrada',
-                'category' => 'Venda',
-                'description' => "Pagamento do Pedido #" . str_pad((string) $order->id, 6, '0', STR_PAD_LEFT) . " - Cliente: " . ($order->client->name ?? 'N/A'),
-                'amount' => $normalizedMethod['amount'],
-                'payment_method' => $normalizedMethod['method'],
-                'payment_methods' => [[
-                    'method' => $normalizedMethod['method'],
-                    'amount' => $normalizedMethod['amount'],
-                    'date' => $normalizedMethod['date']->format('Y-m-d H:i:s'),
-                ]],
-                'status' => 'confirmado',
-                'transaction_date' => $approvalTimestamp,
-                'order_id' => $order->id,
-                'user_id' => $order->user_id,
-                'user_name' => $order->user?->name ?? $order->seller ?? Auth::user()?->name ?? 'Sistema',
-                'notes' => $this->appendApprovalNote('Transacao gerada automaticamente na aprovacao do caixa.', $actionLabel),
-            ]);
-
-            $usedTransactionIds[] = $created->id;
-        }
-
-        CashTransaction::where('order_id', $order->id)
-            ->where('type', 'entrada')
-            ->where('status', 'pendente')
-            ->update([
-                'status' => 'confirmado',
-                'transaction_date' => $approvalTimestamp,
-                'notes' => $this->appendApprovalNote(null, $actionLabel),
-            ]);
-    }
-
-    private function normalizePaymentMethodData(array $method, Payment $payment): ?array
-    {
-        $amount = round((float) ($method['amount'] ?? 0), 2);
-        if ($amount <= 0) {
-            return null;
-        }
-
-        $methodName = strtolower(trim((string) ($method['method'] ?? $payment->payment_method ?? $payment->method ?? 'pix')));
-        $dateValue = $method['date'] ?? $payment->payment_date ?? $payment->entry_date ?? now();
-
-        return [
-            'method' => $methodName !== '' ? $methodName : 'pix',
-            'amount' => $amount,
-            'date' => Carbon::parse($dateValue),
-        ];
-    }
-
-    private function findMatchingCashTransaction($transactions, array $method, array $usedTransactionIds): ?CashTransaction
-    {
-        $sameDayMatch = $transactions->first(function (CashTransaction $transaction) use ($method, $usedTransactionIds) {
-            return !in_array($transaction->id, $usedTransactionIds, true)
-                && strtolower((string) $transaction->payment_method) === $method['method']
-                && abs((float) $transaction->amount - $method['amount']) < 0.01
-                && optional($transaction->transaction_date)?->isSameDay($method['date']);
-        });
-
-        if ($sameDayMatch) {
-            return $sameDayMatch;
-        }
-
-        return $transactions->first(function (CashTransaction $transaction) use ($method, $usedTransactionIds) {
-            return !in_array($transaction->id, $usedTransactionIds, true)
-                && strtolower((string) $transaction->payment_method) === $method['method']
-                && abs((float) $transaction->amount - $method['amount']) < 0.01;
-        });
-    }
-
-    private function appendApprovalNote(?string $currentNotes, string $actionLabel): string
-    {
-        $note = $actionLabel . ': ' . (Auth::user()->name ?? 'Sistema') . ' em ' . now()->format('d/m/Y H:i');
-
-        return trim(($currentNotes ? ($currentNotes . PHP_EOL) : '') . $note);
-    }
 }
