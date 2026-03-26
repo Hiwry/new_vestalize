@@ -298,7 +298,7 @@
     @foreach($order->items as $item)
     @php
         // Garantir que sizes seja um array
-        $itemSizesForSum = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) && !empty($item->sizes) ? json_decode($item->sizes, true) : []);
+        $itemSizesForSum = $item->normalized_sizes ?? [];
         $itemSizesForSum = $itemSizesForSum ?? [];
         
         // Priorizar a quantidade total do item se a soma dos tamanhos for zero
@@ -393,7 +393,7 @@
             @php
                 $allSizes = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3', 'ESPECIAL'];
                 // Garantir que sizes seja um array
-                $itemSizes = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) && !empty($item->sizes) ? json_decode($item->sizes, true) : []);
+                $itemSizes = $item->normalized_sizes ?? [];
                 $itemSizes = $itemSizes ?? [];
 
                 // Verificação de tamanhos reais

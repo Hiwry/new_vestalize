@@ -8,6 +8,19 @@ use App\Helpers\ImageHelper;
 
 class OrderItem extends Model
 {
+    private const SIZE_ALIASES = [
+        'UNICO' => 'UN',
+        'ÚNICO' => 'UN',
+        'UNICO ' => 'UN',
+        'ÚNICA' => 'UN',
+        'ÚNICA ' => 'UN',
+        'UN' => 'UN',
+        'UN.' => 'UN',
+        'ESPECIAL' => 'ESPECIAL',
+        'ESPEC' => 'ESPECIAL',
+        'ESPECIAL ' => 'ESPECIAL',
+    ];
+
     protected $fillable = [
         'order_id',
         'item_number',
@@ -66,6 +79,11 @@ class OrderItem extends Model
     public function files()
     {
         return $this->hasMany(OrderFile::class, 'order_item_id');
+    }
+
+    public function getNormalizedSizesAttribute(): array
+    {
+        return $this->normalizeSizesValue($this->getRawOriginal('sizes') ?? $this->sizes);
     }
 
     public function getCoverImageUrlAttribute(): ?string
@@ -191,5 +209,56 @@ class OrderItem extends Model
         
         $option = ProductOption::where('id', $value)->where('type', 'cor')->first();
         return $option ? $option->name : $value;
+    }
+
+    private function normalizeSizesValue(mixed $value): array
+    {
+        if (is_string($value) && $value !== '') {
+            $decoded = json_decode($value, true);
+            $value = json_last_error() === JSON_ERROR_NONE ? $decoded : [];
+        }
+
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($value as $key => $entry) {
+            if (is_array($entry)) {
+                $sizeName = $entry['size'] ?? $entry['name'] ?? $entry['label'] ?? $key;
+                $quantity = $entry['quantity'] ?? $entry['qty'] ?? $entry['value'] ?? $entry['amount'] ?? 0;
+            } elseif (is_object($entry)) {
+                $sizeName = $entry->size ?? $entry->name ?? $entry->label ?? $key;
+                $quantity = $entry->quantity ?? $entry->qty ?? $entry->value ?? $entry->amount ?? 0;
+            } else {
+                $sizeName = $key;
+                $quantity = $entry;
+            }
+
+            if (is_int($sizeName) || is_numeric($sizeName)) {
+                continue;
+            }
+
+            $sizeKey = $this->normalizeSingleSizeKey((string) $sizeName);
+            $qty = (int) $quantity;
+
+            if ($sizeKey === '' || $qty <= 0) {
+                continue;
+            }
+
+            $normalized[$sizeKey] = ($normalized[$sizeKey] ?? 0) + $qty;
+        }
+
+        return $normalized;
+    }
+
+    private function normalizeSingleSizeKey(string $size): string
+    {
+        $normalized = mb_strtoupper(trim($size), 'UTF-8');
+        $normalized = str_replace(['.', '  '], ['', ' '], $normalized);
+        $normalized = self::SIZE_ALIASES[$normalized] ?? $normalized;
+
+        return trim($normalized);
     }
 }

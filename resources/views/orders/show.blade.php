@@ -439,8 +439,7 @@
                         <p class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Tamanhos:</p>
                         @php
                             // Garantir que sizes seja um array
-                            $sizes = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) && !empty($item->sizes) ? json_decode($item->sizes, true) : []);
-                            $sizes = $sizes ?? [];
+                            $sizes = $item->normalized_sizes ?? [];
                             $sizeOrder = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3'];
                             $sortedSizes = collect($sizes)->filter(fn($qty) => $qty > 0)->sortBy(function($qty, $size) use ($sizeOrder) {
                                 $norm = strtoupper($size);

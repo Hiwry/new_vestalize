@@ -526,9 +526,7 @@
 
             <!-- Tamanhos -->
             @php
-                // Garantir que sizes seja um array
-                $itemSizes = is_array($item->sizes) ? $item->sizes : (is_string($item->sizes) && !empty($item->sizes) ? json_decode($item->sizes, true) : []);
-                $itemSizes = $itemSizes ?? [];
+                $itemSizes = $item->normalized_sizes ?? [];
 
                 // Verificação de tamanhos reais (mesma lógica do Kanban)
                 $hasRealSizes = false;
