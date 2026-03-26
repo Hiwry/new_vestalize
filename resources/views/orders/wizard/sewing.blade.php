@@ -4371,6 +4371,10 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         startingQuantityFrom: null,
         typeLabel: '',
         models: [],
+        modelsSurchargeDisabled: [],
+        collars: [],
+        sizePrices: {},
+        applySizeSurcharge: true,
     };
     let fullpageSubCurrentStep = 1;
     let fullpageSubTotalRequestId = 0;
@@ -4612,6 +4616,24 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
     function normalizeFullpageModelValue(value) {
         return normalizeFullpageLookupValue(value).replace(/[^A-Z0-9]/g, '');
+    }
+
+    function fullpageSubAllowsSizeSurcharge() {
+        if (fullpageSubTypeMeta?.applySizeSurcharge === false) {
+            return false;
+        }
+
+        const modelValue = document.getElementById('fullpage_sub_model')?.value || '';
+        const normalizedModel = normalizeFullpageModelValue(modelValue);
+        if (!normalizedModel) {
+            return true;
+        }
+
+        const disabledModels = Array.isArray(fullpageSubTypeMeta?.modelsSurchargeDisabled)
+            ? fullpageSubTypeMeta.modelsSurchargeDisabled
+            : [];
+
+        return !disabledModels.some(model => normalizeFullpageModelValue(model) === normalizedModel);
     }
 
     function parseFullpageItemPrintDesc(item) {
@@ -5265,8 +5287,10 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 startingQuantityFrom: null,
                 typeLabel: '',
                 models: [],
+                modelsSurchargeDisabled: [],
                 collars: [],
                 sizePrices: {},
+                applySizeSurcharge: true,
             };
             populateFullpageFabricOptions();
             renderFullpageAddonColorFields();
@@ -5293,12 +5317,18 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 startingQuantityFrom: payload?.starting_quantity_from ?? null,
                 typeLabel: payload?.type_name || typeSlug,
                 models,
+                modelsSurchargeDisabled: Array.isArray(payload?.models_surcharge_disabled)
+                    ? Array.from(new Set(payload.models_surcharge_disabled
+                        .map(model => String(model || '').trim().toUpperCase())
+                        .filter(Boolean)))
+                    : [],
                 collars: Array.isArray(payload?.collars)
                     ? Array.from(new Set(payload.collars
                         .map(collar => String(collar || '').trim().toUpperCase())
                         .filter(Boolean)))
                     : [],
                 sizePrices: (payload?.size_prices && typeof payload.size_prices === 'object') ? payload.size_prices : {},
+                applySizeSurcharge: payload?.apply_size_surcharge !== false,
             };
             populateFullpageFabricOptions();
 
@@ -5333,8 +5363,10 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                 startingQuantityFrom: null,
                 typeLabel: typeSlug,
                 models: [],
+                modelsSurchargeDisabled: [],
                 collars: [],
                 sizePrices: {},
+                applySizeSurcharge: true,
             };
             populateFullpageFabricOptions();
             container.innerHTML = '<p class="text-sm text-red-500 text-center py-2 px-1">Erro ao carregar adicionais</p>';
@@ -5475,11 +5507,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
 
         // Calcular acréscimos por tamanho usando o snapshot capturado antes do await
         let totalSizeSurcharge = 0;
-        sizeSnapshot.forEach(({ size, qty }) => {
-            if (qty > 0 && size) {
-                totalSizeSurcharge += getFullpageSizeSurcharge(size, fullpageSubUnitPrice) * qty;
-            }
-        });
+        if (fullpageSubAllowsSizeSurcharge()) {
+            sizeSnapshot.forEach(({ size, qty }) => {
+                if (qty > 0 && size) {
+                    totalSizeSurcharge += getFullpageSizeSurcharge(size, fullpageSubUnitPrice) * qty;
+                }
+            });
+        }
 
         const totalPrice = fullpageSubUnitPrice * totalQty + totalSizeSurcharge;
         const formatMoney = value => `R$ ${Number(value || 0).toFixed(2).replace('.', ',')}`;
@@ -5746,6 +5780,10 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
             startingQuantityFrom: null,
             typeLabel: '',
             models: [],
+            modelsSurchargeDisabled: [],
+            collars: [],
+            sizePrices: {},
+            applySizeSurcharge: true,
         };
 
         if (fabricTypeSelect) {
