@@ -410,6 +410,7 @@ class CashApprovalController extends Controller
 
     private function syncCashTransactionsForApprovedMethods(Order $order, Payment $payment, string $actionLabel): void
     {
+        $approvalTimestamp = now('America/Sao_Paulo');
         $existingTransactions = $order->cashTransactions()
             ->where('type', 'entrada')
             ->where('category', 'Venda')
@@ -448,6 +449,7 @@ class CashApprovalController extends Controller
 
                 if ($matchingTransaction->status !== 'confirmado') {
                     $updates['status'] = 'confirmado';
+                    $updates['transaction_date'] = $approvalTimestamp;
                     $updates['notes'] = $this->appendApprovalNote($matchingTransaction->notes, $actionLabel);
                 }
 
@@ -479,7 +481,7 @@ class CashApprovalController extends Controller
                     'date' => $normalizedMethod['date']->format('Y-m-d H:i:s'),
                 ]],
                 'status' => 'confirmado',
-                'transaction_date' => $normalizedMethod['date'],
+                'transaction_date' => $approvalTimestamp,
                 'order_id' => $order->id,
                 'user_id' => $order->user_id,
                 'user_name' => $order->user?->name ?? $order->seller ?? Auth::user()?->name ?? 'Sistema',
@@ -494,6 +496,7 @@ class CashApprovalController extends Controller
             ->where('status', 'pendente')
             ->update([
                 'status' => 'confirmado',
+                'transaction_date' => $approvalTimestamp,
                 'notes' => $this->appendApprovalNote(null, $actionLabel),
             ]);
     }
