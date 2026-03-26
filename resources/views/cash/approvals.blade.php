@@ -156,7 +156,7 @@
                     $fullyApproved  = (bool)($payment?->cash_approved);
                     $methods = is_array($payment?->payment_methods) ? $payment->payment_methods : [];
                     $methodDates = collect($methods)->pluck('date')->filter()
-                        ->map(fn($d) => \Carbon\Carbon::tryParse($d))->filter()
+                        ->map(fn($d) => rescue(fn() => \Carbon\Carbon::parse($d), report: false))->filter()
                         ->sortBy(fn($d) => $d->timestamp)->values();
                     $paidDate    = $methodDates->last() ?? $payment?->payment_date ?? $payment?->entry_date;
                     $remainDate  = $payment?->due_date ?? $payment?->entry_date ?? $payment?->payment_date;
