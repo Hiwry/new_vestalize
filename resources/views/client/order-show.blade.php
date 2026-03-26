@@ -328,10 +328,21 @@
                 @endif
             </div>
             
-            @if($item->art_name)
+            @php
+                $displayArtName = trim((string) ($item->art_name ?? ''));
+                if ($displayArtName === '' && $item->sublimations && $item->sublimations->count() > 0) {
+                    $displayArtName = trim((string) ($item->sublimations->first()->art_name ?? ''));
+                }
+
+                $displayFabric = trim((string) ($item->fabric ?? '')) ?: '-';
+                $displayColor = trim((string) ($item->color ?? '')) ?: '-';
+                $displayModel = trim((string) ($item->model ?? '')) ?: '-';
+            @endphp
+
+            @if($displayArtName !== '')
             <div class="mb-3">
                 <p class="text-gray-500 dark:text-slate-400 mobile-text-xs">Nome da Arte</p>
-                <p class="important-value mobile-text-sm">{{ $item->art_name }}</p>
+                <p class="important-value mobile-text-sm">{{ $displayArtName }}</p>
             </div>
             @endif
 
@@ -370,18 +381,16 @@
                 <div class="grid grid-cols-2 gap-2 mobile-text-sm">
                     <div>
                         <span class="text-gray-500 dark:text-slate-400">Tecido:</span>
-                        <span class="important-value">{{ $item->fabric }}</span>
+                        <span class="important-value">{{ $displayFabric }}</span>
                     </div>
                     <div>
                         <span class="text-gray-500 dark:text-slate-400">Cor:</span>
-                        <span class="important-value">{{ $item->color }}</span>
+                        <span class="important-value">{{ $displayColor }}</span>
                     </div>
-                    @if($item->model)
                     <div>
                         <span class="text-gray-500 dark:text-slate-400">Tipo de Corte:</span>
-                        <span class="important-value">{{ $item->model }}</span>
+                        <span class="important-value">{{ $displayModel }}</span>
                     </div>
-                    @endif
                 </div>
             </div>
 

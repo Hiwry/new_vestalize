@@ -1232,6 +1232,7 @@ class BudgetController extends Controller
             // Copiar itens do orçamento para o pedido
             foreach ($budget->items as $index => $budgetItem) {
                 $personalizationTypes = $budgetItem->getPersonalizationTypesArray();
+                $primaryCustomization = $budgetItem->customizations->first();
                 
                 // Pegar tamanhos informados pelo usuário para este item
                 $itemSizesRaw = $validated['sizes'][$index] ?? [];
@@ -1241,8 +1242,37 @@ class BudgetController extends Controller
                 foreach ($itemSizesRaw as $size => $quantity) {
                     $quantity = (int)$quantity;
                     if ($quantity > 0) {
-                        $itemSizes[$size] = $quantity;
+                        $itemSizes[strtoupper(trim((string) $size))] = $quantity;
                     }
+                }
+
+                if (empty($itemSizes)) {
+                    foreach (($personalizationTypes['sizes'] ?? []) as $size => $quantity) {
+                        $quantity = (int) $quantity;
+                        if ($quantity > 0) {
+                            $itemSizes[strtoupper(trim((string) $size))] = $quantity;
+                        }
+                    }
+                }
+
+                $resolvedArtName = trim((string) ($personalizationTypes['art_name'] ?? ''));
+                if ($resolvedArtName === '' && $primaryCustomization) {
+                    $resolvedArtName = trim((string) ($primaryCustomization->art_name ?? ''));
+                }
+
+                $resolvedPrintType = trim((string) ($personalizationTypes['print_type'] ?? ''));
+                if ($resolvedPrintType === '' && $primaryCustomization) {
+                    $resolvedPrintType = trim((string) ($primaryCustomization->personalization_type ?? ''));
+                }
+
+                $resolvedModel = trim((string) ($personalizationTypes['model'] ?? ''));
+                if ($resolvedModel === '') {
+                    $resolvedModel = trim((string) ($budgetItem->fabric_type ?? ''));
+                }
+
+                $resolvedNotes = trim((string) ($personalizationTypes['notes'] ?? ''));
+                if ($resolvedNotes === '' && $primaryCustomization) {
+                    $resolvedNotes = trim((string) ($primaryCustomization->notes ?? ''));
                 }
                 
                 \Log::info(' Processando tamanhos do item', [
@@ -1257,15 +1287,15 @@ class BudgetController extends Controller
                     'item_number' => $budgetItem->item_number,
                     'fabric' => $personalizationTypes['fabric'] ?? $budgetItem->fabric ?? '',
                     'color' => $personalizationTypes['color'] ?? $budgetItem->color ?? '',
-                    'model' => $personalizationTypes['model'] ?? '',
+                    'model' => $resolvedModel,
                     'detail' => $personalizationTypes['detail'] ?? '',
                     'collar' => $personalizationTypes['collar'] ?? '',
-                    'print_type' => $personalizationTypes['print_type'] ?? '',
-                    'art_name' => $personalizationTypes['art_name'] ?? '',
+                    'print_type' => $resolvedPrintType,
+                    'art_name' => $resolvedArtName,
                     'quantity' => $budgetItem->quantity,
                     'unit_price' => $personalizationTypes['unit_price'] ?? 0,
                     'total_price' => $budgetItem->item_total,
-                    'art_notes' => $personalizationTypes['notes'] ?? '',
+                    'art_notes' => $resolvedNotes,
                     'sizes' => !empty($itemSizes) ? $itemSizes : null, // Salvar apenas se houver tamanhos
                     'cover_image' => $budgetItem->cover_image ? $this->copyImageFile($budgetItem->cover_image, 'orders/items/covers') : null,
                 ]);

@@ -216,6 +216,10 @@
 
         <!-- Itens do Orçamento -->
         @foreach($budget->items as $index => $item)
+        @php
+            $itemMeta = is_string($item->personalization_types) ? (json_decode($item->personalization_types, true) ?? []) : ($item->personalization_types ?? []);
+            $itemExistingSizes = is_array($itemMeta['sizes'] ?? null) ? $itemMeta['sizes'] : [];
+        @endphp
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6 overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30">
                 <div class="flex items-start justify-between">
@@ -263,7 +267,7 @@
                             <input type="number" 
                                    name="sizes[{{ $index }}][{{ $size }}]" 
                                    min="0" 
-                                   value="0"
+                                   value="{{ (int) ($itemExistingSizes[$size] ?? $itemExistingSizes[strtolower($size)] ?? 0) }}"
                                    class="w-full px-3 py-2 text-center text-sm font-medium border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400 transition-all"
                                    onchange="updateTotalSizes({{ $index }}, {{ $item->quantity }})">
                         </div>
