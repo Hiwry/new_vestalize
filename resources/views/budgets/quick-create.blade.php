@@ -1,8 +1,81 @@
 @extends('layouts.admin')
 
 @section('content')
+<style>
+    .qb-hero {
+        box-shadow: 0 24px 80px -32px rgba(15, 23, 42, 0.35);
+    }
+
+    .qb-panel {
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    .qb-item-card {
+        box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+    }
+
+    .qb-save-btn {
+        box-shadow: 0 14px 28px rgba(14, 165, 233, 0.18);
+    }
+
+    .qb-item-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    .qb-item-metric {
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .qb-item-metric-label {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .qb-item-metric-value {
+        display: block;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        line-height: 1.15;
+    }
+
+    .qb-item-metric-total {
+        background: linear-gradient(135deg, #ecfeff, #f0fdfa);
+    }
+
+    @media (min-width: 640px) {
+        .qb-item-metrics {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(132px, 1.2fr);
+        }
+    }
+
+    .dark .qb-hero {
+        box-shadow: 0 16px 42px -28px rgba(2, 6, 23, 0.42);
+    }
+
+    .dark .qb-panel,
+    .dark .qb-item-card {
+        box-shadow: 0 8px 20px rgba(2, 6, 23, 0.2);
+    }
+
+    .dark .qb-save-btn {
+        box-shadow: 0 10px 22px rgba(14, 165, 233, 0.14);
+    }
+
+    .dark .qb-item-card:hover {
+        box-shadow: 0 10px 24px rgba(2, 6, 23, 0.24);
+    }
+
+    .dark .qb-item-metric-total {
+        background: linear-gradient(135deg, rgba(226, 247, 245, 0.95), rgba(240, 249, 255, 0.96));
+    }
+</style>
 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6" x-data="quickBudgetBuilder()">
-    <div class="overflow-hidden rounded-[28px] border border-slate-200 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.14),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(249,115,22,0.16),_transparent_26%),linear-gradient(135deg,_#fffaf3,_#ffffff_48%,_#f3fbff)] p-6 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.35)] dark:border-slate-700 dark:bg-[linear-gradient(135deg,_#0f172a,_#111827_48%,_#172554)] sm:p-8">
+    <div class="qb-hero overflow-hidden rounded-[28px] border border-slate-200 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.14),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(249,115,22,0.16),_transparent_26%),linear-gradient(135deg,_#fffaf3,_#ffffff_48%,_#f3fbff)] p-6 dark:border-slate-700 dark:bg-[linear-gradient(135deg,_#0f172a,_#111827_48%,_#172554)] sm:p-8">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div class="max-w-2xl">
                 <span class="inline-flex rounded-full border border-sky-200 bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-sky-700 dark:border-sky-800 dark:bg-slate-900/70 dark:text-sky-300">Orçamento rápido</span>
@@ -38,7 +111,7 @@
             </template>
 
             <div class="grid gap-6 lg:grid-cols-2">
-                <section class="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <section class="qb-panel rounded-[26px] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
                     <div class="flex items-start justify-between gap-4">
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">1. Contato</p>
@@ -70,7 +143,7 @@
                     </div>
                 </section>
 
-                <section class="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <section class="qb-panel rounded-[26px] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
                     <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">2. Observações</p>
                     <h2 class="mt-2 text-xl font-bold text-slate-900 dark:text-white">Recados rápidos</h2>
                     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Use sugestões prontas e complemente se quiser.</p>
@@ -90,7 +163,7 @@
                 </section>
             </div>
 
-            <section class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <section class="qb-panel rounded-[28px] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">3. Itens</p>
@@ -170,7 +243,7 @@
                                 <p class="text-[11px] uppercase tracking-[0.24em] text-cyan-700 dark:text-slate-400">Total do item</p>
                                 <p class="mt-1 text-2xl font-black text-slate-900 dark:text-white" x-text="formatCurrency(draftTotal)"></p>
                             </div>
-                            <button type="button" @click="saveDraft()" class="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-sky-500/20 transition hover:translate-y-[-1px] hover:shadow-sky-500/30">
+                            <button type="button" @click="saveDraft()" class="qb-save-btn inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-500 px-5 py-3 text-sm font-bold text-white transition hover:translate-y-[-1px] hover:shadow-sky-500/30">
                                 <span x-text="editingIndex === null ? 'Adicionar item' : 'Atualizar item'"></span>
                             </button>
                         </div>
@@ -188,7 +261,7 @@
                         </template>
 
                         <template x-for="(item, index) in items" :key="item.uid">
-                            <article class="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
+                            <article class="qb-item-card rounded-[24px] border border-slate-200 bg-white p-5 transition hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
                                 <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                                     <div>
                                         <div class="flex items-center gap-2">
@@ -206,22 +279,22 @@
                                     </div>
                                 </div>
 
-                                <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                                    <div class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
-                                        <p class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Qtd</p>
-                                        <p class="mt-1 text-lg font-black text-slate-900 dark:text-white" x-text="item.quantity"></p>
+                                <div class="qb-item-metrics mt-4">
+                                    <div class="qb-item-metric rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
+                                        <p class="qb-item-metric-label text-[11px] uppercase tracking-[0.2em] text-slate-400">Qtd</p>
+                                        <p class="qb-item-metric-value mt-1 text-lg font-black text-slate-900 dark:text-white" x-text="item.quantity"></p>
                                     </div>
-                                    <div class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
-                                        <p class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Unitário</p>
-                                        <p class="mt-1 text-lg font-black text-slate-900 dark:text-white" x-text="formatCurrency(item.unit_price)"></p>
+                                    <div class="qb-item-metric rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
+                                        <p class="qb-item-metric-label text-[11px] uppercase tracking-[0.2em] text-slate-400">Unitário</p>
+                                        <p class="qb-item-metric-value mt-1 text-lg font-black text-slate-900 dark:text-white" x-text="formatCurrency(item.unit_price)"></p>
                                     </div>
-                                    <div class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
-                                        <p class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Aplicação</p>
-                                        <p class="mt-1 text-lg font-black text-slate-900 dark:text-white" x-text="item.application_size || '-'"></p>
+                                    <div class="qb-item-metric rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
+                                        <p class="qb-item-metric-label text-[11px] uppercase tracking-[0.2em] text-slate-400">Aplicação</p>
+                                        <p class="qb-item-metric-value mt-1 text-lg font-black text-slate-900 dark:text-white" x-text="item.application_size || '-'"></p>
                                     </div>
-                                    <div class="rounded-2xl border border-cyan-200 bg-[linear-gradient(135deg,_#ecfeff,_#f0fdfa)] px-4 py-3 text-slate-900 dark:border-sky-400 dark:bg-sky-500 dark:text-slate-950">
-                                        <p class="text-[11px] uppercase tracking-[0.2em] text-cyan-700 dark:text-slate-900/70">Total</p>
-                                        <p class="mt-1 text-lg font-black" x-text="formatCurrency(itemTotal(item))"></p>
+                                    <div class="qb-item-metric qb-item-metric-total rounded-2xl border border-cyan-200 px-4 py-3 text-slate-900 dark:border-sky-200 dark:text-slate-950">
+                                        <p class="qb-item-metric-label text-[11px] uppercase tracking-[0.2em] text-cyan-700 dark:text-slate-700">Total</p>
+                                        <p class="qb-item-metric-value mt-1 text-lg font-black" x-text="formatCurrency(itemTotal(item))"></p>
                                     </div>
                                 </div>
                             </article>
@@ -232,7 +305,7 @@
         </div>
 
         <aside class="xl:sticky xl:top-6 xl:self-start">
-            <section class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <section class="qb-panel overflow-hidden rounded-[28px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
                 <div class="border-b border-cyan-100 bg-[linear-gradient(135deg,_#ecfeff,_#ccfbf1_55%,_#f0fdfa)] px-6 py-5 text-slate-900 dark:border-slate-700 dark:bg-[linear-gradient(135deg,_#082f49,_#0f766e)] dark:text-white">
                     <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-700 dark:text-cyan-200">Resumo</p>
                     <h2 class="mt-2 text-2xl font-black">Fechamento rápido</h2>
