@@ -27,6 +27,17 @@ class EditOrderController extends Controller
     ) {
     }
 
+    private function normalizeSessionItem(mixed $item): array
+    {
+        if ($item instanceof OrderItem) {
+            $item = $item->toArray();
+        } elseif (is_object($item) && method_exists($item, 'toArray')) {
+            $item = $item->toArray();
+        }
+
+        return is_array($item) ? $item : [];
+    }
+
     public function start($id)
     {
         try {
@@ -1592,8 +1603,8 @@ class EditOrderController extends Controller
             
             // Atualizar item na sessão
             foreach ($editData['items'] as &$item) {
-                if ($item['id'] == $validated['editing_item_id']) {
-                    $item = array_merge($item, [
+                if (($this->normalizeSessionItem($item)['id'] ?? null) == $validated['editing_item_id']) {
+                    $item = array_merge($this->normalizeSessionItem($item), [
                         'id' => $dbItem->id,
                         'item_number' => $dbItem->item_number,
                         'fabric' => $updatedData['fabric'],
@@ -1741,9 +1752,9 @@ class EditOrderController extends Controller
             // Sync edit session data
             $editData = session('edit_order_data', []);
             foreach ($editData['items'] as &$sessionItem) {
-                if ($sessionItem['id'] == $item->id) {
+                if (($this->normalizeSessionItem($sessionItem)['id'] ?? null) == $item->id) {
                     $item->refresh();
-                    $sessionItem = array_merge($sessionItem, [
+                    $sessionItem = array_merge($this->normalizeSessionItem($sessionItem), [
                         'fabric'      => $item->fabric,
                         'color'       => $item->color,
                         'collar'      => $item->collar,
