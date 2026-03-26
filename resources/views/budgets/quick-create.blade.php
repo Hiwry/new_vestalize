@@ -2,361 +2,479 @@
 
 @section('content')
 <style>
-    .qb-hero {
-        box-shadow: 0 24px 80px -32px rgba(15, 23, 42, 0.35);
+    .qb-wrap {
+        --qb-from: #f3f4f8;
+        --qb-to: #eceff4;
+        --qb-border: #d8dce6;
+        --qb-text: #0f172a;
+        --qb-muted: #64748b;
+        --qb-card-bg: #ffffff;
+        --qb-card-border: #dde2ea;
+        --qb-card-shadow: 0 8px 20px rgba(15,23,42,.05);
+        --qb-row-border: #eef1f6;
+        --qb-head-border: #e5e9f1;
+        --qb-tag-bg: #f8fafc;
+        --qb-tag-border: #e2e8f0;
+        --qb-tag-text: #475569;
+        background: linear-gradient(180deg, var(--qb-from) 0%, var(--qb-to) 100%);
+        border: 1px solid var(--qb-border);
+        border-radius: 20px;
+        padding: 20px;
+        color: var(--qb-text);
+        box-shadow: 0 20px 50px rgba(15,23,42,.08);
     }
-
-    .qb-panel {
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    .dark .qb-wrap {
+        --qb-from: #0f172a;
+        --qb-to: #0b1322;
+        --qb-border: rgba(148,163,184,.25);
+        --qb-text: #e2e8f0;
+        --qb-muted: #94a3b8;
+        --qb-card-bg: #111827;
+        --qb-card-border: rgba(148,163,184,.22);
+        --qb-card-shadow: 0 18px 38px rgba(2,6,23,.55);
+        --qb-row-border: rgba(148,163,184,.16);
+        --qb-head-border: rgba(148,163,184,.25);
+        --qb-tag-bg: rgba(15,23,42,.55);
+        --qb-tag-border: rgba(148,163,184,.2);
+        --qb-tag-text: #cbd5e1;
     }
-
-    .qb-item-card {
-        box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
-    }
-
-    .qb-save-btn {
-        box-shadow: 0 14px 28px rgba(14, 165, 233, 0.18);
-    }
-
-    .qb-item-metrics {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.75rem;
-    }
-
-    .qb-item-metric {
-        min-width: 0;
-        overflow: hidden;
-    }
-
-    .qb-item-metric-label {
-        display: block;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .qb-item-metric-value {
-        display: block;
-        min-width: 0;
-        overflow-wrap: anywhere;
-        line-height: 1.15;
-    }
-
-    .qb-item-metric-total {
-        background: linear-gradient(135deg, #ecfeff, #f0fdfa);
-    }
-
-    @media (min-width: 640px) {
-        .qb-item-metrics {
-            grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(132px, 1.2fr);
-        }
-    }
-
-    .dark .qb-hero {
-        box-shadow: 0 16px 42px -28px rgba(2, 6, 23, 0.42);
-    }
-
-    .dark .qb-panel,
-    .dark .qb-item-card {
-        box-shadow: 0 8px 20px rgba(2, 6, 23, 0.2);
-    }
-
-    .dark .qb-save-btn {
-        box-shadow: 0 10px 22px rgba(14, 165, 233, 0.14);
-    }
-
-    .dark .qb-item-card:hover {
-        box-shadow: 0 10px 24px rgba(2, 6, 23, 0.24);
-    }
-
-    .dark .qb-item-metric-total {
-        background: linear-gradient(135deg, rgba(226, 247, 245, 0.95), rgba(240, 249, 255, 0.96));
-    }
+    /* Topbar */
+    .qb-topbar { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:20px; }
+    .qb-brand { display:flex; align-items:center; gap:12px; flex:1 1 280px; }
+    .qb-logo { width:36px; height:36px; border-radius:11px; background:linear-gradient(135deg,#6d28d9,#7c3aed); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+    .qb-title { font-size:18px; font-weight:700; letter-spacing:-0.015em; color:var(--qb-text); }
+    .qb-subtitle { color:var(--qb-muted); font-size:12px; font-weight:600; }
+    .qb-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+    /* Buttons */
+    .qb-btn { height:38px; border-radius:12px; padding:0 14px; display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:700; text-decoration:none; transition:transform .18s ease, filter .2s ease; white-space:nowrap; border:none; cursor:pointer; }
+    .qb-btn:hover { transform:translateY(-1px); filter:brightness(1.04); }
+    .qb-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; filter:none; }
+    .qb-btn-ghost { color:var(--qb-muted) !important; background:var(--qb-card-bg); border:1px solid var(--qb-card-border); }
+    .qb-btn-ghost:hover { color:var(--qb-text) !important; }
+    .qb-btn-primary { color:#fff !important; background:linear-gradient(135deg,#6d28d9,#7c3aed); box-shadow:0 8px 18px rgba(109,40,217,.22); }
+    .qb-btn-success { color:#fff !important; background:linear-gradient(135deg,#059669,#10b981); box-shadow:0 8px 18px rgba(5,150,105,.22); }
+    .qb-btn-sky { color:#fff !important; background:linear-gradient(135deg,#0284c7,#0ea5e9); box-shadow:0 8px 18px rgba(2,132,199,.22); }
+    .qb-btn-whatsapp { color:#0f1a11 !important; background:#25D366; box-shadow:0 8px 18px rgba(37,211,102,.22); }
+    .qb-btn-full { width:100%; justify-content:center; height:42px; font-size:14px; }
+    /* Stats strip */
+    .qb-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:20px; }
+    .qb-stat { background:var(--qb-card-bg); border:1px solid var(--qb-card-border); border-radius:14px; padding:14px 16px; box-shadow:var(--qb-card-shadow); }
+    .qb-stat-label { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--qb-muted); font-weight:700; margin-bottom:8px; }
+    .qb-stat-value { font-size:24px; font-weight:800; color:var(--qb-text); line-height:1; }
+    .qb-stat-total .qb-stat-label { color:#6d28d9; }
+    .dark .qb-stat-total .qb-stat-label { color:#a78bfa; }
+    .qb-stat-total .qb-stat-value { color:#6d28d9; }
+    .dark .qb-stat-total .qb-stat-value { color:#a78bfa; }
+    /* Cards */
+    .qb-card { background:var(--qb-card-bg); border:1px solid var(--qb-card-border); border-radius:14px; padding:16px; box-shadow:var(--qb-card-shadow); }
+    .qb-card-title { font-size:15px; font-weight:700; color:var(--qb-text); }
+    .qb-card-subtitle { font-size:12px; color:var(--qb-muted); font-weight:600; margin-top:2px; }
+    .qb-card-label { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--qb-muted); font-weight:700; margin-bottom:6px; }
+    .qb-card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:16px; }
+    /* Layouts */
+    .qb-grid-2 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .qb-grid-items { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); gap:14px; }
+    .qb-main-aside { display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:14px; align-items:start; }
+    .qb-main { display:flex; flex-direction:column; gap:14px; }
+    /* Form */
+    .qb-label { display:block; font-size:13px; font-weight:600; color:var(--qb-text); margin-bottom:5px; }
+    .qb-input { width:100%; border-radius:10px; border:1px solid var(--qb-card-border); background:var(--qb-tag-bg); color:var(--qb-text); padding:8px 12px; font-size:13px; outline:none; transition:border-color .15s, box-shadow .15s; }
+    .qb-input:focus { border-color:#7c3aed; box-shadow:0 0 0 3px rgba(124,58,237,.12); background:var(--qb-card-bg); }
+    .qb-textarea { width:100%; border-radius:10px; border:1px solid var(--qb-card-border); background:var(--qb-tag-bg); color:var(--qb-text); padding:8px 12px; font-size:13px; outline:none; resize:vertical; transition:border-color .15s, box-shadow .15s; }
+    .qb-textarea:focus { border-color:#d97706; box-shadow:0 0 0 3px rgba(217,119,6,.1); background:var(--qb-card-bg); }
+    /* Pills */
+    .qb-pill { display:inline-flex; align-items:center; justify-content:center; border-radius:999px; border:1px solid var(--qb-tag-border); background:var(--qb-card-bg); color:var(--qb-tag-text); padding:5px 12px; font-size:12px; font-weight:600; cursor:pointer; transition:border-color .15s, background .15s; }
+    .qb-pill:hover { border-color:#7c3aed; color:#6d28d9; }
+    .dark .qb-pill:hover { color:#a78bfa; border-color:#7c3aed; }
+    .qb-pill-active { border-color:#7c3aed; background:rgba(109,40,217,.1); color:#6d28d9; box-shadow:0 0 0 2px rgba(124,58,237,.1); }
+    .dark .qb-pill-active { color:#a78bfa; background:rgba(109,40,217,.22); }
+    .qb-pill-size-active { border-color:#d97706; background:rgba(245,158,11,.1); color:#92400e; }
+    .dark .qb-pill-size-active { color:#fcd34d; background:rgba(217,119,6,.22); }
+    .qb-pill-obs-active { border-color:#d97706; background:rgba(245,158,11,.08); color:#92400e; }
+    .dark .qb-pill-obs-active { color:#fcd34d; background:rgba(217,119,6,.18); }
+    .qb-pill-deadline-active { border-color:#6d28d9; background:rgba(109,40,217,.1); color:#6d28d9; box-shadow:0 0 0 2px rgba(124,58,237,.1); }
+    .dark .qb-pill-deadline-active { color:#a78bfa; background:rgba(109,40,217,.22); }
+    /* Tag (small badge) */
+    .qb-tag { display:inline-flex; align-items:center; padding:5px 10px; border-radius:999px; font-size:11px; font-weight:700; background:var(--qb-tag-bg); border:1px solid var(--qb-tag-border); color:var(--qb-tag-text); }
+    /* Item rows */
+    .qb-item-row { background:var(--qb-card-bg); border:1px solid var(--qb-row-border); border-radius:12px; padding:14px; transition:transform .15s, border-color .15s; }
+    .qb-item-row:hover { transform:translateY(-1px); border-color:var(--qb-card-border); }
+    .qb-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-top:12px; }
+    .qb-metric { background:var(--qb-tag-bg); border-radius:10px; padding:10px 12px; }
+    .qb-metric-purple { background:rgba(109,40,217,.07); border:1px solid rgba(109,40,217,.16); }
+    .dark .qb-metric-purple { background:rgba(109,40,217,.18); border-color:rgba(109,40,217,.28); }
+    .qb-metric-label { font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--qb-muted); font-weight:700; }
+    .qb-metric-value { font-size:15px; font-weight:800; color:var(--qb-text); margin-top:4px; }
+    .qb-metric-purple .qb-metric-label { color:#6d28d9; }
+    .dark .qb-metric-purple .qb-metric-label { color:#a78bfa; }
+    .qb-metric-purple .qb-metric-value { color:#6d28d9; }
+    .dark .qb-metric-purple .qb-metric-value { color:#a78bfa; }
+    /* Item form box */
+    .qb-form-box { background:var(--qb-tag-bg); border:1px dashed var(--qb-card-border); border-radius:14px; padding:16px; }
+    /* Summary panel */
+    .qb-summary-head { background:linear-gradient(135deg,#6d28d9,#7c3aed); border-radius:12px 12px 0 0; padding:18px; color:#fff; margin:-16px -16px 0; }
+    /* Total box */
+    .qb-total-box { background:rgba(109,40,217,.07); border:1px solid rgba(109,40,217,.16); border-radius:12px; padding:16px; }
+    .dark .qb-total-box { background:rgba(109,40,217,.16); border-color:rgba(109,40,217,.28); }
+    .qb-total-label { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#6d28d9; font-weight:700; }
+    .dark .qb-total-label { color:#a78bfa; }
+    .qb-total-value { font-size:30px; font-weight:800; color:var(--qb-text); line-height:1; margin-top:6px; }
+    .qb-total-note { font-size:12px; color:var(--qb-muted); margin-top:6px; font-weight:600; }
+    /* Alerts */
+    .qb-alert-error { border-radius:10px; border:1px solid #fecaca; background:#fef2f2; color:#991b1b; padding:10px 14px; font-size:13px; }
+    .dark .qb-alert-error { border-color:rgba(239,68,68,.3); background:rgba(220,38,38,.12); color:#fca5a5; }
+    .qb-alert-info { border-radius:10px; border:1px solid #d1fae5; background:#f0fdf4; color:#065f46; padding:8px 12px; font-size:12px; font-weight:600; }
+    .dark .qb-alert-info { border-color:rgba(16,185,129,.25); background:rgba(5,150,105,.12); color:#6ee7b7; }
+    /* Checklist */
+    .qb-check-item { font-size:12px; color:var(--qb-muted); font-weight:600; display:flex; align-items:center; gap:7px; }
+    .qb-check-item.done { color:#059669; }
+    .dark .qb-check-item.done { color:#6ee7b7; }
+    .qb-check-dot { width:16px; height:16px; border-radius:50%; border:1.5px solid currentColor; display:inline-flex; align-items:center; justify-content:center; font-size:8px; flex-shrink:0; }
+    /* Empty state */
+    .qb-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:220px; border:1px dashed var(--qb-head-border); border-radius:12px; text-align:center; padding:24px; }
+    .qb-empty-icon { width:48px; height:48px; border-radius:50%; background:rgba(109,40,217,.1); color:#6d28d9; display:flex; align-items:center; justify-content:center; font-size:18px; margin:0 auto 12px; }
+    .dark .qb-empty-icon { background:rgba(109,40,217,.2); color:#a78bfa; }
+    /* Divider */
+    .qb-hr { border:none; border-top:1px solid var(--qb-head-border); margin:0; }
+    /* Responsive */
+    @media (max-width:1200px) { .qb-main-aside { grid-template-columns:1fr; } }
+    @media (max-width:900px) { .qb-grid-items { grid-template-columns:1fr; } .qb-stats { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:640px) { .qb-wrap { padding:14px; border-radius:16px; } .qb-grid-2 { grid-template-columns:1fr; } .qb-metrics { grid-template-columns:repeat(2,1fr); } .qb-actions, .qb-btn { width:100%; justify-content:center; } }
 </style>
-<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6" x-data="quickBudgetBuilder()">
-    <div class="qb-hero overflow-hidden rounded-[28px] border border-slate-200 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.14),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(249,115,22,0.16),_transparent_26%),linear-gradient(135deg,_#fffaf3,_#ffffff_48%,_#f3fbff)] p-6 dark:border-slate-700 dark:bg-[linear-gradient(135deg,_#0f172a,_#111827_48%,_#172554)] sm:p-8">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div class="max-w-2xl">
-                <span class="inline-flex rounded-full border border-sky-200 bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-sky-700 dark:border-sky-800 dark:bg-slate-900/70 dark:text-sky-300">Orçamento rápido</span>
-                <h1 class="mt-4 text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">Fluxo rápido, mas com vários itens no mesmo orçamento.</h1>
-                <p class="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300 sm:text-base">Preencha contato, adicione peças em sequência e acompanhe o total sem sair da tela.</p>
-            </div>
 
-            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <div class="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/70">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Itens</p>
-                    <p class="mt-2 text-2xl font-black text-slate-900 dark:text-white" x-text="items.length"></p>
+<div class="max-w-[1520px] mx-auto pt-2 md:pt-3 pb-4 md:pb-6" x-data="quickBudgetBuilder()">
+    <div class="qb-wrap">
+
+        {{-- Topbar --}}
+        <div class="qb-topbar">
+            <div class="qb-brand">
+                <div class="qb-logo"><i class="fa-solid fa-bolt"></i></div>
+                <div>
+                    <p class="qb-title">Orçamento Rápido</p>
+                    <p class="qb-subtitle">Contato + itens + fechamento — sem sair da tela.</p>
                 </div>
-                <div class="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/70">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Peças</p>
-                    <p class="mt-2 text-2xl font-black text-slate-900 dark:text-white" x-text="totalQuantity"></p>
-                </div>
-                <div class="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/70">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Prazo</p>
-                    <p class="mt-2 text-2xl font-black text-slate-900 dark:text-white"><span x-text="form.deadline_days"></span>d</p>
-                </div>
-                <div class="rounded-2xl border border-cyan-200 bg-[linear-gradient(135deg,_#ecfeff,_#f0fdfa_52%,_#f8fafc)] p-4 text-slate-900 dark:border-slate-600 dark:bg-slate-950 dark:text-white">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-700 dark:text-slate-400">Total</p>
-                    <p class="mt-2 text-lg font-black text-slate-900 dark:text-white sm:text-xl" x-text="formatCurrency(grandTotal)"></p>
-                </div>
+            </div>
+            <div class="qb-actions">
+                <a href="{{ route('budget.index') }}" class="qb-btn qb-btn-ghost">
+                    <i class="fa-solid fa-arrow-left" style="font-size:11px"></i>
+                    <span>Voltar</span>
+                </a>
+                <button type="button" @click="submitForm('save')" :disabled="!canSubmit || loading" class="qb-btn qb-btn-success">
+                    <i class="fa-solid fa-floppy-disk" style="font-size:12px"></i>
+                    <span x-text="loadingAction === 'save' ? 'Salvando...' : 'Salvar'"></span>
+                </button>
+                <button type="button" @click="submitForm('whatsapp')" :disabled="!canSubmit || loading" class="qb-btn qb-btn-whatsapp">
+                    <i class="fa-brands fa-whatsapp" style="font-size:14px"></i>
+                    <span x-text="loadingAction === 'whatsapp' ? 'Abrindo...' : 'WhatsApp'"></span>
+                </button>
             </div>
         </div>
-    </div>
 
-    <div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div class="space-y-6">
-            <template x-if="serverError">
-                <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-200" x-text="serverError"></div>
-            </template>
+        {{-- Stats strip --}}
+        <div class="qb-stats">
+            <div class="qb-stat">
+                <p class="qb-stat-label">Itens</p>
+                <p class="qb-stat-value" x-text="items.length"></p>
+            </div>
+            <div class="qb-stat">
+                <p class="qb-stat-label">Peças</p>
+                <p class="qb-stat-value" x-text="totalQuantity"></p>
+            </div>
+            <div class="qb-stat">
+                <p class="qb-stat-label">Prazo</p>
+                <p class="qb-stat-value"><span x-text="form.deadline_days"></span>d</p>
+            </div>
+            <div class="qb-stat qb-stat-total">
+                <p class="qb-stat-label">Total</p>
+                <p class="qb-stat-value" x-text="formatCurrency(grandTotal)"></p>
+            </div>
+        </div>
 
-            <div class="grid gap-6 lg:grid-cols-2">
-                <section class="qb-panel rounded-[26px] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
-                    <div class="flex items-start justify-between gap-4">
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">1. Contato</p>
-                            <h2 class="mt-2 text-xl font-bold text-slate-900 dark:text-white">Dados essenciais</h2>
-                            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Só o que precisa para sair rápido.</p>
+        {{-- Server error --}}
+        <template x-if="serverError">
+            <div class="qb-alert-error" style="margin-bottom:14px" x-text="serverError"></div>
+        </template>
+
+        {{-- Main layout --}}
+        <div class="qb-main-aside">
+            <div class="qb-main">
+
+                {{-- Row 1: Contact + Observations --}}
+                <div class="qb-grid-2">
+
+                    {{-- 1. Contact --}}
+                    <div class="qb-card">
+                        <div class="qb-card-head">
+                            <div>
+                                <p class="qb-card-label">1. Contato</p>
+                                <p class="qb-card-title">Dados essenciais</p>
+                                <p class="qb-card-subtitle">Só o que precisa para sair rápido.</p>
+                            </div>
                         </div>
-                        <a href="{{ route('budget.index') }}" class="inline-flex items-center rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white">Voltar</a>
-                    </div>
-
-                    <div class="mt-6 grid gap-4">
-                        <label class="block">
-                            <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Nome do contato</span>
-                            <input type="text" x-model="form.contact_name" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:bg-slate-900 dark:focus:ring-sky-900/50" placeholder="Ex: Maria Oliveira">
-                        </label>
-                        <label class="block">
-                            <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">WhatsApp</span>
-                            <input type="text" x-model="form.contact_phone" x-mask="(99) 99999-9999" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:bg-slate-900 dark:focus:ring-sky-900/50" placeholder="(00) 00000-0000">
-                        </label>
-                        <div>
-                            <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Prazo estimado</span>
-                            <div class="grid grid-cols-4 gap-2">
-                                <template x-for="day in quickDeadlines" :key="day">
-                                    <button type="button" @click="form.deadline_days = day" :class="form.deadline_days === day ? 'border-cyan-300 bg-cyan-50 text-cyan-900 ring-2 ring-cyan-100 dark:border-sky-400 dark:bg-sky-500 dark:text-slate-950 dark:ring-0' : 'border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'" class="rounded-2xl border px-3 py-2 text-sm font-semibold transition hover:border-slate-400">
-                                        <span x-text="day + ' dias'"></span>
-                                    </button>
-                                </template>
+                        <div style="display:flex;flex-direction:column;gap:12px">
+                            <label class="block">
+                                <span class="qb-label">Nome do contato</span>
+                                <input type="text" x-model="form.contact_name" class="qb-input" placeholder="Ex: Maria Oliveira">
+                            </label>
+                            <label class="block">
+                                <span class="qb-label">WhatsApp</span>
+                                <input type="text" x-model="form.contact_phone" x-mask="(99) 99999-9999" class="qb-input" placeholder="(00) 00000-0000">
+                            </label>
+                            <div>
+                                <span class="qb-label">Prazo estimado</span>
+                                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px">
+                                    <template x-for="day in quickDeadlines" :key="day">
+                                        <button type="button" @click="form.deadline_days = day"
+                                            :class="form.deadline_days === day ? 'qb-pill-deadline-active' : ''"
+                                            class="qb-pill" style="border-radius:10px;padding:7px 0;width:100%">
+                                            <span x-text="day + 'd'"></span>
+                                        </button>
+                                    </template>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </section>
 
-                <section class="qb-panel rounded-[26px] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
-                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">2. Observações</p>
-                    <h2 class="mt-2 text-xl font-bold text-slate-900 dark:text-white">Recados rápidos</h2>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Use sugestões prontas e complemente se quiser.</p>
-
-                    <div class="mt-6 flex flex-wrap gap-2">
-                        <template x-for="opt in observationOptions" :key="opt">
-                            <button type="button" @click="toggleObservation(opt)" :class="form.observations.includes(opt) ? 'border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-200' : 'border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'" class="rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:border-amber-400">
-                                <span x-text="opt"></span>
-                            </button>
-                        </template>
-                    </div>
-
-                    <label class="mt-5 block">
-                        <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Observações gerais</span>
-                        <textarea x-model="form.observations" rows="8" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-amber-500 dark:focus:bg-slate-900 dark:focus:ring-amber-900/50" placeholder="Ex: valores válidos para tamanhos padrão, prazo sujeito à aprovação..."></textarea>
-                    </label>
-                </section>
-            </div>
-
-            <section class="qb-panel rounded-[28px] border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
-                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">3. Itens</p>
-                        <h2 class="mt-2 text-xl font-bold text-slate-900 dark:text-white">Mais de um item no mesmo orçamento</h2>
-                        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Adicione um item, confirme e siga para o próximo.</p>
-                    </div>
-                    <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200">
-                        <span class="font-semibold">Resumo em tempo real:</span> quantidade, prazo e total já consolidados.
-                    </div>
-                </div>
-
-                <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-                    <div class="rounded-[24px] border border-dashed border-slate-300 bg-slate-50/80 p-5 dark:border-slate-700 dark:bg-slate-800/50">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-lg font-bold text-slate-900 dark:text-white" x-text="editingIndex === null ? 'Novo item rápido' : 'Editar item'"></h3>
-                            <template x-if="editingIndex !== null">
-                                <button type="button" @click="cancelEdit()" class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 transition hover:text-slate-900 dark:hover:text-white">Cancelar</button>
+                    {{-- 2. Observations --}}
+                    <div class="qb-card">
+                        <div class="qb-card-head">
+                            <div>
+                                <p class="qb-card-label">2. Observações</p>
+                                <p class="qb-card-title">Recados rápidos</p>
+                                <p class="qb-card-subtitle">Sugestões prontas ou texto livre.</p>
+                            </div>
+                        </div>
+                        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+                            <template x-for="opt in observationOptions" :key="opt">
+                                <button type="button" @click="toggleObservation(opt)"
+                                    :class="form.observations.includes(opt) ? 'qb-pill-obs-active' : ''"
+                                    class="qb-pill">
+                                    <span x-text="opt"></span>
+                                </button>
                             </template>
                         </div>
-
-                        <div class="mt-5 space-y-4">
-                            <label class="block">
-                                <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Produto interno</span>
-                                <input type="text" x-model="draft.product_internal" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/50" placeholder="Ex: Camiseta básica">
-                            </label>
-
-                            <div>
-                                <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Técnica</span>
-                                <div class="flex flex-wrap gap-2">
-                                    <template x-for="tech in techniques" :key="tech">
-                                        <button type="button" @click="setTechnique(tech)" :class="draft.technique_type === tech ? 'border-cyan-300 bg-cyan-50 text-cyan-900 ring-2 ring-cyan-100 dark:border-sky-400 dark:bg-sky-500 dark:text-slate-950 dark:ring-0' : 'border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'" class="rounded-full border px-3 py-2 text-xs font-semibold transition hover:border-slate-400">
-                                            <span x-text="tech"></span>
-                                        </button>
-                                    </template>
-                                </div>
-                            </div>
-
-                            <div>
-                                <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Tamanho da aplicação</span>
-                                <div class="flex flex-wrap gap-2">
-                                    <template x-for="size in applicationSizes" :key="size">
-                                        <button type="button" @click="setSize(size)" :class="draft.application_size === size ? 'border-amber-300 bg-amber-50 text-amber-900 ring-2 ring-amber-100 dark:border-amber-500 dark:bg-amber-400 dark:text-slate-950 dark:ring-0' : 'border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'" class="rounded-full border px-3 py-2 text-xs font-semibold transition hover:border-amber-300">
-                                            <span x-text="size"></span>
-                                        </button>
-                                    </template>
-                                </div>
-                            </div>
-
-                            <label class="block">
-                                <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Descrição da personalização</span>
-                                <input type="text" x-model="draft.technique" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/50" placeholder="Ex: Serigrafia - A4">
-                            </label>
-
-                            <div class="grid gap-4 sm:grid-cols-2">
-                                <label class="block">
-                                    <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Quantidade</span>
-                                    <input type="number" min="1" x-model.number="draft.quantity" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/50">
-                                </label>
-                                <label class="block">
-                                    <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Valor unitário</span>
-                                    <input type="number" min="0.01" step="0.01" x-model.number="draft.unit_price" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/50">
-                                </label>
-                            </div>
-
-                            <label class="block">
-                                <span class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">Notas do item</span>
-                                <textarea x-model="draft.notes" rows="3" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/50" placeholder="Ex: frente e costas, ajuste de arte..."></textarea>
-                            </label>
-                        </div>
-
-                        <template x-if="draftError">
-                            <div class="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-200" x-text="draftError"></div>
-                        </template>
-
-                        <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div class="rounded-2xl border border-cyan-200 bg-[linear-gradient(135deg,_#ecfeff,_#f0fdfa)] px-4 py-3 text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                                <p class="text-[11px] uppercase tracking-[0.24em] text-cyan-700 dark:text-slate-400">Total do item</p>
-                                <p class="mt-1 text-2xl font-black text-slate-900 dark:text-white" x-text="formatCurrency(draftTotal)"></p>
-                            </div>
-                            <button type="button" @click="saveDraft()" class="qb-save-btn inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-500 px-5 py-3 text-sm font-bold text-white transition hover:translate-y-[-1px] hover:shadow-sky-500/30">
-                                <span x-text="editingIndex === null ? 'Adicionar item' : 'Atualizar item'"></span>
-                            </button>
-                        </div>
+                        <label class="block">
+                            <span class="qb-label">Observações gerais</span>
+                            <textarea x-model="form.observations" rows="7" class="qb-textarea" placeholder="Ex: valores válidos para tamanhos padrão, prazo sujeito à aprovação..."></textarea>
+                        </label>
                     </div>
 
-                    <div class="space-y-4">
-                        <template x-if="items.length === 0">
-                            <div class="flex min-h-[280px] flex-col items-center justify-center rounded-[24px] border border-slate-200 bg-[linear-gradient(180deg,_#fff,_#f8fafc)] p-6 text-center dark:border-slate-700 dark:bg-[linear-gradient(180deg,_#0f172a,_#111827)]">
-                                <div class="flex h-16 w-16 items-center justify-center rounded-full bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-300">
-                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" /></svg>
-                                </div>
-                                <h3 class="mt-4 text-lg font-bold text-slate-900 dark:text-white">Nenhum item adicionado</h3>
-                                <p class="mt-2 max-w-sm text-sm text-slate-500 dark:text-slate-400">Comece por uma peça. Depois você segue empilhando os demais itens aqui mesmo.</p>
-                            </div>
-                        </template>
+                </div>
 
-                        <template x-for="(item, index) in items" :key="item.uid">
-                            <article class="qb-item-card rounded-[24px] border border-slate-200 bg-white p-5 transition hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
-                                <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                                    <div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-100 text-xs font-bold text-cyan-900 dark:bg-sky-500 dark:text-slate-950" x-text="index + 1"></span>
-                                            <h3 class="text-lg font-bold text-slate-900 dark:text-white" x-text="item.product_internal || 'Item rápido'"></h3>
-                                        </div>
-                                        <p class="mt-2 text-sm font-medium text-sky-700 dark:text-sky-300" x-text="item.technique"></p>
-                                        <template x-if="item.notes">
-                                            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400" x-text="item.notes"></p>
+                {{-- Row 2: Items --}}
+                <div class="qb-card">
+                    <div class="qb-card-head">
+                        <div>
+                            <p class="qb-card-label">3. Itens</p>
+                            <p class="qb-card-title">Mais de um item no mesmo orçamento</p>
+                            <p class="qb-card-subtitle">Adicione um item, confirme e siga para o próximo.</p>
+                        </div>
+                        <div class="qb-alert-info">Resumo em tempo real: qtd e total consolidados.</div>
+                    </div>
+
+                    <div class="qb-grid-items">
+                        {{-- Draft form --}}
+                        <div class="qb-form-box">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                                <p class="qb-card-title" x-text="editingIndex === null ? 'Novo item' : 'Editar item'"></p>
+                                <template x-if="editingIndex !== null">
+                                    <button type="button" @click="cancelEdit()" class="qb-tag" style="cursor:pointer">Cancelar</button>
+                                </template>
+                            </div>
+
+                            <div style="display:flex;flex-direction:column;gap:12px">
+                                <label class="block">
+                                    <span class="qb-label">Produto interno</span>
+                                    <input type="text" x-model="draft.product_internal" class="qb-input" placeholder="Ex: Camiseta básica">
+                                </label>
+
+                                <div>
+                                    <span class="qb-label">Técnica</span>
+                                    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:5px">
+                                        <template x-for="tech in techniques" :key="tech">
+                                            <button type="button" @click="setTechnique(tech)"
+                                                :class="draft.technique_type === tech ? 'qb-pill-active' : ''"
+                                                class="qb-pill">
+                                                <span x-text="tech"></span>
+                                            </button>
                                         </template>
                                     </div>
-                                    <div class="flex gap-2">
-                                        <button type="button" @click="editItem(index)" class="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white">Editar</button>
-                                        <button type="button" @click="removeItem(index)" class="rounded-full border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:border-rose-300 dark:border-rose-900/60 dark:text-rose-300">Remover</button>
+                                </div>
+
+                                <div>
+                                    <span class="qb-label">Tamanho da aplicação</span>
+                                    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:5px">
+                                        <template x-for="size in applicationSizes" :key="size">
+                                            <button type="button" @click="setSize(size)"
+                                                :class="draft.application_size === size ? 'qb-pill-size-active' : ''"
+                                                class="qb-pill">
+                                                <span x-text="size"></span>
+                                            </button>
+                                        </template>
                                     </div>
                                 </div>
 
-                                <div class="qb-item-metrics mt-4">
-                                    <div class="qb-item-metric rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
-                                        <p class="qb-item-metric-label text-[11px] uppercase tracking-[0.2em] text-slate-400">Qtd</p>
-                                        <p class="qb-item-metric-value mt-1 text-lg font-black text-slate-900 dark:text-white" x-text="item.quantity"></p>
-                                    </div>
-                                    <div class="qb-item-metric rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
-                                        <p class="qb-item-metric-label text-[11px] uppercase tracking-[0.2em] text-slate-400">Unitário</p>
-                                        <p class="qb-item-metric-value mt-1 text-lg font-black text-slate-900 dark:text-white" x-text="formatCurrency(item.unit_price)"></p>
-                                    </div>
-                                    <div class="qb-item-metric rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
-                                        <p class="qb-item-metric-label text-[11px] uppercase tracking-[0.2em] text-slate-400">Aplicação</p>
-                                        <p class="qb-item-metric-value mt-1 text-lg font-black text-slate-900 dark:text-white" x-text="item.application_size || '-'"></p>
-                                    </div>
-                                    <div class="qb-item-metric qb-item-metric-total rounded-2xl border border-cyan-200 px-4 py-3 text-slate-900 dark:border-sky-200 dark:text-slate-950">
-                                        <p class="qb-item-metric-label text-[11px] uppercase tracking-[0.2em] text-cyan-700 dark:text-slate-700">Total</p>
-                                        <p class="qb-item-metric-value mt-1 text-lg font-black" x-text="formatCurrency(itemTotal(item))"></p>
-                                    </div>
+                                <label class="block">
+                                    <span class="qb-label">Descrição da personalização</span>
+                                    <input type="text" x-model="draft.technique" class="qb-input" placeholder="Ex: Serigrafia - A4">
+                                </label>
+
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                                    <label class="block">
+                                        <span class="qb-label">Quantidade</span>
+                                        <input type="number" min="1" x-model.number="draft.quantity" class="qb-input">
+                                    </label>
+                                    <label class="block">
+                                        <span class="qb-label">Valor unitário</span>
+                                        <input type="number" min="0.01" step="0.01" x-model.number="draft.unit_price" class="qb-input">
+                                    </label>
                                 </div>
-                            </article>
-                        </template>
-                    </div>
-                </div>
-            </section>
-        </div>
 
-        <aside class="xl:sticky xl:top-6 xl:self-start">
-            <section class="qb-panel overflow-hidden rounded-[28px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
-                <div class="border-b border-cyan-100 bg-[linear-gradient(135deg,_#ecfeff,_#ccfbf1_55%,_#f0fdfa)] px-6 py-5 text-slate-900 dark:border-slate-700 dark:bg-[linear-gradient(135deg,_#082f49,_#0f766e)] dark:text-white">
-                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-700 dark:text-cyan-200">Resumo</p>
-                    <h2 class="mt-2 text-2xl font-black">Fechamento rápido</h2>
-                    <p class="mt-1 text-sm text-slate-600 dark:text-cyan-100/80">Tudo pronto para salvar, enviar ou gerar PDF.</p>
-                </div>
+                                <label class="block">
+                                    <span class="qb-label">Notas do item</span>
+                                    <textarea x-model="draft.notes" rows="3" class="qb-textarea" placeholder="Ex: frente e costas, ajuste de arte..."></textarea>
+                                </label>
+                            </div>
 
-                <div class="space-y-5 p-6">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
-                            <p class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Itens</p>
-                            <p class="mt-1 text-xl font-black text-slate-900 dark:text-white" x-text="items.length"></p>
+                            <template x-if="draftError">
+                                <div class="qb-alert-error" style="margin-top:12px" x-text="draftError"></div>
+                            </template>
+
+                            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px">
+                                <div>
+                                    <p class="qb-metric-label">Total do item</p>
+                                    <p style="font-size:20px;font-weight:800;color:var(--qb-text);line-height:1.2;margin-top:3px" x-text="formatCurrency(draftTotal)"></p>
+                                </div>
+                                <button type="button" @click="saveDraft()" class="qb-btn qb-btn-primary">
+                                    <i class="fa-solid fa-plus" style="font-size:11px"></i>
+                                    <span x-text="editingIndex === null ? 'Adicionar item' : 'Atualizar item'"></span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">
-                            <p class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Peças</p>
-                            <p class="mt-1 text-xl font-black text-slate-900 dark:text-white" x-text="totalQuantity"></p>
+
+                        {{-- Items list --}}
+                        <div style="display:flex;flex-direction:column;gap:10px">
+                            <template x-if="items.length === 0">
+                                <div class="qb-empty">
+                                    <div class="qb-empty-icon"><i class="fa-solid fa-cubes-stacked"></i></div>
+                                    <p class="qb-card-title" style="font-size:14px">Nenhum item adicionado</p>
+                                    <p style="font-size:12px;color:var(--qb-muted);margin-top:4px;max-width:240px">Comece por uma peça. Depois empilhe os demais itens aqui.</p>
+                                </div>
+                            </template>
+
+                            <template x-for="(item, index) in items" :key="item.uid">
+                                <article class="qb-item-row">
+                                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+                                        <div style="min-width:0">
+                                            <div style="display:flex;align-items:center;gap:8px">
+                                                <span style="width:22px;height:22px;border-radius:50%;background:rgba(109,40,217,.12);color:#6d28d9;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0" x-text="index+1"></span>
+                                                <p class="qb-card-title" style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" x-text="item.product_internal || 'Item rápido'"></p>
+                                            </div>
+                                            <p style="font-size:12px;font-weight:600;color:#6d28d9;margin-top:3px" x-text="item.technique"></p>
+                                            <template x-if="item.notes">
+                                                <p style="font-size:12px;color:var(--qb-muted);margin-top:2px" x-text="item.notes"></p>
+                                            </template>
+                                        </div>
+                                        <div style="display:flex;gap:6px;flex-shrink:0">
+                                            <button type="button" @click="editItem(index)" class="qb-tag" style="cursor:pointer">Editar</button>
+                                            <button type="button" @click="removeItem(index)" class="qb-tag" style="cursor:pointer;color:#991b1b;border-color:#fecaca">Remover</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="qb-metrics">
+                                        <div class="qb-metric">
+                                            <p class="qb-metric-label">Qtd</p>
+                                            <p class="qb-metric-value" x-text="item.quantity"></p>
+                                        </div>
+                                        <div class="qb-metric">
+                                            <p class="qb-metric-label">Unitário</p>
+                                            <p class="qb-metric-value" x-text="formatCurrency(item.unit_price)"></p>
+                                        </div>
+                                        <div class="qb-metric">
+                                            <p class="qb-metric-label">Aplicação</p>
+                                            <p class="qb-metric-value" x-text="item.application_size || '—'"></p>
+                                        </div>
+                                        <div class="qb-metric qb-metric-purple">
+                                            <p class="qb-metric-label">Total</p>
+                                            <p class="qb-metric-value" x-text="formatCurrency(itemTotal(item))"></p>
+                                        </div>
+                                    </div>
+                                </article>
+                            </template>
                         </div>
                     </div>
+                </div>
 
-                    <div class="rounded-3xl border border-cyan-200 bg-[linear-gradient(145deg,_#ecfeff,_#f0fdfa_52%,_#ffffff)] px-5 py-5 text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                        <p class="text-xs uppercase tracking-[0.24em] text-cyan-700 dark:text-slate-400">Total do orçamento</p>
-                        <p class="mt-2 text-4xl font-black text-slate-900 dark:text-white" x-text="formatCurrency(grandTotal)"></p>
-                        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Prazo estimado: <span class="font-semibold text-slate-900 dark:text-white" x-text="form.deadline_days + ' dias'"></span></p>
+            </div>{{-- end .qb-main --}}
+
+            {{-- Aside summary --}}
+            <aside>
+                <div class="qb-card" style="overflow:hidden">
+                    <div class="qb-summary-head">
+                        <p style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;opacity:.75;font-weight:700">Resumo</p>
+                        <p style="font-size:20px;font-weight:800;margin-top:4px">Fechamento rápido</p>
+                        <p style="font-size:12px;opacity:.7;margin-top:2px">Pronto para salvar, enviar ou gerar PDF.</p>
                     </div>
 
-                    <div class="space-y-3">
-                        <button type="button" @click="submitForm('save')" :disabled="!canSubmit || loading" class="inline-flex w-full items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700">
-                            <span x-text="loadingAction === 'save' ? 'Salvando...' : 'Salvar orçamento'"></span>
-                        </button>
-                        <button type="button" @click="submitForm('pdf')" :disabled="!canSubmit || loading" class="inline-flex w-full items-center justify-center rounded-2xl bg-sky-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700">
-                            <span x-text="loadingAction === 'pdf' ? 'Gerando...' : 'Salvar e gerar PDF'"></span>
-                        </button>
-                        <button type="button" @click="submitForm('copy')" :disabled="!canSubmit || loading" class="inline-flex w-full items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-transparent dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white">
-                            <span x-text="loadingAction === 'copy' ? 'Copiando...' : 'Salvar e copiar texto'"></span>
-                        </button>
-                        <button type="button" @click="submitForm('whatsapp')" :disabled="!canSubmit || loading" class="inline-flex w-full items-center justify-center rounded-2xl bg-[#25D366] px-5 py-3 text-sm font-bold text-slate-950 transition hover:brightness-95 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700">
-                            <span x-text="loadingAction === 'whatsapp' ? 'Abrindo...' : 'Salvar e abrir WhatsApp'"></span>
-                        </button>
-                    </div>
+                    <div style="padding-top:16px;display:flex;flex-direction:column;gap:14px">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                            <div class="qb-metric"><p class="qb-metric-label">Itens</p><p class="qb-metric-value" x-text="items.length"></p></div>
+                            <div class="qb-metric"><p class="qb-metric-label">Peças</p><p class="qb-metric-value" x-text="totalQuantity"></p></div>
+                        </div>
 
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                        <p class="font-semibold text-slate-900 dark:text-white">Checklist</p>
-                        <ul class="mt-2 space-y-1.5">
-                            <li :class="form.contact_name.trim() ? 'text-emerald-600 dark:text-emerald-300' : ''">Contato preenchido</li>
-                            <li :class="form.contact_phone.trim() ? 'text-emerald-600 dark:text-emerald-300' : ''">WhatsApp informado</li>
-                            <li :class="items.length ? 'text-emerald-600 dark:text-emerald-300' : ''">Ao menos um item adicionado</li>
-                        </ul>
+                        <div class="qb-total-box">
+                            <p class="qb-total-label">Total do orçamento</p>
+                            <p class="qb-total-value" x-text="formatCurrency(grandTotal)"></p>
+                            <p class="qb-total-note">Prazo: <strong x-text="form.deadline_days + ' dias'"></strong></p>
+                        </div>
+
+                        <hr class="qb-hr">
+
+                        <div style="display:flex;flex-direction:column;gap:8px">
+                            <button type="button" @click="submitForm('save')" :disabled="!canSubmit || loading" class="qb-btn qb-btn-success qb-btn-full">
+                                <i class="fa-solid fa-floppy-disk" style="font-size:12px"></i>
+                                <span x-text="loadingAction === 'save' ? 'Salvando...' : 'Salvar orçamento'"></span>
+                            </button>
+                            <button type="button" @click="submitForm('pdf')" :disabled="!canSubmit || loading" class="qb-btn qb-btn-sky qb-btn-full">
+                                <i class="fa-solid fa-file-pdf" style="font-size:12px"></i>
+                                <span x-text="loadingAction === 'pdf' ? 'Gerando...' : 'Salvar e gerar PDF'"></span>
+                            </button>
+                            <button type="button" @click="submitForm('copy')" :disabled="!canSubmit || loading" class="qb-btn qb-btn-ghost qb-btn-full">
+                                <i class="fa-solid fa-copy" style="font-size:12px"></i>
+                                <span x-text="loadingAction === 'copy' ? 'Copiando...' : 'Salvar e copiar texto'"></span>
+                            </button>
+                            <button type="button" @click="submitForm('whatsapp')" :disabled="!canSubmit || loading" class="qb-btn qb-btn-whatsapp qb-btn-full">
+                                <i class="fa-brands fa-whatsapp" style="font-size:14px"></i>
+                                <span x-text="loadingAction === 'whatsapp' ? 'Abrindo...' : 'Salvar e abrir WhatsApp'"></span>
+                            </button>
+                        </div>
+
+                        <hr class="qb-hr">
+
+                        <div class="qb-card" style="padding:12px;box-shadow:none">
+                            <p style="font-size:12px;font-weight:700;color:var(--qb-text);margin-bottom:8px">Checklist</p>
+                            <div style="display:flex;flex-direction:column;gap:7px">
+                                <div class="qb-check-item" :class="form.contact_name.trim() ? 'done' : ''">
+                                    <span class="qb-check-dot"><i class="fa-solid fa-check" x-show="form.contact_name.trim()" style="font-size:7px"></i></span>
+                                    <span>Contato preenchido</span>
+                                </div>
+                                <div class="qb-check-item" :class="form.contact_phone.trim() ? 'done' : ''">
+                                    <span class="qb-check-dot"><i class="fa-solid fa-check" x-show="form.contact_phone.trim()" style="font-size:7px"></i></span>
+                                    <span>WhatsApp informado</span>
+                                </div>
+                                <div class="qb-check-item" :class="items.length ? 'done' : ''">
+                                    <span class="qb-check-dot"><i class="fa-solid fa-check" x-show="items.length" style="font-size:7px"></i></span>
+                                    <span>Ao menos um item adicionado</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </section>
-        </aside>
-    </div>
+            </aside>
+
+        </div>{{-- end .qb-main-aside --}}
+
+    </div>{{-- end .qb-wrap --}}
 </div>
 
 @push('scripts')
