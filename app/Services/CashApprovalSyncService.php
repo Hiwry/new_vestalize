@@ -12,6 +12,10 @@ class CashApprovalSyncService
     public function syncApprovedPayment(Order $order, Payment $payment, string $actionLabel, ?string $actorName = null): void
     {
         $approvalTimestamp = now('America/Sao_Paulo');
+        $paymentMethods = is_array($payment->payment_methods) ? $payment->payment_methods : [];
+
+        $this->cleanupRedundantTransactions($order, $paymentMethods);
+
         $existingTransactions = $order->cashTransactions()
             ->where('type', 'entrada')
             ->where('category', 'Venda')
@@ -19,7 +23,6 @@ class CashApprovalSyncService
             ->get();
 
         $usedTransactionIds = [];
-        $paymentMethods = is_array($payment->payment_methods) ? $payment->payment_methods : [];
 
         if (empty($paymentMethods) && (float) ($payment->entry_amount ?? 0) > 0) {
             $paymentMethods[] = [
@@ -29,11 +32,6 @@ class CashApprovalSyncService
                 'date' => optional($payment->payment_date ?? $payment->entry_date)->format('Y-m-d H:i:s') ?? now()->format('Y-m-d H:i:s'),
             ];
         }
-
-        $signatureOccurrences = collect($paymentMethods)
-            ->map(fn(array $method) => $this->buildMethodSignature($method))
-            ->countBy()
-            ->all();
 
         foreach ($paymentMethods as $method) {
             $normalizedMethod = $this->normalizePaymentMethodData($method, $payment);
@@ -45,8 +43,7 @@ class CashApprovalSyncService
             $matchingTransaction = $this->findMatchingCashTransaction(
                 $existingTransactions,
                 $normalizedMethod,
-                $usedTransactionIds,
-                (int) ($signatureOccurrences[$this->buildMethodSignature($method)] ?? 1)
+                $usedTransactionIds
             );
 
             if ($matchingTransaction) {
@@ -93,6 +90,7 @@ class CashApprovalSyncService
         CashTransaction::where('order_id', $order->id)
             ->where('type', 'entrada')
             ->where('status', 'pendente')
+            ->whereIn('id', $usedTransactionIds)
             ->update([
                 'status' => 'confirmado',
                 'transaction_date' => $approvalTimestamp,
@@ -118,7 +116,7 @@ class CashApprovalSyncService
         ];
     }
 
-    private function findMatchingCashTransaction($transactions, array $method, array $usedTransactionIds, int $signatureOccurrences): ?CashTransaction
+    private function findMatchingCashTransaction($transactions, array $method, array $usedTransactionIds): ?CashTransaction
     {
         if (!empty($method['id'])) {
             $idMatch = $transactions->first(function (CashTransaction $transaction) use ($method, $usedTransactionIds) {
@@ -151,15 +149,22 @@ class CashApprovalSyncService
             return $sameDayMatch;
         }
 
-        if ($signatureOccurrences === 1) {
-            return $transactions->first(function (CashTransaction $transaction) use ($method, $usedTransactionIds) {
-                return !in_array($transaction->id, $usedTransactionIds, true)
-                    && strtolower((string) $transaction->payment_method) === $method['method']
-                    && abs((float) $transaction->amount - $method['amount']) < 0.01;
-            });
+        $pendingMatch = $transactions->first(function (CashTransaction $transaction) use ($method, $usedTransactionIds) {
+            return !in_array($transaction->id, $usedTransactionIds, true)
+                && $transaction->status === 'pendente'
+                && strtolower((string) $transaction->payment_method) === $method['method']
+                && abs((float) $transaction->amount - $method['amount']) < 0.01;
+        });
+
+        if ($pendingMatch) {
+            return $pendingMatch;
         }
 
-        return null;
+        return $transactions->first(function (CashTransaction $transaction) use ($method, $usedTransactionIds) {
+            return !in_array($transaction->id, $usedTransactionIds, true)
+                && strtolower((string) $transaction->payment_method) === $method['method']
+                && abs((float) $transaction->amount - $method['amount']) < 0.01;
+        });
     }
 
     private function transactionNeedsPaymentMethodSync(CashTransaction $transaction, array $method): bool
@@ -205,5 +210,59 @@ class CashApprovalSyncService
         $amount = number_format((float) ($method['amount'] ?? 0), 2, '.', '');
 
         return $methodName . '|' . $amount;
+    }
+
+    private function cleanupRedundantTransactions(Order $order, array $paymentMethods): void
+    {
+        if (empty($paymentMethods)) {
+            return;
+        }
+
+        $expectedCounts = collect($paymentMethods)
+            ->map(fn(array $method) => $this->buildMethodSignature($method))
+            ->countBy();
+
+        $transactions = $order->cashTransactions()
+            ->where('type', 'entrada')
+            ->where('category', 'Venda')
+            ->orderBy('transaction_date')
+            ->orderBy('id')
+            ->get()
+            ->groupBy(fn(CashTransaction $transaction) => $this->buildMethodSignature([
+                'method' => $transaction->payment_method,
+                'amount' => $transaction->amount,
+            ]));
+
+        foreach ($transactions as $signature => $group) {
+            $expected = (int) ($expectedCounts[$signature] ?? 0);
+            $extra = $group->count() - $expected;
+
+            if ($extra <= 0) {
+                continue;
+            }
+
+            $group
+                ->sortBy([
+                    fn(CashTransaction $transaction) => $this->isAutoGeneratedTransaction($transaction) ? 0 : 1,
+                    fn(CashTransaction $transaction) => optional($transaction->transaction_date)->timestamp ?? 0,
+                    fn(CashTransaction $transaction) => $transaction->id,
+                ])
+                ->reverse()
+                ->take($extra)
+                ->each(function (CashTransaction $transaction) {
+                    if ($this->isAutoGeneratedTransaction($transaction)) {
+                        $transaction->delete();
+                    }
+                });
+        }
+    }
+
+    private function isAutoGeneratedTransaction(CashTransaction $transaction): bool
+    {
+        $notes = strtolower((string) $transaction->notes);
+
+        return str_contains($notes, 'transacao gerada automaticamente na aprovacao do caixa')
+            || str_contains($notes, 'reconciliado por comando')
+            || str_contains($notes, 'comando cash:reconcile-approved');
     }
 }
