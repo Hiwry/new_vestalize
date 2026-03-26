@@ -143,9 +143,9 @@
         }
 
         .highlight-chip {
-            border: 1px solid color-mix(in srgb, var(--secondary-color) 28%, white);
-            background: color-mix(in srgb, var(--secondary-color) 10%, white);
-            color: var(--secondary-color);
+            border: 1px solid color-mix(in srgb, var(--secondary-color) 30%, #cbd5e1);
+            background: color-mix(in srgb, var(--secondary-color) 12%, #f8fafc);
+            color: color-mix(in srgb, var(--secondary-color) 62%, #0f172a);
         }
 
         .dark .highlight-chip {
@@ -155,14 +155,14 @@
         }
 
         .important-value {
-            color: var(--secondary-color);
+            color: color-mix(in srgb, var(--secondary-color) 58%, #111827);
             font-weight: 700;
         }
 
         .size-highlight {
-            border: 1px solid color-mix(in srgb, var(--secondary-color) 24%, white);
-            background: color-mix(in srgb, var(--secondary-color) 8%, white);
-            color: var(--secondary-color);
+            border: 1px solid color-mix(in srgb, var(--secondary-color) 28%, #cbd5e1);
+            background: color-mix(in srgb, var(--secondary-color) 10%, #f8fafc);
+            color: color-mix(in srgb, var(--secondary-color) 58%, #0f172a);
         }
 
         .dark .size-highlight {
