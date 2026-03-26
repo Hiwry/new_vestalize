@@ -789,7 +789,7 @@ class CashController extends Controller
 
     /* =====================================================================
      * FECHAMENTO DE CAIXA — PDF (3 páginas)
-     * GET /cash/fechamento/pdf?period=day|week|month&date=YYYY-MM-DD
+     * GET /cash/fechamento/pdf?period=day|week|month|custom&date=YYYY-MM-DD
      * ===================================================================== */
     public function fechamentoCaixaPdf(Request $request)
     {
@@ -797,7 +797,7 @@ class CashController extends Controller
             abort(403);
         }
 
-        $period = in_array($request->get('period'), ['day','week','month']) ? $request->get('period') : 'day';
+        $period = in_array($request->get('period'), ['day', 'week', 'month', 'custom']) ? $request->get('period') : 'day';
         $referenceDate = Carbon::parse($request->get('date', Carbon::now()->format('Y-m-d')));
 
         switch ($period) {
@@ -810,6 +810,16 @@ class CashController extends Controller
                 $startFilter  = $referenceDate->copy()->startOfMonth()->startOfDay();
                 $endFilter    = $referenceDate->copy()->endOfMonth()->endOfDay();
                 $periodLabel  = $referenceDate->locale('pt_BR')->isoFormat('MMMM [de] YYYY');
+                break;
+            case 'custom':
+                $startFilter = Carbon::parse($request->get('start_date', $referenceDate->format('Y-m-d')))->startOfDay();
+                $endFilter = Carbon::parse($request->get('end_date', $referenceDate->format('Y-m-d')))->endOfDay();
+
+                if ($startFilter->gt($endFilter)) {
+                    [$startFilter, $endFilter] = [$endFilter, $startFilter];
+                }
+
+                $periodLabel = 'Período: ' . $startFilter->format('d/m/Y') . ' a ' . $endFilter->format('d/m/Y');
                 break;
             default: // day
                 $startFilter  = $referenceDate->copy()->startOfDay();
@@ -960,7 +970,11 @@ class CashController extends Controller
         $dompdf->setPaper('A4', 'landscape');
         $dompdf->render();
 
-        $filename = 'fechamento-caixa-' . $period . '-' . $referenceDate->format('Y-m-d') . '.pdf';
+        $filenameDate = $period === 'custom'
+            ? $startFilter->format('Y-m-d') . '_a_' . $endFilter->format('Y-m-d')
+            : $referenceDate->format('Y-m-d');
+
+        $filename = 'fechamento-caixa-' . $period . '-' . $filenameDate . '.pdf';
         return response($dompdf->output(), 200, [
             'Content-Type'        => 'application/pdf',
             'Content-Disposition' => 'inline; filename="' . $filename . '"',

@@ -160,12 +160,34 @@
                 <i class="fa-solid fa-file-lines"></i><span>Detalhado</span>
             </button>
             {{-- Fechamento de Caixa PDF --}}
-            <div x-data="{ openFech: false, fechPeriod: 'day', fechDate: '{{ now()->format('Y-m-d') }}' }" class="relative">
+            <div
+                x-data="{
+                    openFech: false,
+                    fechPeriod: 'day',
+                    fechDate: '{{ now()->format('Y-m-d') }}',
+                    fechStartDate: '{{ now()->format('Y-m-01') }}',
+                    fechEndDate: '{{ now()->format('Y-m-d') }}',
+                    get fechUrl() {
+                        const params = new URLSearchParams({ period: this.fechPeriod });
+
+                        if (this.fechPeriod === 'custom') {
+                            params.set('start_date', this.fechStartDate);
+                            params.set('end_date', this.fechEndDate);
+                            params.set('date', this.fechStartDate || this.fechDate);
+                        } else {
+                            params.set('date', this.fechDate);
+                        }
+
+                        return `{{ route('cash.fechamento.pdf') }}?${params.toString()}`;
+                    }
+                }"
+                class="relative"
+            >
                 <button @click="openFech = !openFech" class="cf-btn cf-btn-amber">
                     <i class="fa-solid fa-file-pdf"></i><span>Fechamento PDF</span>
                 </button>
                 <div x-show="openFech" x-cloak @click.away="openFech = false"
-                     class="absolute right-0 top-10 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl p-4 w-64">
+                     class="absolute right-0 top-10 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl p-4 w-72">
                     <p class="text-xs font-bold text-gray-600 dark:text-gray-300 mb-2">FECHAMENTO DE CAIXA</p>
                     <div class="mb-2">
                         <label class="text-xs text-gray-500 dark:text-gray-400">Período</label>
@@ -173,13 +195,22 @@
                             <option value="day">Diário</option>
                             <option value="week">Semanal</option>
                             <option value="month">Mensal</option>
+                            <option value="custom">Personalizado</option>
                         </select>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3" x-show="fechPeriod !== 'custom'">
                         <label class="text-xs text-gray-500 dark:text-gray-400">Data de referência</label>
                         <input type="date" x-model="fechDate" class="w-full mt-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     </div>
-                    <a :href="`{{ route('cash.fechamento.pdf') }}?period=${fechPeriod}&date=${fechDate}`" target="_blank"
+                    <div class="mb-2" x-show="fechPeriod === 'custom'">
+                        <label class="text-xs text-gray-500 dark:text-gray-400">Data inicial</label>
+                        <input type="date" x-model="fechStartDate" class="w-full mt-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                    </div>
+                    <div class="mb-3" x-show="fechPeriod === 'custom'">
+                        <label class="text-xs text-gray-500 dark:text-gray-400">Data final</label>
+                        <input type="date" x-model="fechEndDate" class="w-full mt-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                    </div>
+                    <a :href="fechUrl" target="_blank"
                        class="cf-btn cf-btn-purple w-full justify-center">
                         <i class="fa-solid fa-file-pdf"></i><span>Gerar PDF</span>
                     </a>
