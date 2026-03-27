@@ -2886,25 +2886,35 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         }).join('');
     }
 
+    function resetWizardCutSelections() {
+        wizardData.tipo_corte = null;
+        wizardData.detalhe = [];
+        wizardData.detail_color = null;
+        wizardData.detail_colors = {};
+        wizardData.individual_detail_colors = false;
+        wizardData.gola = null;
+        wizardData.collar_color = null;
+    }
+    window.resetWizardCutSelections = resetWizardCutSelections;
+
     function getEligibleCutParentIds() {
-        const parentIds = [];
-
         if (wizardData.tipo_tecido?.id) {
-            parentIds.push(wizardData.tipo_tecido.id.toString());
+            return [wizardData.tipo_tecido.id.toString()];
         }
 
-        if (wizardData.tecido?.id) {
-            parentIds.push(wizardData.tecido.id.toString());
-
-            const fabricTypes = filterByParent(getOptionList(['tipo_tecido']), wizardData.tecido.id);
-            fabricTypes.forEach(item => {
-                if (item?.id) {
-                    parentIds.push(item.id.toString());
-                }
-            });
+        if (!wizardData.tecido?.id) {
+            return [];
         }
 
-        return [...new Set(parentIds.filter(Boolean))];
+        const fabricTypeIds = filterByParent(getOptionList(['tipo_tecido']), wizardData.tecido.id)
+            .map(item => item?.id?.toString())
+            .filter(Boolean);
+
+        if (fabricTypeIds.length > 0) {
+            return [...new Set(fabricTypeIds)];
+        }
+
+        return [wizardData.tecido.id.toString()];
     }
     window.getEligibleCutParentIds = getEligibleCutParentIds;
 
@@ -2914,6 +2924,11 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const items = eligibleParentIds.length
             ? filterByParent(cutOptions, eligibleParentIds)
             : cutOptions;
+
+        const currentCutId = wizardData.tipo_corte?.id?.toString();
+        if (currentCutId && !items.some(item => item?.id?.toString() === currentCutId)) {
+            resetWizardCutSelections();
+        }
 
         renderSelectableOptionCards('wizard-options-corte', items, wizardData.tipo_corte?.id, 'selectWizardCorte');
     }
@@ -2939,10 +2954,10 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const tipoCorteId = wizardData.tipo_corte?.id ? wizardData.tipo_corte.id.toString() : null;
         const allTipoCortes = getOptionList(['tipo_corte', 'corte']);
 
-        // Build all eligible tipo_corte IDs from the current fabric context (same
-        // approach as the color filter so items aren't hidden by broken hierarchy links).
-        const contextTipoCorteIds = getEligibleCutParentIds(); // already includes tipo_tecido / tecido derived IDs
-        // Also fetch tipo_corte that are direct children of the eligible tipo_tecido/tecido IDs
+        // Build the eligible tipo_corte IDs from the selected tipo_tecido.
+        // If the fabric has no tipo_tecido configured, fall back to the tecido ID.
+        const contextTipoCorteIds = getEligibleCutParentIds();
+        // Also fetch tipo_corte that are direct children of the eligible parent IDs.
         const tipoCorteLinkedToContext = allTipoCortes.filter(tc => {
             if (!tc.parent_ids || tc.parent_ids.length === 0) return true;
             return tc.parent_ids.some(pid => contextTipoCorteIds.includes(pid.toString()));
