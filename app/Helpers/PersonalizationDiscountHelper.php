@@ -66,11 +66,12 @@ class PersonalizationDiscountHelper
         foreach ($items as $originalIndex => $item) {
             $unitPrice = $item['unit_price'] ?? 0;
             $quantity = $item['quantity'] ?? 1;
+            $sizeSurchargeTotal = (float) ($item['size_surcharge_total'] ?? 0);
             $discountPercent = $setting->getDiscountForApplication($applicationNumber);
             $discountPercent = max(0, min(100, (float) $discountPercent));
 
             $item['discount_applied'] = $discountPercent;
-            $item['final_price'] = ($unitPrice * $quantity) * (1 - ($discountPercent / 100));
+            $item['final_price'] = (($unitPrice * $quantity) * (1 - ($discountPercent / 100))) + $sizeSurchargeTotal;
             $result[$originalIndex] = $item;
 
             $applicationNumber++;

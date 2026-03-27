@@ -66,6 +66,7 @@ class BudgetController extends Controller
             if (!empty($storeIds)) {
                 $query->whereIn('store_id', $storeIds);
             } else {
+
                 // Se não tem lojas atribuídas, não vê nada
                 $query->whereRaw('1 = 0');
             }
@@ -436,14 +437,25 @@ class BudgetController extends Controller
             
             // Salvar personalização na sessão
             $customizations = array_values(session('budget_customizations', []));
+            $budgetItems = session('budget_items', []);
             $itemIndex = $data['item_id'] ?? 0;
             $editingIndex = $request->filled('editing_personalization_id')
                 ? (int) $request->input('editing_personalization_id')
                 : null;
+            $editingLinkedGroupId = trim((string) $request->input('editing_linked_group_id', ''));
             $existingCustomization = ($editingIndex !== null && isset($customizations[$editingIndex]))
                 ? $customizations[$editingIndex]
                 : null;
-            
+
+            if (!$existingCustomization && $editingLinkedGroupId !== '') {
+                foreach ($customizations as $customization) {
+                    if (($customization['linked_group_id'] ?? null) === $editingLinkedGroupId) {
+                        $existingCustomization = $customization;
+                        break;
+                    }
+                }
+            }
+
             // Lidar com upload de imagem da aplicação
             $imagePath = null;
             if ($request->hasFile('application_image')) {
@@ -480,43 +492,68 @@ class BudgetController extends Controller
                 })
                 ->all();
 
-            $budgetItems = session('budget_items', []);
-            $currentItem = $budgetItems[$itemIndex] ?? [];
-            $currentItemQuantity = max(1, (int) ($currentItem['quantity'] ?? 0));
-            $itemUnitPrice = isset($currentItem['unit_price'])
-                ? (float) $currentItem['unit_price']
-                : ($currentItemQuantity > 0 ? (float) (($currentItem['item_total'] ?? 0) / $currentItemQuantity) : 0.0);
+            $linkedItemIndexes = collect($request->input('linked_item_indexes', [$itemIndex]))
+                ->map(fn ($index) => (int) $index)
+                ->filter(fn ($index) => array_key_exists($index, $budgetItems))
+                ->unique()
+                ->values()
+                ->all();
 
-            $sizeSurchargeDetails = [];
-            $sizeSurchargeTotal = 0.0;
-
-            foreach ($sizeSurchargeQuantities as $size => $qty) {
-                $surchargeModel = \App\Models\SizeSurcharge::getSurchargeForSize($size, $itemUnitPrice);
-                $surchargePerUnit = (float) ($surchargeModel->surcharge ?? 0);
-
-                if ($surchargePerUnit <= 0) {
-                    continue;
-                }
-
-                $lineTotal = $surchargePerUnit * $qty;
-                $sizeSurchargeDetails[$size] = [
-                    'qty' => $qty,
-                    'unit' => $surchargePerUnit,
-                    'total' => $lineTotal,
-                ];
-                $sizeSurchargeTotal += $lineTotal;
+            if (!in_array((int) $itemIndex, $linkedItemIndexes, true) && array_key_exists((int) $itemIndex, $budgetItems)) {
+                array_unshift($linkedItemIndexes, (int) $itemIndex);
             }
+
+            if (empty($linkedItemIndexes)) {
+                $linkedItemIndexes = [(int) $itemIndex];
+            }
+
+            $pricingQuantity = collect($linkedItemIndexes)
+                ->sum(fn ($index) => max(0, (int) ($budgetItems[$index]['quantity'] ?? 0)));
+            $pricingQuantity = max(1, (int) $pricingQuantity);
+
+            $linkedGroupId = count($linkedItemIndexes) > 1
+                ? ($editingLinkedGroupId !== '' ? $editingLinkedGroupId : (string) \Illuminate\Support\Str::uuid())
+                : null;
+
+            $affectedItemIndexes = $linkedItemIndexes;
+            $indexesToRemove = [];
+
+            if ($editingLinkedGroupId !== '') {
+                foreach ($customizations as $customizationIndex => $customization) {
+                    if (($customization['linked_group_id'] ?? null) === $editingLinkedGroupId) {
+                        $indexesToRemove[] = $customizationIndex;
+                        $affectedItemIndexes[] = (int) ($customization['item_index'] ?? 0);
+                    }
+                }
+            } elseif ($editingIndex !== null && isset($customizations[$editingIndex])) {
+                $indexesToRemove[] = $editingIndex;
+                $affectedItemIndexes[] = (int) ($customizations[$editingIndex]['item_index'] ?? $itemIndex);
+            }
+
+            rsort($indexesToRemove);
+            foreach ($indexesToRemove as $customizationIndex) {
+                unset($customizations[$customizationIndex]);
+            }
+
+            $customizations = array_values($customizations);
+
+            foreach ($linkedItemIndexes as $linkedItemIndex) {
+                $linkedItem = $budgetItems[$linkedItemIndex] ?? [];
+                [$sizeSurchargeDetails, $sizeSurchargeTotal] = $this->buildBudgetSizeSurchargeData($linkedItem, $sizeSurchargeQuantities);
             
-            $customizationPayload = [
-                'item_index' => $itemIndex,
+                $itemQuantity = max(1, (int) ($linkedItem['quantity'] ?? ($data['quantity'] ?? 0)));
+                $unitPrice = (float) ($data['unit_price'] ?? 0);
+
+                $customizations[] = [
+                    'item_index' => $linkedItemIndex,
                 'personalization_id' => $data['personalization_id'] ?? null,
                 'personalization_name' => $data['personalization_type'] ?? '',
                 'location' => $data['location'] ?? '',
                 'size' => $data['size'] ?? 'PADRÃO',
-                'quantity' => $data['quantity'] ?? 0,
+                'quantity' => $itemQuantity,
                 'color_count' => $data['color_count'] ?? 1,
-                'unit_price' => $data['unit_price'] ?? 0,
-                'final_price' => $data['final_price'] ?? 0,
+                'unit_price' => $unitPrice,
+                'final_price' => ($unitPrice * $itemQuantity) + $sizeSurchargeTotal,
                 'image' => $imagePath ?: ($existingCustomization['image'] ?? null),
                 'art_files' => !empty($artFiles) ? $artFiles : ($existingCustomization['art_files'] ?? []),
                 'color_details' => $data['color_details'] ?? '',
@@ -526,16 +563,19 @@ class BudgetController extends Controller
                 'size_surcharge_quantities' => $sizeSurchargeQuantities,
                 'size_surcharge_details' => $sizeSurchargeDetails,
                 'size_surcharge_total' => $sizeSurchargeTotal,
+                'linked_item_indexes' => $linkedItemIndexes,
+                'linked_group_id' => $linkedGroupId,
+                'pricing_quantity' => $pricingQuantity,
+                'price_range_from' => $request->filled('price_range_from') ? (int) $request->input('price_range_from') : null,
+                'price_range_to' => $request->filled('price_range_to') ? (int) $request->input('price_range_to') : null,
             ];
 
-            if ($editingIndex !== null && isset($customizations[$editingIndex])) {
-                $customizations[$editingIndex] = $customizationPayload;
-            } else {
-                $customizations[] = $customizationPayload;
             }
             
             // Aplicar descontos automáticos
-            $customizations = \App\Helpers\PersonalizationDiscountHelper::applySessionDiscounts($customizations, $itemIndex);
+            foreach (collect($affectedItemIndexes)->filter(fn ($index) => array_key_exists((int) $index, $budgetItems))->unique() as $affectedItemIndex) {
+                $customizations = \App\Helpers\PersonalizationDiscountHelper::applySessionDiscounts($customizations, (int) $affectedItemIndex);
+            }
             
             session(['budget_customizations' => $customizations]);
 
@@ -869,9 +909,28 @@ class BudgetController extends Controller
         $customizations = Session::get('budget_customizations', []);
         
         if (isset($customizations[$index])) {
-            unset($customizations[$index]);
-            // Reindexar o array
+            $targetCustomization = $customizations[$index];
+            $affectedItemIndexes = [(int) ($targetCustomization['item_index'] ?? 0)];
+            $linkedGroupId = $targetCustomization['linked_group_id'] ?? null;
+
+            if (!empty($linkedGroupId)) {
+                foreach ($customizations as $customizationIndex => $customization) {
+                    if (($customization['linked_group_id'] ?? null) === $linkedGroupId) {
+                        $affectedItemIndexes[] = (int) ($customization['item_index'] ?? 0);
+                        unset($customizations[$customizationIndex]);
+                    }
+                }
+            } else {
+                unset($customizations[$index]);
+            }
+
             $customizations = array_values($customizations);
+
+            $budgetItems = Session::get('budget_items', []);
+            foreach (collect($affectedItemIndexes)->filter(fn ($itemIndex) => array_key_exists((int) $itemIndex, $budgetItems))->unique() as $affectedItemIndex) {
+                $customizations = \App\Helpers\PersonalizationDiscountHelper::applySessionDiscounts($customizations, (int) $affectedItemIndex);
+            }
+
             Session::put('budget_customizations', $customizations);
             
             return response()->json(['success' => true, 'message' => 'Personalização removida com sucesso!']);
@@ -1530,6 +1589,36 @@ class BudgetController extends Controller
         }
     }
     
+    private function buildBudgetSizeSurchargeData(array $budgetItem, array $sizeSurchargeQuantities): array
+    {
+        $itemQuantity = max(1, (int) ($budgetItem['quantity'] ?? 0));
+        $itemUnitPrice = isset($budgetItem['unit_price'])
+            ? (float) $budgetItem['unit_price']
+            : ($itemQuantity > 0 ? (float) (($budgetItem['item_total'] ?? 0) / $itemQuantity) : 0.0);
+
+        $sizeSurchargeDetails = [];
+        $sizeSurchargeTotal = 0.0;
+
+        foreach ($sizeSurchargeQuantities as $size => $qty) {
+            $surchargeModel = \App\Models\SizeSurcharge::getSurchargeForSize($size, $itemUnitPrice);
+            $surchargePerUnit = (float) ($surchargeModel->surcharge ?? 0);
+
+            if ($surchargePerUnit <= 0) {
+                continue;
+            }
+
+            $lineTotal = $surchargePerUnit * $qty;
+            $sizeSurchargeDetails[$size] = [
+                'qty' => $qty,
+                'unit' => $surchargePerUnit,
+                'total' => $lineTotal,
+            ];
+            $sizeSurchargeTotal += $lineTotal;
+        }
+
+        return [$sizeSurchargeDetails, $sizeSurchargeTotal];
+    }
+
     /**
      * Extrair tamanhos do item do orçamento
      */
