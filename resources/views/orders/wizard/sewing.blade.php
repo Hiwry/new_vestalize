@@ -2314,6 +2314,12 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         const typeContainer = document.getElementById('wizard-tipo-tecido-container');
         if (typeContainer) typeContainer.classList.add('hidden');
 
+        const fabricSelect = document.getElementById('wizard_tecido');
+        if (fabricSelect) {
+            fabricSelect.innerHTML = '<option value="">Selecione o tecido</option>';
+            fabricSelect.value = '';
+        }
+
         const typeSelect = document.getElementById('wizard_tipo_tecido');
         if (typeSelect) {
             typeSelect.innerHTML = '<option value="">Selecione o tipo</option>';
@@ -2776,39 +2782,65 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     window.toggleWizardPersonalizacao = toggleWizardPersonalizacao;
 
     // --- Step 2: Tecidos ---
+
     function loadWizardTecidos() {
         const select = document.getElementById('wizard_tecido');
-        if(!select) return;
-        
-        if (select.options.length <= 1) {
-            let items = getOptionList(['tecido']);
-            const tipoTecidoItems = getOptionList(['tipo_tecido']);
-            const selectedIds = (selectedPersonalizacoes || []).map(id => id.toString());
-            
-            if (selectedIds.length > 0) {
-                items = items.filter(tecido => {
-                    const parentIds = Array.isArray(tecido.parent_ids) ? tecido.parent_ids.map(id => id.toString()) : [];
-                    if (parentIds.length === 0) return true;
-                    if (parentIds.some(pid => selectedIds.includes(pid))) return true;
-                    // Se não houver no tecido, checar nos tipos de tecido vinculados
-                    const hasTypeMatch = tipoTecidoItems.some(tipo => {
-                        const tipoParentId = (tipo.parent_id || '').toString();
-                        if (tipoParentId !== tecido.id.toString()) return false;
-                        const tipoParentIds = Array.isArray(tipo.parent_ids) ? tipo.parent_ids.map(id => id.toString()) : [];
-                        return tipoParentIds.some(pid => selectedIds.includes(pid));
-                    });
-                    return hasTypeMatch;
+        if (!select) return;
+
+        const currentFabricId = wizardData.tecido?.id?.toString() || select.value?.toString() || '';
+        let items = getOptionList(['tecido']);
+        const tipoTecidoItems = getOptionList(['tipo_tecido']);
+        const personalizationSelection = selectedPersonalizacoes?.length
+            ? selectedPersonalizacoes
+            : (wizardData.personalizacao || []);
+        const selectedIds = personalizationSelection.map(id => id.toString());
+
+        if (selectedIds.length > 0) {
+            items = items.filter(tecido => {
+                const fabricId = tecido?.id?.toString();
+                const parentIds = Array.isArray(tecido.parent_ids) ? tecido.parent_ids.map(id => id.toString()) : [];
+
+                if (parentIds.length === 0) return true;
+                if (parentIds.some(pid => selectedIds.includes(pid))) return true;
+
+                // Compatibilidade com cadastros legados em que a personalizacao
+                // pode estar vinculada apenas aos tipos de tecido filhos.
+                return tipoTecidoItems.some(tipo => {
+                    const tipoParentIds = Array.isArray(tipo.parent_ids) ? tipo.parent_ids.map(id => id.toString()) : [];
+                    const isChildOfFabric = tipoParentIds.includes(fabricId) || (tipo.parent_id || '').toString() === fabricId;
+                    if (!isChildOfFabric) return false;
+                    return tipoParentIds.some(pid => selectedIds.includes(pid));
                 });
-            }
-
-            select.innerHTML = '<option value="">Selecione o tecido</option>' + 
-                items.map(item => `<option value="${item.id}" data-price="${parseFloat(item.price || 0)}">${item.name}</option>`).join('');
+            });
         }
 
-        if (wizardData.tecido) {
-            select.value = wizardData.tecido.id;
+        select.innerHTML = '<option value="">Selecione o tecido</option>' +
+            items.map(item => `<option value="${item.id}" data-price="${parseFloat(item.price || 0)}">${item.name}</option>`).join('');
+
+        const selectedItem = items.find(item => item?.id?.toString() === currentFabricId);
+        if (selectedItem) {
+            select.value = selectedItem.id;
+            wizardData.tecido = {
+                id: selectedItem.id.toString(),
+                name: selectedItem.name,
+                price: parseFloat(selectedItem.price || 0)
+            };
             loadWizardTiposTecido();
+            return;
         }
+
+        select.value = '';
+        const typeContainer = document.getElementById('wizard-tipo-tecido-container');
+        if (typeContainer) typeContainer.classList.add('hidden');
+
+        const typeSelect = document.getElementById('wizard_tipo_tecido');
+        if (typeSelect) {
+            typeSelect.innerHTML = '<option value="">Selecione o tipo</option>';
+            typeSelect.value = '';
+        }
+
+        wizardData.tecido = null;
+        wizardData.tipo_tecido = null;
     }
     window.loadWizardTecidos = loadWizardTecidos;
     
