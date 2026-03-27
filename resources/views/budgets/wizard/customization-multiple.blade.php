@@ -820,20 +820,22 @@
             $budgetItemUnitPrices = collect($itemPersonalizations)->mapWithKeys(function ($entry) {
                 return [(string) ($entry['item']->id ?? '') => (float) ($entry['item']->unit_price ?? 0)];
             })->all();
+
+            $budgetItemsMap = collect($itemPersonalizations)->mapWithKeys(function ($entry) {
+                return [
+                    (string) ($entry['item']->id ?? '') => [
+                        'item_number' => (int) ($entry['item']->item_number ?? 0),
+                        'quantity' => (int) ($entry['item']->quantity ?? 0),
+                        'fabric' => (string) ($entry['item']->fabric ?? ''),
+                        'color' => (string) ($entry['item']->color ?? ''),
+                    ],
+                ];
+            })->all();
         @endphp
 
         const budgetItemUnitPrices = @json($budgetItemUnitPrices);
         const budgetSessionCustomizations = @json(array_values(session('budget_customizations', [])));
-        const budgetItemsMap = @json(collect($itemPersonalizations)->mapWithKeys(function ($entry) {
-            return [
-                (string) ($entry['item']->id ?? '') => [
-                    'item_number' => (int) ($entry['item']->item_number ?? 0),
-                    'quantity' => (int) ($entry['item']->quantity ?? 0),
-                    'fabric' => (string) ($entry['item']->fabric ?? ''),
-                    'color' => (string) ($entry['item']->color ?? ''),
-                ],
-            ];
-        })->all());
+        const budgetItemsMap = @json($budgetItemsMap);
         const specialSizeKeys = ['GG', 'EXG', 'G1', 'G2', 'G3'];
         const specialSizeSurchargeRules = @json(\App\Models\SizeSurcharge::getDefaultSurcharges());
 
