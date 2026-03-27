@@ -811,7 +811,7 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                         <h4 class="text-lg font-bold text-ui-primary" id="summary-title">Configurar Novo Item</h4>
                                         <p class="text-sm text-ui-muted mt-1 max-w-md mx-auto" id="summary-desc">Clique abaixo para iniciar a configura&ccedil;&atilde;o completa do item (Tecido, Modelo, Tamanhos, etc).</p>
                                     </div>
-                                    <button type="button" onclick="openSewingWizard()" class="px-6 py-3 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white border border-[#7c3aed] font-bold rounded-xl shadow-md shadow-purple-500/20 transition-all transform hover:scale-105">
+                                    <button type="button" onclick="startNewSewingItem()" class="px-6 py-3 bg-[#7c3aed] hover:bg-[#6d28d9] text-white stay-white border border-[#7c3aed] font-bold rounded-xl shadow-md shadow-purple-500/20 transition-all transform hover:scale-105">
                                         Iniciar Configuração
                                     </button>
                                      
@@ -2234,29 +2234,166 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     const isAdmin = @json(auth()->user()->isAdmin());
     window.isAdmin = isAdmin;
 
-    let wizardData = {
-        tecido: null,
-        tipo_tecido: null,
-        cor: null,
-        tipo_corte: null,
-        detalhe: [], // Alterado para array
-        detail_color: null,
-        detail_colors: {}, // Novo: para cores individuais por detalhe
-        individual_detail_colors: false, // Novo toggle
-        gola: null,
-        collar_color: null,
-        personalizacao: [],
-        image: null,
-        imageUrl: null,
-        notes: '',
-        sizes: {},
-        unit_cost: 0,
-        unit_price: 0
-    };
+    function getDefaultSewingWizardData() {
+        return {
+            tecido: null,
+            tipo_tecido: null,
+            cor: null,
+            tipo_corte: null,
+            detalhe: [],
+            detail_color: null,
+            detail_colors: {},
+            individual_detail_colors: false,
+            gola: null,
+            collar_color: null,
+            personalizacao: [],
+            image: null,
+            imageUrl: null,
+            notes: '',
+            sizes: {},
+            unit_cost: 0,
+            unit_price: 0
+        };
+    }
+
+    let wizardData = getDefaultSewingWizardData();
     window.wizardData = wizardData;
 
     let selectedPersonalizacoes = [];
     window.selectedPersonalizacoes = selectedPersonalizacoes;
+
+    function resetSewingWizard() {
+        wizardData = getDefaultSewingWizardData();
+        window.wizardData = wizardData;
+
+        selectedPersonalizacoes = [];
+        window.selectedPersonalizacoes = selectedPersonalizacoes;
+
+        const valueResets = [
+            ['editing-item-id', ''],
+            ['form-action', 'add_item'],
+            ['wizard_tecido', ''],
+            ['wizard_tipo_tecido', ''],
+            ['wizard_cor', ''],
+            ['wizard_notes', ''],
+            ['wizard_unit_cost', '0.00'],
+            ['quantity', '0'],
+            ['unit_price', '0'],
+            ['unit_cost', '0'],
+            ['art_notes', ''],
+            ['tecido_hidden', ''],
+            ['tipo_tecido_hidden', ''],
+            ['cor_hidden', ''],
+            ['tipo_corte_hidden', ''],
+            ['detail_color_hidden', ''],
+            ['gola_hidden', ''],
+            ['collar_color_hidden', '']
+        ];
+
+        valueResets.forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) element.value = value;
+        });
+
+        const detalheHidden = document.getElementById('detalhe_hidden');
+        if (detalheHidden) {
+            detalheHidden.value = '';
+            detalheHidden.disabled = true;
+        }
+
+        ['apply_surcharge_hidden', 'is_client_modeling_hidden', 'existing_cover_image_hidden'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) element.value = '';
+        });
+
+        const typeContainer = document.getElementById('wizard-tipo-tecido-container');
+        if (typeContainer) typeContainer.classList.add('hidden');
+
+        const typeSelect = document.getElementById('wizard_tipo_tecido');
+        if (typeSelect) {
+            typeSelect.innerHTML = '<option value="">Selecione o tipo</option>';
+            typeSelect.value = '';
+        }
+
+        ['different_detail_color_cb', 'individual_detail_colors_cb', 'different_collar_color_cb', 'wizard_apply_surcharge', 'wizard_is_client_modeling'].forEach(id => {
+            const checkbox = document.getElementById(id);
+            if (checkbox) checkbox.checked = false;
+        });
+
+        document.querySelectorAll('.wizard-size-input').forEach(input => {
+            input.value = 0;
+        });
+
+        const modelingContainer = document.getElementById('wizard-modeling-container');
+        if (modelingContainer) modelingContainer.classList.add('hidden');
+
+        const summaryFields = {
+            'summary-tecido-val': '-',
+            'summary-cor-val': '-',
+            'summary-modelo-val': '-',
+            'summary-pecas-val': '0',
+            'wizard-total-pieces': '0',
+            'wizard-final-price': 'R$ 0,00',
+            'main-price-value': 'R$ 0,00'
+        };
+
+        Object.entries(summaryFields).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = value;
+        });
+
+        const hiddenSizesContainer = document.getElementById('hidden-sizes-container');
+        if (hiddenSizesContainer) hiddenSizesContainer.innerHTML = '';
+
+        const hiddenPersonalizacaoContainer = document.getElementById('hidden-personalizacao-container');
+        if (hiddenPersonalizacaoContainer) hiddenPersonalizacaoContainer.innerHTML = '';
+
+        const tags = document.getElementById('main-summary-tags');
+        if (tags) {
+            tags.innerHTML = '';
+            tags.classList.add('hidden');
+        }
+
+        const pricePreview = document.getElementById('main-price-preview');
+        if (pricePreview) pricePreview.classList.add('hidden');
+
+        const formTitle = document.getElementById('form-title');
+        if (formTitle) formTitle.textContent = 'Adicionar Novo Item';
+
+        if (typeof clearWizardImage === 'function') {
+            clearWizardImage();
+        }
+
+        if (typeof resetFabricPieceSelection === 'function') {
+            resetFabricPieceSelection();
+        }
+
+        if (typeof resetSubWizardStep === 'function') {
+            resetSubWizardStep();
+        }
+
+        const stepSub = document.getElementById('step-sub');
+        if (stepSub) stepSub.classList.add('hidden');
+
+        isInSublimationMode = false;
+        window.isInSublimationMode = false;
+
+        wizardCurrentStep = 1;
+        window.wizardCurrentStep = wizardCurrentStep;
+        updateWizardUI();
+    }
+    window.resetSewingWizard = resetSewingWizard;
+
+    function startNewSewingItem() {
+        if (typeof window.resetForm === 'function') {
+            window.resetForm();
+        } else if (typeof window.resetSewingWizard === 'function') {
+            window.resetSewingWizard();
+        }
+
+        openSewingWizard();
+    }
+    window.startNewSewingItem = startNewSewingItem;
 
     function ensureSewingWizardPortal() {
         const sewingForm = document.getElementById('sewing-form');
@@ -3774,43 +3911,13 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
     window.previewCoverImage = previewCoverImage;
 
     function cancelEdit() {
-        const editingItemId = document.getElementById('editing-item-id');
-        const formAction = document.getElementById('form-action');
-        const formTitle = document.getElementById('form-title');
-        const submitButton = document.getElementById('wizard-submit-btn');
         const sewingForm = document.getElementById('sewing-form');
-        const coverPreviewContainer = document.getElementById('cover-image-preview-container');
-        const coverPreview = document.getElementById('cover-image-preview');
-        const fileNameDisplay = document.getElementById('file-name-display');
-        
-        if (editingItemId) editingItemId.value = '';
-        if (formAction) formAction.value = 'add_item';
-        if (formTitle) formTitle.textContent = 'Adicionar Novo Item';
-        if (submitButton) submitButton.innerHTML = 'Confirmar e Adicionar Item';
         if (sewingForm) sewingForm.reset();
-        
-        if (coverPreviewContainer) coverPreviewContainer.classList.add('hidden');
-        if (coverPreview) coverPreview.src = '';
-        if (fileNameDisplay) {
-            fileNameDisplay.classList.add('hidden');
-            fileNameDisplay.textContent = '';
+
+        if (typeof window.resetSewingWizard === 'function') {
+            window.resetSewingWizard();
         }
-        
-        document.querySelectorAll('.personalizacao-checkbox').forEach(checkbox => {
-            checkbox.checked = false;
-        });
-        
-        wizardData = {
-            tecido: null, tipo_tecido: null, cor: null, tipo_corte: null,
-            detalhe: [], detail_color: null, detail_colors: {}, individual_detail_colors: false,
-            gola: null, collar_color: null, personalizacao: [], image: null, imageUrl: null, notes: '', sizes: {}, unit_cost: 0
-        };
-        window.wizardData = wizardData;
-        selectedPersonalizacoes = [];
-        window.selectedPersonalizacoes = selectedPersonalizacoes;
-        wizardCurrentStep = 1;
-        window.wizardCurrentStep = wizardCurrentStep;
-        resetFabricPieceSelection();
+
         closeSewingWizard();
     }
     window.cancelEdit = cancelEdit;
@@ -4332,6 +4439,12 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         
         const artInput = document.getElementById('sub_wizard_art_name');
         if (artInput) artInput.value = '';
+
+        const coverInput = document.getElementById('sub_wizard_cover');
+        if (coverInput) coverInput.value = '';
+
+        const corelInput = document.getElementById('sub_wizard_corel');
+        if (corelInput) corelInput.value = '';
         
         document.querySelectorAll('.sub-wizard-size').forEach(input => input.value = 0);
         
