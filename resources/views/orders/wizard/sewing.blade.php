@@ -1387,16 +1387,18 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                 
                                                 <div class="space-y-3">
                                                     <div class="p-3 sewing-ui-muted rounded-xl border border-gray-200 dark:border-slate-700">
-                                                        <label class="flex items-center cursor-pointer">
-                                                            <input type="checkbox" id="different_detail_color_cb" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]" onchange="toggleDetailColorUI()">
-                                                            <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Cor do detalhe diferente do tecido?</span>
+                                                        <label class="admin-check-label">
+                                                            <input type="checkbox" id="different_detail_color_cb" class="admin-check-input" onchange="toggleDetailColorUI()">
+                                                            <span class="admin-check-ui" aria-hidden="true"></span>
+                                                            <span class="text-sm font-medium text-gray-900 dark:text-white">Cor do detalhe diferente do tecido?</span>
                                                         </label>
                                                     </div>
                                                     
                                                     <div id="individual-colors-toggle-container" class="hidden p-3 bg-purple-50 dark:bg-purple-900/10 rounded-xl border border-purple-200 dark:border-purple-800">
-                                                        <label class="flex items-center cursor-pointer">
-                                                            <input type="checkbox" id="individual_detail_colors_cb" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]" onchange="wizardData.individual_detail_colors = this.checked; renderWizardDetailColorOptions();">
-                                                            <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Definir cores individuais por detalhe?</span>
+                                                        <label class="admin-check-label">
+                                                            <input type="checkbox" id="individual_detail_colors_cb" class="admin-check-input" onchange="wizardData.individual_detail_colors = this.checked; renderWizardDetailColorOptions();">
+                                                            <span class="admin-check-ui" aria-hidden="true"></span>
+                                                            <span class="text-sm font-medium text-gray-900 dark:text-white">Definir cores individuais por detalhe?</span>
                                                         </label>
                                                     </div>
                                                 </div>
@@ -1417,9 +1419,10 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                     <!-- Filled by JS -->
                                                 </div>
                                                 <div class="p-3 sewing-ui-muted rounded-xl border border-gray-200 dark:border-slate-700">
-                                                    <label class="flex items-center cursor-pointer">
-                                                        <input type="checkbox" id="different_collar_color_cb" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]">
-                                                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Cor da gola diferente do tecido?</span>
+                                                    <label class="admin-check-label">
+                                                        <input type="checkbox" id="different_collar_color_cb" class="admin-check-input" onchange="toggleCollarColorUI()">
+                                                        <span class="admin-check-ui" aria-hidden="true"></span>
+                                                        <span class="text-sm font-medium text-gray-900 dark:text-white">Cor da gola diferente do tecido?</span>
                                                     </label>
                                                 </div>
                                             </div>
@@ -1447,17 +1450,19 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
                                                 
                                                  <!-- Checkbox para acréscimo independente (apenas para Infantil/Baby look) -->
                                                 <div id="wizard-surcharge-container" class="hidden mb-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                                                    <label class="flex items-center cursor-pointer">
-                                                        <input type="checkbox" id="wizard_apply_surcharge" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]">
-                                                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Aplicar acréscimo de tamanho especial</span>
+                                                    <label class="admin-check-label">
+                                                        <input type="checkbox" id="wizard_apply_surcharge" class="admin-check-input">
+                                                        <span class="admin-check-ui" aria-hidden="true"></span>
+                                                        <span class="text-sm font-medium text-gray-900 dark:text-white">Aplicar acréscimo de tamanho especial</span>
                                                     </label>
                                                 </div>
 
                                                 <!-- Checkbox para Modelagem do Cliente (Aparece se Especial > 0) -->
                                                 <div id="wizard-modeling-container" class="hidden mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                                                    <label class="flex items-center cursor-pointer">
-                                                        <input type="checkbox" id="wizard_is_client_modeling" class="w-4 h-4 text-[#7c3aed] rounded focus:ring-[#7c3aed]">
-                                                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Tamanho especial Ã© pela modelagem do cliente?</span>
+                                                    <label class="admin-check-label">
+                                                        <input type="checkbox" id="wizard_is_client_modeling" class="admin-check-input">
+                                                        <span class="admin-check-ui" aria-hidden="true"></span>
+                                                        <span class="text-sm font-medium text-gray-900 dark:text-white">Tamanho especial Ã© pela modelagem do cliente?</span>
                                                     </label>
                                                 </div>
                                                 
@@ -3052,6 +3057,17 @@ html.dark.avento-theme #sewing-wizard-modal *::after {
         renderWizardDetailColorOptions();
     }
     window.toggleDetailColorUI = toggleDetailColorUI;
+
+    function toggleCollarColorUI() {
+        const hasDifferentColor = !!document.getElementById('different_collar_color_cb')?.checked;
+
+        if (!hasDifferentColor) {
+            wizardData.collar_color = wizardData.cor;
+        }
+
+        renderWizardCollarColorOptions();
+    }
+    window.toggleCollarColorUI = toggleCollarColorUI;
 
     function renderWizardDetailColorOptions() {
         const container = document.getElementById('wizard-options-cor-detalhe');
