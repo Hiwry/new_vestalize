@@ -561,6 +561,40 @@
                 <input type="hidden" id="modal_personalization_type" name="personalization_type">
                 <input type="hidden" id="modal_personalization_id" name="personalization_id">
                 <input type="hidden" id="editing_personalization_id" name="editing_personalization_id">
+                <input type="hidden" id="editing_linked_group_id" name="editing_linked_group_id">
+                <input type="hidden" id="price_range_from" name="price_range_from" value="">
+                <input type="hidden" id="price_range_to" name="price_range_to" value="">
+                @if(count($itemPersonalizations) > 1)
+                    <div id="linkItemsSection" class="pm-section-card rounded-xl p-4">
+                        <div class="flex items-start justify-between gap-3 mb-3">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900 dark:text-white">Vincular a outros itens</p>
+                                <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">A faixa usa a soma das peças dos itens marcados, mas cada item mantém seu valor individual.</p>
+                            </div>
+                            <span class="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">Opcional</span>
+                        </div>
+                        <div id="budget-linked-items-list" class="space-y-2">
+                            @foreach($itemPersonalizations as $linkedItemData)
+                                @php($linkedItem = $linkedItemData['item'])
+                                <label class="budget-link-item-label flex items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 px-3 py-3 transition-all" data-item-id="{{ $linkedItem->id }}">
+                                    <div class="flex items-center gap-3">
+                                        <input
+                                            type="checkbox"
+                                            name="linked_item_indexes[]"
+                                            value="{{ $linkedItem->id }}"
+                                            class="budget-link-item-checkbox w-4 h-4 text-indigo-600 dark:text-indigo-400 border-gray-300 dark:border-slate-600 rounded focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-slate-700">
+                                        <div>
+                                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Item {{ $linkedItem->item_number }}</p>
+                                            <p class="text-xs text-gray-500 dark:text-slate-400">{{ $linkedItem->fabric }} • {{ $linkedItem->color }}</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-gray-600 dark:text-slate-300">{{ $linkedItem->quantity }} pç</span>
+                                </label>
+                            @endforeach
+                        </div>
+                        <div id="budgetLinkedItemsSummary" class="hidden mt-3 rounded-lg border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2.5 text-sm text-emerald-700 dark:text-emerald-300"></div>
+                    </div>
+                @endif
 
                 <!-- Localização (oculto para SUB. TOTAL) -->
                 <div id="locationField">
@@ -771,6 +805,7 @@
         let currentItemId = null;
         let currentPersonalizationType = '';
         let currentPersonalizationId = '';
+        let currentLinkedPrimaryItemId = null;
         let isSubmitting = false; // Flag para prevenir múltiplos envios
         let lastSubmitTime = 0; // Timestamp do último envio
         let pendingDeleteId = null; // ID da personalização pendente de exclusão
@@ -787,6 +822,16 @@
 
         const budgetItemUnitPrices = @json($budgetItemUnitPrices);
         const budgetSessionCustomizations = @json(array_values(session('budget_customizations', [])));
+        const budgetItemsMap = @json(collect($itemPersonalizations)->mapWithKeys(function ($entry) {
+            return [
+                (string) ($entry['item']->id ?? '') => [
+                    'item_number' => (int) ($entry['item']->item_number ?? 0),
+                    'quantity' => (int) ($entry['item']->quantity ?? 0),
+                    'fabric' => (string) ($entry['item']->fabric ?? ''),
+                    'color' => (string) ($entry['item']->color ?? ''),
+                ],
+            ];
+        })->all());
         const specialSizeKeys = ['GG', 'EXG', 'G1', 'G2', 'G3'];
         const specialSizeSurchargeRules = @json(\App\Models\SizeSurcharge::getDefaultSurcharges());
 
@@ -907,6 +952,97 @@
             addonsField.style.display = 'block';
         }
 
+        function getBudgetItemQuantity(itemId) {
+            return parseInt(budgetItemsMap?.[String(itemId)]?.quantity || 0, 10) || 0;
+        }
+
+        function getSelectedLinkedItemIndexes() {
+            const checked = Array.from(document.querySelectorAll('.budget-link-item-checkbox:checked'))
+                .map((checkbox) => parseInt(checkbox.value, 10))
+                .filter((value) => Number.isInteger(value));
+
+            if (checked.length > 0) {
+                return checked;
+            }
+
+            const fallback = parseInt(currentLinkedPrimaryItemId ?? currentItemId ?? 0, 10);
+            return Number.isInteger(fallback) && fallback > 0 ? [fallback] : [];
+        }
+
+        function getLinkedItemsPricingQuantity() {
+            const linkedItems = getSelectedLinkedItemIndexes();
+            const linkedQuantity = linkedItems.reduce((total, itemId) => total + getBudgetItemQuantity(itemId), 0);
+            return linkedQuantity > 0 ? linkedQuantity : 1;
+        }
+
+        function updateLinkedItemsSummary() {
+            const summary = document.getElementById('budgetLinkedItemsSummary');
+            const labels = document.querySelectorAll('.budget-link-item-label');
+            const selectedItems = getSelectedLinkedItemIndexes();
+
+            labels.forEach((label) => {
+                const isSelected = selectedItems.includes(parseInt(label.dataset.itemId || '0', 10));
+                label.classList.toggle('border-indigo-400', isSelected);
+                label.classList.toggle('dark:border-indigo-500/60', isSelected);
+                label.classList.toggle('bg-indigo-50', isSelected);
+                label.classList.toggle('dark:bg-indigo-900/20', isSelected);
+            });
+
+            if (!summary) {
+                return;
+            }
+
+            if (selectedItems.length <= 1) {
+                summary.classList.add('hidden');
+                summary.innerHTML = '';
+                return;
+            }
+
+            const totalQty = selectedItems.reduce((total, itemId) => total + getBudgetItemQuantity(itemId), 0);
+            const itemLabels = selectedItems
+                .map((itemId) => {
+                    const item = budgetItemsMap?.[String(itemId)];
+                    if (!item) return null;
+                    return `Item ${item.item_number}: ${item.quantity} pç`;
+                })
+                .filter(Boolean)
+                .join(' • ');
+
+            summary.innerHTML = `
+                <div class="font-semibold">${selectedItems.length} itens vinculados</div>
+                <div class="text-xs mt-1">Faixa calculada por ${totalQty} peças no total.</div>
+                <div class="text-xs mt-1 opacity-80">${itemLabels}</div>
+            `;
+            summary.classList.remove('hidden');
+        }
+
+        function setupLinkedItemsSelection(itemId, selectedIndexes = null) {
+            const checkboxes = document.querySelectorAll('.budget-link-item-checkbox');
+            currentLinkedPrimaryItemId = parseInt(itemId, 10) || null;
+
+            if (!checkboxes.length) {
+                return;
+            }
+
+            const selectedSet = new Set((selectedIndexes && selectedIndexes.length ? selectedIndexes : [itemId]).map((value) => String(value)));
+
+            checkboxes.forEach((checkbox) => {
+                const isPrimary = parseInt(checkbox.value, 10) === currentLinkedPrimaryItemId;
+                checkbox.checked = selectedSet.has(String(checkbox.value));
+
+                checkbox.onchange = () => {
+                    if (isPrimary && !checkbox.checked) {
+                        checkbox.checked = true;
+                    }
+
+                    updateLinkedItemsSummary();
+                    calculatePrice();
+                };
+            });
+
+            updateLinkedItemsSummary();
+        }
+
 
         // Tornar a função globalmente acessível
         window.openPersonalizationModal = function(itemId, persType, persId, itemQuantity = 1) {
@@ -919,6 +1055,9 @@
             document.getElementById('modal_personalization_type').value = persType;
             document.getElementById('modal_personalization_id').value = persId;
             document.getElementById('editing_personalization_id').value = '';
+            document.getElementById('editing_linked_group_id').value = '';
+            document.getElementById('price_range_from').value = '';
+            document.getElementById('price_range_to').value = '';
             document.getElementById('modalTitle').textContent = `Adicionar ${persType}`;
             const normalizedType = normalizeTypeKey(persType);
             
@@ -997,6 +1136,8 @@
             if(document.getElementById('quantity')) {
                 document.getElementById('quantity').value = itemQuantity;
             }
+
+            setupLinkedItemsSelection(itemId);
             
             setTimeout(() => {
                 calculatePrice();
@@ -1204,6 +1345,7 @@
             currentItemId = '';
             currentPersonalizationType = '';
             currentPersonalizationId = '';
+            currentLinkedPrimaryItemId = null;
             
             // File upload elements removed - no cleanup needed
         }
@@ -1257,6 +1399,7 @@
             window.openPersonalizationModal(itemId, personalizationName, personalizationId, itemQuantity);
 
             document.getElementById('editing_personalization_id').value = index;
+            document.getElementById('editing_linked_group_id').value = customization.linked_group_id ?? '';
             document.getElementById('modalTitle').textContent = `Editar ${personalizationName}`;
 
             const submitBtn = document.getElementById('personalizationForm')?.querySelector('button[type="submit"]');
@@ -1314,6 +1457,8 @@
                     input.value = customization.size_surcharge_quantities?.[sizeKey] ?? 0;
                 }
             });
+
+            setupLinkedItemsSelection(itemId, customization.linked_item_indexes ?? [itemId]);
 
             updateAddonsPrices();
             updateSpecialSizeSurchargeSummary(getBudgetItemUnitPrice(itemId));
@@ -1870,6 +2015,8 @@
             if (quantityField) {
                 quantity = parseInt(quantityField.value) || 1;
             }
+            const pricingQuantity = getLinkedItemsPricingQuantity();
+            const linkedItemsCount = getSelectedLinkedItemIndexes().length;
             
             if (persType === 'SUB TOTAL') {
                 if (!persType || quantity <= 0) {
@@ -1902,15 +2049,17 @@
                 const sizeForApi = persType === 'SUB TOTAL' ? 'CACHARREL' : size;
                 
                 // Verificar cache antes de chamar API
-                const currentParams = `${apiType}|${sizeForApi}|${quantity}`;
+                const currentParams = `${apiType}|${sizeForApi}|${pricingQuantity}`;
                 let unitPrice = 0;
                 let priceFound = false;
+                let priceRangeFrom = '';
+                let priceRangeTo = '';
                 
                 if (cachedPriceParams === currentParams && cachedBasePrice !== null) {
                     unitPrice = cachedBasePrice;
                     priceFound = true;
                 } else {
-                    const apiUrl = `/api/personalization-prices/price?type=${apiType}&size=${encodeURIComponent(sizeForApi)}&quantity=${quantity}`;
+                    const apiUrl = `/api/personalization-prices/price?type=${apiType}&size=${encodeURIComponent(sizeForApi)}&quantity=${pricingQuantity}`;
                     
                     const response = await fetch(apiUrl, {
                         headers: {
@@ -1922,6 +2071,8 @@
                     
                     if (data.success && data.price !== undefined && data.price !== null) {
                         unitPrice = parseFloat(data.price);
+                        priceRangeFrom = data.quantity_from ?? '';
+                        priceRangeTo = data.quantity_to ?? '';
                         
                         if (unitPrice === 0 && apiType === 'SUB. TOTAL') {
                             unitPrice = 2.50; 
@@ -1935,6 +2086,8 @@
                 
                 if (priceFound) {
                     document.getElementById('base_size_price').value = unitPrice;
+                    document.getElementById('price_range_from').value = priceRangeFrom;
+                    document.getElementById('price_range_to').value = priceRangeTo;
                     const qty = parseInt(quantity);
                     const currentColorCount = parseInt(document.getElementById('color_count')?.value || 1);
                     
@@ -1943,7 +2096,7 @@
                         
                         if (currentColorCount > 1) {
                             try {
-                                const colorApiUrl = `/api/personalization-prices/price?type=${apiType}&size=COR&quantity=${qty}`;
+                                const colorApiUrl = `/api/personalization-prices/price?type=${apiType}&size=COR&quantity=${pricingQuantity}`;
                                 const colorResponse = await fetch(colorApiUrl, {
                                     headers: {
                                         'Accept': 'application/json'
@@ -1975,19 +2128,22 @@
                     
                     document.getElementById('unitPrice').textContent = `R$ ${unitPrice.toFixed(2).replace('.', ',')}`;
                     document.getElementById('totalPrice').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+                    document.getElementById('priceFormula').textContent = linkedItemsCount > 1
+                        ? `Faixa aplicada por ${pricingQuantity} peças vinculadas. Valor deste item: R$ ${unitPrice.toFixed(2).replace('.', ',')} × ${qty}`
+                        : `R$ ${unitPrice.toFixed(2).replace('.', ',')} × ${qty} ${qty === 1 ? 'peça' : 'peças'}`;
                     document.getElementById('unit_price').value = unitPrice;
                     document.getElementById('final_price').value = total;
                     document.getElementById('priceDisplay').classList.remove('hidden');
                 } else {
-                    showDefaultPrice(quantity, persType);
+                    showDefaultPrice(quantity, persType, pricingQuantity, linkedItemsCount);
                 }
             } catch (error) {
                 console.error('Erro ao calcular preço:', error);
-                showDefaultPrice(quantity, persType);
+                showDefaultPrice(quantity, persType, pricingQuantity, linkedItemsCount);
             }
         }
 
-        function showDefaultPrice(quantity, persType) {
+        function showDefaultPrice(quantity, persType, pricingQuantity = quantity, linkedItemsCount = 1) {
             const normalizedType = normalizeTypeKey(persType);
             const defaultPrices = {
                 'SERIGRAFIA': 5.00,
@@ -2001,6 +2157,8 @@
             let unitPrice = defaultPrices[normalizedType] || 5.00;
 
             document.getElementById('base_size_price').value = unitPrice;
+            document.getElementById('price_range_from').value = '';
+            document.getElementById('price_range_to').value = '';
             unitPrice += calculateAddonsTotal(unitPrice);
             const specialSizeTotal = updateSpecialSizeSurchargeSummary();
             const total = (unitPrice * quantity) + specialSizeTotal;
@@ -2012,6 +2170,9 @@
                 : `R$ ${unitPrice.toFixed(2).replace('.', ',')} × ${quantity} ${quantity === 1 ? 'peça' : 'peças'} (preço estimado)`;
             document.getElementById('unit_price').value = unitPrice;
             document.getElementById('final_price').value = total;
+            if (linkedItemsCount > 1) {
+                document.getElementById('priceFormula').textContent = `Faixa estimada por ${pricingQuantity} peças vinculadas. Valor deste item: R$ ${unitPrice.toFixed(2).replace('.', ',')} × ${quantity}`;
+            }
             document.getElementById('priceDisplay').classList.remove('hidden');
         }
 
