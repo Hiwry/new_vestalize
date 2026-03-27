@@ -770,7 +770,8 @@
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Confirmar Remoção</h3>
             </div>
             <div class="px-6 py-4">
-                <p class="text-sm text-gray-600 dark:text-slate-400 mb-3">Deseja realmente remover esta personalização?</p>
+                <p class="hidden text-sm text-gray-600 dark:text-slate-400 mb-3">Deseja realmente remover esta personalização?</p>
+                <p id="delete-confirmation-message" class="text-sm text-gray-600 dark:text-slate-400 mb-3">Deseja realmente remover esta personalizacao?</p>
                 <div id="delete-item-info" class="p-3 bg-gray-50 dark:bg-slate-800/50 rounded-md text-sm border border-gray-200 dark:border-slate-700">
                     <!-- Será preenchido via JavaScript -->
                 </div>
@@ -818,6 +819,7 @@
         let pendingDeleteId = null; // ID da personalização pendente de exclusão
         
         // Cache para evitar requisições repetidas de preço
+        let pendingDeleteRequest = null; // Estado da exclusao pendente
         let cachedBasePrice = null;
         let cachedPriceParams = '';
 
@@ -2457,6 +2459,188 @@
         }
         
         // Função para editar personalização
+        function showDeleteFeedback(message, type = 'error') {
+            if (typeof showToast === 'function') {
+                showToast(message, type);
+                return;
+            }
+
+            if (type === 'success') {
+                showSuccessMessage(message);
+                return;
+            }
+
+            console.error(message);
+        }
+
+        function openDeleteConfirmationDialog(request, info, message) {
+            pendingDeleteRequest = request;
+
+            const legacyMessageEl = document.querySelector('#deleteConfirmationModal .px-6.py-4 > p:not(#delete-confirmation-message)');
+            if (legacyMessageEl) {
+                legacyMessageEl.classList.add('hidden');
+            }
+
+            const messageEl = document.getElementById('delete-confirmation-message');
+            if (messageEl) {
+                messageEl.textContent = message;
+            }
+
+            const infoEl = document.getElementById('delete-item-info');
+            if (infoEl) {
+                infoEl.innerHTML = info;
+            }
+
+            const modal = document.getElementById('deleteConfirmationModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+            }
+
+            document.body.style.overflow = 'hidden';
+        }
+
+        async function executeSessionPersonalizationDelete(index) {
+            const url = '{{ route("budget.customization.delete", ["index" => "__INDEX__"]) }}'.replace('__INDEX__', String(index));
+
+            try {
+                const response = await fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Erro ao remover personalizacao.');
+                }
+
+                window.location.reload();
+            } catch (error) {
+                console.error('Erro ao remover personalizacao da sessao:', error);
+                showDeleteFeedback(error.message || 'Erro ao remover personalizacao.', 'error');
+            }
+        }
+
+        async function executeStoredPersonalizationDelete(id) {
+            try {
+                const response = await fetch(`/personalizations/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    await updatePersonalizationsList();
+                    showDeleteFeedback('Personalizacao removida com sucesso!', 'success');
+                    return;
+                }
+
+                console.error('Erro ao remover personalizacao:', data.message);
+                showDeleteFeedback(`Erro ao remover personalizacao: ${data.message || 'Erro desconhecido'}`, 'error');
+            } catch (error) {
+                console.error('Erro na requisicao:', error);
+                showDeleteFeedback(`Erro ao remover personalizacao: ${error.message}`, 'error');
+            }
+        }
+
+        window.removeSessionPersonalization = function removeSessionPersonalization(index) {
+            if (!Number.isInteger(index) || index < 0) {
+                return;
+            }
+
+            const customization = budgetSessionCustomizations[index];
+            if (!customization) {
+                return;
+            }
+
+            const item = budgetItemsMap?.[String(customization.item_index ?? '')];
+            const typeName = customization.personalization_name || customization.personalization_type || 'Personalizacao';
+            const meta = [];
+
+            if (item?.item_number) meta.push(`Item ${item.item_number}`);
+            if (customization.location) meta.push(`Local: ${customization.location}`);
+            if (customization.size) meta.push(`Tamanho: ${customization.size}`);
+            if (customization.quantity) meta.push(`Qtd: ${customization.quantity}`);
+
+            let info = `<strong>${typeName}</strong>`;
+            if (meta.length > 0) {
+                info += `<br><span class="text-gray-600 dark:text-slate-400">${meta.join(' • ')}</span>`;
+            }
+
+            if (Number(customization.final_price || 0) > 0) {
+                info += `<br><span class="text-indigo-600 dark:text-indigo-400 font-semibold">R$ ${Number(customization.final_price).toFixed(2).replace('.', ',')}</span>`;
+            }
+
+            openDeleteConfirmationDialog(
+                { type: 'session', index },
+                info,
+                'Deseja realmente remover esta personalizacao do orcamento?'
+            );
+        }
+
+        window.removePersonalization = function(id) {
+            console.log(' Solicitando remocao de personalizacao ID:', id);
+            pendingDeleteId = id;
+
+            const personalizationCard = document.querySelector(`button[onclick*="deletePersonalization(${id})"]`)?.closest('.border');
+            let info = `Personalizacao ID: ${id}`;
+
+            if (personalizationCard) {
+                const typeText = personalizationCard.querySelector('.font-medium')?.textContent;
+                const priceText = personalizationCard.querySelector('.text-indigo-600')?.textContent;
+                if (typeText) info = `<strong>${typeText}</strong>`;
+                if (priceText) info += `<br><span class="text-gray-600 dark:text-slate-400">${priceText}</span>`;
+            }
+
+            openDeleteConfirmationDialog(
+                { type: 'stored', id },
+                info,
+                'Deseja realmente remover esta personalizacao?'
+            );
+        }
+
+        window.closeDeleteConfirmationModal = function() {
+            const modal = document.getElementById('deleteConfirmationModal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+
+            document.body.style.overflow = 'auto';
+            pendingDeleteId = null;
+            pendingDeleteRequest = null;
+        }
+
+        window.confirmDeletePersonalization = async function() {
+            if (!pendingDeleteRequest) {
+                console.error(' Nenhuma personalizacao pendente para exclusao');
+                return;
+            }
+
+            const request = pendingDeleteRequest;
+            closeDeleteConfirmationModal();
+
+            if (request.type === 'session') {
+                await executeSessionPersonalizationDelete(request.index);
+                return;
+            }
+
+            if (request.type === 'stored') {
+                await executeStoredPersonalizationDelete(request.id);
+            }
+        }
+
+        window.deletePersonalization = function(id) {
+            console.log(' deletePersonalization alias chamado para ID:', id);
+            return removePersonalization(id);
+        }
+
         window.editPersonalization = async function(id) {
             try {
                 console.log(' Editando personalização ID:', id);
