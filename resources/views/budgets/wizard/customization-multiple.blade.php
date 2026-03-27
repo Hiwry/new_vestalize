@@ -578,20 +578,25 @@
                                 @php
                                     $linkedItem = $linkedItemData['item'];
                                 @endphp
-                                <label class="budget-link-item-label flex items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 px-3 py-3 transition-all" data-item-id="{{ $linkedItem->id }}">
-                                    <div class="flex items-center gap-3">
+                                <div class="budget-link-item-label flex items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 px-3 py-3 transition-all cursor-pointer select-none" data-item-id="{{ $linkedItem->id }}" role="checkbox" aria-checked="false" tabindex="0">
+                                    <div class="flex items-center gap-3 min-w-0">
                                         <input
                                             type="checkbox"
+                                            id="linked_item_{{ $linkedItem->id }}"
                                             name="linked_item_indexes[]"
                                             value="{{ $linkedItem->id }}"
-                                            class="budget-link-item-checkbox w-4 h-4 text-indigo-600 dark:text-indigo-400 border-gray-300 dark:border-slate-600 rounded focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-slate-700">
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Item {{ $linkedItem->item_number }}</p>
+                                            class="admin-check-input budget-link-item-checkbox">
+                                        <span class="admin-check-ui" aria-hidden="true"></span>
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-2">
+                                                <p class="text-sm font-semibold text-gray-900 dark:text-white">Item {{ $linkedItem->item_number }}</p>
+                                                <span class="budget-link-item-primary hidden text-[10px] font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700/60 px-2 py-0.5 rounded-full">Atual</span>
+                                            </div>
                                             <p class="text-xs text-gray-500 dark:text-slate-400">{{ $linkedItem->fabric }} • {{ $linkedItem->color }}</p>
                                         </div>
                                     </div>
                                     <span class="text-xs font-semibold text-gray-600 dark:text-slate-300">{{ $linkedItem->quantity }} pç</span>
-                                </label>
+                                </div>
                             @endforeach
                         </div>
                         <div id="budgetLinkedItemsSummary" class="hidden mt-3 rounded-lg border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2.5 text-sm text-emerald-700 dark:text-emerald-300"></div>
@@ -985,11 +990,19 @@
             const selectedItems = getSelectedLinkedItemIndexes();
 
             labels.forEach((label) => {
-                const isSelected = selectedItems.includes(parseInt(label.dataset.itemId || '0', 10));
+                const itemId = parseInt(label.dataset.itemId || '0', 10);
+                const isSelected = selectedItems.includes(itemId);
+                const isPrimary = itemId === currentLinkedPrimaryItemId;
                 label.classList.toggle('border-indigo-400', isSelected);
                 label.classList.toggle('dark:border-indigo-500/60', isSelected);
                 label.classList.toggle('bg-indigo-50', isSelected);
                 label.classList.toggle('dark:bg-indigo-900/20', isSelected);
+                label.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+
+                const primaryBadge = label.querySelector('.budget-link-item-primary');
+                if (primaryBadge) {
+                    primaryBadge.classList.toggle('hidden', !isPrimary);
+                }
             });
 
             if (!summary) {
@@ -1032,6 +1045,7 @@
 
             checkboxes.forEach((checkbox) => {
                 const isPrimary = parseInt(checkbox.value, 10) === currentLinkedPrimaryItemId;
+                const label = checkbox.closest('.budget-link-item-label');
                 checkbox.checked = selectedSet.has(String(checkbox.value));
 
                 checkbox.onchange = () => {
@@ -1042,6 +1056,20 @@
                     updateLinkedItemsSummary();
                     calculatePrice();
                 };
+
+                if (label) {
+                    label.onclick = () => {
+                        checkbox.checked = isPrimary ? true : !checkbox.checked;
+                        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                    };
+
+                    label.onkeydown = (event) => {
+                        if (event.key === ' ' || event.key === 'Enter') {
+                            event.preventDefault();
+                            label.click();
+                        }
+                    };
+                }
             });
 
             updateLinkedItemsSummary();
