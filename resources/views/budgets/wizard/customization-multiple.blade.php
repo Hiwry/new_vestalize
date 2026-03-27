@@ -575,7 +575,9 @@
                         </div>
                         <div id="budget-linked-items-list" class="space-y-2">
                             @foreach($itemPersonalizations as $linkedItemData)
-                                @php($linkedItem = $linkedItemData['item'])
+                                @php
+                                    $linkedItem = $linkedItemData['item'];
+                                @endphp
                                 <label class="budget-link-item-label flex items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 px-3 py-3 transition-all" data-item-id="{{ $linkedItem->id }}">
                                     <div class="flex items-center gap-3">
                                         <input
