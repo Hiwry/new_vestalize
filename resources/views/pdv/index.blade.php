@@ -1706,6 +1706,30 @@
                             <h2>Catalogo PDV</h2>
                             <p>Escolha a categoria, pesquise pelo nome e abra a configuracao do item sem trocar de tela.</p>
                         </div>
+
+                        @if(($availableStores ?? collect())->isNotEmpty())
+                            <div class="pdv-filter-field mt-0 w-full max-w-sm">
+                                <label for="pdv-store-switcher" class="pdv-filter-label">Loja operacional</label>
+                                <div class="pdv-summary-input-wrap pdv-summary-select-wrap">
+                                    @if($canSwitchStore ?? false)
+                                        <select id="pdv-store-switcher" class="pdv-summary-select">
+                                            @foreach($availableStores as $store)
+                                                <option value="{{ $store->id }}" {{ (int) $currentStoreId === (int) $store->id ? 'selected' : '' }}>
+                                                    {{ $store->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <div class="pdv-summary-input flex items-center">
+                                            {{ $currentStore?->name ?? 'Loja nao definida' }}
+                                        </div>
+                                    @endif
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    Todas as vendas e baixas de estoque deste PDV serao registradas nesta loja.
+                                </p>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="pdv-tabs-wrap">
@@ -2119,7 +2143,12 @@ window.openFabricGroupModal = async function(fabricId, fabricName) {
     modal.classList.remove('hidden');
     
     try {
-        const response = await fetch(`/pdv/fabric-pieces/${fabricId}`, {
+        const params = new URLSearchParams();
+        if (window.currentStoreId) {
+            params.set('store_id', window.currentStoreId);
+        }
+
+        const response = await fetch(`/pdv/fabric-pieces/${fabricId}?${params.toString()}`, {
             headers: { 'Accept': 'application/json' }
         });
         const pieces = await response.json();
@@ -2573,7 +2602,9 @@ window.confirmSublocalPersonalization = window.confirmSublocalPersonalization ||
     window.locationsData = @json($locations);
     window.fabricsData = @json($fabrics);
     window.colorsData = @json($colors);
-    window.currentStoreId = {{ $currentStoreId ?? 'null' }};
+    window.currentStoreId = @json($currentStoreId);
+    window.currentStoreName = @json($currentStore?->name);
+    window.canSwitchPdvStore = @json($canSwitchStore ?? false);
     window.sizesList = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3'];
     
     // Função para atualizar itens via AJAX
@@ -4232,7 +4263,8 @@ window.addProductToCart = async function addProductToCart(itemId, type, productT
             quantity: quantity,
             unit_price: unitPrice,
             size_quantities: sizeQuantities,
-            item_type: type // Corrigido: era 'type', mas controller espera 'item_type'
+            item_type: type, // Corrigido: era 'type', mas controller espera 'item_type'
+            store_id: window.currentStoreId || null
         };
         
         if (type === 'product') {
@@ -4704,6 +4736,11 @@ let checkoutData = null;
 // Fun??o para finalizar venda - abre modal de pagamento
 // Fun??o para finalizar venda checkout normal
 window.checkout = async function checkout() {
+    if (!window.currentStoreId) {
+        showNotification('Selecione a loja operacional antes de finalizar a venda', 'error');
+        return;
+    }
+
     // Buscar valor do client_id - pode ser vazio, null ou um ID
     const clientIdElement = document.getElementById('client_id');
     let clientId = clientIdElement ? clientIdElement.value : null;
@@ -4749,6 +4786,7 @@ window.checkout = async function checkout() {
         checkoutData = {
             client_id: clientId,
             seller_id: document.getElementById('seller_id')?.value || null,
+            store_id: window.currentStoreId || null,
             discount: discount,
             delivery_fee: deliveryFee,
             notes: document.getElementById('notes-input')?.value || '',
@@ -4787,6 +4825,11 @@ window.checkout = async function checkout() {
 // Função para finalizar venda sem cliente - agora abre modal de pagamento
 window.checkoutWithoutClient = async function checkoutWithoutClient() {
     console.log('checkoutWithoutClient: Iniciando...');
+
+    if (!window.currentStoreId) {
+        showNotification('Selecione a loja operacional antes de finalizar a venda', 'error');
+        return;
+    }
     
     // Buscar carrinho do servidor
     try {
@@ -4826,6 +4869,7 @@ window.checkoutWithoutClient = async function checkoutWithoutClient() {
         checkoutData = {
             client_id: null,
             seller_id: document.getElementById('seller_id')?.value || null,
+            store_id: window.currentStoreId || null,
             discount: discount,
             delivery_fee: deliveryFee,
             notes: document.getElementById('notes-input')?.value || '',
@@ -5295,7 +5339,7 @@ function getProductSearchInput() {
     return document.getElementById('product-search');
 }
 
-function buildCatalogUrl(baseUrl, type, search) {
+function buildCatalogUrl(baseUrl, type, search, storeId = window.currentStoreId) {
     const url = new URL(baseUrl || `{{ route('pdv.index') }}`, window.location.origin);
     url.searchParams.set('type', type);
 
@@ -5305,7 +5349,72 @@ function buildCatalogUrl(baseUrl, type, search) {
         url.searchParams.delete('search');
     }
 
+    if (storeId) {
+        url.searchParams.set('store_id', storeId);
+    } else {
+        url.searchParams.delete('store_id');
+    }
+
     return url.toString();
+}
+
+async function switchOperationalStore(nextStoreId) {
+    const normalizedCurrentStoreId = window.currentStoreId ? String(window.currentStoreId) : '';
+    const normalizedNextStoreId = nextStoreId ? String(nextStoreId) : '';
+    const storeSwitcher = document.getElementById('pdv-store-switcher');
+
+    if (normalizedCurrentStoreId === normalizedNextStoreId) {
+        return;
+    }
+
+    const redirectUrl = buildCatalogUrl(
+        `{{ route('pdv.index') }}`,
+        currentType,
+        getProductSearchInput()?.value || currentSearch || '',
+        normalizedNextStoreId || null
+    );
+
+    try {
+        const cartResponse = await fetch('{{ route("pdv.cart.get") }}', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        const cartData = await cartResponse.json();
+        const hasItems = Array.isArray(cartData?.cart) && cartData.cart.length > 0;
+
+        if (hasItems) {
+            const confirmed = window.confirm('Trocar a loja operacional limpa o carrinho atual para evitar mistura entre lojas. Deseja continuar?');
+            if (!confirmed) {
+                if (storeSwitcher) {
+                    storeSwitcher.value = normalizedCurrentStoreId;
+                }
+                return;
+            }
+
+            const clearResponse = await fetch('{{ route("pdv.cart.clear") }}', {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!clearResponse.ok) {
+                throw new Error('Nao foi possivel limpar o carrinho ao trocar de loja.');
+            }
+        }
+
+        window.location.assign(redirectUrl);
+    } catch (error) {
+        console.error('Erro ao trocar loja operacional:', error);
+        if (storeSwitcher) {
+            storeSwitcher.value = normalizedCurrentStoreId;
+        }
+        showNotification('Erro ao trocar a loja operacional', 'error');
+    }
 }
 
 function setActiveTab(type) {
@@ -5346,7 +5455,7 @@ async function fetchProducts(type, search, options = {}) {
         historyMode = 'replace',
     } = options;
 
-    const requestUrl = url ?? `{{ route('pdv.index') }}?type=${encodeURIComponent(type)}&search=${encodeURIComponent(search)}`;
+    const requestUrl = url ?? buildCatalogUrl(`{{ route('pdv.index') }}`, type, search);
 
     if (catalogRequestController) {
         catalogRequestController.abort();
@@ -5438,6 +5547,10 @@ if (searchInput) {
     });
 }
 
+document.getElementById('pdv-store-switcher')?.addEventListener('change', function(event) {
+    switchOperationalStore(event.target.value || null);
+});
+
 // ---- Fabric Piece Autocomplete ----
 const fabricSearchUrl = '{{ route("pdv.fabric-pieces.search") }}';
 
@@ -5462,7 +5575,12 @@ async function fetchFabricAutocomplete(q) {
     }
 
     try {
-        const res = await fetch(`${fabricSearchUrl}?q=${encodeURIComponent(q)}`, {
+        const params = new URLSearchParams({ q });
+        if (window.currentStoreId) {
+            params.set('store_id', window.currentStoreId);
+        }
+
+        const res = await fetch(`${fabricSearchUrl}?${params.toString()}`, {
             headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
         });
         const pieces = await res.json();

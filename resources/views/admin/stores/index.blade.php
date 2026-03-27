@@ -1,19 +1,43 @@
 @extends('layouts.admin')
 
 @section('content')
+@php
+    $tenant = $tenant ?? null;
+    $storeCount = $storeCount ?? null;
+    $storeLimit = $storeLimit ?? null;
+    $remainingStores = $remainingStores ?? null;
+    $canCreateStore = $canCreateStore ?? false;
+@endphp
 <div class="mb-8">
     <div class="flex items-center justify-between">
         <div>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Gerenciamento de Lojas</h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">Gerencie lojas e sub-lojas do sistema</p>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">
+                @if($tenant && $storeCount !== null && $storeLimit !== null)
+                    {{ $tenant->name }}: {{ $storeCount }} / {{ $storeLimit }} lojas em uso
+                @else
+                    Gerencie lojas e sub-lojas do sistema
+                @endif
+            </p>
         </div>
-        <a href="{{ route('admin.stores.create') }}" 
-           class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center shadow-lg hover:shadow-xl">
-            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-            <span class="font-medium">Nova Loja</span>
-        </a>
+        @if(Auth::user()->isAdminGeral())
+            @if($canCreateStore)
+                <a href="{{ route('admin.stores.create') }}" 
+                   class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center shadow-lg hover:shadow-xl">
+                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    <span class="font-medium">Nova Loja</span>
+                </a>
+            @else
+                <span class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg flex items-center shadow-sm cursor-not-allowed">
+                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    <span class="font-medium">Limite Atingido</span>
+                </span>
+            @endif
+        @endif
     </div>
 </div>
 
@@ -30,6 +54,22 @@
         <li>{{ $error }}</li>
         @endforeach
     </ul>
+</div>
+@endif
+
+@if($tenant && $storeLimit !== null)
+<div class="mb-6 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg px-4 py-3 text-sm text-indigo-800 dark:text-indigo-200">
+    <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <span>
+            Tenant atual: <strong>{{ $tenant->name }}</strong>
+        </span>
+        <span>
+            Uso do plano: <strong>{{ $storeCount }}</strong> de <strong>{{ $storeLimit }}</strong> lojas
+            @if($remainingStores !== null)
+                ({{ $remainingStores }} restante{{ $remainingStores === 1 ? '' : 's' }})
+            @endif
+        </span>
+    </div>
 </div>
 @endif
 
@@ -159,13 +199,15 @@
                             </svg>
                             <p class="text-gray-500 dark:text-gray-400 text-lg font-medium mb-2">Nenhuma loja cadastrada</p>
                             <p class="text-gray-400 dark:text-gray-500 text-sm mb-6">Comece criando sua primeira loja</p>
-                            <a href="{{ route('admin.stores.create') }}" 
-                               class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center shadow-lg hover:shadow-xl">
-                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                                <span class="font-medium">Criar Primeira Loja</span>
-                            </a>
+                            @if(Auth::user()->isAdminGeral() && $canCreateStore)
+                                <a href="{{ route('admin.stores.create') }}" 
+                                   class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center shadow-lg hover:shadow-xl">
+                                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    <span class="font-medium">Criar Primeira Loja</span>
+                                </a>
+                            @endif
                         </div>
                     </td>
                 </tr>

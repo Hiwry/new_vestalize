@@ -52,7 +52,11 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             @php($storeCount = $user->stores->count())
                             @if($storeCount === 0)
-                                <div class="text-sm text-gray-400 dark:text-gray-500">-</div>
+                                @if($user->hasGeneralStoreAccess())
+                                    <div class="text-sm text-emerald-600 dark:text-emerald-400">Todas as lojas</div>
+                                @else
+                                    <div class="text-sm text-gray-400 dark:text-gray-500">-</div>
+                                @endif
                             @elseif($storeCount === 1)
                                 <div class="text-sm text-gray-700 dark:text-gray-300">{{ $user->stores->first()->name }}</div>
                             @else

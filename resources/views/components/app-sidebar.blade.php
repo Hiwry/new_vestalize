@@ -411,6 +411,20 @@
             </div>
             @endif
 
+            @if(Auth::user()->isAdmin())
+            <div class="mt-1">
+                <a href="{{ route('admin.stores.index') }}"
+                   class="flex items-center w-full text-sm font-bold rounded-2xl transition-all duration-300 {{ request()->routeIs('admin.stores.*') ? 'active-link' : 'text-muted hover:bg-white/5 hover:text-white' }}"
+                   :class="expanded ? 'px-4 py-3.5 justify-start' : 'justify-center mx-auto'"
+                   title="Lojas">
+                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                        <i class="fa-solid fa-store text-lg"></i>
+                    </div>
+                    <span class="ml-4" x-show="expanded">Lojas</span>
+                </a>
+            </div>
+            @endif
+
 
 
             <!-- ASSINATURAS (Super Admin apenas - sem dropdown) -->

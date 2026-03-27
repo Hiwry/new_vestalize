@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 
 @section('content')
+@php
+    $tenantStoreCount = auth()->user()->tenant?->stores()->count();
+    $tenantStoreLimit = auth()->user()->tenant?->getPlanLimits()['stores'] ?? null;
+@endphp
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Configurações</h1>
 </div>
@@ -219,6 +223,25 @@
                         </div>
                     </div>
                 </a>
+
+                @if(Auth::user()->isAdmin())
+                <a href="{{ route('admin.stores.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l8-4 6 3v15M9 9h.01M9 12h.01M9 15h.01M13 9h.01M13 12h.01M13 15h.01M17 9h.01M17 12h.01" />
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Lojas</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                Matriz e lojas adicionais
+                                @if($tenantStoreCount !== null && $tenantStoreLimit !== null)
+                                    ({{ $tenantStoreCount }}/{{ $tenantStoreLimit }})
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                </a>
+                @endif
 
                 <a href="{{ route('admin.audit.index') }}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition border-2 border-dashed border-indigo-200 dark:border-indigo-900/50">
                     <div class="flex items-center space-x-3">

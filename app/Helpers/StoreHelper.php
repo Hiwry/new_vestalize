@@ -2,18 +2,18 @@
 
 namespace App\Helpers;
 
-use Illuminate\Support\Facades\Auth;
 use App\Models\Store;
+use Illuminate\Support\Facades\Auth;
 
 class StoreHelper
 {
     /**
-     * Aplicar filtro de loja na query baseado no role do usuário
+     * Aplicar filtro de loja na query baseado no perfil do usuario.
      */
     public static function applyStoreFilter($query, $storeColumn = 'store_id')
     {
         $user = Auth::user();
-        
+
         if (!$user) {
             return $query;
         }
@@ -25,53 +25,45 @@ class StoreHelper
                 : $storeColumn . '.store_id';
         }
 
-        $activeTenantId = $user->tenant_id;
-        
-        // Se for Super Admin, verifica se há um tenant selecionado na sessão
-        if ($activeTenantId === null) {
-            $activeTenantId = session('selected_tenant_id');
-        }
+        $activeTenantId = $user->getActiveTenantId();
 
         if ($activeTenantId !== null) {
-            $tenantStoreIds = \App\Models\Store::where('tenant_id', $activeTenantId)->pluck('id')->toArray();
+            $tenantStoreIds = Store::withoutGlobalScopes()
+                ->where('tenant_id', $activeTenantId)
+                ->pluck('id')
+                ->toArray();
 
             if (empty($tenantStoreIds)) {
                 return $query->whereRaw('1 = 0');
             }
 
             $query->whereIn($column, $tenantStoreIds);
-        } else {
-            // Se for Super Admin e NÃO houver tenant selecionado:
-            // - Mostrar TODOS os registros (de todas as lojas) para permitir visualização global
-            // - Isso é útil para Super Admin ver pedidos no Kanban sem precisar selecionar tenant
-            if ($user->tenant_id === null) {
-                // Super Admin sem tenant selecionado: mostrar tudo (não aplica filtro)
-                return $query;
-            }
-        }
-
-        if ($user->isAdminGeral() || $user->isEstoque()) {
+        } elseif ($user->tenant_id === null && $user->isAdminGeral()) {
             return $query;
         }
 
-        if ($user->isAdminLoja()) {
+        if ($user->hasGeneralStoreAccess()) {
+            return $query;
+        }
+
+        if ($user->isAdminLoja() || $user->isCaixa() || $user->isEstoque()) {
             $storeIds = $user->getStoreIds();
-            
-            if (!empty($storeIds)) {
-                return $query->whereIn($column, $storeIds);
-            }
+
+            return !empty($storeIds)
+                ? $query->whereIn($column, $storeIds)
+                : $query->whereRaw('1 = 0');
         }
 
         return $query;
     }
 
     /**
-     * Obter IDs das lojas que o usuário pode acessar
+     * Obter IDs das lojas que o usuario pode acessar.
      */
     public static function getUserStoreIds(): array
     {
         $user = Auth::user();
-        
+
         if (!$user) {
             return [];
         }
@@ -80,12 +72,12 @@ class StoreHelper
     }
 
     /**
-     * Verificar se usuário pode acessar uma loja
+     * Verificar se usuario pode acessar uma loja.
      */
     public static function canAccessStore($storeId): bool
     {
         $user = Auth::user();
-        
+
         if (!$user) {
             return false;
         }
@@ -94,44 +86,68 @@ class StoreHelper
     }
 
     /**
-     * Obter todas as lojas disponíveis para o usuário
+     * Obter todas as lojas disponiveis para o usuario.
      */
     public static function getAvailableStores()
     {
         $user = Auth::user();
-        
-        if (!$user || $user->tenant_id === null) {
-            return Store::active()->orderBy('name')->get();
+
+        if (!$user) {
+            return collect();
         }
 
-        return Store::active()
-            ->where('tenant_id', $user->tenant_id)
-            ->orderBy('name')
-            ->get();
+        $query = Store::active()->orderBy('name');
+        $activeTenantId = $user->getActiveTenantId();
+
+        if ($activeTenantId !== null) {
+            $query->where('tenant_id', $activeTenantId);
+        }
+
+        if ($user->isAdminGeral()) {
+            return $query->get();
+        }
+
+        if ($user->isAdminLoja() || $user->isCaixa() || $user->isEstoque()) {
+            $storeIds = $user->getStoreIds();
+
+            if (empty($storeIds)) {
+                return collect();
+            }
+
+            return $query->whereIn('id', $storeIds)->get();
+        }
+
+        if ($user->isVendedor()) {
+            $storeIds = $user->stores()->pluck('stores.id')->toArray();
+
+            if (empty($storeIds)) {
+                return collect();
+            }
+
+            return $query->whereIn('id', $storeIds)->get();
+        }
+
+        return $query->get();
     }
+
     /**
-     * Obter IDs das lojas para filtragem
-     * Se uma loja específica for selecionada, retorna apenas ela (se o usuário tiver acesso)
-     * Caso contrário, retorna todas as lojas permitidas ao usuário
+     * Obter IDs das lojas para filtragem.
+     * Se uma loja especifica for selecionada, retorna apenas ela.
+     * Caso contrario, retorna todas as lojas permitidas ao usuario.
      */
     public static function getStoreIds($selectedStoreId = null): array
     {
-        // Se uma loja específica foi selecionada
         if ($selectedStoreId) {
-            if (self::canAccessStore($selectedStoreId)) {
-                return [$selectedStoreId];
-            }
-            // Se não tiver acesso, retorna array vazio ou poderia lançar exceção
-            // Por segurança, retorna vazio para não mostrar dados indevidos
-            return [];
+            return self::canAccessStore($selectedStoreId)
+                ? [$selectedStoreId]
+                : [];
         }
 
-        // Retorna todas as lojas permitidas
         return self::getUserStoreIds();
     }
 
     /**
-     * Alias para getAvailableStores para manter compatibilidade
+     * Alias para getAvailableStores para manter compatibilidade.
      */
     public static function getUserStores()
     {

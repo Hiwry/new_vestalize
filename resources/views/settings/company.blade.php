@@ -34,6 +34,12 @@
 </div>
 @endif
 
+@php
+    $storeCount = $tenant?->stores()->count() ?? 0;
+    $storeLimit = $tenant?->getPlanLimits()['stores'] ?? 1;
+    $remainingStores = max($storeLimit - $storeCount, 0);
+@endphp
+
 <form id="company-settings-form" action="{{ route('settings.company.update') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
     @csrf
     @method('PUT')
@@ -164,7 +170,35 @@
 
         <!-- Coluna Direita: Termos e Pré-visualização -->
         <div class="lg:col-span-1 space-y-6">
-            
+            @if(auth()->user()->isAdmin())
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l8-4 6 3v15M9 9h.01M9 12h.01M9 15h.01M13 9h.01M13 12h.01M13 15h.01M17 9h.01M17 12h.01" /></svg>
+                    Lojas da Empresa
+                </h2>
+                <div class="rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 px-4 py-3">
+                    <p class="text-sm text-indigo-900 dark:text-indigo-100 font-semibold">{{ $storeCount }} / {{ $storeLimit }} lojas cadastradas</p>
+                    <p class="mt-1 text-xs text-indigo-700 dark:text-indigo-300">
+                        @if($remainingStores > 0)
+                            Você ainda pode cadastrar {{ $remainingStores }} loja{{ $remainingStores === 1 ? '' : 's' }} adicional{{ $remainingStores === 1 ? '' : 'ais' }} neste tenant.
+                        @else
+                            O limite de lojas do plano atual foi atingido.
+                        @endif
+                    </p>
+                </div>
+                <div class="mt-4 flex flex-col gap-3">
+                    <a href="{{ route('admin.stores.index') }}" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition">
+                        Gerenciar lojas
+                    </a>
+                    @if(auth()->user()->isAdminGeral() && $remainingStores > 0)
+                    <a href="{{ route('admin.stores.create') }}" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition">
+                        Cadastrar outra loja
+                    </a>
+                    @endif
+                </div>
+            </div>
+            @endif
+
             <!-- Termos e Condições -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                 <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">

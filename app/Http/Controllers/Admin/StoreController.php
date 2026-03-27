@@ -2,49 +2,119 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\StoreHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Store;
+use App\Models\Tenant;
 use App\Models\User;
-use App\Helpers\StoreHelper;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class StoreController extends Controller
 {
+    private function getTenantContext(): array
+    {
+        $tenantId = Auth::user()?->tenant_id ?? session('selected_tenant_id');
+        $tenant = $tenantId ? Tenant::with('currentPlan')->find($tenantId) : null;
+        $storeCount = $tenant
+            ? Store::withoutGlobalScopes()->where('tenant_id', $tenant->id)->count()
+            : null;
+        $storeLimit = $tenant ? ($tenant->getPlanLimits()['stores'] ?? 1) : null;
+        $remainingStores = ($storeCount !== null && $storeLimit !== null)
+            ? max($storeLimit - $storeCount, 0)
+            : null;
+
+        return [
+            'tenantId' => $tenant?->id,
+            'tenant' => $tenant,
+            'storeCount' => $storeCount,
+            'storeLimit' => $storeLimit,
+            'remainingStores' => $remainingStores,
+            'canCreateStore' => $tenant ? $storeCount < $storeLimit : false,
+        ];
+    }
+
+    private function requireTenantContext(): array
+    {
+        $context = $this->getTenantContext();
+
+        if (!$context['tenant']) {
+            abort(403, 'Selecione um tenant antes de gerenciar lojas.');
+        }
+
+        return $context;
+    }
+
+    private function ensureStoreInTenantContext(Store $store): void
+    {
+        $context = $this->getTenantContext();
+
+        if ($context['tenantId'] && (int) $store->tenant_id !== (int) $context['tenantId']) {
+            abort(403, 'Esta loja nao pertence ao tenant ativo.');
+        }
+    }
+
+    private function getMainStoreForTenant(int $tenantId): ?Store
+    {
+        return Store::withoutGlobalScopes()
+            ->where('tenant_id', $tenantId)
+            ->where('is_main', true)
+            ->first();
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(): View
     {
         $user = Auth::user();
-        
+        $context = $this->getTenantContext();
+
         if ($user->isAdminGeral()) {
-            $stores = Store::with(['parent', 'subStores', 'users'])->orderBy('is_main', 'desc')->orderBy('name')->get();
+            $stores = Store::with(['parent', 'subStores', 'users'])
+                ->when($context['tenantId'], fn ($query, $tenantId) => $query->where('tenant_id', $tenantId))
+                ->orderBy('is_main', 'desc')
+                ->orderBy('name')
+                ->get();
         } else {
-            // Admin loja vê apenas suas lojas
             $storeIds = $user->getStoreIds();
-            $stores = Store::whereIn('id', $storeIds)->with(['parent', 'subStores', 'users'])->orderBy('name')->get();
+            $stores = Store::whereIn('id', $storeIds)
+                ->with(['parent', 'subStores', 'users'])
+                ->orderBy('name')
+                ->get();
         }
-        
-        return view('admin.stores.index', compact('stores'));
+
+        return view('admin.stores.index', array_merge(compact('stores'), $context));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View
+    public function create()
     {
-        // Apenas admin geral pode criar lojas
         if (!Auth::user()->isAdminGeral()) {
             abort(403, 'Apenas administradores gerais podem criar lojas.');
         }
-        
-        $mainStore = Store::where('is_main', true)->first();
-        $stores = Store::active()->orderBy('name')->get();
-        
-        return view('admin.stores.create', compact('mainStore', 'stores'));
+
+        $context = $this->requireTenantContext();
+
+        if (!$context['canCreateStore']) {
+            return redirect()->route('admin.stores.index')
+                ->withErrors([
+                    'error' => "O plano atual permite ate {$context['storeLimit']} lojas. Faca upgrade para cadastrar outra loja.",
+                ]);
+        }
+
+        $mainStore = $this->getMainStoreForTenant($context['tenantId']);
+        $stores = Store::withoutGlobalScopes()
+            ->where('tenant_id', $context['tenantId'])
+            ->active()
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.stores.create', array_merge(compact('mainStore', 'stores'), $context));
     }
 
     /**
@@ -52,27 +122,51 @@ class StoreController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        // Apenas admin geral pode criar lojas
         if (!Auth::user()->isAdminGeral()) {
             abort(403, 'Apenas administradores gerais podem criar lojas.');
         }
-        
+
+        $context = $this->requireTenantContext();
+
+        if (!$context['canCreateStore']) {
+            return redirect()->route('admin.stores.index')
+                ->withErrors([
+                    'error' => "O plano atual permite ate {$context['storeLimit']} lojas. Faca upgrade para cadastrar outra loja.",
+                ]);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'parent_id' => 'nullable|exists:stores,id',
             'active' => 'boolean',
         ]);
-        
-        // Validar que apenas loja principal pode ser pai
-        if (isset($validated['parent_id']) && $validated['parent_id']) {
-            $parent = Store::findOrFail($validated['parent_id']);
+
+        $mainStore = $this->getMainStoreForTenant($context['tenantId']);
+
+        if ($mainStore && empty($validated['parent_id'])) {
+            $validated['parent_id'] = $mainStore->id;
+        }
+
+        if (!empty($validated['parent_id'])) {
+            $parent = Store::withoutGlobalScopes()
+                ->where('tenant_id', $context['tenantId'])
+                ->findOrFail($validated['parent_id']);
+
             if (!$parent->isMain()) {
-                return redirect()->back()->withErrors(['parent_id' => 'Apenas a loja principal pode ter sub-lojas.']);
+                return redirect()->back()->withErrors([
+                    'parent_id' => 'Apenas a loja principal pode ter sub-lojas.',
+                ]);
             }
         }
-        
-        Store::create($validated);
-        
+
+        Store::create([
+            'tenant_id' => $context['tenantId'],
+            'name' => $validated['name'],
+            'parent_id' => $validated['parent_id'] ?? null,
+            'active' => (bool) ($validated['active'] ?? false),
+            'is_main' => !$mainStore,
+        ]);
+
         return redirect()->route('admin.stores.index')
             ->with('success', 'Loja criada com sucesso!');
     }
@@ -82,18 +176,18 @@ class StoreController extends Controller
      */
     public function show(Store $store): View
     {
-        // Verificar acesso
+        $this->ensureStoreInTenantContext($store);
+
         if (!StoreHelper::canAccessStore($store->id)) {
-            abort(403, 'Você não tem permissão para acessar esta loja.');
+            abort(403, 'Voce nao tem permissao para acessar esta loja.');
         }
-        
+
         $store->load(['parent', 'subStores', 'users', 'orders', 'budgets', 'clients']);
 
-        // Listas separadas
         $admins = $store->users()->wherePivot('role', 'admin_loja')->get();
         $sellers = $store->users()->where('users.role', 'vendedor')->orderBy('name')->get();
         $allUsers = $store->users()->orderBy('name')->get();
-        
+
         return view('admin.stores.show', compact('store', 'admins', 'sellers', 'allUsers'));
     }
 
@@ -102,18 +196,24 @@ class StoreController extends Controller
      */
     public function edit(Store $store): View
     {
-        // Apenas admin geral pode editar lojas
         if (!Auth::user()->isAdminGeral()) {
             abort(403, 'Apenas administradores gerais podem editar lojas.');
         }
-        
-        $mainStore = Store::where('is_main', true)->first();
-        $stores = Store::where('id', '!=', $store->id)->active()->orderBy('name')->get();
-        
-        // Buscar configurações da empresa desta loja
+
+        $context = $this->requireTenantContext();
+        $this->ensureStoreInTenantContext($store);
+
+        $mainStore = $this->getMainStoreForTenant($context['tenantId']);
+        $stores = Store::withoutGlobalScopes()
+            ->where('tenant_id', $context['tenantId'])
+            ->where('id', '!=', $store->id)
+            ->active()
+            ->orderBy('name')
+            ->get();
+
         $settings = \App\Models\CompanySetting::getSettings($store->id);
-        
-        return view('admin.stores.edit', compact('store', 'mainStore', 'stores', 'settings'));
+
+        return view('admin.stores.edit', array_merge(compact('store', 'mainStore', 'stores', 'settings'), $context));
     }
 
     /**
@@ -121,16 +221,17 @@ class StoreController extends Controller
      */
     public function update(Request $request, Store $store): RedirectResponse
     {
-        // Apenas admin geral pode editar lojas
         if (!Auth::user()->isAdminGeral()) {
             abort(403, 'Apenas administradores gerais podem editar lojas.');
         }
-        
+
+        $context = $this->requireTenantContext();
+        $this->ensureStoreInTenantContext($store);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'parent_id' => 'nullable|exists:stores,id',
             'active' => 'boolean',
-            // Configurações da empresa
             'company_name' => 'nullable|string|max:255',
             'company_address' => 'nullable|string',
             'company_city' => 'nullable|string|max:255',
@@ -146,44 +247,42 @@ class StoreController extends Controller
             'pix_key' => 'nullable|string|max:255',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-        
-        // Não permitir alterar is_main
+
         unset($validated['is_main']);
-        
-        // Validar que apenas loja principal pode ser pai
-        if (isset($validated['parent_id']) && $validated['parent_id']) {
-            $parent = Store::findOrFail($validated['parent_id']);
+
+        if (!empty($validated['parent_id'])) {
+            $parent = Store::withoutGlobalScopes()
+                ->where('tenant_id', $context['tenantId'])
+                ->findOrFail($validated['parent_id']);
+
             if (!$parent->isMain()) {
-                return redirect()->back()->withErrors(['parent_id' => 'Apenas a loja principal pode ter sub-lojas.']);
+                return redirect()->back()->withErrors([
+                    'parent_id' => 'Apenas a loja principal pode ter sub-lojas.',
+                ]);
             }
         }
-        
-        // Separar dados da loja e das configurações
+
         $storeData = [
             'name' => $validated['name'],
             'parent_id' => $validated['parent_id'] ?? null,
             'active' => $validated['active'] ?? false,
         ];
-        
+
         $store->update($storeData);
-        
-        // Atualizar ou criar configurações da empresa
+
         $settings = \App\Models\CompanySetting::where('store_id', $store->id)->first();
         if (!$settings) {
             $settings = new \App\Models\CompanySetting();
             $settings->store_id = $store->id;
         }
-        
-        // Upload do logo
+
         if ($request->hasFile('logo')) {
-            // Deletar logo antigo
             if ($settings->logo_path) {
                 $oldPath = public_path($settings->logo_path);
                 if (file_exists($oldPath)) {
                     @unlink($oldPath);
                 }
-                
-                // No servidor Hostinger, também deletar de public_html/images/
+
                 $publicPath = public_path();
                 if (str_contains($publicPath, '/home2/') || str_contains($publicPath, '/home/')) {
                     if (preg_match('#(/home2?/[^/]+)#', $publicPath, $matches)) {
@@ -195,52 +294,45 @@ class StoreController extends Controller
                     }
                 }
             }
-            
-            // Salvar novo logo
+
             $file = $request->file('logo');
             $filename = 'logo_store_' . $store->id . '_' . time() . '.' . $file->getClientOriginalExtension();
             $logoPath = 'images/' . $filename;
-            
-            // Criar diretório se não existir
+
             $imagesDir = public_path('images');
             if (!file_exists($imagesDir)) {
                 \Illuminate\Support\Facades\File::makeDirectory($imagesDir, 0755, true);
             }
-            
-            // Salvar em laravel/public/images/
+
             $file->move($imagesDir, $filename);
-            
-            // No servidor Hostinger, também salvar em public_html/images/ para acesso direto
+
             $publicPath = public_path();
             if (str_contains($publicPath, '/home2/') || str_contains($publicPath, '/home/')) {
                 if (preg_match('#(/home2?/[^/]+)#', $publicPath, $matches)) {
                     $homePath = $matches[1];
                     $publicHtmlImagesDir = $homePath . '/public_html/images';
-                    
-                    // Criar diretório se não existir
+
                     if (!file_exists($publicHtmlImagesDir)) {
                         \Illuminate\Support\Facades\File::makeDirectory($publicHtmlImagesDir, 0755, true);
                     }
-                    
-                    // Copiar arquivo para public_html/images/
+
                     $publicHtmlPath = $publicHtmlImagesDir . '/' . $filename;
                     copy($imagesDir . '/' . $filename, $publicHtmlPath);
-                    
-                    \Log::info('StoreController: Logo também salvo em public_html/images', [
-                        'path' => $publicHtmlPath
+
+                    \Log::info('StoreController: Logo tambem salvo em public_html/images', [
+                        'path' => $publicHtmlPath,
                     ]);
                 }
             }
-            
+
             $settings->logo_path = $logoPath;
-            
+
             \Log::info('StoreController: Logo salvo com sucesso', [
                 'store_id' => $store->id,
-                'logo_path' => $logoPath
+                'logo_path' => $logoPath,
             ]);
         }
-        
-        // Atualizar configurações
+
         $settings->fill([
             'company_name' => $validated['company_name'] ?? null,
             'company_address' => $validated['company_address'] ?? null,
@@ -256,11 +348,11 @@ class StoreController extends Controller
             'bank_account' => $validated['bank_account'] ?? null,
             'pix_key' => $validated['pix_key'] ?? null,
         ]);
-        
+
         $settings->save();
-        
+
         return redirect()->route('admin.stores.index')
-            ->with('success', 'Loja e configurações atualizadas com sucesso!');
+            ->with('success', 'Loja e configuracoes atualizadas com sucesso!');
     }
 
     /**
@@ -268,23 +360,26 @@ class StoreController extends Controller
      */
     public function destroy(Store $store): RedirectResponse
     {
-        // Apenas admin geral pode deletar lojas
         if (!Auth::user()->isAdminGeral()) {
             abort(403, 'Apenas administradores gerais podem deletar lojas.');
         }
-        
-        // Não permitir deletar loja principal
+
+        $this->ensureStoreInTenantContext($store);
+
         if ($store->isMain()) {
-            return redirect()->back()->withErrors(['error' => 'Não é possível deletar a loja principal.']);
+            return redirect()->back()->withErrors([
+                'error' => 'Nao e possivel deletar a loja principal.',
+            ]);
         }
-        
-        // Verificar se há dados associados
+
         if ($store->orders()->count() > 0 || $store->budgets()->count() > 0 || $store->clients()->count() > 0) {
-            return redirect()->back()->withErrors(['error' => 'Não é possível deletar a loja pois há dados associados.']);
+            return redirect()->back()->withErrors([
+                'error' => 'Nao e possivel deletar a loja pois ha dados associados.',
+            ]);
         }
-        
+
         $store->delete();
-        
+
         return redirect()->route('admin.stores.index')
             ->with('success', 'Loja removida com sucesso!');
     }
@@ -294,28 +389,36 @@ class StoreController extends Controller
      */
     public function assignAdmin(Request $request, Store $store): RedirectResponse
     {
-        // Apenas admin geral pode atribuir admins
         if (!Auth::user()->isAdminGeral()) {
             abort(403, 'Apenas administradores gerais podem atribuir admins.');
         }
-        
+
+        $context = $this->requireTenantContext();
+        $this->ensureStoreInTenantContext($store);
+
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
-        
+
         $user = User::findOrFail($validated['user_id']);
-        
-        // Verificar se já está atribuído
-        if ($store->users()->where('user_id', $user->id)->exists()) {
-            return redirect()->back()->withErrors(['user_id' => 'Este usuário já é admin desta loja.']);
+
+        if ((int) $user->tenant_id !== (int) $context['tenantId']) {
+            return redirect()->back()->withErrors([
+                'user_id' => 'Este usuario nao pertence ao tenant atual.',
+            ]);
         }
-        
-        // Determinar o papel na loja baseado no papel do usuário
+
+        if ($store->users()->where('user_id', $user->id)->exists()) {
+            return redirect()->back()->withErrors([
+                'user_id' => 'Este usuario ja esta vinculado a esta loja.',
+            ]);
+        }
+
         $pivotRole = $user->role === 'vendedor' ? 'vendedor' : 'admin_loja';
-        
+
         $store->users()->attach($user->id, ['role' => $pivotRole]);
-        
-        return redirect()->back()->with('success', 'Admin atribuído com sucesso!');
+
+        return redirect()->back()->with('success', 'Usuario vinculado com sucesso!');
     }
 
     /**
@@ -323,14 +426,15 @@ class StoreController extends Controller
      */
     public function removeAdmin(Store $store, User $user): RedirectResponse
     {
-        // Apenas admin geral pode remover admins
         if (!Auth::user()->isAdminGeral()) {
             abort(403, 'Apenas administradores gerais podem remover admins.');
         }
-        
+
+        $this->ensureStoreInTenantContext($store);
+
         $store->users()->detach($user->id);
-        
-        return redirect()->back()->with('success', 'Admin removido com sucesso!');
+
+        return redirect()->back()->with('success', 'Usuario removido da loja com sucesso!');
     }
 
     /**
@@ -338,21 +442,20 @@ class StoreController extends Controller
      */
     public function deleteLogo(Store $store)
     {
-        // Apenas admin geral pode deletar logo
         if (!Auth::user()->isAdminGeral()) {
             abort(403, 'Apenas administradores gerais podem deletar logos.');
         }
-        
+
+        $this->ensureStoreInTenantContext($store);
+
         $settings = \App\Models\CompanySetting::where('store_id', $store->id)->first();
-        
+
         if ($settings && $settings->logo_path) {
-            // Deletar de laravel/public/images/
             $logoPath = public_path($settings->logo_path);
             if (file_exists($logoPath)) {
                 @unlink($logoPath);
             }
-            
-            // No servidor Hostinger, também deletar de public_html/images/
+
             $publicPath = public_path();
             if (str_contains($publicPath, '/home2/') || str_contains($publicPath, '/home/')) {
                 if (preg_match('#(/home2?/[^/]+)#', $publicPath, $matches)) {
@@ -363,17 +466,17 @@ class StoreController extends Controller
                     }
                 }
             }
-            
+
             $settings->logo_path = null;
             $settings->save();
-            
+
             \Log::info('StoreController: Logo removido com sucesso', [
-                'store_id' => $store->id
+                'store_id' => $store->id,
             ]);
-            
+
             return response()->json(['success' => true, 'message' => 'Logo removido com sucesso!']);
         }
-        
+
         return response()->json(['success' => false, 'message' => 'Nenhum logo encontrado.'], 404);
     }
 }

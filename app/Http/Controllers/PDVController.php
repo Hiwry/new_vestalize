@@ -59,36 +59,11 @@ class PDVController extends Controller
         ];
         $currentTypeLabel = $typeLabels[$type] ?? 'Produtos';
         
-        $type = $request->get('type', 'products');
-        
-        // Super Admin (tenant_id === null) fallback logic matches Kanban
-        $activeTenantId = $user->tenant_id;
-        if ($activeTenantId === null) {
-            $activeTenantId = session('selected_tenant_id');
-        }
-        if ($activeTenantId === null) {
-            $firstStore = Store::first();
-            $activeTenantId = $firstStore ? $firstStore->tenant_id : 1;
-        }
-
-        $type = $request->get('type', 'products'); // products, fabric_pieces, machines, supplies, uniforms
-
-        // Determinar loja atual
-        $currentStoreId = null;
-        if ($user->isAdminLoja()) {
-            $storeIds = $user->getStoreIds();
-            $currentStoreId = !empty($storeIds) ? $storeIds[0] : null;
-        } elseif ($user->isVendedor()) {
-            $userStores = $user->stores()->get();
-            if ($userStores->isNotEmpty()) {
-                $currentStoreId = $userStores->first()->id;
-            }
-        }
-        
-        if (!$currentStoreId) {
-            $mainStore = Store::where('is_main', true)->first();
-            $currentStoreId = $mainStore ? $mainStore->id : null;
-        }
+        $requestedStoreId = $this->getRequestedStoreId($request);
+        $availableStores = $this->pdvService->getAvailableStores();
+        $currentStoreId = $this->getCurrentStoreId($requestedStoreId);
+        $currentStore = $availableStores->firstWhere('id', $currentStoreId);
+        $canSwitchStore = $availableStores->count() > 1;
 
         $items = collect();
 
@@ -132,7 +107,7 @@ class PDVController extends Controller
                 ->hasAvailableQuantity()
                 ->availableForChannel('pdv');
                 
-            if ($currentStoreId && !$user->isAdmin() && !$user->isAdminGeral()) {
+            if ($currentStoreId) {
                 $fabricPiecesQuery->where('store_id', $currentStoreId);
             }
 
@@ -168,7 +143,7 @@ class PDVController extends Controller
                     ->hasAvailableQuantity()
                     ->availableForChannel('pdv');
                     
-                if ($currentStoreId && !$user->isAdmin() && !$user->isAdminGeral()) {
+                if ($currentStoreId) {
                     $piecesQuery->where('store_id', $currentStoreId);
                 }
                 
@@ -302,7 +277,11 @@ class PDVController extends Controller
             $sellersQuery = User::where('role', 'vendedor');
             if ($user->isAdminGeral()) {
                 // Admin Geral vê vendedores de todas as lojas do tenant
-                if ($user->tenant_id) {
+                if ($currentStoreId) {
+                    $sellersQuery->whereHas('stores', function ($q) use ($currentStoreId) {
+                        $q->where('stores.id', $currentStoreId);
+                    });
+                } elseif ($user->tenant_id) {
                     $sellersQuery->whereHas('stores', function ($q) use ($user) {
                         $q->where('stores.tenant_id', $user->tenant_id);
                     });
@@ -420,7 +399,10 @@ class PDVController extends Controller
             'productOptionsWithSublocal',
             'fabrics',
             'colors',
+            'availableStores',
             'currentStoreId',
+            'currentStore',
+            'canSwitchStore',
             'search',
             'jsItems',
             'currentTypeLabel',
@@ -459,6 +441,7 @@ class PDVController extends Controller
             'color_id' => 'nullable|exists:product_options,id',
             'cut_type_id' => 'nullable|exists:product_options,id',
             'fabric_id' => 'nullable|exists:product_options,id',
+            'store_id' => 'nullable|exists:stores,id',
         ]);
 
         $itemType = $validated['item_type'] ?? null;
@@ -470,9 +453,26 @@ class PDVController extends Controller
             }
         }
 
+        $storeId = $this->getCurrentStoreId(isset($validated['store_id']) ? (int) $validated['store_id'] : null);
+        if (!$storeId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Selecione a loja operacional antes de adicionar itens ao carrinho.',
+            ], 422);
+        }
+
         $cart = Session::get('pdv_cart', []);
         $cartItem = [];
         $stockRequestCreated = false;
+
+        try {
+            $this->pdvService->ensureCartStore($storeId);
+        } catch (\RuntimeException $exception) {
+            return response()->json([
+                'success' => false,
+                'message' => $exception->getMessage(),
+            ], 409);
+        }
 
         // Lógica de Produtos Padrão
         if ($itemType === 'product') {
@@ -639,6 +639,13 @@ class PDVController extends Controller
                 ->availableForChannel('pdv')
                 ->findOrFail($validated['item_id']);
 
+            if ((int) $item->store_id !== (int) $storeId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Esta peça pertence a outra loja. Troque a loja operacional para continuar.',
+                ], 422);
+            }
+
             $requestedQuantity = (float) $validated['quantity'];
             $currentCartQuantity = collect($cart)
                 ->filter(fn ($cartItem) => ($cartItem['type'] ?? null) === 'fabric_piece' && (int) ($cartItem['item_id'] ?? 0) === (int) $item->id)
@@ -661,6 +668,12 @@ class PDVController extends Controller
         }
         elseif ($itemType === 'machine') {
             $item = \App\Models\SewingMachine::findOrFail($validated['item_id']);
+            if ((int) ($item->store_id ?? 0) !== (int) $storeId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Esta máquina pertence a outra loja. Troque a loja operacional para continuar.',
+                ], 422);
+            }
             $unitPrice = $validated['unit_price'] ?? 0; // Usuario define
             
             $cartItem = [
@@ -678,6 +691,12 @@ class PDVController extends Controller
         }
         elseif ($itemType === 'supply') {
             $item = \App\Models\ProductionSupply::findOrFail($validated['item_id']);
+            if ((int) ($item->store_id ?? 0) !== (int) $storeId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Este suprimento pertence a outra loja. Troque a loja operacional para continuar.',
+                ], 422);
+            }
             $unitPrice = $validated['unit_price'] ?? 0;
             $qty = $validated['quantity'];
             
@@ -696,6 +715,12 @@ class PDVController extends Controller
         }
         elseif ($itemType === 'uniform') {
              $item = \App\Models\Uniform::findOrFail($validated['item_id']);
+             if ((int) ($item->store_id ?? 0) !== (int) $storeId) {
+                 return response()->json([
+                     'success' => false,
+                     'message' => 'Este uniforme pertence a outra loja. Troque a loja operacional para continuar.',
+                 ], 422);
+             }
              $unitPrice = $validated['unit_price'] ?? 0;
              $qty = $validated['quantity'];
              
@@ -717,8 +742,10 @@ class PDVController extends Controller
              return response()->json(['success' => false, 'message' => 'Erro ao criar item do carrinho'], 500);
         }
 
+        $cartItem['store_id'] = $storeId;
         $cart[] = $cartItem;
         Session::put('pdv_cart', $cart);
+        $this->pdvService->setCartStoreId($storeId);
         
         return response()->json([
             'success' => true,
@@ -860,21 +887,22 @@ class PDVController extends Controller
     /**
      * Obter ID da loja atual
      */
-    private function getCurrentStoreId()
+    private function getRequestedStoreId(Request $request): ?int
     {
-        $user = Auth::user();
-        if ($user->isAdminLoja()) {
-            $storeIds = $user->getStoreIds();
-            return !empty($storeIds) ? $storeIds[0] : null;
-        } elseif ($user->isVendedor()) {
-            $userStores = $user->stores()->get();
-            if ($userStores->isNotEmpty()) {
-                return $userStores->first()->id;
-            }
+        $storeId = $request->input('store_id');
+
+        if ($storeId === null || $storeId === '' || !is_numeric($storeId)) {
+            return null;
         }
-        
-        $mainStore = Store::where('is_main', true)->first();
-        return $mainStore ? $mainStore->id : null;
+
+        $storeId = (int) $storeId;
+
+        return $storeId > 0 ? $storeId : null;
+    }
+
+    private function getCurrentStoreId(?int $requestedStoreId = null)
+    {
+        return $this->pdvService->getCurrentStoreId($requestedStoreId);
     }
     
     /**
@@ -1105,6 +1133,9 @@ class PDVController extends Controller
         // Reindexar array
         $cart = array_values($cart);
         Session::put('pdv_cart', $cart);
+        if (empty($cart)) {
+            $this->pdvService->setCartStoreId(null);
+        }
 
         return response()->json([
             'success' => true,
@@ -1119,7 +1150,7 @@ class PDVController extends Controller
      */
     public function clearCart()
     {
-        Session::forget('pdv_cart');
+        $this->pdvService->clearCart();
 
         return response()->json([
             'success' => true,
@@ -1140,6 +1171,7 @@ class PDVController extends Controller
             'cart' => $cart,
             'cart_total' => $this->calculateCartTotal($cart),
             'cart_count' => count($cart),
+            'cart_store_id' => $this->pdvService->getCartStoreId(),
         ]);
     }
 
@@ -1189,6 +1221,7 @@ class PDVController extends Controller
         $validated = $request->validate([
             'client_id' => 'nullable|exists:clients,id',
             'seller_id' => 'nullable|exists:users,id',
+            'store_id' => 'nullable|exists:stores,id',
             'discount' => 'nullable|numeric|min:0',
             'delivery_fee' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string|max:1000',
@@ -1296,19 +1329,7 @@ class PDVController extends Controller
             return response()->json([]);
         }
 
-        $user = Auth::user();
-
-        $currentStoreId = null;
-        if ($user->isAdminLoja()) {
-            $storeIds = $user->getStoreIds();
-            $currentStoreId = !empty($storeIds) ? $storeIds[0] : null;
-        } elseif ($user->isVendedor()) {
-            $currentStoreId = $user->stores()->first()?->id;
-        }
-        if (!$currentStoreId) {
-            $mainStore = Store::where('is_main', true)->first();
-            $currentStoreId = $mainStore ? $mainStore->id : null;
-        }
+        $currentStoreId = $this->getCurrentStoreId($this->getRequestedStoreId($request));
 
         if (!Schema::hasTable('fabric_pieces')) {
             return response()->json([]);
@@ -1326,7 +1347,7 @@ class PDVController extends Controller
                    ->orWhere('invoice_number', 'like', "%{$q}%");
             });
 
-        if ($currentStoreId && !$user->isAdmin() && !$user->isAdminGeral()) {
+        if ($currentStoreId) {
             $query->where('store_id', $currentStoreId);
         }
 
@@ -1591,10 +1612,9 @@ class PDVController extends Controller
     /**
      * Buscar peças de um tecido agrupado
      */
-    public function getFabricPieces($fabricId)
+    public function getFabricPieces(Request $request, $fabricId)
     {
-        $user = Auth::user();
-        $currentStoreId = $user->store_id;
+        $currentStoreId = $this->getCurrentStoreId($this->getRequestedStoreId($request));
 
         try {
             $pieces = \App\Models\FabricPiece::with(['fabric', 'fabricType', 'color'])
@@ -1602,7 +1622,7 @@ class PDVController extends Controller
                 ->active()
                 ->hasAvailableQuantity()
                 ->availableForChannel('pdv')
-                ->when($currentStoreId && !$user->isAdmin() && !$user->isAdminGeral(), function($q) use ($currentStoreId) {
+                ->when($currentStoreId, function($q) use ($currentStoreId) {
                     return $q->where('store_id', $currentStoreId);
                 })
                 ->orderBy('status')

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\StoreHelper;
 use App\Models\SalesHistory;
 use App\Models\OrderStatusTracking;
 use App\Models\StockMovement;
@@ -33,6 +34,9 @@ use Carbon\Carbon;
 
 class PDVService
 {
+    private const SELECTED_STORE_SESSION_KEY = 'pdv_selected_store_id';
+    private const CART_STORE_SESSION_KEY = 'pdv_cart_store_id';
+
     public function __construct(
         private readonly FabricPieceInventoryService $fabricPieceInventoryService
     ) {
@@ -41,22 +45,107 @@ class PDVService
     /**
      * Obter ID da loja atual do usuário
      */
-    public function getCurrentStoreId(): ?int
+    public function getAvailableStores()
     {
-        $user = Auth::user();
-        
-        if ($user->isAdminLoja()) {
-            $storeIds = $user->getStoreIds();
-            return !empty($storeIds) ? $storeIds[0] : null;
-        } elseif ($user->isVendedor()) {
-            $userStores = $user->stores()->get();
-            if ($userStores->isNotEmpty()) {
-                return $userStores->first()->id;
+        return StoreHelper::getAvailableStores();
+    }
+
+    /**
+     * Obter ID da loja atual do usuario
+     */
+    public function getCurrentStoreId(?int $requestedStoreId = null): ?int
+    {
+        $availableStores = $this->getAvailableStores();
+
+        if ($availableStores->isEmpty()) {
+            Session::forget(self::SELECTED_STORE_SESSION_KEY);
+            return null;
+        }
+
+        $availableStoreIds = $availableStores
+            ->pluck('id')
+            ->map(fn ($storeId) => (int) $storeId)
+            ->values()
+            ->all();
+
+        foreach ([$requestedStoreId, Session::get(self::SELECTED_STORE_SESSION_KEY)] as $candidateStoreId) {
+            if ($candidateStoreId === null || $candidateStoreId === '') {
+                continue;
+            }
+
+            $candidateStoreId = (int) $candidateStoreId;
+            if (in_array($candidateStoreId, $availableStoreIds, true)) {
+                Session::put(self::SELECTED_STORE_SESSION_KEY, $candidateStoreId);
+                return $candidateStoreId;
             }
         }
-        
-        $mainStore = Store::where('is_main', true)->first();
-        return $mainStore ? $mainStore->id : null;
+
+        $mainStore = $availableStores->firstWhere('is_main', true);
+        $fallbackStoreId = (int) ($mainStore?->id ?? $availableStores->first()?->id ?? 0);
+
+        if ($fallbackStoreId > 0) {
+            Session::put(self::SELECTED_STORE_SESSION_KEY, $fallbackStoreId);
+            return $fallbackStoreId;
+        }
+
+        Session::forget(self::SELECTED_STORE_SESSION_KEY);
+        return null;
+    }
+
+    /**
+     * Obter a loja travada ao carrinho atual.
+     */
+    public function getCartStoreId(): ?int
+    {
+        $cartStoreId = Session::get(self::CART_STORE_SESSION_KEY);
+        if ($cartStoreId !== null && $cartStoreId !== '') {
+            return (int) $cartStoreId;
+        }
+
+        foreach ($this->getCart() as $item) {
+            if (!empty($item['store_id'])) {
+                return (int) $item['store_id'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Definir a loja do carrinho atual.
+     */
+    public function setCartStoreId(?int $storeId): void
+    {
+        if ($storeId === null) {
+            Session::forget(self::CART_STORE_SESSION_KEY);
+            return;
+        }
+
+        Session::put(self::CART_STORE_SESSION_KEY, (int) $storeId);
+    }
+
+    /**
+     * Garantir que o carrinho use uma unica loja operacional.
+     */
+    public function ensureCartStore(int $storeId): void
+    {
+        $cart = $this->getCart();
+        if (empty($cart)) {
+            $this->setCartStoreId($storeId);
+            return;
+        }
+
+        $cartStoreId = $this->getCartStoreId();
+        if ($cartStoreId === null) {
+            $this->setCartStoreId($storeId);
+            return;
+        }
+
+        if ((int) $cartStoreId !== (int) $storeId) {
+            throw new \RuntimeException('O carrinho atual pertence a outra loja. Limpe o carrinho antes de trocar a loja operacional.');
+        }
+
+        $this->setCartStoreId($storeId);
     }
 
     /**
@@ -81,6 +170,7 @@ class PDVService
     public function clearCart(): void
     {
         Session::forget('pdv_cart');
+        Session::forget(self::CART_STORE_SESSION_KEY);
     }
 
     /**
@@ -459,14 +549,23 @@ class PDVService
     public function processCheckout(array $validated, array $receiptAttachments = []): array
     {
         $user = Auth::user();
-        $storeId = $this->getCurrentStoreId();
+        $storeId = $this->getCurrentStoreId(isset($validated['store_id']) ? (int) $validated['store_id'] : null);
         $cart = $this->getCart();
 
         if (empty($cart)) {
             throw new \Exception('Carrinho vazio');
         }
 
-        return DB::transaction(function () use ($cart, $validated, $user, $storeId, $receiptAttachments) {
+        if (!$storeId) {
+            throw new \Exception('Nenhuma loja operacional foi selecionada para esta venda.');
+        }
+
+        $this->ensureCartStore($storeId);
+
+        $store = Store::withoutGlobalScopes()->find($storeId);
+        $tenantId = $store?->tenant_id ?? $user->tenant_id;
+
+        return DB::transaction(function () use ($cart, $validated, $user, $storeId, $receiptAttachments, $tenantId) {
             // Calcular totais
             $subtotal = $this->calculateCartTotal($cart);
             $discount = floatval($validated['discount'] ?? 0);
@@ -474,12 +573,23 @@ class PDVService
             $total = $subtotal - $discount + $deliveryFee;
 
             // Status finalizado - Tentar 'Entregue', depois 'Pronto', senão o primeiro da fila (geralmente Pendente)
-            $status = Status::where('name', 'Entregue')->first() ?? Status::where('name', 'Pronto')->first() ?? Status::orderBy('position', 'asc')->first();
+            $statusQuery = Status::query();
+            if ($tenantId !== null) {
+                $statusQuery->where('tenant_id', $tenantId);
+            }
+            $status = (clone $statusQuery)->where('name', 'Entregue')->first()
+                ?? (clone $statusQuery)->where('name', 'Pronto')->first()
+                ?? (clone $statusQuery)->orderBy('position', 'asc')->first();
 
             // Usar seller_id selecionado (admin/caixa podem escolher o vendedor)
             $sellerId = null;
             if (!empty($validated['seller_id'])) {
                 $sellerId = (int) $validated['seller_id'];
+                $seller = User::find($sellerId);
+
+                if (!$seller || !$seller->stores()->where('stores.id', $storeId)->exists()) {
+                    throw new \Exception('O vendedor selecionado nao pertence a loja operacional escolhida.');
+                }
             }
             $orderUserId = $sellerId ?? $user->id;
 
@@ -504,7 +614,7 @@ class PDVService
                         ? 1
                         : (int) ($item['quantity'] ?? 0);
                 }),
-                'tenant_id' => $user->tenant_id,
+                'tenant_id' => $tenantId,
                 'notes' => $validated['notes'] ?? null,
             ]);
 
@@ -683,7 +793,7 @@ class PDVService
                     'payment_method' => $method['method'],
                     'transaction_date' => now(),
                     'status' => 'confirmado',
-                    'tenant_id' => $user->tenant_id,
+                    'tenant_id' => $tenantId,
                 ]);
             }
 

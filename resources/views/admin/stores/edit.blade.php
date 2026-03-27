@@ -73,14 +73,19 @@
             @endif
 
             <div>
-                <label class="flex items-center">
-                    <input type="hidden" name="active" value="0">
-                    <input type="checkbox" 
-                           name="active" 
+                <input type="hidden" name="active" value="0">
+                <label for="active" class="admin-check-label items-start">
+                    <input type="checkbox"
+                           id="active"
+                           name="active"
                            value="1"
                            {{ old('active', $store->active) ? 'checked' : '' }}
-                           class="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500">
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Loja ativa</span>
+                           class="admin-check-input">
+                    <span class="admin-check-ui" aria-hidden="true"></span>
+                    <span class="admin-check-copy">
+                        <span class="admin-check-title">Loja ativa</span>
+                        <span class="admin-check-hint">Mantem a loja disponivel para pedidos, estoque e vinculo de usuarios.</span>
+                    </span>
                 </label>
             </div>
         </div>

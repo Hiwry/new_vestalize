@@ -3,13 +3,13 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use App\Traits\BelongsToTenant;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
@@ -18,8 +18,8 @@ class User extends Authenticatable
 
     /**
      * The attributes that are mass assignable.
-     * SEGURANÇA: 'role' e 'tenant_id' foram removidos para prevenir
-     * escalação de privilégio via mass assignment.
+     * SEGURANCA: 'role' e 'tenant_id' foram removidos para prevenir
+     * escalacao de privilegio via mass assignment.
      * Atribuir explicitamente: $user->role = 'vendedor'; $user->tenant_id = $tenantId;
      *
      * @var list<string>
@@ -56,7 +56,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Tenant proprietário deste usuário
+     * Tenant proprietario deste usuario
      */
     public function tenant(): BelongsTo
     {
@@ -69,17 +69,17 @@ class User extends Authenticatable
     }
 
     /**
-     * Lojas que o usuário administra
+     * Lojas que o usuario administra
      */
     public function stores(): BelongsToMany
     {
         return $this->belongsToMany(Store::class, 'store_user')
-                    ->withPivot('role')
-                    ->withTimestamps();
+            ->withPivot('role')
+            ->withTimestamps();
     }
 
     /**
-     * Verificar se é admin geral
+     * Verificar se e admin geral
      */
     public function isAdminGeral(): bool
     {
@@ -87,16 +87,16 @@ class User extends Authenticatable
     }
 
     /**
-     * Verificar se é admin de loja
+     * Verificar se e admin de loja
      */
     public function isAdminLoja(): bool
     {
-        return $this->role === 'admin_loja' || 
-               $this->stores()->wherePivot('role', 'admin_loja')->exists();
+        return $this->role === 'admin_loja'
+            || $this->stores()->wherePivot('role', 'admin_loja')->exists();
     }
 
     /**
-     * Verificar se é admin (geral ou loja)
+     * Verificar se e admin (geral ou loja)
      */
     public function isAdmin(): bool
     {
@@ -104,7 +104,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Verificar se é vendedor
+     * Verificar se e vendedor
      */
     public function isVendedor(): bool
     {
@@ -112,7 +112,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Verificar se é usuário de produção
+     * Verificar se e usuario de producao
      */
     public function isProducao(): bool
     {
@@ -120,7 +120,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Verificar se é usuário de caixa
+     * Verificar se e usuario de caixa
      */
     public function isCaixa(): bool
     {
@@ -128,7 +128,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Verificar se é usuário de estoque
+     * Verificar se e usuario de estoque
      */
     public function isEstoque(): bool
     {
@@ -136,7 +136,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Verificar se é designer do marketplace
+     * Verificar se e designer do marketplace
      */
     public function isDesigner(): bool
     {
@@ -152,98 +152,147 @@ class User extends Authenticatable
     }
 
     /**
-     * Rótulo legível da função do usuário
+     * Rotulo legivel da funcao do usuario
      */
     public function getRoleLabelAttribute(): string
     {
         return match ($this->role) {
             'admin', 'admin_geral' => 'Admin Geral',
-            'admin_loja'           => 'Admin Loja',
-            'vendedor'             => 'Vendedor',
-            'caixa'                => 'Caixa',
-            'producao'             => 'Produção',
-            'estoque'              => 'Estoque',
-            'designer'             => 'Designer',
-            default                => ucfirst($this->role ?? 'Usuário'),
+            'admin_loja' => 'Admin Loja',
+            'vendedor' => 'Vendedor',
+            'caixa' => 'Caixa',
+            'producao' => 'Producao',
+            'estoque' => 'Estoque',
+            'designer' => 'Designer',
+            default => ucfirst($this->role ?? 'Usuario'),
         };
     }
 
     /**
-     * Classes Tailwind de cor para o badge da função
+     * Classes Tailwind de cor para o badge da funcao
      */
     public function getRoleColorAttribute(): string
     {
         return match ($this->role) {
             'admin', 'admin_geral' => 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
-            'admin_loja'           => 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
-            'vendedor'             => 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300',
-            'caixa'                => 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300',
-            'producao'             => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
-            'estoque'              => 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
-            'designer'             => 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
-            default                => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+            'admin_loja' => 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
+            'vendedor' => 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300',
+            'caixa' => 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300',
+            'producao' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
+            'estoque' => 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+            'designer' => 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
+            default => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
         };
     }
 
     /**
-     * Obter IDs das lojas que o usuário pode acessar (incluindo sub-lojas)
+     * Obter o tenant ativo no contexto atual.
      */
-    public function getStoreIds(): array
+    public function getActiveTenantId(): ?int
     {
-        // Lojas do tenant do usuário (ou do tenant selecionado caso seja super admin)
-        $activeTenantId = $this->tenant_id;
-        if ($activeTenantId === null) {
-            $activeTenantId = session('selected_tenant_id');
-        }
-
-        $tenantStoreIds = $activeTenantId
-            ? Store::active()->where('tenant_id', $activeTenantId)->pluck('id')->toArray()
-            : ($this->tenant_id === null ? Store::active()->pluck('id')->toArray() : []);
-
-        if ($this->isAdminGeral() || $this->isEstoque()) {
-            return $tenantStoreIds;
-        }
-
-        if ($this->isAdminLoja()) {
-            // Admin loja vê suas lojas + sub-lojas, respeitando o tenant
-            $storeIds = [];
-            
-            // Buscar as lojas se não estiverem carregadas
-            $stores = $this->stores;
-
-            foreach ($stores as $store) {
-                if ($this->tenant_id === null || $store->tenant_id === $this->tenant_id) {
-                    $storeIds = array_merge($storeIds, $store->getAllStoreIds());
-                }
-            }
-            
-            $storeIds = array_intersect(array_unique($storeIds), $tenantStoreIds);
-
-            return array_values($storeIds);
-        }
-
-        // Vendedor não tem acesso por loja, apenas por user_id
-        return [];
+        return $this->tenant_id ?? session('selected_tenant_id');
     }
 
     /**
-     * Verificar se o usuário pode acessar uma loja específica
+     * Verificar se o usuario possui lojas vinculadas explicitamente.
      */
-    public function canAccessStore($storeId): bool
+    public function hasExplicitStoreAssignments(): bool
     {
-        $store = Store::find($storeId);
-
-        if (!$store || ($this->tenant_id !== null && $store->tenant_id !== $this->tenant_id)) {
-            return false;
+        if ($this->relationLoaded('stores')) {
+            return $this->stores->isNotEmpty();
         }
 
-        if ($this->isAdminGeral() || $this->isEstoque()) {
+        return $this->stores()->exists();
+    }
+
+    /**
+     * Verificar se o usuario deve acessar todas as lojas do tenant.
+     */
+    public function hasGeneralStoreAccess(): bool
+    {
+        if ($this->isAdminGeral()) {
             return true;
         }
 
-        if ($this->isAdminLoja()) {
-            $storeIds = $this->getStoreIds();
-            return in_array($storeId, $storeIds);
+        if ($this->isAdminLoja() || $this->isCaixa() || $this->isEstoque()) {
+            return $this->getActiveTenantId() !== null && !$this->hasExplicitStoreAssignments();
+        }
+
+        return false;
+    }
+
+    /**
+     * Obter IDs das lojas que o usuario pode acessar.
+     */
+    public function getStoreIds(): array
+    {
+        $activeTenantId = $this->getActiveTenantId();
+
+        if ($activeTenantId === null && !$this->isAdminGeral()) {
+            return [];
+        }
+
+        $tenantStoreIds = $activeTenantId !== null
+            ? Store::active()->where('tenant_id', $activeTenantId)->pluck('id')->toArray()
+            : ($this->tenant_id === null ? Store::active()->pluck('id')->toArray() : []);
+
+        if (empty($tenantStoreIds)) {
+            return [];
+        }
+
+        if ($this->hasGeneralStoreAccess()) {
+            return array_map('intval', array_values(array_unique($tenantStoreIds)));
+        }
+
+        if (!$this->isAdminLoja() && !$this->isCaixa() && !$this->isEstoque()) {
+            return [];
+        }
+
+        $storeIds = [];
+        $stores = $this->relationLoaded('stores')
+            ? $this->stores
+            : $this->stores()->with('subStores')->get();
+
+        foreach ($stores as $store) {
+            if ($activeTenantId !== null && (int) $store->tenant_id !== (int) $activeTenantId) {
+                continue;
+            }
+
+            if ($this->isAdminLoja()) {
+                $storeIds = array_merge($storeIds, $store->getAllStoreIds());
+                continue;
+            }
+
+            $storeIds[] = $store->id;
+        }
+
+        $storeIds = array_intersect(array_unique($storeIds), $tenantStoreIds);
+
+        return array_map('intval', array_values($storeIds));
+    }
+
+    /**
+     * Verificar se o usuario pode acessar uma loja especifica.
+     */
+    public function canAccessStore($storeId): bool
+    {
+        $store = Store::withoutGlobalScopes()->find($storeId);
+
+        if (!$store) {
+            return false;
+        }
+
+        $activeTenantId = $this->getActiveTenantId();
+        if ($activeTenantId !== null && (int) $store->tenant_id !== (int) $activeTenantId) {
+            return false;
+        }
+
+        if ($this->hasGeneralStoreAccess()) {
+            return true;
+        }
+
+        if ($this->isAdminLoja() || $this->isCaixa() || $this->isEstoque()) {
+            return in_array((int) $storeId, $this->getStoreIds(), true);
         }
 
         return false;
