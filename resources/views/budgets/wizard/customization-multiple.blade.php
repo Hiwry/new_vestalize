@@ -209,6 +209,7 @@
                             $totalPieces = $order->items->sum('quantity');
                             $totalApplications = 0;
                             $totalApplicationsCount = 0;
+                            $totalSpecialSizes = 0;
                             foreach($order->items as $item) {
                                 $itemApplications = \App\Models\OrderSublimation::where('order_item_id', $item->id)->get();
                                 $totalApplications += $itemApplications->sum('final_price');
@@ -220,10 +221,12 @@
                             $totalPieces = 0;
                             $totalApplications = 0;
                             $totalApplicationsCount = 0;
+                            $totalSpecialSizes = 0;
                             
                             foreach($itemPersonalizations as $itemData) {
                                 $item = $itemData['item'];
                                 $totalPieces += $item->quantity;
+                                $totalSpecialSizes += (float) ($item->special_size_total ?? 0);
                                 
                                 // Em orçamento, as personalizações estão na sessão, mas aqui elas são passadas
                                 // dentro de $itemData mas apenas IDs e nomes para o wizard, não valores totais calculados
@@ -244,7 +247,7 @@
                         $avgPerPiece = $totalPieces > 0 ? $totalApplications / $totalPieces : 0;
                     @endphp
 
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <div>
                             <p class="text-xs text-gray-500 dark:text-slate-400 mb-1 font-medium">Total de Itens</p>
                             <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $totalItems }}</p>
@@ -263,6 +266,11 @@
                             <p class="text-lg font-semibold text-indigo-600 dark:text-indigo-400">R$ {{ number_format($avgPerPiece, 2, ',', '.') }}</p>
                             <p class="text-xs text-gray-400 dark:text-slate-500">Média das aplicações</p>
                         </div>
+                        <div>
+                            <p class="text-xs text-gray-500 dark:text-slate-400 mb-1 font-medium">Acrescimos Especiais</p>
+                            <p class="text-lg font-semibold text-emerald-600 dark:text-emerald-400">R$ {{ number_format($totalSpecialSizes ?? 0, 2, ',', '.') }}</p>
+                            <p class="text-xs text-gray-400 dark:text-slate-500">GG, EXG, G1, G2 e G3</p>
+                        </div>
                     </div>
                 </div>
 
@@ -273,6 +281,9 @@
                             $item = $itemData['item'];
                             $persIds = $itemData['personalization_ids'];
                             $persNames = $itemData['personalization_names'];
+                            $itemSpecialSizeQuantities = (array) ($item->special_size_quantities ?? []);
+                            $itemSpecialSizeDetails = (array) ($item->special_size_details ?? []);
+                            $itemSpecialSizeTotal = (float) ($item->special_size_total ?? 0);
                         @endphp
                         
                         <div class="border border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-800">
@@ -384,7 +395,13 @@
                                                                     @if($addonNames !== '')
                                                                         <span class="text-gray-700 dark:text-slate-300"><strong class="dark:text-white">Adicionais:</strong> {{ $addonNames }}</span>
                                                                     @endif
+                                                                    @php
+                                                                        $individualApplicationValue = ((int) ($pers['quantity'] ?? 0)) > 0
+                                                                            ? ((float) ($pers['final_price'] ?? 0) / max(1, (int) ($pers['quantity'] ?? 0)))
+                                                                            : 0;
+                                                                    @endphp
                                                                     @if(($pers['final_price'] ?? 0) > 0)
+                                                                        <span class="text-gray-500 dark:text-slate-400"><strong class="dark:text-white">Indiv.:</strong> R$ {{ number_format($individualApplicationValue, 2, ',', '.') }}</span>
                                                                         <span class="text-indigo-600 dark:text-indigo-400 font-semibold">R$ {{ number_format($pers['final_price'], 2, ',', '.') }}</span>
                                                                     @else
                                                                         <span class="text-red-600 dark:text-red-400 font-semibold">R$ 0,00</span>
@@ -507,6 +524,66 @@
                                         </div>
                                     @endforeach
                                 @endif
+                                <div class="mt-5 rounded-xl border border-emerald-200 dark:border-emerald-800/40 bg-emerald-50/60 dark:bg-emerald-900/10 p-4">
+                                    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-4">
+                                        <div>
+                                            <h4 class="font-semibold text-emerald-800 dark:text-emerald-300">Acrescimos de tamanhos do item</h4>
+                                            <p class="text-xs text-emerald-700/80 dark:text-emerald-300/80 mt-1">Informe GG, EXG, G1, G2 e G3 deste item fora das aplicacoes.</p>
+                                        </div>
+                                        <div class="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                                            Total: R$ {{ number_format($itemSpecialSizeTotal, 2, ',', '.') }}
+                                        </div>
+                                    </div>
+
+                                    <form method="POST" action="{{ route('budget.customization') }}" class="space-y-4">
+                                        @csrf
+                                        <input type="hidden" name="budget_action" value="update_item_special_sizes">
+                                        <input type="hidden" name="item_id" value="{{ $item->id }}">
+
+                                        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                                            @foreach (['GG', 'EXG', 'G1', 'G2', 'G3'] as $specialSize)
+                                                <label class="block">
+                                                    <span class="block text-xs font-semibold text-emerald-800 dark:text-emerald-300 mb-1">{{ $specialSize }}</span>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        step="1"
+                                                        name="item_special_size_quantities[{{ $specialSize }}]"
+                                                        value="{{ $itemSpecialSizeQuantities[$specialSize] ?? 0 }}"
+                                                        class="w-full px-3 py-2 border border-emerald-200 dark:border-emerald-800/50 rounded-xl bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 transition-all">
+                                                </label>
+                                            @endforeach
+                                        </div>
+
+                                        @if(!empty($itemSpecialSizeDetails))
+                                            <div class="rounded-lg border border-emerald-200/80 dark:border-emerald-800/40 bg-white/80 dark:bg-slate-900/40 px-3 py-3">
+                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300 mb-2">Resumo do acrescimo</p>
+                                                <div class="space-y-1.5">
+                                                    @foreach($itemSpecialSizeDetails as $specialSize => $specialData)
+                                                        <div class="flex items-center justify-between text-xs">
+                                                            <span class="font-semibold text-gray-700 dark:text-slate-300">{{ $specialSize }}</span>
+                                                            <span class="text-gray-500 dark:text-slate-400">
+                                                                {{ $specialData['qty'] ?? 0 }}x R$ {{ number_format((float) ($specialData['unit'] ?? 0), 2, ',', '.') }} =
+                                                                <span class="font-semibold text-emerald-600 dark:text-emerald-400">R$ {{ number_format((float) ($specialData['total'] ?? 0), 2, ',', '.') }}</span>
+                                                            </span>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @else
+                                            <p class="text-xs text-gray-500 dark:text-slate-400">Nenhum acrescimo especial informado para este item.</p>
+                                        @endif
+
+                                        <div class="flex justify-end">
+                                            <button
+                                                type="submit"
+                                                class="px-4 py-2 text-sm bg-emerald-600 dark:bg-emerald-500 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 font-semibold transition-all"
+                                                style="color: white !important;">
+                                                Salvar acrescimos
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
 
                         </div>
@@ -673,7 +750,11 @@
                         <!-- Preços dos adicionais selecionados serão exibidos aqui -->
                     </div>
 
-                    <div class="mt-4 pm-section-card rounded-xl p-4">
+                    <div class="mt-4 rounded-xl border border-dashed border-emerald-200 dark:border-emerald-800/40 bg-emerald-50/60 dark:bg-emerald-900/10 px-4 py-3 text-xs text-emerald-700 dark:text-emerald-300">
+                        GG, EXG, G1, G2 e G3 agora sao informados abaixo das aplicacoes do item.
+                    </div>
+
+                    <div class="hidden mt-4 pm-section-card rounded-xl p-4">
                         <div class="flex items-start justify-between gap-3 mb-3">
                             <div>
                                 <p class="text-sm font-semibold text-gray-900 dark:text-white">Acréscimos de tamanhos enviados</p>
@@ -1488,7 +1569,7 @@
             specialSizeKeys.forEach((sizeKey) => {
                 const input = document.getElementById(`size_surcharge_${sizeKey}`);
                 if (input) {
-                    input.value = customization.size_surcharge_quantities?.[sizeKey] ?? 0;
+                    input.value = 0;
                 }
             });
 
@@ -2157,8 +2238,10 @@
                     }
 
                     unitPrice += calculateAddonsTotal(parseFloat(document.getElementById('base_size_price').value || unitPrice));
-                    const specialSizeTotal = updateSpecialSizeSurchargeSummary();
-                    const total = (unitPrice * qty) + specialSizeTotal;
+                    const specialSizeTotal = 0;
+                    document.getElementById('size_surcharge_total').value = '0';
+                    updateSpecialSizeSurchargeSummary();
+                    const total = unitPrice * qty;
                     
                     document.getElementById('unitPrice').textContent = `R$ ${unitPrice.toFixed(2).replace('.', ',')}`;
                     document.getElementById('totalPrice').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
@@ -2194,8 +2277,10 @@
             document.getElementById('price_range_from').value = '';
             document.getElementById('price_range_to').value = '';
             unitPrice += calculateAddonsTotal(unitPrice);
-            const specialSizeTotal = updateSpecialSizeSurchargeSummary();
-            const total = (unitPrice * quantity) + specialSizeTotal;
+            const specialSizeTotal = 0;
+            document.getElementById('size_surcharge_total').value = '0';
+            updateSpecialSizeSurchargeSummary();
+            const total = unitPrice * quantity;
             
             document.getElementById('unitPrice').textContent = `R$ ${unitPrice.toFixed(2).replace('.', ',')}`;
             document.getElementById('totalPrice').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;

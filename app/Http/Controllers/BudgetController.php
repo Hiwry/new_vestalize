@@ -439,6 +439,45 @@ class BudgetController extends Controller
             $customizations = array_values(session('budget_customizations', []));
             $budgetItems = session('budget_items', []);
             $itemIndex = $data['item_id'] ?? 0;
+
+            if ($request->input('budget_action') === 'update_item_special_sizes') {
+                $itemIndex = (int) $request->input('item_id', -1);
+
+                if (!array_key_exists($itemIndex, $budgetItems)) {
+                    return redirect()->route('budget.customization')
+                        ->with('error', 'Item nao encontrado para atualizar os acrescimos.');
+                }
+
+                $sizeQuantities = $this->extractBudgetSpecialSizeQuantities(
+                    $request->input('item_special_size_quantities', [])
+                );
+
+                $budgetItems[$itemIndex] = $this->applyBudgetItemSpecialSizes(
+                    $budgetItems[$itemIndex],
+                    $sizeQuantities
+                );
+
+                foreach ($customizations as $customizationIndex => $customization) {
+                    if ((int) ($customization['item_index'] ?? -1) !== $itemIndex) {
+                        continue;
+                    }
+
+                    $customizations[$customizationIndex]['size_surcharge_quantities'] = [];
+                    $customizations[$customizationIndex]['size_surcharge_details'] = [];
+                    $customizations[$customizationIndex]['size_surcharge_total'] = 0;
+                }
+
+                $customizations = \App\Helpers\PersonalizationDiscountHelper::applySessionDiscounts($customizations, $itemIndex);
+
+                session([
+                    'budget_items' => $budgetItems,
+                    'budget_customizations' => $customizations,
+                ]);
+
+                return redirect()->route('budget.customization')
+                    ->with('success', 'Acrescimos especiais do item atualizados com sucesso!');
+            }
+
             $editingIndex = $request->filled('editing_personalization_id')
                 ? (int) $request->input('editing_personalization_id')
                 : null;
@@ -482,15 +521,7 @@ class BudgetController extends Controller
             }, $addons);
             $regataDiscount = !empty($data['regata_discount']);
 
-            $allowedSpecialSizes = ['GG', 'EXG', 'G1', 'G2', 'G3'];
-            $sizeSurchargeQuantities = collect($data['size_surcharge_quantities'] ?? [])
-                ->mapWithKeys(function ($qty, $size) {
-                    return [strtoupper(trim((string) $size)) => max(0, (int) $qty)];
-                })
-                ->filter(function ($qty, $size) use ($allowedSpecialSizes) {
-                    return $qty > 0 && in_array($size, $allowedSpecialSizes, true);
-                })
-                ->all();
+            $sizeSurchargeQuantities = [];
 
             $linkedItemIndexes = collect($request->input('linked_item_indexes', [$itemIndex]))
                 ->map(fn ($index) => (int) $index)
@@ -612,6 +643,8 @@ class BudgetController extends Controller
                 }
             }
             
+            [$itemSpecialSizeQuantities, $itemSpecialSizeDetails, $itemSpecialSizeTotal] = $this->getBudgetItemSpecialSizeData($item);
+
             $itemPersonalizations[] = [
                 'item' => (object)[
                     'id' => $index,
@@ -621,6 +654,9 @@ class BudgetController extends Controller
                     'fabric' => $item['fabric'] ?? '',
                     'color' => $item['color'] ?? '',
                     'print_type' => $item['print_type'] ?? '',
+                    'special_size_quantities' => $itemSpecialSizeQuantities,
+                    'special_size_details' => $itemSpecialSizeDetails,
+                    'special_size_total' => $itemSpecialSizeTotal,
                 ],
                 'personalization_ids' => $persIds,
                 'personalization_names' => $persNames,
@@ -714,7 +750,9 @@ class BudgetController extends Controller
         try {
             // Calcular subtotal (itens + personalizações)
             $itemsTotal = array_sum(array_map(function($item) {
-                return ($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0);
+                [, , $specialSizeTotal] = $this->getBudgetItemSpecialSizeData($item);
+
+                return (($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0)) + $specialSizeTotal;
             }, $items));
             
             $customizations = Session::get('budget_customizations', []);
@@ -752,7 +790,8 @@ class BudgetController extends Controller
 
             // Criar itens
             foreach ($items as $index => $itemData) {
-                $itemTotal = ($itemData['quantity'] ?? 0) * ($itemData['unit_price'] ?? 0);
+                [$itemSpecialSizeQuantities, $itemSpecialSizeDetails, $itemSpecialSizeTotal] = $this->getBudgetItemSpecialSizeData($itemData);
+                $itemTotal = (($itemData['quantity'] ?? 0) * ($itemData['unit_price'] ?? 0)) + $itemSpecialSizeTotal;
                 
                 $budgetItem = BudgetItem::create([
                     'budget_id' => $budget->id,
@@ -769,6 +808,9 @@ class BudgetController extends Controller
                         'unit_price' => $itemData['unit_price'] ?? 0,
                         'notes' => $itemData['notes'] ?? '',
                         'sizes' => $itemData['tamanhos'] ?? [], // Salvar tamanhos se disponíveis
+                        'special_size_quantities' => $itemSpecialSizeQuantities,
+                        'special_size_details' => $itemSpecialSizeDetails,
+                        'special_size_total' => $itemSpecialSizeTotal,
                     ]),
                     'cover_image' => $itemData['cover_image'] ?? null, // Salvar imagem de capa se disponível
                     'item_total' => $itemTotal,
@@ -1622,6 +1664,81 @@ class BudgetController extends Controller
     /**
      * Extrair tamanhos do item do orçamento
      */
+    private function extractBudgetSpecialSizeQuantities($rawSizes): array
+    {
+        $allowedSpecialSizes = ['GG', 'EXG', 'G1', 'G2', 'G3'];
+
+        if (is_string($rawSizes)) {
+            $decodedSizes = json_decode($rawSizes, true);
+            $rawSizes = is_array($decodedSizes) ? $decodedSizes : [];
+        }
+
+        if (!is_array($rawSizes)) {
+            return [];
+        }
+
+        return collect($rawSizes)
+            ->mapWithKeys(function ($qty, $size) {
+                return [strtoupper(trim((string) $size)) => max(0, (int) $qty)];
+            })
+            ->filter(function ($qty, $size) use ($allowedSpecialSizes) {
+                return $qty > 0 && in_array($size, $allowedSpecialSizes, true);
+            })
+            ->all();
+    }
+
+    private function getBudgetItemSpecialSizeData(array $budgetItem): array
+    {
+        $sourceSizes = $budgetItem['special_size_quantities'] ?? ($budgetItem['tamanhos'] ?? ($budgetItem['sizes'] ?? []));
+        $sizeQuantities = $this->extractBudgetSpecialSizeQuantities($sourceSizes);
+        [$sizeDetails, $sizeTotal] = $this->buildBudgetSizeSurchargeData($budgetItem, $sizeQuantities);
+
+        return [$sizeQuantities, $sizeDetails, $sizeTotal];
+    }
+
+    private function applyBudgetItemSpecialSizes(array $budgetItem, array $sizeQuantities): array
+    {
+        $existingSizes = $budgetItem['tamanhos'] ?? ($budgetItem['sizes'] ?? []);
+
+        if (is_string($existingSizes)) {
+            $decodedSizes = json_decode($existingSizes, true);
+            $existingSizes = is_array($decodedSizes) ? $decodedSizes : [];
+        }
+
+        if (!is_array($existingSizes)) {
+            $existingSizes = [];
+        }
+
+        $allowedSpecialSizes = ['GG', 'EXG', 'G1', 'G2', 'G3'];
+        $mergedSizes = [];
+
+        foreach ($existingSizes as $size => $quantity) {
+            $normalizedSize = strtoupper(trim((string) $size));
+            $normalizedQuantity = max(0, (int) $quantity);
+
+            if ($normalizedQuantity <= 0 || in_array($normalizedSize, $allowedSpecialSizes, true)) {
+                continue;
+            }
+
+            $mergedSizes[$normalizedSize] = $normalizedQuantity;
+        }
+
+        foreach ($sizeQuantities as $size => $quantity) {
+            if ($quantity > 0) {
+                $mergedSizes[$size] = $quantity;
+            }
+        }
+
+        [$sizeDetails, $sizeTotal] = $this->buildBudgetSizeSurchargeData($budgetItem, $sizeQuantities);
+
+        $budgetItem['tamanhos'] = $mergedSizes;
+        $budgetItem['special_size_quantities'] = $sizeQuantities;
+        $budgetItem['special_size_details'] = $sizeDetails;
+        $budgetItem['special_size_total'] = $sizeTotal;
+
+        return $budgetItem;
+    }
+
     private function extractSizesFromBudgetItem($budgetItem): array
     {
         $personalizationTypes = $budgetItem->getPersonalizationTypesArray();

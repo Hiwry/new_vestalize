@@ -14,8 +14,60 @@
 
     $items = session('budget_items', []);
     $customizations = session('budget_customizations', []);
-    $itemsSubtotal = array_sum(array_map(function ($item) {
-        return ($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0);
+    $resolveItemSpecialSizeData = function ($item) {
+        $rawSizes = $item['special_size_quantities'] ?? ($item['tamanhos'] ?? ($item['sizes'] ?? []));
+
+        if (is_string($rawSizes)) {
+            $rawSizes = json_decode($rawSizes, true) ?? [];
+        }
+
+        if (!is_array($rawSizes)) {
+            $rawSizes = [];
+        }
+
+        $allowedSpecialSizes = ['GG', 'EXG', 'G1', 'G2', 'G3'];
+        $quantities = [];
+
+        foreach ($rawSizes as $size => $quantity) {
+            $normalizedSize = strtoupper(trim((string) $size));
+            $normalizedQuantity = max(0, (int) $quantity);
+
+            if ($normalizedQuantity > 0 && in_array($normalizedSize, $allowedSpecialSizes, true)) {
+                $quantities[$normalizedSize] = $normalizedQuantity;
+            }
+        }
+
+        $details = [];
+        $total = 0.0;
+
+        foreach ($quantities as $size => $quantity) {
+            $surchargeModel = \App\Models\SizeSurcharge::getSurchargeForSize($size, $item['unit_price'] ?? 0);
+            $surchargePerUnit = (float) ($surchargeModel->surcharge ?? 0);
+
+            if ($surchargePerUnit <= 0) {
+                continue;
+            }
+
+            $lineTotal = $surchargePerUnit * $quantity;
+            $details[$size] = [
+                'qty' => $quantity,
+                'unit' => $surchargePerUnit,
+                'total' => $lineTotal,
+            ];
+            $total += $lineTotal;
+        }
+
+        return [
+            'quantities' => $quantities,
+            'details' => $details,
+            'total' => $total,
+        ];
+    };
+
+    $itemsSubtotal = array_sum(array_map(function ($item) use ($resolveItemSpecialSizeData) {
+        $specialSizeData = $resolveItemSpecialSizeData($item);
+
+        return (($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0)) + ($specialSizeData['total'] ?? 0);
     }, $items));
     $customizationsTotal = array_sum(array_map(function ($custom) {
         return $custom['final_price'] ?? 0;
@@ -114,13 +166,15 @@
                     <div class="p-6 space-y-4">
                         @foreach($items as $index => $item)
                             @php
-                                $itemTotal = ($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0);
+                                $itemSpecialSizeData = $resolveItemSpecialSizeData($item);
+                                $itemTotal = (($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0)) + ($itemSpecialSizeData['total'] ?? 0);
                                 $itemCustomizations = array_values(array_filter($customizations, function ($custom) use ($index) {
                                     return (int) ($custom['item_index'] ?? -1) === $index;
                                 }));
                                 $itemCustomTotal = array_sum(array_map(function ($custom) {
                                     return $custom['final_price'] ?? 0;
                                 }, $itemCustomizations));
+                                $itemSurcharges = $itemSpecialSizeData['details'] ?? [];
                             @endphp
                             <article class="bw-item-card p-5">
                                 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
@@ -172,20 +226,6 @@
                                     $itemSizes = $item['tamanhos'] ?? $item['sizes'] ?? [];
                                     if (is_string($itemSizes)) $itemSizes = json_decode($itemSizes, true) ?? [];
                                     $availableSizes = ['PP', 'P', 'M', 'G', 'GG', 'EXG', 'G1', 'G2', 'G3', 'un'];
-                                    $itemSurcharges = [];
-                                    foreach($availableSizes as $size) {
-                                        $qty = (int)($itemSizes[$size] ?? $itemSizes[strtolower($size)] ?? $itemSizes[strtoupper($size)] ?? 0);
-                                        if ($qty > 0) {
-                                            $surchargeModel = \App\Models\SizeSurcharge::getSurchargeForSize($size, $item['unit_price'] ?? 0);
-                                            if ($surchargeModel && $surchargeModel->surcharge > 0) {
-                                                $itemSurcharges[$size] = [
-                                                    'qty' => $qty,
-                                                    'unit' => (float)$surchargeModel->surcharge,
-                                                    'total' => (float)$surchargeModel->surcharge * $qty
-                                                ];
-                                            }
-                                        }
-                                    }
                                 @endphp
 
                                 <div class="mt-4 space-y-3">
@@ -228,6 +268,9 @@
                                                 @php
                                                     $customSizeSurchargeDetails = $custom['size_surcharge_details'] ?? [];
                                                     $customSizeSurchargeTotal = (float) ($custom['size_surcharge_total'] ?? 0);
+                                                    $customIndividualValue = ((int) ($custom['quantity'] ?? 0)) > 0
+                                                        ? ((float) ($custom['final_price'] ?? 0) / max(1, (int) ($custom['quantity'] ?? 0)))
+                                                        : 0;
                                                 @endphp
                                                 <div class="rounded-xl border border-white/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/50 px-4 py-3">
                                                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -239,6 +282,7 @@
                                                                     • {{ $custom['size'] }}
                                                                 @endif
                                                                 • {{ $custom['quantity'] ?? 0 }} peça(s)
+                                                                | indiv. R$ {{ number_format($customIndividualValue, 2, ',', '.') }}
                                                             </p>
                                                         </div>
                                                         <p class="text-sm font-bold text-[#7c3aed] dark:text-[#a78bfa]">R$ {{ number_format($custom['final_price'] ?? 0, 2, ',', '.') }}</p>
